@@ -1,0 +1,27 @@
+python3 ../ref/gen_rsqrt_cases.py rsqrt_cases_s1.txt 1
+rsqrt cases: rsqrt_cases_s1.txt
+python3 ../ref/gen_rsqrt_cases.py rsqrt_cases_s2.txt 2
+rsqrt cases: rsqrt_cases_s2.txt
+python3 ../ref/gen_rsqrt_cases.py rsqrt_cases_s3.txt 3
+rsqrt cases: rsqrt_cases_s3.txt
+python3 ../ref/gen_rsqrt_cases.py rsqrt_cases_s4.txt 4
+rsqrt cases: rsqrt_cases_s4.txt
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_rsqrt -o tb_rsqrt \
+  --top-module tb_fx_rsqrt \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv tb_fx_rsqrt.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_rsqrt'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_rsqrt'
+obj_dir_tb_rsqrt/tb_rsqrt --seed 1 +cases=rsqrt_cases_s1.txt
+TB_FX_RSQRT PASS: 500 cases bit-exact
+- tb_fx_rsqrt.sv:48: Verilog $finish
+obj_dir_tb_rsqrt/tb_rsqrt --seed 2 +cases=rsqrt_cases_s2.txt
+TB_FX_RSQRT PASS: 500 cases bit-exact
+- tb_fx_rsqrt.sv:48: Verilog $finish
+obj_dir_tb_rsqrt/tb_rsqrt --seed 3 +cases=rsqrt_cases_s3.txt
+TB_FX_RSQRT PASS: 500 cases bit-exact
+- tb_fx_rsqrt.sv:48: Verilog $finish
+obj_dir_tb_rsqrt/tb_rsqrt --seed 4 +cases=rsqrt_cases_s4.txt
+TB_FX_RSQRT PASS: 500 cases bit-exact
+- tb_fx_rsqrt.sv:48: Verilog $finish

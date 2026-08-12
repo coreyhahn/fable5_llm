@@ -1,0 +1,51 @@
+--- session bring-up
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  board      MAGIC=0xfab1e001 VERSION=0x0c991953 CALIB=0xf SEQ=READY
+  residency  195 witness blocks (187 weight + 8 emb, 780 KiB) in 8 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2216 KiB readback-verified in 0.0s
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+--- preamble
+  preamble   8.7 ms device / 10.3 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 14010 rec | full 14744 rec
+  patch      pos_mode='ldc': 72 B in 7 write(s) per launch
+  prefill    lite  |  --ntok 24  |  --max-ctx 500 of KV depth 512
+  template   ON: 5*messages+7 wrapper ids, closed-empty think block, incremental with carry
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+
+Commands: /reset  /stats  /ntok N  /system TEXT  /quit   (Ctrl-C stops generation)
+
+prompt>   prefill 1/18 (45 ms/step, lite)     prefill 2/18 (45 ms/step, lite)     prefill 3/18 (45 ms/step, lite)     prefill 4/18 (45 ms/step, lite)     prefill 5/18 (45 ms/step, lite)     prefill 6/18 (45 ms/step, lite)     prefill 7/18 (45 ms/step, lite)     prefill 8/18 (45 ms/step, lite)     prefill 9/18 (45 ms/step, lite)     prefill 10/18 (45 ms/step, lite)     prefill 11/18 (45 ms/step, lite)     prefill 12/18 (45 ms/step, lite)     prefill 13/18 (45 ms/step, lite)     prefill 14/18 (45 ms/step, lite)     prefill 15/18 (45 ms/step, lite)     prefill 16/18 (45 ms/step, lite)     prefill 17/18 (45 ms/step, lite)     prefill 18/18 (45 ms/step, lite)                                                 The capital of France is **Paris**.
+
+It is also known as the "City of the West" (in French
+  --> 'The capital of France is **Paris**.\n\nIt is also known as the "City of the West" (in French'
+  ids [760, 6511, 314, 9338, 369, 2972, 57590, 159034, 271, 2064, 369, 1048, 3750, 430, 279, 328, 12365, 314, 279, 4171, 1, 318, 258, 8323]   24 tok in 2.39s
+  prefill 18 lite x 44.8 ms | decode 24 full x 63.1 ms | 10.05 tok/s wall | 97% of wall was device | context 42/500 (8%)
+  template   turn 1: +12 wrapper ids (7 body) | session 12 wrapper of 42 context steps (29%)
+             T7 budget: 12 fed + 0 generated <|im_end|> = 5*1+7 = 12 for the equivalent 1-message HF rendering
+
+prompt>   prefill 1/18 (45 ms/step, lite)     prefill 2/18 (45 ms/step, lite)     prefill 3/18 (45 ms/step, lite)     prefill 4/18 (45 ms/step, lite)     prefill 5/18 (45 ms/step, lite)     prefill 6/18 (45 ms/step, lite)     prefill 7/18 (45 ms/step, lite)     prefill 8/18 (45 ms/step, lite)     prefill 9/18 (45 ms/step, lite)     prefill 10/18 (45 ms/step, lite)     prefill 11/18 (45 ms/step, lite)     prefill 12/18 (45 ms/step, lite)     prefill 13/18 (45 ms/step, lite)     prefill 14/18 (45 ms/step, lite)     prefill 15/18 (45 ms/step, lite)     prefill 16/18 (45 ms/step, lite)     prefill 17/18 (45 ms/step, lite)     prefill 18/18 (45 ms/step, lite)                                                 The capital of Italy is **Rome**.
+  --> 'The capital of Italy is **Rome**.'
+  ids [760, 6511, 314, 14898, 369, 2972, 49, 617, 159034, 248046]   10 tok in 1.48s  [stop: EOS]
+  prefill 18 lite x 45.1 ms | decode 10 full x 63.3 ms | 6.78 tok/s wall | 98% of wall was device | context 70/500 (14%)
+  template   turn 2: +14 wrapper ids (4 body) | session 26 wrapper of 70 context steps (37%)
+             T7 budget: 26 fed + 1 generated <|im_end|> = 5*3+7 = 22 for the equivalent 3-message HF rendering + 4 think ids kept from 1 past reply/replies (T3: no replay, so they stay in the KV)
+
+prompt>   prefill 1/22 (45 ms/step, lite)     prefill 2/22 (45 ms/step, lite)     prefill 3/22 (45 ms/step, lite)     prefill 4/22 (45 ms/step, lite)     prefill 5/22 (45 ms/step, lite)     prefill 6/22 (45 ms/step, lite)     prefill 7/22 (45 ms/step, lite)     prefill 8/22 (45 ms/step, lite)     prefill 9/22 (45 ms/step, lite)     prefill 10/22 (45 ms/step, lite)     prefill 11/22 (45 ms/step, lite)     prefill 12/22 (45 ms/step, lite)     prefill 13/22 (45 ms/step, lite)     prefill 14/22 (45 ms/step, lite)     prefill 15/22 (45 ms/step, lite)     prefill 16/22 (45 ms/step, lite)     prefill 17/22 (45 ms/step, lite)     prefill 18/22 (45 ms/step, lite)     prefill 19/22 (45 ms/step, lite)     prefill 20/22 (45 ms/step, lite)     prefill 21/22 (45 ms/step, lite)     prefill 22/22 (45 ms/step, lite)                                                 A FPGA is a French acronym for "France is a place."
+
+A FPGA is a French acronym
+  --> 'A FPGA is a French acronym for "France is a place."\n\nA FPGA is a French acronym'
+  ids [32, 426, 11055, 32, 369, 264, 8323, 71979, 364, 328, 47358, 369, 264, 1925, 1149, 271, 32, 426, 11055, 32, 369, 264, 8323, 71979]   24 tok in 2.57s
+  prefill 22 lite x 45.4 ms | decode 24 full x 63.6 ms | 9.33 tok/s wall | 98% of wall was device | context 116/500 (23%)
+  template   turn 3: +13 wrapper ids (9 body) | session 39 wrapper of 116 context steps (34%)
+             T7 budget: 39 fed + 2 generated <|im_end|> = 5*5+7 = 32 for the equivalent 5-message HF rendering + 8 think ids kept from 2 past reply/replies (T3: no replay, so they stay in the KV)
+
+prompt> 

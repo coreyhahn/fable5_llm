@@ -1,0 +1,38 @@
+--- session bring-up
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='xrf', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  WARNING    pos_mode='xrf' caps the context at position 85 (XRF[4] is SIGNED 18-bit and seq_unit truncates silently) — --max-ctx is 20
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  board      MAGIC=0xfab1e001 VERSION=0x4d71adcc CALIB=0xf SEQ=READY
+  residency  195 witness blocks (187 weight + 8 emb, 780 KiB) in 6 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2216 KiB readback-verified in 0.0s
+--- preamble
+  preamble   36.1 ms device / 37.3 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 14010 rec | full 14744 rec
+  patch      pos_mode='xrf': 48 B in 1 write(s) per launch
+  prefill    lite  |  --ntok 5  |  --max-ctx 20 of KV depth 512
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+
+Commands: /reset  /stats  /ntok N  /quit   (Ctrl-C stops generation)
+
+prompt>   prefill 1/3 (100 ms/step, lite)     prefill 2/3 (100 ms/step, lite)     prefill 3/3 (100 ms/step, lite)                                                  is the capital of the
+  --> ' is the capital of the'
+  ids [369, 279, 6511, 314, 279]   5 tok in 1.06s
+  prefill 3 lite x 100.3 ms | decode 5 full x 150.2 ms | 4.71 tok/s wall | 99038% of wall was device | context 8/20 (40%)
+
+prompt>   context    8+17 would pass --max-ctx 20 (KV depth 512) — AUTO-RESET: preamble + re-prefill the last 4 tokens of history
+  preamble   36.1 ms device / 37.3 ms wall  (context reset: KV/DN/conv, T=0)
+  prefill 1/15 (100 ms/step, lite)     prefill 2/15 (100 ms/step, lite)     prefill 3/15 (100 ms/step, lite)     prefill 4/15 (100 ms/step, lite)     prefill 5/15 (100 ms/step, lite)     prefill 6/15 (100 ms/step, lite)     prefill 7/15 (100 ms/step, lite)     prefill 8/15 (100 ms/step, lite)     prefill 9/15 (100 ms/step, lite)     prefill 10/15 (100 ms/step, lite)     prefill 11/15 (100 ms/step, lite)     prefill 12/15 (100 ms/step, lite)     prefill 13/15 (100 ms/step, lite)     prefill 14/15 (100 ms/step, lite)     prefill 15/15 (100 ms/step, lite)                                                 .
+The capital of
+  --> '.\nThe capital of'
+  ids [13, 198, 760, 6511, 314]   5 tok in 2.28s
+  prefill 15 lite x 100.4 ms | decode 5 full x 150.3 ms | 2.19 tok/s wall | 98958% of wall was device | context 20/20 (100%)
+
+prompt> 

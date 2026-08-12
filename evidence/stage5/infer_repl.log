@@ -1,0 +1,83 @@
+tokenizer: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/tokenizer.json
+  byte-level BPE, 247587 merges; self-test reproduces all 4 gen_model_script PROMPTS exactly (1.5s)
+board identity gate PASSED — DMA enabled
+  weight plan: 187 images, 417546240 bytes packed 0x10000000..0x28e34000
+  checkpoint model.safetensors-00001-of-00001.safetensors
+    header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+    24 layers, H=1024, vocab=248320, res_scale=8 w4_group=128 DN_NORM_F=11 M_Q15_MAX=65535
+    quantized 24 layers (18 DeltaNet / 6 GQA)
+    LM head (248320, 1024) e=-4 sh=5; emb |q|max 472 of 32767
+    model_v2_s1.emb.bin matches the freshly quantized embedding table (248320x1024, bit-exact)
+  quantization done in 157.5s
+  --skip-upload: assuming the weight images and the embedding table are already resident in DDR
+  session preamble: 24 layer banks primed in 0.5s
+========================================================================
+fable5_llm — live LLM inference on the BCU-1525
+========================================================================
+board   /dev/xdma0 chan 0: MAGIC 0xfab1e001  VERSION 0x67a943bd  CALIB 0xf
+        layer_chan IDENT 0xfab1e5a0  matvec IDENTs 0xfab1c4a0 0xfab1c4a1 0xfab1c4a2 0xfab1c4a3
+model   Qwen3.5-0.8B, 24 layers (18 DeltaNet / 6 GQA), vocab 248320
+        W4A8 g=128, res_scale=8, DN_NORM_F=11, S_F=13, M_Q15_MAX=65535
+        images model_v2_s1.*  checkpoint sha256 c894b6055113f9d5...
+verify  readback — every x8 / EOUT / o32 / gated-o32 / AMAXI still compared
+        bit-exactly against the scratchpad model; --verify adds the host W4A8
+        matvec and the layer_decode_fx golden residual
+POSTURE — read this before believing the text
+  This model runs at its KNOWN SATURATION posture: ref/gen_model_script.py
+  refuses to bless a script for these weights without --allow-clip, because
+  two frozen fixed-point formats saturate on the real checkpoint —
+    * the DeltaNet state S_F=13 (int16 Q2.13) — |S| reaches ~5.5 where the
+      format stops at 4.0 (28 saturating writes per 4-prompt soak), and
+    * 3 of 288 DeltaNet heads clamp dt_bias / A at the gate_unit ports.
+  The RTL and ref/layer_fixed.py clip IDENTICALLY, so everything this tool
+  reports is still BIT-EXACT; what saturation costs is numerical fidelity to
+  the bf16 model, not correctness.  Measured quality: 16/24 top-1 vs bf16
+  (evidence/stage5/fidelity_mq15_prod.log).  Expect plausible English, not
+  bf16-class answers.
+  Sampling is pure greedy argmax, computed ON CHIP (layer_chan AMAXI).
+------------------------------------------------------------------------
+Commands: /reset  /stats  /quit   (Ctrl-C stops generation)
+
+prompt>   tokens  [9419, 1814]  (2 ids; context 0 -> 3 of 8)
+
+  prefill 1/1 (9.2s/tok)   
+                                              
+  [ 1]    9.2s     198  '\n'
+
+                                              
+  [ 2]    9.3s    9419  'Hello'
+  --> '\nHello'
+      ids [198, 9419]   2 tok in 27.7s (13.9 s/tok incl. prefill)
+
+prompt>   tokens  [1919, 369]  (2 ids, continuing from 9419; context 3 -> 7 of 8)
+
+  prefill 1/2 (9.3s/tok)   
+  prefill 2/2 (9.3s/tok)   
+                                              
+  [ 1]    9.3s     264  ' a'
+
+                                              
+  [ 2]    9.3s    1546  ' very'
+  --> ' a very'
+      ids [264, 1546]   2 tok in 37.1s (18.6 s/tok incl. prefill)
+
+prompt>   tokens  [760, 7526, 11247, 303, 279, 12570, 1785, 369]  (8 ids, continuing from 1546; context 7 -> 17 of 8)
+  context would reach 17 forward steps; the KV cache banks hold 512 (limit here 8) — use /reset to start a fresh conversation
+
+prompt>   context      7 forward steps of 8 (KV bank depth 512)
+  generated    4 tokens this session
+  per token    mean 9.3s  min 9.2s  max 9.3s  (0.108 tok/s)
+  hw commands  26687   matvecs 1309   host words written 9925408
+  checks       2825963 chip words compared bit-exactly, 0 mismatches
+  MMIO         8153290 reads / 10679530 writes
+
+prompt>   session preamble: 24 layer banks primed in 0.5s
+  conversation reset (DN state zeroed, conv state zeroed, T=0, context 0)
+
+prompt>   context      0 forward steps of 8 (KV bank depth 512)
+  generated    0 tokens this session
+  hw commands  27047   matvecs 1309   host words written 10367776
+  checks       2825963 chip words compared bit-exactly, 0 mismatches
+  MMIO         8156898 reads / 11123422 writes
+
+prompt> 

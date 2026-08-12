@@ -1,0 +1,366 @@
+SEQ full-chip integration + dynamic k_a — agent E gate log (wave 3)
+date: 2026-08-08T16:53:23Z  host: darthplagueis  git: d8c7bfd
+verilator: Verilator 5.020 2024-01-01 rev (Debian 5.020-1)
+built to: docs/SEQ_ISA.md v1.3 + v1.4 (XOP spelling, no-wait MVGO, IND_SUB)
+changed:  ref/seq_format.py (XOP encoding, op-8 probe double pass, XOP-folded
+          o_proj shift, no-wait MVGO), ref/seq_model.py (same semantics),
+          ref/gen_layer_script.py:732 (SEQ-only hint gains nq)
+new:      tb/tb_seq_chip.sv, tb/seq_mem_file.sv,
+          tb/scripts/gen_seq_chip_vectors.py, tb/Makefile targets
+rtl/:     UNCHANGED (frozen from waves 2C/2D)
+
+=== 1. DEFAULT .txt BYTE IDENTITY (emitter absent AND present) ===
+7bc084cf9ed4f80cef83860fc7f0e68dbe9a734cfad651593c6bcfb088c7f7a8  repo/tb/scripts/chain_s1.txt
+7bc084cf9ed4f80cef83860fc7f0e68dbe9a734cfad651593c6bcfb088c7f7a8  w3/regen/chain_s1.txt
+2e9d6093b5ad1e1311220889b73e7d5cacb290dc24734145d782d7e7fe5c90b5  repo/tb/scripts/chain_s1.weights.json
+2e9d6093b5ad1e1311220889b73e7d5cacb290dc24734145d782d7e7fe5c90b5  w3/regen/chain_s1.weights.json
+bc0e039e74b8a385f6b92bcb5fae8684af91b274da2ddd0cc2a8ff6d34518746  repo/tb/scripts/token24_s1.txt
+bc0e039e74b8a385f6b92bcb5fae8684af91b274da2ddd0cc2a8ff6d34518746  w3/regen/token24_s1.txt
+8a7c76b6705c217923554d6973a89fe83c7e011976f531d3b617fa9e2ccc141d  repo/tb/scripts/token24_s1.weights.json
+8a7c76b6705c217923554d6973a89fe83c7e011976f531d3b617fa9e2ccc141d  w3/regen/token24_s1.weights.json
+218d2d5844308e15e5b291dfac311a2eb85cc854ef3066a316334b5403eb4738  repo/tb/scripts/token24_s1.emb.bin
+218d2d5844308e15e5b291dfac311a2eb85cc854ef3066a316334b5403eb4738  w3/regen/token24_s1.emb.bin
+-- token24 weight images, hash-of-hashes (committed vs regenerated):
+30fb73c4e45dfb847d9299094c743086c43d7fe9eb06422bf74af35f0306f666  -
+30fb73c4e45dfb847d9299094c743086c43d7fe9eb06422bf74af35f0306f666  -
+-- chain_s1 weight images, hash-of-hashes:
+d6205f4aed43739b6480731f3492d8ac9743b31a29ee36e48d9eefe118baf13e  -
+d6205f4aed43739b6480731f3492d8ac9743b31a29ee36e48d9eefe118baf13e  -
+
+--- with the SEQ emitter attached ---
+7bc084cf9ed4f80cef83860fc7f0e68dbe9a734cfad651593c6bcfb088c7f7a8  repo/tb/scripts/chain_s1.txt
+7bc084cf9ed4f80cef83860fc7f0e68dbe9a734cfad651593c6bcfb088c7f7a8  w3/chain/chain_s1.txt
+2e9d6093b5ad1e1311220889b73e7d5cacb290dc24734145d782d7e7fe5c90b5  repo/tb/scripts/chain_s1.weights.json
+2e9d6093b5ad1e1311220889b73e7d5cacb290dc24734145d782d7e7fe5c90b5  w3/chain/chain_s1.weights.json
+bc0e039e74b8a385f6b92bcb5fae8684af91b274da2ddd0cc2a8ff6d34518746  repo/tb/scripts/token24_s1.txt
+bc0e039e74b8a385f6b92bcb5fae8684af91b274da2ddd0cc2a8ff6d34518746  w3/t24/token24_s1.txt
+8a7c76b6705c217923554d6973a89fe83c7e011976f531d3b617fa9e2ccc141d  repo/tb/scripts/token24_s1.weights.json
+8a7c76b6705c217923554d6973a89fe83c7e011976f531d3b617fa9e2ccc141d  w3/t24/token24_s1.weights.json
+218d2d5844308e15e5b291dfac311a2eb85cc854ef3066a316334b5403eb4738  repo/tb/scripts/token24_s1.emb.bin
+218d2d5844308e15e5b291dfac311a2eb85cc854ef3066a316334b5403eb4738  w3/t24/token24_s1.emb.bin
+57be703747c9f95dc28e8ab8c4dd98c9b495e727ac752c454cfb67ed964c0936  repo/tb/scripts/model_v2_s1.txt
+57be703747c9f95dc28e8ab8c4dd98c9b495e727ac752c454cfb67ed964c0936  w3/mv2/model_v2_s1.txt
+087f0a0115c9951e8e14812f73de93e51c2526975548211f2a0543724fbd6aa9  repo/tb/scripts/model_v2_s1.weights.json
+087f0a0115c9951e8e14812f73de93e51c2526975548211f2a0543724fbd6aa9  w3/mv2/model_v2_s1.weights.json
+-- token24 weight images (emitter present), hash-of-hashes:
+30fb73c4e45dfb847d9299094c743086c43d7fe9eb06422bf74af35f0306f666  -
+
+
+=== 2. seq_format / seq_model self-tests ===
+      3  HALT
+new-op semantics from: layer_fixed (agent A)
+seq_format selftest: OK
+dynq16/eps-norm semantics from: layer_fixed (agent A)
+DYNQ16 == op1+dn_o_shift on 200/200 blocks
+EPS-NORM vs frozen dn_norm_scale: 200/200 blocks bit-identical, worst |delta| = 0 LSB
+
+=== 3. SEQ GATE MATRIX (.txt replay vs .seq replay, fresh models both sides) ===
+----- lay/lay_s1.x
+  stream   1987 records, 31792 B (sha256 0ce0e3ea9bb45440)
+  profile  xlat   newops from layer_fixed (agent A)
+  loop     0 steps  (fewer than two decode steps)
+  CHECKPT  46/46 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+  gate wall 1.47 s
+----- lay/lay_s1.e
+  stream   1987 records, 31792 B (sha256 407429b498e92634)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     0 steps  (fewer than two decode steps)
+  CHECKPT  46/46 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+  gate wall 1.44 s
+----- lay/lay_s1.ek0
+  stream   2033 records, 32528 B (sha256 811f2c86f5ab1ea7)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     0 steps  (fewer than two decode steps)
+  CHECKPT  46/46 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+  gate wall 1.46 s
+----- lay/lay_s1.enw
+  stream   2031 records, 32496 B (sha256 ba1baa16a1eaa863)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     0 steps  (fewer than two decode steps)
+  CHECKPT  46/46 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+  gate wall 1.44 s
+----- dn1/dn1_s1.x
+  stream   2276 records, 36416 B (sha256 cfd288fce5db1bd6)
+  profile  xlat   newops from layer_fixed (agent A)
+  loop     0 steps  (first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc00f2e' vs 'CSRWR  L_ARG2       <= 0x1dc007a4')
+  CHECKPT  42/42 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [5440, 5797, 6444]
+SEQ GATE: PASS
+  gate wall 1.57 s
+----- dn1/dn1_s1.e
+  stream   818 records, 13088 B (sha256 2d87c030a48bb1b7)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+  CHECKPT  42/42 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [5440, 5797, 6444]
+SEQ GATE: PASS
+  gate wall 1.55 s
+----- tok2/tok2_s1.x
+  stream   3060 records, 48960 B (sha256 ca293bde3b280687)
+  profile  xlat   newops from layer_fixed (agent A)
+  loop     0 steps  (first divergence at body record 75: 'CSRWR  L_ARG2       <= 0x1dc00ef8' vs 'CSRWR  L_ARG2       <= 0x1dc003e3')
+  CHECKPT  72/72 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [219, 1891, 4436]
+SEQ GATE: PASS
+  gate wall 2.13 s
+----- tok2/tok2_s1.e
+  stream   1080 records, 17280 B (sha256 b0017745a3d20516)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+  CHECKPT  72/72 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [219, 1891, 4436]
+SEQ GATE: PASS
+  gate wall 2.17 s
+----- tok2/tok2_s1.ek0
+  stream   2117 records, 33872 B (sha256 9af1c84bc4bd65ba)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     2 steps  (looped)  NOT structurally safe: the body still carries data-dependent immediates (SEQ_ISA A3) that merely coincided on this input
+  CHECKPT  72/72 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [219, 1891, 4436]
+SEQ GATE: PASS
+  gate wall 2.32 s
+----- chain/chain_s1.x
+  stream   14504 records, 232064 B (sha256 6bc9e3fc4e5c31e0)
+  profile  xlat   newops from layer_fixed (agent A)
+  loop     0 steps  (fewer than two decode steps)
+  CHECKPT  294/294 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+  gate wall 8.86 s
+----- chain/chain_s1.e
+  stream   14504 records, 232064 B (sha256 fd842e1f2028bc81)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     0 steps  (fewer than two decode steps)
+  CHECKPT  294/294 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+  gate wall 8.16 s
+----- t24/token24_s1.x
+  stream   43626 records, 698016 B (sha256 b912e6765079c75c)
+  profile  xlat   newops from layer_fixed (agent A)
+  loop     0 steps  (first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc00f42' vs 'CSRWR  L_ARG2       <= 0x1dc003e6')
+  CHECKPT  885/885 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2045 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [227, 7296, 4152]
+SEQ GATE: PASS
+  gate wall 24.07 s
+----- t24/token24_s1.e
+  stream   15562 records, 248992 B (sha256 5e0276387b6f11f6)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+  CHECKPT  885/885 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2045 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [227, 7296, 4152]
+SEQ GATE: PASS
+  gate wall 24.34 s
+----- t24/token24_s1.ek0
+  stream   44040 records, 704640 B (sha256 452eb002cead09dc)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     0 steps  (first divergence at body record 4564: 'CSRWR  L_ARG2       <= 0x26000009' vs 'CSRWR  L_ARG2       <= 0x26000008')
+  CHECKPT  885/885 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2045 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [227, 7296, 4152]
+SEQ GATE: PASS
+  gate wall 24.39 s
+----- mv2/model_v2_s1.x
+  stream   89975 records, 1439600 B (sha256 ee694ef9ab6da1ce)
+  profile  xlat   newops from layer_fixed (agent A)
+  loop     0 steps  (first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc001f4' vs 'CSRWR  L_ARG2       <= 0x1dc003e8')
+  CHECKPT  1770/1770 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [561, 314, 279, 369, 279, 6511]
+SEQ GATE: PASS
+  gate wall 55.86 s
+----- mv2/model_v2_s1.e
+  stream   60495 records, 967920 B (sha256 a69864d25b6b129a)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+  CHECKPT  1770/1770 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [561, 314, 279, 369, 279, 6511]
+SEQ GATE: PASS
+  gate wall 57.16 s
+
+=== 4. STREAM CENSUS + LOOP CLOSURE ===
+script        sfx  profile  dynka nowait   records      seqB steps  loop  safe  XOP probe
+-----------------------------------------------------------------------------------------
+lay_s1        x    xlat     1     0           1987     31792     0     0 False    2     2
+                   loop_note: fewer than two decode steps
+lay_s1        e    epsnorm  1     0           1987     31792     0     0 False    2     2
+                   loop_note: fewer than two decode steps
+lay_s1        ek0  epsnorm  0     0           2033     32528     0     0 False    0     0
+                   loop_note: fewer than two decode steps
+lay_s1        enw  epsnorm  1     1           2031     32496     0     0 False    2     2
+                   loop_note: fewer than two decode steps
+dn1_s1        x    xlat     1     0           2276     36416     3     0 False    0     0
+                   loop_note: first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc00f2e' vs 'CSRWR  L_ARG2       <= 0x1dc007a4'
+dn1_s1        e    epsnorm  1     0            818     13088     3     3  True    0     0
+tok2_s1       x    xlat     1     0           3060     48960     3     0 False    6     3
+                   loop_note: first divergence at body record 75: 'CSRWR  L_ARG2       <= 0x1dc00ef8' vs 'CSRWR  L_ARG2       <= 0x1dc003e3'
+tok2_s1       e    epsnorm  1     0           1080     17280     3     3  True    2     3
+tok2_s1       ek0  epsnorm  0     0           2117     33872     3     2 False    2     0
+chain_s1      x    xlat     1     0          14504    232064     0     0 False    6     6
+                   loop_note: fewer than two decode steps
+chain_s1      e    epsnorm  1     0          14504    232064     0     0 False    6     6
+                   loop_note: fewer than two decode steps
+token24_s1    x    xlat     1     0          43626    698016     3     0 False   21    18
+                   loop_note: first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc00f42' vs 'CSRWR  L_ARG2       <= 0x1dc003e6'
+token24_s1    e    epsnorm  1     0          15562    248992     3     3  True    7    18
+token24_s1    ek0  epsnorm  0     0          44040    704640     3     0 False    3     0
+                   loop_note: first divergence at body record 4564: 'CSRWR  L_ARG2       <= 0x26000009' vs 'CSRWR  L_ARG2       <= 0x26000008'
+model_v2_s1   x    xlat     1     0          89975   1439600     6     0 False   42    36
+                   loop_note: first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc001f4' vs 'CSRWR  L_ARG2       <= 0x1dc003e8'
+model_v2_s1   e    epsnorm  1     0          60495    967920     6     3  True   28    36
+
+
+=== 5. FULL-CHIP SEQ-DRIVEN SIM (tb/tb_seq_chip.sv) ===
+seq_unit + seq_movers + REAL layer_chan + REAL matvec_chan (NMV=1), fabric
+LAT=4, DDR LAT=32, weight-image LAT=40, ui_clk 300 MHz / aclk 250 MHz.
+Stream/blob/embedding/weight images are the ACTUAL emitted binaries, served
+beat by beat by tb/seq_mem_file.sv.  Compared after HALT: SEQ STATUS/err/PC,
+the 8 XRF entries and the OUT FIFO token list through the DUT's real AXI-Lite
+slave; the whole 16 K scratchpad outside the declared y32 staging windows
+(7168 words), the 6 banked TCNT pairs, EOUT and AMAXI/AMAXV.
+Golden = ref/seq_model.py on the same stream (tb/scripts/gen_seq_chip_vectors.py).
+########## lay/lay_s1.e
+tb_seq_chip: 1987 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/lay/lay_s1.e: 1987 records, 3730615 cycles (1877.51 cyc/rec, 14.922 ms @250MHz)
+  axil writes 142208
+  axil reads  357213
+  ddr beats 6607 (miss 0), weight beats 686656 (miss 0)
+TB_SEQ_CHIP PASS: w3/lay/lay_s1.e (scratch 7168, tokens 0, tcnt 6)
+  chip sim wall 29.08 s
+########## lay/lay_s1.x
+tb_seq_chip: 1987 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/lay/lay_s1.x: 1987 records, 3733525 cycles (1878.98 cyc/rec, 14.934 ms @250MHz)
+  axil writes 142208
+  axil reads  357437
+  ddr beats 6607 (miss 0), weight beats 686656 (miss 0)
+TB_SEQ_CHIP PASS: w3/lay/lay_s1.x (scratch 7168, tokens 0, tcnt 6)
+  chip sim wall 29.78 s
+########## lay/lay_s1.enw
+tb_seq_chip: 2031 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/lay/lay_s1.enw: 2031 records, 3730678 cycles (1836.87 cyc/rec, 14.923 ms @250MHz)
+  axil writes 142208
+  axil reads  357397
+  ddr beats 6651 (miss 0), weight beats 686656 (miss 0)
+TB_SEQ_CHIP PASS: w3/lay/lay_s1.enw (scratch 7168, tokens 0, tcnt 6)
+  chip sim wall 29.29 s
+########## dn1/dn1_s1.e
+tb_seq_chip: 818 records, 3 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/dn1/dn1_s1.e: 818 records, 4017622 cycles (4911.52 cyc/rec, 16.070 ms @250MHz)
+  axil writes 172562
+  axil reads  379483
+  ddr beats 7020 (miss 0), weight beats 778080 (miss 0)
+TB_SEQ_CHIP PASS: w3/dn1/dn1_s1.e (scratch 7168, tokens 3, tcnt 6)
+  chip sim wall 30.62 s
+########## dn1/dn1_s1.x
+tb_seq_chip: 2276 records, 3 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/dn1/dn1_s1.x: 2276 records, 4021786 cycles (1767.04 cyc/rec, 16.087 ms @250MHz)
+  axil writes 172562
+  axil reads  379819
+  ddr beats 7014 (miss 0), weight beats 778080 (miss 0)
+TB_SEQ_CHIP PASS: w3/dn1/dn1_s1.x (scratch 7168, tokens 3, tcnt 6)
+  chip sim wall 31.54 s
+########## tok2/tok2_s1.x
+tb_seq_chip: 3060 records, 3 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/tok2/tok2_s1.x: 3060 records, 6305947 cycles (2060.77 cyc/rec, 25.224 ms @250MHz)
+  axil writes 254167
+  axil reads  608218
+  ddr beats 8806 (miss 0), weight beats 1251168 (miss 0)
+TB_SEQ_CHIP PASS: w3/tok2/tok2_s1.x (scratch 7168, tokens 3, tcnt 6)
+  chip sim wall 50.14 s
+########## tok2/tok2_s1.ek0
+tb_seq_chip: 2117 records, 3 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/tok2/tok2_s1.ek0: 2117 records, 6216163 cycles (2936.31 cyc/rec, 24.865 ms @250MHz)
+  axil writes 254230
+  axil reads  601267
+  ddr beats 8879 (miss 0), weight beats 1251168 (miss 0)
+TB_SEQ_CHIP PASS: w3/tok2/tok2_s1.ek0 (scratch 7168, tokens 3, tcnt 6)
+  chip sim wall 48.75 s
+tb_seq_chip: 15562 records, 3 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/t24/token24_s1.e: 15562 records, 72536548 cycles (4661.13 cyc/rec, 290.146 ms @250MHz)
+  axil writes 2639470
+  axil reads  6923011
+  ddr beats 120820 (miss 0), weight beats 13083840 (miss 0)
+TB_SEQ_CHIP PASS: w3/t24/token24_s1.e (scratch 7168, tokens 3, tcnt 6)
+token24_s1.e chip sim wall 578.57 s
+tb_seq_chip: 43626 records, 3 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/t24/token24_s1.x: 43626 records, 72615349 cycles (1664.50 cyc/rec, 290.461 ms @250MHz)
+  axil writes 2639470
+  axil reads  6929059
+  ddr beats 120814 (miss 0), weight beats 13083840 (miss 0)
+TB_SEQ_CHIP PASS: w3/t24/token24_s1.x (scratch 7168, tokens 3, tcnt 6)
+token24_s1.x chip sim wall 566.63 s
+tb_seq_chip: 60495 records, 6 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP w3/mv2/model_v2_s1.e: 60495 records, 181310224 cycles (2997.11 cyc/rec, 725.241 ms @250MHz)
+  axil writes 7724372
+  axil reads  17502428
+  ddr beats 188997 (miss 0), weight beats 39134592 (miss 0)
+TB_SEQ_CHIP PASS: w3/mv2/model_v2_s1.e (scratch 7168, tokens 6, tcnt 6)
+model_v2_s1.e chip sim wall 1427.85 s
+
+=== 6. DUAL-DRIVEN: the FROZEN host-driven sims on THIS tree ===
+Same layer_chan RTL, same schedules, driven by the committed .txt scripts.
+TB_LAYER_CHAN PASS: 707 cmds, 76941 checks bit-exact (scripts/layer_s1.txt)
+TB_LAYER_CHAN PASS: 707 cmds, 76941 checks bit-exact (scripts/layer_s2.txt)
+TB_LAYER_CHAN PASS: 707 cmds, 76941 checks bit-exact (scripts/layer_s3.txt)
+TB_LAYER_CHAN PASS: 707 cmds, 76941 checks bit-exact (scripts/layer_s4.txt)
+TB_LAYER_CHAN PASS: 728 cmds, 80022 checks bit-exact (scripts/token_s1.txt)
+TB_LAYER_CHAN PASS: 728 cmds, 80022 checks bit-exact (scripts/token_s2.txt)
+TB_LAYER_CHAN PASS: 728 cmds, 80022 checks bit-exact (scripts/token_s3.txt)
+TB_LAYER_CHAN PASS: 728 cmds, 80022 checks bit-exact (scripts/token_s4.txt)
+TB_LAYER_CHAN PASS: 3660 cmds, 315642 checks bit-exact (scripts/chain_s1.txt)
+TB_LAYER_CHAN PASS: 3660 cmds, 315642 checks bit-exact (scripts/chain_s2.txt)
+TB_LAYER_CHAN PASS: 3660 cmds, 315642 checks bit-exact (scripts/chain_s3.txt)
+TB_LAYER_CHAN PASS: 3660 cmds, 315642 checks bit-exact (scripts/chain_s4.txt)
+TB_LAYER_CHAN PASS: 11001 cmds, 950007 checks bit-exact (scripts/token24_s1.txt)
+token24_s1 wall 418.05 s
+TB_LAYER_CHAN PASS: 11001 cmds, 950007 checks bit-exact (scripts/token24_s2.txt)
+token24_s2 wall 418.64 s
+TB_LAYER_CHAN PASS: 11001 cmds, 950007 checks bit-exact (scripts/token24_s3.txt)
+token24_s3 wall 425.75 s
+TB_LAYER_CHAN PASS: 11001 cmds, 950007 checks bit-exact (scripts/token24_s4.txt)
+token24_s4 wall 426.15 s
+
+=== 7. wave-2D sequencer unit gate re-run against the updated seq_format ===
+  SEQ PASS runs: 41
+  (make -C tb tb_seq_all: lint + 4 seeds + 7 error paths + 6 micro-benchmarks
+   at fabric LAT 4/0/8 + USE_XRF_SIDEBAND=1; vectors rebuilt from the new
+   ref/seq_format.py, so the XOP re-encoding and the new validator rules
+   are what the RTL was checked against.)

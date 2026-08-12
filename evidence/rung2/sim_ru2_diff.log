@@ -1,0 +1,77 @@
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_vecalu_diff -o tb_vecalu_diff \
+  --top-module tb_vecalu_diff \
+  ../rtl/fx_pkg.sv ../rtl/vec_alu.sv legacy/vec_alu_legacy.sv \
+  tb_vecalu_diff.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecalu_diff'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecalu_diff'
+  ops:  0:54 1:61 2:60 3:48 4:41 5:58 6:72 7:60 8:86 9:61 10:119 12:81
+  class: disjoint=551 inplace1=123 narrow2to1=98 pair-inplace=29 | len_max=2048
+  overlap census: legacy raw collisions=152 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1603021 new=204001 (speedup x100 = 785)
+TB_VECALU_DIFF PASS: 801 commands bit-exact (seed 1, read-first)
+- tb_vecalu_diff.sv:675: Verilog $finish
+  ops:  0:53 1:69 2:53 3:51 4:45 5:52 6:55 7:58 8:81 9:67 10:158 12:58
+  class: disjoint=543 inplace1=136 narrow2to1=82 pair-inplace=39 | len_max=2048
+  overlap census: legacy raw collisions=175 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1523259 new=204604 (speedup x100 = 744)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 2, read-first)
+- tb_vecalu_diff.sv:675: Verilog $finish
+  ops:  0:70 1:68 2:47 3:49 4:46 5:47 6:56 7:60 8:87 9:73 10:118 12:79
+  class: disjoint=547 inplace1=127 narrow2to1=91 pair-inplace=35 | len_max=2048
+  overlap census: legacy raw collisions=162 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1672130 new=222633 (speedup x100 = 751)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 3, read-first)
+- tb_vecalu_diff.sv:675: Verilog $finish
+  ops:  0:58 1:70 2:68 3:52 4:54 5:52 6:58 7:65 8:84 9:64 10:112 12:63
+  class: disjoint=538 inplace1=153 narrow2to1=79 pair-inplace=30 | len_max=2048
+  overlap census: legacy raw collisions=183 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1530245 new=190029 (speedup x100 = 805)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 4, read-first)
+- tb_vecalu_diff.sv:675: Verilog $finish
+-- strict: overlap invariant fatal + write-first scratch + cfg-latch --
+obj_dir_tb_vecalu_diff/tb_vecalu_diff +seed=1 +coll_fatal +wfirst +cfgscramble
+  ops:  0:60 1:71 2:58 3:45 4:53 5:59 6:55 7:71 8:86 9:57 10:122 12:65
+  class: disjoint=533 inplace1=156 narrow2to1=84 pair-inplace=29 | len_max=2048
+  overlap census: legacy raw collisions=185 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1632295 new=199869 (speedup x100 = 816)
+TB_VECALU_DIFF PASS: 802 commands bit-exact (seed 1, write-first+coll_fatal+cfgscramble)
+- tb_vecalu_diff.sv:675: Verilog $finish
+obj_dir_tb_vecalu_diff/tb_vecalu_diff +seed=3 +coll_fatal +wfirst +cfgscramble
+  ops:  0:61 1:73 2:43 3:50 4:55 5:53 6:63 7:43 8:87 9:65 10:133 12:74
+  class: disjoint=545 inplace1=128 narrow2to1=94 pair-inplace=33 | len_max=2048
+  overlap census: legacy raw collisions=161 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1568660 new=195186 (speedup x100 = 803)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 3, write-first+coll_fatal+cfgscramble)
+- tb_vecalu_diff.sv:675: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECALU_DIFF OK: 4 seeds + 2 strict + 4 comparator self-tests
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_vecnorm_diff -o tb_vecnorm_diff \
+  --top-module tb_vecnorm_diff \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/vecnorm_unit.sv \
+  legacy/vecnorm_legacy.sv tb_vecnorm_diff.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecnorm_diff'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecnorm_diff'
+  modes: 0:36 1:34 2:50 | eps vectors=21 (k -14..17) | all-zero blocks=20 | n_max=1024
+  busy cycles: legacy=223831 new=63849 (speedup x100 = 350)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 1, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:388: Verilog $finish
+  modes: 0:37 1:33 2:50 | eps vectors=28 (k -14..17) | all-zero blocks=18 | n_max=1024
+  busy cycles: legacy=270118 new=74056 (speedup x100 = 364)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 2, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:388: Verilog $finish
+  modes: 0:40 1:32 2:48 | eps vectors=27 (k -14..17) | all-zero blocks=16 | n_max=1024
+  busy cycles: legacy=313974 new=88649 (speedup x100 = 354)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 3, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:388: Verilog $finish
+  modes: 0:37 1:38 2:45 | eps vectors=27 (k -14..17) | all-zero blocks=19 | n_max=1024
+  busy cycles: legacy=250467 new=74642 (speedup x100 = 335)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 4, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:388: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECNORM_DIFF OK: 4 seeds + 3 comparator self-tests
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'

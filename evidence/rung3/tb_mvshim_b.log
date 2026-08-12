@@ -1,0 +1,23 @@
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module matvec_chan \
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module matvec_chan_ipi \
+LINT_MVSHIM_B OK: -Wall clean (matvec_chan + matvec_chan_ipi)
+verilator --binary --timing -j 4 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+obj_dir_tb_mvshim_b/tb_mvshim_b --seed 1 +seed=1 +verilator+rand+reset+2
+tb_mvshim_b: PASS seed=1, 0 errors, gen=4, ui_clk=fast300M, s_axib W beats=1148, WREADY-stall cyc=13, AXIL-AR-held-off cyc=1280
+- tb_mvshim_b.sv:672: Verilog $finish
+obj_dir_tb_mvshim_b/tb_mvshim_b --seed 2 +seed=2 +verilator+rand+reset+2
+tb_mvshim_b: PASS seed=2, 0 errors, gen=4, ui_clk=fast300M, s_axib W beats=1148, WREADY-stall cyc=13, AXIL-AR-held-off cyc=1293
+- tb_mvshim_b.sv:672: Verilog $finish
+obj_dir_tb_mvshim_b/tb_mvshim_b --seed 3 +seed=3 +verilator+rand+reset+2 +slowui
+tb_mvshim_b: PASS seed=3, 0 errors, gen=4, ui_clk= slow50M, s_axib W beats=1148, WREADY-stall cyc=2695, AXIL-AR-held-off cyc=1294
+- tb_mvshim_b.sv:672: Verilog $finish
+obj_dir_tb_mvshim_b/tb_mvshim_b --seed 4 +seed=4 +verilator+rand+reset+2 +slowui
+tb_mvshim_b: PASS seed=4, 0 errors, gen=4, ui_clk= slow50M, s_axib W beats=1148, WREADY-stall cyc=2771, AXIL-AR-held-off cyc=1282
+- tb_mvshim_b.sv:672: Verilog $finish
+-- self-test: the scoreboard MUST trip under +sabotage --
+TB_MVSHIM_B OK: 4 seeds (2 fast ui_clk, 2 slow ui_clk) + sabotage self-test
+
+--- frozen stage-2 regression, SAME RTL, AXI-Lite path only (gate 3 proxy) ---
+tb_matvec_chan, shim present and idle:
+  vec_s1..s4 (g128):  4/4 PASS bit-exact
+  vecv2/{a..e}{1..4}_g64: 20/20 PASS bit-exact

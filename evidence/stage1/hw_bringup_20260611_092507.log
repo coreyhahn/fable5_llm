@@ -1,0 +1,111 @@
+
+=== [09:25:07] 0. preconditions ===
+-rw-rw-r-- 1 cah cah 32512405 Jun 11 09:15 /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_007/proj/stage1.runs/impl_1/bd_wrapper.bit
+expected CSR VERSION: 0x35d95a53
+-- current device state:
+82:00.0 Serial controller: Xilinx Corporation Device 9038
+-- xdma device users (must be none):
+none
+
+=== [09:25:07] 1. remove device from PCI tree (host-hang safety) ===
+removed 0000:82:00.0 from PCI tree
+
+=== [09:25:07] 2. JTAG program (volatile) ===
+# if {[llength $argv] < 1} { puts "FATAL: need <bitfile>"; exit 1 }
+# if {![file exists $bit]} { puts "FATAL: $bit not found"; exit 1 }
+# if {$dev eq ""} { puts "FATAL: no xcvu9p device on JTAG"; exit 1 }
+# puts "PROGRAM_OK: $bit"
+PROGRAM_OK: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_007/proj/stage1.runs/impl_1/bd_wrapper.bit
+
+=== [09:26:02] 3. rescan PCIe ===
+rescan OK: 82:00.0 Serial controller: Xilinx Corporation Device 9038
+
+=== [09:26:04] 4. link state check (want 8GT/s x8) ===
+link: 8.0 GT/s PCIe x8 (max: 8.0 GT/s PCIe x8)
+crw-rw-rw- 1 root root 509, 36 Jun 11 09:26 /dev/xdma0_c2h_0
+crw-rw-rw- 1 root root 509, 32 Jun 11 09:26 /dev/xdma0_h2c_0
+crw-rw-rw- 1 root root 509,  0 Jun 11 09:26 /dev/xdma0_user
+
+=== [09:26:04] 5. CSR sanity (MAGIC/VERSION/CALIB) ===
+MAGIC   = fab1e001
+VERSION = 35d95a53
+CALIB   = f (after 0.0s)
+UPTIME ticking: c7a260ec -> c92035fb
+CSR SANITY PASS
+
+=== [09:26:04] 6. quick integrity test (64 MiB/channel) ===
+MAGIC=fab1e001 VERSION=35d95a53 CALIB=f
+[OK ] run0 seed=0xc0ffee01 ch0: W 153.7 MB/s, R 284.6 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee01 ch1: W 149.6 MB/s, R 279.9 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee01 ch2: W 165.2 MB/s, R 265.6 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee01 ch3: W 161.4 MB/s, R 280.5 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee02 ch0: W 159.6 MB/s, R 279.2 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee02 ch1: W 159.9 MB/s, R 277.6 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee02 ch2: W 165.5 MB/s, R 280.1 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee02 ch3: W 165.4 MB/s, R 278.8 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee03 ch0: W 165.3 MB/s, R 279.2 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee03 ch1: W 165.3 MB/s, R 281.2 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee03 ch2: W 165.4 MB/s, R 278.5 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee03 ch3: W 165.3 MB/s, R 280.2 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee04 ch0: W 165.5 MB/s, R 280.2 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee04 ch1: W 165.0 MB/s, R 276.7 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee04 ch2: W 164.6 MB/s, R 277.1 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee04 ch3: W 164.9 MB/s, R 279.4 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee01 ch0: W 165.1 MB/s, R 279.6 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee01 ch1: W 165.1 MB/s, R 277.5 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee01 ch2: W 165.3 MB/s, R 278.6 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee01 ch3: W 164.9 MB/s, R 279.4 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee02 ch0: W 164.8 MB/s, R 276.2 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee02 ch1: W 165.2 MB/s, R 277.4 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee02 ch2: W 165.3 MB/s, R 278.6 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee02 ch3: W 164.8 MB/s, R 277.6 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee03 ch0: W 165.2 MB/s, R 277.3 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee03 ch1: W 163.5 MB/s, R 279.1 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee03 ch2: W 164.9 MB/s, R 277.6 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee03 ch3: W 164.6 MB/s, R 277.7 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee04 ch0: W 165.3 MB/s, R 279.1 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee04 ch1: W 164.8 MB/s, R 278.8 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee04 ch2: W 164.7 MB/s, R 276.5 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee04 ch3: W 165.2 MB/s, R 278.7 MB/s, errors=0
+PASS
+evidence: /home/cah/r2d2/code/fpga/fable5_llm/evidence/stage1/ddr_test_20260611_092625.json
+
+=== [09:26:25] 7. FULL integrity test: 4 seeds x 2 runs x 4 ch x 4 GiB, no reprogram ===
+MAGIC=fab1e001 VERSION=35d95a53 CALIB=f
+[OK ] run0 seed=0xc0ffee01 ch0: W 165.1 MB/s, R 278.2 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee01 ch1: W 165.2 MB/s, R 272.0 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee01 ch2: W 163.5 MB/s, R 276.6 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee01 ch3: W 163.3 MB/s, R 277.0 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee02 ch0: W 165.4 MB/s, R 278.5 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee02 ch1: W 165.6 MB/s, R 278.6 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee02 ch2: W 165.7 MB/s, R 278.0 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee02 ch3: W 165.5 MB/s, R 279.0 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee03 ch0: W 165.8 MB/s, R 278.8 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee03 ch1: W 165.5 MB/s, R 277.7 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee03 ch2: W 163.9 MB/s, R 274.7 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee03 ch3: W 164.9 MB/s, R 277.7 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee04 ch0: W 165.4 MB/s, R 278.5 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee04 ch1: W 165.2 MB/s, R 276.5 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee04 ch2: W 164.0 MB/s, R 277.0 MB/s, errors=0
+[OK ] run0 seed=0xc0ffee04 ch3: W 163.9 MB/s, R 277.1 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee01 ch0: W 164.2 MB/s, R 277.8 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee01 ch1: W 165.3 MB/s, R 278.1 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee01 ch2: W 165.5 MB/s, R 278.0 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee01 ch3: W 165.4 MB/s, R 277.7 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee02 ch0: W 164.5 MB/s, R 276.9 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee02 ch1: W 165.1 MB/s, R 278.0 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee02 ch2: W 165.6 MB/s, R 277.7 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee02 ch3: W 165.5 MB/s, R 278.8 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee03 ch0: W 165.7 MB/s, R 278.7 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee03 ch1: W 165.6 MB/s, R 278.2 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee03 ch2: W 165.6 MB/s, R 278.2 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee03 ch3: W 165.6 MB/s, R 277.4 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee04 ch0: W 163.9 MB/s, R 276.2 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee04 ch1: W 165.6 MB/s, R 277.0 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee04 ch2: W 163.1 MB/s, R 272.7 MB/s, errors=0
+[OK ] run1 seed=0xc0ffee04 ch3: W 164.5 MB/s, R 275.0 MB/s, errors=0
+PASS
+evidence: /home/cah/r2d2/code/fpga/fable5_llm/evidence/stage1/ddr_test_20260611_094834.json
+
+=== [09:48:34] DONE — STAGE1 HARDWARE GATE PASSED ===
+log: /home/cah/r2d2/code/fpga/fable5_llm/evidence/stage1/hw_bringup_20260611_092507.log

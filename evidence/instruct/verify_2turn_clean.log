@@ -1,0 +1,97 @@
+--- session bring-up
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  board      MAGIC=0xfab1e001 VERSION=0x0c991953 CALIB=0xf SEQ=READY
+  residency  195 witness blocks (187 weight + 8 emb, 780 KiB) in 5 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2216 KiB readback-verified in 0.0s
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  verify     building the ref/seq_model lockstep (~6 s of host time per step; the board idles meanwhile)
+--- preamble
+  preamble   8.7 ms device / 10.4 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 14010 rec | full 14744 rec
+  patch      pos_mode='ldc': 72 B in 7 write(s) per launch
+  prefill    lite  |  --ntok 9  |  --max-ctx 500 of KV depth 512
+  template   ON: 5*messages+7 wrapper ids, closed-empty think block, incremental with carry
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+
+Commands: /reset  /stats  /ntok N  /system TEXT  /quit   (Ctrl-C stops generation)
+
+prompt>     [verify] step 0 lite: None == seq_model (12s host)
+  prefill 1/18 (45 ms/step, lite)       [verify] step 1 lite: None == seq_model (12s host)
+  prefill 2/18 (45 ms/step, lite)       [verify] step 2 lite: None == seq_model (12s host)
+  prefill 3/18 (45 ms/step, lite)       [verify] step 3 lite: None == seq_model (12s host)
+  prefill 4/18 (45 ms/step, lite)       [verify] step 4 lite: None == seq_model (12s host)
+  prefill 5/18 (45 ms/step, lite)       [verify] step 5 lite: None == seq_model (12s host)
+  prefill 6/18 (45 ms/step, lite)       [verify] step 6 lite: None == seq_model (12s host)
+  prefill 7/18 (45 ms/step, lite)       [verify] step 7 lite: None == seq_model (12s host)
+  prefill 8/18 (45 ms/step, lite)       [verify] step 8 lite: None == seq_model (12s host)
+  prefill 9/18 (45 ms/step, lite)       [verify] step 9 lite: None == seq_model (12s host)
+  prefill 10/18 (45 ms/step, lite)       [verify] step 10 lite: None == seq_model (12s host)
+  prefill 11/18 (45 ms/step, lite)       [verify] step 11 lite: None == seq_model (12s host)
+  prefill 12/18 (45 ms/step, lite)       [verify] step 12 lite: None == seq_model (12s host)
+  prefill 13/18 (45 ms/step, lite)       [verify] step 13 lite: None == seq_model (12s host)
+  prefill 14/18 (45 ms/step, lite)       [verify] step 14 lite: None == seq_model (12s host)
+  prefill 15/18 (45 ms/step, lite)       [verify] step 15 lite: None == seq_model (12s host)
+  prefill 16/18 (45 ms/step, lite)       [verify] step 16 lite: None == seq_model (12s host)
+  prefill 17/18 (45 ms/step, lite)       [verify] step 17 lite: None == seq_model (12s host)
+  prefill 18/18 (45 ms/step, lite)       [verify] step 18 full: 760 == seq_model (16s host)
+                                              The    [verify] step 19 full: 6511 == seq_model (16s host)
+ capital    [verify] step 20 full: 314 == seq_model (16s host)
+ of    [verify] step 21 full: 9338 == seq_model (16s host)
+ France    [verify] step 22 full: 369 == seq_model (16s host)
+ is    [verify] step 23 full: 2972 == seq_model (15s host)
+ **    [verify] step 24 full: 57590 == seq_model (15s host)
+Paris    [verify] step 25 full: 159034 == seq_model (15s host)
+**.    [verify] step 26 full: 271 == seq_model (15s host)
+
+
+
+  --> 'The capital of France is **Paris**.\n\n'
+  ids [760, 6511, 314, 9338, 369, 2972, 57590, 159034, 271]   9 tok in 360.58s
+  prefill 18 lite x 44.8 ms | decode 9 full x 63.0 ms | 0.02 tok/s wall | 0% of wall was device | context 27/500 (5%)
+  template   turn 1: +12 wrapper ids (7 body) | session 12 wrapper of 27 context steps (44%)
+             T7 budget: 12 fed + 0 generated <|im_end|> = 5*1+7 = 12 for the equivalent 1-message HF rendering
+
+prompt>     [verify] step 27 lite: None == seq_model (12s host)
+  prefill 1/18 (45 ms/step, lite)       [verify] step 28 lite: None == seq_model (12s host)
+  prefill 2/18 (45 ms/step, lite)       [verify] step 29 lite: None == seq_model (12s host)
+  prefill 3/18 (45 ms/step, lite)       [verify] step 30 lite: None == seq_model (12s host)
+  prefill 4/18 (45 ms/step, lite)       [verify] step 31 lite: None == seq_model (12s host)
+  prefill 5/18 (45 ms/step, lite)       [verify] step 32 lite: None == seq_model (12s host)
+  prefill 6/18 (45 ms/step, lite)       [verify] step 33 lite: None == seq_model (12s host)
+  prefill 7/18 (45 ms/step, lite)       [verify] step 34 lite: None == seq_model (12s host)
+  prefill 8/18 (45 ms/step, lite)       [verify] step 35 lite: None == seq_model (12s host)
+  prefill 9/18 (45 ms/step, lite)       [verify] step 36 lite: None == seq_model (12s host)
+  prefill 10/18 (45 ms/step, lite)       [verify] step 37 lite: None == seq_model (12s host)
+  prefill 11/18 (45 ms/step, lite)       [verify] step 38 lite: None == seq_model (12s host)
+  prefill 12/18 (45 ms/step, lite)       [verify] step 39 lite: None == seq_model (12s host)
+  prefill 13/18 (45 ms/step, lite)       [verify] step 40 lite: None == seq_model (12s host)
+  prefill 14/18 (45 ms/step, lite)       [verify] step 41 lite: None == seq_model (12s host)
+  prefill 15/18 (45 ms/step, lite)       [verify] step 42 lite: None == seq_model (12s host)
+  prefill 16/18 (45 ms/step, lite)       [verify] step 43 lite: None == seq_model (12s host)
+  prefill 17/18 (45 ms/step, lite)       [verify] step 44 lite: None == seq_model (12s host)
+  prefill 18/18 (45 ms/step, lite)       [verify] step 45 full: 760 == seq_model (15s host)
+                                              The    [verify] step 46 full: 6511 == seq_model (15s host)
+ capital    [verify] step 47 full: 314 == seq_model (15s host)
+ of    [verify] step 48 full: 14898 == seq_model (15s host)
+ Italy    [verify] step 49 full: 369 == seq_model (15s host)
+ is    [verify] step 50 full: 2972 == seq_model (15s host)
+ **    [verify] step 51 full: 49 == seq_model (15s host)
+R    [verify] step 52 full: 617 == seq_model (15s host)
+ome    [verify] step 53 full: 159034 == seq_model (15s host)
+**.
+  --> 'The capital of Italy is **Rome**.'
+  ids [760, 6511, 314, 14898, 369, 2972, 49, 617, 159034]   9 tok in 360.00s
+  prefill 18 lite x 45.0 ms | decode 9 full x 63.2 ms | 0.03 tok/s wall | 0% of wall was device | context 54/500 (11%)
+  template   turn 2: +14 wrapper ids (4 body) | session 26 wrapper of 54 context steps (48%)
+             T7 budget: 26 fed + 1 generated <|im_end|> = 5*3+7 = 22 for the equivalent 3-message HF rendering + 4 think ids kept from 1 past reply/replies (T3: no replay, so they stay in the KV)
+
+prompt> 

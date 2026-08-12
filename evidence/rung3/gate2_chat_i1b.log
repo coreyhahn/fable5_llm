@@ -1,0 +1,33 @@
+  mem region 0: 729088 B @ 000090000000   scripts/w4/chat_i1b.seq
+  mem region 1: 1194752 B @ 000080000000   scripts/w4/chat_i1b.seqdata.bin
+  mem region 2: 508559360 B @ 000060000000   scripts/w4/model_v2_s1.emb.bin
+  mem region 0: 417546240 B @ 000010000000   scripts/w4/model_v2_s1.wimg.bin
+tb_seq_chip: launch 0 [session] rec_off 0, 1526 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP scripts/w4/chat_i1b launch 0 [session]: 1526 records, 1985983 cycles (1301.43 cyc/rec, 7.944 ms @250MHz, PERF_CYC 1985976)
+LAUNCH 0 PASS: [session] pc 1525, tokens 0, tcnt 6, scratch 7168
+tb_seq_chip: launch 1 [lite] rec_off 1536, 14010 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 1: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  RDWIN 800f3b00..800f4100: 24 burst(s) (want 6..1073741824) OK
+SEQ-CHIP scripts/w4/chat_i1b launch 1 [lite]: 14010 records, 10959754 cycles (782.28 cyc/rec, 43.839 ms @250MHz, PERF_CYC 10959747)
+LAUNCH 1 PASS: [lite] pc 14009, tokens 0, tcnt 6, scratch 7168
+tb_seq_chip: launch 2 [full] rec_off 15616, 14744 records, 1 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 2: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  TOK[0] = 0000d (13) == golden OK
+  RDWIN 800f4100..800f4700: 24 burst(s) (want 6..1073741824) OK
+SEQ-CHIP scripts/w4/chat_i1b launch 2 [full]: 14744 records, 15463633 cycles (1048.81 cyc/rec, 61.855 ms @250MHz, PERF_CYC 15463624)
+LAUNCH 2 PASS: [full] pc 14743, tokens 1, tcnt 6, scratch 7168
+tb_seq_chip: launch 3 [full] rec_off 30464, 14744 records, 1 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 3: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  TOK[0] = 000c6 (198) == golden OK
+  RDWIN 80113f00..80114500: 24 burst(s) (want 6..1073741824) OK
+  RDWIN 800d3f00..800d4500: 0 burst(s) (want 0..0) OK
+SEQ-CHIP scripts/w4/chat_i1b launch 3 [full]: 14744 records, 15465544 cycles (1048.94 cyc/rec, 61.862 ms @250MHz, PERF_CYC 15465535)
+LAUNCH 3 PASS: [full] pc 14743, tokens 1, tcnt 6, scratch 7168
+  axil writes 17222
+  axil reads  1066028
+  burst: 14076 write bursts (3534048 beats), 9994 read bursts (2527936 beats), busy_wr 4354077 busy_rd 3546054, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 12
+  ddr beats 122148 (miss 0), weight beats 17332416 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w4/chat_i1b (launches 4, 43874914 cycles total, scratch 7168/launch, tokens 2, tcnt 6)
+- tb_seq_chip.sv:873: Verilog $finish

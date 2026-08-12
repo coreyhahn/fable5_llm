@@ -1,0 +1,20 @@
+# stage-5 fidelity: default-path invariance AFTER every fidelity edit
+#   layer_fixed.py : quant_linear(tighten_e,mse_scale), quant_*(res_scale),
+#                    quant_linear_mse, res_scaled, DN_O_SHIFT/DN_NORM_F
+#   gen_layer_script.py : dn_token uses LF.DN_O_SHIFT / LF.DN_NORM_F
+#   gen_model_script.py : --res-scale=S / --qfix / --mse-scale, emb rail assert
+# All defaults OFF -> the committed artifacts must be reproduced BYTE FOR BYTE.
+# check: regenerate token24_s1 (gen_token_script.py <out> 1 3 8192 24) = 190 files
+#        vs evidence/stage5/token24_artifacts.sha256
+
+## darthplagueis, ref/.venv (numpy 2.4.6) -- run BEFORE the dn_token edit
+token script: seed=1 ntok=3 vocab=8192 nlayers=24 (DN=18 GQA=6) cmds=10191 hostwords=3062688 weights=187 tokens_out=[227, 7296, 4152] -> ../tb/scripts_scratch/token24_s1.txt
+byte-identical: 190 of 190
+
+## snoke, /home/cah/venvs/fable5_np (numpy 2.5.1) -- run AFTER every edit
+token script: seed=1 ntok=3 vocab=8192 nlayers=24 (DN=18 GQA=6) cmds=10191 hostwords=3062688 weights=187 tokens_out=[227, 7296, 4152] -> ../tb/scripts_scratch/snoke2/token24_s1.txt
+byte-identical: 190 of 190
+
+(the snoke run doubles as a cross-host determinism check: a different
+ numpy on a different machine reproduces all 190 artifacts bit for bit,
+ which is what licenses generating the stage-5 model scripts on snoke.)

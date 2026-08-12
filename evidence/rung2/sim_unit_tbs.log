@@ -1,0 +1,68 @@
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+seq vectors: seed=1 -> vecseq/s1  dynq16=446 (k -14..17), probe8=24, epsnorm=68
+seq vectors: seed=2 -> vecseq/s2  dynq16=446 (k -14..17), probe8=24, epsnorm=68
+seq vectors: seed=3 -> vecseq/s3  dynq16=446 (k -14..17), probe8=24, epsnorm=68
+seq vectors: seed=4 -> vecseq/s4  dynq16=446 (k -14..17), probe8=24, epsnorm=68
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_alu -o tb_alu \
+  --top-module tb_vec_alu \
+  ../rtl/fx_pkg.sv ../rtl/vec_alu.sv tb_vec_alu.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_alu'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_alu'
+obj_dir_tb_alu/tb_alu --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:291: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 2 +vecdir=vectors/s2 +seqdir=vecseq/s2
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:291: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 3 +vecdir=vectors/s3 +seqdir=vecseq/s3
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:291: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 4 +vecdir=vectors/s4 +seqdir=vecseq/s4
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:291: Verilog $finish
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_vecnorm -o tb_vecnorm \
+  --top-module tb_vecnorm \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/vecnorm_unit.sv tb_vecnorm.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecnorm'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecnorm'
+obj_dir_tb_vecnorm/tb_vecnorm --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:192: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 2 +vecdir=vectors/s2 +seqdir=vecseq/s2
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:192: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 3 +vecdir=vectors/s3 +seqdir=vecseq/s3
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:192: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 4 +vecdir=vectors/s4 +seqdir=vecseq/s4
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:192: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'

@@ -1,0 +1,68 @@
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+  24 layers, H=1024, vocab=248320
+  res_scale=8 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production)
+  quantized 24 layers (18 DN / 6 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 25856 of 32767, 0 out of range
+  LM head (248320, 1024) e=-4 sh=5; emb table |q|max 472 of 32767
+  step  0 (prefill ) in_tok= 12162 argmax=    11 |resid|max=8339
+  step  1 (prefill ) in_tok=  5028 argmax=   264 |resid|max=8339
+  step  2 (prefill ) in_tok=   264 argmax=  4299 |resid|max=10390
+  step  3 (generate) in_tok=   854 argmax=    11 |resid|max=10390
+  step  4 (generate) in_tok=    11 argmax=   279 |resid|max=11775
+  step  5 (generate) in_tok=   279 argmax=  1814 |resid|max=11775
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                    3     1588608    32768
+alu2                    0     1105920    22036
+alu3                    1      442368    32768
+alu4                    0      294912    12792
+alu5                    0      221184    32725
+alu6                    4      516096    32767
+alu7                    0       73728    32742
+alu8                    0      589824    32657
+conv                   82      663552    32767
+embed                   0        6144      264
+gate(Q15)               0        3456    32767
+vn0                     0      387072     6224
+vn1                     0        6144     2255
+vn2                     0      442368    16370
+TOTAL                  90
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=10 of 28311552 state writes, |S|max=52877 of 32767 (161.4% of the int16 rail, = 6.455 in Q2.13)
+  saturating (dn_slot, head): (3, 5)x10
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x2048    |y32|max=648239       bits=20  spare=11  (144 matvecs)
+  1024x3584    |y32|max=450214       bits=19  spare=12  (144 matvecs)
+  16x1024      |y32|max=4993496      bits=23  spare= 8  (216 matvecs)
+  2048x1024    |y32|max=2411055      bits=22  spare= 9  (108 matvecs)
+  248320x1024  |y32|max=1269238      bits=21  spare=10  (6 matvecs)
+  3584x1024    |y32|max=3242733      bits=22  spare= 9  (288 matvecs)
+  4096x1024    |y32|max=1465548      bits=21  spare=10  (36 matvecs)
+  512x1024     |y32|max=2982476      bits=22  spare= 9  (72 matvecs)
+  6144x1024    |y32|max=7460959      bits=23  spare= 8  (108 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:26 1:46 2:37 3:32 4:103 5:202 6:99 8:35 9:2
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 10 saturations
+residual stream |x|max = 11775 of 32767 (35.9% of the int16 Q7.8 rail)
+
+--- block-float immediates emitted (Phase 1A datapath) ---
+  DN SHIFT32 k_h histogram (op 1, signed): {-14: 111, -13: 169, -12: 217, -11: 274, -10: 285, -9: 233, -8: 135, -7: 92, -6: 76, -5: 48, -4: 21, -3: 1, 0: 66}
+  ATTN EMUL32 k_a histogram (op 8, unsigned): {9: 23, 10: 12, 12: 1}
+  DN SCALE m_q15 (op 2): max raw 8192000, clipped at 32767 103 times (37 of them on a NON-ZERO head)
+  ATTN k_a clamped up to 0: 0 times
+  NOTE: m_q15 saturated the signed-17-bit SCALE immediate on a non-zero head; that head's gated norm is under-scaled (the script is still bit-exact — reference and RTL clip alike).
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h3: worst |decay_clamp - decay_spec| = 849 /32768 (2.59% FS) at a=-4.544  (spec 3680 -> clamped 4529); 6 evaluations
+  L0h8: worst |decay_clamp - decay_spec| = 0 /32768 (0.00% FS) at a=+3.078  (spec 32767 -> clamped 32767); 6 evaluations
+  L1h15: worst |decay_clamp - decay_spec| = 2642 /32768 (8.06% FS) at a=+2.672  (spec 19443 -> clamped 22085); 6 evaluations
+
+*** RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+*** PROCEEDING ANYWAY (--allow-clip). The script is bit-exact but NOT numerically faithful at the saturating sites; every gate run on it must cite this. ***
+
+model script: prompt_seed=2 prompt='Once upon a time' res_scale=8 DN_NORM_F=11 ids=[12162, 5028, 264, 854] steps=6 ntok=3 vocab=248320 nlayers=24 cmds=22350 hostwords=8564544 weights=187
+  argmax per step=[11, 264, 4299, 11, 279, 1814]
+  generated=[11, 279, 1814] decoded=', the world'
+  -> ../tb/scripts/model_v2_s2.txt

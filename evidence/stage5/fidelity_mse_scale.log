@@ -1,0 +1,111 @@
+# stage-5 fidelity: MSE-optimal W4 group scale (layer_fixed.quant_linear_mse),
+# run on snoke with /home/cah/venvs/fable5_np (numpy 2.5.1).
+# The S=8 control config reproduces the darthplagueis numbers exactly.
+
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 2.9s
+  LM head quantized (mse=True) e=-4 sh=5 (84.8s)
+
+=== config S=1 mse ===
+    quantized 24 layers in 128.9s
+    emb table |q|max 59 of 32767 (3.6s)
+    config done in 650.1s
+  --- S=1 mse ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [198, 13, 279, 314, 279, 11]   top1=1/6  rank=[11272, 88, 0, 1, 1067, 1]  top5ovl=[0, 1, 1, 1, 1, 3]
+    free-running gen=[314, 279, 314] text=' of the of'
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [198, 11, 13, 11, 279, 11]   top1=1/6  rank=[12439, 160, 3963, 0, 34, 13]  top5ovl=[1, 0, 0, 1, 1, 1]
+    free-running gen=[11, 279, 854] text=', the time'
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [220, 25, 13, 220, 1856, 198]   top1=0/6  rank=[24, 1578, 2560, 2, 1157, 64355]  top5ovl=[0, 2, 0, 2, 0, 0]
+    free-running gen=[220, 17, 13] text=' 2.'
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [198, 537, 198, 25, 25, 220]   top1=0/6  rank=[10, 270, 15, 7692, 3, 5]  top5ovl=[1, 1, 1, 0, 2, 0]
+    free-running gen=[25, 220, 220] text=':  '
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=1030     clips=0/1179648
+      1024x3584      |y|max=993      clips=0/1179648
+      16x1024        |y|max=104807   clips=79/27648
+      2048x1024      |y|max=2935     clips=0/1769472
+      3584x1024      |y|max=51553    clips=19/8257536
+      4096x1024      |y|max=4204     clips=0/1179648
+      512x1024       |y|max=9189     clips=0/294912
+      6144x1024      |y|max=21031    clips=0/5308416
+
+=== config S=4 mse ===
+    quantized 24 layers in 117.3s
+    emb table |q|max 236 of 32767 (3.7s)
+    config done in 666.6s
+  --- S=4 mse ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [198, 13, 11, 369, 264, 25]   top1=1/6  rank=[3403, 128, 11, 0, 63, 1]  top5ovl=[1, 0, 0, 1, 1, 3]
+    free-running gen=[369, 264, 264] text=' is a a'
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [198, 11, 37305, 25, 279, 25]   top1=0/6  rank=[66216, 2307, 5572, 8, 53, 8]  top5ovl=[0, 0, 0, 0, 2, 1]
+    free-running gen=[25, 271, 760] text=':\n\nThe'
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [198, 25, 264, 198, 47, 13]   top1=1/6  rank=[31, 644, 3350, 0, 867, 114941]  top5ovl=[0, 1, 0, 1, 0, 0]
+    free-running gen=[198, 47, 25] text='\nP:'
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [198, 25, 198, 198, 11, 369]   top1=0/6  rank=[4, 467, 3, 4046, 25, 12]  top5ovl=[2, 2, 2, 0, 1, 0]
+    free-running gen=[198, 760, 220] text='\nThe '
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=4389     clips=0/1179648
+      1024x3584      |y|max=3728     clips=0/1179648
+      16x1024        |y|max=104291   clips=70/27648
+      2048x1024      |y|max=2859     clips=0/1769472
+      3584x1024      |y|max=43591    clips=15/8257536
+      4096x1024      |y|max=4246     clips=0/1179648
+      512x1024       |y|max=9158     clips=0/294912
+      6144x1024      |y|max=20986    clips=0/5308416
+
+=== config S=8 mse ===
+    quantized 24 layers in 113.9s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 657.6s
+  --- S=8 mse ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [198, 13, 13, 318, 369, 369]   top1=0/6  rank=[1658, 180, 81, 2, 3762, 2]  top5ovl=[1, 0, 0, 2, 1, 3]
+    free-running gen=[318, 17, 13] text=' (2.'
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [220, 13, 13, 271, 271, 271]   top1=0/6  rank=[29296, 1511, 2931, 27, 59, 35]  top5ovl=[0, 0, 0, 0, 1, 1]
+    free-running gen=[271, 760, 198] text='\n\nThe\n'
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [13, 13, 13, 13, 47, 198]   top1=0/6  rank=[17, 95, 3334, 11, 1148, 104816]  top5ovl=[0, 1, 0, 0, 0, 0]
+    free-running gen=[13, 220, 220] text='.  '
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [198, 1954, 198, 13, 25, 13]   top1=0/6  rank=[4, 1512, 6, 32743, 34, 5]  top5ovl=[2, 1, 1, 0, 2, 0]
+    free-running gen=[13, 198, 760] text='.\nThe'
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=7755     clips=0/1179648
+      1024x3584      |y|max=6304     clips=0/1179648
+      16x1024        |y|max=104008   clips=71/27648
+      2048x1024      |y|max=2901     clips=0/1769472
+      3584x1024      |y|max=39464    clips=13/8257536
+      4096x1024      |y|max=4078     clips=0/1179648
+      512x1024       |y|max=9177     clips=0/294912
+      6144x1024      |y|max=20903    clips=0/5308416
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=1 mse       2/24            61.0     64355      0.83     1308      0       61
+S=4 mse       2/24            58.0    114941      0.75     9574      0       60
+S=8 mse       0/24            88.0    104816      0.67    10234      0       59
+
+-> /tmp/fid_mse.json

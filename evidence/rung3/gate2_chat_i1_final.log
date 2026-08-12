@@ -1,0 +1,153 @@
+make chat_i1_vectors
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+/home/cah/.venv/bin/python scripts/gen_chat_i1_vectors.py scripts/w4/chat_i1 \
+  --base scripts/w4/model_v2_s1 --t-max 128 --tok0 760 \
+  --tok1 6511 --far-pos 86
+  scripts/w4/model_v2_s1.wimg.bin: 417546240 B (reused)
+  scripts/w4/model_v2_s1.emb.bin: 248320 rows
+  scripts/w4/chat_i1.seqdata.bin: 1194752 B (const 998144 + 128 x 1536) sha 7591dd21d405
+  blob layout {"const_base": 2147483648, "const_bytes": 998144, "pos_base": 2148481792, "pos_bytes": 196608, "pos_stride": 1536, "pos_copies": 6, "pos_copy_bytes": 256, "t_max": 128, "total_bytes": 1194752, "xrf_pos_max": 85}
+  resident images: session 1526 recs, lite 14010 recs, full 14744 recs (pos_mode=ldc)
+  launch 0 [session] preamble (resets conv/dn/KV/TCNT): 1526 recs, pc 1525, tokens [], TCNT [0, 0] (0.0s)
+    patch 72 B in 7 write(s) {'tok': 760, 'pos': 0, 'xrf4': 0, 'tcnt': 1} -> 2 byte(s) differ, all inside the 72-byte window at +0
+  launch 1 [lite] tok=760 pos=0: 14010 recs, pc 14009, tokens [], TCNT [1, 1] (12.6s)
+    patch 72 B in 7 write(s) {'tok': 6511, 'pos': 1, 'xrf4': 0, 'tcnt': 1} -> 8 byte(s) differ, all inside the 72-byte window at +0
+  launch 2 [full] tok=6511 pos=1: 14744 recs, pc 14743, tokens [314], TCNT [2, 2] (15.2s)
+    patch 72 B in 7 write(s) {'tok': 314, 'pos': 86, 'xrf4': 0, 'tcnt': 1} -> 14 byte(s) differ, all inside the 72-byte window at +0
+    launch2 vs launch3 image delta: 14 bytes, all inside the patch window (one resident image, two patches)
+  launch 3 [full] tok=314 pos=86: 14744 recs, pc 14743, tokens [279], TCNT [3, 3] (15.2s)
+  pos 86: ldc mode addresses 0x80113f00..0x80114500; the xrf cursor would sign-extend 132096 -> -130048 and read 0x800d3f00..0x800d4500 (XRF_POS_MAX=85)
+    negative witness armed: 0 DDR reads may land in 0x800d3f00..0x800d4500
+  scripts/w4/chat_i1.seq: 729088 B, 4 images @ 0x90000000 (rec offsets [0, 1536, 15616, 30464])
+  scripts/w4/chat_i1.chip: 4 launches, 7168 scratch words/launch checked (9216 staging words excluded), tokens [[], [], [314], [279]]
+  TCNT trace [[0, 0], [1, 1], [2, 2], [3, 3]] (bank 0; a reset between launches would show 0)
+  gen_chat_i1_vectors: 43.4s
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+make chat_i1_vectors CHAT_OUT=scripts/w4/chat_i1b CHAT_TOK0=314
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+/home/cah/.venv/bin/python scripts/gen_chat_i1_vectors.py scripts/w4/chat_i1b \
+  --base scripts/w4/model_v2_s1 --t-max 128 --tok0 314 \
+  --tok1 6511 --far-pos 86
+  scripts/w4/model_v2_s1.wimg.bin: 417546240 B (reused)
+  scripts/w4/model_v2_s1.emb.bin: 248320 rows
+  scripts/w4/chat_i1b.seqdata.bin: 1194752 B (const 998144 + 128 x 1536) sha 7591dd21d405
+  blob layout {"const_base": 2147483648, "const_bytes": 998144, "pos_base": 2148481792, "pos_bytes": 196608, "pos_stride": 1536, "pos_copies": 6, "pos_copy_bytes": 256, "t_max": 128, "total_bytes": 1194752, "xrf_pos_max": 85}
+  resident images: session 1526 recs, lite 14010 recs, full 14744 recs (pos_mode=ldc)
+  launch 0 [session] preamble (resets conv/dn/KV/TCNT): 1526 recs, pc 1525, tokens [], TCNT [0, 0] (0.0s)
+    patch 72 B in 7 write(s) {'tok': 314, 'pos': 0, 'xrf4': 0, 'tcnt': 1} -> 2 byte(s) differ, all inside the 72-byte window at +0
+  launch 1 [lite] tok=314 pos=0: 14010 recs, pc 14009, tokens [], TCNT [1, 1] (12.2s)
+    patch 72 B in 7 write(s) {'tok': 6511, 'pos': 1, 'xrf4': 0, 'tcnt': 1} -> 8 byte(s) differ, all inside the 72-byte window at +0
+  launch 2 [full] tok=6511 pos=1: 14744 recs, pc 14743, tokens [13], TCNT [2, 2] (15.4s)
+    patch 72 B in 7 write(s) {'tok': 13, 'pos': 86, 'xrf4': 0, 'tcnt': 1} -> 13 byte(s) differ, all inside the 72-byte window at +0
+    launch2 vs launch3 image delta: 14 bytes, all inside the patch window (one resident image, two patches)
+  launch 3 [full] tok=13 pos=86: 14744 recs, pc 14743, tokens [198], TCNT [3, 3] (15.2s)
+  pos 86: ldc mode addresses 0x80113f00..0x80114500; the xrf cursor would sign-extend 132096 -> -130048 and read 0x800d3f00..0x800d4500 (XRF_POS_MAX=85)
+    negative witness armed: 0 DDR reads may land in 0x800d3f00..0x800d4500
+  scripts/w4/chat_i1b.seq: 729088 B, 4 images @ 0x90000000 (rec offsets [0, 1536, 15616, 30464])
+  scripts/w4/chat_i1b.chip: 4 launches, 7168 scratch words/launch checked (9216 staging words excluded), tokens [[], [], [13], [198]]
+  TCNT trace [[0, 0], [1, 1], [2, 2], [3, 3]] (bank 0; a reset between launches would show 0)
+  gen_chat_i1_vectors: 43.2s
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+make tb_seq_chat_i1_build
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+verilator --binary --timing -j 16 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  --Mdir obj_dir_tb_seq_chat_i1 -o tb_seq_chat_i1 -GNMV=1 \
+  --top-module tb_seq_chip ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/layer_chan.sv ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv seq_fabric_model.sv seq_burst_fabric.sv seq_mem_file.sv tb_seq_chip.sv
+make[2]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_seq_chat_i1'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_seq_chip__pch.h -o Vtb_seq_chip__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_seq_chip__pch.h -o Vtb_seq_chip__pch.h.slow.gch
+echo "" > Vtb_seq_chip__ALL.verilator_deplist.tmp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.slow -c -o Vtb_seq_chip__ConstPool_0.o Vtb_seq_chip__ConstPool_0.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.slow -c -o Vtb_seq_chip___024root__Slow.o Vtb_seq_chip___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.slow -c -o Vtb_seq_chip___024root__DepSet_hcd7d776b__0__Slow.o Vtb_seq_chip___024root__DepSet_hcd7d776b__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.slow -c -o Vtb_seq_chip___024root__DepSet_hd4d89cee__0__Slow.o Vtb_seq_chip___024root__DepSet_hd4d89cee__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.slow -c -o Vtb_seq_chip__Syms.o Vtb_seq_chip__Syms.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip.o Vtb_seq_chip.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hcd7d776b__0.o Vtb_seq_chip___024root__DepSet_hcd7d776b__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hcd7d776b__1.o Vtb_seq_chip___024root__DepSet_hcd7d776b__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hcd7d776b__2.o Vtb_seq_chip___024root__DepSet_hcd7d776b__2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hcd7d776b__3.o Vtb_seq_chip___024root__DepSet_hcd7d776b__3.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hcd7d776b__4.o Vtb_seq_chip___024root__DepSet_hcd7d776b__4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hd4d89cee__0.o Vtb_seq_chip___024root__DepSet_hd4d89cee__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hd4d89cee__1.o Vtb_seq_chip___024root__DepSet_hd4d89cee__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hd4d89cee__2.o Vtb_seq_chip___024root__DepSet_hd4d89cee__2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip___024root__DepSet_hd4d89cee__3.o Vtb_seq_chip___024root__DepSet_hd4d89cee__3.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_chip__pch.h.fast -c -o Vtb_seq_chip__main.o Vtb_seq_chip__main.cpp
+Archive ar -rcs Vtb_seq_chip__ALL.a Vtb_seq_chip.o Vtb_seq_chip___024root__DepSet_hcd7d776b__0.o Vtb_seq_chip___024root__DepSet_hcd7d776b__1.o Vtb_seq_chip___024root__DepSet_hcd7d776b__2.o Vtb_seq_chip___024root__DepSet_hcd7d776b__3.o Vtb_seq_chip___024root__DepSet_hcd7d776b__4.o Vtb_seq_chip___024root__DepSet_hd4d89cee__0.o Vtb_seq_chip___024root__DepSet_hd4d89cee__1.o Vtb_seq_chip___024root__DepSet_hd4d89cee__2.o Vtb_seq_chip___024root__DepSet_hd4d89cee__3.o Vtb_seq_chip__main.o Vtb_seq_chip__ConstPool_0.o Vtb_seq_chip___024root__Slow.o Vtb_seq_chip___024root__DepSet_hcd7d776b__0__Slow.o Vtb_seq_chip___024root__DepSet_hd4d89cee__0__Slow.o Vtb_seq_chip__Syms.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_seq_chip__ALL.a    -pthread -lpthread -latomic   -o tb_seq_chat_i1
+rm Vtb_seq_chip__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_seq_chat_i1'
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+obj_dir_tb_seq_chat_i1/tb_seq_chat_i1 +seq=scripts/w4/chat_i1 \
+  +base=scripts/w4/model_v2_s1 +watchdog_ms=600000
+  mem region 0: 729088 B @ 000090000000   scripts/w4/chat_i1.seq
+  mem region 1: 1194752 B @ 000080000000   scripts/w4/chat_i1.seqdata.bin
+  mem region 2: 508559360 B @ 000060000000   scripts/w4/model_v2_s1.emb.bin
+  mem region 0: 417546240 B @ 000010000000   scripts/w4/model_v2_s1.wimg.bin
+tb_seq_chip: launch 0 [session] rec_off 0, 1526 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP scripts/w4/chat_i1 launch 0 [session]: 1526 records, 1985983 cycles (1301.43 cyc/rec, 7.944 ms @250MHz, PERF_CYC 1985976)
+LAUNCH 0 PASS: [session] pc 1525, tokens 0, tcnt 6, scratch 7168
+tb_seq_chip: launch 1 [lite] rec_off 1536, 14010 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 1: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  RDWIN 800f3b00..800f4100: 24 burst(s) (want 6..1073741824) OK
+SEQ-CHIP scripts/w4/chat_i1 launch 1 [lite]: 14010 records, 10959664 cycles (782.27 cyc/rec, 43.839 ms @250MHz, PERF_CYC 10959656)
+LAUNCH 1 PASS: [lite] pc 14009, tokens 0, tcnt 6, scratch 7168
+tb_seq_chip: launch 2 [full] rec_off 15616, 14744 records, 1 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 2: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  TOK[0] = 0013a (314) == golden OK
+  RDWIN 800f4100..800f4700: 24 burst(s) (want 6..1073741824) OK
+SEQ-CHIP scripts/w4/chat_i1 launch 2 [full]: 14744 records, 15463594 cycles (1048.81 cyc/rec, 61.854 ms @250MHz, PERF_CYC 15463585)
+LAUNCH 2 PASS: [full] pc 14743, tokens 1, tcnt 6, scratch 7168
+tb_seq_chip: launch 3 [full] rec_off 30464, 14744 records, 1 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 3: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  TOK[0] = 00117 (279) == golden OK
+  RDWIN 80113f00..80114500: 24 burst(s) (want 6..1073741824) OK
+  RDWIN 800d3f00..800d4500: 0 burst(s) (want 0..0) OK
+SEQ-CHIP scripts/w4/chat_i1 launch 3 [full]: 14744 records, 15465478 cycles (1048.93 cyc/rec, 61.862 ms @250MHz, PERF_CYC 15465470)
+LAUNCH 3 PASS: [full] pc 14743, tokens 1, tcnt 6, scratch 7168
+  axil writes 17222
+  axil reads  1066023
+  burst: 14076 write bursts (3534048 beats), 9994 read bursts (2527936 beats), busy_wr 4354077 busy_rd 3546054, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 12
+  ddr beats 122148 (miss 0), weight beats 17332416 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w4/chat_i1 (launches 4, 43874719 cycles total, scratch 7168/launch, tokens 2, tcnt 6)
+- tb_seq_chip.sv:873: Verilog $finish
+obj_dir_tb_seq_chat_i1/tb_seq_chat_i1 +seq=scripts/w4/chat_i1b \
+  +base=scripts/w4/model_v2_s1 +watchdog_ms=600000
+  mem region 0: 729088 B @ 000090000000   scripts/w4/chat_i1b.seq
+  mem region 1: 1194752 B @ 000080000000   scripts/w4/chat_i1b.seqdata.bin
+  mem region 2: 508559360 B @ 000060000000   scripts/w4/model_v2_s1.emb.bin
+  mem region 0: 417546240 B @ 000010000000   scripts/w4/model_v2_s1.wimg.bin
+tb_seq_chip: launch 0 [session] rec_off 0, 1526 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP scripts/w4/chat_i1b launch 0 [session]: 1526 records, 1985983 cycles (1301.43 cyc/rec, 7.944 ms @250MHz, PERF_CYC 1985976)
+LAUNCH 0 PASS: [session] pc 1525, tokens 0, tcnt 6, scratch 7168
+tb_seq_chip: launch 1 [lite] rec_off 1536, 14010 records, 0 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 1: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  RDWIN 800f3b00..800f4100: 24 burst(s) (want 6..1073741824) OK
+SEQ-CHIP scripts/w4/chat_i1b launch 1 [lite]: 14010 records, 10959754 cycles (782.28 cyc/rec, 43.839 ms @250MHz, PERF_CYC 10959747)
+LAUNCH 1 PASS: [lite] pc 14009, tokens 0, tcnt 6, scratch 7168
+tb_seq_chip: launch 2 [full] rec_off 15616, 14744 records, 1 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 2: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  TOK[0] = 0000d (13) == golden OK
+  RDWIN 800f4100..800f4700: 24 burst(s) (want 6..1073741824) OK
+SEQ-CHIP scripts/w4/chat_i1b launch 2 [full]: 14744 records, 15463633 cycles (1048.81 cyc/rec, 61.855 ms @250MHz, PERF_CYC 15463624)
+LAUNCH 2 PASS: [full] pc 14743, tokens 1, tcnt 6, scratch 7168
+tb_seq_chip: launch 3 [full] rec_off 30464, 14744 records, 1 tokens, 7168 scratch words, NMV=1 LAT=4 DDRLAT=32 WLAT=40
+  carried into launch 3: 7174 state words (6 TCNT banks + 7168 scratch) still intact BEFORE START
+  TOK[0] = 000c6 (198) == golden OK
+  RDWIN 80113f00..80114500: 24 burst(s) (want 6..1073741824) OK
+  RDWIN 800d3f00..800d4500: 0 burst(s) (want 0..0) OK
+SEQ-CHIP scripts/w4/chat_i1b launch 3 [full]: 14744 records, 15465544 cycles (1048.94 cyc/rec, 61.862 ms @250MHz, PERF_CYC 15465535)
+LAUNCH 3 PASS: [full] pc 14743, tokens 1, tcnt 6, scratch 7168
+  axil writes 17222
+  axil reads  1066028
+  burst: 14076 write bursts (3534048 beats), 9994 read bursts (2527936 beats), busy_wr 4354077 busy_rd 3546054, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 12
+  ddr beats 122148 (miss 0), weight beats 17332416 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w4/chat_i1b (launches 4, 43874914 cycles total, scratch 7168/launch, tokens 2, tcnt 6)
+- tb_seq_chip.sv:873: Verilog $finish

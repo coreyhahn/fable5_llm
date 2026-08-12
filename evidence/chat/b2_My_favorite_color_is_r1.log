@@ -1,0 +1,32 @@
+--- session bring-up
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  board      MAGIC=0xfab1e001 VERSION=0x4d71adcc CALIB=0xf SEQ=READY
+  residency  195 witness blocks (187 weight + 8 emb, 780 KiB) in 6 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2216 KiB readback-verified in 0.0s
+--- preamble
+  preamble   36.1 ms device / 37.2 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 14010 rec | full 14744 rec
+  patch      pos_mode='ldc': 72 B in 7 write(s) per launch
+  prefill    full  |  --ntok 3  |  --max-ctx 500 of KV depth 512
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+
+prompt> My favorite color is
+  prefill 1/3 (150 ms/step, full)     prefill 2/3 (150 ms/step, full)     prefill 3/3 (150 ms/step, full)                                                  the one that
+  --> ' the one that'
+  ids [279, 799, 421]   3 tok in 0.91s
+  prefill 0 lite x 0.0 ms | decode 6 full x 150.2 ms | 3.30 tok/s wall | 99124% of wall was device | context 6/500 (1%)
+
+  launches     7 (1 preamble / 0 lite / 6 full)
+  preamble     device ms  mean 36.1  min 36.1  max 36.1  (n=1)
+  full         device ms  mean 150.2  min 150.2  max 150.2  (n=6)
+  context      6 of 500 forward steps (KV bank depth 512)
+  MMIO         569 reads / 98 writes

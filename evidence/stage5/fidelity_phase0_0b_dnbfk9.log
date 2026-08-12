@@ -1,0 +1,44 @@
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 3.6s
+  LM head quantized (mse=False) e=-3 sh=5 (6.3s)
+
+=== config S=8 dnbfk9 ===
+    quantized 24 layers in 8.9s
+    emb table |q|max 472 of 32767 (4.9s)
+    config done in 1033.7s
+  --- S=8 dnbfk9 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [198, 369, 220, 198, 279, 11]   top1=0/6  rank=[223, 2, 1, 2, 252, 3]  top5ovl=[1, 3, 2, 3, 1, 3]
+    free-running gen=[198, 760, 6511, 314, 279, 6511, 314, 279, 6511, 6511, 6511, 6511] text='\nThe capital of the capital of the capital capital capital capital'
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [198, 279, 3074, 314, 864, 864]   top1=0/6  rank=[73, 1, 334, 11, 22, 4]  top5ovl=[0, 2, 0, 1, 1, 2]
+    free-running gen=[314, 220, 16, 15, 11, 15, 15, 15, 11, 15, 15, 15] text=' of 10,000,000'
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [198, 198, 198, 13, 464, 8328]   top1=1/6  rank=[5, 16, 58, 4, 0, 15]  top5ovl=[0, 2, 0, 1, 4, 1]
+    free-running gen=[13, 271, 2, 220, 16, 13, 198, 2, 220, 17, 13, 198] text='.\n\n# 1.\n# 2.\n'
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [271, 310, 198, 803, 369, 25]   top1=2/6  rank=[5, 5, 1, 0, 0, 9]  top5ovl=[2, 1, 4, 2, 2, 0]
+    free-running gen=[803, 369, 25, 220, 16, 13, 220, 16, 13, 220, 17, 13] text=' name is: 1. 1. 2.'
+    block-float k histogram [dn]: {-9: 4137, -8: 2698, -7: 1748, -6: 1199, -5: 747, -4: 342, 0: 502, 5: 12819}
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=8457     clips=0/2064384
+      1024x3584      |y|max=16501    clips=0/2064384
+      16x1024        |y|max=104806   clips=60/48384
+      2048x1024      |y|max=3441     clips=0/3096576
+      3584x1024      |y|max=40448    clips=225/14450688
+      4096x1024      |y|max=3771     clips=0/2064384
+      512x1024       |y|max=9071     clips=0/516096
+      6144x1024      |y|max=20627    clips=0/9289728
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=8 dnbfk9    3/24             5.0       334      1.58    26349      0       30
+
+-> ../tb/scripts_scratch/phase0/0b_dnbfk9.json

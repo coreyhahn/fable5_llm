@@ -1,0 +1,70 @@
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  head blas  threads=16 via scipy_openblas_set_num_threads64_() in libscipy_openblas64_-32a4b2a6.so
+  head hint  2 NUMA nodes: the 1 GB copy lands on one of them, so the GEMV runs at that node's bandwidth.  `numactl --interleave=all` measured 10.3 ms vs 17.9 ms on snoke — worth it for --verify-head, irrelevant for greedy.
+  head cache loaded 970 MiB from /home/cah/.cache/fable5_llm/head_w186_c761009a80ce4d00_f32.bin in 0.52s
+  head       VERIFICATION COPY ready in 0.5s (cache); logit = y32 * 2^(e_x-22) — the CHIP still computes the head for every token
+  sampling   temp=0.9 top_k=32 top_p=0.95 seed=4242  |  source host-head: ready  |  capture k=32
+------------------------------------------------------------------------
+--- G2 (board-free): the FULL sampled path over ref/seq_model
+  prompt     [760, 6511, 314, 9338]   ntok 4  ->  7 full launches per pass
+  sampler    temp=0.9 top_k=32 top_p=0.95 seed=4242
+  candidates host-head: ready
+  passes     4: seeds [4242, 4242, 4243, 4244] (the first two MUST agree, a different seed SHOULD differ)
+  NOTE       every step here is a FULL body: the model computes the LM head and AMAXL exactly as the chip does.  The host head is the CROSS-CHECK, not the decode path.
+    [p0 seed 4242] step  0 chip     561 host_argmax 561 e_x 4 ->    1900 (rank 21, p=0.027)  [16s, sample 0.20 ms, head 0.03s]
+    [p0 seed 4242] step  1 chip     314 host_argmax 314 e_x 4 ->     869 (rank 16, p=0.027)  [32s, sample 0.17 ms, head 0.03s]
+    [p0 seed 4242] step  2 chip     279 host_argmax 279 e_x 4 ->     220 (rank 2, p=0.046)  [49s, sample 0.13 ms, head 0.03s]
+    [p0 seed 4242] step  3 chip     369 host_argmax 369 e_x 4 ->      11 (rank 2, p=0.062)  [64s, sample 0.13 ms, head 0.03s]
+    [p0 seed 4242] step  4 chip     279 host_argmax 279 e_x 4 ->     321 (rank 6, p=0.037)  [79s, sample 0.14 ms, head 0.03s]
+    [p0 seed 4242] step  5 chip     279 host_argmax 279 e_x 4 ->    1048 (rank 1, p=0.047)  [95s, sample 0.13 ms, head 0.03s]
+    [p0 seed 4242] step  6 chip    3750 host_argmax 3750 e_x 4 ->      11 (rank 3, p=0.060)  [110s, sample 0.13 ms, head 0.03s]
+  pass 0    seed 4242: [11, 321, 1048, 11]  (110.0s)
+    [p1 seed 4242] step  0 chip     561 host_argmax 561 e_x 4 ->    1900 (rank 21, p=0.027)  [15s, sample 0.13 ms, head 0.03s]
+    [p1 seed 4242] step  1 chip     314 host_argmax 314 e_x 4 ->     869 (rank 16, p=0.027)  [31s, sample 0.13 ms, head 0.03s]
+    [p1 seed 4242] step  2 chip     279 host_argmax 279 e_x 4 ->     220 (rank 2, p=0.046)  [46s, sample 0.17 ms, head 0.04s]
+    [p1 seed 4242] step  3 chip     369 host_argmax 369 e_x 4 ->      11 (rank 2, p=0.062)  [62s, sample 0.15 ms, head 0.03s]
+    [p1 seed 4242] step  4 chip     279 host_argmax 279 e_x 4 ->     321 (rank 6, p=0.037)  [77s, sample 0.14 ms, head 0.03s]
+    [p1 seed 4242] step  5 chip     279 host_argmax 279 e_x 4 ->    1048 (rank 1, p=0.047)  [92s, sample 0.13 ms, head 0.03s]
+    [p1 seed 4242] step  6 chip    3750 host_argmax 3750 e_x 4 ->      11 (rank 3, p=0.060)  [108s, sample 0.13 ms, head 0.03s]
+  pass 1    seed 4242: [11, 321, 1048, 11]  (107.9s)
+    [p2 seed 4243] step  0 chip     561 host_argmax 561 e_x 4 ->    3130 (rank 13, p=0.031)  [15s, sample 0.17 ms, head 0.04s]
+    [p2 seed 4243] step  1 chip     314 host_argmax 314 e_x 4 ->    4694 (rank 20, p=0.025)  [31s, sample 0.13 ms, head 0.03s]
+    [p2 seed 4243] step  2 chip     279 host_argmax 279 e_x 4 ->     279 (rank 0, p=0.139)  [46s, sample 0.13 ms, head 0.03s]
+    [p2 seed 4243] step  3 chip     369 host_argmax 369 e_x 4 ->     318 (rank 8, p=0.042)  [62s, sample 0.13 ms, head 0.03s]
+    [p2 seed 4243] step  4 chip   47358 host_argmax 47358 e_x 4 ->      20 (rank 15, p=0.030)  [77s, sample 0.13 ms, head 0.03s]
+    [p2 seed 4243] step  5 chip       8 host_argmax 8 e_x 4 ->      14 (rank 7, p=0.040)  [93s, sample 0.13 ms, head 0.03s]
+    [p2 seed 4243] step  6 chip      20 host_argmax 20 e_x 4 ->      24 (rank 6, p=0.058)  [108s, sample 0.13 ms, head 0.03s]
+  pass 2    seed 4243: [318, 20, 14, 24]  (108.5s)
+    [p3 seed 4244] step  0 chip     561 host_argmax 561 e_x 4 ->     220 (rank 2, p=0.049)  [16s, sample 0.13 ms, head 0.03s]
+    [p3 seed 4244] step  1 chip     314 host_argmax 314 e_x 4 ->    6511 (rank 5, p=0.044)  [31s, sample 0.13 ms, head 0.03s]
+    [p3 seed 4244] step  2 chip     279 host_argmax 279 e_x 4 ->     220 (rank 2, p=0.046)  [46s, sample 0.13 ms, head 0.03s]
+    [p3 seed 4244] step  3 chip     369 host_argmax 369 e_x 4 ->     682 (rank 7, p=0.045)  [62s, sample 0.13 ms, head 0.03s]
+    [p3 seed 4244] step  4 chip     978 host_argmax 978 e_x 4 ->    1048 (rank 28, p=0.022)  [77s, sample 0.13 ms, head 0.03s]
+    [p3 seed 4244] step  5 chip     978 host_argmax 978 e_x 4 ->    5384 (rank 14, p=0.029)  [93s, sample 0.18 ms, head 0.04s]
+    [p3 seed 4244] step  6 chip     220 host_argmax 220 e_x 5 ->     393 (rank 15, p=0.027)  [108s, sample 0.14 ms, head 0.03s]
+  pass 3    seed 4244: [682, 1048, 5384, 393]  (108.0s)
+------------------------------------------------------------------------
+  seed 4242                   tokens [11, 321, 1048, 11]
+                              fed  [760, 6511, 314, 9338, 11, 321, 1048]
+                              chip [561, 314, 279, 369, 279, 279, 3750]   (the model's own argmax at each step)
+  seed 4242                   tokens [11, 321, 1048, 11]
+                              fed  [760, 6511, 314, 9338, 11, 321, 1048]
+                              chip [561, 314, 279, 369, 279, 279, 3750]   (the model's own argmax at each step)
+  seed 4243                   tokens [318, 20, 14, 24]
+                              fed  [760, 6511, 314, 9338, 318, 20, 14]
+                              chip [561, 314, 279, 369, 47358, 8, 20]   (the model's own argmax at each step)
+  seed 4244                   tokens [682, 1048, 5384, 393]
+                              fed  [760, 6511, 314, 9338, 682, 1048, 5384]
+                              chip [561, 314, 279, 369, 978, 978, 220]   (the model's own argmax at each step)
+  GATE 1 same seed, same trajectory              PASS
+  GATE 2 a different seed changes the trajectory PASS
+  GATE 3 host head argmax == the model's AMAXL   PASS (28/28 steps)
+  GATE 4 the drawn token drives the NEXT launch      PASS
+         seed 4243: feed diverges at step 4, the model's continuation diverges too
+         seed 4244: feed diverges at step 4, the model's continuation diverges too
+  fixture    7 steps -> /home/cah/r2d2/code/fpga/fable5_llm/evidence/sampling/candidates_fixture.json
+  report -> /home/cah/r2d2/code/fpga/fable5_llm/evidence/sampling/g2_sampled_model_only.json
+MODEL-ONLY (G2 sampled): PASS

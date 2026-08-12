@@ -1,0 +1,736 @@
+=== seq_unit sha: 92a5b08ef580d315ba1828751081fbfd319b8358978d99442a4b2b2cc72c2c02  ../rtl/seq_unit.sv ===
+############ A. full tb_seq regression on B's RTL ############
+mkdir -p scripts/seqvec
+for s in 1 2 3 4; do \
+  /home/cah/.venv/bin/python scripts/gen_seq_unit_vectors.py scripts/seqvec $s || exit 1; done
+seq_u_s1: 58 records, 827 writes, 165 reads (159 with the XRF sideband), 664 scratch words, 3 tokens
+seq_m_csrwr: 2001 records, 2000 writes, 0 reads
+seq_m_cmd: 801 records, 800 writes, 0 reads
+seq_m_movx: 3 records, 5123 writes, 4096 reads
+seq_m_movy16: 4 records, 2073 writes, 2112 reads
+seq_m_movy32: 4 records, 4121 writes, 2112 reads
+seq_m_ldc: 2 records, 4097 writes, 0 reads
+seq_f_of24: 121 records, 24 tokens
+seq_f_of64: 321 records, 64 tokens
+seq_f_of80: 401 records, 80 tokens
+seq_e_op: expects err_code 0x01
+seq_e_ind: expects err_code 0x02
+seq_e_chan: expects err_code 0x05
+seq_e_jmp: expects err_code 0x08
+seq_e_xopsgn: expects err_code 0x0a
+seq_e_csrsp: expects err_code 0x07
+seq_e_rsvd: expects err_code 0x06
+seq_u_s2: 58 records, 804 writes, 191 reads (184 with the XRF sideband), 604 scratch words, 4 tokens
+seq_u_s3: 58 records, 835 writes, 261 reads (255 with the XRF sideband), 616 scratch words, 3 tokens
+seq_u_s4: 58 records, 845 writes, 381 reads (373 with the XRF sideband), 600 scratch words, 5 tokens
+verilator --binary --timing -j 8 -Wall \
+  --Mdir obj_dir_tb_seq -o tb_seq \
+  --top-module tb_seq_unit ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_seq'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_seq'
+for s in 1 2 3 4; do \
+  obj_dir_tb_seq/tb_seq +vec=scripts/seqvec/seq_u_s$s || exit 1; done
+SEQ scripts/seqvec/seq_u_s1: 58 records, 2779 cycles (47.91 cyc/rec, 5.218 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 143)
+  layer cmds 9, engine runs 0/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (728 beats), 8 read bursts (156 beats), busy_wr 1308 busy_rd 260, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s1 (writes 827, reads 165, scratch 664, tokens 3)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_u_s2: 58 records, 3136 cycles (54.07 cyc/rec, 4.624 Mrec/s @250MHz)
+  axil writes 116
+  axil reads  34  (of which 23 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 152)
+  layer cmds 10, engine runs 1/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 14 write bursts (688 beats), 10 read bursts (180 beats), busy_wr 1344 busy_rd 310, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s2 (writes 804, reads 191, scratch 604, tokens 4)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_u_s3: 58 records, 2857 cycles (49.26 cyc/rec, 5.075 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 141)
+  layer cmds 9, engine runs 3/0/0/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (736 beats), 8 read bursts (252 beats), busy_wr 1386 busy_rd 356, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s3 (writes 835, reads 261, scratch 616, tokens 3)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_u_s4: 58 records, 3631 cycles (62.60 cyc/rec, 3.993 Mrec/s @250MHz)
+  axil writes 133
+  axil reads  40  (of which 27 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 153)
+  layer cmds 11, engine runs 4/0/1/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (712 beats), 12 read bursts (368 beats), busy_wr 1520 busy_rd 524, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s4 (writes 845, reads 381, scratch 600, tokens 5)
+- tb_seq_unit.sv:856: Verilog $finish
+for e in op ind chan jmp xopsgn csrsp rsvd; do \
+  obj_dir_tb_seq/tb_seq +vec=scripts/seqvec/seq_e_$e || exit 1; done
+SEQ scripts/seqvec/seq_e_op: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_op (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_ind: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_ind (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_chan: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_chan (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_jmp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_jmp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_xopsgn: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_xopsgn (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_csrsp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_csrsp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_rsvd: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_rsvd (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+for m in csrwr cmd movx movy16 movy32 ldc; do \
+  obj_dir_tb_seq/tb_seq +vec=scripts/seqvec/seq_m_$m || exit 1; done
+SEQ scripts/seqvec/seq_m_csrwr: 2001 records, 6046 cycles (3.02 cyc/rec, 82.741 Mrec/s @250MHz)
+  axil writes 2000
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2001)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_m_cmd: 801 records, 8821 cycles (11.01 cyc/rec, 22.702 Mrec/s @250MHz)
+  axil writes 800
+  axil reads  276  (of which 276 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 801)
+  layer cmds 200, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_m_movx: 3 records, 8935 cycles (2978.33 cyc/rec, 0.084 Mrec/s @250MHz)
+  axil writes 3
+  axil reads  2  (of which 2 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 515)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 20 write bursts (5120 beats), 16 read bursts (4096 beats), busy_wr 8833 busy_rd 4169, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_m_movy16: 4 records, 2434 cycles (608.50 cyc/rec, 0.411 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 9 write bursts (2064 beats), 9 read bursts (2112 beats), busy_wr 2194 busy_rd 2166, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_m_movy32: 4 records, 4486 cycles (1121.50 cyc/rec, 0.223 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (4112 beats), 9 read bursts (2112 beats), busy_wr 4244 busy_rd 4120, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_m_ldc: 2 records, 4705 cycles (2352.50 cyc/rec, 0.106 Mrec/s @250MHz)
+  axil writes 1
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 514)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (4096 beats), 0 read bursts (0 beats), busy_wr 4652 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+############ B. S6 OUT FIFO, no concurrent pops (B's RTL) ############
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1540 cycles (12.73 cyc/rec, 19.643 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4069 cycles (12.68 cyc/rec, 19.722 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=64 rx=64 ovf=1 | pushes=64 pops=64 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5074 cycles (12.65 cyc/rec, 19.758 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1540 cycles (12.73 cyc/rec, 19.643 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4069 cycles (12.68 cyc/rec, 19.722 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=64 rx=64 ovf=1 | pushes=64 pops=64 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5074 cycles (12.65 cyc/rec, 19.758 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1540 cycles (12.73 cyc/rec, 19.643 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4069 cycles (12.68 cyc/rec, 19.722 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=64 rx=64 ovf=1 | pushes=64 pops=64 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5074 cycles (12.65 cyc/rec, 19.758 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+############ C. depth self-test: +ofdepth=16 MUST trip ############
+/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/d/run_seq_gate.sh: line 19: 52281 Aborted                 (core dumped) obj_dir_tb_seq/tb_seq +vec=scripts/seqvec/seq_f_of24 +ofdepth=16 > /dev/null 2>&1
+SELFTEST OK
+############ D. RACE on B's RTL (EXPECTED TO FAIL — the finding) ############
+--- phase 0 ---
+S6 RACE: of_rp advanced 24 times but the host received 20 tokens (4 entries consumed with valid=0)
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=20 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+[6556000] %Fatal: tb_seq_unit.sv:824: Assertion failed in TOP.tb_seq_unit.unnamedblk2: 28 comparison failures
+--- phase 1 ---
+S6 RACE: of_rp advanced 24 times but the host received 22 tokens (2 entries consumed with valid=0)
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=22 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+[6548000] %Fatal: tb_seq_unit.sv:824: Assertion failed in TOP.tb_seq_unit.unnamedblk2: 26 comparison failures
+--- phase 2 ---
+S6 RACE: of_rp advanced 24 times but the host received 21 tokens (3 entries consumed with valid=0)
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=21 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+[6564000] %Fatal: tb_seq_unit.sv:824: Assertion failed in TOP.tb_seq_unit.unnamedblk2: 27 comparison failures
+--- phase 3 ---
+S6 RACE: of_rp advanced 24 times but the host received 20 tokens (4 entries consumed with valid=0)
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=20 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+[6580000] %Fatal: tb_seq_unit.sv:824: Assertion failed in TOP.tb_seq_unit.unnamedblk2: 25 comparison failures
+--- phase 4 ---
+S6 RACE: of_rp advanced 24 times but the host received 20 tokens (4 entries consumed with valid=0)
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=20 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+[6588000] %Fatal: tb_seq_unit.sv:824: Assertion failed in TOP.tb_seq_unit.unnamedblk2: 28 comparison failures
+--- phase 5 ---
+S6 RACE: of_rp advanced 24 times but the host received 23 tokens (1 entries consumed with valid=0)
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=23 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+[6592000] %Fatal: tb_seq_unit.sv:824: Assertion failed in TOP.tb_seq_unit.unnamedblk2: 23 comparison failures
+--- phase 6 ---
+S6 RACE: of_rp advanced 24 times but the host received 23 tokens (1 entries consumed with valid=0)
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=23 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+[6580000] %Fatal: tb_seq_unit.sv:824: Assertion failed in TOP.tb_seq_unit.unnamedblk2: 25 comparison failures
+--- phase 7 ---
+S6 RACE: of_rp advanced 24 times but the host received 22 tokens (2 entries consumed with valid=0)
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=22 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+[6576000] %Fatal: tb_seq_unit.sv:824: Assertion failed in TOP.tb_seq_unit.unnamedblk2: 27 comparison failures
+############ E. the SAME race on HEAD (pre-rung-4, depth 16) ############
+--- HEAD phase 0 ---
+--- HEAD phase 1 ---
+--- HEAD phase 2 ---
+--- HEAD phase 3 ---
+############ F. FULL S6 gate on the AGENT-D CANDIDATE FIX ############
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1540 cycles (12.73 cyc/rec, 19.643 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4069 cycles (12.68 cyc/rec, 19.722 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=64 rx=64 ovf=1 | pushes=64 pops=64 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5074 cycles (12.65 cyc/rec, 19.758 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=0 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1546 cycles (12.78 cyc/rec, 19.567 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=0 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4072 cycles (12.69 cyc/rec, 19.708 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=80 rx=80 ovf=0 | pushes=80 pops=80 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=0 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5080 cycles (12.67 cyc/rec, 19.734 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=1 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1544 cycles (12.76 cyc/rec, 19.592 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=1 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4078 cycles (12.70 cyc/rec, 19.679 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=80 rx=80 ovf=0 | pushes=80 pops=80 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=1 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5079 cycles (12.67 cyc/rec, 19.738 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=2 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1548 cycles (12.79 cyc/rec, 19.541 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=2 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4076 cycles (12.70 cyc/rec, 19.688 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=80 rx=80 ovf=0 | pushes=80 pops=80 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=2 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5084 cycles (12.68 cyc/rec, 19.719 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=3 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1552 cycles (12.83 cyc/rec, 19.491 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=3 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4081 cycles (12.71 cyc/rec, 19.664 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=80 rx=80 ovf=0 | pushes=80 pops=80 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=3 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5080 cycles (12.67 cyc/rec, 19.734 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=4 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1554 cycles (12.84 cyc/rec, 19.466 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=4 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4084 cycles (12.72 cyc/rec, 19.650 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=80 rx=80 ovf=0 | pushes=80 pops=80 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=4 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5084 cycles (12.68 cyc/rec, 19.719 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=5 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1555 cycles (12.85 cyc/rec, 19.453 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=5 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4085 cycles (12.73 cyc/rec, 19.645 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=80 rx=80 ovf=0 | pushes=80 pops=80 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=5 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5086 cycles (12.68 cyc/rec, 19.711 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=6 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1552 cycles (12.83 cyc/rec, 19.491 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=6 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4084 cycles (12.72 cyc/rec, 19.650 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=80 rx=80 ovf=0 | pushes=80 pops=80 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=6 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5092 cycles (12.70 cyc/rec, 19.688 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=24 depth=64 kept=24 rx=24 ovf=0 | pushes=24 pops=24 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=7 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of24: 121 records, 1551 cycles (12.82 cyc/rec, 19.504 Mrec/s @250MHz)
+  axil writes 144
+  axil reads  57  (of which 33 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 121)
+  layer cmds 24, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of24 (writes 144, reads 24, scratch 0, tokens 24)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=64 depth=64 kept=64 rx=64 ovf=0 | pushes=64 pops=64 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=7 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of64: 321 records, 4086 cycles (12.73 cyc/rec, 19.640 Mrec/s @250MHz)
+  axil writes 384
+  axil reads  153  (of which 89 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 321)
+  layer cmds 64, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of64 (writes 384, reads 64, scratch 0, tokens 64)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=80 depth=64 kept=80 rx=80 ovf=0 | pushes=80 pops=80 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=7 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_f_of80: 401 records, 5087 cycles (12.69 cyc/rec, 19.707 Mrec/s @250MHz)
+  axil writes 480
+  axil reads  191  (of which 111 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 401)
+  layer cmds 80, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_f_of80 (writes 480, reads 80, scratch 0, tokens 80)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=3 depth=64 kept=3 rx=3 ovf=0 | pushes=3 pops=3 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=0 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_u_s1: 58 records, 2782 cycles (47.97 cyc/rec, 5.212 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 143)
+  layer cmds 9, engine runs 0/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (728 beats), 8 read bursts (156 beats), busy_wr 1308 busy_rd 260, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s1 (writes 827, reads 165, scratch 664, tokens 3)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=4 depth=64 kept=4 rx=4 ovf=0 | pushes=4 pops=4 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=0 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_u_s2: 58 records, 3142 cycles (54.17 cyc/rec, 4.615 Mrec/s @250MHz)
+  axil writes 116
+  axil reads  34  (of which 23 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 152)
+  layer cmds 10, engine runs 1/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 14 write bursts (688 beats), 10 read bursts (180 beats), busy_wr 1344 busy_rd 310, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s2 (writes 804, reads 191, scratch 604, tokens 4)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=3 depth=64 kept=3 rx=3 ovf=0 | pushes=3 pops=3 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=0 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_u_s3: 58 records, 2860 cycles (49.31 cyc/rec, 5.070 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 141)
+  layer cmds 9, engine runs 3/0/0/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (736 beats), 8 read bursts (252 beats), busy_wr 1386 busy_rd 356, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s3 (writes 835, reads 261, scratch 616, tokens 3)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=0 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_u_s4: 58 records, 3634 cycles (62.66 cyc/rec, 3.990 Mrec/s @250MHz)
+  axil writes 133
+  axil reads  40  (of which 27 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 153)
+  layer cmds 11, engine runs 4/0/1/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (712 beats), 12 read bursts (368 beats), busy_wr 1520 busy_rd 524, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s4 (writes 845, reads 381, scratch 600, tokens 5)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=3 depth=64 kept=3 rx=3 ovf=0 | pushes=3 pops=3 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=3 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_u_s1: 58 records, 2785 cycles (48.02 cyc/rec, 5.206 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 143)
+  layer cmds 9, engine runs 0/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (728 beats), 8 read bursts (156 beats), busy_wr 1308 busy_rd 260, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s1 (writes 827, reads 165, scratch 664, tokens 3)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=4 depth=64 kept=4 rx=4 ovf=0 | pushes=4 pops=4 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=3 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_u_s2: 58 records, 3145 cycles (54.22 cyc/rec, 4.610 Mrec/s @250MHz)
+  axil writes 116
+  axil reads  34  (of which 23 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 152)
+  layer cmds 10, engine runs 1/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 14 write bursts (688 beats), 10 read bursts (180 beats), busy_wr 1344 busy_rd 310, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s2 (writes 804, reads 191, scratch 604, tokens 4)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=3 depth=64 kept=3 rx=3 ovf=0 | pushes=3 pops=3 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=3 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_u_s3: 58 records, 2866 cycles (49.41 cyc/rec, 5.059 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 141)
+  layer cmds 9, engine runs 3/0/0/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (736 beats), 8 read bursts (252 beats), busy_wr 1386 busy_rd 356, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s3 (writes 835, reads 261, scratch 616, tokens 3)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+  NOTE: no push/pop coincidence at +ofphase=3 (this run did not exercise the race)
+SEQ scripts/seqvec/seq_u_s4: 58 records, 3640 cycles (62.76 cyc/rec, 3.984 Mrec/s @250MHz)
+  axil writes 133
+  axil reads  40  (of which 27 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 153)
+  layer cmds 11, engine runs 4/0/1/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (712 beats), 12 read bursts (368 beats), busy_wr 1520 busy_rd 524, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s4 (writes 845, reads 381, scratch 600, tokens 5)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_u_s1: 58 records, 2779 cycles (47.91 cyc/rec, 5.218 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 143)
+  layer cmds 9, engine runs 0/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (728 beats), 8 read bursts (156 beats), busy_wr 1308 busy_rd 260, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s1 (writes 827, reads 165, scratch 664, tokens 3)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_u_s2: 58 records, 3136 cycles (54.07 cyc/rec, 4.624 Mrec/s @250MHz)
+  axil writes 116
+  axil reads  34  (of which 23 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 152)
+  layer cmds 10, engine runs 1/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 14 write bursts (688 beats), 10 read bursts (180 beats), busy_wr 1344 busy_rd 310, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s2 (writes 804, reads 191, scratch 604, tokens 4)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_u_s3: 58 records, 2857 cycles (49.26 cyc/rec, 5.075 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 141)
+  layer cmds 9, engine runs 3/0/0/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (736 beats), 8 read bursts (252 beats), busy_wr 1386 busy_rd 356, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s3 (writes 835, reads 261, scratch 616, tokens 3)
+- tb_seq_unit.sv:856: Verilog $finish
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_u_s4: 58 records, 3631 cycles (62.60 cyc/rec, 3.993 Mrec/s @250MHz)
+  axil writes 133
+  axil reads  40  (of which 27 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 153)
+  layer cmds 11, engine runs 4/0/1/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (712 beats), 12 read bursts (368 beats), busy_wr 1520 busy_rd 524, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s4 (writes 845, reads 381, scratch 600, tokens 5)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_op: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_op (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_ind: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_ind (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_chan: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_chan (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_jmp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_jmp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_xopsgn: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_xopsgn (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_csrsp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_csrsp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+SEQ scripts/seqvec/seq_e_rsvd: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_rsvd (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:856: Verilog $finish
+S6_FIX_GATE_OK
+SEQ_GATE_DONE

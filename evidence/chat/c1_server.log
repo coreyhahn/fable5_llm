@@ -1,0 +1,47 @@
+--- serve.py bring-up (board)
+  lock       held: /home/cah/r2d2/code/fpga/fable5_llm/sw/.seq.lock (spec decision 10)
+  listening  http://127.0.0.1:8137   (loopback only; no auth)
+  endpoints  POST /v1/generate (SSE) | GET /v1/health | GET /v1/metrics | GET /v1/sessions | POST /v1/reset
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  board      MAGIC=0xfab1e001 VERSION=0x4d71adcc CALIB=0xf SEQ=READY
+  residency  195 witness blocks (187 weight + 8 emb, 780 KiB) in 6 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2216 KiB readback-verified in 0.0s
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  preamble   36.1 ms device / 37.2 ms wall  (context reset: KV/DN/conv, T=0)
+  serve      backend ready (board); queue cap 8, request timeout 300s
+  preamble   36.1 ms device / 37.3 ms wall  (context reset: KV/DN/conv, T=0)
+  preamble   36.1 ms device / 37.2 ms wall  (context reset: KV/DN/conv, T=0)
+  preamble   36.1 ms device / 37.3 ms wall  (context reset: KV/DN/conv, T=0)
+
+  signal     SIGTERM -> draining the queue and releasing the lock
+  lock       released
+  bye        turns=3 tokens=18 uptime=180s
+--- serve.py bring-up (board)
+  lock       held: /home/cah/r2d2/code/fpga/fable5_llm/sw/.seq.lock (spec decision 10)
+  listening  http://127.0.0.1:8137   (loopback only; no auth)
+  endpoints  POST /v1/generate (SSE) | GET /v1/health | GET /v1/metrics | GET /v1/sessions | POST /v1/reset
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  board      MAGIC=0xfab1e001 VERSION=0x4d71adcc CALIB=0xf SEQ=READY
+  residency  195 witness blocks (187 weight + 8 emb, 780 KiB) in 8 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2216 KiB readback-verified in 0.0s
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  preamble   36.1 ms device / 37.4 ms wall  (context reset: KV/DN/conv, T=0)
+  serve      backend ready (board); queue cap 8, request timeout 300s
+  preamble   36.1 ms device / 37.3 ms wall  (context reset: KV/DN/conv, T=0)
+  preamble   36.1 ms device / 37.6 ms wall  (context reset: KV/DN/conv, T=0)
+  preamble   36.1 ms device / 37.2 ms wall  (context reset: KV/DN/conv, T=0)
+  preamble   36.1 ms device / 37.3 ms wall  (context reset: KV/DN/conv, T=0)
+  preamble   36.1 ms device / 37.2 ms wall  (context reset: KV/DN/conv, T=0)
+  preamble   36.1 ms device / 37.3 ms wall  (context reset: KV/DN/conv, T=0)
+
+  signal     SIGTERM -> draining the queue and releasing the lock
+  lock       released
+  bye        turns=11 tokens=323 uptime=2171s

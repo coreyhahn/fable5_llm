@@ -1,0 +1,123 @@
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+python3 ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+python3 ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+python3 ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+python3 ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_matvec -o tb_matvec \
+  --top-module tb_matvec \
+  ../rtl/matvec_engine.sv tb_matvec.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_matvec'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_matvec'
+obj_dir_tb_matvec/tb_matvec --seed 1 +vecdir=vec_s1
+vectors: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+TB_MATVEC PASS: 64 rows bit-exact (K=1024)
+- tb_matvec.sv:159: Verilog $finish
+obj_dir_tb_matvec/tb_matvec --seed 2 +vecdir=vec_s2
+vectors: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+TB_MATVEC PASS: 32 rows bit-exact (K=3584)
+- tb_matvec.sv:159: Verilog $finish
+obj_dir_tb_matvec/tb_matvec --seed 3 +vecdir=vec_s3
+vectors: K=256 NG=2 SH=3 NROWS=128 BPR=3
+TB_MATVEC PASS: 128 rows bit-exact (K=256)
+- tb_matvec.sv:159: Verilog $finish
+obj_dir_tb_matvec/tb_matvec --seed 4 +vecdir=vec_s4
+vectors: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+TB_MATVEC PASS: 16 rows bit-exact (K=2048)
+- tb_matvec.sv:159: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+python3 ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+python3 ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+python3 ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+python3 ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_se -o tb_se \
+  --top-module tb_streamer_engine \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv tb_streamer_engine.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_se'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_se'
+obj_dir_tb_se/tb_se --seed 1 +vecdir=vec_s1
+perf: 576 beats in 707 cycles (81.5% bus util)
+TB_STREAMER_ENGINE PASS: 64 rows bit-exact (K=1024)
+- tb_streamer_engine.sv:219: Verilog $finish
+obj_dir_tb_se/tb_se --seed 2 +vecdir=vec_s2
+perf: 928 beats in 1138 cycles (81.5% bus util)
+TB_STREAMER_ENGINE PASS: 32 rows bit-exact (K=3584)
+- tb_streamer_engine.sv:219: Verilog $finish
+obj_dir_tb_se/tb_se --seed 3 +vecdir=vec_s3
+perf: 384 beats in 578 cycles (66.4% bus util)
+TB_STREAMER_ENGINE PASS: 128 rows bit-exact (K=256)
+- tb_streamer_engine.sv:219: Verilog $finish
+obj_dir_tb_se/tb_se --seed 4 +vecdir=vec_s4
+perf: 272 beats in 330 cycles (82.4% bus util)
+TB_STREAMER_ENGINE PASS: 16 rows bit-exact (K=2048)
+- tb_streamer_engine.sv:219: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+python3 ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+python3 ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+python3 ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+python3 ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 4 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  --Mdir obj_dir_tb_chan -o tb_chan \
+  --top-module tb_matvec_chan \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv tb_matvec_chan.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_chan'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_chan'
+obj_dir_tb_chan/tb_chan --seed 1 +vecdir=vec_s1
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[4276000] phase: doorbell
+[4292000] phase: poll
+[8248000] phase: results
+perf: 576 beats in 725 cycles
+TB_MATVEC_CHAN PASS: 64 rows bit-exact (K=1024)
+- tb_matvec_chan.sv:209: Verilog $finish
+obj_dir_tb_chan/tb_chan --seed 2 +vecdir=vec_s2
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[14516000] phase: doorbell
+[14532000] phase: poll
+[18856000] phase: results
+perf: 928 beats in 1217 cycles
+TB_MATVEC_CHAN PASS: 32 rows bit-exact (K=3584)
+- tb_matvec_chan.sv:209: Verilog $finish
+obj_dir_tb_chan/tb_chan --seed 3 +vecdir=vec_s3
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[1204000] phase: doorbell
+[1220000] phase: poll
+[6464000] phase: results
+perf: 384 beats in 569 cycles
+TB_MATVEC_CHAN PASS: 128 rows bit-exact (K=256)
+- tb_matvec_chan.sv:209: Verilog $finish
+obj_dir_tb_chan/tb_chan --seed 4 +vecdir=vec_s4
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[8372000] phase: doorbell
+[8388000] phase: poll
+[9952000] phase: results
+perf: 272 beats in 329 cycles
+TB_MATVEC_CHAN PASS: 16 rows bit-exact (K=2048)
+- tb_matvec_chan.sv:209: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'

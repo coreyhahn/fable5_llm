@@ -1,0 +1,236 @@
+############ tb_vec_alu (incl. RUNG4 S5 export contract) ############
+seq vectors: seed=1 -> vecseq/s1  dynq16=446 (k -14..17), probe8=24, epsnorm=68
+seq vectors: seed=2 -> vecseq/s2  dynq16=446 (k -14..17), probe8=24, epsnorm=68
+seq vectors: seed=3 -> vecseq/s3  dynq16=446 (k -14..17), probe8=24, epsnorm=68
+seq vectors: seed=4 -> vecseq/s4  dynq16=446 (k -14..17), probe8=24, epsnorm=68
+verilator --binary --timing -j 8 -Wall \
+  --Mdir obj_dir_tb_alu -o tb_alu \
+  --top-module tb_vec_alu \
+  ../rtl/fx_pkg.sv ../rtl/vec_alu.sv tb_vec_alu.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_alu'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+/usr/bin/python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtb_vec_alu.cpp Vtb_vec_alu___024root__DepSet_he9c87036__0.cpp Vtb_vec_alu___024root__DepSet_he539a2bf__0.cpp Vtb_vec_alu__main.cpp Vtb_vec_alu___024root__Slow.cpp Vtb_vec_alu___024root__DepSet_he9c87036__0__Slow.cpp Vtb_vec_alu___024root__DepSet_he539a2bf__0__Slow.cpp Vtb_vec_alu__Syms.cpp > Vtb_vec_alu__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o Vtb_vec_alu__ALL.o Vtb_vec_alu__ALL.cpp
+echo "" > Vtb_vec_alu__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_vec_alu__ALL.a Vtb_vec_alu__ALL.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_vec_alu__ALL.a    -pthread -lpthread -latomic   -o tb_alu
+rm Vtb_vec_alu__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_alu'
+obj_dir_tb_alu/tb_alu --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:472: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 2 +vecdir=vectors/s2 +seqdir=vecseq/s2
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:472: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 3 +vecdir=vectors/s3 +seqdir=vecseq/s3
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:472: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 4 +vecdir=vectors/s4 +seqdir=vecseq/s4
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:472: Verilog $finish
+-- RUNG4 S5: the >2^18 element chain (am_g wrap) on one seed --
+obj_dir_tb_alu/tb_alu --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1 +amaxlong
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 533 AMAX32 commands, 268273 elements, 268273 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:472: Verilog $finish
+############ tb_vecalu_diff (legacy-vs-new differential) ############
+verilator --binary --timing -j 8 -Wall \
+  --Mdir obj_dir_tb_vecalu_diff -o tb_vecalu_diff \
+  --top-module tb_vecalu_diff \
+  ../rtl/fx_pkg.sv ../rtl/vec_alu.sv legacy/vec_alu_legacy.sv \
+  tb_vecalu_diff.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecalu_diff'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_vecalu_diff__pch.h -o Vtb_vecalu_diff__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_vecalu_diff__pch.h -o Vtb_vecalu_diff__pch.h.slow.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.slow -c -o Vtb_vecalu_diff___024root__Slow.o Vtb_vecalu_diff___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.slow -c -o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__0__Slow.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.slow -c -o Vtb_vecalu_diff___024root__DepSet_ha7d61439__0__Slow.o Vtb_vecalu_diff___024root__DepSet_ha7d61439__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.slow -c -o Vtb_vecalu_diff__Syms.o Vtb_vecalu_diff__Syms.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff.o Vtb_vecalu_diff.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__0.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__1.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__2.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__3.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__3.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__4.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__5.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__5.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__6.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__6.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff___024root__DepSet_ha7d61439__0.o Vtb_vecalu_diff___024root__DepSet_ha7d61439__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecalu_diff__pch.h.fast -c -o Vtb_vecalu_diff__main.o Vtb_vecalu_diff__main.cpp
+echo "" > Vtb_vecalu_diff__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_vecalu_diff__ALL.a Vtb_vecalu_diff.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__0.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__1.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__2.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__3.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__4.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__5.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__6.o Vtb_vecalu_diff___024root__DepSet_ha7d61439__0.o Vtb_vecalu_diff__main.o Vtb_vecalu_diff___024root__Slow.o Vtb_vecalu_diff___024root__DepSet_h3e4f83a8__0__Slow.o Vtb_vecalu_diff___024root__DepSet_ha7d61439__0__Slow.o Vtb_vecalu_diff__Syms.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_vecalu_diff__ALL.a    -pthread -lpthread -latomic   -o tb_vecalu_diff
+rm Vtb_vecalu_diff__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecalu_diff'
+  ops:  0:54 1:61 2:60 3:48 4:41 5:58 6:72 7:60 8:86 9:61 10:119 12:81
+  class: disjoint=551 inplace1=123 narrow2to1=98 pair-inplace=29 | len_max=2048
+  overlap census: legacy raw collisions=152 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1603021 new=204001 (speedup x100 = 785)
+TB_VECALU_DIFF PASS: 801 commands bit-exact (seed 1, read-first)
+- tb_vecalu_diff.sv:682: Verilog $finish
+  ops:  0:53 1:69 2:53 3:51 4:45 5:52 6:55 7:58 8:81 9:67 10:158 12:58
+  class: disjoint=543 inplace1=136 narrow2to1=82 pair-inplace=39 | len_max=2048
+  overlap census: legacy raw collisions=175 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1523259 new=204604 (speedup x100 = 744)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 2, read-first)
+- tb_vecalu_diff.sv:682: Verilog $finish
+  ops:  0:70 1:68 2:47 3:49 4:46 5:47 6:56 7:60 8:87 9:73 10:118 12:79
+  class: disjoint=547 inplace1=127 narrow2to1=91 pair-inplace=35 | len_max=2048
+  overlap census: legacy raw collisions=162 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1672130 new=222633 (speedup x100 = 751)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 3, read-first)
+- tb_vecalu_diff.sv:682: Verilog $finish
+  ops:  0:58 1:70 2:68 3:52 4:54 5:52 6:58 7:65 8:84 9:64 10:112 12:63
+  class: disjoint=538 inplace1=153 narrow2to1=79 pair-inplace=30 | len_max=2048
+  overlap census: legacy raw collisions=183 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1530245 new=190029 (speedup x100 = 805)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 4, read-first)
+- tb_vecalu_diff.sv:682: Verilog $finish
+-- strict: overlap invariant fatal + write-first scratch + cfg-latch --
+obj_dir_tb_vecalu_diff/tb_vecalu_diff +seed=1 +coll_fatal +wfirst +cfgscramble
+  ops:  0:60 1:71 2:58 3:45 4:53 5:59 6:55 7:71 8:86 9:57 10:122 12:65
+  class: disjoint=533 inplace1=156 narrow2to1=84 pair-inplace=29 | len_max=2048
+  overlap census: legacy raw collisions=185 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1632295 new=199869 (speedup x100 = 816)
+TB_VECALU_DIFF PASS: 802 commands bit-exact (seed 1, write-first+coll_fatal+cfgscramble)
+- tb_vecalu_diff.sv:682: Verilog $finish
+obj_dir_tb_vecalu_diff/tb_vecalu_diff +seed=3 +coll_fatal +wfirst +cfgscramble
+  ops:  0:61 1:73 2:43 3:50 4:55 5:53 6:63 7:43 8:87 9:65 10:133 12:74
+  class: disjoint=545 inplace1=128 narrow2to1=94 pair-inplace=33 | len_max=2048
+  overlap census: legacy raw collisions=161 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1568660 new=195186 (speedup x100 = 803)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 3, write-first+coll_fatal+cfgscramble)
+- tb_vecalu_diff.sv:682: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECALU_DIFF OK: 4 seeds + 2 strict + 4 comparator self-tests
+############ tb_vecnorm_diff ############
+verilator --binary --timing -j 8 -Wall \
+  --Mdir obj_dir_tb_vecnorm_diff -o tb_vecnorm_diff \
+  --top-module tb_vecnorm_diff \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/vecnorm_unit.sv \
+  legacy/vecnorm_legacy.sv tb_vecnorm_diff.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecnorm_diff'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_vecnorm_diff__pch.h -o Vtb_vecnorm_diff__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_vecnorm_diff__pch.h -o Vtb_vecnorm_diff__pch.h.slow.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.slow -c -o Vtb_vecnorm_diff___024root__Slow.o Vtb_vecnorm_diff___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.slow -c -o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__0__Slow.o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.slow -c -o Vtb_vecnorm_diff___024root__DepSet_hc5125425__0__Slow.o Vtb_vecnorm_diff___024root__DepSet_hc5125425__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.slow -c -o Vtb_vecnorm_diff__Syms.o Vtb_vecnorm_diff__Syms.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.fast -c -o Vtb_vecnorm_diff.o Vtb_vecnorm_diff.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.fast -c -o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__0.o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.fast -c -o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__1.o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.fast -c -o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__2.o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.fast -c -o Vtb_vecnorm_diff___024root__DepSet_hc5125425__0.o Vtb_vecnorm_diff___024root__DepSet_hc5125425__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.fast -c -o Vtb_vecnorm_diff___024root__DepSet_hc5125425__1.o Vtb_vecnorm_diff___024root__DepSet_hc5125425__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_vecnorm_diff__pch.h.fast -c -o Vtb_vecnorm_diff__main.o Vtb_vecnorm_diff__main.cpp
+echo "" > Vtb_vecnorm_diff__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_vecnorm_diff__ALL.a Vtb_vecnorm_diff.o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__0.o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__1.o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__2.o Vtb_vecnorm_diff___024root__DepSet_hc5125425__0.o Vtb_vecnorm_diff___024root__DepSet_hc5125425__1.o Vtb_vecnorm_diff__main.o Vtb_vecnorm_diff___024root__Slow.o Vtb_vecnorm_diff___024root__DepSet_h97cfe731__0__Slow.o Vtb_vecnorm_diff___024root__DepSet_hc5125425__0__Slow.o Vtb_vecnorm_diff__Syms.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_vecnorm_diff__ALL.a    -pthread -lpthread -latomic   -o tb_vecnorm_diff
+rm Vtb_vecnorm_diff__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_vecnorm_diff'
+  modes: 0:36 1:34 2:50 | eps vectors=21 (k -14..17) | all-zero blocks=20 | n_max=1024
+  busy cycles: legacy=223831 new=63849 (speedup x100 = 350)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 1, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:388: Verilog $finish
+  modes: 0:37 1:33 2:50 | eps vectors=28 (k -14..17) | all-zero blocks=18 | n_max=1024
+  busy cycles: legacy=270118 new=74056 (speedup x100 = 364)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 2, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:388: Verilog $finish
+  modes: 0:40 1:32 2:48 | eps vectors=27 (k -14..17) | all-zero blocks=16 | n_max=1024
+  busy cycles: legacy=313974 new=88649 (speedup x100 = 354)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 3, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:388: Verilog $finish
+  modes: 0:37 1:38 2:45 | eps vectors=27 (k -14..17) | all-zero blocks=19 | n_max=1024
+  busy cycles: legacy=250467 new=74642 (speedup x100 = 335)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 4, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:388: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECNORM_DIFF OK: 4 seeds + 3 comparator self-tests
+############ tb_layershim_c (burst window, real layer_chan) ############
+verilator --binary --timing -j 8 -Wall \
+  --Mdir obj_dir_tb_layershim_c -o tb_layershim_c \
+  --top-module tb_layershim_c \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/layer_chan.sv tb_layershim_c.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layershim_c'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_layershim_c__pch.h -o Vtb_layershim_c__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_layershim_c__pch.h -o Vtb_layershim_c__pch.h.slow.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.slow -c -o Vtb_layershim_c__ConstPool_0.o Vtb_layershim_c__ConstPool_0.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.slow -c -o Vtb_layershim_c___024root__Slow.o Vtb_layershim_c___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.slow -c -o Vtb_layershim_c___024root__DepSet_h89d53e63__0__Slow.o Vtb_layershim_c___024root__DepSet_h89d53e63__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.slow -c -o Vtb_layershim_c___024root__DepSet_hbdd598b9__0__Slow.o Vtb_layershim_c___024root__DepSet_hbdd598b9__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.slow -c -o Vtb_layershim_c__Syms.o Vtb_layershim_c__Syms.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c.o Vtb_layershim_c.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c___024root__DepSet_h89d53e63__0.o Vtb_layershim_c___024root__DepSet_h89d53e63__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c___024root__DepSet_h89d53e63__1.o Vtb_layershim_c___024root__DepSet_h89d53e63__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c___024root__DepSet_hbdd598b9__0.o Vtb_layershim_c___024root__DepSet_hbdd598b9__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c___024root__DepSet_hbdd598b9__1.o Vtb_layershim_c___024root__DepSet_hbdd598b9__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c___024root__DepSet_hbdd598b9__2.o Vtb_layershim_c___024root__DepSet_hbdd598b9__2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c___024root__DepSet_hbdd598b9__3.o Vtb_layershim_c___024root__DepSet_hbdd598b9__3.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c___024root__DepSet_hbdd598b9__4.o Vtb_layershim_c___024root__DepSet_hbdd598b9__4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c___024root__DepSet_hbdd598b9__5.o Vtb_layershim_c___024root__DepSet_hbdd598b9__5.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layershim_c__pch.h.fast -c -o Vtb_layershim_c__main.o Vtb_layershim_c__main.cpp
+echo "" > Vtb_layershim_c__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_layershim_c__ALL.a Vtb_layershim_c.o Vtb_layershim_c___024root__DepSet_h89d53e63__0.o Vtb_layershim_c___024root__DepSet_h89d53e63__1.o Vtb_layershim_c___024root__DepSet_hbdd598b9__0.o Vtb_layershim_c___024root__DepSet_hbdd598b9__1.o Vtb_layershim_c___024root__DepSet_hbdd598b9__2.o Vtb_layershim_c___024root__DepSet_hbdd598b9__3.o Vtb_layershim_c___024root__DepSet_hbdd598b9__4.o Vtb_layershim_c___024root__DepSet_hbdd598b9__5.o Vtb_layershim_c__main.o Vtb_layershim_c__ConstPool_0.o Vtb_layershim_c___024root__Slow.o Vtb_layershim_c___024root__DepSet_h89d53e63__0__Slow.o Vtb_layershim_c___024root__DepSet_hbdd598b9__0__Slow.o Vtb_layershim_c__Syms.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_layershim_c__ALL.a    -pthread -lpthread -latomic   -o tb_layershim_c
+rm Vtb_layershim_c__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layershim_c'
+T1 OK: 1090 words burst-written, SWIN readback bit-exact
+T2 OK: 1102 words SWIN-written, burst readback bit-exact
+T3 OK: burst W/R during a live ALU op 4 (len 2048) -> SLVERR on 256/256 read beats + BRESP SLVERR; 2048 ALU results bit-exact; 256 victim words untouched
+T4 OK: the blocked burst retried clean once idle (256 words)
+T5 OK: DNZ (busy, non-ALU mux arm) -> SLVERR, scratch untouched
+T6 OK: 128 SWIN writes concurrent with a 128-beat burst, no beat lost on either side
+T7 OK: WSTRB=0 beats consumed, answered OKAY, wrote nothing
+T8 OK: 8x (CMD -> DONE poll -> immediate burst) all BRESP OKAY and bit-exact
+TB_LAYERSHIM_C PASS (seed 1): T1 1090 w, T2 1102 w, T3 ALU 2048 + 256 SLVERR beats, T6 128 w, T4/T5/T7/T8 ok
+- tb_layershim_c.sv:623: Verilog $finish
+T1 OK: 1569 words burst-written, SWIN readback bit-exact
+T2 OK: 856 words SWIN-written, burst readback bit-exact
+T3 OK: burst W/R during a live ALU op 4 (len 2048) -> SLVERR on 256/256 read beats + BRESP SLVERR; 2048 ALU results bit-exact; 256 victim words untouched
+T4 OK: the blocked burst retried clean once idle (256 words)
+T5 OK: DNZ (busy, non-ALU mux arm) -> SLVERR, scratch untouched
+T6 OK: 128 SWIN writes concurrent with a 128-beat burst, no beat lost on either side
+T7 OK: WSTRB=0 beats consumed, answered OKAY, wrote nothing
+T8 OK: 8x (CMD -> DONE poll -> immediate burst) all BRESP OKAY and bit-exact
+TB_LAYERSHIM_C PASS (seed 2): T1 1569 w, T2 856 w, T3 ALU 2048 + 256 SLVERR beats, T6 128 w, T4/T5/T7/T8 ok
+- tb_layershim_c.sv:623: Verilog $finish
+T1 OK: 1123 words burst-written, SWIN readback bit-exact
+T2 OK: 887 words SWIN-written, burst readback bit-exact
+T3 OK: burst W/R during a live ALU op 4 (len 2048) -> SLVERR on 256/256 read beats + BRESP SLVERR; 2048 ALU results bit-exact; 256 victim words untouched
+T4 OK: the blocked burst retried clean once idle (256 words)
+T5 OK: DNZ (busy, non-ALU mux arm) -> SLVERR, scratch untouched
+T6 OK: 128 SWIN writes concurrent with a 128-beat burst, no beat lost on either side
+T7 OK: WSTRB=0 beats consumed, answered OKAY, wrote nothing
+T8 OK: 8x (CMD -> DONE poll -> immediate burst) all BRESP OKAY and bit-exact
+TB_LAYERSHIM_C PASS (seed 3): T1 1123 w, T2 887 w, T3 ALU 2048 + 256 SLVERR beats, T6 128 w, T4/T5/T7/T8 ok
+- tb_layershim_c.sv:623: Verilog $finish
+T1 OK: 1559 words burst-written, SWIN readback bit-exact
+T2 OK: 706 words SWIN-written, burst readback bit-exact
+T3 OK: burst W/R during a live ALU op 4 (len 2048) -> SLVERR on 256/256 read beats + BRESP SLVERR; 2048 ALU results bit-exact; 256 victim words untouched
+T4 OK: the blocked burst retried clean once idle (256 words)
+T5 OK: DNZ (busy, non-ALU mux arm) -> SLVERR, scratch untouched
+T6 OK: 128 SWIN writes concurrent with a 128-beat burst, no beat lost on either side
+T7 OK: WSTRB=0 beats consumed, answered OKAY, wrote nothing
+T8 OK: 8x (CMD -> DONE poll -> immediate burst) all BRESP OKAY and bit-exact
+TB_LAYERSHIM_C PASS (seed 4): T1 1559 w, T2 706 w, T3 ALU 2048 + 256 SLVERR beats, T6 128 w, T4/T5/T7/T8 ok
+- tb_layershim_c.sv:623: Verilog $finish
+ALU_GATE_DONE

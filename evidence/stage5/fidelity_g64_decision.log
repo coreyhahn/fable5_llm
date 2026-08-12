@@ -1,0 +1,25 @@
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 1.8s
+  LM head quantized (mse=True g=64) e=-4 sh=5 (73.3s)
+  LM head quantized (mse=True g=128) e=-4 sh=5 (73.4s)
+
+=== config S=8 mse ===
+    quantized 24 layers in 68.4s
+    emb table |q|max 472 of 32767 (3.2s)
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 942, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 882, in main
+    r = run_config(md, golden, prompts, args.ntok, S, qf,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 728, in run_config
+    y = R.step(cur, t)
+        ^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 232, in step
+    parts.append(matvec_y32(h["w4"][r0:r1], h["m"][r0:r1], h["sh"],
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/w4a8_ref.py", line 161, in matvec_y32
+    assert np.abs(acc).max() < (1 << 31)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

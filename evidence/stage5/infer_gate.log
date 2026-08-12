@@ -1,0 +1,150 @@
+tokenizer: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/tokenizer.json
+  byte-level BPE, 247587 merges; self-test reproduces all 4 gen_model_script PROMPTS exactly (1.5s)
+board identity gate PASSED — DMA enabled
+  weight plan: 187 images, 417546240 bytes packed 0x10000000..0x28e34000
+  checkpoint model.safetensors-00001-of-00001.safetensors
+    header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+    24 layers, H=1024, vocab=248320, res_scale=8 w4_group=128 DN_NORM_F=11 M_Q15_MAX=65535
+    quantized 24 layers (18 DeltaNet / 6 GQA)
+    LM head (248320, 1024) e=-4 sh=5; emb |q|max 472 of 32767
+    model_v2_s1.emb.bin matches the freshly quantized embedding table (248320x1024, bit-exact)
+  quantization done in 160.4s
+  uploaded 187 weight images + the embedding table (byte-compared vs the live quantization): 883 MiB in 2.9s
+  session preamble: 24 layer banks primed in 0.5s
+========================================================================
+fable5_llm — live LLM inference on the BCU-1525
+========================================================================
+board   /dev/xdma0 chan 0: MAGIC 0xfab1e001  VERSION 0x67a943bd  CALIB 0xf
+        layer_chan IDENT 0xfab1e5a0  matvec IDENTs 0xfab1c4a0 0xfab1c4a1 0xfab1c4a2 0xfab1c4a3
+model   Qwen3.5-0.8B, 24 layers (18 DeltaNet / 6 GQA), vocab 248320
+        W4A8 g=128, res_scale=8, DN_NORM_F=11, S_F=13, M_Q15_MAX=65535
+        images model_v2_s1.*  checkpoint sha256 c894b6055113f9d5...
+verify  FULL LOCKSTEP — every chip readback (x8, EOUT, o32, y32 rows, argmax)
+        plus the host W4A8 matvec of every matrix and layer_fixed.layer_decode_fx
+        per layer, all required bit-exact
+POSTURE — read this before believing the text
+  This model runs at its KNOWN SATURATION posture: ref/gen_model_script.py
+  refuses to bless a script for these weights without --allow-clip, because
+  two frozen fixed-point formats saturate on the real checkpoint —
+    * the DeltaNet state S_F=13 (int16 Q2.13) — |S| reaches ~5.5 where the
+      format stops at 4.0 (28 saturating writes per 4-prompt soak), and
+    * 3 of 288 DeltaNet heads clamp dt_bias / A at the gate_unit ports.
+  The RTL and ref/layer_fixed.py clip IDENTICALLY, so everything this tool
+  reports is still BIT-EXACT; what saturation costs is numerical fidelity to
+  the bf16 model, not correctness.  Measured quality: 16/24 top-1 vs bf16
+  (evidence/stage5/fidelity_mq15_prod.log).  Expect plausible English, not
+  bf16-class answers.
+  Sampling is pure greedy argmax, computed ON CHIP (layer_chan AMAXI).
+------------------------------------------------------------------------
+
+prompt> The capital of France
+  tokens  [760, 6511, 314, 9338]  (4 ids; context 0 -> 6 of 500)
+
+  prefill 1/3 (21.3s/tok)   
+  prefill 2/3 (21.3s/tok)   
+  prefill 3/3 (21.3s/tok)   
+                                              
+  [ 1]   21.2s     369  ' is'
+
+                                              
+  [ 2]   21.2s     279  ' the'
+
+                                              
+  [ 3]   21.3s    6511  ' capital'
+  --> ' is the capital'
+      ids [369, 279, 6511]   3 tok in 127.5s (42.5 s/tok incl. prefill)
+  session preamble: 24 layer banks primed in 0.5s
+
+prompt> The largest planet in the solar system is
+  tokens  [760, 7526, 11247, 303, 279, 12570, 1785, 369]  (8 ids; context 0 -> 17 of 500)
+
+  prefill 1/7 (21.2s/tok)   
+  prefill 2/7 (21.2s/tok)   
+  prefill 3/7 (21.3s/tok)   
+  prefill 4/7 (21.3s/tok)   
+  prefill 5/7 (21.2s/tok)   
+  prefill 6/7 (21.3s/tok)   
+  prefill 7/7 (21.3s/tok)   
+                                              
+  [ 1]   21.3s     279  ' the'
+
+                                              
+  [ 2]   21.3s    8964  ' Earth'
+
+                                              
+  [ 3]   21.3s      13  '.'
+
+                                              
+  [ 4]   21.3s     198  '\n'
+
+                                              
+  [ 5]   21.3s     760  'The'
+
+                                              
+  [ 6]   21.4s    7526  ' largest'
+
+                                              
+  [ 7]   21.3s   11247  ' planet'
+
+                                              
+  [ 8]   21.4s     303  ' in'
+
+                                              
+  [ 9]   21.4s     279  ' the'
+
+                                              
+  [10]   21.3s   12570  ' solar'
+  --> ' the Earth.\nThe largest planet in the solar'
+      ids [279, 8964, 13, 198, 760, 7526, 11247, 303, 279, 12570]   10 tok in 362.2s (36.2 s/tok incl. prefill)
+  session preamble: 24 layer banks primed in 0.5s
+
+prompt> def fibonacci(n):
+  tokens  [727, 73111, 1393, 1590]  (4 ids; context 0 -> 15 of 500)
+
+  prefill 1/3 (21.2s/tok)   
+  prefill 2/3 (21.3s/tok)   
+  prefill 3/3 (21.3s/tok)   
+                                              
+  [ 1]   21.3s     198  '\n'
+
+                                              
+  [ 2]   21.3s     262  '   '
+
+                                              
+  [ 3]   21.3s     413  ' if'
+
+                                              
+  [ 4]   21.3s     307  ' n'
+
+                                              
+  [ 5]   21.3s     361  ' <'
+
+                                              
+  [ 6]   21.3s     220  ' '
+
+                                              
+  [ 7]   21.4s      15  '0'
+
+                                              
+  [ 8]   21.3s      25  ':'
+
+                                              
+  [ 9]   21.3s     198  '\n'
+
+                                              
+  [10]   21.3s     285  '       '
+
+                                              
+  [11]   21.4s     460  ' return'
+
+                                              
+  [12]   21.4s     220  ' '
+  --> '\n    if n < 0:\n        return '
+      ids [198, 262, 413, 307, 361, 220, 15, 25, 198, 285, 460, 220]   12 tok in 319.7s (26.6 s/tok incl. prefill)
+
+  context      15 forward steps of 500 (KV bank depth 512)
+  generated    12 tokens this session
+  per token    mean 21.3s  min 21.3s  max 21.4s  (0.047 tok/s)
+  hw commands  143998   matvecs 7106   host words written 52806464
+  checks       39974670 chip words compared bit-exactly, 0 mismatches
+  MMIO         44244000 reads / 56896568 writes

@@ -1,0 +1,62 @@
+# stage-5 fidelity: gen_model_script.py --res-scale=8 --allow-clip (snoke)
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+  24 layers, H=1024, vocab=248320
+  res_scale=8 qfix=False mse_scale=False
+  quantized 24 layers (18 DN / 6 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 25856 of 32767, 0 out of range
+  LM head (248320, 1024) e=-3 sh=5; emb table |q|max 472 of 32767
+  step  0 (prefill ) in_tok=   464 argmax=    14 |resid|max=9018
+  step  1 (prefill ) in_tok=  8328 argmax=   279 |resid|max=9018
+  step  2 (prefill ) in_tok=   430 argmax=   220 |resid|max=9018
+  step  3 (generate) in_tok=  2510 argmax=   198 |resid|max=9041
+  step  4 (generate) in_tok=   198 argmax=    47 |resid|max=9685
+  step  5 (generate) in_tok=    47 argmax=    11 |resid|max=10892
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                    8     1588608    32768
+alu2                    0      884736     2048
+alu3                    0      221184    11700
+alu4                    0      294912    10892
+alu5                    0      221184    32549
+alu6                    0      516096    31244
+alu7                    0       73728    32758
+alu8                    0      589824    12209
+conv                   84      663552    32767
+embed                   0        6144      198
+gate(Q15)               0        3456    32767
+vn0                     0      387072     6879
+vn1                     0      227328     3149
+vn2                     0      442368    16372
+TOTAL                  92
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=17 of 28311552 state writes, |S|max=53684 of 32767 (163.8% of the int16 rail, = 6.553 in Q2.13)
+  saturating (dn_slot, head): (3, 5)x17
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x2048    |y32|max=267423       bits=19  spare=12  (144 matvecs)
+  1024x3584    |y32|max=343115       bits=19  spare=12  (144 matvecs)
+  16x1024      |y32|max=3467357      bits=22  spare= 9  (216 matvecs)
+  2048x1024    |y32|max=2486061      bits=22  spare= 9  (108 matvecs)
+  248320x1024  |y32|max=1110387      bits=21  spare=10  (6 matvecs)
+  3584x1024    |y32|max=1919931      bits=21  spare=10  (288 matvecs)
+  4096x1024    |y32|max=1359744      bits=21  spare=10  (36 matvecs)
+  512x1024     |y32|max=2955016      bits=22  spare= 9  (72 matvecs)
+  6144x1024    |y32|max=5437570      bits=23  spare= 8  (108 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:11 1:49 2:104 3:90 4:61 5:179 6:86 7:2
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 17 saturations
+residual stream |x|max = 10892 of 32767 (33.2% of the int16 Q7.8 rail)
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h3: worst |decay_clamp - decay_spec| = 332 /32768 (1.01% FS) at a=-2.831  (spec 1406 -> clamped 1738); 6 evaluations
+  L0h8: worst |decay_clamp - decay_spec| = 28 /32768 (0.09% FS) at a=+7.905  (spec 32767 -> clamped 32739); 6 evaluations
+  L1h15: worst |decay_clamp - decay_spec| = 2547 /32768 (7.77% FS) at a=+2.599  (spec 20107 -> clamped 22654); 6 evaluations
+
+*** RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+*** PROCEEDING ANYWAY (--allow-clip). The script is bit-exact but NOT numerically faithful at the saturating sites; every gate run on it must cite this. ***
+
+model script: prompt_seed=3 prompt='import numpy as np' res_scale=8 qfix=False mse_scale=False ids=[464, 8328, 430, 2510] steps=6 ntok=3 vocab=248320 nlayers=24 cmds=20730 hostwords=8564544 weights=187
+  argmax per step=[14, 279, 220, 198, 47, 11]
+  generated=[198, 47, 11] decoded='\nP,'
+  -> ../tb/scripts/model_rs8_s3.txt

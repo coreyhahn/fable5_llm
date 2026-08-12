@@ -1,0 +1,214 @@
+SEQ unit gate — agent D (wave 2): rtl/seq_unit.sv + rtl/seq_movers.sv
+date: 2026-08-08T14:57:05Z  host: darthplagueis  git: 9785771
+verilator: Verilator 5.020 2024-01-01 rev (Debian 5.020-1)
+built to: docs/SEQ_ISA.md v1.3 + ref/seq_format.py (wire truth) +
+          rtl/layer_chan.sv / rtl/matvec_chan.sv CSR maps as SHIPPED
+
+=== 1. lint (-Wall --timing), RTL and TB models ===
+  verilator --lint-only -Wall --timing rtl/seq_unit.sv rtl/seq_movers.sv --top-module seq_unit
+    -> clean (exit 0, zero warnings)
+  verilator --lint-only -Wall --timing tb/seq_fabric_model.sv
+    -> clean (exit 0, zero warnings)
+  verilator --lint-only -Wall --timing tb/seq_ddr_model.sv
+    -> clean (exit 0, zero warnings)
+  verilator --lint-only -Wall --timing tb/seq_stub_layer.sv
+    -> clean (exit 0, zero warnings)
+  verilator --lint-only -Wall --timing tb/seq_stub_mvchan.sv
+    -> clean (exit 0, zero warnings)
+
+=== 2. runs: make -C tb tb_seq_all ===
+  17 runs at fabric LAT=4 (4 seeds x core stream, 7 error paths,
+  6 micro-benchmarks) + 10 runs at LAT=0 + 10 at LAT=8 + 4 with
+  USE_XRF_SIDEBAND=1.  Every run compares, on the fly:
+    * every AXI-Lite WRITE (address AND data), in order
+    * every AXI-Lite READ (address), in order, minus the STATUS polls
+    * the layer scratchpad, the XRF, the OUT FIFO tokens, err_code, pc
+  against tb/scripts/gen_seq_unit_vectors.py (streams built with
+  ref/seq_format.py; MOVY dequant from ref/seq_model.rs_s/clip16).
+
+  SEQ seq_u_s1: 58 records, 4246 cycles (73.21 cyc/rec, 3.415 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s1 (writes 827, reads 165, scratch 664, tokens 3)
+  SEQ seq_u_s2: 58 records, 4528 cycles (78.07 cyc/rec, 3.202 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s2 (writes 804, reads 191, scratch 604, tokens 4)
+  SEQ seq_u_s3: 58 records, 4390 cycles (75.69 cyc/rec, 3.303 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s3 (writes 835, reads 261, scratch 616, tokens 3)
+  SEQ seq_u_s4: 58 records, 5146 cycles (88.72 cyc/rec, 2.818 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s4 (writes 845, reads 381, scratch 600, tokens 5)
+  SEQ seq_e_op: 2 records, 64 cycles (32.00 cyc/rec, 7.812 Mrec/s @250MHz)
+  SEQ PASS: seq_e_op (writes 0, reads 0, scratch 0, tokens 0)
+  SEQ seq_e_ind: 2 records, 64 cycles (32.00 cyc/rec, 7.812 Mrec/s @250MHz)
+  SEQ PASS: seq_e_ind (writes 0, reads 0, scratch 0, tokens 0)
+  SEQ seq_e_chan: 2 records, 64 cycles (32.00 cyc/rec, 7.812 Mrec/s @250MHz)
+  SEQ PASS: seq_e_chan (writes 0, reads 0, scratch 0, tokens 0)
+  SEQ seq_e_jmp: 2 records, 64 cycles (32.00 cyc/rec, 7.812 Mrec/s @250MHz)
+  SEQ PASS: seq_e_jmp (writes 0, reads 0, scratch 0, tokens 0)
+  SEQ seq_e_xopsgn: 2 records, 64 cycles (32.00 cyc/rec, 7.812 Mrec/s @250MHz)
+  SEQ PASS: seq_e_xopsgn (writes 0, reads 0, scratch 0, tokens 0)
+  SEQ seq_e_csrsp: 2 records, 64 cycles (32.00 cyc/rec, 7.812 Mrec/s @250MHz)
+  SEQ PASS: seq_e_csrsp (writes 0, reads 0, scratch 0, tokens 0)
+  SEQ seq_e_rsvd: 2 records, 64 cycles (32.00 cyc/rec, 7.812 Mrec/s @250MHz)
+  SEQ PASS: seq_e_rsvd (writes 0, reads 0, scratch 0, tokens 0)
+  SEQ seq_m_csrwr: 2001 records, 6124 cycles (3.06 cyc/rec, 81.687 Mrec/s @250MHz)
+  SEQ PASS: seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+  SEQ seq_m_cmd: 801 records, 8899 cycles (11.11 cyc/rec, 22.503 Mrec/s @250MHz)
+  SEQ PASS: seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+  SEQ seq_m_movx: 3 records, 20668 cycles (6889.33 cyc/rec, 0.036 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+  SEQ seq_m_movy16: 4 records, 6577 cycles (1644.25 cyc/rec, 0.152 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+  SEQ seq_m_movy32: 4 records, 12721 cycles (3180.25 cyc/rec, 0.079 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+  SEQ seq_m_ldc: 2 records, 12403 cycles (6201.50 cyc/rec, 0.040 Mrec/s @250MHz)
+  SEQ PASS: seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+  SEQ seq_u_s1: 58 records, 3673 cycles (63.33 cyc/rec, 3.948 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s1 (writes 827, reads 165, scratch 664, tokens 3)
+  SEQ seq_u_s2: 58 records, 3835 cycles (66.12 cyc/rec, 3.781 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s2 (writes 804, reads 191, scratch 604, tokens 4)
+  SEQ seq_u_s3: 58 records, 3817 cycles (65.81 cyc/rec, 3.799 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s3 (writes 835, reads 261, scratch 616, tokens 3)
+  SEQ seq_u_s4: 58 records, 4333 cycles (74.71 cyc/rec, 3.346 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s4 (writes 845, reads 381, scratch 600, tokens 5)
+  SEQ seq_m_csrwr: 2001 records, 6124 cycles (3.06 cyc/rec, 81.687 Mrec/s @250MHz)
+  SEQ PASS: seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+  SEQ seq_m_cmd: 801 records, 6550 cycles (8.18 cyc/rec, 30.573 Mrec/s @250MHz)
+  SEQ PASS: seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+  SEQ seq_m_movx: 3 records, 20620 cycles (6873.33 cyc/rec, 0.036 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+  SEQ seq_m_movy16: 4 records, 6490 cycles (1622.50 cyc/rec, 0.154 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+  SEQ seq_m_movy32: 4 records, 12634 cycles (3158.50 cyc/rec, 0.079 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+  SEQ seq_m_ldc: 2 records, 12394 cycles (6197.00 cyc/rec, 0.040 Mrec/s @250MHz)
+  SEQ PASS: seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+  SEQ seq_u_s1: 58 records, 4855 cycles (83.71 cyc/rec, 2.987 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s1 (writes 827, reads 165, scratch 664, tokens 3)
+  SEQ seq_u_s2: 58 records, 5248 cycles (90.48 cyc/rec, 2.763 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s2 (writes 804, reads 191, scratch 604, tokens 4)
+  SEQ seq_u_s3: 58 records, 4999 cycles (86.19 cyc/rec, 2.901 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s3 (writes 835, reads 261, scratch 616, tokens 3)
+  SEQ seq_u_s4: 58 records, 5971 cycles (102.95 cyc/rec, 2.428 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s4 (writes 845, reads 381, scratch 600, tokens 5)
+  SEQ seq_m_csrwr: 2001 records, 6124 cycles (3.06 cyc/rec, 81.687 Mrec/s @250MHz)
+  SEQ PASS: seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+  SEQ seq_m_cmd: 801 records, 11125 cycles (13.89 cyc/rec, 18.000 Mrec/s @250MHz)
+  SEQ PASS: seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+  SEQ seq_m_movx: 3 records, 20716 cycles (6905.33 cyc/rec, 0.036 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+  SEQ seq_m_movy16: 4 records, 6664 cycles (1666.00 cyc/rec, 0.150 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+  SEQ seq_m_movy32: 4 records, 12808 cycles (3202.00 cyc/rec, 0.078 Mrec/s @250MHz)
+  SEQ PASS: seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+  SEQ seq_m_ldc: 2 records, 12409 cycles (6204.50 cyc/rec, 0.040 Mrec/s @250MHz)
+  SEQ PASS: seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+  SEQ seq_u_s1: 58 records, 4129 cycles (71.19 cyc/rec, 3.512 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s1 (writes 824, reads 159, scratch 664, tokens 3)
+  SEQ seq_u_s2: 58 records, 4399 cycles (75.84 cyc/rec, 3.296 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s2 (writes 801, reads 184, scratch 604, tokens 4)
+  SEQ seq_u_s3: 58 records, 4273 cycles (73.67 cyc/rec, 3.393 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s3 (writes 832, reads 255, scratch 616, tokens 3)
+  SEQ seq_u_s4: 58 records, 5005 cycles (86.29 cyc/rec, 2.897 Mrec/s @250MHz)
+  SEQ PASS: seq_u_s4 (writes 842, reads 373, scratch 600, tokens 5)
+
+  TOTAL SEQ PASS: 41   failures: 0
+
+=== 3. measured per-operation cost (cycles @ 250 MHz aclk) ===
+From the micro-benchmarks, at three modelled fabric latencies.  LAT is the
+one-way latency seq_fabric_model adds on EACH of AW/W, B, AR, R, so it
+stands in for the real SmartConnect + axi_register_slice chain.
+
+  micro (records / AXI-Lite ops)      LAT=0    LAT=4    LAT=8   derived cost
+  csrwr  2000 writes                   6124     6124     6124   3.06 cyc/write
+  cmd    200 cmds (3 CSRWR + CMD)      6550     8899    11125   32.5 cyc/cmd
+                                                                overhead at
+                                                                LAT=4 (the
+                                                                stub's ~12 cyc
+                                                                of layer busy
+                                                                subtracted)
+  ldc    4096 words                   12394    12403    12409   3.03 cyc/word
+  movx   4096 words (+ the LDC above) 20620    20668    20716   2.02 cyc/word
+  movy16 2048 rows                     6490     6577     6664   3.00 cyc/row
+  movy32 2048 rows                    12634    12721    12808   6.00 cyc/row
+
+The mover paths are FLAT in LAT (<0.5% from 0 to 8) because both AXI-Lite
+channels are pipelined: MOVY reads matvec RES on one slave while it writes
+the dequantized words into the layer scratchpad on another.  Only the CMD
+retire path is latency-sensitive, because a CMD must DRAIN its write before
+the STATUS poll can mean anything (AXI gives no read/write ordering).
+
+Record fetch is never the limiter: at the maximum sustained issue rate
+(csrwr micro, 3.06 cyc/record) with a 32-cycle DDR first-word latency the
+prefetch FIFO ran dry for 50 of 6124 cycles (0.8%).
+
+XRF mirror refresh, measured as the delta between the default (AXI-Lite
+read-back through layer_chan's XRFI/XRFD window) and USE_XRF_SIDEBAND=1:
+  core stream, 4 seeds: 4246/4528/4390/5146  vs  4129/4399/4273/5005 cycles
+  -> ~20 cycles per DYNQ16 / op-8-probe refresh, ~8 per DYNQ8 (EOUT is a
+     single read).  At 385 refreshes/token that is 6.5k cycles = 0.026 ms,
+     0.15% of the sequencer's fabric time.  DECISION: keep the AXI-Lite
+     mirror; the sideband port stays implemented but unused (tied off in
+     create_project.tcl) because it would need new top-level wiring for
+     0.15% of the time.
+
+=== 4. projected wall time per token, model_v2_s1 ===
+Census from evidence/rung1/seq_stream_gate_agentB.log plus a direct pass
+over the emitted model_v2_s1.seq: 90,803 records over 6 forward steps.
+
+  item                                count/token   cyc/unit   cycles/token
+  CSRWR (layer + matvec)                    10521       3.06          32193
+  CMD overhead (excl. layer busy)            3497      32.50         113652
+  XRF mirror refresh                          385      ~17            6536
+  MOVX scratch words                       277504       2.02         560558
+  MOVY int16 rows                          227904       3.00         683712
+  MOVY pairs32 rows                        420352       6.00        2522112
+  LDC words                                130912       3.03         396663
+  EMB words                                  1024       3.03           3103
+  MVGO setup + doorbell CDC guard             398      95.00          37810
+  TOTAL sequencer fabric time                                       4356339
+                                                            = 17.4 ms/token
+
+  device time (evidence/stage5/TOKS.md, measured on silicon):
+    1-chan matvec 112.5 ms   4-chan matvec 81.7 ms
+
+  wall/token, stream as emitted today (all MVGO on chan 0, blocking):
+    112.5 + 17.4 = 129.9 ms  ->   7.7 tok/s     (71x over today's 0.108)
+  wall/token with 4-chan weights (needs the no-wait MVGO extension below):
+     81.7 + 17.4 =  99.1 ms  ->  10.1 tok/s     (93x over today's 0.108)
+
+  The rung-1 target in docs/SPEEDUP_LADDER.md is 12.2 tok/s = pure 4-chan
+  device time.  The sequencer adds 21% on top of it.  IN REACH; the three
+  cheap CSR additions below take it to ~10.9 tok/s (91.6 ms/token).
+
+=== 5. where the remaining 17.4 ms goes, and the cheapest ways to cut it ===
+88% of it is MOVX+MOVY+LDC, i.e. one AXI-Lite transaction per 16-bit
+scratch word, because that is the only path into layer_chan's scratchpad.
+Three additions, each a handful of LUTs in a SHIPPED slave, remove 1.89M
+cycles/token (7.5 ms), i.e. 10.1 -> 10.9 tok/s:
+
+  a) layer_chan SWIN32: a second scratch-write window taking TWO 16-bit
+     words per 32-bit AXI-Lite write.  Halves the MOVY pairs32 write
+     stream (the single biggest term, 2.52M cyc) and LDC/EMB.  ~1.37M cyc.
+  b) layer_chan packed SWIN read: 4 int8 (or 2 int16) per read.  MOVX
+     drops from 277k reads to 69k.  ~0.33M cyc.
+  c) matvec_chan RES prefetch (2-deep; see the C1 note in seq_movers.sv):
+     removes the 3-cycle RES_DATA pacing MOVY must use today.  ~0.18M cyc.
+
+=== 6. no-wait MVGO (the 4-chan enabler), implemented, ISA-compatible ===
+ISA v1.2/v1.3 MVGO is "start, WAIT done", so four channels serialise and
+the device term is the 1-chan 112.5 ms, not the 4-chan 81.7 ms.  seq_movers
+implements a no-wait variant selected by MVGO target[0] — a field the
+validator does not constrain and every emitted stream leaves at 0, so
+existing streams are bit-identical: target[0]=1 starts the engine and
+returns, and FENCE drains every channel a no-wait MVGO left running.
+Exploiting it needs a generator change (agent B) and an ISA note.
+
+=== 7. hardware hazards found by reading the SHIPPED slaves ===
+Both are worked around in seq_movers with no change to shipped RTL, and
+both are MODELLED in the stubs, so the workaround is verified, not assumed:
+  C1 matvec_chan RES_DATA returns a READ_LATENCY_B=2 BRAM output addressed
+     by res_ptr and increments res_ptr in the same cycle: two RES_DATA
+     reads accepted <3 cycles apart return STALE data.  The host never hit
+     it (MMIO reads are ~1.7 us apart).  MOVY paces reads RES_GAP=3.
+  C2 matvec_chan STATUS.done is STICKY UNTIL THE NEXT START and the start
+     doorbell crosses to ui_clk through a toggle+2FF, so polling done right
+     after the doorbell can observe the PREVIOUS run's done.  MVGO waits
+     MVGO_GUARD=64 aclk cycles before its first poll (0.1 ms/token total).

@@ -1,0 +1,45 @@
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 11.0s
+  LM head quantized (mse=False) e=-3 sh=5 (8.3s)
+
+=== config S=8 dnsn_attnbf_n11 ===
+    quantized 24 layers in 11.0s
+    emb table |q|max 472 of 32767 (4.9s)
+    config done in 1014.2s
+  --- S=8 dnsn_attnbf_n11 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [328, 314, 279, 369, 279, 13]   top1=4/6  rank=[47, 0, 0, 0, 1, 0]  top5ovl=[0, 3, 1, 4, 2, 4]
+    free-running gen=[369, 279, 6511, 314, 9338, 13, 198, 760, 6511, 314, 9338, 369] text=' is the capital of France.\nThe capital of France is'
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [3750, 264, 1248, 11, 279, 220]   top1=2/6  rank=[75, 0, 45, 0, 9, 2]  top5ovl=[2, 2, 1, 2, 1, 2]
+    free-running gen=[11, 279, 220, 16, 24, 24, 15, 82, 557, 220, 16, 24] text=', the 1990s was 19'
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [313, 430, 2510, 271, 464, 16309]   top1=4/6  rank=[0, 0, 0, 1, 0, 4]  top5ovl=[1, 3, 3, 3, 3, 3]
+    free-running gen=[271, 727, 615, 3042, 4406, 198, 262, 460, 220, 16, 13, 15] text='\n\ndef get_value():\n    return 1.0'
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [310, 314, 198, 803, 369, 3629]   top1=2/6  rank=[1, 3, 1, 0, 0, 13]  top5ovl=[2, 2, 3, 2, 3, 1]
+    free-running gen=[803, 369, 3629, 13, 353, 1044, 264, 220, 20, 4514, 6086, 7914] text=' name is John. I am a 5-year-old boy'
+    block-float k histogram [dn]: {-14: 1126, -13: 1805, -12: 2517, -11: 3317, -10: 4221, -9: 4020, -8: 2631, -7: 1585, -6: 1269, -5: 791, -4: 335, -3: 6, 0: 569}
+    block-float k histogram [attn]: {8: 35, 9: 292, 10: 161, 11: 8, 12: 8}
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=4008     clips=0/2064384
+      1024x3584      |y|max=10434    clips=0/2064384
+      16x1024        |y|max=78445    clips=43/48384
+      2048x1024      |y|max=3429     clips=0/3096576
+      3584x1024      |y|max=42347    clips=186/14450688
+      4096x1024      |y|max=3322     clips=0/2064384
+      512x1024       |y|max=6590     clips=0/516096
+      6144x1024      |y|max=20154    clips=0/9289728
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=8 dnsn_attnbf_n1112/24             0.5        75      2.21    15044      0       40
+
+-> ../tb/scripts_scratch/phase0/0b_dnsn_attnbf_n11.json

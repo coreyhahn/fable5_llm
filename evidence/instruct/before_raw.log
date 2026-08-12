@@ -1,0 +1,49 @@
+--- session bring-up
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  board      MAGIC=0xfab1e001 VERSION=0x0c991953 CALIB=0xf SEQ=READY
+  residency  195 witness blocks (187 weight + 8 emb, 780 KiB) in 6 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2216 KiB readback-verified in 0.0s
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   OFF (--raw): prompts are fed verbatim, with no <|im_start|> wrapper — this is the pre-INSTRUCT_SPEC behaviour and the model will ramble/continue rather than answer
+--- preamble
+  preamble   8.7 ms device / 10.3 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 14010 rec | full 14744 rec
+  patch      pos_mode='ldc': 72 B in 7 write(s) per launch
+  prefill    lite  |  --ntok 24  |  --max-ctx 500 of KV depth 512
+  template   OFF (--raw) — no chat wrapper, no instruct behaviour (docs/INSTRUCT_SPEC.md T4)
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+
+Commands: /reset  /stats  /ntok N  /system TEXT  /quit   (Ctrl-C stops generation)
+
+prompt>   prefill 1/6 (45 ms/step, lite)     prefill 2/6 (45 ms/step, lite)     prefill 3/6 (45 ms/step, lite)     prefill 4/6 (45 ms/step, lite)     prefill 5/6 (45 ms/step, lite)     prefill 6/6 (45 ms/step, lite)                                                 
+A. Paris
+B. London
+C. Berlin
+D. Tokyo
+
+<think>
+The user is asking for
+  --> '\nA. Paris\nB. London\nC. Berlin\nD. Tokyo\n\n<think>\nThe user is asking for'
+  ids [198, 32, 13, 11751, 198, 33, 13, 6924, 198, 34, 13, 19241, 198, 35, 13, 25358, 271, 248068, 198, 760, 1156, 369, 9859, 364]   24 tok in 1.83s
+  prefill 6 lite x 44.8 ms | decode 24 full x 63.0 ms | 13.12 tok/s wall | 97% of wall was device | context 30/500 (6%)
+
+prompt>   prefill 1/9 (45 ms/step, lite)     prefill 2/9 (45 ms/step, lite)     prefill 3/9 (45 ms/step, lite)     prefill 4/9 (45 ms/step, lite)     prefill 5/9 (45 ms/step, lite)     prefill 6/9 (45 ms/step, lite)     prefill 7/9 (45 ms/step, lite)     prefill 8/9 (45 ms/step, lite)     prefill 9/9 (45 ms/step, lite)                                                 
+</think>
+
+The capital of France is **Paris**.
+
+*   Paris is the capital city of France.
+*
+  --> '\n</think>\n\nThe capital of France is **Paris**.\n\n*   Paris is the capital city of France.\n*'
+  ids [198, 248069, 271, 760, 6511, 314, 9338, 369, 2972, 57590, 159034, 271, 9, 256, 11751, 369, 279, 6511, 3177, 314, 9338, 13, 198, 9]   24 tok in 1.97s
+  prefill 9 lite x 45.0 ms | decode 24 full x 63.2 ms | 12.20 tok/s wall | 98% of wall was device | context 63/500 (13%)
+
+prompt> 

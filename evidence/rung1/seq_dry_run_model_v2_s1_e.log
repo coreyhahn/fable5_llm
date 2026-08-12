@@ -1,0 +1,26 @@
+.venv/bin/python -u seq_run.py --prefix ../tb/scripts/w4/model_v2_s1.e --dry-run \
+  --out ../evidence/rung1/seq_dry_run_model_v2_s1_e.json 
+--- SEQ stream: ../tb/scripts/w4/model_v2_s1.e
+  artifacts base   ../tb/scripts/w4/model_v2_s1
+  stream           60495 records, 967920 B (sha256 a69864d25b6b129a) VALIDATED
+  seqdata          1007360 B (sha256 13bc65821b18194b)
+  profile          epsnorm  dyn_ka=True  loop 3 steps (structurally safe)
+  opcodes          {'CSRWR': 42023, 'CMD': 13964, 'MOVX': 748, 'MOVY': 1592, 'MVGO': 1592, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'HALT': 1, 'LDC*': 538, 'XOP*': 28}
+  expected tokens  [561, 314, 279, 369, 279, 6511]
+--- DDR plan (channel 0, host offset 0x0)
+  stream    0x9000000 .. 0x90ec4f0  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc0f5f00  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 187 images)
+  embedding 0x60000000
+  RELOCATION: 538 LDC records (24 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 4 EMB records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0x67a943bd CALIB=0xf  SEQ=REFUSED
+  SEQ CSRs untouched: --dry-run: the SEQ CSR window is not touched
+  weight plan: 187 images match the stream's MVGO plan; 1592 MVGO WBASEs row-aligned inside them
+--- upload
+  weights   187 images, 398 MiB -> 0x10000000..0x28e34000  [readback OK]
+  embedding 485 MiB -> 0x60000000  [readback OK]
+  seqdata   1007360 B -> 0xc000000  [readback OK]
+  stream    967920 B (60495 records) -> 0x9000000  [readback OK]
+  885 MiB written, 885 MiB read back and compared, 6.6s
+--- DRY RUN COMPLETE: DDR images uploaded and readback-verified; the SEQ CSR window was never accessed.
+report -> ../evidence/rung1/seq_dry_run_model_v2_s1_e.json

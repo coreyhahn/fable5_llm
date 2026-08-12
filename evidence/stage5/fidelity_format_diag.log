@@ -1,0 +1,286 @@
+# stage-5 fidelity: FROZEN-FORMAT relaxation diagnostics (ref/fidelity_check.py --diag)
+# Each config RELAXES one frozen fixed-point limit (NOT RTL-legal) and re-runs the
+# end-to-end teacher-forced metric at res_scale=8, to say which RTL change would
+# actually be worth un-freezing.  Reference points: float-exact 24/24 top1,
+# float-with-W4-weights 12/24, shipped fixed point 0-1/24.
+#   gateport : dt_bias/A gate ports unbounded (audit finding (c) removed)
+#   S_F12/11 : DeltaNet state at Q3.12 / Q4.11 instead of Q2.13
+#   all      : gateport + S_F12
+#   dn_o*n*  : the two SCRIPT-SIDE DeltaNet output-alignment immediates
+#              (DN_O_SHIFT, DN_NORM_F) -- these ARE RTL-legal, and all of
+#              them are WORSE than the shipped 5 / 8
+
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 2.4s
+  LM head quantized (mse=False) e=-3 sh=5 (5.8s)
+
+=== config S=8 ===
+    quantized 24 layers in 7.8s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 299.4s
+  --- S=8 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [10, 220, 220, 198, 220, 198]   top1=0/6  rank=[143042, 17, 3, 3, 848, 26]  top5ovl=[0, 0, 2, 3, 2, 1]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [10, 13, 220, 25, 220, 279]   top1=0/6  rank=[6042, 557, 388, 5, 43, 14]  top5ovl=[0, 0, 0, 0, 1, 1]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [14, 279, 220, 198, 47, 198]   top1=1/6  rank=[7199, 82, 10383, 0, 1616, 9395]  top5ovl=[0, 1, 0, 2, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [10, 536, 198, 220, 220, 369]   top1=0/6  rank=[53, 916, 3, 1828, 7, 12]  top5ovl=[1, 0, 2, 0, 0, 0]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=8352     clips=0/589824
+      1024x3584      |y|max=8046     clips=0/589824
+      16x1024        |y|max=108610   clips=33/13824
+      2048x1024      |y|max=2970     clips=0/884736
+      3584x1024      |y|max=39877    clips=22/4128768
+      4096x1024      |y|max=4350     clips=0/589824
+      512x1024       |y|max=9135     clips=0/147456
+      6144x1024      |y|max=21277    clips=0/2654208
+
+=== config S=8 dn_o0n12 ===
+    quantized 24 layers in 6.5s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 295.4s
+  --- S=8 dn_o0n12 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [17, 113899, 9230, 429, 96069, 98404]   top1=0/6  rank=[51537, 33480, 536, 17466, 71529, 1442]  top5ovl=[0, 0, 0, 0, 0, 2]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [47527, 0, 271, 271, 52451, 108531]   top1=0/6  rank=[74171, 1202, 114139, 241, 180, 252]  top5ovl=[0, 0, 0, 0, 0, 0]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [220, 271, 271, 19072, 18975, 4177]   top1=0/6  rank=[228, 235, 6872, 4578, 222741, 25255]  top5ovl=[0, 2, 0, 0, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [970, 14661, 10380, 303, 20495, 52441]   top1=0/6  rank=[30345, 4658, 7509, 144597, 60008, 5973]  top5ovl=[0, 0, 0, 0, 0, 0]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=8829     clips=0/589824
+      1024x3584      |y|max=15285    clips=0/589824
+      16x1024        |y|max=66082    clips=43/13824
+      2048x1024      |y|max=2684     clips=0/884736
+      3584x1024      |y|max=64150    clips=24/4128768
+      4096x1024      |y|max=2201     clips=0/589824
+      512x1024       |y|max=4587     clips=0/147456
+      6144x1024      |y|max=15952    clips=0/2654208
+
+=== config S=8 dn_o0n11 ===
+    quantized 24 layers in 6.5s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 302.6s
+  --- S=8 dn_o0n11 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [76495, 2327, 1146, 318, 220, 321]   top1=0/6  rank=[32548, 24420, 2, 288, 70012, 2532]  top5ovl=[0, 0, 1, 0, 0, 1]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [108523, 198, 10, 11, 13, 1510]   top1=1/6  rank=[165081, 42, 171915, 0, 17458, 3690]  top5ovl=[0, 0, 0, 1, 1, 0]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [220, 321, 25, 25, 2972, 314]   top1=0/6  rank=[1, 328, 25014, 102, 145207, 40513]  top5ovl=[1, 0, 0, 1, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [2301, 96473, 8283, 321, 5, 1141]   top1=0/6  rank=[1249, 6, 441, 60384, 7312, 10816]  top5ovl=[0, 1, 0, 0, 0, 0]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=10259    clips=0/589824
+      1024x3584      |y|max=16145    clips=0/589824
+      16x1024        |y|max=73870    clips=46/13824
+      2048x1024      |y|max=2719     clips=0/884736
+      3584x1024      |y|max=65112    clips=26/4128768
+      4096x1024      |y|max=2524     clips=0/589824
+      512x1024       |y|max=5834     clips=0/147456
+      6144x1024      |y|max=16837    clips=0/2654208
+
+=== config S=8 dn_om2n12 ===
+    quantized 24 layers in 6.0s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 303.1s
+  --- S=8 dn_om2n12 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [17, 113899, 9230, 429, 96069, 98404]   top1=0/6  rank=[51537, 33480, 536, 17466, 71529, 1442]  top5ovl=[0, 0, 0, 0, 0, 2]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [47527, 0, 271, 271, 52451, 108531]   top1=0/6  rank=[74171, 1202, 114139, 241, 180, 252]  top5ovl=[0, 0, 0, 0, 0, 0]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [220, 271, 271, 19072, 18975, 4177]   top1=0/6  rank=[228, 235, 6872, 4578, 222741, 25255]  top5ovl=[0, 2, 0, 0, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [970, 14661, 10380, 303, 20495, 52441]   top1=0/6  rank=[30345, 4658, 7509, 144597, 60008, 5973]  top5ovl=[0, 0, 0, 0, 0, 0]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=8829     clips=0/589824
+      1024x3584      |y|max=15285    clips=0/589824
+      16x1024        |y|max=66082    clips=43/13824
+      2048x1024      |y|max=2684     clips=0/884736
+      3584x1024      |y|max=64150    clips=24/4128768
+      4096x1024      |y|max=2201     clips=0/589824
+      512x1024       |y|max=4587     clips=0/147456
+      6144x1024      |y|max=15952    clips=0/2654208
+
+=== config S=8 dn_o0n13 ===
+    quantized 24 layers in 6.6s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 302.5s
+  --- S=8 dn_o0n13 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [318, 98259, 248044, 3709, 100777, 14595]   top1=0/6  rank=[182305, 4967, 44419, 18600, 2411, 153]  top5ovl=[1, 0, 0, 0, 0, 1]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [13, 1010, 222671, 220, 18, 220]   top1=0/6  rank=[2331, 3, 178627, 385, 122, 123]  top5ovl=[0, 1, 0, 0, 0, 0]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [264, 96205, 321, 976, 15, 1438]   top1=0/6  rank=[296, 2976, 5779, 4184, 14342, 10654]  top5ovl=[0, 0, 0, 0, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [88017, 24, 6681, 96677, 114734, 466]   top1=0/6  rank=[53106, 4787, 95, 5012, 1125, 974]  top5ovl=[0, 0, 0, 0, 0, 0]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=5503     clips=0/589824
+      1024x3584      |y|max=12835    clips=0/589824
+      16x1024        |y|max=60358    clips=23/13824
+      2048x1024      |y|max=2633     clips=0/884736
+      3584x1024      |y|max=50115    clips=13/4128768
+      4096x1024      |y|max=2354     clips=0/589824
+      512x1024       |y|max=3501     clips=0/147456
+      6144x1024      |y|max=18003    clips=0/2654208
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=8           1/24            67.5    143042      0.67    17714      0       52
+S=8 dn_o0n12  0/24          7190.5    222741      0.17    20692      0       30
+S=8 dn_o0n11  1/24          5501.0    171915      0.29    20865      0       25
+S=8 dn_om2n12 0/24          7190.5    222741      0.17    20692      0       30
+S=8 dn_o0n13  0/24          3580.0    182305      0.12    15840      0       30
+
+-> /tmp/fid_dn.json
+
+############ format relaxations
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 2.5s
+  LM head quantized (mse=False) e=-3 sh=5 (5.8s)
+
+=== config S=8 gateport ===
+    quantized 24 layers in 8.0s
+    emb table |q|max 472 of 32767 (3.7s)
+    config done in 269.4s
+  --- S=8 gateport ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [10, 220, 220, 198, 220, 198]   top1=0/6  rank=[143042, 17, 3, 3, 848, 26]  top5ovl=[0, 0, 2, 3, 2, 1]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [10, 13, 220, 220, 694, 220]   top1=0/6  rank=[6042, 557, 388, 4, 63, 9]  top5ovl=[0, 0, 0, 1, 0, 1]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [14, 279, 220, 198, 47, 198]   top1=1/6  rank=[7199, 82, 10383, 0, 1616, 9395]  top5ovl=[0, 1, 0, 2, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [10, 536, 198, 220, 220, 369]   top1=0/6  rank=[53, 916, 3, 1828, 7, 12]  top5ovl=[1, 0, 2, 0, 0, 0]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=8352     clips=0/589824
+      1024x3584      |y|max=8478     clips=0/589824
+      16x1024        |y|max=108610   clips=33/13824
+      2048x1024      |y|max=2796     clips=0/884736
+      3584x1024      |y|max=39877    clips=19/4128768
+      4096x1024      |y|max=4350     clips=0/589824
+      512x1024       |y|max=9135     clips=0/147456
+      6144x1024      |y|max=21277    clips=0/2654208
+
+=== config S=8 S_F12 ===
+    quantized 24 layers in 6.9s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 304.3s
+  --- S=8 S_F12 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [3015, 11, 220, 369, 279, 314]   top1=1/6  rank=[106373, 63, 1, 0, 3092, 80]  top5ovl=[0, 0, 2, 2, 1, 2]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [32985, 11, 220, 220, 694, 279]   top1=0/6  rank=[5373, 181, 1021, 2, 69, 6]  top5ovl=[0, 0, 0, 1, 1, 1]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [14, 25, 220, 198, 17, 198]   top1=1/6  rank=[12105, 278, 7943, 0, 3959, 4865]  top5ovl=[0, 0, 0, 1, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [82, 11, 198, 25, 25, 25]   top1=0/6  rank=[90, 46, 2, 2854, 9, 83]  top5ovl=[1, 2, 2, 0, 0, 0]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=9439     clips=0/589824
+      1024x3584      |y|max=8171     clips=0/589824
+      16x1024        |y|max=109231   clips=30/13824
+      2048x1024      |y|max=2858     clips=0/884736
+      3584x1024      |y|max=41709    clips=22/4128768
+      4096x1024      |y|max=4273     clips=0/589824
+      512x1024       |y|max=9163     clips=0/147456
+      6144x1024      |y|max=21277    clips=0/2654208
+
+=== config S=8 S_F11 ===
+    quantized 24 layers in 6.5s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 301.9s
+  --- S=8 S_F11 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [198, 11, 220, 369, 369, 198]   top1=1/6  rank=[148572, 39, 1, 0, 3584, 9]  top5ovl=[0, 0, 2, 2, 0, 2]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [198, 13, 264, 25, 864, 11]   top1=0/6  rank=[6252, 50, 1571, 4, 29, 4]  top5ovl=[0, 0, 0, 1, 0, 2]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [14, 271, 264, 198, 332, 198]   top1=1/6  rank=[3594, 44, 3559, 0, 1373, 8636]  top5ovl=[0, 2, 0, 1, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [198, 369, 198, 220, 25, 220]   top1=0/6  rank=[7, 1352, 5, 2916, 1, 2]  top5ovl=[1, 1, 1, 0, 1, 1]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=9923     clips=0/589824
+      1024x3584      |y|max=8218     clips=0/589824
+      16x1024        |y|max=109205   clips=28/13824
+      2048x1024      |y|max=2932     clips=0/884736
+      3584x1024      |y|max=47380    clips=28/4128768
+      4096x1024      |y|max=4194     clips=0/589824
+      512x1024       |y|max=9131     clips=0/147456
+      6144x1024      |y|max=21391    clips=0/2654208
+
+=== config S=8 all ===
+    quantized 24 layers in 6.4s
+    emb table |q|max 472 of 32767 (3.6s)
+    config done in 298.6s
+  --- S=8 all ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [3015, 11, 220, 369, 279, 314]   top1=1/6  rank=[106373, 63, 1, 0, 3092, 80]  top5ovl=[0, 0, 2, 2, 1, 2]
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264]  text=', in a'
+    fixed  argmax [32985, 11, 220, 220, 694, 279]   top1=0/6  rank=[5373, 181, 1021, 2, 69, 6]  top5ovl=[0, 0, 0, 1, 1, 1]
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 18056]  text='\nimport pandas'
+    fixed  argmax [14, 25, 220, 198, 17, 25]   top1=1/6  rank=[12105, 278, 7943, 0, 3959, 14160]  top5ovl=[0, 0, 0, 1, 0, 0]
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [82, 11, 198, 25, 25, 25]   top1=0/6  rank=[90, 46, 2, 2854, 9, 83]  top5ovl=[1, 2, 2, 0, 0, 0]
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=9439     clips=0/589824
+      1024x3584      |y|max=8171     clips=0/589824
+      16x1024        |y|max=109231   clips=30/13824
+      2048x1024      |y|max=2858     clips=0/884736
+      3584x1024      |y|max=41709    clips=24/4128768
+      4096x1024      |y|max=4273     clips=0/589824
+      512x1024       |y|max=9163     clips=0/147456
+      6144x1024      |y|max=21277    clips=0/2654208
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=8 gateport  1/24            72.5    143042      0.67    17714      0       51
+S=8 S_F12     2/24            86.5    106373      0.67    20676      0        2
+S=8 S_F11     2/24            41.5    148572      0.71    17915      0        0
+S=8 all       2/24            86.5    106373      0.67    20676      0        1

@@ -1,0 +1,38 @@
+# stage-5 fidelity ABLATION: where the model is actually lost.
+# (A) exact  = layer_ref float32 decode, EXACT checkpoint weights
+# (B) w4deq  = layer_ref float32 decode, every matvec matrix replaced by the
+#              float matrix its W4 image represents (weight error ONLY)
+# vs the fixed-point pipeline elsewhere in evidence/stage5/fidelity_*.log
+
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 2.4s
+  ABLATION exact  top1=24/24  rank med=0.0 (12s)
+    p1 argmax=[2614, 314, 279, 369, 11751, 13] rank=[0, 0, 0, 0, 0, 0]
+    p2 argmax=[5028, 264, 854, 11, 303, 264] rank=[0, 0, 0, 0, 0, 0]
+    p3 argmax=[313, 430, 2510, 198, 464, 18056] rank=[0, 0, 0, 0, 0, 0]
+    p4 argmax=[11, 271, 271, 803, 369, 198] rank=[0, 0, 0, 0, 0, 0]
+  ABLATION w4deq  top1=12/24  rank med=0.5 (32s)
+    p1 argmax=[220, 1954, 279, 369, 279, 13] rank=[321, 1, 0, 0, 20, 0]
+    p2 argmax=[383, 264, 3272, 11, 1017, 279] rank=[17, 0, 2, 0, 1, 1]
+    p3 argmax=[328, 430, 2510, 198, 464, 2556] rank=[1, 0, 0, 0, 0, 1]
+    p4 argmax=[198, 271, 198, 803, 369, 220] rank=[6, 0, 1, 0, 0, 1]
+
+# ---- per-block probe of layer 0 (DeltaNet), SAME input + W4-dequantized
+# weights on both sides, so every number is pure fixed-point datapath loss
+    in_qkv matvec      rel=0.40%   |max|=3370 rms=375.6 LSB
+    in_z matvec        rel=0.58%   |max|=1356
+    in_b/in_a          rel=0.47% / 0.40%   |b|max=11216 |a|max=14015
+    conv4+silu (Q12)   rel=0.41%   |max|=10433 rms=410.2 LSB  (rail hits 0)
+    -> q/k/v at Q8 rel=1.17%   |max|=652 rms=25.66 LSB
+    -> v only          rel=1.10%   rms=27.20 LSB
+    -> l2norm(q)       rel=2.04%
+    dnst o (Q13)     rel=7.64%   |max|=116 rms=5.69 LSB
+      DNST->int16 shift x vecnorm in_f grid (gated-norm rel err; shift 5 / in_f 8 is what ships today):
+        in_f=8        in_f=10       in_f=11       in_f=12       in_f=13       
+  sh=  5 (o16 rms     0.2, |max|      4) 105.16%   105.16%   105.16%    89.28%*   62.46%*  
+  sh=  2 (o16 rms     1.5, |max|     29) 132.25%   132.21%   132.23%   123.52%*   92.58%*  
+  sh=  0 (o16 rms     5.7, |max|    116) 128.66%   128.65%   128.65%   119.09%*   85.33%*  
+  sh= -2 (o16 rms    22.8, |max|    464) 128.66%   128.65%   128.65%   119.09%*   85.33%*  
+  sh= -4 (o16 rms    91.1, |max|   1856) 128.66%   128.65%   128.65%   119.09%*   85.33%*  
+  sh= -6 (o16 rms   364.3, |max|   7424) 128.66%   128.65%   128.65%   119.09%*   85.33%*  

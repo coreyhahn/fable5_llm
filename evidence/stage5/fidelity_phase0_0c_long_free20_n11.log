@@ -1,0 +1,35 @@
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 2.0s
+  LM head quantized (mse=False) e=-3 sh=5 (5.8s)
+
+=== config S=8 dnsn_attnbf_n11 ===
+    quantized 24 layers in 5.7s
+    emb table |q|max 472 of 32767 (3.4s)
+    config done in 365.7s
+  --- S=8 dnsn_attnbf_n11 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13]  text=' is Paris.'
+    fixed  argmax [328, 314, 279, 369, 279, 13]   top1=4/6  rank=[47, 0, 0, 0, 1, 0]  top5ovl=[0, 3, 1, 4, 2, 4]
+    free-running gen=[369, 279, 6511, 314, 9338, 13, 198, 760, 6511, 314, 9338, 369, 279, 6511, 314, 9338, 13, 198, 760, 6511] text=' is the capital of France.\nThe capital of France is the capital of France.\nThe capital'
+  prompt 4 'Hello world! My'
+    golden argmax [11, 271, 271, 803, 369, 198]  text=' name is\n'
+    fixed  argmax [310, 314, 198, 803, 369, 3629]   top1=2/6  rank=[1, 3, 1, 0, 0, 13]  top5ovl=[2, 2, 3, 2, 3, 1]
+    free-running gen=[803, 369, 3629, 13, 353, 1044, 264, 220, 20, 4514, 6086, 7914, 13, 353, 1044, 220, 20, 1578, 2235, 13] text=' name is John. I am a 5-year-old boy. I am 5 years old.'
+    block-float k histogram [dn]: {-14: 623, -13: 1049, -12: 1539, -11: 2117, -10: 2975, -9: 3123, -8: 2019, -7: 1115, -6: 922, -5: 588, -4: 281, -3: 6, 0: 347}
+    block-float k histogram [attn]: {8: 25, 9: 206, 10: 108, 11: 5, 12: 4}
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=4053     clips=0/1425408
+      1024x3584      |y|max=10434    clips=0/1425408
+      16x1024        |y|max=78393    clips=22/33408
+      2048x1024      |y|max=3241     clips=0/2138112
+      3584x1024      |y|max=42347    clips=136/9977856
+      4096x1024      |y|max=3322     clips=0/1425408
+      512x1024       |y|max=6590     clips=0/356352
+      6144x1024      |y|max=20154    clips=0/6414336
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=8 dnsn_attnbf_n116/12             0.5        47      2.25    13025      0       16

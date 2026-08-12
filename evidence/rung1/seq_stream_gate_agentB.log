@@ -1,0 +1,153 @@
+SEQ binary stream + python SEQ model — agent B gate log
+date: 2026-08-08T13:35:58Z  host: darthplagueis  git: ace5909
+modules: ref/seq_format.py (records/disasm/validate/emitter), ref/seq_model.py (executor+gate)
+new-op semantics: layer_fixed (agent A) dynq16_fx / eps_norm_scale / eps_norm_fx
+
+=== 1. default-path byte identity (SEQ emitter absent AND present) ===
+7bc084cf9ed4f80cef83860fc7f0e68dbe9a734cfad651593c6bcfb088c7f7a8  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/chain_s1.txt
+7bc084cf9ed4f80cef83860fc7f0e68dbe9a734cfad651593c6bcfb088c7f7a8  /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/regen/chain_s1.txt
+7bc084cf9ed4f80cef83860fc7f0e68dbe9a734cfad651593c6bcfb088c7f7a8  /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/chain/chain_s1.txt
+bc0e039e74b8a385f6b92bcb5fae8684af91b274da2ddd0cc2a8ff6d34518746  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/token24_s1.txt
+bc0e039e74b8a385f6b92bcb5fae8684af91b274da2ddd0cc2a8ff6d34518746  /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/regen/token24_s1.txt
+bc0e039e74b8a385f6b92bcb5fae8684af91b274da2ddd0cc2a8ff6d34518746  /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/t24x/token24_s1.txt
+bc0e039e74b8a385f6b92bcb5fae8684af91b274da2ddd0cc2a8ff6d34518746  /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/t24e/token24_s1.txt
+8a7c76b6705c217923554d6973a89fe83c7e011976f531d3b617fa9e2ccc141d  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/token24_s1.weights.json
+8a7c76b6705c217923554d6973a89fe83c7e011976f531d3b617fa9e2ccc141d  /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/regen/token24_s1.weights.json
+218d2d5844308e15e5b291dfac311a2eb85cc854ef3066a316334b5403eb4738  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/token24_s1.emb.bin
+218d2d5844308e15e5b291dfac311a2eb85cc854ef3066a316334b5403eb4738  /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/regen/token24_s1.emb.bin
+187 token24 weight images, hash-of-hashes (committed then regenerated):
+b80b6c1ac8cce76cd2f9b628fe3c694a5ba5a17debe6fdec6e7896e37038ac3c  -
+b80b6c1ac8cce76cd2f9b628fe3c694a5ba5a17debe6fdec6e7896e37038ac3c  -
+ 62 chain_s1 weight images, hash-of-hashes:
+e2aa6c2f409d04701aeeaf113362e7357832d6e596c299b5e9d962c730651a6c  -
+e2aa6c2f409d04701aeeaf113362e7357832d6e596c299b5e9d962c730651a6c  -
+
+=== 2. new-op reference cross-check (ref/seq_model.py --selftest) ===
+dynq16/eps-norm semantics from: layer_fixed (agent A)
+DYNQ16 == op1+dn_o_shift on 200/200 blocks
+EPS-NORM vs frozen dn_norm_scale: 200/200 blocks bit-identical, worst |delta| = 0 LSB
+
+=== 3. SEQ gates (.txt replay vs .seq replay, fresh models both sides) ===
+----- lay
+--- SEQ gate: /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/lay/lay_s1
+  stream   2033 records, 32528 B (sha256 cea81395c64e499c)
+  seqdata  63360 B (sha256 afd5bea218f7add4)
+  profile  xlat   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 1417, 'CMD': 472, 'MOVX': 30, 'MOVY': 44, 'MVGO': 44, 'HALT': 1, 'LDC*': 25}
+  loop     0 steps  (fewer than two decode steps)
+  .txt     508 commands, 163552 host-relayed words, checks {'R': 46, 'E': 30, 'A': 0, 'V': 30} (0.5s)
+  .seq     472 commands issued, movers MOVX=30 MVGO=44 MOVY=44 LDC=25 EMB=0 AMAXL=0 (2.0s)
+  CHECKPT  46/46 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+----- chain
+--- SEQ gate: /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/chain/chain_s1
+  stream   14642 records, 234272 B (sha256 c24e42ff4acd1d83)
+  seqdata  339392 B (sha256 f6a63f0c0a15ed9e)
+  profile  xlat   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 10330, 'CMD': 3432, 'MOVX': 186, 'MOVY': 276, 'MVGO': 276, 'HALT': 1, 'LDC*': 141}
+  loop     0 steps  (fewer than two decode steps)
+  .txt     3660 commands, 1006560 host-relayed words, checks {'R': 294, 'E': 186, 'A': 0, 'V': 186} (3.2s)
+  .seq     3432 commands issued, movers MOVX=186 MVGO=276 MOVY=276 LDC=141 EMB=0 AMAXL=0 (10.7s)
+  CHECKPT  294/294 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+----- dn1x
+--- SEQ gate: /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/dn1x/dn1_s1
+  stream   2222 records, 35552 B (sha256 40e801b2ec998de8)
+  seqdata  55680 B (sha256 acfb79b05649063e)
+  profile  xlat   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 1568, 'CMD': 521, 'MOVX': 27, 'MOVY': 39, 'MVGO': 39, 'EMB': 3, 'AMAXL': 3, 'HALT': 1, 'LDC*': 21}
+  loop     0 steps  (first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc019e9' vs 'CSRWR  L_ARG2       <= 0x1dc003e6')
+  .txt     551 commands, 145104 host-relayed words, checks {'R': 42, 'E': 27, 'A': 3, 'V': 27} (0.5s)
+  .seq     521 commands issued, movers MOVX=27 MVGO=39 MOVY=39 LDC=21 EMB=3 AMAXL=3 (2.0s)
+  CHECKPT  42/42 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [842, 378, 351]
+SEQ GATE: PASS
+----- dn1e
+--- SEQ gate: /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/dn1e/dn1_s1
+  stream   800 records, 12800 B (sha256 fcaebc44471f0ef9)
+  seqdata  55680 B (sha256 acfb79b05649063e)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 565, 'CMD': 187, 'MOVX': 9, 'MOVY': 13, 'MVGO': 13, 'EMB': 1, 'AMAXL': 1, 'JMP': 1, 'HALT': 1, 'LDC*': 9}
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+  .txt     551 commands, 145104 host-relayed words, checks {'R': 42, 'E': 27, 'A': 3, 'V': 27} (0.4s)
+  .seq     521 commands issued, movers MOVX=27 MVGO=39 MOVY=39 LDC=21 EMB=3 AMAXL=3 (1.7s)
+  CHECKPT  42/42 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [842, 378, 351]
+SEQ GATE: PASS
+----- t24x
+--- SEQ gate: /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/t24x/token24_s1
+  stream   44040 records, 704640 B (sha256 1246c46248c53eda)
+  seqdata  1001664 B (sha256 f391ebae50e76b33)
+  profile  xlat   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 31055, 'CMD': 10317, 'MOVX': 561, 'MOVY': 840, 'MVGO': 840, 'EMB': 3, 'AMAXL': 3, 'HALT': 1, 'LDC*': 417, 'XADD*': 3}
+  loop     0 steps  (first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc00f42' vs 'CSRWR  L_ARG2       <= 0x1dc003e6')
+  .txt     11001 commands, 3062688 host-relayed words, checks {'R': 885, 'E': 561, 'A': 3, 'V': 561} (8.4s)
+  .seq     10317 commands issued, movers MOVX=561 MVGO=840 MOVY=840 LDC=417 EMB=3 AMAXL=3 (19.9s)
+  CHECKPT  885/885 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2045 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [227, 7296, 4152]
+SEQ GATE: PASS
+----- t24e
+--- SEQ gate: /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/t24e/token24_s1
+  stream   44040 records, 704640 B (sha256 c374e7468bc07efb)
+  seqdata  1001664 B (sha256 f391ebae50e76b33)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 31055, 'CMD': 10317, 'MOVX': 561, 'MOVY': 840, 'MVGO': 840, 'EMB': 3, 'AMAXL': 3, 'HALT': 1, 'LDC*': 417, 'XADD*': 3}
+  loop     0 steps  (first divergence at body record 4564: 'CSRWR  L_ARG2       <= 0x26000009' vs 'CSRWR  L_ARG2       <= 0x26000008')
+  .txt     11001 commands, 3062688 host-relayed words, checks {'R': 885, 'E': 561, 'A': 3, 'V': 561} (8.1s)
+  .seq     10317 commands issued, movers MOVX=561 MVGO=840 MOVY=840 LDC=417 EMB=3 AMAXL=3 (19.3s)
+  CHECKPT  885/885 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2045 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [227, 7296, 4152]
+SEQ GATE: PASS
+----- mv2
+--- SEQ gate: /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/588cc5c0-d9b3-46a5-8c8a-424a12c36bee/scratchpad/final/mv2/model_v2_s1
+  stream   90803 records, 1452848 B (sha256 760c103fd39d2207)
+  seqdata  1007360 B (sha256 13bc65821b18194b)
+  profile  xlat   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 63124, 'CMD': 20982, 'MOVX': 1122, 'MOVY': 2388, 'MVGO': 2388, 'EMB': 6, 'AMAXL': 6, 'HALT': 1, 'LDC*': 780, 'XADD*': 6}
+  loop     0 steps  (first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc001f4' vs 'CSRWR  L_ARG2       <= 0x1dc003e8')
+  .txt     22350 commands, 8564544 host-relayed words, checks {'R': 1770, 'E': 1122, 'A': 6, 'V': 1122} (17.5s)
+  .seq     20982 commands issued, movers MOVX=1122 MVGO=2388 MOVY=2388 LDC=780 EMB=6 AMAXL=6 (43.2s)
+  CHECKPT  1770/1770 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [561, 314, 279, 369, 279, 6511]
+SEQ GATE: PASS
+
+=== 4. stream census + loop analysis ===
+script            profile   records     seq B   blob B .txt cmd hostwords seq cmd  chkpt  EXT  LDCasCSR  loop  loop_safe
+layer_s1_ntok2    xlat         2033     32528    63360      508    163552     472     46   25     36473     0  False
+                  loop_note: fewer than two decode steps
+                  attn k_a per step: {'0': [9, 9]}
+chain_s1          xlat        14642    234272   339392     3660   1006560    3432    294  141    206829     0  False
+                  loop_note: fewer than two decode steps
+                  attn k_a per step: {'0': [9, 9, 9, 9, 9, 9]}
+dn1_s1            xlat         2222     35552    55680      551    145104     521     42   21     34341     0  False
+                  loop_note: first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc019e9' vs 'CSRWR  L_ARG2       <= 0x1dc003e6'
+dn1_s1            epsnorm       800     12800    55680      551    145104     521     42    9     27833     3  True
+                  loop_note: looped
+token24_s1        xlat        44040    704640  1001664    11001   3062688   10317    885  420    614337     0  False
+                  loop_note: first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc00f42' vs 'CSRWR  L_ARG2       <= 0x1dc003e6'
+                  attn k_a per step: {'0': [9, 9, 9, 9, 9, 9], '1': [9, 9, 9, 9, 9, 9], '2': [9, 8, 9, 9, 9, 8]}
+token24_s1        epsnorm     44040    704640  1001664    11001   3062688   10317    885  420    614337     0  False
+                  loop_note: first divergence at body record 4564: 'CSRWR  L_ARG2       <= 0x26000009' vs 'CSRWR  L_ARG2       <= 0x26000008'
+                  attn k_a per step: {'0': [9, 9, 9, 9, 9, 9], '1': [9, 9, 9, 9, 9, 9], '2': [9, 8, 9, 9, 9, 8]}
+model_v2_s1       xlat        90803   1452848  1007360    22350   8564544   20982   1770  786    786252     0  False
+                  loop_note: first divergence at body record 76: 'CSRWR  L_ARG2       <= 0x1dc001f4' vs 'CSRWR  L_ARG2       <= 0x1dc003e8'
+                  attn k_a per step: {'0': [9, 12, 9, 10, 9, 11], '1': [9, 8, 9, 9, 10, 10], '2': [9, 9, 9, 9, 10, 11], '3': [9, 9, 9, 9, 10, 10], '4': [9, 9, 8, 9, 10, 10], '5': [9, 9, 8, 9, 10, 10]}
+
+LDCasCSR = records the ISA-v1-only fallback for the PROPOSED LDC opcode would need
+           (CSRWR SPTR + n x CSRWR SWIN per constant load) — see SEQ_ISA note A9.

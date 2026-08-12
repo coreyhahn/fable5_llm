@@ -1,0 +1,27 @@
+--- rtl/seq_unit.sv	2026-08-11 19:34:01.896317150 -0600
++++ tb/scripts_scratch/d/rtl_fix/seq_unit.sv	2026-08-11 19:43:20.443618838 -0600
+@@ -1208,7 +1208,7 @@
+                         xrf[csr_waddr[2:0]] <= csr_wdata[17:0];
+                 endcase
+             end
+-            if (csr_of_pop && (of_cnt != 7'd0)) of_rp <= of_rp + 7'd1;
++            if (csr_of_pop) of_rp <= of_rp + 7'd1;   // AGENT-D CANDIDATE FIX
+         end
+     end
+ 
+@@ -1363,7 +1363,14 @@
+                     10'h005: s_axil_rdata <= pc;
+                     10'h006: begin
+                         s_axil_rdata <= {(of_cnt != 7'd0), 13'd0, of_head};
+-                        csr_of_pop   <= 1'b1;
++                        // AGENT-D CANDIDATE FIX (rung 4 S6, tb_seq_unit
++                        // +ofrace): pop ONLY if this read is actually
++                        // delivering a token.  With the unconditional
++                        // strobe, a read that reported EMPTY at its accept
++                        // edge still pops one cycle later if an AMAXL push
++                        // landed on that same edge — of_cnt is non-zero by
++                        // then — and the entry is consumed by nobody.
++                        csr_of_pop   <= (of_cnt != 7'd0);
+                     end
+                     10'h007: s_axil_rdata <= {25'd0, of_cnt};
+                     10'h008: s_axil_rdata <= tcnt_seq;

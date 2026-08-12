@@ -1,0 +1,272 @@
+cd ../ref && /home/cah/.venv/bin/python gen_model_script.py ../tb/scripts/model_v2_s1.txt 1 3 --res-scale=8 --allow-clip
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+  24 layers, H=1024, vocab=248320
+  res_scale=8 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production)
+  quantized 24 layers (18 DN / 6 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 25856 of 32767, 0 out of range
+  LM head (248320, 1024) e=-4 sh=5; emb table |q|max 472 of 32767
+  step  0 (prefill ) in_tok=   760 argmax=   561 |resid|max=7127
+  step  1 (prefill ) in_tok=  6511 argmax=   314 |resid|max=10635
+  step  2 (prefill ) in_tok=   314 argmax=   279 |resid|max=10635
+  step  3 (generate) in_tok=  9338 argmax=   369 |resid|max=10635
+  step  4 (generate) in_tok=   369 argmax=   279 |resid|max=10635
+  step  5 (generate) in_tok=   279 argmax=  6511 |resid|max=10635
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                    4     1588608    32768
+alu2                    0     1105920    22220
+alu3                    1      442368    32768
+alu4                    0      294912    12390
+alu5                    0      221184    30767
+alu6                    1      516096    32767
+alu7                    0       73728    32746
+alu8                    0      589824    32384
+conv                   82      663552    32767
+embed                   0        6144      140
+gate(Q15)               0        3456    32767
+vn0                     0      387072     5598
+vn1                     0        6144     2035
+vn2                     0      442368    16375
+TOTAL                  88
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=8 of 28311552 state writes, |S|max=50250 of 32767 (153.4% of the int16 rail, = 6.134 in Q2.13)
+  saturating (dn_slot, head): (3, 5)x8
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x2048    |y32|max=952051       bits=20  spare=11  (144 matvecs)
+  1024x3584    |y32|max=289433       bits=19  spare=12  (144 matvecs)
+  16x1024      |y32|max=4013197      bits=22  spare= 9  (216 matvecs)
+  2048x1024    |y32|max=2175253      bits=22  spare= 9  (108 matvecs)
+  248320x1024  |y32|max=1200336      bits=21  spare=10  (6 matvecs)
+  3584x1024    |y32|max=3228198      bits=22  spare= 9  (288 matvecs)
+  4096x1024    |y32|max=1506600      bits=21  spare=10  (36 matvecs)
+  512x1024     |y32|max=3056578      bits=22  spare= 9  (72 matvecs)
+  6144x1024    |y32|max=5003990      bits=23  spare= 8  (108 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:29 1:41 2:29 3:32 4:85 5:221 6:106 7:2 8:36 9:1
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 8 saturations
+residual stream |x|max = 10635 of 32767 (32.5% of the int16 Q7.8 rail)
+
+--- block-float immediates emitted (Phase 1A datapath) ---
+  DN SHIFT32 k_h histogram (op 1, signed): {-14: 98, -13: 132, -12: 213, -11: 253, -10: 266, -9: 272, -8: 165, -7: 104, -6: 82, -5: 62, -4: 20, 0: 61}
+  ATTN EMUL32 k_a histogram (op 8, unsigned): {8: 3, 9: 20, 10: 10, 11: 2, 12: 1}
+  DN SCALE m_q15 (op 2): max raw 8192000, clipped at 32767 61 times (0 of them on a NON-ZERO head)
+  ATTN k_a clamped up to 0: 0 times
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h3: worst |decay_clamp - decay_spec| = 1765 /32768 (5.39% FS) at a=-6.083  (spec 8447 -> clamped 10212); 6 evaluations
+  L0h8: worst |decay_clamp - decay_spec| = 0 /32768 (0.00% FS) at a=+3.078  (spec 32767 -> clamped 32767); 6 evaluations
+  L1h15: worst |decay_clamp - decay_spec| = 3353 /32768 (10.23% FS) at a=+3.571  (spec 9479 -> clamped 12832); 6 evaluations
+
+*** RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+*** PROCEEDING ANYWAY (--allow-clip). The script is bit-exact but NOT numerically faithful at the saturating sites; every gate run on it must cite this. ***
+
+model script: prompt_seed=1 prompt='The capital of France' res_scale=8 DN_NORM_F=11 ids=[760, 6511, 314, 9338] steps=6 ntok=3 vocab=248320 nlayers=24 cmds=22350 hostwords=8564544 weights=187
+  argmax per step=[561, 314, 279, 369, 279, 6511]
+  generated=[369, 279, 6511] decoded=' is the capital'
+  -> ../tb/scripts/model_v2_s1.txt
+cd ../ref && /home/cah/.venv/bin/python gen_model_script.py ../tb/scripts/model_v2_s2.txt 2 3 --res-scale=8 --allow-clip
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+  24 layers, H=1024, vocab=248320
+  res_scale=8 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production)
+  quantized 24 layers (18 DN / 6 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 25856 of 32767, 0 out of range
+  LM head (248320, 1024) e=-4 sh=5; emb table |q|max 472 of 32767
+  step  0 (prefill ) in_tok= 12162 argmax=   279 |resid|max=5701
+  step  1 (prefill ) in_tok=  5028 argmax=   264 |resid|max=9681
+  step  2 (prefill ) in_tok=   264 argmax=   854 |resid|max=10832
+  step  3 (generate) in_tok=   854 argmax=    11 |resid|max=10832
+  step  4 (generate) in_tok=    11 argmax=   279 |resid|max=11147
+  step  5 (generate) in_tok=   279 argmax=  1814 |resid|max=11666
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                    4     1588608    32768
+alu2                    0     1105920    21975
+alu3                    1      442368    32768
+alu4                    0      294912    13205
+alu5                    1      221184    32767
+alu6                    4      516096    32767
+alu7                    0       73728    32725
+alu8                    0      589824    32761
+conv                   81      663552    32767
+embed                   0        6144      264
+gate(Q15)               0        3456    32767
+vn0                     0      387072     5919
+vn1                     0        6144     2205
+vn2                     0      442368    16371
+TOTAL                  91
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=10 of 28311552 state writes, |S|max=52423 of 32767 (160.0% of the int16 rail, = 6.399 in Q2.13)
+  saturating (dn_slot, head): (3, 5)x10
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x2048    |y32|max=642836       bits=20  spare=11  (144 matvecs)
+  1024x3584    |y32|max=278010       bits=19  spare=12  (144 matvecs)
+  16x1024      |y32|max=4937354      bits=23  spare= 8  (216 matvecs)
+  2048x1024    |y32|max=2461868      bits=22  spare= 9  (108 matvecs)
+  248320x1024  |y32|max=1124682      bits=21  spare=10  (6 matvecs)
+  3584x1024    |y32|max=3249091      bits=22  spare= 9  (288 matvecs)
+  4096x1024    |y32|max=1500068      bits=21  spare=10  (36 matvecs)
+  512x1024     |y32|max=3040386      bits=22  spare= 9  (72 matvecs)
+  6144x1024    |y32|max=9732954      bits=24  spare= 7  (108 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:29 1:51 2:30 3:38 4:90 5:198 6:108 7:1 8:35 9:2
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 10 saturations
+residual stream |x|max = 11666 of 32767 (35.6% of the int16 Q7.8 rail)
+
+--- block-float immediates emitted (Phase 1A datapath) ---
+  DN SHIFT32 k_h histogram (op 1, signed): {-14: 109, -13: 175, -12: 222, -11: 271, -10: 297, -9: 217, -8: 142, -7: 91, -6: 72, -5: 51, -4: 19, 0: 62}
+  ATTN EMUL32 k_a histogram (op 8, unsigned): {9: 24, 10: 11, 12: 1}
+  DN SCALE m_q15 (op 2): max raw 8192000, clipped at 32767 62 times (0 of them on a NON-ZERO head)
+  ATTN k_a clamped up to 0: 0 times
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h3: worst |decay_clamp - decay_spec| = 849 /32768 (2.59% FS) at a=-4.544  (spec 3680 -> clamped 4529); 6 evaluations
+  L0h8: worst |decay_clamp - decay_spec| = 0 /32768 (0.00% FS) at a=+3.078  (spec 32767 -> clamped 32767); 6 evaluations
+  L1h15: worst |decay_clamp - decay_spec| = 2642 /32768 (8.06% FS) at a=+2.672  (spec 19443 -> clamped 22085); 6 evaluations
+
+*** RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+*** PROCEEDING ANYWAY (--allow-clip). The script is bit-exact but NOT numerically faithful at the saturating sites; every gate run on it must cite this. ***
+
+model script: prompt_seed=2 prompt='Once upon a time' res_scale=8 DN_NORM_F=11 ids=[12162, 5028, 264, 854] steps=6 ntok=3 vocab=248320 nlayers=24 cmds=22350 hostwords=8564544 weights=187
+  argmax per step=[279, 264, 854, 11, 279, 1814]
+  generated=[11, 279, 1814] decoded=', the world'
+  -> ../tb/scripts/model_v2_s2.txt
+cd ../ref && /home/cah/.venv/bin/python gen_model_script.py ../tb/scripts/model_v2_s3.txt 3 3 --res-scale=8 --allow-clip
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+  24 layers, H=1024, vocab=248320
+  res_scale=8 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production)
+  quantized 24 layers (18 DN / 6 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 25856 of 32767, 0 out of range
+  LM head (248320, 1024) e=-4 sh=5; emb table |q|max 472 of 32767
+  step  0 (prefill ) in_tok=   464 argmax=   313 |resid|max=3984
+  step  1 (prefill ) in_tok=  8328 argmax=   430 |resid|max=7589
+  step  2 (prefill ) in_tok=   430 argmax=  2510 |resid|max=7589
+  step  3 (generate) in_tok=  2510 argmax=   198 |resid|max=8762
+  step  4 (generate) in_tok=   198 argmax=   464 |resid|max=8790
+  step  5 (generate) in_tok=   464 argmax= 18056 |resid|max=8790
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                    4     1588608    32768
+alu2                    0     1105920    22143
+alu3                    1      442368    32768
+alu4                    0      294912     9535
+alu5                    0      221184    30205
+alu6                    0      516096    31344
+alu7                    0       73728    32750
+alu8                    0      589824    29365
+conv                   75      663552    32767
+embed                   0        6144      198
+gate(Q15)               0        3456    32767
+vn0                     0      387072     5415
+vn1                     0        6144     2076
+vn2                     0      442368    16374
+TOTAL                  80
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=6 of 28311552 state writes, |S|max=42559 of 32767 (129.9% of the int16 rail, = 5.195 in Q2.13)
+  saturating (dn_slot, head): (3, 5)x6
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x2048    |y32|max=520532       bits=19  spare=12  (144 matvecs)
+  1024x3584    |y32|max=324682       bits=19  spare=12  (144 matvecs)
+  16x1024      |y32|max=4568137      bits=23  spare= 8  (216 matvecs)
+  2048x1024    |y32|max=2381225      bits=22  spare= 9  (108 matvecs)
+  248320x1024  |y32|max=1329821      bits=21  spare=10  (6 matvecs)
+  3584x1024    |y32|max=3195413      bits=22  spare= 9  (288 matvecs)
+  4096x1024    |y32|max=1286609      bits=21  spare=10  (36 matvecs)
+  512x1024     |y32|max=2986841      bits=22  spare= 9  (72 matvecs)
+  6144x1024    |y32|max=9266097      bits=24  spare= 7  (108 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:21 1:40 2:41 3:44 4:92 5:249 6:51 7:7 8:36 9:1
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 6 saturations
+residual stream |x|max = 8790 of 32767 (26.8% of the int16 Q7.8 rail)
+
+--- block-float immediates emitted (Phase 1A datapath) ---
+  DN SHIFT32 k_h histogram (op 1, signed): {-14: 95, -13: 167, -12: 207, -11: 243, -10: 286, -9: 248, -8: 152, -7: 118, -6: 85, -5: 50, -4: 17, 0: 60}
+  ATTN EMUL32 k_a histogram (op 8, unsigned): {8: 2, 9: 22, 10: 9, 11: 2, 12: 1}
+  DN SCALE m_q15 (op 2): max raw 8192000, clipped at 32767 60 times (0 of them on a NON-ZERO head)
+  ATTN k_a clamped up to 0: 0 times
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h3: worst |decay_clamp - decay_spec| = 316 /32768 (0.96% FS) at a=-2.744  (spec 1338 -> clamped 1654); 6 evaluations
+  L0h8: worst |decay_clamp - decay_spec| = 27 /32768 (0.08% FS) at a=+7.856  (spec 32767 -> clamped 32740); 6 evaluations
+  L1h15: worst |decay_clamp - decay_spec| = 2960 /32768 (9.03% FS) at a=+2.911  (spec 16954 -> clamped 19914); 6 evaluations
+
+*** RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+*** PROCEEDING ANYWAY (--allow-clip). The script is bit-exact but NOT numerically faithful at the saturating sites; every gate run on it must cite this. ***
+
+model script: prompt_seed=3 prompt='import numpy as np' res_scale=8 DN_NORM_F=11 ids=[464, 8328, 430, 2510] steps=6 ntok=3 vocab=248320 nlayers=24 cmds=22350 hostwords=8564544 weights=187
+  argmax per step=[313, 430, 2510, 198, 464, 18056]
+  generated=[198, 464, 18056] decoded='\nimport pandas'
+  -> ../tb/scripts/model_v2_s3.txt
+cd ../ref && /home/cah/.venv/bin/python gen_model_script.py ../tb/scripts/model_v2_s4.txt 4 3 --res-scale=8 --allow-clip
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+  24 layers, H=1024, vocab=248320
+  res_scale=8 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production)
+  quantized 24 layers (18 DN / 6 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 25856 of 32767, 0 out of range
+  LM head (248320, 1024) e=-4 sh=5; emb table |q|max 472 of 32767
+  step  0 (prefill ) in_tok=  9419 argmax=    11 |resid|max=5834
+  step  1 (prefill ) in_tok=  1814 argmax=   198 |resid|max=10116
+  step  2 (prefill ) in_tok=     0 argmax=   198 |resid|max=10116
+  step  3 (generate) in_tok=  2921 argmax=   803 |resid|max=10116
+  step  4 (generate) in_tok=   803 argmax=   369 |resid|max=10958
+  step  5 (generate) in_tok=   369 argmax=   220 |resid|max=10958
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                    5     1588608    32768
+alu2                    0     1105920    22327
+alu3                    1      442368    32768
+alu4                    0      294912    12550
+alu5                    0      221184    30896
+alu6                    3      516096    32767
+alu7                    0       73728    32723
+alu8                    0      589824    32345
+conv                   88      663552    32767
+embed                   0        6144      155
+gate(Q15)               0        3456    32767
+vn0                     0      387072     5662
+vn1                     0        6144     2418
+vn2                     0      442368    16384
+TOTAL                  97
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=6 of 28311552 state writes, |S|max=46778 of 32767 (142.8% of the int16 rail, = 5.710 in Q2.13)
+  saturating (dn_slot, head): (3, 5)x6
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x2048    |y32|max=675962       bits=20  spare=11  (144 matvecs)
+  1024x3584    |y32|max=313656       bits=19  spare=12  (144 matvecs)
+  16x1024      |y32|max=3426410      bits=22  spare= 9  (216 matvecs)
+  2048x1024    |y32|max=2644687      bits=22  spare= 9  (108 matvecs)
+  248320x1024  |y32|max=1123636      bits=21  spare=10  (6 matvecs)
+  3584x1024    |y32|max=3258655      bits=22  spare= 9  (288 matvecs)
+  4096x1024    |y32|max=2304375      bits=22  spare= 9  (36 matvecs)
+  512x1024     |y32|max=3362893      bits=22  spare= 9  (72 matvecs)
+  6144x1024    |y32|max=4935374      bits=23  spare= 8  (108 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:16 1:52 2:36 3:34 4:81 5:214 6:112 8:36 9:1
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 6 saturations
+residual stream |x|max = 10958 of 32767 (33.4% of the int16 Q7.8 rail)
+
+--- block-float immediates emitted (Phase 1A datapath) ---
+  DN SHIFT32 k_h histogram (op 1, signed): {-14: 100, -13: 148, -12: 199, -11: 264, -10: 270, -9: 261, -8: 150, -7: 103, -6: 88, -5: 54, -4: 22, 0: 69}
+  ATTN EMUL32 k_a histogram (op 8, unsigned): {8: 2, 9: 21, 10: 12, 12: 1}
+  DN SCALE m_q15 (op 2): max raw 8192000, clipped at 32767 69 times (0 of them on a NON-ZERO head)
+  ATTN k_a clamped up to 0: 0 times
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h3: worst |decay_clamp - decay_spec| = 703 /32768 (2.15% FS) at a=-4.191  (spec 3022 -> clamped 3725); 6 evaluations
+  L0h8: worst |decay_clamp - decay_spec| = 0 /32768 (0.00% FS) at a=+2.343  (spec 32767 -> clamped 32767); 6 evaluations
+  L1h15: worst |decay_clamp - decay_spec| = 2914 /32768 (8.89% FS) at a=+2.870  (spec 17353 -> clamped 20267); 6 evaluations
+
+*** RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+*** PROCEEDING ANYWAY (--allow-clip). The script is bit-exact but NOT numerically faithful at the saturating sites; every gate run on it must cite this. ***
+
+model script: prompt_seed=4 prompt='Hello world! My' res_scale=8 DN_NORM_F=11 ids=[9419, 1814, 0, 2921] steps=6 ntok=3 vocab=248320 nlayers=24 cmds=22350 hostwords=8564544 weights=187
+  argmax per step=[11, 198, 198, 803, 369, 220]
+  generated=[803, 369, 220] decoded=' name is '
+  -> ../tb/scripts/model_v2_s4.txt

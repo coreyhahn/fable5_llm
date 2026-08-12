@@ -1,0 +1,48 @@
+--- gate A1: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e
+    prompt [760, 6511, 314, 9338] ntok 3  expect [561, 314, 279, 369, 279, 6511]
+    blob 1784576 B (const 998144 + pool 512x1536)
+    [mono] committed 60,495-record stream
+      launch  60495 recs -> tokens [561, 314, 279, 369, 279, 6511] (89.0s)
+    mono tokens [561, 314, 279, 369, 279, 6511] OK
+    session image 1526 recs / 24416 B (SEQ_LEN 1526)
+    turn.loop  60496 recs / 967936 B holes ['jmp', 'loop_head', 'step0.pos', 'step0.tok', 'step1.pos', 'step1.tok', 'step2.pos', 'step2.tok', 'step3.pos', 'step3.tok', 'tcnt']
+    [single-stream/loop] 1 launch(es) (one image, one START)
+      launch  60496 recs -> tokens [561, 314, 279, 369, 279, 6511] (89.5s)
+      tokens [561, 314, 279, 369, 279, 6511] IDENTICAL; diff_state EMPTY -> PASS
+    turn.flat  89976 recs / 1439616 B
+    [single-stream/flat] 1 launch(es) (one image, one START)
+      launch  89976 recs -> tokens [561, 314, 279, 369, 279, 6511] (88.7s)
+      tokens [561, 314, 279, 369, 279, 6511] IDENTICAL; diff_state EMPTY -> PASS
+    per-step images: 1 session + 6 step launches (['full', 'full', 'full', 'full', 'full', 'full'])
+    [launch-per-step] 7 launch(es) (session + one launch per forward step)
+      launch   1526 recs -> tokens [] (0.0s)
+      launch  14744 recs -> tokens [561] (14.7s)
+      launch  14744 recs -> tokens [314] (14.6s)
+      launch  14744 recs -> tokens [279] (14.6s)
+      launch  14744 recs -> tokens [369] (14.6s)
+      launch  14744 recs -> tokens [279] (14.6s)
+      launch  14744 recs -> tokens [6511] (14.6s)
+      tokens [561, 314, 279, 369, 279, 6511] IDENTICAL; diff_state EMPTY -> PASS
+    resident-image patch flow: 48 B/launch at offset 0
+    [resident+48B-patch] 7 launch(es) (one resident full image, patched)
+      launch   1526 recs -> tokens [] (0.0s)
+      launch  14744 recs -> tokens [561] (14.6s)
+      launch  14744 recs -> tokens [314] (14.9s)
+      launch  14744 recs -> tokens [279] (14.8s)
+      launch  14744 recs -> tokens [369] (14.8s)
+      launch  14744 recs -> tokens [279] (14.8s)
+      launch  14744 recs -> tokens [6511] (14.8s)
+      tokens [561, 314, 279, 369, 279, 6511] IDENTICAL; diff_state EMPTY -> PASS
+    [prefill-lite] ['lite', 'lite', 'lite', 'full', 'full', 'full'] -> reply tokens [369, 279, 6511] vs [369, 279, 6511] -> PASS
+    [committed/split-2] 2 launch(es) (committed bytes, cut at rec 16266)
+      launch  16267 recs -> tokens [561] (14.7s)
+      launch  44229 recs -> tokens [314, 279, 369, 279, 6511] (73.7s)
+      tokens [561, 314, 279, 369, 279, 6511] IDENTICAL; diff_state EMPTY -> PASS
+    [committed/split-4] 4 launch(es) (committed bytes, cuts at 16266/31008/45749 + XRF re-seed)
+      launch  16267 recs -> tokens [561] (14.8s)
+      launch  14745 recs -> tokens [314] (14.8s)
+      launch  14744 recs -> tokens [279] (14.7s)
+      launch  14748 recs -> tokens [369, 279, 6511] (44.3s)
+      tokens [561, 314, 279, 369, 279, 6511] IDENTICAL; diff_state EMPTY -> PASS
+GATE A1: PASS
+seq_chat: PASS
