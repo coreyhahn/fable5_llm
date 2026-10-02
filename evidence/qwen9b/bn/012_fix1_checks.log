@@ -1,0 +1,45 @@
+=== host: snoke
+=== date: 2026-09-15T19:00:15-06:00
+=== tree: 334f80b
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/bn/bn1_fix1_checks.py evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== rs_f: derived=7 (tag 9b) env=unset rider=0
+=== ---
+tokens 6
+=== I-1: are the three model terms disjoint? ===
+  layer              10402465.3 cyc    41.610 ms
+  weight streaming   13601885.0 cyc    54.408 ms
+  mover work          8136299.0 cyc    32.545 ms
+  layer AND streaming        0.0 cyc
+  layer AND mover-work       0.0 cyc
+  streaming AND mover-work   0.0 cyc  (0 by construction)
+  UNION of the three   32140649.3 cyc =  128.563 ms
+  SUM   of the three   32140649.3 cyc =  128.563 ms
+  token                32784433.5 cyc =  131.138 ms
+  NONE of the three      643784.2 cyc =    2.575 ms = 1.96 %
+=== I-2: the overlap the model's m stands for ===
+  mover work WHILE any matvec engine busy     11726.7 cyc = 0.0358 % of the token
+  mover busy WHILE any channel streams     13597777.0 cyc (the FENCE wait)
+  -> measured m = 1 - overlap/counted = 0.99856
+=== §7 / M-8: the label partition and the GQA per-layer division ===
+  cells/token {'MLP': 63.0, 'HEAD': 1.0}
+  maximal RUNS of equal label per token {'MLP': 1.0, 'HEAD': 1.0}
+  ROPET commands inside each GQA run: [] ... distinct: []
+  label purity violations: NONE
+  MLP      9989066.5 cyc/token =   39.956 ms
+  HEAD      413398.8 cyc/token =    1.654 ms
+  labelled total   10402465.3  token   32784433.5  remainder 22381968.2 cyc (68.2701 %)
+=== M-9: the channel-rebalanced bound ===
+  beats/token per chan [15979392, 15962496, 15962496, 12]  total 47904396
+  if the four channels were perfectly even: 11976099 beats each
+  at the measured 1.1922 beats/cyc -> 10044998.0 cyc = 40.180 ms
+  floor with rebalance = 40.180 + 1.227 = 41.407 ms -> 3.17x
+=== R10/#6: state-DMA with no other class ===
+  L_DMA and nothing else: 3434.7 cyc/token
+=== rc: 0
+=== end: 2026-09-15T19:00:18-06:00

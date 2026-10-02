@@ -1,0 +1,169 @@
+=== host: snoke
+=== date: 2026-09-07T00:22:53-06:00
+=== tree: 96ae645
+=== cmd:  bash -c 
+  source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh
+  cd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_t14a_layer
+  vivado -mode batch -nojournal -log cascade_probe.log \
+    -source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g5/g5b_t14a_smem_cascade.tcl \
+    -tclargs /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_t14a_layer/post_synth.dcp \
+             /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_t14a_layer/smc_t14a
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Mon Sep  7 00:22:55 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g5/g5b_t14a_smem_cascade.tcl
+# if {[llength $argv] < 2} { puts "FATAL: need <dcp> <out_prefix>"; exit 1 }
+# set DCP [lindex $argv 0]
+# set PRE [lindex $argv 1]
+# if {![file exists $DCP]} { puts "FATAL: no such checkpoint: $DCP"; exit 1 }
+# set_param general.maxThreads 8
+# puts "SMC_DCP: $DCP"
+SMC_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_t14a_layer/post_synth.dcp
+# puts "SMC_DCP_MTIME: [clock format [file mtime $DCP] -format {%Y-%m-%d %H:%M:%S}]"
+SMC_DCP_MTIME: 2026-09-07 00:21:57
+# open_checkpoint $DCP
+Command: open_checkpoint /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_t14a_layer/post_synth.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.06 . Memory (MB): peak = 1381.402 ; gain = 0.000 ; free physical = 45451 ; free virtual = 370901
+INFO: [Device 21-403] Loading part xcvu9p-fsgd2104-2L-e
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2749.000 ; gain = 0.000 ; free physical = 45382 ; free virtual = 370969
+INFO: [Netlist 29-17] Analyzing 12967 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 16 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.51 ; elapsed = 00:00:00.54 . Memory (MB): peak = 3375.836 ; gain = 44.289 ; free physical = 44661 ; free virtual = 370312
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5126.734 ; gain = 0.000 ; free physical = 42875 ; free virtual = 368651
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 2416 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 1840 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 6 instances
+  RAM256X1D => RAM256X1D (MUXF7(x4), MUXF8(x2), RAMD64E(x8)): 512 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 3 instances
+  RAM32M16 => RAM32M16 (RAMD32(x14), RAMS32(x2)): 5 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 8 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 14 instances
+  RAM64M8 => RAM64M8 (RAMD64E(x8)): 28 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2024.2 (64-bit) build 5239630
+open_checkpoint: Time (s): cpu = 00:02:23 ; elapsed = 00:01:49 . Memory (MB): peak = 5126.734 ; gain = 3745.332 ; free physical = 42860 ; free virtual = 368639
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "aclk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+get_timing_paths: Time (s): cpu = 00:02:48 ; elapsed = 00:00:57 . Memory (MB): peak = 6143.367 ; gain = 1016.633 ; free physical = 41687 ; free virtual = 367601
+# set wns [get_property SLACK [get_timing_paths -max_paths 1 -nworst 1 -setup]]
+# puts "SMC_WNS: $wns"
+SMC_WNS: 0.483
+# set allp [get_timing_paths -quiet -max_paths 6000 -nworst 1 -setup -slack_lesser_than 0]
+# puts "SMC_FAILING_SAMPLE: [llength $allp]"
+SMC_FAILING_SAMPLE: 0
+# set n_smem 0
+# set n_other 0
+# set smem_worst 99
+# set smem_best -99
+# set smem_logic_min 99
+# set smem_logic_max -99
+# puts "SMC_SMEM_PATHS_BEGIN"
+SMC_SMEM_PATHS_BEGIN
+# foreach p $allp {
+#     set sp [get_property STARTPOINT_PIN $p]
+#     if {[string match "*smem_?_reg_bram_*" $sp]} {
+#         incr n_smem
+#         set s  [get_property SLACK $p]
+#         set dl [get_property DATAPATH_DELAY $p]
+#         set lg [get_property DATAPATH_LOGIC_DELAY $p]
+#         if {$s < $smem_worst} { set smem_worst $s }
+#         if {$s > $smem_best}  { set smem_best  $s }
+#         if {$lg < $smem_logic_min} { set smem_logic_min $lg }
+#         if {$lg > $smem_logic_max} { set smem_logic_max $lg }
+#         puts [format "SMC_P %8s lvl=%-3s dp=%-7s logic=%-7s route=%-7s | %s <- %s" \
+#             $s [get_property LOGIC_LEVELS $p] $dl $lg \
+#             [get_property DATAPATH_NET_DELAY $p] \
+#             [get_property ENDPOINT_PIN $p] $sp]
+#     } else {
+#         incr n_other
+#     }
+# }
+# puts "SMC_SMEM_PATHS_END"
+SMC_SMEM_PATHS_END
+# puts "SMC_TALLY: smem_launched=$n_smem other=$n_other of [llength $allp]"
+SMC_TALLY: smem_launched=0 other=0 of 0
+# puts "SMC_SMEM_SLACK_RANGE: worst=$smem_worst best=$smem_best"
+SMC_SMEM_SLACK_RANGE: worst=99 best=-99
+# puts "SMC_SMEM_LOGIC_RANGE: min=$smem_logic_min max=$smem_logic_max"
+SMC_SMEM_LOGIC_RANGE: min=99 max=-99
+# foreach arr {smem_a smem_b} {
+#     set cells [get_cells -quiet -hier -filter "NAME =~ *${arr}_reg_bram_* && PRIMITIVE_TYPE =~ BLOCKRAM.*.*"]
+#     if {[llength $cells] == 0} {
+#         set cells [get_cells -quiet -hier -filter "NAME =~ *${arr}_reg_bram_*"]
+#     }
+#     array unset oa; array set oa {}
+#     array unset ob; array set ob {}
+#     foreach c $cells {
+#         set a [get_property -quiet CASCADE_ORDER_A $c]
+#         set b [get_property -quiet CASCADE_ORDER_B $c]
+#         if {$a eq ""} { set a "(none)" }
+#         if {$b eq ""} { set b "(none)" }
+#         if {[info exists oa($a)]} { incr oa($a) } else { set oa($a) 1 }
+#         if {[info exists ob($b)]} { incr ob($b) } else { set ob($b) 1 }
+#     }
+#     puts "SMC_ARRAY $arr cells=[llength $cells]"
+#     foreach k [lsort [array names oa]] { puts "SMC_CASCADE_A $arr $k = $oa($k)" }
+#     foreach k [lsort [array names ob]] { puts "SMC_CASCADE_B $arr $k = $ob($k)" }
+#     # the RAM depth each tile presents, which is what sets the tile count
+#     set d0 [lindex $cells 0]
+#     if {$d0 ne ""} {
+#         puts "SMC_TILE0 $arr [get_property REF_NAME $d0] READ_WIDTH_B=[get_property -quiet READ_WIDTH_B $d0] DOB_REG=[get_property -quiet DOB_REG $d0] RAM_MODE=[get_property -quiet RAM_MODE $d0]"
+#     }
+# }
+SMC_ARRAY smem_a cells=32
+SMC_CASCADE_A smem_a NONE = 32
+SMC_CASCADE_B smem_a FIRST = 16
+SMC_CASCADE_B smem_a LAST = 16
+SMC_TILE0 smem_a RAMB36E2 READ_WIDTH_B=1 DOB_REG=0 RAM_MODE=
+SMC_ARRAY smem_b cells=32
+SMC_CASCADE_A smem_b NONE = 32
+SMC_CASCADE_B smem_b FIRST = 16
+SMC_CASCADE_B smem_b LAST = 16
+SMC_TILE0 smem_b RAMB36E2 READ_WIDTH_B=1 DOB_REG=0 RAM_MODE=
+# set CONES {
+#     dn_vdata   {*u_core/dn_vdata_reg*/D}
+#     at_qdata   {*u_core/at_qdata_reg*/D}
+#     axil_rdata {*u_core/s_axil_rdata_reg*/D}
+# }
+# foreach {nm pat} $CONES {
+#     set pins [get_pins -quiet -hier -filter "NAME =~ $pat"]
+#     set ps [get_timing_paths -quiet -to $pins -max_paths 10 -nworst 1 -setup -sort_by slack]
+#     puts "SMC_CONE $nm pins=[llength $pins] paths=[llength $ps]"
+#     foreach p $ps {
+#         puts [format "SMC_CONE_P %-10s %8s lvl=%-3s dp=%-7s logic=%-7s route=%-7s | %s" \
+#             $nm [get_property SLACK $p] [get_property LOGIC_LEVELS $p] \
+#             [get_property DATAPATH_DELAY $p] [get_property DATAPATH_LOGIC_DELAY $p] \
+#             [get_property DATAPATH_NET_DELAY $p] [get_property ENDPOINT_PIN $p]]
+#     }
+# }
+SMC_CONE dn_vdata pins=0 paths=0
+SMC_CONE at_qdata pins=0 paths=0
+SMC_CONE axil_rdata pins=0 paths=0
+# puts "SMC_DONE"
+SMC_DONE
+INFO: [Common 17-206] Exiting Vivado at Mon Sep  7 00:25:53 2026...
+=== rc: 0
+=== end: 2026-09-07T00:26:04-06:00

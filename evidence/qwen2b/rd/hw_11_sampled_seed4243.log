@@ -1,0 +1,57 @@
+=== host: snoke  date: 2026-08-24T23:42:50-06:00
+=== tree: 85d05d6+dirty
+=== cmd : /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_sampled.sh 4243 4243
+=== venv: 3.12.3 numpy 2.4.6
+--- session bring-up
+  nch=4      model_v2_s1.e4: 68119 records, body 16646 full / 15878 lite; head image(s) [186] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e4 -> preamble:1526, lite:15882, full:16650  (0.5s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x9044040
+  board      MAGIC=0xfab1e001 VERSION=0x54443b9f CALIB=0xf SEQ=READY
+  EMBLOG2    11 (2048 B embedding rows)
+  residency  756 witness blocks (748 weight + 8 emb, 2772 KiB) in 22 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2275 KiB readback-verified in 0.0s
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  sampling   temp=0.8 top_k=50 top_p=1 seed=4243  |  source chip-topk: ready  |  capture k=32
+  sampling   NOTE --top-k 50 exceeds the capture depth 32; the effective k is 32
+--- preamble
+  preamble   8.7 ms device / 10.4 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 15882 rec | full 16650 rec
+  patch      pos_mode='ldc': 72 B in 7 write(s) per launch
+  prefill    lite  |  --ntok 24  |  --max-ctx 500 of KV depth 512
+  template   ON: 5*messages+7 wrapper ids, closed-empty think block, incremental with carry
+  decode     temp=0.8 top_k=50 top_p=1 seed=4243 via chip-topk  |  the LM head + argmax run ON-CHIP every step
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+
+prompt> Write a haiku about winter.
+  prefill 1/18 (26 ms/step, lite)     prefill 2/18 (26 ms/step, lite)     prefill 3/18 (26 ms/step, lite)     prefill 4/18 (26 ms/step, lite)     prefill 5/18 (26 ms/step, lite)     prefill 6/18 (26 ms/step, lite)     prefill 7/18 (26 ms/step, lite)     prefill 8/18 (26 ms/step, lite)     prefill 9/18 (26 ms/step, lite)     prefill 10/18 (26 ms/step, lite)     prefill 11/18 (26 ms/step, lite)     prefill 12/18 (26 ms/step, lite)     prefill 13/18 (26 ms/step, lite)     prefill 14/18 (26 ms/step, lite)     prefill 15/18 (26 ms/step, lite)     prefill 16/18 (26 ms/step, lite)     prefill 17/18 (26 ms/step, lite)     prefill 18/18 (26 ms/step, lite)                                                 ```i
+cold fingers reach across and soft with your own love.
+leaves rust with seasons and then slowly lose
+  --> '```i\ncold fingers reach across and soft with your own love.\nleaves rust with seasons and then slowly lose'
+  ids [71093, 72, 198, 84068, 18645, 5372, 3808, 321, 8153, 440, 678, 1765, 2854, 13, 198, 273, 4541, 22353, 440, 15127, 321, 1179, 13569, 8779]   24 tok in 1.32s
+  prefill 18 lite x 26.3 ms | decode 24 full x 31.7 ms | 18.23 tok/s wall | 94% of wall was device | context 42/500 (8%)
+  template   turn 1: +12 wrapper ids (7 body) | session 12 wrapper of 42 context steps (29%)
+             T7 budget: 12 fed + 0 generated <|im_end|> = 5*1+7 = 12 for the equivalent 1-message HF rendering
+
+  launches     43 (1 preamble / 18 lite / 24 full)
+  preamble     device ms  mean 8.7  min 8.7  max 8.7  (n=1)
+  lite         device ms  mean 26.3  min 26.3  max 26.4  (n=18)
+  full         device ms  mean 31.7  min 31.6  max 31.8  (n=24)
+  lite/full    83.0% of a decode step (spec risk 8: measured, not assumed)
+  context      42 of 500 forward steps (KV bank depth 512)
+  stream       nch=4, head wid [186] chunk-interleaved over 4 channels (S4)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  template     ON: 12 wrapper ids over 1 turn(s) = 29% of the context; T7 says 5*1+7 = 12
+  sampling     temp=0.8 top_k=50 top_p=1 seed=4243  (24 draws of 24 picks, 0.1935 ms mean)
+  candidates   chip-topk: ready
+  MMIO         3592 reads / 627 writes
+report -> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/chat_sampled_seed4243.json
+=== rc  : 0
+=== end : 2026-08-24T23:42:55-06:00

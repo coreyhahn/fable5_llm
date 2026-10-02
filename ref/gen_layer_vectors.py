@@ -33,6 +33,18 @@ def wr(path, vals, width_bits):
             f.write(f"{int(v) & mask:0{(width_bits + 3) // 4}x}\n")
 
 
+# G3.4 (spec 0b A2.1): the rmsnorm VECTOR fraction is PINNED, and it is a
+# TB CONTRACT rather than the model's RS_F.  `tb/tb_vecnorm.sv` drives
+# `cfg_inf`/`cfg_outf` as the literal 4'd8 on every rmsnorm case, so a
+# vector generated at `LF.RS_F` silently stopped matching its own TB the
+# moment A2.1 moved RS_F to 7 -- the trap Task 8 declared and A2.1 made
+# live.  Pinning it here closes that at the root and costs NOTHING in
+# coverage: vecnorm normalizes, so the fraction is a shift, not a shape.
+# The value is 8 = what the TB drives, so this is BYTE-IDENTICAL to every
+# vector generated before it at the default RS_F.
+RMS_VEC_F = 8
+
+
 def main():
     out, seed = sys.argv[1], int(sys.argv[2])
     os.makedirs(f"{out}/roms", exist_ok=True)
@@ -48,9 +60,10 @@ def main():
     wr(f"{out}/roms/softplus_rom.hex", fp._SOFTPLUS_TAB, 17)
 
     # ---- rmsnorm (1+w), N=1024 ----
-    x = np.round(rng.normal(0, 2, LR.H) * (1 << LF.RS_F)).astype(I64)
+    # G3.4 (spec 0b A2.1): PINNED, not LF.RS_F -- see RMS_VEC_F above.
+    x = np.round(rng.normal(0, 2, LR.H) * (1 << RMS_VEC_F)).astype(I64)
     w = np.round(rng.normal(0, 0.1, LR.H) * (1 << 14)).astype(I64)
-    y = LF.rmsnorm_fx(x, w, LF.RS_F, True)
+    y = LF.rmsnorm_fx(x, w, RMS_VEC_F, True)
     wr(f"{out}/rmsnorm_x16.hex", x, 16)
     wr(f"{out}/rmsnorm_w14.hex", w, 16)
     wr(f"{out}/rmsnorm_y16.hex", y, 16)

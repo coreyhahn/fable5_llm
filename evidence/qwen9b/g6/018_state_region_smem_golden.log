@@ -1,0 +1,131 @@
+=== host: snoke
+=== date: 2026-09-09T20:11:33-06:00
+=== tree: d52bddc
+=== cmd:  bash evidence/qwen9b/g6/g6_state_rung.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] the INITIAL region image, verbatim, and read back
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+--- state region  DN 0x380000000  KV 0x381800000  CV 0x389800000  END 0x389b00000  (155 MiB on DDR channel 3)
+  image     tb/scripts/w9/model_9b_s1.state.bin 162529280 B, sha256 3a716409081f0c54d9bf554b85310e28 == manifest state['sha256'] [OK]
+  written   155 MiB -> 0x380000000 (chan 3) in 0.2 s — ALL THREE sub-regions, KV included
+  readback  155 MiB of 0x380000000..0x389b00000 (chan 3) in 0.6 s (257 MiB/s)
+  on-chip   sha256 3a716409081f0c54d9bf554b85310e28c66562080865b65da79a99241628e493
+  artifact  sha256 3a716409081f0c54d9bf554b85310e28c66562080865b65da79a99241628e493
+  STATE BIT-EXACT against model_9b_s1.state.bin
+  json -> evidence/qwen9b/g6/018_state_initial.json
+G6_STATE: OK
+
+########## [2] run it — --skip-weights writes the CSRs and NO region byte
+--- SEQ stream: tb/scripts/w9/model_9b_s1.e4
+  artifacts base   tb/scripts/w9/model_9b_s1
+  stream           158536 records, 2536576 B (sha256 9760899df53b3b42) VALIDATED
+  seqdata          563712 B (sha256 4a7784f2f2c47e07)
+  profile          epsnorm  dyn_ka=True  loop 3 steps (structurally safe)
+  opcodes          {'CSRWR': 106244, 'CMD': 35286, 'MOVX': 3984, 'MOVY': 5480, 'MVGO': 5480, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'FENCE': 1372, 'HALT': 1, 'LDC*': 644, 'XOP*': 36}
+  expected tokens  [2614, 314, 279, 369, 11751, 13]
+  mode             4-CHANNEL row-split (weights over DDR chans [0, 1, 2, 3], fetch on chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=4)
+  stream    0x9000000 .. 0x926b480  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc089a00  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 249 images, chans [0, 1, 2, 3])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 644 LDC records (32 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 4 EMB records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+  weight plan: 249 images match the stream's MVGO plan; 5480 MVGO WBASEs row-aligned inside them
+--- upload
+  weights   SKIPPED (--skip-weights: assumed resident)
+  seqdata   563712 B -> 0xc000000  [readback OK]
+  stream    2536576 B (158536 records) -> 0x9000000  [readback OK]
+  state     CSRs only (--skip-weights): SB_* <- 0x38000/0x38180/0x38980
+  3 MiB written, 3 MiB read back and compared, 0.6s
+--- run
+  scratch   65536 words zeroed via SPTR/SWIN and read back: 0 non-zero (0.2s)
+  EMBLOG2    13 (8192 B embedding rows)
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+  SEQ_BASE=0x9000000 LEN=158536 ENTRY=0 -> START
+    pc 1319/158536  (0.0s)
+    pc 4161/158536  (0.0s)
+    pc 9087/158536  (0.0s)
+    pc 12561/158536  (0.0s)
+    pc 17318/158536  (0.1s)
+    pc 20819/158536  (0.1s)
+    pc 25581/158536  (0.1s)
+    pc 29074/158536  (0.1s)
+    pc 33357/158536  (0.1s)
+    pc 37904/158536  (0.1s)
+    pc 41064/158536  (0.1s)
+    pc 45840/158536  (0.2s)
+    pc 49348/158536  (0.2s)
+    pc 53609/158536  (0.2s)
+    pc 58367/158536  (0.2s)
+    pc 61860/158536  (0.2s)
+    pc 66622/158536  (0.2s)
+    pc 70115/158536  (0.2s)
+    pc 74214/158536  (0.2s)
+    pc 77876/158536  (0.3s)
+    pc 81970/158536  (0.3s)
+    pc 86900/158536  (0.3s)
+    pc 90389/158536  (0.3s)
+    pc 95148/158536  (0.3s)
+    pc 98640/158536  (0.3s)
+    pc 102908/158536  (0.3s)
+    pc 107670/158536  (0.4s)
+    pc 111161/158536  (0.4s)
+    pc 115418/158536  (0.4s)
+    pc 118879/158536  (0.4s)
+    pc 123012/158536  (0.4s)
+    pc 127930/158536  (0.4s)
+    pc 131430/158536  (0.4s)
+    pc 136177/158536  (0.5s)
+    pc 139682/158536  (0.5s)
+    pc 144240/158536  (0.5s)
+    pc 147921/158536  (0.5s)
+    pc 152186/158536  (0.5s)
+    pc 155685/158536  (0.5s)
+    pc 119857/158536  (0.5s)
+    pc 123154/158536  (0.6s)
+    pc 127916/158536  (0.6s)
+    pc 131430/158536  (0.6s)
+    pc 136177/158536  (0.6s)
+    pc 139682/158536  (0.6s)
+    pc 144120/158536  (0.6s)
+    pc 147921/158536  (0.6s)
+    pc 152180/158536  (0.7s)
+    pc 155673/158536  (0.7s)
+    pc 119669/158536  (0.7s)
+    pc 123149/158536  (0.7s)
+    pc 127905/158536  (0.7s)
+    pc 131398/158536  (0.7s)
+    pc 136160/158536  (0.7s)
+    pc 139653/158536  (0.7s)
+    pc 143884/158536  (0.8s)
+    pc 147915/158536  (0.8s)
+    pc 152180/158536  (0.8s)
+    pc 155673/158536  (0.8s)
+  halted at pc=158535/158536 in 0.824s wall / 822.795 ms device
+  STATUS=0x00010004 err=False err_code=0x00 (no error)
+  perf: {'cyc': 205698826, 'rec': 237784, 'axil_wr': 287517, 'axil_rd': 9955382, 'fetch_starved_cyc': 95, 'xrf_ovf': False}
+  tokens: [2614, 314, 279, 369, 11751, 13]
+  TOKENS   IDENTICAL to the .seq.json (6 tokens)
+--- post-halt state vs tb/scripts/w9/model_9b_s1.e4.chip
+  golden    36886 state checks, ALL MATCH
+SEQ RUN: PASS
+report -> evidence/qwen9b/g6/018_run.json
+
+########## [3] the FINAL region image, off the chip
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+--- state region  DN 0x380000000  KV 0x381800000  CV 0x389800000  END 0x389b00000  (155 MiB on DDR channel 3)
+  readback  155 MiB of 0x380000000..0x389b00000 (chan 3) in 0.6 s (257 MiB/s)
+  on-chip   sha256 7bd38ff095ad91a06de4e5e8ddc5da35179f733e924135d3cf849d8c235e9efe
+  artifact  final_sha256 7bd38ff095ad91a06de4e5e8ddc5da35179f733e924135d3cf849d8c235e9efe
+  STATE BIT-EXACT against model_9b_s1.state_final.bin
+  json -> evidence/qwen9b/g6/018_state_final.json
+G6_STATE: OK
+=== rc: 0
+=== end: 2026-09-09T20:11:39-06:00

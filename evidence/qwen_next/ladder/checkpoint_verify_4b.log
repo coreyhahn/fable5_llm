@@ -1,0 +1,96 @@
+=== Qwen3.5-4B checkpoint verification (FABLE5_MODEL=4b) ===
+
+## 1. shards
+  [0] model.safetensors-00001-of-00002.safetensors
+      5,329,398,688 bytes (5082.5 MiB)
+      header sha256 f46b4aa8c303583fedfb3780fd2a3b981300ee9cad9bc624999bac343e799fd7
+  [1] model.safetensors-00002-of-00002.safetensors
+      3,990,429,408 bytes (3805.6 MiB)
+      header sha256 270d6faae3bc0e1642498e5ef12d222429a666c781022fb891302e42361b9d66
+  snapshot /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+  total 9,319,828,096 bytes = 8.680 GiB
+  COMBINED header sha256 6e73db95dda030ff8fa43e99e2cebb3307f91363a756b2ba115e67ae0efb72fd   (sha256 of the per-shard digests, newline-joined, in shard order)
+  OK       shard count                                  got=2
+
+## 2. whole-file parameter census by top-level prefix
+  model.language_model.     426 tensors    4,205,751,296 params
+  model.visual.             297 tensors      333,514,240 params
+  mtp.                       15 tensors      120,599,552 params
+  TOTAL                     738 tensors    4,659,865,088 params
+  OK       text tensors                                 got=426
+  OK       text params                                  got=4205751296
+  OK       mtp tensors                                  got=15
+  OK       mtp params                                   got=120599552
+  OK       vision tensors                               got=297
+  OK       vision params                                got=333514240
+  OK       top-level lm_head tensors                    got=0
+  OK       top-level lm_head params                     got=0
+  OK       nothing outside the four prefixes            got=0
+
+## 3. text_config geometry
+  OK       hidden_size                                  got=2560
+  OK       intermediate_size                            got=9216
+  OK       num_hidden_layers                            got=32
+  OK       vocab_size                                   got=248320
+  OK       head_dim                                     got=256
+  OK       num_attention_heads                          got=16
+  OK       num_key_value_heads                          got=4
+  OK       linear_num_key_heads                         got=16
+  OK       linear_num_value_heads                       got=32
+  OK       linear_key_head_dim                          got=128
+  OK       linear_value_head_dim                        got=128
+  OK       linear_conv_kernel_dim                       got=4
+  OK       layer_types linear_attention                 got=24
+  OK       layer_types full_attention                   got=8
+  OK       len(layer_types)                             got=32
+  derived layer_ref constants:
+  OK       LR.H                                         got=2560
+  OK       LR.LNH (value heads)                         got=32
+  OK       LR.LNKH (key heads)                          got=16
+  OK       LR.LKD (= LNKH*LDK)                          got=2048
+  OK       LR.LVD (= LNH*LDV)                           got=4096
+  OK       LR.CONV_DIM (= 2*LKD + LVD)                  got=8192
+
+## 4. per-tensor shapes vs §1.1 (layer 0 = DeltaNet, first full_attention layer)
+  OK       L0.dn.A_log                                  got=(32,)
+  OK       L0.dn.conv_w                                 got=(8192, 4)
+  OK       L0.dn.dt_bias                                got=(32,)
+  OK       L0.dn.in_a                                   got=(32, 2560)
+  OK       L0.dn.in_b                                   got=(32, 2560)
+  OK       L0.dn.in_qkv                                 got=(8192, 2560)
+  OK       L0.dn.in_z                                   got=(4096, 2560)
+  OK       L0.dn.norm_w                                 got=(128,)
+  OK       L0.dn.out                                    got=(2560, 4096)
+  OK       L3.attn.k_norm                               got=(256,)
+  OK       L3.attn.k_proj                               got=(1024, 2560)
+  OK       L3.attn.o_proj                               got=(2560, 4096)
+  OK       L3.attn.q_norm                               got=(256,)
+  OK       L3.attn.q_proj                               got=(8192, 2560)
+  OK       L3.attn.v_proj                               got=(1024, 2560)
+  OK       L0.mlp.gate                                  got=(9216, 2560)
+  OK       L0.mlp.down                                  got=(2560, 9216)
+  OK       L3.mlp.gate                                  got=(9216, 2560)
+  OK       L3.mlp.down                                  got=(2560, 9216)
+  8192 = 2*(16*128) + 32*128 — 16 KEY heads, 32 VALUE heads:
+  OK       2*LKD + LVD == in_qkv rows                   got=8192
+
+## 5. LM head: tie ground truth (study §1.2)
+  config.json  top-level tie_word_embeddings = True
+  text_config  tie_word_embeddings           = True
+  checkpoint carries lm_head tensor          = None
+  OK       tied (tensor ground truth)                   got=True
+  OK       embed_tokens shape                           got=(248320, 2560)
+
+## 6. committed config JSON == the snapshot's config.json
+  OK       ref/qwen3_5_4b_config.json byte-identical to the hub file got=True
+  ddc63e1c717afa86c865bb5e01313d89d72bb53b97ad4a8a03ba8510c0621670  qwen3_5_4b_config.json
+
+## 7. tokenizer identity vs 0.8B/2B (study §1.4)
+  tokenizer.json         IDENTICAL 4b=5f9e4d4901a92b99…  2b=5f9e4d4901a92b99…
+  vocab.json             IDENTICAL 4b=ce99b4cb2983d118…  2b=ce99b4cb2983d118…
+  merges.txt             IDENTICAL 4b=a9d356d7bdf1ef49…  2b=a9d356d7bdf1ef49…
+  chat_template.jinja    DIFFERS   4b=a4aee8afcf2e0711…  2b=273d8e0e683b8850…
+  tokenizer_config.json  DIFFERS   4b=316230d6a809701f…  2b=49e2b6e395f959f0…
+  (§1.4 predicts: tokenizer.json / vocab.json / merges.txt IDENTICAL; chat_template.jinja and tokenizer_config.json DIFFER)
+
+CHECKPOINT_VERIFY PASS (4b): every shape, count and parameter total the feasibility study §1 predicts is confirmed

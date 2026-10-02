@@ -1,0 +1,64 @@
+=== host: snoke  date: 2026-09-29T19:56:38-06:00
+=== tree: da82a32+dirty
+=== dirty: ?? evidence/qwen9b/sr/R3_0_TOOLING.md
+=== cmd : bash evidence/qwen9b/sr/r3_2_drift.sh be7e394 --check
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+o3 citation-drift gate  [check]
+  code base  d6f7fa6
+  doc base   be7e394
+  files      4 edited files
+  citations  24 distinct (file, line) pairs
+  unmoved    6
+  half-ranges 3 (one endpoint unresolved — NEVER rewritten)
+  DRIFTED    sw/program_fpga.sh:59 -> :90   'if [ "$NO_LOCK" != 1 ] \\'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  DRIFTED    sw/program_fpga.sh:60 -> :91   '&& ! python3 "$SCRIPT_DIR/board_lock.py" --check-inherited >/dev/null 2>&1'
+             cited by evidence/qwen9b/o3/BOARD_LOCK.md
+  DRIFTED    sw/program_fpga.sh:64 -> :95   'fi'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  DRIFTED    sw/program_fpga.sh:94 -> :125   'trap on_exit EXIT INT TERM'
+             cited by evidence/qwen9b/g6/RD9_GATE.md
+  DRIFTED    sw/program_fpga.sh:96 -> :160   'if [ "$JTAG_ONLY" != 1 ]; then'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  DRIFTED    sw/program_fpga.sh:105 -> :169   'fi'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  DRIFTED    sw/program_fpga.sh:122 -> :186   'if [ "$PROG_OK" != 1 ]; then'
+             cited by evidence/qwen9b/g6/RD9_GATE.md
+  DRIFTED    sw/program_fpga.sh:129 -> :193   'echo "       VERSION against the build you meant to load before any DMA." >&2'
+             cited by evidence/qwen9b/g6/RD9_GATE.md
+  DRIFTED    synth/scripts/build.tcl:20 -> :37   'must {launch_runs synth_1 -jobs 16}'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  DRIFTED    synth/scripts/build.tcl:27 -> :50   'must {wait_on_run impl_1}'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  DRIFTED    synth/scripts/build.tcl:34 -> :57   '# Clock-sanity gate (added after the unconstrained-pcie_refclk incident):'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md, docs/superpowers/plans/2026-09-29-r3-broadcast.md, evidence/qwen_next/place_exp/PLACE_EXP.md, synth/exp_uram/scripts/exp_ooc.tcl, synth/scripts/ooc_9b.tcl
+  DRIFTED    synth/scripts/build.tcl:50 -> :62   'must {report_timing_summary -file $OutDir/reports/timing_summary.rpt}'
+             cited by evidence/qwen9b/bm/BM1_T3_BUILD.md
+  DRIFTED    synth/scripts/build.tcl:61 -> :73   '# PCIe block + GT placement sanity (must be quad 226/227 per board wiring)'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  UNRESOLVED sw/program_fpga.sh:43 (the cited line was rewritten or deleted)   'for a in "$@"; do'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  UNRESOLVED sw/program_fpga.sh:51 (the cited line was rewritten or deleted)   '[ -n "$BIT" ] || { echo "usage: program_fpga.sh [--jtag-only] [--no-lock] <bit'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  UNRESOLVED synth/scripts/build.tcl:42 (the cited line was rewritten or deleted)   'puts "CLOCK_GATE_OK: 250MHz clocks: $clk4"'
+             cited by evidence/qwen2b/rb/TIMING.md, evidence/qwen_next/place_exp/PLACE_EXP.md, synth/exp_uram/scripts/exp_ooc.tcl, synth/scripts/ooc_9b.tcl
+  UNRESOLVED synth/scripts/build.tcl:48 (the cited line was rewritten or deleted)   '}'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md, docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  UNRESOLVED synth/scripts/build.tcl:66 (the cited line was rewritten or deleted)   '}'
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  HALF-MAPPED synth/scripts/build.tcl:34-42 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :34 '# Clock-sanity gate (added after the unconstrained-pcie_refc' -> 57
+             :42 'puts "CLOCK_GATE_OK: 250MHz clocks: $clk4"' -> GONE
+             cited by evidence/qwen_next/place_exp/PLACE_EXP.md, synth/exp_uram/scripts/exp_ooc.tcl, synth/scripts/ooc_9b.tcl
+  HALF-MAPPED synth/scripts/build.tcl:34-48 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :34 '# Clock-sanity gate (added after the unconstrained-pcie_refc' -> 57
+             :48 '}' -> GONE
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md, docs/superpowers/plans/2026-09-29-r3-broadcast.md
+  HALF-MAPPED synth/scripts/build.tcl:61-66 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :61 '# PCIe block + GT placement sanity (must be quad 226/227 per' -> 73
+             :66 '}' -> GONE
+             cited by docs/superpowers/plans/2026-09-29-r3-broadcast.md
+O3_CITE_DRIFT CHECK FAIL (13 drifted, 5 unresolved, 0 missing, 3 half-mapped)
+=== rc  : 1
+=== end : 2026-09-29T19:56:44-06:00

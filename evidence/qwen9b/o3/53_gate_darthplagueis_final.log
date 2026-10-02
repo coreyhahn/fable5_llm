@@ -1,0 +1,185 @@
+=== host: darthplagueis
+=== date: 2026-09-01T19:41:00-06:00
+=== tree: a77a819+dirty
+=== cmd:  sw/.venv/bin/python -u evidence/qwen9b/o3/o3_lock_gate.py
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+O3 board-lock gate
+  host       darthplagueis   peer snoke
+  python     /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python
+  real lock  /home/cah/r2d2/code/fpga/.fable5_board.lock   (NOT touched by this gate)
+  test lock  /home/cah/r2d2/code/fpga/.fable5_board.lock.o3test
+  fstype     nfs4
+  repo       /home/cah/r2d2/code/fpga/fable5_llm
+
+[1] two processes, one host, one working directory
+    [ok] the holder acquired
+      identity: host=darthplagueis pid=1086316 user=cah tool=gate_p1_holder t=2026-09-01T19:41:01-0600 tree=a77a819 repo=/home/cah/r2d2/code/fpga/fable5_llm
+    [ok] the identity block names host, pid, user, tool, time and tree
+    [ok] ...and it is THIS host
+    [ok] the second process is REFUSED
+    [ok] the refusal names the holder
+    [ok] the lock is free once the holder exits
+
+[2] two processes, DIFFERENT working directories / checkouts
+    [ok] git reports more than one working tree on this machine
+    [ok] checkout A holds it
+    [ok] REFUSED from the other git worktree (cwd /home/cah/r2d2/code/fpga/grok46_llm/fable5)
+    [ok] ...and the refusal names checkout A's holder
+    [ok] REFUSED from a second checkout of the shipped file (/tmp/o3_checkout_b_fs94qrny/sw/board_lock.py)
+    [ok] ...and the refusal names checkout A's holder
+    [ok] the second checkout resolves the SAME lock path
+
+[3] two processes, TWO HOSTS, over the NFS path
+    fstype of the lock's directory: nfs4
+    [ok] the lock lives on a network filesystem (it has to, to cross hosts)
+    [ok] the peer answers and is a different host
+    [ok] local holder acquired
+    [ok] 3a: snoke is REFUSED while darthplagueis holds it
+    [ok] 3a: the peer's refusal names the LOCAL holder's host and tool
+    [ok] 3b: the peer's hold is visible from darthplagueis
+      identity written by snoke: host=snoke pid=2764001 user=cah tool=gate_p3_peerhold t=2026-09-01T19:41:02-0600 tree=a77a819 repo=/home/cah/r2d2/code/fpga/fable5_llm
+    [ok] 3b: the identity block names the PEER host
+    [ok] 3b: darthplagueis is REFUSED while snoke holds it
+    [ok] 3b: the local refusal names the PEER
+
+[4] a SIGKILLed holder: no stale lock, only stale TEXT
+    [ok] the victim acquired
+    [ok] the victim wrote a non-empty identity block
+      status after SIGKILL: not held — the identity block below is STALE (a killed holder cannot truncate it; the kernel released the flock) [block written 1 s ago]
+      block left behind:    host=darthplagueis pid=1086376 user=cah tool=gate_p4_victim t=2026-09-01T19:41:02-0600 tree=a77a819 repo=/home/cah/r2d2/code/fpga/fable5_llm
+    [ok] the kernel released the flock when the holder died
+    [ok] the identity TEXT survived the kill (that is the stale part)
+    [ok] --status calls it stale rather than held
+    [ok] --status names the dead holder's pid
+    [ok] the next acquire succeeds — nothing to break, no --force-unlock
+    [ok] board_lock.py offers no --force-unlock at all
+    [ok] a fresh acquire OVERWRITES the stale block
+
+[5] --exec across a sequence, and nesting that must not deadlock
+    [ok] --exec ran the command and returned its rc
+    [ok] a nested tool sees a VERIFIED inherited hold
+    [ok] ...so it does not deadlock against its own ancestor
+    [ok] ...and it did NOT overwrite the ancestor's identity block
+    [ok] --exec released the lock afterwards
+    [ok] a real holder is in place for the forgery tests
+    [ok] a marker naming a NON-holder pid does not get past the lock
+    [ok] ...and the forger is told who really holds it
+    [ok] the real holder's pid is readable from its identity block (which is exactly why the block cannot be the proof)
+    [ok] RED: a marker naming the REAL LIVE HOLDER is REFUSED
+    [ok] ...it is refused as CONTENTION, naming the holder
+    [ok] ...and --check-inherited refuses it too
+
+[6] --no-lock: the escape, and its audit trail
+    [ok] a holder is in place
+    [ok] a board-FREE selftest takes no lock and is unaffected by a holder
+    [ok] --no-lock got PAST the lock a holder was holding
+    [ok] --no-lock shouted on STDOUT
+    [ok] --no-lock shouted on STDERR
+    [ok] --no-lock said someone ELSE was holding it right then
+    [ok] program_fpga.sh        routes --no-lock through board_lock.py
+    [ok] program_fpga.sh        uses --check-inherited, not a bash-side marker
+    [ok] program_fpga.sh        does not hand-roll a NO BOARD LOCK banner
+    [ok] stage1_hw_bringup.sh   routes --no-lock through board_lock.py
+    [ok] stage1_hw_bringup.sh   uses --check-inherited, not a bash-side marker
+    [ok] stage1_hw_bringup.sh   does not hand-roll a NO BOARD LOCK banner
+    [ok] test_ctl.sh            routes --no-lock through board_lock.py
+    [ok] test_ctl.sh            uses --check-inherited, not a bash-side marker
+    [ok] test_ctl.sh            does not hand-roll a NO BOARD LOCK banner
+    [ok] --announce-no-lock shouts on STDOUT
+    [ok] --announce-no-lock shouts on STDERR
+    [ok] --announce-no-lock prints the standing rule
+    [ok] --announce-no-lock names the holder it is overriding
+    [ok] --no-lock left an audit line naming the tool and the argv
+    [ok] ...and the SHELL tools' escape lands in the same audit file
+    [ok] ...and the lock was NOT taken
+
+[7] adoption, measured per tool (RED under contention, GREEN without)
+    [ok] chat_seq.py      is pointed away from the board
+    [ok] serve.py         is pointed away from the board
+    [ok] cycle_census.py  is pointed away from the board
+    [ok] seq_run.py       is pointed away from the board
+    [ok] infer.py         is pointed away from the board
+    [ok] tok_meter.py     is pointed away from the board
+    [ok] mover_bench.py   is pointed away from the board
+    [ok] layer_test.py    is pointed away from the board
+    [ok] matvec_test.py   is pointed away from the board
+    [ok] ddr_test.py      is pointed away from the board
+    [ok] chat_seq.py      imports sw/board_lock
+    [ok] serve.py         imports sw/board_lock
+    [ok] cycle_census.py  imports sw/board_lock
+    [ok] seq_run.py       imports sw/board_lock
+    [ok] infer.py         imports sw/board_lock
+    [ok] tok_meter.py     imports sw/board_lock
+    [ok] mover_bench.py   imports sw/board_lock
+    [ok] layer_test.py    imports sw/board_lock
+    [ok] matvec_test.py   imports sw/board_lock
+    [ok] ddr_test.py      imports sw/board_lock
+    [ok] a holder is in place for the RED half
+    [ok] chat_seq.py      RED: refuses under contention
+    [ok] chat_seq.py      ...before touching a device or an artifact
+    [ok] serve.py         RED: refuses under contention
+    [ok] serve.py         ...before touching a device or an artifact
+    [ok] cycle_census.py  RED: refuses under contention
+    [ok] cycle_census.py  ...before touching a device or an artifact
+    [ok] seq_run.py       RED: refuses under contention
+    [ok] seq_run.py       ...before touching a device or an artifact
+    [ok] infer.py         RED: refuses under contention
+    [ok] infer.py         ...before touching a device or an artifact
+    [ok] tok_meter.py     RED: refuses under contention
+    [ok] tok_meter.py     ...before touching a device or an artifact
+    [ok] mover_bench.py   RED: refuses under contention
+    [ok] mover_bench.py   ...before touching a device or an artifact
+    [ok] layer_test.py    RED: refuses under contention
+    [ok] layer_test.py    ...before touching a device or an artifact
+    [ok] matvec_test.py   RED: refuses under contention
+    [ok] matvec_test.py   ...before touching a device or an artifact
+    [ok] ddr_test.py      RED: refuses under contention
+    [ok] ddr_test.py      ...before touching a device or an artifact
+    [ok] program_fpga.sh        RED: refuses under contention
+    [ok] program_fpga.sh        ...before its first sudo/pcie_helper
+    [ok] stage1_hw_bringup.sh   RED: refuses under contention
+    [ok] stage1_hw_bringup.sh   ...before its first sudo/pcie_helper
+    [ok] test_ctl.sh            RED: refuses under contention
+    [ok] test_ctl.sh            ...before its first sudo/pcie_helper
+    [ok] program_fpga.sh        traps EXIT INT TERM
+    [ok] program_fpga.sh        rescans from inside the trap
+    [ok] program_fpga.sh        arms the rescan BEFORE the remove
+    [ok] stage1_hw_bringup.sh   traps EXIT INT TERM
+    [ok] stage1_hw_bringup.sh   rescans from inside the trap
+    [ok] stage1_hw_bringup.sh   arms the rescan BEFORE the remove
+    [ok] test_ctl.sh            traps EXIT INT TERM
+    [ok] test_ctl.sh            rescans from inside the trap
+    [ok] test_ctl.sh            arms the rescan BEFORE the remove
+    -- GREEN half: with nobody holding it, the same invocations must get PAST the lock (an always-refusing tool cannot pass this)
+    [ok] chat_seq.py      GREEN: passes the lock when it is free
+    [ok] serve.py         GREEN: passes the lock when it is free
+    [ok] cycle_census.py  GREEN: passes the lock when it is free
+    [ok] seq_run.py       GREEN: passes the lock when it is free
+    [ok] infer.py         GREEN: passes the lock when it is free
+    [ok] tok_meter.py     GREEN: passes the lock when it is free
+    [ok] mover_bench.py   GREEN: passes the lock when it is free
+    [ok] layer_test.py    GREEN: passes the lock when it is free
+    [ok] matvec_test.py   GREEN: passes the lock when it is free
+    [ok] ddr_test.py      GREEN: passes the lock when it is free
+
+[8] NEGATIVE CONTROL — the pre-O3 defect, through the new code
+    [ok] a holder is in place on lock A
+    [ok] a challenger on a DIFFERENT lock file is NOT excluded — which is exactly the per-checkout bug, and is why phases 1-3 mean something
+    [ok] ...so the exclusion check can distinguish the two cases
+
+[9] the identity-block window (F7): raw vs settled readers
+      12 trials on darthplagueis: RAW read empty 12 time(s), SETTLED read empty 0 time(s)
+    [ok] the SETTLED reader never sees an empty block on a held lock
+      the raw window DID reproduce, which is the point: the fsync is not what closes it, the settled re-read is
+    [ok] every human-facing reader goes through the settled read
+
+  136 passed, 0 failed, 0 skipped
+O3_LOCK_GATE PASS
+=== rc: 0
+=== end: 2026-09-01T19:45:12-06:00

@@ -1,0 +1,83 @@
+=== host: snoke  date: 2026-09-29T18:48:04-06:00
+=== tree: dfd8863+dirty
+=== dirty: ?? evidence/qwen9b/sr/r3_g6state_tdd.py
+=== dirty: ?? evidence/qwen9b/sr/r3_synthonly_probe.tcl
+=== dirty: ?? evidence/qwen9b/sr/r3_tool_tdd.sh
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11a_r2_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr11a_r2_tdd.py  FABLE5_MODEL=9b
+=== (a)/(b) running ranges in the model, caps {R1,R2}
+  [PASS] (a) bank-1 MOVX over a PENDING bank-1 read -> refused  -- RunningChannelError: MOVX writes mv0 XWIN words [1536, 1568) while a NO-WAIT MVGO still reads words [1536, 1568) — the stream needs
+  [PASS] (a) partial overlap: MOVX word 1520..1551 over pending bank 1 -> refused  -- RunningChannelError: MOVX writes mv0 XWIN words [1520, 1552) while a NO-WAIT MVGO still reads words [1536, 1568) — the stream needs
+  [PASS] (a) bank-1 MOVX while a bank-0 stream runs -> admitted; the XBANK MVGO computes on the bank-1 x  -- MOVY row 2048.. = [2166, 1445, 724, 3], want (bank-1 x) [2166, 1445, 724, 3]
+  [PASS] (a) K = 12288 (ng 96, both banks) pending: bank-1 MOVX -> refused  -- RunningChannelError: MOVX writes mv0 XWIN words [1536, 1568) while a NO-WAIT MVGO still reads words [0, 3072) — the stream needs a 
+  [PASS] (a) MVGO on a channel with a pending stream in the OTHER banks -> refused (one engine)  -- RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still running on it — the stream needs a FENCE first
+  [PASS] (a) other channel unaffected: MOVX/MVGO ch1 while ch0 pending -> admitted  -- accepted; running after = []
+  [PASS] (b) MOVY over the pending RES range (row 2048) -> refused  -- RunningChannelError: MOVY reads mv0 RES rows [2048, 2052) while a NO-WAIT MVGO is still writing rows [2048, 2052) — the stream need
+  [PASS] (b) partial: MOVY rows 2046..2049 over pending 2048.. -> refused  -- RunningChannelError: MOVY reads mv0 RES rows [2046, 2050) while a NO-WAIT MVGO is still writing rows [2048, 2052) — the stream need
+  [PASS] (b) MOVY row 0 over a pending RBANK=0 stream -> refused  -- RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MVGO is still writing rows [0, 4) — the stream needs a FENCE fi
+  [PASS] (b) MOVY on the other half while the RBANK stream runs -> admitted, reads the earlier stream's rows  -- bank0 [840, 561, 282, 3] (want [840, 561, 282, 3]), bank1 [642, 429, 216, 3] (want [642, 429, 216, 3])
+  [PASS] (b) MOVY of never-written RES rows -> refused (UnwrittenReadError)  -- UnwrittenReadError: MOVY reads 4 RES rows from row 2048 on mv0, not inside one live MVGO result
+=== (c) the validator at caps {R1,R2}: ranges and bank legality
+  [PASS] (c) XBANK K=12288 (ng 96) refused  -- admitted=False
+  [PASS] (c) XBANK K=6144 (ng 48) admitted  -- admitted=True
+  [PASS] (c) XBANK ng 49 refused  -- admitted=False
+  [PASS] (c) RBANK nrows 2049 refused  -- admitted=False
+  [PASS] (c) RBANK nrows 2048 admitted  -- admitted=True
+  [PASS] (c) no bank, nrows 4096 admitted  -- admitted=True
+  [PASS] (c) SHAPE bit 31 refused  -- admitted=False
+  [PASS] (c) MOVX word 1536 + 1536 words admitted  -- admitted=True
+  [PASS] (c) MOVX word 1537 + 1536 words refused  -- admitted=False
+  [PASS] (c) MOVX word 3071 + 1 word (len 4) admitted  -- admitted=True
+  [PASS] (c) MOVX word 3071 + ceil(5/4)=2 words refused (ragged tail counts)  -- admitted=False
+  [PASS] (c) MOVX word 0 + 3072 words (K 12288) admitted  -- admitted=True
+  [PASS] (c) MOVX word 3072 len 0 refused (start > 3071)  -- admitted=False
+  [PASS] (c) MOVX target[15:12] set refused  -- admitted=False
+  [PASS] (c) MOVY row 2048 + 2048 rows admitted  -- admitted=True
+  [PASS] (c) MOVY row 2049 + 2048 rows refused  -- admitted=False
+  [PASS] (c) MOVY row 4095 + 1 row admitted  -- admitted=True
+  [PASS] (c) MOVY row 0 + 4097 rows refused  -- admitted=False
+  [PASS] (c) SHAPE bit 31 refused at empty caps too
+=== (d) caps-keyed refusal (device caps, never the manifest)
+  [PASS] (d) XBANK MVGO: refused at {R1} and at {}, admitted at {R1,R2} and {R2}  -- {}:False {R1}:False {R1,R2}:True
+  [PASS] (d) RBANK MVGO: refused at {R1} and at {}, admitted at {R1,R2} and {R2}  -- {}:False {R1}:False {R1,R2}:True
+  [PASS] (d) MOVX start word 1536: refused at {R1} and at {}, admitted at {R1,R2} and {R2}  -- {}:False {R1}:False {R1,R2}:True
+  [PASS] (d) MOVY start row 2048: refused at {R1} and at {}, admitted at {R1,R2} and {R2}  -- {}:False {R1}:False {R1,R2}:True
+  [PASS] (d) validate_stream of an R2 stream keyed by caps  -- validate_stream refused at {}, {R1}: [True, True]; admitted at {R1,R2}
+  [PASS] (d) the model at caps {R1} refuses an R2 stream before executing it  -- SeqValidationError: rec 0: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)
+  [PASS] (d) a frozen isa=1 W8 word (bit 29 = w8) still validates when shape_isa=1 is stated  -- isa=1 W8 word 0x20800290 admitted at shape_isa=1: True
+=== (e) zero banks == today's model (base commit e3c2ff1)
+  base model sha256 31223a1fb3266136
+  [PASS] (e) mixed at caps ['R1']  -- state diff none; stats ==; xwin ==; res ==
+  [PASS] (e) mixed at caps ['R1', 'R2']  -- state diff none; stats ==; xwin ==; res ==
+  [PASS] (e) movx_on_running at caps {}  -- both RunningChannelError
+  [PASS] (e) movx_on_running at caps ['R1', 'R2']  -- both RunningChannelError
+  [PASS] (e) movy_on_running at caps {}  -- both RunningChannelError
+  [PASS] (e) movy_on_running at caps ['R1', 'R2']  -- both RunningChannelError
+  [PASS] (e) mvgo_on_running at caps {}  -- both RunningChannelError
+  [PASS] (e) mvgo_on_running at caps ['R1', 'R2']  -- both RunningChannelError
+  [PASS] (e) movy_past_rows at caps {}  -- both AssertionError
+  [PASS] (e) movy_past_rows at caps ['R1', 'R2']  -- both AssertionError
+  [PASS] (e) short_x_reuse at caps {}  -- state diff none; stats ==; xwin ==; res ==
+  [PASS] (e) short_x_reuse at caps ['R1', 'R2']  -- state diff none; stats ==; xwin ==; res ==
+=== (f) the model's SHAPE-spare assert
+  [PASS] (f) bits 29/30 refused by the model's assert without R2
+  [PASS] (f) bits 29/30 admitted under R2
+  [PASS] (f) bit 31 refused under every caps
+=== (g) explicit refusals and the model's own refusal selftest
+  [PASS] (g) _movx/_mvgo/_movy raise RunningChannelError explicitly  -- missing explicit raise in none
+  [PASS] (g) selftest_running_refusal passes and carries r2_ cases  -- ok=True 11/11 refused; r2 cases ['r2_legal_drain_bank0', 'r2_legal_other_banks', 'r2_movx_pending_bank', 'r2_movy_pending_half', 'r2_mvgo_other_banks']
+=== (h) docs/SEQ_ISA.md §B17.2
+  [PASS] (h) B17.2 states the encoding, ranges, legality, err 0x06, NOT fail-closed, the caps rule  -- missing none
+  [PASS] (h) B17.2 is no longer the placeholder
+=== (i) the shipped s1 stream validates unchanged
+  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+  [PASS] (i) validate_stream at {}  -- 158536 records
+  [PASS] (i) validate_stream at ['R1']  -- 158536 records
+  [PASS] (i) validate_stream at ['R1', 'R2']  -- 158536 records
+=== per case: (a) 6/6  (b) 5/5  (c) 19/19  (d) 7/7  (e) 12/12  (f) 3/3  (g) 2/2  (h) 2/2  (i) 3/3
+=== 59 passed, 0 failed; failing cases: none
+SR11a R2 TDD: PASS
+=== rc  : 0
+=== end : 2026-09-29T18:48:07-06:00

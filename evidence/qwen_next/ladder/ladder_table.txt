@@ -1,0 +1,68 @@
+
+=== 4B ladder ===
+  anchor PPL 9.709056   W4 g128 gap +0.826839   24528 positions, window 512, batch 4
+  corpus 6bf4f8677a3b3fff…  ckpt 6e73db95dda030ff…  hosts ['snoke']  threads [6]
+
+  point                PPL         dPPL       d%      % of the g128 gap LEFT   bytes/token       b/w     build+eval s
+  bf16 anchor          9.709056 +0.000000   +0.00%         0.00 %                      -        -     1441.8
+  W4 g128 (shipped)    10.535895 +0.826839   +8.52%       100.00 %          2,201,223,168    4.188     2991.9
+  W4 g64               10.348569 +0.639513   +6.59%        77.34 %          2,294,808,576    4.366     3271.9
+  W4 g128 + GPTQ       9.981818 +0.272763   +2.81%        32.99 %          2,201,223,168    4.188     7034.6
+  W4 g64 + GPTQ        9.992644 +0.283589   +2.92%        34.30 %          2,294,808,576    4.366     6215.7
+  W8 g128              9.696694 -0.012361   -0.13%        -1.50 %          4,303,618,048    8.188     1517.9
+
+=== 9B ladder ===
+  anchor PPL 8.218339   W4 g128 gap +0.722248   24528 positions, window 512, batch 4
+  corpus 6bf4f8677a3b3fff…  ckpt 2721100f724faea5…  hosts ['snoke']  threads [6]
+
+  point                PPL         dPPL       d%      % of the g128 gap LEFT   bytes/token       b/w     build+eval s
+  bf16 anchor          8.218339 +0.000000   +0.00%         0.00 %                      -        -     1688.8
+  W4 g128 (shipped)    8.940587 +0.722248   +8.79%       100.00 %          4,091,805,696    4.125     4588.2
+  W4 g64               8.826826 +0.608487   +7.40%        84.25 %          4,215,799,808    4.250     4695.3
+  W4 g128 + GPTQ       8.430548 +0.212209   +2.58%        29.38 %          4,091,805,696    4.125    13492.6
+  W4 g64 + GPTQ        8.401256 +0.182917   +2.23%        25.33 %          4,215,799,808    4.250    12604.7
+  W8 g128              8.223887 +0.005548   +0.07%         0.77 %          8,059,617,280    8.125     2149.2
+
+=== 4B: what a PPL point costs in bytes (baseline = the shipped W4 g128) ===
+  point                PPL bought vs g128   extra bytes/token   MB per PPL point
+  W4 g64               +0.187326               93,585,408          499.6
+  W4 g128 + GPTQ       +0.554077                        0            0.0
+  W4 g64 + GPTQ        +0.543250               93,585,408          172.3
+  W8 g128              +0.839201            2,102,394,880         2505.2
+  NOTE: these are BYTES, not a fit.  No address map exists for either geometry
+  and the shipped weight window is 1,280 MiB per channel — see
+  docs/QWEN35_NEXT_FEASIBILITY.md §3 / §3.2, which owns that question.
+
+=== 9B: what a PPL point costs in bytes (baseline = the shipped W4 g128) ===
+  point                PPL bought vs g128   extra bytes/token   MB per PPL point
+  W4 g64               +0.113761              123,994,112         1090.0
+  W4 g128 + GPTQ       +0.510039                        0            0.0
+  W4 g64 + GPTQ        +0.539331              123,994,112          229.9
+  W8 g128              +0.716700            3,967,811,584         5536.2
+  NOTE: these are BYTES, not a fit.  No address map exists for either geometry
+  and the shipped weight window is 1,280 MiB per channel — see
+  docs/QWEN35_NEXT_FEASIBILITY.md §3 / §3.2, which owns that question.
+
+=== cross-study: the same five points at 2B (docs/QWEN2B_QUANT_STUDY.md) ===
+  2B anchor 12.346298  (24528 positions, corpus 6bf4f8677a3b3fff…)
+
+  point                 2B dPPL   2B d%   | 4B dPPL  4B d%   | 9B dPPL  9B d%   
+  W4 g128 (shipped)    +1.830588 +14.83%   | +0.826839  +8.52%   | +0.722248  +8.79%   
+  W4 g64               +1.397933 +11.32%   | +0.639513  +6.59%   | +0.608487  +7.40%   
+  W4 g128 + GPTQ               -       -   | +0.272763  +2.81%   | +0.212209  +2.58%      (no 2B twin — this point is new at 4B/9B)
+  W4 g64 + GPTQ        +0.594942  +4.82%   | +0.283589  +2.92%   | +0.182917  +2.23%   
+  W8 g128              +0.014380  +0.12%   | -0.012361  -0.13%   | +0.005548  +0.07%   
+
+  Read the d% column, not the dPPL column, across models: the anchors differ,
+  so an absolute PPL delta is not comparable between geometries.  Corpus,
+  window, batch and the 24,528 scored positions ARE identical -- asserted above,
+  not assumed.  The TOKENIZING files that matter (tokenizer.json, vocab.json,
+  merges.txt) are byte-identical across all four models; chat_template.jinja
+  and tokenizer_config.json DIFFER 0.8B/2B vs 4B/9B and are not used by this
+  offline scoring path (CHECKPOINT_VERIFY.md section 7).
+
+=== fidelity harness (ref/fidelity_check.py) ===
+  9b w8g128      [S=1 w8]  top-1 96/108  rank med 0 max 4  top5 ovl 3.81  |resid|max 32767 of 32768  RESID CLIPS 30  S_F sat 4438  emb |q|max 120  host snoke
+  9b w4g128gptq  [S=1 mse gptq]  top-1 95/108  rank med 0 max 5  top5 ovl 3.69  |resid|max 32767 of 32768  RESID CLIPS 23  S_F sat 4392  emb |q|max 120  host snoke
+
+LADDER_TABLE OK — every row above passed the provenance asserts

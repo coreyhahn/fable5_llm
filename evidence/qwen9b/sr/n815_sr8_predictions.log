@@ -1,0 +1,28 @@
+=== host: snoke  date: 2026-09-29T03:46:32-06:00
+=== tree: 9f5a072
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr8_predict.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+inputs: n95 (build_041, form B) and n68 (build_041, shipped) ids == REF [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751]
+| kind | n | n68 shipped ms | n95 form B ms | P1 = n95/1.054 | P2 = n95/img | P3 = n95 - TB saving | P1 x shipped | P3 x shipped |
+|---|---|---|---|---|---|---|---|---|
+| lite | 502 | 131.6174 | 115.0934 | 109.1968 | 111.4490 | 111.7953 (TB saving 3.2981 ms) | x1.2053 | x1.1773 |
+  lite P1 bands: HELD 108.6508..109.7428 ms; LOOSE 107.0128..111.3807 ms; tok/s at the band centre 9.158
+  lite P2 bands: HELD 110.8918..112.0063 ms; LOOSE 109.2200..113.6780 ms; tok/s at the band centre 8.973
+  lite P3 bands: HELD 111.2363..112.3542 ms; LOOSE 109.5594..114.0312 ms; tok/s at the band centre 8.945
+| full | 9 | 147.7088 | 131.2454 | 124.5213 | 124.6159 | 125.4614 (TB saving 5.7841 ms) | x1.1862 | x1.1773 |
+  full P1 bands: HELD 123.8987..125.1439 ms; LOOSE 122.0308..127.0117 ms; tok/s at the band centre 8.031
+  full P2 bands: HELD 123.9928..125.2389 ms; LOOSE 122.1235..127.1082 ms; tok/s at the band centre 8.025
+  full P3 bands: HELD 124.8341..126.0887 ms; LOOSE 122.9521..127.9706 ms; tok/s at the band centre 7.971
+S1P precedent for P3 (absolute saving, silicon vs TB):
+  lite: TB saving 16.6506 ms (S1T:142-144), silicon 16.5240 ms (n68 - n95), silicon/TB 0.9924
+  full: TB saving 16.6492 ms (S1T:142-144), silicon 16.4634 ms (n68 - n95), silicon/TB 0.9888
+controls:
+  n802 (build_041 form B, today) and n806 (R1 bitstream, r0 form B): lite = n95 115.0934 ms, HELD +-0.5 % 114.5179..115.6689 (BM1 precedent: a bitstream alone moved the step -0.0015 %)
+  n802 (build_041 form B, today) and n806 (R1 bitstream, r0 form B): full = n95 131.2454 ms, HELD +-0.5 % 130.5892..131.9016 (BM1 precedent: a bitstream alone moved the step -0.0015 %)
+stream census (6-token model_9b_s1 form B r1, per token): the model's 8.811 tok/s = 113.4945 ms/token (board-scaled MODEL); HELD 112.9270..114.0620, LOOSE 111.2246..115.7644
+stream census r1 vs its r0-B control on the same bitstream: TB x1.0538 (n570:21-22); predicted r0-B control 119.6005 ms/token
+tokens (the GATE, fail-closed): chat511 ids == REF on every session; the 6-token streams == their .seq.json expect_tokens (G4A §4.1a for model_9b_s1..s4); any difference ends the session
+SR8_PREDICT: DONE
+=== rc  : 0
+=== end : 2026-09-29T03:46:33-06:00

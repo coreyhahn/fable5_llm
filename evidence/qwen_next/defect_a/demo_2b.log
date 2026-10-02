@@ -1,0 +1,61 @@
+========================================================================
+artifact       tb/scripts/w5/model_w8_2b_s1
+  .emb.bin     1,017,118,720 B
+  manifest     emb_row_bytes = 4096 B
+  model_select FABLE5_MODEL=2b  ->  LR.H = 2048  (2*H = 4096 B)
+  rows         248,320  (config vocab_size 248,320)
+
+pre-fix  `size//2048` + `.reshape(n,1024)`  -> shape (496640, 1024)   (NO EXCEPTION: 496640*1024 == 248320*2048 == 508,559,360)
+post-fix `seq_chat.load_emb`                -> shape (248320, 2048)   vocab 248,320
+
+bf16 anchor   /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+  header sha256 ccba2c1f645fe59268f89ee7ea552e02…   embed_tokens.weight (248320, 2048)
+  Q7.8 x res_scale 4  ->  1024 counts per unit
+
+------------------------------------------------------------------------
+token 760
+  bf16 row      -> Q7.8*4, first 8 words: [-4, 6, -33, 1, 12, 1, 7, -8]   (len 2048)
+  post-fix      first 8 words: [-4, 6, -33, 1, 12, 1, 7, -8]   (len 2048)
+  pre-fix       first 8 words: [-33, 27, -2, -16, 3, 34, -9, 15]   (len 1024)
+  post-fix == round(bf16 * 1024) exactly : True   max|diff| 0
+  pre-fix  vs the first 1024 words of token 760: max|diff| 65, cosine +0.1825
+  pre-fix  IS the low half of token 380's row : True
+
+------------------------------------------------------------------------
+token 6511
+  bf16 row      -> Q7.8*4, first 8 words: [13, 15, 21, -13, 17, -2, -10, 12]   (len 2048)
+  post-fix      first 8 words: [13, 15, 21, -13, 17, -2, -10, 12]   (len 2048)
+  pre-fix       first 8 words: [-4, -23, 12, -7, -1, 18, 24, -7]   (len 1024)
+  post-fix == round(bf16 * 1024) exactly : True   max|diff| 0
+  pre-fix  vs the first 1024 words of token 6511: max|diff| 68, cosine +0.0041
+  pre-fix  IS the high half of token 3255's row : True
+
+------------------------------------------------------------------------
+token 314
+  bf16 row      -> Q7.8*4, first 8 words: [-11, -6, -4, -1, 10, -1, -8, -21]   (len 2048)
+  post-fix      first 8 words: [-11, -6, -4, -1, 10, -1, -8, -21]   (len 2048)
+  pre-fix       first 8 words: [18, -1, 16, 5, 36, 6, -14, -14]   (len 1024)
+  post-fix == round(bf16 * 1024) exactly : True   max|diff| 0
+  pre-fix  vs the first 1024 words of token 314: max|diff| 78, cosine +0.0846
+  pre-fix  IS the low half of token 157's row : True
+
+------------------------------------------------------------------------
+token 9338
+  bf16 row      -> Q7.8*4, first 8 words: [5, -5, 21, 5, -12, -14, 6, 5]   (len 2048)
+  post-fix      first 8 words: [5, -5, 21, 5, -12, -14, 6, 5]   (len 2048)
+  pre-fix       first 8 words: [-10, 7, 10, -26, 14, -17, -26, -3]   (len 1024)
+  post-fix == round(bf16 * 1024) exactly : True   max|diff| 0
+  pre-fix  vs the first 1024 words of token 9338: max|diff| 80, cosine +0.0162
+  pre-fix  IS the low half of token 4669's row : True
+
+------------------------------------------------------------------------
+token 561
+  bf16 row      -> Q7.8*4, first 8 words: [-2, -3, -7, -4, 16, -6, 12, -16]   (len 2048)
+  post-fix      first 8 words: [-2, -3, -7, -4, 16, -6, 12, -16]   (len 2048)
+  pre-fix       first 8 words: [-24, 28, -16, 14, 10, -15, 4, 9]   (len 1024)
+  post-fix == round(bf16 * 1024) exactly : True   max|diff| 0
+  pre-fix  vs the first 1024 words of token 561: max|diff| 94, cosine +0.0092
+  pre-fix  IS the high half of token 280's row : True
+
+========================================================================
+DEMO: PASS  — post-fix rows are the checkpoint's rows; pre-fix rows are halves of token tok//2's

@@ -1,0 +1,132 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date              : Mon Sep  7 09:59:53 2026
+| Host              : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command           : report_timing -of_objects dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.u_bufg_icon_tck/O -path_type full_clock_expanded -input_pins -file evidence/qwen9b/g5/111_t14b_skewprobe_041_mvchan2.rpt
+| Design            : bd_wrapper
+| Device            : xcvu9p-fsgd2104
+| Speed File        : -2L  PRODUCTION 1.28 03-30-2022
+| Design State      : Routed
+| Temperature Grade : E
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.020ns  (required time - arrival time)
+  Source:                 bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt_reg[4]/C
+                            (rising edge-triggered cell FDRE clocked by mmcm_clkout0_3  {rise@0.000ns fall@1.666ns period=3.332ns})
+  Destination:            bd_i/mvchan_2/inst/u_chan/u_streamer/committed_reg[9]/D
+                            (rising edge-triggered cell FDRE clocked by mmcm_clkout0_3  {rise@0.000ns fall@1.666ns period=3.332ns})
+  Path Group:             mmcm_clkout0_3
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.332ns  (mmcm_clkout0_3 rise@3.332ns - mmcm_clkout0_3 rise@0.000ns)
+  Data Path Delay:        3.085ns  (logic 0.779ns (25.249%)  route 2.306ns (74.751%))
+  Logic Levels:           7  (CARRY8=3 LUT4=2 LUT5=1 LUT6=1)
+  Clock Path Skew:        -0.239ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.510ns = ( 6.842 - 3.332 ) 
+    Source Clock Delay      (SCD):    3.274ns
+    Clock Pessimism Removal (CPR):    -0.475ns
+  Clock Uncertainty:      0.052ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.077ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      2.025ns (routing 0.711ns, distribution 1.314ns)
+  Clock Net Delay (Destination): 1.717ns (routing 0.646ns, distribution 1.071ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock mmcm_clkout0_3 rise edge)
+                                                      0.000     0.000 r  
+    F32                                               0.000     0.000 r  dimm2_refclk_clk_p (IN)
+                         net (fo=0)                   0.100     0.100    bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/I
+    HPIOBDIFFINBUF_X0Y204
+                                                                      r  bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/DIFFINBUF_INST/DIFF_IN_P
+    HPIOBDIFFINBUF_X0Y204
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.569     0.669 r  bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.050     0.719    bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/OUT
+    F32                                                               r  bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/IBUFCTRL_INST/I
+    F32                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     0.719 r  bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/IBUFCTRL_INST/O
+                         net (fo=2, routed)           0.384     1.103    bd_i/ddr4_2/inst/u_ddr4_infrastructure/mmcm_clk_in
+    MMCM_X0Y8                                                         r  bd_i/ddr4_2/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKIN1
+    MMCM_X0Y8            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                     -0.127     0.976 r  bd_i/ddr4_2/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.245     1.221    bd_i/ddr4_2/inst/u_ddr4_infrastructure/mmcm_clkout0
+    BUFGCE_X0Y193                                                     r  bd_i/ddr4_2/inst/u_ddr4_infrastructure/u_bufg_divClk/I
+    BUFGCE_X0Y193        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     1.249 r  bd_i/ddr4_2/inst/u_ddr4_infrastructure/u_bufg_divClk/O
+    X2Y7 (CLOCK_ROOT)    net (fo=58580, routed)       2.025     3.274    bd_i/mvchan_2/inst/u_chan/u_engine/ui_clk
+    SLICE_X53Y460        FDRE                                         r  bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt_reg[4]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X53Y460        FDRE (Prop_FFF_SLICEM_C_Q)
+                                                      0.076     3.350 r  bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt_reg[4]/Q
+                         net (fo=7, routed)           0.572     3.922    bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt_reg[4]
+    SLICE_X52Y443                                                     r  bd_i/mvchan_2/inst/u_chan/u_engine/x_line[6]_i_12/I3
+    SLICE_X52Y443        LUT4 (Prop_C6LUT_SLICEL_I3_O)
+                                                      0.088     4.010 r  bd_i/mvchan_2/inst/u_chan/u_engine/x_line[6]_i_12/O
+                         net (fo=1, routed)           0.010     4.020    bd_i/mvchan_2/inst/u_chan/u_engine/x_line[6]_i_12_n_0
+    SLICE_X52Y443                                                     r  bd_i/mvchan_2/inst/u_chan/u_engine/x_line_reg[6]_i_5/S[2]
+    SLICE_X52Y443        CARRY8 (Prop_CARRY8_SLICEL_S[2]_CO[3])
+                                                      0.144     4.164 f  bd_i/mvchan_2/inst/u_chan/u_engine/x_line_reg[6]_i_5/CO[3]
+                         net (fo=173, routed)         0.495     4.659    bd_i/mvchan_2/inst/u_chan/u_engine/is_scale_beat
+    SLICE_X54Y456                                                     f  bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt[6]_i_8/I4
+    SLICE_X54Y456        LUT5 (Prop_H5LUT_SLICEL_I4_O)
+                                                      0.065     4.724 r  bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt[6]_i_8/O
+                         net (fo=2, routed)           0.326     5.050    bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt[6]_i_8_n_0
+    SLICE_X52Y461                                                     r  bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt[6]_i_2/I4
+    SLICE_X52Y461        LUT6 (Prop_A6LUT_SLICEL_I4_O)
+                                                      0.050     5.100 r  bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt[6]_i_2/O
+                         net (fo=231, routed)         0.843     5.943    bd_i/mvchan_2/inst/u_chan/u_streamer/f_rd_reg[0]_1
+    SLICE_X57Y412                                                     r  bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry_i_16/I3
+    SLICE_X57Y412        LUT4 (Prop_A6LUT_SLICEL_I3_O)
+                                                      0.090     6.033 r  bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry_i_16/O
+                         net (fo=1, routed)           0.009     6.042    bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry_i_16_n_0
+    SLICE_X57Y412                                                     r  bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry/S[0]
+    SLICE_X57Y412        CARRY8 (Prop_CARRY8_SLICEL_S[0]_CO[7])
+                                                      0.190     6.232 r  bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry/CO[7]
+                         net (fo=1, routed)           0.026     6.258    bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry_n_0
+    SLICE_X57Y413                                                     r  bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry__0/CI
+    SLICE_X57Y413        CARRY8 (Prop_CARRY8_SLICEL_CI_O[1])
+                                                      0.076     6.334 r  bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry__0/O[1]
+                         net (fo=1, routed)           0.025     6.359    bd_i/mvchan_2/inst/u_chan/u_streamer/committed0_carry__0_n_14
+    SLICE_X57Y413        FDRE                                         r  bd_i/mvchan_2/inst/u_chan/u_streamer/committed_reg[9]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock mmcm_clkout0_3 rise edge)
+                                                      3.332     3.332 r  
+    F32                                               0.000     3.332 r  dimm2_refclk_clk_p (IN)
+                         net (fo=0)                   0.079     3.411    bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/I
+    HPIOBDIFFINBUF_X0Y204
+                                                                      r  bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/DIFFINBUF_INST/DIFF_IN_P
+    HPIOBDIFFINBUF_X0Y204
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.472     3.883 r  bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.040     3.923    bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/OUT
+    F32                                                               r  bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/IBUFCTRL_INST/I
+    F32                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     3.923 r  bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/IBUFCTRL_INST/O
+                         net (fo=2, routed)           0.333     4.256    bd_i/ddr4_2/inst/u_ddr4_infrastructure/mmcm_clk_in
+    MMCM_X0Y8                                                         r  bd_i/ddr4_2/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKIN1
+    MMCM_X0Y8            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                      0.630     4.886 r  bd_i/ddr4_2/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.215     5.101    bd_i/ddr4_2/inst/u_ddr4_infrastructure/mmcm_clkout0
+    BUFGCE_X0Y193                                                     r  bd_i/ddr4_2/inst/u_ddr4_infrastructure/u_bufg_divClk/I
+    BUFGCE_X0Y193        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.024     5.125 r  bd_i/ddr4_2/inst/u_ddr4_infrastructure/u_bufg_divClk/O
+    X2Y7 (CLOCK_ROOT)    net (fo=58580, routed)       1.717     6.842    bd_i/mvchan_2/inst/u_chan/u_streamer/ui_clk
+    SLICE_X57Y413        FDRE                                         r  bd_i/mvchan_2/inst/u_chan/u_streamer/committed_reg[9]/C
+                         clock pessimism             -0.475     6.366    
+                         clock uncertainty           -0.052     6.314    
+    SLICE_X57Y413        FDRE (Setup_BFF_SLICEL_C_D)
+                                                      0.025     6.339    bd_i/mvchan_2/inst/u_chan/u_streamer/committed_reg[9]
+  -------------------------------------------------------------------
+                         required time                          6.339    
+                         arrival time                          -6.359    
+  -------------------------------------------------------------------
+                         slack                                 -0.020    
+
+
+
+

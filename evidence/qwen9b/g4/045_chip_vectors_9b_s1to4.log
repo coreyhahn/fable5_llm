@@ -1,0 +1,25 @@
+=== host: snoke
+=== date: 2026-09-03T10:26:24-06:00
+=== tree: 129431e
+=== cmd:  bash -c cd /home/cah/r2d2/code/fpga/fable5_llm/tb && for s in 1 2 3 4; do ( t0=$(date +%s); make seq_chip_vectors_9b W9_BASE=scripts/w9/model_9b_s$s VECPY=/home/cah/.venv/bin/python > /var/tmp/g4a_vec_s$s.out 2>&1; rc=$?; t1=$(date +%s); echo "SEED $s rc=$rc wall=$((t1-t0))s"; ) & done; wait; for s in 1 2 3 4; do echo "--- model_9b_s$s"; grep -E "^\.chip:|^BASES|Traceback|Error" /var/tmp/g4a_vec_s$s.out | sed "s/^/    /"; echo "    TCNT lines: $(grep -c \"^TCNT\" scripts/w9/model_9b_s$s.e4.chip), first: $(grep -m1 \"^TCNT\" scripts/w9/model_9b_s$s.e4.chip)"; done
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+SEED 1 rc=0 wall=902s
+SEED 2 rc=0 wall=912s
+SEED 4 rc=0 wall=914s
+SEED 3 rc=0 wall=927s
+--- model_9b_s1
+    TCNT lines: 0, first: 
+--- model_9b_s2
+    TCNT lines: 0, first: 
+--- model_9b_s3
+    TCNT lines: 0, first: 
+--- model_9b_s4
+    TCNT lines: 0, first: 
+=== rc: 0
+=== end: 2026-09-03T10:41:54-06:00

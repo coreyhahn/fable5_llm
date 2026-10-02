@@ -1,0 +1,30 @@
+=== host: snoke  date: 2026-09-27T21:59:14-06:00
+=== tree: a32f59e
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/g3/isa_bits.py --negative-control --break-control kvhead
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+baseline (unperturbed)                                              PASS
+a1_hi        narrow ARG1's high address half by one bit              REFUSED by its own check (138 FAIL on a1_hi; first: ceiling a1_hi: 15 b < ISA_SADDR_MAX-1 = 65535)
+a1_lo        narrow ARG1's low address half by one bit               REFUSED by its own check (192 FAIL on a1_lo; first: ceiling a1_lo: 15 b < ISA_SADDR_MAX-1 = 65535)
+a1_lo_wide   WIDEN ARG1's low half by one bit (it then overlaps hi)  REFUSED by its own check (120 FAIL on a1_lo; first: bit budget VN: a1_hi and a1_lo both claim arg1[16])
+a2_hi        narrow ARG2's high address half by one bit              REFUSED by its own check (37 FAIL on a2_hi; first: ceiling a2_hi: 15 b < ISA_SADDR_MAX-1 = 65535)
+a2_lo        narrow ARG2's low address half by one bit               REFUSED by its own check (37 FAIL on a2_lo; first: ceiling a2_lo: 15 b < ISA_SADDR_MAX-1 = 65535)
+a2_lo_wide   WIDEN ARG2's low half by one bit (it then overlaps hi)  REFUSED by its own check (30 FAIL on a2_lo; first: bit budget GATE: a2_hi and a2_lo both claim arg2[16])
+alu_dst      narrow the ALU ARG2 dst field by one bit                REFUSED by its own check (19 FAIL on alu_dst; first: ceiling alu_dst: 15 b < ISA_SADDR_MAX-1 = 65535)
+alu_len      narrow the ALU length field by one bit                  REFUSED by its own check (19 FAIL on alu_len; first: ceiling alu_len: 13 b < ALU_LEN_MAX = 16383)
+alu_p0       narrow the ALU p0 field by one bit                      REFUSED by its own check (19 FAIL on alu_p0; first: ALU p0: RTL decoded {'alu_p0': 65535} want {'alu_p0': 131071})
+conv_first   narrow the CONV first-channel field by one bit          REFUSED by its own check (11 FAIL on conv_first; first: ceiling conv_first: 13 b < CONV_FIELD_MAX = 16383)
+conv_nch     narrow the CONV channel-count field by one bit          REFUSED by its own check (20 FAIL on conv_nch; first: ceiling conv_nch: 13 b < CONV_FIELD_MAX = 16383)
+convw_first  narrow the CONVW first-channel field by one bit         REFUSED by its own check (11 FAIL on convw_first; first: ceiling convw_first: 13 b < CONV_FIELD_MAX = 16383)
+convw_nch    narrow the CONVW channel-count field by one bit         REFUSED by its own check (20 FAIL on convw_nch; first: ceiling convw_nch: 13 b < CONV_FIELD_MAX = 16383)
+dn_head      narrow the DNST/DNZ head field by one bit               REFUSED by its own check (37 FAIL on dn_head; first: ceiling dn_head: 4 b < 2**ARG0_HEAD_BITS-1 = 31)
+gate_dst     narrow the GATE ARG0 dst field by one bit               REFUSED by its own check (19 FAIL on gate_dst; first: ceiling gate_dst: 15 b < ISA_SADDR_MAX-1 = 65535)
+kv_expbias   narrow the KVAP expbias field by one bit                REFUSED by its own check (16 FAIL on kv_expbias; first: ceiling kv_expbias: 4 b < KVAP_EXPB_MAX = 31)
+kvhead       narrow the KVAP/ATTN kvhead field by one bit            ACCEPTED — CONTROL FAILED
+vn_nlog2     narrow the VN nlog2 field by one bit                    REFUSED by its own check (11 FAIL on vn_nlog2; first: VN arg0 fields: RTL decoded {'vn_mode': 0, 'vn_nlog2': 7, 'vn_inf': 15)
+vnw_n        narrow the VNW count field by one bit                   REFUSED by its own check (1 FAIL on vnw_n; first: ceiling vnw_n: 12 b < VNW_ISA_MAX = 4096)
+
+refused by their own check: 18 of 19; broken (no-op) perturbations: ['kvhead']
+NEGATIVE_CONTROL: FAIL — not refused by their own check: ['kvhead']
+=== rc  : 1
+=== end : 2026-09-27T21:59:14-06:00

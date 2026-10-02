@@ -1,0 +1,29 @@
+=== host: snoke  date: 2026-09-28T06:16:38-06:00
+=== tree: e3c2ff1+dirty
+=== dirty:  M evidence/qwen9b/sr/SR5b_R1_CHIP.md
+=== dirty: ?? evidence/qwen9b/sr/sr7_host_tdd.py
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr7_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+R1 word 0xfab1ca01  unmapped 0xdeadc0de
+(a) SEQ_VERSIONS rows carry the expected SEQ_CAPS word
+  FAIL every row is (shape_isa, what, caps_word)  {3379806602: (2, 'build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)'), 2606272120: (2, 'build_042_bm1 (BM1 idle counters; admitted only when named)')}
+  FAIL build_041 expects 0xDEADC0DE  (2, 'build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)')
+  FAIL build_042_bm1 expects 0xDEADC0DE  (2, 'build_042_bm1 (BM1 idle counters; admitted only when named)')
+(b)/(c) the gate compares SEQ_CAPS against the row
+  PASS (b) shipped board + 0xDEADC0DE -> READY
+  FAIL (c) shipped VERSION + R1 word -> REFUSED  ok
+  FAIL (c) BM1 VERSION + R1 word -> REFUSED  ok
+(d) a scripted R1 row (table patched for this test only)
+  PASS (d) R1 VERSION + R1 word -> READY
+  FAIL (d) R1 VERSION + 0xDEADC0DE -> REFUSED (caps missing)  ok
+  FAIL (d) R1 VERSION + an unknown capability bit -> REFUSED  ok
+  FAIL (e) the gate records the raw SEQ_CAPS word  {'magic': 4205961217, 'version': 195948557, 'calib': 15, 'layer_ident': 4205962656, 'mv_ident': [4205954208, 4205954209, 4205954210, 4205954211], 'seq_ident': 4205962720}
+(f) parse_expect_version's refusal lists the rows
+  PASS (f) unknown hash -> ValueError listing c973c18a and 9b588e78
+(g)/(h) bm1_ident reads and judges SEQ_CAPS
+  FAIL (g) bm1_ident has judge(regs, want_version, want_caps)  
+  FAIL (h) bm1_ident reads BAR 0x6064  None
+sr7_host_tdd: 3 passed, 10 failed
+=== rc  : 1
+=== end : 2026-09-28T06:16:38-06:00

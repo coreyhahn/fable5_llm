@@ -1,0 +1,58 @@
+=== host: snoke  date: 2026-09-27T18:45:09-06:00
+=== tree: 9ac0260
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr4_r1_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr4_r1_tdd.py  FABLE5_MODEL=9b FABLE5_RS_F=7
+=== the model (ref/seq_model.py), SeqExec caps= argument PRESENT
+  [PASS] (a) MVGO ch0+ch1, FENCE 0b0010, MOVX ch0 -> RunningChannelError  -- RunningChannelError: MOVX writes mv0 XWIN while a NO-WAIT MVGO is still running on it — the stream needs a FENCE first
+  [PASS] (a) twin on ch2/ch3: FENCE 0b1000 leaves ch2 -> MOVX ch2 refused  -- RunningChannelError: MOVX writes mv2 XWIN while a NO-WAIT MVGO is still running on it — the stream needs a FENCE first
+  [PASS] (b) ... FENCE 0b0010, MVGO ch0 -> RunningChannelError  -- RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still running on it — the stream needs a FENCE first
+  [PASS] (b) ... FENCE 0b0010, MOVY ch0 -> RunningChannelError  -- RunningChannelError: MOVY reads mv0 RES while a NO-WAIT MVGO is still running on it — the stream needs a FENCE first (ISA v1.4)
+  [PASS] (b) ... FENCE 0b0001 (drains 0 only), MOVY ch1 -> refused  -- RunningChannelError: MOVY reads mv1 RES while a NO-WAIT MVGO is still running on it — the stream needs a FENCE first (ISA v1.4)
+  [PASS] (c) FENCE 0b0011 then MOVX ch0 -> accepted  -- accepted; running after = []
+  [PASS] (c) FENCE 0b0010 then MOVY ch1 (the drained one) -> accepted  -- accepted; running after = []
+  [PASS] (d) mask 0 under caps {R1}: state identical to today's FENCE  -- running after [], stats FENCE 1, state diff none
+  [PASS] (d) mask 0b1111 drains exactly what mask 0 drains  -- state diff none
+  [PASS] (i) caps empty: a masked FENCE is refused by the validator  -- SeqValidationError: rec 4: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0003 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+  [PASS] (i) ref/seq_model.gate takes caps= (sr4_gate.sh passes R1)  -- gate(prefix, ..., caps=) present
+=== the pass's hazard assert (ref/scripts/reorder_e4.py)
+  [PASS] (e) (a)'s order: FENCE 0b0010, MOVX ch0 -> HazardError  -- HazardError: SR4: record 5 MOVX on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between)
+  [PASS] (e) FENCE 0b0010, MVGO ch0 -> HazardError  -- HazardError: SR4: record 5 MVGO on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between)
+  [PASS] (e) FENCE 0b0010, MOVY ch0 -> HazardError  -- HazardError: SR4: record 5 MOVY on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between)
+  [PASS] (e) FENCE 0b0010 then HALT with ch0 still pending -> HazardError  -- HazardError: SR4: record 6 HALT with streams still pending [(0, 1)]
+  [PASS] (e) legal: FENCE 0b0010, MOVY ch1, FENCE 0b0001, MOVY ch0  -- no HazardError
+  [PASS] (e) legal: mask 0 still drains all four  -- no HazardError
+=== the pass at r1 (ref/scripts/reorder_e4.py --rtl r1)
+    reorder(..., rtl=) PRESENT
+  [PASS] (f) _synthetic form A: masked fences, <= r0, masks within the pending set, R1-only valid  -- masks ['0b1', '0b1']; replay r1 2503 <= r0 2503: True; r1 replay - sched 3 (JMP win 3); valid at {R1}, refused at {}: True; postcheck 8 edges;  | CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE/0001 MOVY MVGO FENCE/0001 MOVY JMP HALT
+  [PASS] (f) _synthetic form B: masked fences, <= r0, masks within the pending set, R1-only valid  -- masks ['0b1', '0b1']; replay r1 2503 <= r0 2503: True; r1 replay - sched 3 (JMP win 3); valid at {R1}, refused at {}: True; postcheck 8 edges;  | CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE/0001 MOVY MVGO FENCE/0001 MOVY JMP HALT
+  [PASS] (f) synthetic2 form A: masked fences, <= r0, masks within the pending set, R1-only valid  -- masks ['0b1', '0b10']; replay r1 3403 <= r0 5468: True; r1 replay - sched 3 (JMP win 3); valid at {R1}, refused at {}: True; postcheck 8 edges;  | CSRWR EMB MOVX MVGO MOVX MVGO FENCE/0001 MOVY CSRWR CSRWR CSRWR CMD FENCE/0010 MOVY JMP HALT
+  [PASS] (f) synthetic2 form B: masked fences, <= r0, masks within the pending set, R1-only valid  -- masks ['0b1', '0b10']; replay r1 3403 <= r0 5468: True; r1 replay - sched 3 (JMP win 3); valid at {R1}, refused at {}: True; postcheck 8 edges;  | CSRWR EMB MOVX MVGO MOVX MVGO FENCE/0001 MOVY CSRWR CSRWR CSRWR CMD FENCE/0010 MOVY JMP HALT
+  [PASS] (f) write_out: r1 records seq_isa 2.3 + caps [R1]; r0 nothing new  -- manifest (seq_isa, caps): {'r0': (None, None), 'r1': ('2.3', ['R1'])}
+  [PASS] (f) the pass refuses an input whose FENCEs are already masked (OV1's stream_durations assumes the global drain)  -- ReorderError: the input already carries 1 masked FENCE(s), first at [6]: the pass reorders r0 streams only
+  [PASS] (f) --rtl r2 is refused (SR11b's)  -- ReorderError: --rtl 'r2': this pass emits ('r0', 'r1') (r2 is Task SR11b's)
+=== the static cost model (ref/seq_cost.py)
+  [PASS] (h) mask {c}: the tail is _tau(1) (nearest neighbour = size 2, 61) over the MASKED stream only  -- FENCE 0b0001 row 932 (want 932 = ch0 end 935 + _tau(1) 61 - 64); FENCE 0b0010 row 6317 (want 6317)
+  [PASS] (h) mask 0: unchanged (both streams, _tau(2))  -- FENCE 0 row 7249 (want 7249)
+  [PASS] (h) sizes 1 and 3 are nearest-neighbour (documented)  -- _tau(1) 61, _tau(3) 61 (TAU {2: 61, 4: 47}; a tie takes the smaller size)
+  [PASS] (h) seq_cost docstring records the masked group  -- docstring names the masked group and sizes 1 and 3
+=== r0: byte-identical to today's
+  [PASS] (g) _synthetic: the default IS r0, every FENCE target 0  -- forms A/B default == explicit r0: [True, True]
+  [PASS] (g) form A template (static costs) == REORDER4_BY_FORM['A'] pin  -- regenerated b6ced3f92d3fe8c3 (156616 recs), pin b6ced3f92d3fe8c3 (156616)
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  [PASS] (g) model_9b_s1 form B, CSV costs == SV1's shipped reordB (n32)  -- regenerated 57ec3051a0d6e68e, SV1 pin 57ec3051a0d6e68e, on disk 57ec3051a0d6e68e
+=== per case: (a) 2/2  (b) 3/3  (c) 2/2  (d) 2/2  (e) 6/6  (f) 7/7  (g) 3/3  (h) 4/4  (i) 2/2
+=== 31 passed, 0 failed; failing cases: none
+SR4 R1 TDD: PASS
+=== rc  : 0
+=== end : 2026-09-27T18:45:52-06:00

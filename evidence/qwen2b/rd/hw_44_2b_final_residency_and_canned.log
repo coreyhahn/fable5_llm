@@ -1,0 +1,32 @@
+=== host: snoke  date: 2026-08-25T00:34:20-06:00
+=== tree: 1f53a39+dirty
+=== cmd : bash -lc echo '### 1. the 2B chat session takes the board back' && /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_chat2b.sh final_canned --canned | grep -E 'residency|upload |step [0-9]|tokens |committed|MATCH|MISMATCH' && echo && echo '### 2. full audit of what is resident when it is done' && FABLE5_MODEL=2b /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_residency_audit.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e --full
+=== venv: 3.12.3 numpy 2.4.6
+### 1. the 2B chat session takes the board back
+  residency  874 witness blocks (866 weight + 8 emb, 3496 KiB) in 27 ms -> 208 MISS
+  upload     187 weight image(s) + the embedding table: 2817 MiB readback-verified in 14.3s
+  residency  874 witness blocks (866 weight + 8 emb, 3496 KiB) in 27 ms -> 0 MISS
+  upload     const blob + 3 images: 2376 KiB readback-verified in 0.0s
+  step 0  tok=760    pos=0  -> 279  (committed 279)  60.5 ms device
+  step 1  tok=6511   pos=1  -> 314  (committed 314)  60.5 ms device
+  step 2  tok=314    pos=2  -> 279  (committed 279)  60.5 ms device
+  step 3  tok=9338   pos=3  -> 369  (committed 369)  60.5 ms device
+  step 4  tok=369    pos=4  -> 11751  (committed 11751)  60.5 ms device
+  step 5  tok=11751  pos=5  -> 13  (committed 13)  60.5 ms device
+  tokens     [279, 314, 279, 369, 11751, 13]
+  committed  [279, 314, 279, 369, 11751, 13]
+  -> MATCH
+
+### 2. full audit of what is resident when it is done
+artifact model_w8_2b_s1.e  nch=4 repack=True  187 images, 866 pieces
+  residency  874 witness blocks (866 weight + 8 emb, 3496 KiB) in 27 ms -> 0 MISS
+WITNESS PROBE: 0 MISS of 874 -> chat_seq would SKIP THE UPLOAD
+
+FULL COMPARE — every byte of every piece, vs the artifact files
+  pieces damaged : 0 of 866
+  images touched : 0 of 187
+  bytes damaged  : 0.0 MiB of 1847.2 MiB (0.0%)
+  embedding      : 0 of 8 sampled 4 KiB blocks differ
+RESIDENT_CLEAN
+=== rc  : 0
+=== end : 2026-08-25T00:34:41-06:00

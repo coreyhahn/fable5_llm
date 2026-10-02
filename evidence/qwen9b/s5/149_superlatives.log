@@ -1,0 +1,85 @@
+=== host: snoke
+=== date: 2026-09-05T19:42:53-06:00
+=== tree: 4df19ec+dirty
+=== cmd:  python3 evidence/qwen9b/s5/s5_superlatives.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+S5SUP_VARIANTS: 3  (base 1slr 1slr-alt)
+
+S5SUP_TABLE column                                    best        runner-up
+S5SUP_COL WNS                                                  1slr-alt 0.034     1slr   0.03
+S5SUP_COL TNS                                                  1slr   0.0       1slr-alt 0.0
+S5SUP_COL failing endpoints                                    1slr   0.0       1slr-alt 0.0
+S5SUP_COL DN write fan-out, absolute                           1slr-alt 0.218     1slr   0.208
+S5SUP_COL DN write fan-out gain vs own same-directive baseline 1slr   0.796     -      -
+S5SUP_COL KV write fan-out                                     1slr   0.12      1slr-alt 0.081
+S5SUP_COL conv slot write (CV_SLOT)                            base   1.14      1slr   0.34
+S5SUP_COL attn DSP lanes                                       1slr   0.109     1slr-alt 0.034
+S5SUP_COL state DMA engine (SDMA)                              1slr   0.203     1slr-alt 0.087
+S5SUP_COL scratchpad (SCRATCH)                                 base   0.452     1slr   0.235
+S5SUP_COL SLR crossings (SLLs)                                 1slr   0.0       1slr-alt 0.0
+
+S5SUP_QUOTED S5_STRUCT.md:658  In round 1 the unconstrained row, `base`, had the best WNS of the three at −0.136.
+S5SUP_SCOPED S5_STRUCT.md:730  **On this netlist the unconstrained run is the WORST of the three, not the best, and by 0.6 ns.** `superlative-check: sc
+    full ranking of WNS: 1slr-alt 0.034  1slr 0.03  base -0.588
+S5SUP_SCOPED S5_STRUCT.md:794  The KV write fan-out is positive on two of the three round-1 runs and −0.110 on the third.
+    full ranking of DN write fan-out, absolute: 1slr-alt 0.218  1slr 0.208  base -0.588
+S5SUP_SCOPED S5_STRUCT.md:827  **`ATTN_DSP` is the worst family on all three ROUND-1 runs**, and on both round-1 one-SLR runs it IS the design's WNS.
+    full ranking of attn DSP lanes: 1slr 0.109  1slr-alt 0.034  base -0.467
+S5SUP_SCOPED S5_STRUCT.md:827  (§4.5 is where the 182 netlist answers the same question, and there it is the worst family on `base` and `1slr-alt` but 
+S5SUP_QUOTED S5_STRUCT.md:1285  `042_superlatives.log` is `S5SUP: FAIL (1)` on §3.2, whose sentence read "the unconstrained baseline's −0.136 is the bes
+S5SUP_QUOTED S5_STRUCT.md:1345  **The alternative was worse:** ranking all six runs together would make "the best of the three" mean the best of six num
+S5SUP_CHECKED: 4 superlative sentence(s) machine-checked
+S5SUP_QUOTED_TOTAL: 3 sentence(s) restating a superseded claim
+S5SUP_SCOPED_TOTAL: 4 sentence(s) true over a stated subset, printed beside the full ranking
+S5SUP_UNCHECKED: 42 sentence(s) the script cannot attribute
+S5SUP_UNCHECKED S5_STRUCT.md:45  * a **failure here is DEFINITIVE** — the in-context problem is strictly harder; * a **success here is NECESSARY BUT NOT SUFFICIENT
+S5SUP_UNCHECKED S5_STRUCT.md:72  Both were written into this document's draft before the runs came back, and you have only this sentence for that; the thresholds t
+S5SUP_UNCHECKED S5_STRUCT.md:186  * **`DN_PIPE` and `DN_BPG` no longer exist**, as `-generic`s or as positional arguments; `layer_chan`'s only non-ROM parameter is 
+S5SUP_UNCHECKED S5_STRUCT.md:213  **Fix round 1 repaired it**, since the controller's ruling put `synth/scripts/ooc_9b.tcl` inside the round's commit block: `state_
+S5SUP_UNCHECKED S5_STRUCT.md:225  **That widening landed in ONE of the two harnesses, and fix round 2 closes the other** (review round 1, I-2).
+S5SUP_UNCHECKED S5_STRUCT.md:365  ✅ * **LUT as Distributed RAM, +3,856.** `u_dma` is **4,096 LUTRAM cells** (T, `MEM_ROW SDMA … 4096`) — the 256-beat × 512-bit burs
+S5SUP_UNCHECKED S5_STRUCT.md:365  * **Total LUTs, only +2,737** even though `u_dma` is 15,051 LUTs: the 24-bank DN array's address decode, bank muxes and 2048-bit r
+S5SUP_UNCHECKED S5_STRUCT.md:403  64 b × 8192 is 2 URAM288 (one wide, two deep) and 48 b × 8192 is 2 more, so 4 per slot and 8 in all — spec §3's conv row, arithmet
+S5SUP_UNCHECKED S5_STRUCT.md:510  ### 2.5 The two harnesses agree — on every row, not only on URAM
+S5SUP_UNCHECKED S5_STRUCT.md:651  First, §0's rule: the OOC success is necessary, not sufficient — Task 14 adds XDMA at fixed sites, four MIGs, four mvchans and a s
+S5SUP_UNCHECKED S5_STRUCT.md:725  The design span is, and only the pblocked runs answer it.
+S5SUP_UNCHECKED S5_STRUCT.md:744  It does not reverse the 2B campaign's T5 warning (`synth/constraints/fable5_floorplan_a.xdc:8-10`, constraining `layer_0` cost ≈ 1
+S5SUP_UNCHECKED S5_STRUCT.md:753  The one asymmetry worth carrying is not timing: the single `[Place 46-14]` congestion warning is on `1slr-alt` only, where round 1
+S5SUP_UNCHECKED S5_STRUCT.md:774  `s5_family_census.tcl` on each run's own `post_place.dcp`: the worst setup path into each family's endpoint cells, and the family 
+S5SUP_UNCHECKED S5_STRUCT.md:848  Its worst paths are inside the burst FIFO (`u_dma/f_wp_reg[…]/C -> u_dma/fmem_reg_…`) and the beat accumulator.
+S5SUP_UNCHECKED S5_STRUCT.md:853  It is the reason S5's census script names the worst OTHER path instead of leaving a bucket unexplained.
+S5SUP_UNCHECKED S5_STRUCT.md:876  Task 13's `2'cr` column is repeated from §4.1 for scale only.
+S5SUP_UNCHECKED S5_STRUCT.md:897  **The KV delta's COMPARAND is one draw, and the delta must be read that way.** Task 13's `2'cr` KV number, −0.368, is the best of 
+S5SUP_UNCHECKED S5_STRUCT.md:910  The lower of the two constrained conv rows is +0.181, and no conv path is within 0.14 ns of either run's WNS.
+S5SUP_UNCHECKED S5_STRUCT.md:976  **Congestion.** One `WARNING: [Place 46-14] … highly congested` on `1slr-alt` only; `base` and `1slr` carry none.
+S5SUP_UNCHECKED S5_STRUCT.md:1003  The banners are comment-only and appended at the END so that citations into those files keep their line numbers (`evidence/qwen9b/
+S5SUP_UNCHECKED S5_STRUCT.md:1016  The file itself gained ONE comment-only block at its END (`MEASURED, 2026-09-05`) carrying the four measured capacity rows beside 
+S5SUP_UNCHECKED S5_STRUCT.md:1016  No constraint line moved, and `evidence/qwen9b/s5/115_bytes_comment_only.log` is the proof that the file the two constrained runs 
+S5SUP_UNCHECKED S5_STRUCT.md:1030  The second supersedes the first everywhere they disagree, and they disagree about more than URAM: the unconstrained baseline's WNS
+S5SUP_UNCHECKED S5_STRUCT.md:1030  S4's DMA-lane figure is MODELLED and is not a board number (`evidence/qwen9b/s4/S4_REPLAY.md`); S5 measures structure and placemen
+S5SUP_UNCHECKED S5_STRUCT.md:1111  This is worth recording as a method note, not only as a fact about this file: on a file this heavily cited, *where* a comment goes
+S5SUP_UNCHECKED S5_STRUCT.md:1144  Round 1 declared a consequence: appending the `SUPERSEDED` banners to Task 13's XDCs would make `evidence/qwen9b/g5/g5_bytelock.sh
+S5SUP_UNCHECKED S5_STRUCT.md:1169  **A pin that can only pass is not a lock, so the script keeps a live half.** The four banner-ed XDCs are diffed `5ee5f0e`..HEAD an
+S5SUP_UNCHECKED S5_STRUCT.md:1182  **Ledgered for whoever opens them next** (review round 1, m7): the paragraph is now text that says something untrue in eight files
+S5SUP_UNCHECKED S5_STRUCT.md:1297  `046_superlatives.log` is the PASS on the repaired document (`S5SUP: PASS`, 2 sentences machine-checked, 2 SCOPED, 12 UNCHECKED) a
+S5SUP_UNCHECKED S5_STRUCT.md:1322  All twelve are hand-verified in the S5 report, and none of them ranks S5's variants: they are the reading rule quoted from `eviden
+S5SUP_UNCHECKED S5_STRUCT.md:1398  They are §3.5's "the single congestion warning is on `1slr-alt` only" and §4.5's "`base` and `1slr` carry none" — congestion, whic
+S5SUP_UNCHECKED S5_STRUCT.md:1398  Two carry claims worth naming here because they are arithmetic rather than prose, and both are re-derivable from the tables above:
+S5SUP_UNCHECKED S5_STRUCT.md:1467  They are committed in a separate, citation-repair-only commit; `git diff --stat` over `rtl/layer_chan.sv` shows one line changed, 
+S5SUP_UNCHECKED S5_STRUCT.md:1480  Four of the six are constructed so that they contribute NOTHING: the spec is append-only, the XDC gained a block at its END, `exp_
+S5SUP_UNCHECKED S5_STRUCT.md:1501  **Two edits this round made ONLY to keep citations resolvable** are in §7.2 and in the commit `cdf7d6c`: `rtl/layer_chan.sv:359-36
+S5SUP_UNCHECKED S5_STRUCT.md:1529  They are committed in a separate, citation-repair-only commit.
+S5SUP_UNCHECKED S5_STRUCT.md:1535  Round 1's own drift pass (§10) rewrote nine coordinates in the plan's Task-S5 entry OUT of citation form and added an italic parag
+S5SUP_UNCHECKED S5_STRUCT.md:1562  Two of the three contribute nothing: nothing in the repository cites the citation checker by line, and the spec's edit is inside A
+S5SUP_UNCHECKED S5_STRUCT.md:1607  A bare basename resolves only if it sits beside the citing document; for a file anywhere else it is not a citation at all, just a 
+S5SUP_UNCHECKED S5_STRUCT.md:1646  No number was wrong: none of the 27 carries a line range, so only the EXIST check was suppressed and all five files do exist.
+S5SUP_UNCHECKED S5_STRUCT.md:1670  **What the prune bought, isolated from everything else this round wrote.** Measured on the same four documents at the text 130 ran
+S5SUP: PASS
+=== rc: 0
+=== end: 2026-09-05T19:42:54-06:00

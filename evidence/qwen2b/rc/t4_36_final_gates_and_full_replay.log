@@ -1,0 +1,76 @@
+=== host: snoke  date: 2026-08-22T17:23:57-06:00
+=== tree: f4495c7+dirty
+=== cmd : bash -c 
+cd /home/cah/r2d2/code/fpga/fable5_llm/tb
+echo "### A. 0.8B w3 pair on the EXISTING .chip files (no EMBLOG2 line -> default 11)"
+make tb_seq_chip_build JOBS=16 >/dev/null 2>&1
+for p in lay_s1 tok2_s1; do obj_dir_tb_seq_chip/tb_seq_chip +seq=scripts/w3/$p.e +base=scripts/w3/$p +watchdog_ms=600000 2>&1 | tail -4; done
+echo
+echo "### B. 0.8B w3 pair REGENERATED (EMBLOG2 11 now emitted)"
+make tb_seq_chip_fast JOBS=16 GENPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python 2>&1 | grep -vE "^g\+\+|^/usr/bin|^make\[|^Archive|^echo|^rm |^verilator|^  --|^  \.\./" | tail -12
+echo
+echo "### C. THE FULL 2B W8 CHIP REPLAY (68,503 records)"
+date -Is
+make seq_chip_vectors_w8 VECPY=/home/cah/.venv/bin/python 2>&1 | tail -3
+make tb_seq_chip_w8 JOBS=16 2>&1 | grep -vE "^g\+\+|^/usr/bin|^make\[|^Archive|^echo|^rm |^verilator|^  --|^  \.\./"
+date -Is
+=== venv: 3.12.3 numpy 2.4.6
+### A. 0.8B w3 pair on the EXISTING .chip files (no EMBLOG2 line -> default 11)
+  ddr beats 6543 (miss 0), weight beats 686656 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w3/lay_s1.e (launches 1, 1355737 cycles total, scratch 7168/launch, tokens 0, tcnt 6)
+- tb_seq_chip.sv:930: Verilog $finish
+  ddr beats 8748 (miss 0), weight beats 1251168 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w3/tok2_s1.e (launches 1, 2272141 cycles total, scratch 7168/launch, tokens 3, tcnt 6)
+- tb_seq_chip.sv:930: Verilog $finish
+
+### B. 0.8B w3 pair REGENERATED (EMBLOG2 11 now emitted)
+  TOK[1] = 00763 (1891) == golden OK
+  TOK[2] = 01154 (4436) == golden OK
+SEQ-CHIP scripts/w3/tok2_s1.e launch 0 [-]: 1080 records, 2272141 cycles (2103.83 cyc/rec, 9.089 ms @250MHz, PERF_CYC 2272133)
+LAUNCH 0 PASS: [-] pc 1079, tokens 3, tcnt 6, scratch 7168
+  axil writes 3559
+  axil reads  147847
+  burst: 996 write bursts (250608 beats), 753 read bursts (190560 beats), busy_wr 318684 busy_rd 258939, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 48
+  ddr beats 8748 (miss 0), weight beats 1251168 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w3/tok2_s1.e (launches 1, 2272141 cycles total, scratch 7168/launch, tokens 3, tcnt 6)
+- tb_seq_chip.sv:930: Verilog $finish
+
+### C. THE FULL 2B W8 CHIP REPLAY (68,503 records)
+2026-08-22T17:28:34-06:00
+  per-channel weight pack: 4 channels, 187 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/model_w8_2b_s1.e.chip: 68503 records, pc 68502, 6 tokens, 16384 scratch words checked (16384 staging words excluded)
+  seq_model stats: {'CSRWR': 63773, 'CMD': 21198, 'MOVX': 4488, 'MOVY': 5196, 'MVGO': 5196, 'EMB': 6, 'AMAXL': 6, 'JMP': 3, 'FENCE': 1302, 'LDC': 780, 'XOP': 42, 'PROBE': 36, 'MVGO_NOWAIT': 5196}
+  -GNMV=4 -GWIMGPC=1 \
+obj_dir_tb_seq_chip_w8/tb_seq_chip_w8 +seq=scripts/w5/model_w8_2b_s1.e \
+  +base=scripts/w5/model_w8_2b_s1 +watchdog_ms=172800000
+  mem region 0: 1096048 B @ 000090000000   scripts/w5/model_w8_2b_s1.e.seq
+  mem region 1: 1107712 B @ 000080000000   scripts/w5/model_w8_2b_s1.e.seqdata.bin
+  mem region 2: 1017118720 B @ 000060000000   scripts/w5/model_w8_2b_s1.emb.bin
+  mem region 0: 487342080 B @ 000010000000   scripts/w5/model_w8_2b_s1.wimg0.bin
+  mem region 0: 484098048 B @ 000010000000   scripts/w5/model_w8_2b_s1.wimg1.bin
+  mem region 0: 483016704 B @ 000010000000   scripts/w5/model_w8_2b_s1.wimg2.bin
+  mem region 0: 483016704 B @ 000010000000   scripts/w5/model_w8_2b_s1.wimg3.bin
+tb_seq_chip: launch 0 [-] rec_off 0, 68503 records, 6 tokens, 16384 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+  TOK[0] = 00117 (279) == golden OK
+  TOK[1] = 0013a (314) == golden OK
+  TOK[2] = 00117 (279) == golden OK
+  TOK[3] = 00171 (369) == golden OK
+  TOK[4] = 02de7 (11751) == golden OK
+  TOK[5] = 0000d (13) == golden OK
+SEQ-CHIP scripts/w5/model_w8_2b_s1.e launch 0 [-]: 68503 records, 88534927 cycles (1292.42 cyc/rec, 354.140 ms @250MHz, PERF_CYC 88534919)
+LAUNCH 0 PASS: [-] pc 68502, tokens 6, tcnt 6, scratch 16384
+  axil writes 132968
+  axil reads  5068452
+  burst: 48792 write bursts (12167616 beats), 65484 read bursts (16472448 beats), busy_wr 21529674 busy_rd 19876596, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 48
+  ddr beats 239345 (miss 0), weight beats 45675360 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w5/model_w8_2b_s1.e (launches 1, 88534927 cycles total, scratch 16384/launch, tokens 6, tcnt 6)
+- tb_seq_chip.sv:930: Verilog $finish
+2026-08-22T18:38:14-06:00
+=== rc  : 0
+=== end : 2026-08-22T18:38:14-06:00

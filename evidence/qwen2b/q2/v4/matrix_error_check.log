@@ -1,0 +1,24 @@
+host snoke  npz /home/cah/r2d2/code/fpga/fable5_llm/ref/calib_stats_2b_h.npz
+npz sha256 71a4e21be18ad0ae97b460ff854c6e15a935c253906bb57727b923e94a1714f3
+
+matrix                                     shape | output error ||(W-Wq)X^T||_F/sqrt(T) (V4 vs V3) | weight error ||W-Wq||_F
+layers.0.linear_attn.in_proj_qkv    (6144, 2048) | V2     6.59  V3     6.08  V4h     6.07  V4     3.33  ( +45.2%) |   5.510 ->   7.010  [29s]
+                                                 | E[x^2]/(mean|x|)^2 per channel: median 1.53  p95 1.70  max 1.9;  V3->V4h moves 6.8% of the group scales
+layers.0.linear_attn.out_proj       (2048, 2048) | V2     0.29  V3     0.21  V4h     0.21  V4     0.12  ( +44.8%) |   3.071 ->   3.791  [10s]
+                                                 | E[x^2]/(mean|x|)^2 per channel: median 2.70  p95 12.29  max 29.7;  V3->V4h moves 36.1% of the group scales
+layers.12.mlp.gate_proj             (6144, 2048) | V2     3.26  V3     2.74  V4h     2.74  V4     1.85  ( +32.6%) |   3.553 ->   4.274  [29s]
+                                                 | E[x^2]/(mean|x|)^2 per channel: median 1.59  p95 1.62  max 2.2;  V3->V4h moves 5.3% of the group scales
+layers.12.mlp.down_proj             (2048, 6144) | V2     0.22  V3     0.21  V4h     0.21  V4     0.14  ( +32.9%) |   3.083 ->   3.815  [39s]
+                                                 | E[x^2]/(mean|x|)^2 per channel: median 2.27  p95 3.72  max 13.6;  V3->V4h moves 30.5% of the group scales
+layers.19.self_attn.q_proj          (4096, 2048) | V2     5.20  V3     3.93  V4h     3.93  V4     2.52  ( +36.0%) |   3.992 ->   5.064  [19s]
+                                                 | E[x^2]/(mean|x|)^2 per channel: median 1.59  p95 1.69  max 2.7;  V3->V4h moves 6.3% of the group scales
+layers.19.self_attn.o_proj          (2048, 2048) | V2     0.90  V3     0.67  V4h     0.66  V4     0.31  ( +54.5%) |   4.592 ->   5.329  [10s]
+                                                 | E[x^2]/(mean|x|)^2 per channel: median 2.52  p95 4.93  max 51.1;  V3->V4h moves 33.8% of the group scales
+lm_head                             (8192, 2048) | V2    21.02  V3    18.91  V4h    18.88  V4    10.24  ( +45.8%) |   6.270 ->   7.622  [37s]
+                                                 | E[x^2]/(mean|x|)^2 per channel: median 1.58  p95 1.63  max 2.2;  V3->V4h moves 8.2% of the group scales
+
+  V3 vs V2: output error +16.1% mean (+3.5% .. +26.4%), better on 7/7 matrices
+  V4h vs V3: output error +0.6% mean (+0.1% .. +1.5%), better on 7/7 matrices
+  V4 vs V4h: output error +41.4% mean (+32.5% .. +53.8%), better on 7/7 matrices
+  V4 vs V3: output error +41.7% mean (+32.6% .. +54.5%), better on 7/7 matrices
+  the two diagonals: median ratio 1.97, p95 3.94, max 51.1 (mean over the 7); V3->V4h moves 18.1% of the group scales

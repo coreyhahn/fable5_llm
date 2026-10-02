@@ -1,0 +1,44 @@
+=== host: snoke
+=== date: 2026-09-09T19:57:15-06:00
+=== tree: 0be8334+dirty
+=== cmd:  bash evidence/qwen9b/g6/g6_hup_trap.sh red
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== MODE: red
+=== the trap line under test:
+94:trap on_exit EXIT INT TERM
+=== what was stubbed (copy vs the committed sw/program_fpga.sh):
+--- sw/program_fpga.sh	2026-09-09 19:56:35.653838290 -0600
++++ /tmp/g6hup.xNPJek/program_fpga.sh	2026-09-09 19:57:15.135053577 -0600
+@@ -91,7 +91,7 @@
+     fi
+     exit $rc
+ }
+-trap on_exit EXIT INT TERM HUP
++trap on_exit EXIT INT TERM
+ 
+ if [ "$JTAG_ONLY" != 1 ]; then
+     echo "=== [1/3] remove the endpoint from the PCI tree (host-hang safety)"
+@@ -106,7 +106,7 @@
+ 
+ echo "=== [2/3] JTAG program (VOLATILE — never flash): $BIT"
+ set +u
+-source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh
++source /tmp/g6hup.xNPJek/settings64_stub.sh
+ set -u
+ 
+ PROG_OK=0
+=== ---
+HARNESS FAILED: never reached [2/3]
+=== [1/3] remove the endpoint from the PCI tree (host-hang safety)
+sudo: a password is required
+=== [3/3] rescan the PCI tree (exit code so far: 1)
+sudo: a password is required
+FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /tmp/g6hup.xNPJek/pcie_helper.sh rescan
+=== rc: 2
+=== end: 2026-09-09T19:57:25-06:00

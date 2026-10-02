@@ -1,0 +1,59 @@
+=== host: snoke  date: 2026-09-25T16:02:07-06:00
+=== tree: 34211d7+dirty
+=== dirty: ?? tight_setup_hold_pins.txt
+=== cmd : bash -c 
+S=synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1
+echo "IF shipped closing checkpoint (G5D §9.2):"; ls -la --time-style=full-iso $S/bd_wrapper_postroute_physopt.dcp $S/bd_wrapper_routed.dcp | sed "s/^/IF   /"
+echo "IF shipped roll TIMING line:"; grep -h "^TIMING:" synth/out_build_041_ckr2_AltSpreadLogic_high/fullimpl.log | sed "s/^/IF   /"
+echo "IF shipped base VERSION:"; head -1 synth/out_build_041/build.log | sed "s/^/IF   /"
+echo "IF new base VERSION:"; head -1 synth/out_build_042_bm1/build.log | sed "s/^/IF   /"
+for b in bd_layer_0_0 bd_mvchan_0_0 bd_mvchan_1_0 bd_mvchan_2_0 bd_mvchan_3_0 bd_seq_0_0 bd_xdma_0_0 bd_ddr4_0_0; do
+  for R in synth/out_build_041 synth/out_build_042_bm1; do
+    d=$R/proj/stage1.runs/${b}_synth_1
+    echo "IF $b $(basename $R): dcp_md5=$(md5sum < $d/$b.dcp | cut -c1-12) size=$(stat -c %s $d/$b.dcp) util_body_md5=$(grep -v -E "Date|Host|Command|Design|Tool Version|Device" $d/${b}_utilization_synth.rpt | md5sum | cut -c1-12)"
+  done
+done
+echo "IF layer_0 OOC synth util (first rows) 041 vs 042:"; for R in synth/out_build_041 synth/out_build_042_bm1; do grep -m3 -E "^\| (CLB LUTs|CLB Registers|DSPs)" $R/proj/stage1.runs/bd_layer_0_0_synth_1/bd_layer_0_0_utilization_synth.rpt | tr -s " " | sed "s#^#IF   $(basename $R) #"; done
+echo "IF layer_0 RTL diff c973c18..9b588e7 (layer files):"; git diff --stat c973c18 9b588e7 -- rtl/layer_chan.sv rtl/layer_chan_ipi.v rtl/attn_core.sv rtl/matvec_engine.sv rtl/ddr_rd_streamer.sv | tail -2 | sed "s/^/IF   /"; git diff --stat c973c18 9b588e7 -- rtl | tail -4 | sed "s/^/IF   /"
+
+=== env : FABLE5_MODEL=unset  FABLE5_SEQ_EXPECT_VERSION=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+IF shipped closing checkpoint (G5D §9.2):
+IF   -rw-rw-r-- 1 cah cah 288126447 2026-09-07 20:34:57.875355826 -0600 synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+IF   -rw-rw-r-- 1 cah cah 288586105 2026-09-07 20:00:43.000143384 -0600 synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_routed.dcp
+IF shipped roll TIMING line:
+IF   TIMING: WNS=0.000 WHS=0.001 DIRECTIVE=AltSpreadLogic_high RECIPE=full XDC=/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc
+IF shipped base VERSION:
+IF   === create_project (c973c18a) ===
+IF new base VERSION:
+IF   === create_project (9b588e78) ===
+IF bd_layer_0_0 out_build_041: dcp_md5=3db9fdc9b1ac size=25117105 util_body_md5=069979d67696
+IF bd_layer_0_0 out_build_042_bm1: dcp_md5=11fa13c4f595 size=25111935 util_body_md5=069979d67696
+IF bd_mvchan_0_0 out_build_041: dcp_md5=011cc89d96c7 size=2673284 util_body_md5=8c889b9a66de
+IF bd_mvchan_0_0 out_build_042_bm1: dcp_md5=c331fa872d52 size=2669721 util_body_md5=cc5a6d8720b2
+IF bd_mvchan_1_0 out_build_041: dcp_md5=b60cede1fbd4 size=2669244 util_body_md5=51e49699b7c6
+IF bd_mvchan_1_0 out_build_042_bm1: dcp_md5=3ba393fb8811 size=2667243 util_body_md5=1316067b6d0b
+IF bd_mvchan_2_0 out_build_041: dcp_md5=06317c864cca size=2666494 util_body_md5=5280eb29e5bf
+IF bd_mvchan_2_0 out_build_042_bm1: dcp_md5=2b9f9f456550 size=2673018 util_body_md5=e5d4f841edf4
+IF bd_mvchan_3_0 out_build_041: dcp_md5=4877100415cf size=2675782 util_body_md5=44be99d4c8f1
+IF bd_mvchan_3_0 out_build_042_bm1: dcp_md5=8748d83ab91f size=2671225 util_body_md5=ada461a5bcb6
+IF bd_seq_0_0 out_build_041: dcp_md5=8f935fe30b01 size=814484 util_body_md5=e0eaa05d3ff6
+IF bd_seq_0_0 out_build_042_bm1: dcp_md5=afa8a825f8ec size=882395 util_body_md5=dd40519480f1
+IF bd_xdma_0_0 out_build_041: dcp_md5=8f68c8b2188f size=7960075 util_body_md5=7c6210e3f122
+IF bd_xdma_0_0 out_build_042_bm1: dcp_md5=d443d50dc389 size=7957809 util_body_md5=7c6210e3f122
+IF bd_ddr4_0_0 out_build_041: dcp_md5=5e0adc207f9c size=6139810 util_body_md5=a86b0fe2e970
+IF bd_ddr4_0_0 out_build_042_bm1: dcp_md5=18ed41e39122 size=6138807 util_body_md5=a86b0fe2e970
+IF layer_0 OOC synth util (first rows) 041 vs 042:
+IF   out_build_041 | CLB LUTs* | 116093 | 0 | 0 | 1182240 | 9.82 |
+IF   out_build_041 | CLB Registers | 61470 | 0 | 0 | 2364480 | 2.60 |
+IF   out_build_041 | DSPs | 1840 | 0 | 0 | 6840 | 26.90 |
+IF   out_build_042_bm1 | CLB LUTs* | 116093 | 0 | 0 | 1182240 | 9.82 |
+IF   out_build_042_bm1 | CLB Registers | 61470 | 0 | 0 | 2364480 | 2.60 |
+IF   out_build_042_bm1 | DSPs | 1840 | 0 | 0 | 6840 | 26.90 |
+IF layer_0 RTL diff c973c18..9b588e7 (layer files):
+IF    rtl/matvec_chan_ipi.v |   6 +++
+IF    rtl/seq_unit.sv       | 123 ++++++++++++++++++++++++++++++++++++++++++++++++++
+IF    rtl/seq_unit_ipi.v    |  10 ++++
+IF    4 files changed, 150 insertions(+)
+=== rc  : 0
+=== end : 2026-09-25T16:02:17-06:00

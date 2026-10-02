@@ -1,0 +1,42 @@
+model      FABLE5_MODEL=4b  32 layers  H=2560  vocab=248320
+checkpoint /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a/model.safetensors-00001-of-00002.safetensors
+           /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a/model.safetensors-00002-of-00002.safetensors  (270d6faae3bc0e16…)
+           header sha256 6e73db95dda030ff8fa43e99e2cebb3307f91363a756b2ba115e67ae0efb72fd   (combined over 2 shards)
+lm_head    tied (a separate copy of embed_tokens)
+tokenizer  /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+corpus     ref/ppl_corpus_eval.txt
+           sha256 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876
+           24576 tokens, window=512, batch=4
+inject     all:w8g128,dn_conv:cw13,emb:emb16
+host       snoke
+torch 2.12.0+cpu  threads=6
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+  model built + loaded in 276.8s
+    class    quant    mats   weights   packed  (ideal)   footprint   [packed = w4a8_ref.row_stride, beat padding included]
+    qkv      w8g128    24 mats   209.715 M  8.200 b/w ( 8.125)     205.0 MiB
+    o_proj   w8g128     8 mats    83.886 M  8.125 b/w ( 8.125)      81.2 MiB
+    gate_up  w8g128    64 mats  1509.949 M  8.200 b/w ( 8.125)    1476.0 MiB
+    down     w8g128    32 mats   754.975 M  8.167 b/w ( 8.125)     735.0 MiB
+    dn_in    w8g128    96 mats   758.907 M  8.200 b/w ( 8.125)     741.8 MiB
+    dn_out   w8g128    24 mats   251.658 M  8.125 b/w ( 8.125)     243.8 MiB
+    lm_head  w8g128     1 mats   635.699 M  8.200 b/w ( 8.125)     621.4 MiB
+    dn_conv  cw13      24 mats     0.786 M 16.000 b/w (16.000)       1.5 MiB
+    emb      emb16      1 mats   635.699 M 16.000 b/w (16.000)    1212.5 MiB
+    _float   bf16     153 mats     0.175 M 16.000 b/w (16.000)       0.3 MiB
+    _total   bf16     427 mats  4841.450 M  9.215 b/w ( 9.161)    5318.6 MiB
+  window 4/48  positions=2044  running PPL=7.4483  100.2s
+  window 8/48  positions=4088  running PPL=8.2791  191.2s
+  window 12/48  positions=6132  running PPL=8.6033  285.6s
+  window 16/48  positions=8176  running PPL=8.7381  386.6s
+  window 20/48  positions=10220  running PPL=9.0667  492.1s
+  window 24/48  positions=12264  running PPL=9.3109  593.5s
+  window 28/48  positions=14308  running PPL=8.9411  705.4s
+  window 32/48  positions=16352  running PPL=8.6880  818.0s
+  window 36/48  positions=18396  running PPL=9.1720  938.3s
+  window 40/48  positions=20440  running PPL=9.2795  1040.5s
+  window 44/48  positions=22484  running PPL=9.3091  1144.3s
+  window 48/48  positions=24528  running PPL=9.6967  1239.9s
+
+nll_sum 55722.343348  positions 24528  nll/pos 2.271785  eval 1240.0s (build 277.9s)
+json -> evidence/qwen_next/ladder/ppl_4b_w8g128.json
+PPL 9.696694

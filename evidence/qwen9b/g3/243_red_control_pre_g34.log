@@ -1,0 +1,172 @@
+=== host: snoke
+=== date: 2026-09-02T05:53:07-06:00
+=== tree: 8138d66+dirty
+=== cmd:  bash evidence/qwen9b/g3/g34_red_control.sh 8138d66
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== RED-a: the COMMITTED 8138d66 RTL, unmodified ===
+[8058000] %Fatal: layer_chan.sv:1531: Assertion failed in TOP.tb_layer_chan.dut: 13918396469785894032568668594104501727614599156209014320437216954700978874913109839937493084908091926949550131338242197677119896667280664900413210260868678635564772349280596171286258667194233129374507666402130216
+%Error: /tmp/g34_red/rtl/layer_chan.sv:1531: Verilog $stop
+Aborting...
+evidence/qwen9b/g3/g34_red_control.sh: line 41: 2955589 Aborted                 (core dumped) "$RED/obj_a/tb_reda" +dnbank +watchdog_ms=4000
+RED-a dnbank rc=134
+[142000] %Fatal: vecnorm_unit.sv:433: Assertion failed in TOP.tb_layer_chan.dut.u_vn: vecnorm_unit: cfg_nlog2 13 unsupported (max 12, N=4096)
+%Error: /tmp/g34_red/rtl/vecnorm_unit.sv:433: Verilog $stop
+Aborting...
+evidence/qwen9b/g3/g34_red_control.sh: line 42: 2955643 Aborted                 (core dumped) "$RED/obj_a/tb_reda" +envtest +watchdog_ms=4000
+RED-a envtest rc=134
+
+=== RED-b: the SAME RTL with the sim-only envelope guards STRIPPED ===
+stripped the pre-G3.4 sim envelope block
+FAIL DN state (slot 0, head 16) independent: word 0 got 0463 want 0a7b
+FAIL DN state (slot 0, head 16) independent: word 2 got 07d7 want 12bc
+FAIL DN state (slot 0, head 16) independent: word 4 got 0b50 want 1afc
+FAIL DN state (slot 0, head 16) independent: word 6 got 0ec6 want 233d
+FAIL DN state (slot 0, head 16) independent: 226 of 512 words differ
+  OK DN state (slot 0, head 31) independent: 512 words identical
+  OK DN state (slot 17, head 15) independent: 512 words identical
+  OK DN state (slot 18, head 0) independent: 512 words identical
+  OK DN state (slot 23, head 31) independent: 512 words identical
+  OK DN state (slot 23, head 16) independent: 512 words identical
+FAIL DN step 2 (slot 0, head 16) agrees: word 0 got 05dd want 07f0
+FAIL DN step 2 (slot 0, head 16) agrees: word 2 got 0a7e want 0e2f
+FAIL DN step 2 (slot 0, head 16) agrees: word 4 got 0f1f want 1469
+FAIL DN step 2 (slot 0, head 16) agrees: word 6 got 13c1 want 1aa9
+FAIL DN step 2 (slot 0, head 16) agrees: 178 of 512 words differ
+FAIL DN step 2 (slot 0, head 31) agrees: word 0 got 0463 want 07f0
+FAIL DN step 2 (slot 0, head 31) agrees: word 2 got 07d7 want 0e2f
+FAIL DN step 2 (slot 0, head 31) agrees: word 4 got 0b50 want 1469
+FAIL DN step 2 (slot 0, head 31) agrees: word 6 got 0ec6 want 1aa9
+FAIL DN step 2 (slot 0, head 31) agrees: 208 of 512 words differ
+FAIL DN step 2 (slot 17, head 15) agrees: word 0 got 0463 want 07f0
+FAIL DN step 2 (slot 17, head 15) agrees: word 2 got 07d7 want 0e2f
+FAIL DN step 2 (slot 17, head 15) agrees: word 4 got 0b50 want 1469
+FAIL DN step 2 (slot 17, head 15) agrees: word 6 got 0ec6 want 1aa9
+FAIL DN step 2 (slot 17, head 15) agrees: 208 of 512 words differ
+FAIL DN store (slot 18, head 0) did not ADVANCE: step 2 == step 1
+FAIL DN step 2 (slot 18, head 0) agrees: word 0 got 0a7b want 07f0
+FAIL DN step 2 (slot 18, head 0) agrees: word 2 got 12bc want 0e2f
+FAIL DN step 2 (slot 18, head 0) agrees: word 4 got 1afc want 1469
+FAIL DN step 2 (slot 18, head 0) agrees: word 6 got 233d want 1aa9
+FAIL DN step 2 (slot 18, head 0) agrees: 193 of 512 words differ
+FAIL DN store (slot 23, head 31) did not ADVANCE: step 2 == step 1
+FAIL DN step 2 (slot 23, head 31) agrees: word 0 got 0a7b want 07f0
+FAIL DN step 2 (slot 23, head 31) agrees: word 2 got 12bc want 0e2f
+FAIL DN step 2 (slot 23, head 31) agrees: word 4 got 1afc want 1469
+FAIL DN step 2 (slot 23, head 31) agrees: word 6 got 233d want 1aa9
+FAIL DN step 2 (slot 23, head 31) agrees: 193 of 512 words differ
+FAIL DN store (slot 23, head 16) did not ADVANCE: step 2 == step 1
+FAIL DN step 2 (slot 23, head 16) agrees: word 0 got 0a7b want 07f0
+FAIL DN step 2 (slot 23, head 16) agrees: word 2 got 12bc want 0e2f
+FAIL DN step 2 (slot 23, head 16) agrees: word 4 got 1afc want 1469
+FAIL DN step 2 (slot 23, head 16) agrees: word 6 got 233d want 1aa9
+FAIL DN step 2 (slot 23, head 16) agrees: 193 of 512 words differ
+  OK KV cache (slot 0, kvh 1) independent: 512 words identical
+  OK KV cache (slot 0, kvh 2) independent: 512 words identical
+  OK KV cache (slot 0, kvh 3) independent: 512 words identical
+FAIL TCNT slot 0: kvh0=2 kvh1=2, want 1/1
+FAIL TCNT2 slot 0: kvh2=222 kvh3=685, want 1/1
+FAIL KV cache (slot 6, kvh 0) independent: word 4 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 0) independent: word 6 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 0) independent: word 8 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 0) independent: word 10 got 0000 want 0008
+FAIL KV cache (slot 6, kvh 0) independent: 254 of 512 words differ
+FAIL KV cache (slot 6, kvh 1) independent: word 4 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 1) independent: word 6 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 1) independent: word 8 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 1) independent: word 10 got 0000 want 0008
+FAIL KV cache (slot 6, kvh 1) independent: 254 of 512 words differ
+FAIL KV cache (slot 6, kvh 2) independent: word 4 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 2) independent: word 6 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 2) independent: word 8 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 2) independent: word 10 got 0000 want 0008
+FAIL KV cache (slot 6, kvh 2) independent: 254 of 512 words differ
+FAIL KV cache (slot 6, kvh 3) independent: word 4 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 3) independent: word 6 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 3) independent: word 8 got 0000 want 0004
+FAIL KV cache (slot 6, kvh 3) independent: word 10 got 0000 want 0008
+FAIL KV cache (slot 6, kvh 3) independent: 254 of 512 words differ
+FAIL TCNT slot 6: kvh0=2 kvh1=2, want 1/1
+FAIL TCNT2 slot 6: kvh2=222 kvh3=685, want 1/1
+FAIL KV cache (slot 7, kvh 0) independent: word 4 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 0) independent: word 6 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 0) independent: word 8 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 0) independent: word 10 got 0000 want 0008
+FAIL KV cache (slot 7, kvh 0) independent: 254 of 512 words differ
+FAIL KV cache (slot 7, kvh 1) independent: word 4 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 1) independent: word 6 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 1) independent: word 8 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 1) independent: word 10 got 0000 want 0008
+FAIL KV cache (slot 7, kvh 1) independent: 254 of 512 words differ
+FAIL KV cache (slot 7, kvh 2) independent: word 4 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 2) independent: word 6 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 2) independent: word 8 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 2) independent: word 10 got 0000 want 0008
+FAIL KV cache (slot 7, kvh 2) independent: 254 of 512 words differ
+FAIL KV cache (slot 7, kvh 3) independent: word 4 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 3) independent: word 6 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 3) independent: word 8 got 0000 want 0004
+FAIL KV cache (slot 7, kvh 3) independent: word 10 got 0000 want 0008
+FAIL KV cache (slot 7, kvh 3) independent: 254 of 512 words differ
+FAIL TCNT slot 7: kvh0=2 kvh1=2, want 1/1
+FAIL TCNT2 slot 7: kvh2=222 kvh3=685, want 1/1
+FAIL conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: word 0 got 0000 want 0001
+FAIL conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: word 1 got 0000 want 000b
+FAIL conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: word 2 got 0000 want 001f
+FAIL conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: word 3 got 0000 want 003f
+FAIL conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: 4 of 4 words differ
+FAIL conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: word 0 got 0000 want 0001
+FAIL conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: word 1 got 0000 want 000b
+FAIL conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: word 2 got 0000 want 001f
+FAIL conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: word 3 got 0000 want 003f
+FAIL conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: 4 of 4 words differ
+FAIL GATE word 32 untouched (NH < 32?)
+FAIL GATE word 33 untouched (NH < 32?)
+FAIL GATE word 34 untouched (NH < 32?)
+FAIL GATE word 35 untouched (NH < 32?)
+FAIL GATE word 36 untouched (NH < 32?)
+FAIL GATE word 37 untouched (NH < 32?)
+FAIL GATE word 38 untouched (NH < 32?)
+FAIL GATE word 39 untouched (NH < 32?)
+FAIL GATE word 40 untouched (NH < 32?)
+FAIL GATE word 41 untouched (NH < 32?)
+FAIL GATE word 42 untouched (NH < 32?)
+FAIL GATE word 43 untouched (NH < 32?)
+FAIL GATE word 44 untouched (NH < 32?)
+FAIL GATE word 45 untouched (NH < 32?)
+FAIL GATE word 46 untouched (NH < 32?)
+FAIL GATE word 47 untouched (NH < 32?)
+FAIL GATE word 48 untouched (NH < 32?)
+FAIL GATE word 49 untouched (NH < 32?)
+FAIL GATE word 50 untouched (NH < 32?)
+FAIL GATE word 51 untouched (NH < 32?)
+FAIL GATE word 52 untouched (NH < 32?)
+FAIL GATE word 53 untouched (NH < 32?)
+FAIL GATE word 54 untouched (NH < 32?)
+FAIL GATE word 55 untouched (NH < 32?)
+FAIL GATE word 56 untouched (NH < 32?)
+FAIL GATE word 57 untouched (NH < 32?)
+FAIL GATE word 58 untouched (NH < 32?)
+FAIL GATE word 59 untouched (NH < 32?)
+FAIL GATE word 60 untouched (NH < 32?)
+FAIL GATE word 61 untouched (NH < 32?)
+FAIL GATE word 62 untouched (NH < 32?)
+FAIL GATE word 63 untouched (NH < 32?)
+  OK GATE wrote exactly 64 words (2 x LNH = 32 heads)
+[685436000] %Fatal: tb_layer_chan.sv:477: Assertion failed in TOP.tb_layer_chan.unnamedblk4: TB_LAYER_DNBANK FAIL: 58
+%Error: tb_layer_chan.sv:477: Verilog $stop
+Aborting...
+evidence/qwen9b/g3/g34_red_control.sh: line 57: 2956350 Aborted                 (core dumped) "$RED/obj_b/tb_redb" +dnbank +watchdog_ms=4000
+RED-b dnbank rc=134
+[142000] %Fatal: vecnorm_unit.sv:433: Assertion failed in TOP.tb_layer_chan.dut.u_vn: vecnorm_unit: cfg_nlog2 13 unsupported (max 12, N=4096)
+%Error: /tmp/g34_red/rtl/vecnorm_unit.sv:433: Verilog $stop
+Aborting...
+evidence/qwen9b/g3/g34_red_control.sh: line 58: 2956412 Aborted                 (core dumped) "$RED/obj_b/tb_redb" +envtest +watchdog_ms=4000
+RED-b envtest rc=134
+=== rc: 0
+=== end: 2026-09-02T05:57:50-06:00

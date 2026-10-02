@@ -1,0 +1,78 @@
+=== host: snoke
+=== date: 2026-08-29T18:07:23-06:00
+=== tree: 4965057+dirty
+=== cmd:  /home/cah/.local/bin/uv run --no-project --with torch --with transformers --with numpy python -u /home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py --wire-group 128 --prompts 1 --ntok 3 --no-freerun --res-scale 1 --diag base,gateport --cache /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/golden_bf16.npz --json-out /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/dryrun_0p8b_gateport.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=4 MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=0.8b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+quantizer sources sha256 61cb4812115379fb25b95b8d5435bbecdc9491b8220011242a3990c1dda30ae6  (FABLE5_DN_STATE=int16 RS_F=8)
+host: snoke
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 2.8s
+  LM head quantized (W4 mse=True g=128) e=-4 sh=5 (87.2s)
+
+=== config S=1 mse ===
+    quantized 24 layers in 135.7s
+    emb table |q|max 59 of 32767 (3.7s)
+    config done in 201.9s
+  --- S=1 mse ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France'
+    fixed  argmax [328, 314, 279, 369, 279, 13]   top1=4/6  rank=[75, 0, 0, 0, 1, 0]  top5ovl=[1, 4, 3, 3, 3, 4]
+    block-float k histogram [dn]: {-14: 106, -13: 135, -12: 202, -11: 245, -10: 293, -9: 241, -8: 169, -7: 108, -6: 86, -5: 61, -4: 18, 0: 64}
+    block-float k histogram [attn]: {8: 3, 9: 21, 10: 9, 11: 2, 12: 1}
+    block-float saturation: m_q15 max raw 8192000, clipped 64 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=482      clips=0/147456
+      1024x3584      |y|max=922      clips=0/147456
+      16x1024        |y|max=78797    clips=4/3456
+      2048x1024      |y|max=3243     clips=0/221184
+      3584x1024      |y|max=40878    clips=7/1032192
+      4096x1024      |y|max=3079     clips=0/147456
+      512x1024       |y|max=6158     clips=0/36864
+      6144x1024      |y|max=19981    clips=0/663552
+
+=== config S=1 mse gateport ===
+    quantized 24 layers in 121.9s
+    emb table |q|max 59 of 32767 (3.8s)
+    config done in 188.9s
+  --- S=1 mse gateport ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France'
+    fixed  argmax [328, 314, 279, 369, 11751, 13]   top1=5/6  rank=[75, 0, 0, 0, 0, 0]  top5ovl=[1, 4, 3, 3, 3, 5]
+    block-float k histogram [dn]: {-14: 109, -13: 139, -12: 192, -11: 249, -10: 290, -9: 250, -8: 168, -7: 107, -6: 87, -5: 58, -4: 18, 0: 61}
+    block-float k histogram [attn]: {8: 4, 9: 18, 10: 11, 11: 2, 12: 1}
+    block-float saturation: m_q15 max raw 8192000, clipped 61 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=457      clips=0/147456
+      1024x3584      |y|max=882      clips=0/147456
+      16x1024        |y|max=78797    clips=4/3456
+      2048x1024      |y|max=3294     clips=0/221184
+      3584x1024      |y|max=42398    clips=5/1032192
+      4096x1024      |y|max=3067     clips=0/147456
+      512x1024       |y|max=6158     clips=0/36864
+      6144x1024      |y|max=19981    clips=0/663552
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config                          top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat   S8 sat   |S|max
+S=1 mse                   4/6              0.0        75      3.00     1316      0       14        0    49772
+S=1 mse gateport          5/6              0.0        75      3.17     1298      0        9        0    50047
+
+state container: FABLE5_DN_STATE=int16 (law=int16 k=0), RS_F=8; 28311552 state writes, |S|max 49772 LSB = 6.0757 at Q2.13, int16 rail 14, container rail 0
+weight quantization: 2 pass(es) this process, 0 cache hit(s), 0 miss(es)
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 1452, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 1400, in main
+    assert _WQ_STATE["quantized"] <= 1, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the weight-quantization stage was entered 2 times in one process — the G1 cost argument assumes it is entered at most once
+=== rc: 1
+=== end: 2026-08-29T18:15:25-06:00

@@ -1,0 +1,113 @@
+=== host: snoke
+=== date: 2026-09-10T19:30:17-06:00
+=== tree: a1fe35f
+=== cmd:  /home/cah/.venv/bin/python -u evidence/qwen9b/g6/g6_longctx_lockstep.py --top5 5 --continue --dump-kv 51-56 --chat-json evidence/qwen9b/g6/133_15d_chip_k1.json --chat-log evidence/qwen9b/g6/133_15d_bisect_k1.log --out evidence/qwen9b/g6/143_15d_bisect_ref_N53.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=9 MKL_NUM_THREADS=9
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+  amax tap   INSTALLED (--top5 5): GLS.Mach.alu op 10 is wrapped read-only; the reference's own arithmetic is untouched
+=== the board run being replayed: evidence/qwen9b/g6/133_15d_chip_k1.json
+  argv       --nch 4 --max-ctx 700 --ntok 4 --prompt <198 chars>
+  chip       57 launches, context 56, greedy decode
+  chip ids   [57590, 26990, 494, 264]   (4 tok)
+=== FABLE5_MODEL=9b  template=tb/scripts/w9/model_9b_s1.e4  nrec=158536  T_MAX=4096
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38858, full:39626  (1.3s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  session    built in 2.6s  (pos_mode=ldc, t_max=4096)
+  tokenizer  c202236235762e1c871ad0ccb60c8ee5ba337b9a: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  templated  53 ids (12 wrapper + 41 body); feed 53; steps 56 = 52 prefill (lite) + 4 decode (full); auto-reset False
+  verifier   built in 0.8s; region PRESENT {'dn': 15032385536, 'kv': 15057551360, 'cv': 15191769088, 'end': 15194914816}
+  preamble   replayed in 0.0s
+------------------------------------------------------------------------
+  replaying 56 of 56 steps; 52 prefill then 4 decode.  A prefill step's verdict is that BOTH sides emit no token (the lite body has no LM head); the decode steps are the token-for-token comparison.
+------------------------------------------------------------------------
+  step   0 lite tok=248045  pos=0   ref -> no token  chip -> no token  ==   [120.1s  eta  1.8h]   
+  step   1 lite tok=846     pos=1   ref -> no token  chip -> no token  ==   [121.1s  eta  1.8h]   
+  step   2 lite tok=198     pos=2   ref -> no token  chip -> no token  ==   [121.0s  eta  1.8h]   
+  step   3 lite tok=8917    pos=3   ref -> no token  chip -> no token  ==   [121.4s  eta  1.7h]   
+  step   4 lite tok=5437    pos=4   ref -> no token  chip -> no token  ==   [121.1s  eta  1.7h]   
+  step   5 lite tok=1029    pos=5   ref -> no token  chip -> no token  ==   [121.1s  eta  1.7h]   
+  step   6 lite tok=279     pos=6   ref -> no token  chip -> no token  ==   [121.1s  eta  1.6h]   
+  step   7 lite tok=2614    pos=7   ref -> no token  chip -> no token  ==   [121.0s  eta  1.6h]   
+  step   8 lite tok=20438   pos=8   ref -> no token  chip -> no token  ==   [121.0s  eta  1.6h]   
+  step   9 lite tok=303     pos=9   ref -> no token  chip -> no token  ==   [121.0s  eta  1.5h]   
+  step  10 lite tok=799     pos=10  ref -> no token  chip -> no token  ==   [121.3s  eta  1.5h]   
+  step  11 lite tok=11316   pos=11  ref -> no token  chip -> no token  ==   [121.5s  eta  1.5h]   
+  step  12 lite tok=13      pos=12  ref -> no token  chip -> no token  ==   [121.2s  eta  1.4h]   
+  step  13 lite tok=561     pos=13  ref -> no token  chip -> no token  ==   [121.2s  eta  1.4h]   
+  step  14 lite tok=3177    pos=14  ref -> no token  chip -> no token  ==   [120.8s  eta  1.4h]   
+  step  15 lite tok=314     pos=15  ref -> no token  chip -> no token  ==   [120.9s  eta  1.3h]   
+  step  16 lite tok=11751   pos=16  ref -> no token  chip -> no token  ==   [120.9s  eta  1.3h]   
+  step  17 lite tok=13538   pos=17  ref -> no token  chip -> no token  ==   [121.1s  eta  1.3h]   
+  step  18 lite tok=494     pos=18  ref -> no token  chip -> no token  ==   [121.0s  eta  1.2h]   
+  step  19 lite tok=264     pos=19  ref -> no token  chip -> no token  ==   [121.0s  eta  1.2h]   
+  step  20 lite tok=16576   pos=20  ref -> no token  chip -> no token  ==   [121.0s  eta  1.2h]   
+  step  21 lite tok=383     pos=21  ref -> no token  chip -> no token  ==   [121.1s  eta  1.1h]   
+  step  22 lite tok=449     pos=22  ref -> no token  chip -> no token  ==   [121.1s  eta  1.1h]   
+  step  23 lite tok=12552   pos=23  ref -> no token  chip -> no token  ==   [120.9s  eta  1.1h]   
+  step  24 lite tok=303     pos=24  ref -> no token  chip -> no token  ==   [120.4s  eta  1.0h]   
+  step  25 lite tok=279     pos=25  ref -> no token  chip -> no token  ==   [120.6s  eta  1.0h]   
+  step  26 lite tok=181474  pos=26  ref -> no token  chip -> no token  ==   [120.5s  eta  1.0h]   
+  step  27 lite tok=11      pos=27  ref -> no token  chip -> no token  ==   [120.5s  eta  0.9h]   
+  step  28 lite tok=321     pos=28  ref -> no token  chip -> no token  ==   [121.4s  eta  0.9h]   
+  step  29 lite tok=1141    pos=29  ref -> no token  chip -> no token  ==   [120.8s  eta  0.9h]   
+  step  30 lite tok=13959   pos=30  ref -> no token  chip -> no token  ==   [120.5s  eta  0.8h]   
+  step  31 lite tok=11      pos=31  ref -> no token  chip -> no token  ==   [121.2s  eta  0.8h]   
+  step  32 lite tok=37683   pos=32  ref -> no token  chip -> no token  ==   [121.6s  eta  0.8h]   
+  step  33 lite tok=321     pos=33  ref -> no token  chip -> no token  ==   [121.2s  eta  0.7h]   
+  step  34 lite tok=11388   pos=34  ref -> no token  chip -> no token  ==   [121.3s  eta  0.7h]   
+  step  35 lite tok=998     pos=35  ref -> no token  chip -> no token  ==   [122.1s  eta  0.7h]   
+  step  36 lite tok=57571   pos=36  ref -> no token  chip -> no token  ==   [123.0s  eta  0.6h]   
+  step  37 lite tok=1599    pos=37  ref -> no token  chip -> no token  ==   [121.2s  eta  0.6h]   
+  step  38 lite tok=2942    pos=38  ref -> no token  chip -> no token  ==   [122.1s  eta  0.6h]   
+  step  39 lite tok=888     pos=39  ref -> no token  chip -> no token  ==   [124.3s  eta  0.5h]   
+  step  40 lite tok=279     pos=40  ref -> no token  chip -> no token  ==   [121.6s  eta  0.5h]   
+  step  41 lite tok=22892   pos=41  ref -> no token  chip -> no token  ==   [121.5s  eta  0.5h]   
+  step  42 lite tok=13      pos=42  ref -> no token  chip -> no token  ==   [121.3s  eta  0.4h]   
+  step  43 lite tok=220     pos=43  ref -> no token  chip -> no token  ==   [121.0s  eta  0.4h]   
+  step  44 lite tok=248046  pos=44  ref -> no token  chip -> no token  ==   [121.3s  eta  0.4h]   
+  step  45 lite tok=198     pos=45  ref -> no token  chip -> no token  ==   [121.3s  eta  0.3h]   
+  step  46 lite tok=248045  pos=46  ref -> no token  chip -> no token  ==   [121.5s  eta  0.3h]   
+  step  47 lite tok=74455   pos=47  ref -> no token  chip -> no token  ==   [121.4s  eta  0.3h]   
+  step  48 lite tok=198     pos=48  ref -> no token  chip -> no token  ==   [121.5s  eta  0.2h]   
+  step  49 lite tok=248068  pos=49  ref -> no token  chip -> no token  ==   [123.7s  eta  0.2h]   
+  step  50 lite tok=271     pos=50  ref -> no token  chip -> no token  ==   [119.9s  eta  0.2h]   
+  step  51 lite tok=248069  pos=51  ref -> no token  chip -> no token  ==   [119.9s  eta  0.1h]   
+  step  52 full tok=271     pos=52  ref ->    57590  chip -> 57590  ==   [136.3s  eta  0.1h]   'Paris'
+      top5    57590:176931  760:174820  1853:141578  19205:136659  2381:136073   #1-#2 margin 2111 (1.1931% of the top logit)
+      chip's 57590 is rank 1 in the reference, value 176931, 0 below the top
+  step  53 full tok=57590   pos=53  ref ->    26990  chip -> 26990  ==   [136.7s  eta  0.1h]   ' evolved'
+      top5    26990:195712  7633:175422  42303:167385  13538:164601  16676:163041   #1-#2 margin 20290 (10.3673% of the top logit)
+      chip's 26990 is rank 1 in the reference, value 195712, 0 below the top
+  step  54 full tok=26990   pos=54  ref ->      494  chip -> 494  ==   [136.0s  eta  0.0h]   ' from'
+      top5    494:216532  888:175564  1083:163476  25193:157330  1472:151612   #1-#2 margin 40968 (18.9201% of the top logit)
+      chip's 494 is rank 1 in the reference, value 216532, 0 below the top
+  step  55 full tok=494     pos=55  ref ->      264  chip -> 264  ==   [136.1s  eta  0.0h]   ' a'
+      top5    264:204878  449:197503  1141:154159  279:130768  12552:128946   #1-#2 margin 7375 (3.5997% of the top logit)
+      chip's 264 is rank 1 in the reference, value 204878, 0 below the top
+------------------------------------------------------------------------
+  replayed   56 of 56 steps in 1.90 h (122.3 s/step)
+  ref ids    [57590, 26990, 494, 264]
+  chip ids   [57590, 26990, 494, 264]
+  decode     4/4 of the chip's tokens reproduced (4 decode steps replayed)
+  dump-kv    the REFERENCE region's rows 51..56, layers [0, 4, 7], through g6_kv_rows.dump()
+  region     155 MiB [0x380000000,0x389b00000)  sha256 5632c51e83b723d83e8e365a7497e5cea796bcb3d7c65566d3b03b2bf56dccc9
+  DN alone   24 MiB  sha256 0caf9770cab80714247fd6c97b463242bbc07fd82eb67204d10f231be89ea7a3
+  L0  kvh0 K  addr 0x00381800000  rows 51..56: 5/6 non-zero  exp [252, 252, 252, 252, 253, 0]...
+  L0  kvh0 V  addr 0x00381a00000  rows 51..56: 5/6 non-zero  exp [250, 250, 251, 251, 251, 0]...
+  L4  kvh0 K  addr 0x00385800000  rows 51..56: 5/6 non-zero  exp [252, 252, 253, 252, 252, 0]...
+  L4  kvh0 V  addr 0x00385a00000  rows 51..56: 5/6 non-zero  exp [251, 251, 252, 252, 252, 0]...
+  L7  kvh0 K  addr 0x00388800000  rows 51..56: 5/6 non-zero  exp [252, 252, 252, 252, 252, 0]...
+  L7  kvh0 V  addr 0x00388a00000  rows 51..56: 5/6 non-zero  exp [254, 254, 254, 254, 254, 0]...
+  dump-kv -> evidence/qwen9b/g6/143_15d_bisect_ref_N53_kv.json
+LONGCTX_LOCKSTEP: PASS 56/56
+=== rc: 0
+=== end: 2026-09-10T21:24:32-06:00

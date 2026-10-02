@@ -1,0 +1,63 @@
+### SUPERSEDED — THIS LOG RECORDS A FAILURE, and its "=== rc : 0" is WRONG.
+###
+### The run below is the RED of fold 7's development.  gen_len() had just
+### gained 3584 and tb_vecalu_diff aborted on its region guard:
+###     "region overflow rnd len3584"  +  make Error 1
+### because run_case needs k*len words and the FROZEN legacy vec_alu copy has
+### only a 16K map, so op 9 (SHIFT32W, k = 5) cannot host that length.
+###
+### The "=== rc : 0" stamp at the bottom is an artifact of the runner's grep
+### pipe taking the LAST stage's status, not make's — the same
+### filtered-pipeline trap t4_widen_gates.sh documents and now guards against.
+### Do not read it as a pass.
+###
+### SUPERSEDED BY: t4_38_fold_locks.log, which re-runs all six differential
+### configs GREEN after run_case learned to clamp per op class (len_max=3584
+### appears in every census there).  The spare-bit scan section of THIS log
+### did complete and is unaffected.
+###
+=== host: snoke  date: 2026-08-22T19:00:52-06:00
+=== tree: 6b5d940+dirty
+=== cmd : bash -c cd /home/cah/r2d2/code/fpga/fable5_llm/tb && echo "### tb_ru2_diff (6 configs) with 3584 in gen_len()" && make tb_ru2_diff JOBS=16 VECPY=/home/cah/.venv/bin/python 2>&1 | grep -vE "^g\+\+|^/usr/bin|^make\[|^Archive|^echo|^rm |^verilator|^  --|^  \.\./" && echo && echo "### spare-bit scan: the new asserts must be provably non-firing" && cd /home/cah/r2d2/code/fpga/fable5_llm && /home/cah/.venv/bin/python ref/scripts/scan_spare_bits.py | tail -30
+=== venv: 3.12.3 numpy 2.4.6
+### tb_ru2_diff (6 configs) with 3584 in gen_len()
+  tb_vecalu_diff.sv
+[2014828000] %Fatal: tb_vecalu_diff.sv:455: Assertion failed in TOP.tb_vecalu_diff.run_case: region overflow rnd len3584
+%Error: tb_vecalu_diff.sv:455: Verilog $stop
+Aborting...
+Aborted (core dumped)
+make: *** [Makefile:1170: tb_vecalu_diff] Error 1
+
+### spare-bit scan: the new asserts must be provably non-firing
+  KVAP      ARG1  29   never set           KVAP  src_v[14]
+  ATTN      ARG1  28   never set           ATTN  src_q[14]
+  ATTN      ARG1  29   never set           ATTN  dst[14]
+  ALU       ARG1  28   never set           ALU   srca[14]
+  ALU       ARG1  29   never set           ALU   srcb[14]
+  ALU       ARG2  31   never set           ALU   dst[14]      (arg2[30:17] dst, bit31 is the ONLY spare)
+  ALU       ARG0  16   never set           ALU   len[12]      (R-c: arg0[15:4] -> arg0[16:4], 12->13b)
+
+SEQ records:
+  op        field    bit  was it ever set?    carries
+  MOVX      addr_lo  14   never set           MOVX  scratch src[14]  (addr_lo[14])
+  MOVY      addr_lo  14   never set           MOVY  scratch dst[14]  (addr_lo[14])
+  EMB       addr_lo  14   never set           EMB   scratch dst[14]  (addr_lo[14])
+  LDC       target   14   never set           LDC   scratch dst[14]  (target[14])
+
+layer CSR:
+  off       name     bit  was it ever set?    carries
+  0x14      SPTR     14   never set           SPTR  wdata[14]  (CSR, host/mover-written)
+
+SCAN VERDICT: PASS — every chosen bit-14 home is 0 in every scanned stream.
+
+CAVEAT — a row can pass VACUOUSLY.  'never set' is evidence only
+where the field is actually exercised: an opcode with 0 records, or
+a CSR offset never written by any scanned stream, trivially reports
+every bit free.  Check the record count beside each opcode before
+leaning on its row.  The layer SPTR CSR (0x14) is the one home in
+the table with NO in-stream writer today — the movers program SPTR
+over AXI-Lite, not through a CSRWR record — so its row is vacuous:
+SPTR's back-compatibility rests on it being a HOST-written CSR whose
+bit 14 the old RTL simply ignored, not on this scan.
+=== rc  : 0
+=== end : 2026-08-22T19:01:48-06:00

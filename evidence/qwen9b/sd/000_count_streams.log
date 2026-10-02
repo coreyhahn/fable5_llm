@@ -1,0 +1,151 @@
+=== host: snoke
+=== date: 2026-09-24T04:25:03-06:00
+=== tree: 89cccd3
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/sd/sd1_count.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== rs_f: derived=7 (tag 9b) env=unset rider=0
+=== ---
+=== SD1 count: inputs
+  .txt  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.txt
+        sha256 b1cb26c7e7fc5b701744402d7f7af1d11dd333565f4ce97008117888520af158
+  .seq  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq
+        sha256 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+  .seq.json stream_sha256 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  MATCH
+  geometry: H=4096 FFN=12288 layers=32 = 24 DN + 8 GQA; LNH=32 LNKH=16 LDK=128 LDV=128 CONV_DIM=8192; NQ=16 NKV=4 HD=256; vocab=248320
+  chunking: .txt CHUNK=2048 (ref/gen_layer_script.py), .e4 CHUNK_ROWS=2048 nch=4 profile=epsnorm dyn_ka=True
+
+=== .txt: layer commands per forward step (step 0 = preamble)
+  step 0: 2 commands
+  step 1: 9429 commands
+  step 2: 9429 commands
+  step 3: 9429 commands
+  step 4: 9429 commands
+  step 5: 9429 commands
+  step 6: 9429 commands
+  steps 1..6 carry IDENTICAL (key -> count) multisets: per-token counts are well defined
+
+=== .e4: 158536 records; EMB records at [39, 39663, 79286, 118911]
+  body 0: 2 CMD records
+  body 1: 8821 CMD records
+  body 2: 8821 CMD records
+  body 3: 8821 CMD records
+  body 4: 8821 CMD records
+  bodies 1..4 carry IDENTICAL multisets (body 4 is the TCNT_SEQ=3 loop body, so tokens 1..6 all run this list)
+
+=== per token, per layer command (the census's table, recounted)
+  cmd          .txt      .e4   e4-txt
+  ALU          6219     4843    -1376
+  VN           1761     2529     +768
+  DNST          768      768       +0
+  ROPE          160      160       +0
+  ATTN          128      128       +0
+  SLD           112      112       +0
+  SST           112      112       +0
+  VNW            81       81       +0
+  KVAP           32       32       +0
+  GATE           24       24       +0
+  CONV           24       24       +0
+  ROPET           8        8       +0
+  TOTAL        9429     8821     -608
+
+=== per token, per KEY — only the keys whose counts differ
+  ('ALU', 'DYNQ16', 128)                   .txt      0  .e4    768  delta   +768
+  ('ALU', 'EMUL32', 256)                   .txt    128  .e4      0  delta   -128
+  ('ALU', 'EMUL32', 4096)                  .txt      0  .e4      8  delta     +8
+  ('ALU', 'EMUL32', 4096, 'probe')         .txt      0  .e4      8  delta     +8
+  ('ALU', 'SCALE', 128)                    .txt   1536  .e4    768  delta   -768
+  ('ALU', 'SHIFT32', 1024)                 .txt     16  .e4      0  delta    -16
+  ('ALU', 'SHIFT32', 128)                  .txt    768  .e4      0  delta   -768
+  ('ALU', 'SHIFT32', 2048)                 .txt    304  .e4      0  delta   -304
+  ('ALU', 'SHIFT32', 32)                   .txt     48  .e4      0  delta    -48
+  ('ALU', 'SHIFT32W', 2048)                .txt    192  .e4      0  delta   -192
+  ('ALU', 'SILU32', 1024)                  .txt      0  .e4    128  delta   +128
+  ('ALU', 'SILU32', 2048)                  .txt    192  .e4    128  delta    -64
+  ('VN', 'EPS-NORM', 128)                  .txt      0  .e4    768  delta   +768
+  (ALU commands in keys with EQUAL counts on both sides: 3035; VN: 1761)
+
+=== DERIVATION from the geometry and the emitter rules
+  (a) fused dequant ALUs removed: DN layer in_qkv 4 + in_z 2 + in_b 1 + in_a 1 + out 2 + mlp.up (op9) 6 + mlp.down 2 = 18
+      GQA layer q_proj 4 + k_proj 1 + v_proj 1 + o_proj 2 + mlp.up (op9) 6 + mlp.down 2 = 16
+      per token: -(24 x 18 + 8 x 16) = -560
+  (b) SILU32 re-chunk: .txt ceil(12288/2048) = 6 per layer, .e4 split_rows(12288,4) x res_chunks(<= 2048) = 8; 32 x (8 - 6) = +64
+  (c) DN block-float pair: per head SHIFT32 -> DYNQ16 (0) and SCALE -> VN EPS-NORM (-1 ALU, +1 VN): 24 x 32 = -768 ALU, +768 VN
+  (d) gated attention: 16 EMUL32 -> 1 probe + 1 real per GQA layer: 8 x (16 - 2) = -112
+  (e) LM-head AMAX32: .txt ceil(248320/2048) = 122, .e4 res_chunks = 122: +0
+  DERIVED  dALU = -560 +64 -768 -112 +0 = -1376   dVN = +768   dTOTAL = -608
+  COUNTED  dALU = -1376   dVN = +768   dTOTAL = -608
+  key-level: derived vs counted
+    ('ALU', 'DYNQ16', 128)                   derived   +768  counted   +768  OK
+    ('ALU', 'EMUL32', 256)                   derived   -128  counted   -128  OK
+    ('ALU', 'EMUL32', 4096)                  derived     +8  counted     +8  OK
+    ('ALU', 'EMUL32', 4096, 'probe')         derived     +8  counted     +8  OK
+    ('ALU', 'SCALE', 128)                    derived   -768  counted   -768  OK
+    ('ALU', 'SHIFT32', 1024)                 derived    -16  counted    -16  OK
+    ('ALU', 'SHIFT32', 128)                  derived   -768  counted   -768  OK
+    ('ALU', 'SHIFT32', 2048)                 derived   -304  counted   -304  OK
+    ('ALU', 'SHIFT32', 32)                   derived    -48  counted    -48  OK
+    ('ALU', 'SHIFT32W', 2048)                derived   -192  counted   -192  OK
+    ('ALU', 'SILU32', 1024)                  derived   +128  counted   +128  OK
+    ('ALU', 'SILU32', 2048)                  derived    -64  counted    -64  OK
+    ('VN', 'EPS-NORM', 128)                  derived   +768  counted   +768  OK
+  RECONCILED EXACTLY, key by key.
+
+=== EXAMPLES (step 1 of the .txt, body 1 of the .e4)
+  (c) DN head 0 of the first DN layer — .txt SHIFT32 k_h + SCALE m_q15:
+    .txt line 58138: C b 40801 3220 3320fff8   -> ('ALU', 'SHIFT32', 128)
+    .txt line 58139: C b 802 3320 33205d13   -> ('ALU', 'SCALE', 128)
+      .e4 DYNQ16 + VN EPS-NORM (k from XRF[1]):
+    .e4 rec 158:     158  CSRWR  L_ARG0       <= 0x0000080c
+    .e4 rec 159:     159  CSRWR  L_ARG1       <= 0x00003220
+    .e4 rec 160:     160  CSRWR  L_ARG2       <= 0x33200000
+    .e4 rec 161:     161  CMD    ALU
+      -> ('ALU', 'DYNQ16', 128)
+    .e4 rec 162:     162  CSRWR  L_ARG0       <= 0x00002f5e
+    .e4 rec 163:     163  CSRWR  L_ARG1       <= 0x33203320
+    .e4 rec 164:     164  CSRWR  L_ARG2       <= 0x00000003
+    .e4 rec 165:     165  CMD    VN
+      -> ('VN', 'EPS-NORM', 128)
+  (a) the first fused dequant — .txt SHIFT32 over a host W32 chunk (the in_qkv matvec's first 2048 rows):
+    .txt line 20498: C b 8001 3420 54200006   -> ('ALU', 'SHIFT32', 2048)
+      .e4: the same rows arrive by MVGO x4 (no-wait) + FENCE + MOVY x4 — no ALU command at all:
+    .e4 rec 62:      62  MOVX   mv0 XWIN <= scratch[0x2000 .. +4096] int8
+    .e4 rec 63:      63  MOVX   mv1 XWIN <= scratch[0x2000 .. +4096] int8
+    .e4 rec 64:      64  MOVX   mv2 XWIN <= scratch[0x2000 .. +4096] int8
+    .e4 rec 65:      65  MOVX   mv3 XWIN <= scratch[0x2000 .. +4096] int8
+    .e4 rec 66:      66  MVGO   mv0 WBASE=0x0010000000 BEATS=67584 SHAPE=0x08020007 (ng=32 nrows=2048 sh=7)  [no-wait]
+    .e4 rec 67:      67  MVGO   mv1 WBASE=0x0010000000 BEATS=67584 SHAPE=0x08020007 (ng=32 nrows=2048 sh=7)  [no-wait]
+    .e4 rec 68:      68  MVGO   mv2 WBASE=0x0010000000 BEATS=67584 SHAPE=0x08020007 (ng=32 nrows=2048 sh=7)  [no-wait]
+    .e4 rec 69:      69  MVGO   mv3 WBASE=0x0010000000 BEATS=67584 SHAPE=0x08020007 (ng=32 nrows=2048 sh=7)  [no-wait]
+    .e4 rec 70:      70  FENCE
+    .e4 rec 71:      71  MOVY   mv0 RES[0..2048) >> 11 -XRF[0:e_x] -> scratch[0x5420] int16
+    .e4 rec 72:      72  MOVY   mv1 RES[0..2048) >> 11 -XRF[0:e_x] -> scratch[0x5c20] int16
+    .e4 rec 73:      73  MOVY   mv2 RES[0..2048) >> 11 -XRF[0:e_x] -> scratch[0x6420] int16
+    .e4 rec 74:      74  MOVY   mv3 RES[0..2048) >> 11 -XRF[0:e_x] -> scratch[0x6c20] int16
+  (d) the first gated-attention EMUL32 (head 0 of 16, k_a as a literal):
+    .txt line 617631: C b 1008 36203420 37200008   -> ('ALU', 'EMUL32', 256)
+      .e4 probe + real pass over all heads (k_a via XRF[2]):
+    .e4 rec 4715:    4715  CSRWR  L_ARG0       <= 0x00010008
+    .e4 rec 4716:    4716  CSRWR  L_ARG1       <= 0x10005420
+    .e4 rec 4717:    4717  CSRWR  L_ARG2       <= 0x37200040
+    .e4 rec 4718:    4718  CMD    ALU
+      -> ('ALU', 'EMUL32', 4096, 'probe')
+    .e4 rec 4719:    4719  CSRWR  L_ARG0       <= 0x00010008
+    .e4 rec 4720:    4720  CSRWR  L_ARG1       <= 0x10005420
+    .e4 rec 4721:    4721  CSRWR  L_ARG2       <= 0x37200000 +XRF[2:k_attn]
+    .e4 rec 4722:    4722  CMD    ALU
+      -> ('ALU', 'EMUL32', 4096)
+  (b) the first SILU32 1024-row chunk (the 4-chan re-chunk):
+    .e4 rec 1363:    1363  CSRWR  L_ARG0       <= 0x00004006
+    .e4 rec 1364:    1364  CSRWR  L_ARG1       <= 0x00003420
+    .e4 rec 1365:    1365  CSRWR  L_ARG2       <= 0x9c200000
+    .e4 rec 1366:    1366  CMD    ALU
+      -> ('ALU', 'SILU32', 1024)
+
+SD1_COUNT: PASS
+=== rc: 0
+=== end: 2026-09-24T04:25:21-06:00

@@ -1,0 +1,30 @@
+=== host: snoke  date: 2026-08-22T13:13:29-06:00
+=== tree: 999df81+dirty
+=== cmd : bash -c cd ref && FABLE5_MODEL=2b /home/cah/.venv/bin/python seq_model.py --gate ../tb/scripts/w5/model_w8_2b_s1.e --base ../tb/scripts/w5/model_w8_2b_s1
+=== venv: 3.12.3 numpy 2.4.6
+--- SEQ gate: ../tb/scripts/w5/model_w8_2b_s1.e
+  stream   68503 records, 1096048 B (sha256 fa8d9349cf1d0aa6)
+  seqdata  1107712 B (sha256 e8d536ee95880ff3)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 42887, 'CMD': 14252, 'MOVX': 2992, 'MOVY': 3464, 'MVGO': 3464, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'FENCE': 868, 'HALT': 1, 'LDC*': 538, 'XOP*': 28}
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1155, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1144, in main
+    ok, rep = gate(a.gate, base=a.base)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 804, in gate
+    ref = TxtReplay(base + ".txt", emb=emb).run()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 664, in run
+    _TxtCmd(M)(op, a0, a1, a2)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 756, in __call__
+    self.x._layer_cmd(op)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 438, in _layer_cmd
+    self._alu(a0, a1, a2)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 456, in _alu
+    raise SF.SeqValidationError(
+seq_format.SeqValidationError: ALU record count 6144 exceeds the 12-bit cfg_len field (ARG0=0x18000); rtl/vec_alu.sv would run 2048 elements. This stream is NOT executable by the RTL as built — see ref/gen_layer_script.py Mach.alu.
+=== rc  : 1
+=== end : 2026-08-22T13:13:30-06:00

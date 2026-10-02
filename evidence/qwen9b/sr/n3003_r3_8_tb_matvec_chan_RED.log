@@ -1,0 +1,83 @@
+=== host: snoke  date: 2026-09-29T20:32:35-06:00
+=== tree: 423603f
+=== cmd : make -C tb tb_matvec_chan_build CHANDIR=obj_dir_tb_chan_r3red JOBS=16
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+verilator --binary --timing -j 16 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  --Mdir obj_dir_tb_chan_r3red -o tb_chan \
+  --top-module tb_matvec_chan \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv tb_matvec_chan.sv
+%Error-PINNOTFOUND: tb_matvec_chan.sv:58:25: Pin not found: 'xpush_room'
+   58 |         .mv_busy_bm(), .xpush_room(xp_room), .xpush_busy(xp_busy),   
+      |                         ^~~~~~~~~~
+                    ... For error description see https://verilator.org/warn/PINNOTFOUND?v=5.020
+%Error-PINNOTFOUND: tb_matvec_chan.sv:58:47: Pin not found: 'xpush_busy'
+   58 |         .mv_busy_bm(), .xpush_room(xp_room), .xpush_busy(xp_busy),   
+      |                                               ^~~~~~~~~~
+%Error-PINNOTFOUND: tb_matvec_chan.sv:64:32: Pin not found: 'xpush_valid'
+   64 |         .s_axib_rready(1'b0), .xpush_valid(xp_v), .xpush_idx(xp_idx), .xpush_data(xp_dat),    
+      |                                ^~~~~~~~~~~
+%Error-PINNOTFOUND: tb_matvec_chan.sv:64:52: Pin not found: 'xpush_idx'
+   64 |         .s_axib_rready(1'b0), .xpush_valid(xp_v), .xpush_idx(xp_idx), .xpush_data(xp_dat),    
+      |                                                    ^~~~~~~~~
+%Error-PINNOTFOUND: tb_matvec_chan.sv:64:72: Pin not found: 'xpush_data'
+   64 |         .s_axib_rready(1'b0), .xpush_valid(xp_v), .xpush_idx(xp_idx), .xpush_data(xp_dat),    
+      |                                                                        ^~~~~~~~~~
+%Error: tb_matvec_chan.sv:468:21: Can't find definition of 'xf_push_p' in dotted variable: 'dut.xf_push_p'
+  468 |             if (dut.xf_push_p) begin
+      |                     ^~~~~~~~~
+%Error: tb_matvec_chan.sv:471:32: Can't find definition of 'xf_din_p' in dotted variable: 'dut.xf_din_p'
+  471 |                            dut.xf_din_p[43:32]);
+      |                                ^~~~~~~~
+%Error: tb_matvec_chan.sv:475:22: Can't find definition of 'xp_cnt' in dotted variable: 'dut.xp_cnt'
+  475 |             if ((dut.xp_cnt != 0) && dut.ws_v && (dut.wstate == 2'd1)) n_pb_both++;
+      |                      ^~~~~~
+%Error: tb_matvec_chan.sv:476:39: Can't find definition of 'xp_cnt' in dotted variable: 'dut.xp_cnt'
+  476 |             if (dut.xf_push_b && (dut.xp_cnt != 0)) n_pb_burst++;
+      |                                       ^~~~~~
+%Error: tb_matvec_chan.sv:477:25: Can't find definition of 'xp_cnt' in dotted variable: 'dut.xp_cnt'
+  477 |             if (32'(dut.xp_cnt) > skid_max) skid_max = 32'(dut.xp_cnt);
+      |                         ^~~~~~
+%Error: tb_matvec_chan.sv:477:64: Can't find definition of 'xp_cnt' in dotted variable: 'dut.xp_cnt'
+  477 |             if (32'(dut.xp_cnt) > skid_max) skid_max = 32'(dut.xp_cnt);
+      |                                                                ^~~~~~
+%Error: tb_matvec_chan.sv:558:21: Can't find definition of 'XP_FWD_STAGES' in dotted variable: 'dut.XP_FWD_STAGES'
+  558 |         if (32'(dut.XP_FWD_STAGES + dut.XP_RET_STAGES) != 32'(XP_RT))
+      |                     ^~~~~~~~~~~~~
+%Error: tb_matvec_chan.sv:558:41: Can't find definition of 'XP_RET_STAGES' in dotted variable: 'dut.XP_RET_STAGES'
+  558 |         if (32'(dut.XP_FWD_STAGES + dut.XP_RET_STAGES) != 32'(XP_RT))
+      |                                         ^~~~~~~~~~~~~
+%Error: tb_matvec_chan.sv:560:31: Can't find definition of 'XP_FWD_STAGES' in dotted variable: 'dut.XP_FWD_STAGES'
+  560 |                    XP_RT, dut.XP_FWD_STAGES, dut.XP_RET_STAGES);
+      |                               ^~~~~~~~~~~~~
+%Error: tb_matvec_chan.sv:560:50: Can't find definition of 'XP_RET_STAGES' in dotted variable: 'dut.XP_RET_STAGES'
+  560 |                    XP_RT, dut.XP_FWD_STAGES, dut.XP_RET_STAGES);
+      |                                                  ^~~~~~~~~~~~~
+%Error: tb_matvec_chan.sv:562:36: Can't find definition of 'XP_FWD_STAGES' in dotted variable: 'dut.XP_FWD_STAGES'
+  562 |                  $time, XP_RT, dut.XP_FWD_STAGES, dut.XP_RET_STAGES,
+      |                                    ^~~~~~~~~~~~~
+%Error: tb_matvec_chan.sv:562:55: Can't find definition of 'XP_RET_STAGES' in dotted variable: 'dut.XP_RET_STAGES'
+  562 |                  $time, XP_RT, dut.XP_FWD_STAGES, dut.XP_RET_STAGES,
+      |                                                       ^~~~~~~~~~~~~
+%Error: tb_matvec_chan.sv:563:22: Can't find definition of 'XP_INFLIGHT' in dotted variable: 'dut.XP_INFLIGHT'
+  563 |                  dut.XP_INFLIGHT, dut.XP_SKID);
+      |                      ^~~~~~~~~~~
+%Error: tb_matvec_chan.sv:563:39: Can't find definition of 'XP_SKID' in dotted variable: 'dut.XP_SKID'
+  563 |                  dut.XP_INFLIGHT, dut.XP_SKID);
+      |                                       ^~~~~~~
+%Error: tb_matvec_chan.sv:588:47: Can't find definition of 'xp_cnt' in dotted variable: 'dut.xp_cnt'
+  588 |             while (!((xq_rp == xq_wp) && (dut.xp_cnt == 0) && !xp_v && !dut.xp_in_v))
+      |                                               ^~~~~~
+%Error: tb_matvec_chan.sv:588:77: Can't find definition of 'xp_in_v' in dotted variable: 'dut.xp_in_v'
+  588 |             while (!((xq_rp == xq_wp) && (dut.xp_cnt == 0) && !xp_v && !dut.xp_in_v))
+      |                                                                             ^~~~~~~
+%Error: tb_matvec_chan.sv:603:56: Can't find definition of 'xp_cnt' in dotted variable: 'dut.xp_cnt'
+  603 |                         if (dut.axil_wr_commit && (dut.xp_cnt != 0) && !dut.xf_full)
+      |                                                        ^~~~~~
+%Error: Exiting due to 22 error(s)
+        ... See the manual at https://verilator.org/verilator_doc.html for more assistance.
+make: *** [Makefile:328: tb_matvec_chan_build] Error 1
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc  : 2
+=== end : 2026-09-29T20:32:35-06:00

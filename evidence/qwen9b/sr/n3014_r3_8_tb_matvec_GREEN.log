@@ -1,0 +1,217 @@
+=== host: snoke  date: 2026-09-29T20:44:54-06:00
+=== tree: 46581d4+dirty
+=== dirty: ?? evidence/qwen9b/sr/R3_5_PASS.md
+=== dirty: ?? evidence/qwen9b/sr/r3_8_twin.py
+=== cmd : make -C tb tb_matvec MV1DIR=obj_dir_tb_matvec_r3 VECPY=/home/cah/.venv/bin/python JOBS=16
+=== env : FABLE5_MODEL=unset
+=== venv: VECPY=/home/cah/.venv/bin/python (named in cmd): evidence/qwen9b/sr/sr_run.sh: line 65: VECPY=/home/cah/.venv/bin/python: No such file or directory
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 16 -Wall  \
+  --Mdir obj_dir_tb_matvec_r3 -o tb_matvec \
+  --top-module tb_matvec \
+  ../rtl/matvec_engine.sv tb_matvec.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_matvec_r3'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+/usr/bin/python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtb_matvec.cpp Vtb_matvec___024root__DepSet_h96a020fc__0.cpp Vtb_matvec___024root__DepSet_h1bdfe977__0.cpp Vtb_matvec__main.cpp Vtb_matvec__ConstPool_0.cpp Vtb_matvec___024root__Slow.cpp Vtb_matvec___024root__DepSet_h96a020fc__0__Slow.cpp Vtb_matvec___024root__DepSet_h1bdfe977__0__Slow.cpp Vtb_matvec__Syms.cpp > Vtb_matvec__ALL.cpp
+echo "" > Vtb_matvec__ALL.verilator_deplist.tmp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o Vtb_matvec__ALL.o Vtb_matvec__ALL.cpp
+Archive ar -rcs Vtb_matvec__ALL.a Vtb_matvec__ALL.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_matvec__ALL.a    -pthread -lpthread -latomic   -o tb_matvec
+rm Vtb_matvec__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_matvec_r3'
+obj_dir_tb_matvec_r3/tb_matvec --seed 1 +vecdir=vec_s1
+[26000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+TB_MATVEC PASS: 1 case(s), 64 rows bit-exact (last K=1024)
+- tb_matvec.sv:508: Verilog $finish
+obj_dir_tb_matvec_r3/tb_matvec --seed 2 +vecdir=vec_s2
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+TB_MATVEC PASS: 1 case(s), 32 rows bit-exact (last K=3584)
+- tb_matvec.sv:508: Verilog $finish
+obj_dir_tb_matvec_r3/tb_matvec --seed 3 +vecdir=vec_s3
+[26000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+TB_MATVEC PASS: 1 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+obj_dir_tb_matvec_r3/tb_matvec --seed 4 +vecdir=vec_s4
+[26000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+TB_MATVEC PASS: 1 case(s), 16 rows bit-exact (last K=2048)
+- tb_matvec.sv:508: Verilog $finish
+-- SR12 (B17.2): XBANK+RBANK, pingpong, pingpong chunk=3 x 4 seeds --
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec_r3/tb_matvec --seed $s +verilator+seed+$s +xbank +rbank \
+    +vecdirs=vec_s1,vec_s2,vec_s3,vec_s4 || exit 1; \
+  obj_dir_tb_matvec_r3/tb_matvec --seed $s +verilator+seed+$s +pingpong \
+    +vecdirs=vec_s2,vec_s1,vec_s4,vec_s3 || exit 1; \
+  obj_dir_tb_matvec_r3/tb_matvec --seed $s +verilator+seed+$s +pingpong +chunk=3 \
+    +vecdirs=vec_s2,vec_s1,vec_s4,vec_s3 || exit 1; \
+done
+[26000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[26000]   SR12 banks: XBANK=1 RBANK=1 
+[4497000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[4497000]   SR12 banks: XBANK=1 RBANK=1 
+[15023000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[15023000]   SR12 banks: XBANK=1 RBANK=1 
+[18146000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[18146000]   SR12 banks: XBANK=1 RBANK=1 
+TB_MATVEC PASS: 4 case(s), 16 rows bit-exact (last K=2048)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[26000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[3880000] pingpong: vec_s1 x (256 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[7524000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[7524000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+[9238000] pingpong: vec_s4 x (512 words) loaded into bank 0 while the bank-1 stream ran (busy at first/last word: 1/1)
+[10292000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[10292000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[10512000] pingpong: vec_s3 x (64 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[11729000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[11729000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+TB_MATVEC PINGPONG: 3 of 3 next-bank x loads ran with the other bank's stream still busy at their LAST word
+TB_MATVEC PASS: 4 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[26000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[3880000] pingpong: vec_s1 x (256 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[8801000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[8801000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+[10515000] pingpong: vec_s4 x (512 words) loaded into bank 0 while the bank-1 stream ran (busy at first/last word: 1/1)
+[12865000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[12865000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[13085000] pingpong: vec_s3 x (64 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[14666000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[14666000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+TB_MATVEC PINGPONG: 3 of 3 next-bank x loads ran with the other bank's stream still busy at their LAST word
+TB_MATVEC PASS: 4 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[26000]   SR12 banks: XBANK=1 RBANK=1 
+[4414000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[4414000]   SR12 banks: XBANK=1 RBANK=1 
+[15016000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[15016000]   SR12 banks: XBANK=1 RBANK=1 
+[18123000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[18123000]   SR12 banks: XBANK=1 RBANK=1 
+TB_MATVEC PASS: 4 case(s), 16 rows bit-exact (last K=2048)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[26000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[3880000] pingpong: vec_s1 x (256 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[7444000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[7444000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+[9158000] pingpong: vec_s4 x (512 words) loaded into bank 0 while the bank-1 stream ran (busy at first/last word: 1/1)
+[10312000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[10312000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[10532000] pingpong: vec_s3 x (64 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[11658000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[11658000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+TB_MATVEC PINGPONG: 3 of 3 next-bank x loads ran with the other bank's stream still busy at their LAST word
+TB_MATVEC PASS: 4 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[26000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[3880000] pingpong: vec_s1 x (256 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[8768000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[8768000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+[10482000] pingpong: vec_s4 x (512 words) loaded into bank 0 while the bank-1 stream ran (busy at first/last word: 1/1)
+[12882000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[12882000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[13102000] pingpong: vec_s3 x (64 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[14669000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[14669000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+TB_MATVEC PINGPONG: 3 of 3 next-bank x loads ran with the other bank's stream still busy at their LAST word
+TB_MATVEC PASS: 4 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[26000]   SR12 banks: XBANK=1 RBANK=1 
+[4580000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[4580000]   SR12 banks: XBANK=1 RBANK=1 
+[15223000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[15223000]   SR12 banks: XBANK=1 RBANK=1 
+[18306000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[18306000]   SR12 banks: XBANK=1 RBANK=1 
+TB_MATVEC PASS: 4 case(s), 16 rows bit-exact (last K=2048)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[26000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[3880000] pingpong: vec_s1 x (256 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[7598000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[7598000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+[9311000] pingpong: vec_s4 x (512 words) loaded into bank 0 while the bank-1 stream ran (busy at first/last word: 1/1)
+[10345000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[10345000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[10565000] pingpong: vec_s3 x (64 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[11745000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[11745000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+TB_MATVEC PINGPONG: 3 of 3 next-bank x loads ran with the other bank's stream still busy at their LAST word
+TB_MATVEC PASS: 4 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[26000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[3880000] pingpong: vec_s1 x (256 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[8961000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[8961000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+[10675000] pingpong: vec_s4 x (512 words) loaded into bank 0 while the bank-1 stream ran (busy at first/last word: 1/1)
+[13069000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[13069000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[13289000] pingpong: vec_s3 x (64 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[14899000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[14899000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+TB_MATVEC PINGPONG: 3 of 3 next-bank x loads ran with the other bank's stream still busy at their LAST word
+TB_MATVEC PASS: 4 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[26000]   SR12 banks: XBANK=1 RBANK=1 
+[4490000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[4490000]   SR12 banks: XBANK=1 RBANK=1 
+[15079000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[15079000]   SR12 banks: XBANK=1 RBANK=1 
+[18160000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[18160000]   SR12 banks: XBANK=1 RBANK=1 
+TB_MATVEC PASS: 4 case(s), 16 rows bit-exact (last K=2048)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[26000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[3880000] pingpong: vec_s1 x (256 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[7574000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[7574000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+[9288000] pingpong: vec_s4 x (512 words) loaded into bank 0 while the bank-1 stream ran (busy at first/last word: 1/1)
+[10215000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[10215000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[10435000] pingpong: vec_s3 x (64 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[11625000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[11625000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+TB_MATVEC PINGPONG: 3 of 3 next-bank x loads ran with the other bank's stream still busy at their LAST word
+TB_MATVEC PASS: 4 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+[26000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[3880000] pingpong: vec_s1 x (256 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[8785000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+[8785000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+[10498000] pingpong: vec_s4 x (512 words) loaded into bank 0 while the bank-1 stream ran (busy at first/last word: 1/1)
+[12802000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+[12802000]   SR12 banks: XBANK=0 RBANK=0 (pingpong)
+[13022000] pingpong: vec_s3 x (64 words) loaded into bank 1 while the bank-0 stream ran (busy at first/last word: 1/1)
+[14609000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+[14609000]   SR12 banks: XBANK=1 RBANK=1 (pingpong)
+TB_MATVEC PINGPONG: 3 of 3 next-bank x loads ran with the other bank's stream still busy at their LAST word
+TB_MATVEC PASS: 4 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:508: Verilog $finish
+-- SR12 self-test: the engine's sim-only bank guard MUST trip --
+Aborted (core dumped)
+OK: +bankguard=x tripped the XBANK guard (rc=134)
+Aborted (core dumped)
+OK: +bankguard=r tripped the RBANK guard (rc=134)
+TB_MATVEC OK: 4 frozen seeds + SR12 banks (XBANK+RBANK, pingpong, chunked pingpong) x 4 seeds + the bank-guard self-test
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc  : 0
+=== end : 2026-09-29T20:45:03-06:00

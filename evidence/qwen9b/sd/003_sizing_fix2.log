@@ -1,0 +1,131 @@
+=== host: snoke
+=== date: 2026-09-24T04:29:00-06:00
+=== tree: 89cccd3
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/sd/sd1_size.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== rs_f: derived=7 (tag 9b) env=unset rider=0
+=== ---
+=== inputs
+  timeline csv sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78
+  committed .sha256    a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+  census_t14a TOTAL_BUSY 68516360  census_s4shipped TOTAL_BUSY 68510840  nodrain LAT40 TOTAL_BUSY 69236558 F2_HOLD 725718
+
+=== A. the .e4 per-command lane cost (tokens 1..6, per token)
+  lane total 10402465.3 cyc/token = 41.610 ms; inside CMD rows 10402465.3; outside CMD rows 0.0 (by record opcode: {6: 0, 1: 0, 11: 0, 3: 0, 5: 0, 9: 0, 4: 0, 12: 0, 7: 0, 8: 0, 10: 0})
+  key                                       cmds/tok    min    max      mean     cyc/tok mean-II*n
+  ('DNST',)                                    768.0   2959   2959    2959.0   2272512.0 
+  ('CONV',)                                     24.0  40973  40973   40973.0    983352.0 
+  ('VNW',)                                      81.0    769  12289   10013.4    811089.0 
+  ('ALU', 'DYNQ8', 4096)                        97.0   8206   8214    8210.6    796424.0    4114.6
+  ('ALU', 'EMUL32', 2048)                      192.0   4108   4108    4108.0    788736.0      12.0
+  ('ALU', 'DYNQ8', 12288)                       32.0  24589  24596   24591.6    786932.5   12303.6
+  ('VN', 'rmsnorm0', 4096)                      64.0   8243   8243    8243.0    527552.0    4147.0
+  ('VN', 'l2norm', 128)                       1536.0    304    304     304.0    466944.0     176.0
+  ('ALU', 'SILU32', 2048)                      128.0   2067   2067    2067.0    264576.0      19.0
+  ('ALU', 'ADD', 4096)                          64.0   4102   4102    4102.0    262528.0       6.0
+  ('ATTN',)                                    128.0   1861   2066    1963.5    251328.0 
+  ('ALU', 'AMAX32', 2048)                      121.0   2053   2053    2053.0    248413.0       5.0
+  ('VN', 'EPS-NORM', 128)                      768.0    308    308     308.0    236544.0     180.0
+  ('ALU', 'EMUL', 128)                        1536.0    140    140     140.0    215040.0      12.0
+  ('ALU', 'DYNQ16', 128)                       768.0    269    269     269.0    206592.0     141.0
+  ('ALU', 'SCALE', 2048)                        96.0   2060   2060    2060.0    197760.0      12.0
+  ('ROPE',)                                    160.0   1027   1027    1027.0    164320.0 
+  ('KVAP',)                                     32.0   4619   4626    4621.7    147894.8 
+  ('ALU', 'SILU32', 1024)                      128.0   1043   1043    1043.0    133504.0      19.0
+  ('SLD',)                                     112.0      0  17224    1076.5    120568.0 
+  ('ALU', 'SILU16', 128)                       768.0    147    147     147.0    112896.0      19.0
+  ('ALU', 'SCALE', 128)                        768.0    140    140     140.0    107520.0      12.0
+  ('VN', 'rmsnorm0', 256)                      160.0    563    563     563.0     90080.0     307.0
+  ('ALU', 'EMUL32', 4096, 'probe')               8.0   8205   8205    8205.0     65640.0      13.0
+  ('ALU', 'EMUL32', 4096)                        8.0   8204   8204    8204.0     65632.0      12.0
+  ('ALU', 'SIGM16', 256)                       128.0    271    271     271.0     34688.0      15.0
+  ('GATE',)                                     24.0   1315   1315    1315.0     31560.0 
+  ('VN', 'rmsnorm1', 4096)                       1.0   8243   8243    8243.0      8243.0    4147.0
+  ('ROPET',)                                     8.0    385    385     385.0      3080.0 
+  ('ALU', 'AMAX32', 512)                         1.0    517    517     517.0       517.0       5.0
+  ('SST',)                                     112.0      0      0       0.0         0.0 
+
+=== B. accounting identity, per opcode, cyc/token
+  (.e4 = this timeline's CMD rows; t14a/s4 = layer census, DRAINING, holds NOT in LCYC)
+  op              .e4         t14a      e4-t14a           s4        e4-s4
+  ALU       4287398.5    5661438.5   -1374040.0    5661438.5   -1374040.0
+  DNST      2272512.0    2272512.0         +0.0    2271744.0       +768.0
+  VN        1329363.0    1092819.0    +236544.0    1092819.0    +236544.0
+  CONV       983352.0     983352.0         +0.0     983328.0        +24.0
+  VNW        811089.0     811089.0         +0.0     811089.0         +0.0
+  ATTN       251328.0     251328.0         +0.0     251200.0       +128.0
+  ROPE       164320.0     164320.0         +0.0     164320.0         +0.0
+  KVAP       147894.8     147894.8         +0.0     147894.8         +0.0
+  SLD        120568.0          0.0    +120568.0          0.0    +120568.0
+  GATE        31560.0      31560.0         +0.0      31560.0         +0.0
+  ROPET        3080.0       3080.0         +0.0       3080.0         +0.0
+  SST             0.0          0.0         +0.0          0.0         +0.0
+  TOTAL    10402465.3   11419393.3   -1016928.0   11418473.3   -1016008.0
+  gap vs t14a (holds subtracted) = -1016928.0 cyc = -4.068 ms
+    = ALU -1374040.0 + VN +236544.0 + SLD (the .e4's F2 queue-full hold, charged in its lane) +120568.0 + rest +0.0
+  like-for-like comparand (t14a + the nodrain F2 hold 120953.0) = 11540346.3 cyc = 46.161 ms
+    gap = -1137881.0 cyc = -4.552 ms;  ALU+VN = -1137496.0 = 99.97 % of it; remainder -385.0 cyc = the hold difference -385.0
+  (the census's 112 %: ALU+VN -4.550 ms against the 4.064 ms gap to 45.674 — that comparand has the holds SUBTRACTED while the .e4 lane carries SLD 0.482 ms, and is pre-14A)
+
+=== C. the .txt VN list at the .e4's per-key VN costs
+  ('VN', 'l2norm', 128)                      1536 x    304.0 =     466944.0
+  ('VN', 'rmsnorm0', 256)                     160 x    563.0 =      90080.0
+  ('VN', 'rmsnorm0', 4096)                     64 x   8243.0 =     527552.0
+  ('VN', 'rmsnorm1', 4096)                      1 x   8243.0 =       8243.0
+  predicted .txt VN 1092819.0   measured (census_t14a) 1092819.0   difference +0.0 cyc/token
+  .e4 VN - .txt VN = +236544.0; the 768 EPS-NORMs cost 236544.0
+
+=== D. the .txt ALU list: common keys at .e4 costs, .txt-only keys as the residual
+  measured .txt ALU 5661438.5; common keys at .e4 costs 4055838.5; residual for the .txt-only keys 1605600.0
+    .txt-only ('ALU', 'EMUL32', 256)                 128 cmds, II*n = 512
+    .txt-only ('ALU', 'SHIFT32', 1024)                16 cmds, II*n = 1024
+    .txt-only ('ALU', 'SHIFT32', 128)                768 cmds, II*n = 128
+    .txt-only ('ALU', 'SHIFT32', 2048)               304 cmds, II*n = 2048
+    .txt-only ('ALU', 'SHIFT32', 32)                  48 cmds, II*n = 32
+    .txt-only ('ALU', 'SHIFT32W', 2048)              192 cmds, II*n = 4096
+  .txt-only: 1456 commands, sum II*n = 1590784; residual - II*n = 14816.0 -> 10.18 cyc of fixed overhead per command
+  for comparison, the .e4's measured (mean - II*n) per ALU key:
+    ('ALU', 'ADD', 4096)                          6.0
+    ('ALU', 'AMAX32', 2048)                       5.0
+    ('ALU', 'AMAX32', 512)                        5.0
+    ('ALU', 'DYNQ16', 128)                      141.0
+    ('ALU', 'DYNQ8', 12288)                   12303.6
+    ('ALU', 'DYNQ8', 4096)                     4114.6
+    ('ALU', 'EMUL', 128)                         12.0
+    ('ALU', 'EMUL32', 2048)                      12.0
+    ('ALU', 'EMUL32', 4096)                      12.0
+    ('ALU', 'EMUL32', 4096, 'probe')             13.0
+    ('ALU', 'SCALE', 128)                        12.0
+    ('ALU', 'SCALE', 2048)                       12.0
+    ('ALU', 'SIGM16', 256)                       15.0
+    ('ALU', 'SILU16', 128)                       19.0
+    ('ALU', 'SILU32', 1024)                      19.0
+    ('ALU', 'SILU32', 2048)                      19.0
+  D2. per-key fit: census ALU min = 42 cyc; .txt ALU keys with n <= 32: [('ALU', 'SHIFT32', 32)] -> SHIFT32 overhead 10
+      .e4 EMUL32 (non-probe) overheads measured: [12.0]
+      residual overhead 14816.0 - 1136 SHIFT32 x 10 - 128 EMUL32 x 12 = 1920.0 for 192 SHIFT32W -> 10.000 cyc each
+      with SHIFT32 = n+10, EMUL32 = 2n+12, SHIFT32W = 2n+10: predicted .txt ALU 5661438.5 vs measured 5661438.5 -> EXACT
+
+=== E. per-substitution sizing, cyc/token (+ = the .e4 costs more)
+  -- .txt-only costs at the uniform overhead 10.18
+  (a) 560 fused dequants removed (MOVY does the shift)     -1432642.5 = -5.731 ms
+  (b) SILU32 re-chunked 192 -> 256 commands                   +1216.0 = +0.005 ms
+  (c) DN block-float: .e4 DYNQ16+EPS-NORM 443136.0 vs .txt SHIFT32+SCALE 213639.0     +229497.0 = +0.918 ms
+  (d) attention EMUL32: .e4 probe+real 131272.0 vs .txt 16x256 66838.5      +64433.5 = +0.258 ms
+  SUM -1137496.0 cyc/token = -4.550 ms   against ALU+VN -1137496.0
+  -- .txt-only costs at the D2 per-key fit {'SHIFT32': 10, 'EMUL32': 12.0, 'SHIFT32W': 10}
+  (a) 560 fused dequants removed (MOVY does the shift)     -1432544.0 = -5.730 ms
+  (b) SILU32 re-chunked 192 -> 256 commands                   +1216.0 = +0.005 ms
+  (c) DN block-float: .e4 DYNQ16+EPS-NORM 443136.0 vs .txt SHIFT32+SCALE 213504.0     +229632.0 = +0.919 ms
+  (d) attention EMUL32: .e4 probe+real 131272.0 vs .txt 16x256 67072.0      +64200.0 = +0.257 ms
+  SUM -1137496.0 cyc/token = -4.550 ms   against ALU+VN -1137496.0
+  census comparand of the 76 % estimate: -1376 x 910 + 768 x 620 = -776000 cyc — at MEAN costs, which the removed commands are not
+
+SD1_SIZE: DONE
+=== rc: 0
+=== end: 2026-09-24T04:29:14-06:00

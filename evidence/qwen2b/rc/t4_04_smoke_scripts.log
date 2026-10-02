@@ -1,0 +1,54 @@
+=== host: snoke  date: 2026-08-22T12:48:18-06:00
+=== tree: 999df81+dirty
+=== cmd : make -C tb w8_2b_smoke_scripts MODELPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python
+=== venv: 3.12.3 numpy 2.4.6
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+mkdir -p scripts/w5
+for s in 1 2 3 4; do \
+  ( cd ../ref && FABLE5_MODEL=2b SEQ_PROFILE=epsnorm SEQ_NCH=4 \
+      SEQ_REPACK=1 SEQ_EMIT=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s$s.e \
+      /home/cah/.venv/bin/python gen_layer_script.py \
+      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s$s.txt $s 2 \
+      --wq=w8 ) || exit 1; \
+  FABLE5_MODEL=2b /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py \
+    scripts/w5/lay2b_w8_s$s.e --base scripts/w5/lay2b_w8_s$s || exit 1; \
+done
+layer script: seed=1 ntok=2 wq=w8 cmds=520 hostwords=231136 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s1.txt
+SEQ: 2307 records (36912 B) + 75648 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s1.e.seq  [profile=epsnorm loop_steps=0]
+  scripts/w5/lay2b_w8_s1.wimg0.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s1.wimg1.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s1.wimg2.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s1.wimg3.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/lay2b_w8_s1.e.chip: 2307 records, pc 2306, 0 tokens, 16384 scratch words checked (16384 staging words excluded)
+  seq_model stats: {'CSRWR': 1417, 'CMD': 472, 'MOVX': 120, 'MOVY': 120, 'MVGO': 120, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 30, 'LDC': 25, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 120}
+layer script: seed=2 ntok=2 wq=w8 cmds=520 hostwords=231136 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s2.txt
+SEQ: 2307 records (36912 B) + 75648 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s2.e.seq  [profile=epsnorm loop_steps=0]
+  scripts/w5/lay2b_w8_s2.wimg0.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s2.wimg1.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s2.wimg2.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s2.wimg3.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/lay2b_w8_s2.e.chip: 2307 records, pc 2306, 0 tokens, 16384 scratch words checked (16384 staging words excluded)
+  seq_model stats: {'CSRWR': 1417, 'CMD': 472, 'MOVX': 120, 'MOVY': 120, 'MVGO': 120, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 30, 'LDC': 25, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 120}
+layer script: seed=3 ntok=2 wq=w8 cmds=520 hostwords=231136 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s3.txt
+SEQ: 2307 records (36912 B) + 75648 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s3.e.seq  [profile=epsnorm loop_steps=0]
+  scripts/w5/lay2b_w8_s3.wimg0.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s3.wimg1.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s3.wimg2.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s3.wimg3.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/lay2b_w8_s3.e.chip: 2307 records, pc 2306, 0 tokens, 16384 scratch words checked (16384 staging words excluded)
+  seq_model stats: {'CSRWR': 1417, 'CMD': 472, 'MOVX': 120, 'MOVY': 120, 'MVGO': 120, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 30, 'LDC': 25, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 120}
+layer script: seed=4 ntok=2 wq=w8 cmds=520 hostwords=231136 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s4.txt
+SEQ: 2307 records (36912 B) + 75648 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/lay2b_w8_s4.e.seq  [profile=epsnorm loop_steps=0]
+  scripts/w5/lay2b_w8_s4.wimg0.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s4.wimg1.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s4.wimg2.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  scripts/w5/lay2b_w8_s4.wimg3.bin: 28614656 B (27.3 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/lay2b_w8_s4.e.chip: 2307 records, pc 2306, 0 tokens, 16384 scratch words checked (16384 staging words excluded)
+  seq_model stats: {'CSRWR': 1417, 'CMD': 472, 'MOVX': 120, 'MOVY': 120, 'MVGO': 120, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 30, 'LDC': 25, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 120}
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc  : 0
+=== end : 2026-08-22T12:49:21-06:00

@@ -1,0 +1,29 @@
+=== host: snoke  date: 2026-09-29T19:35:00-06:00
+=== tree: 68f7fd8
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/r3_4_cost.py --derive
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== inputs (committed lines, read back)
+  evidence/qwen9b/ov/n120_sr0_clock_sens.log:18: REPRO B:R1+R2           26146927 cyc =  104.588 ms TB
+  evidence/qwen9b/ov/n120_sr0_clock_sens.log:19: REPRO B:R1+R2+R3        24102767 cyc =   96.411 ms TB
+  evidence/qwen9b/sr/n1600_sr16_r3_census.log:19: broadcast carriers (first live MOVX) 129: 809272 cyc = 3.237 ms TB
+  evidence/qwen9b/sr/n1600_sr16_r3_census.log:20: SIBLINGS R3 zeroes: 387 MOVX, 2427816 cyc = 9.711 ms TB = 75.00 % of live MOVX window
+  evidence/qwen9b/sr/n1600_sr16_r3_census.log:17: live 516: 3237088 cyc = 12.948 ms TB
+  evidence/qwen9b/sr/n1600_sr16_r3_census.log:36: SAVE B:R3      2044160 cyc = 8.177 ms TB/token; x1.0848 vs R2; lane work removed 2427816 cyc = 9.711 ms; lane idle change +383656 cyc = +1.535 ms (on stream +383656 = +1.535 ms)
+  evidence/qwen9b/sr/n1600_sr16_r3_census.log:26: B:R3     makespan  24102767 cyc =   96.411 ms TB; board-scaled (uniform, MODEL)  100.810 ms =  9.920 tok/s  n120 24102767 MATCH
+  evidence/qwen9b/sr/n1600_sr16_r3_census.log:23: B:R2     makespan  26146927 cyc =  104.588 ms TB; board-scaled (uniform, MODEL)  109.359 ms =  9.144 tok/s  n120 26146927 MATCH
+=== consistency (each must hold)
+  [PASS] n1600's R2 / R3 makespans = n120's rows  26146927/24102767 vs 26146927/24102767
+  [PASS] census saving R1+R2 - R1+R2+R3 = n1600's SAVE B:R3  2044160 vs 2044160
+  [PASS] SAVE = siblings removed - lane idle rise  2427816 - 383656 = 2044160
+  [PASS] siblings = 3 x carriers (every live matvec has 4 live MOVX of one length)  387 = 3 x 129; 2427816 = 3 x 809272
+  [PASS] live = carriers + siblings  516, 3237088
+=== MODEL: the per-token saving R3 (form B, census convention, siblings free) at the 250 MHz TB aclk
+  D  siblings zeroed        387 MOVX  2,427,816 cyc = 9.711264 ms TB  (mean 6273.43 cyc = 25.094 us each; 75.00 % of the live MOVX window)
+  D  lane idle on stream    + 383,656 cyc = +1.534624 ms TB
+  D  NET saving per token    2,044,160 cyc = 8.176640 ms TB
+  D  census rows            R1+R2 26,146,927 (104.588 ms) -> R1+R2+R3 24,102,767 (96.411 ms): x1.0848, -7.818 % of R1+R2
+  D  per broadcast carrier  15846.2 cyc net (18820.3 removed) over 129 broadcasts per token
+R3_4_COST: PASS
+=== rc  : 0
+=== end : 2026-09-29T19:35:00-06:00

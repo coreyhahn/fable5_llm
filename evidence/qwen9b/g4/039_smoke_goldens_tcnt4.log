@@ -1,0 +1,38 @@
+=== host: snoke
+=== date: 2026-09-03T09:15:07-06:00
+=== tree: d93ae14
+=== cmd:  bash -c cd tb && for t in lay9b_s1 lay9b_s2 lay9b_s3 lay9b_s4 tok9b_s1 tok9b_s2 tok9b_s3 tok9b_s4; do echo "--- $t"; echo "  BEFORE $(sha256sum scripts/w9/$t.e4.chip | cut -c1-16)  $(grep -c "^TCNT" scripts/w9/$t.e4.chip) TCNT line(s), first: $(grep -m1 "^TCNT" scripts/w9/$t.e4.chip)"; FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py scripts/w9/$t.e4 --base scripts/w9/$t > /dev/null || exit 1; echo "  AFTER  $(sha256sum scripts/w9/$t.e4.chip | cut -c1-16)  $(grep -c "^TCNT" scripts/w9/$t.e4.chip) TCNT line(s), first: $(grep -m1 "^TCNT" scripts/w9/$t.e4.chip)"; done; echo "SMOKE GOLDENS REGENERATED: 8"
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- lay9b_s1
+  BEFORE 65d168f02eced634  8 TCNT line(s), first: TCNT 0 2 2
+  AFTER  f3286f2ea15a5252  8 TCNT line(s), first: TCNT 0 2 2 2 2
+--- lay9b_s2
+  BEFORE d60bac4529dffe4b  8 TCNT line(s), first: TCNT 0 2 2
+  AFTER  b4401b4af48f9d87  8 TCNT line(s), first: TCNT 0 2 2 2 2
+--- lay9b_s3
+  BEFORE ed0326b0295f5bf6  8 TCNT line(s), first: TCNT 0 2 2
+  AFTER  29a44e181b0a37ba  8 TCNT line(s), first: TCNT 0 2 2 2 2
+--- lay9b_s4
+  BEFORE e8e875485c39785a  8 TCNT line(s), first: TCNT 0 2 2
+  AFTER  4fe3618eb061bdd5  8 TCNT line(s), first: TCNT 0 2 2 2 2
+--- tok9b_s1
+  BEFORE 3df45225817b79d3  8 TCNT line(s), first: TCNT 0 2 2
+  AFTER  155fc059d9e5c6fd  8 TCNT line(s), first: TCNT 0 2 2 2 2
+--- tok9b_s2
+  BEFORE 24c3d8c5ffd149b5  8 TCNT line(s), first: TCNT 0 2 2
+  AFTER  428872a36bbb8535  8 TCNT line(s), first: TCNT 0 2 2 2 2
+--- tok9b_s3
+  BEFORE a5c68c89cdfe91fd  8 TCNT line(s), first: TCNT 0 2 2
+  AFTER  e2de0257ad0418c2  8 TCNT line(s), first: TCNT 0 2 2 2 2
+--- tok9b_s4
+  BEFORE 0aede4806fb3033a  8 TCNT line(s), first: TCNT 0 2 2
+  AFTER  2a23837f1a233c30  8 TCNT line(s), first: TCNT 0 2 2 2 2
+SMOKE GOLDENS REGENERATED: 8
+=== rc: 0
+=== end: 2026-09-03T09:17:55-06:00

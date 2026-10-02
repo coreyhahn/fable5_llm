@@ -1,0 +1,245 @@
+=== host: snoke
+=== date: 2026-09-05T03:19:03-06:00
+=== tree: 2c881f4
+=== cmd:  bash evidence/qwen9b/s4/emit_model_gated.sh 1
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=10 MKL_NUM_THREADS=10
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+EMIT_GATED s1: two independent emissions, byte-compared
+  host    = snoke
+  MODELPY = /home/cah/.venv/bin/python
+  keep    = tb/scripts/w9/model_9b_s1
+  repeat  = tb/scripts/w9/emit2/model_9b_s1/rep2
+  python  = 3.12.3 numpy 2.4.6
+
+=== emission A: make -C tb w9_9b_model_script W9_SEED=1 W9_BASE=scripts/w9/model_9b_s1
+=== emission A start: 2026-09-05T03:19:03-06:00
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+mkdir -p scripts/w9 scripts/w9/emit2
+cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 FABLE5_CALIB_STATS=/home/cah/r2d2/code/fpga/fable5_llm/ref/calib_stats_9b_h.npz FABLE5_CALIB_MODE=gptq \
+  SEQ_EMIT=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4 \
+  /home/cah/.venv/bin/python gen_model_script.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.txt \
+  1 3 --w4-group=128 --res-scale=1
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b
+  32 layers, H=4096, vocab=248320
+  res_scale=1 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production) wq=w4 w4_group=128
+  quantized 32 layers (24 DN / 8 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 12256 of 32767, 0 out of range
+  LM head (248320, 4096) [W4] lm_head.weight e=-3 sh=7; emb table |q|max 60 of 32767
+  step  0 (prefill ) in_tok=   760 argmax=  2614 |resid|max=27008
+  step  1 (prefill ) in_tok=  6511 argmax=   314 |resid|max=27008
+  step  2 (prefill ) in_tok=   314 argmax=   279 |resid|max=27008
+  step  3 (generate) in_tok=  9338 argmax=   369 |resid|max=27008
+  step  4 (generate) in_tok=   369 argmax= 11751 |resid|max=27008
+  step  5 (generate) in_tok= 11751 argmax=    13 |resid|max=27008
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                   18     4432896    32768
+alu2                    0     2359296    23154
+alu3                    9     1179648    32768
+alu4                    0     1572864    27008
+alu5                  100      589824    32767
+alu6                  357     2359296    32767
+alu7                    7      196608    32767
+alu8                    0     2555904    31653
+conv                  179     1179648    32767
+embed                   0       24576       51
+gate(Q15)               0        9216    32767
+vn0                     0     1818624     9391
+vn1                     0       24576     1553
+vn2                     0     1179648    16245
+TOTAL                 670
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=72 of 75497472 state writes, |S|max=55995 of 32767 (170.9% of the int16 rail, = 6.835 in Q2.13)
+  saturating (dn_slot, head): (0, 1)x5, (0, 4)x1, (0, 6)x1, (0, 7)x4, (0, 12)x10, (0, 13)x5, (0, 14)x5, (0, 15)x4, (0, 16)x4, (0, 17)x4, (0, 20)x4, (0, 21)x5, (0, 24)x5, (0, 25)x3, (0, 28)x1, (0, 30)x5, (0, 31)x6
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x4096    |y32|max=231503       bits=18  spare=13  (96 matvecs)
+  12288x4096   |y32|max=391075       bits=19  spare=12  (384 matvecs)
+  248320x4096  |y32|max=134075       bits=18  spare=13  (6 matvecs)
+  32x4096      |y32|max=1045213      bits=20  spare=11  (288 matvecs)
+  4096x12288   |y32|max=207295       bits=18  spare=13  (192 matvecs)
+  4096x4096    |y32|max=787515       bits=20  spare=11  (336 matvecs)
+  8192x4096    |y32|max=3299226      bits=22  spare= 9  (192 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:22 1:41 2:56 3:49 4:60 5:257 6:189 7:25 8:68 9:7
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 72 saturations
+residual stream |x|max = 27008 of 32767 (82.4% of the int16 Q7.8 rail)
+
+--- block-float immediates emitted (Phase 1A datapath) ---
+  DN SHIFT32 k_h histogram (op 1, signed): {-14: 191, -13: 325, -12: 484, -11: 574, -10: 753, -9: 904, -8: 659, -7: 303, -6: 136, -5: 79, -4: 41, -3: 35, 0: 124}
+  ATTN EMUL32 k_a histogram (op 8, unsigned): {8: 2, 9: 15, 10: 13, 11: 4, 12: 7, 13: 4, 14: 2, 15: 1}
+  DN SCALE m_q15 (op 2): max raw 8192000, clipped at 32767 124 times (0 of them on a NON-ZERO head)
+  ATTN k_a clamped up to 0: 0 times
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h1: worst |decay_clamp - decay_spec| = 23335 /32768 (71.21% FS) at a=+3.698  (spec 9032 -> clamped 32367); 72 evaluations
+  L0h4: worst |decay_clamp - decay_spec| = 22240 /32768 (67.87% FS) at a=+2.014  (spec 10297 -> clamped 32537); 72 evaluations
+  L0h12: worst |decay_clamp - decay_spec| = 25964 /32768 (79.24% FS) at a=+3.102  (spec 6160 -> clamped 32124); 72 evaluations
+  L0h13: worst |decay_clamp - decay_spec| = 25506 /32768 (77.84% FS) at a=+2.154  (spec 6801 -> clamped 32307); 72 evaluations
+  L0h20: worst |decay_clamp - decay_spec| = 28841 /32768 (88.02% FS) at a=+2.956  (spec 3597 -> clamped 32438); 72 evaluations
+  L0h21: worst |decay_clamp - decay_spec| = 27929 /32768 (85.23% FS) at a=+2.629  (spec 4121 -> clamped 32050); 72 evaluations
+  L0h24: worst |decay_clamp - decay_spec| = 15844 /32768 (48.35% FS) at a=+3.580  (spec 16135 -> clamped 31979); 72 evaluations
+  L0h25: worst |decay_clamp - decay_spec| = 15654 /32768 (47.77% FS) at a=+2.624  (spec 16708 -> clamped 32362); 72 evaluations
+  L0h30: worst |decay_clamp - decay_spec| = 25886 /32768 (79.00% FS) at a=+3.234  (spec 5380 -> clamped 31266); 72 evaluations
+  L0h31: worst |decay_clamp - decay_spec| = 26611 /32768 (81.21% FS) at a=+4.077  (spec 5322 -> clamped 31933); 72 evaluations
+  L1h2: worst |decay_clamp - decay_spec| = 32646 /32768 (99.63% FS) at a=+1.344  (spec 38 -> clamped 32684); 72 evaluations
+  L1h9: worst |decay_clamp - decay_spec| = 20488 /32768 (62.52% FS) at a=+5.962  (spec 32355 -> clamped 11867); 72 evaluations
+  L1h11: worst |decay_clamp - decay_spec| = 32444 /32768 (99.01% FS) at a=+1.292  (spec 116 -> clamped 32560); 72 evaluations
+  L1h17: worst |decay_clamp - decay_spec| = 32653 /32768 (99.65% FS) at a=+1.404  (spec 20 -> clamped 32673); 72 evaluations
+  L1h19: worst |decay_clamp - decay_spec| = 32271 /32768 (98.48% FS) at a=+2.717  (spec 193 -> clamped 32464); 72 evaluations
+  L1h24: worst |decay_clamp - decay_spec| = 32261 /32768 (98.45% FS) at a=+2.390  (spec 18 -> clamped 32279); 72 evaluations
+  L1h28: worst |decay_clamp - decay_spec| = 30809 /32768 (94.02% FS) at a=+3.272  (spec 1746 -> clamped 32555); 72 evaluations
+RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+The script and its artifacts were still written and are BIT-EXACT against the RTL — the reference models exactly the same clip the hardware performs, so a sim/HW gate on them still proves the engine correct; what saturation costs is NUMERICAL FIDELITY to the float model, not correctness.
+Re-run with --allow-clip to accept that trade deliberately.
+SEQ: 158536 records (2536576 B) + 563712 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq  [profile=epsnorm loop_steps=3]
+make: *** [Makefile:1355: w9_9b_model_script] Error 1
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== emission A end: 2026-09-05T06:55:33-06:00  rc=2
+=== emission A: rc 2 is the KNOWN deliberate range-audit failure
+===             (G4a §3.4: no --allow-clip), artifacts written
+
+=== emission B: make -C tb w9_9b_model_script W9_SEED=1 W9_BASE=scripts/w9/emit2/model_9b_s1/rep2
+=== emission B start: 2026-09-05T06:55:33-06:00
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+mkdir -p scripts/w9 scripts/w9/emit2
+cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 FABLE5_CALIB_STATS=/home/cah/r2d2/code/fpga/fable5_llm/ref/calib_stats_9b_h.npz FABLE5_CALIB_MODE=gptq \
+  SEQ_EMIT=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/model_9b_s1/rep2.e4 \
+  /home/cah/.venv/bin/python gen_model_script.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/model_9b_s1/rep2.txt \
+  1 3 --w4-group=128 --res-scale=1
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b
+  32 layers, H=4096, vocab=248320
+  res_scale=1 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production) wq=w4 w4_group=128
+  quantized 32 layers (24 DN / 8 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 12256 of 32767, 0 out of range
+  LM head (248320, 4096) [W4] lm_head.weight e=-3 sh=7; emb table |q|max 60 of 32767
+  step  0 (prefill ) in_tok=   760 argmax=  2614 |resid|max=27008
+  step  1 (prefill ) in_tok=  6511 argmax=   314 |resid|max=27008
+  step  2 (prefill ) in_tok=   314 argmax=   279 |resid|max=27008
+  step  3 (generate) in_tok=  9338 argmax=   369 |resid|max=27008
+  step  4 (generate) in_tok=   369 argmax= 11751 |resid|max=27008
+  step  5 (generate) in_tok= 11751 argmax=    13 |resid|max=27008
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                   18     4432896    32768
+alu2                    0     2359296    23154
+alu3                    9     1179648    32768
+alu4                    0     1572864    27008
+alu5                  100      589824    32767
+alu6                  357     2359296    32767
+alu7                    7      196608    32767
+alu8                    0     2555904    31653
+conv                  179     1179648    32767
+embed                   0       24576       51
+gate(Q15)               0        9216    32767
+vn0                     0     1818624     9391
+vn1                     0       24576     1553
+vn2                     0     1179648    16245
+TOTAL                 670
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=72 of 75497472 state writes, |S|max=55995 of 32767 (170.9% of the int16 rail, = 6.835 in Q2.13)
+  saturating (dn_slot, head): (0, 1)x5, (0, 4)x1, (0, 6)x1, (0, 7)x4, (0, 12)x10, (0, 13)x5, (0, 14)x5, (0, 15)x4, (0, 16)x4, (0, 17)x4, (0, 20)x4, (0, 21)x5, (0, 24)x5, (0, 25)x3, (0, 28)x1, (0, 30)x5, (0, 31)x6
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x4096    |y32|max=231503       bits=18  spare=13  (96 matvecs)
+  12288x4096   |y32|max=391075       bits=19  spare=12  (384 matvecs)
+  248320x4096  |y32|max=134075       bits=18  spare=13  (6 matvecs)
+  32x4096      |y32|max=1045213      bits=20  spare=11  (288 matvecs)
+  4096x12288   |y32|max=207295       bits=18  spare=13  (192 matvecs)
+  4096x4096    |y32|max=787515       bits=20  spare=11  (336 matvecs)
+  8192x4096    |y32|max=3299226      bits=22  spare= 9  (192 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:22 1:41 2:56 3:49 4:60 5:257 6:189 7:25 8:68 9:7
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 72 saturations
+residual stream |x|max = 27008 of 32767 (82.4% of the int16 Q7.8 rail)
+
+--- block-float immediates emitted (Phase 1A datapath) ---
+  DN SHIFT32 k_h histogram (op 1, signed): {-14: 191, -13: 325, -12: 484, -11: 574, -10: 753, -9: 904, -8: 659, -7: 303, -6: 136, -5: 79, -4: 41, -3: 35, 0: 124}
+  ATTN EMUL32 k_a histogram (op 8, unsigned): {8: 2, 9: 15, 10: 13, 11: 4, 12: 7, 13: 4, 14: 2, 15: 1}
+  DN SCALE m_q15 (op 2): max raw 8192000, clipped at 32767 124 times (0 of them on a NON-ZERO head)
+  ATTN k_a clamped up to 0: 0 times
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h1: worst |decay_clamp - decay_spec| = 23335 /32768 (71.21% FS) at a=+3.698  (spec 9032 -> clamped 32367); 72 evaluations
+  L0h4: worst |decay_clamp - decay_spec| = 22240 /32768 (67.87% FS) at a=+2.014  (spec 10297 -> clamped 32537); 72 evaluations
+  L0h12: worst |decay_clamp - decay_spec| = 25964 /32768 (79.24% FS) at a=+3.102  (spec 6160 -> clamped 32124); 72 evaluations
+  L0h13: worst |decay_clamp - decay_spec| = 25506 /32768 (77.84% FS) at a=+2.154  (spec 6801 -> clamped 32307); 72 evaluations
+  L0h20: worst |decay_clamp - decay_spec| = 28841 /32768 (88.02% FS) at a=+2.956  (spec 3597 -> clamped 32438); 72 evaluations
+  L0h21: worst |decay_clamp - decay_spec| = 27929 /32768 (85.23% FS) at a=+2.629  (spec 4121 -> clamped 32050); 72 evaluations
+  L0h24: worst |decay_clamp - decay_spec| = 15844 /32768 (48.35% FS) at a=+3.580  (spec 16135 -> clamped 31979); 72 evaluations
+  L0h25: worst |decay_clamp - decay_spec| = 15654 /32768 (47.77% FS) at a=+2.624  (spec 16708 -> clamped 32362); 72 evaluations
+  L0h30: worst |decay_clamp - decay_spec| = 25886 /32768 (79.00% FS) at a=+3.234  (spec 5380 -> clamped 31266); 72 evaluations
+  L0h31: worst |decay_clamp - decay_spec| = 26611 /32768 (81.21% FS) at a=+4.077  (spec 5322 -> clamped 31933); 72 evaluations
+  L1h2: worst |decay_clamp - decay_spec| = 32646 /32768 (99.63% FS) at a=+1.344  (spec 38 -> clamped 32684); 72 evaluations
+  L1h9: worst |decay_clamp - decay_spec| = 20488 /32768 (62.52% FS) at a=+5.962  (spec 32355 -> clamped 11867); 72 evaluations
+  L1h11: worst |decay_clamp - decay_spec| = 32444 /32768 (99.01% FS) at a=+1.292  (spec 116 -> clamped 32560); 72 evaluations
+  L1h17: worst |decay_clamp - decay_spec| = 32653 /32768 (99.65% FS) at a=+1.404  (spec 20 -> clamped 32673); 72 evaluations
+  L1h19: worst |decay_clamp - decay_spec| = 32271 /32768 (98.48% FS) at a=+2.717  (spec 193 -> clamped 32464); 72 evaluations
+  L1h24: worst |decay_clamp - decay_spec| = 32261 /32768 (98.45% FS) at a=+2.390  (spec 18 -> clamped 32279); 72 evaluations
+  L1h28: worst |decay_clamp - decay_spec| = 30809 /32768 (94.02% FS) at a=+3.272  (spec 1746 -> clamped 32555); 72 evaluations
+RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+The script and its artifacts were still written and are BIT-EXACT against the RTL — the reference models exactly the same clip the hardware performs, so a sim/HW gate on them still proves the engine correct; what saturation costs is NUMERICAL FIDELITY to the float model, not correctness.
+Re-run with --allow-clip to accept that trade deliberately.
+SEQ: 158536 records (2536576 B) + 563712 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/model_9b_s1/rep2.e4.seq  [profile=epsnorm loop_steps=3]
+make: *** [Makefile:1355: w9_9b_model_script] Error 1
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== emission B end: 2026-09-05T10:25:32-06:00  rc=2
+=== emission B: rc 2 is the KNOWN deliberate range-audit failure
+===             (G4a §3.4: no --allow-clip), artifacts written
+
+=== the two emitter command lines, as make echoed them
+  /home/cah/.venv/bin/python gen_model_script.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.txt \
+  /home/cah/.venv/bin/python gen_model_script.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/model_9b_s1/rep2.txt \
+
+=== the S3 four (evidence/qwen9b/s3/emit_repeat.sh's list)
+  .txt               IDENTICAL      243693027 B  b1cb26c7e7fc5b701744402d7f7af1d11dd333565f4ce97008117888520af158
+  .e4.seq            IDENTICAL        2536576 B  9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+  .e4.seqdata.bin    IDENTICAL         563712 B  4a7784f2f2c47e078437f84ffb95fd3724fcdceb9418d0e65a4af20f08ad108e
+  .state_final.bin   IDENTICAL      162529280 B  7bd38ff095ad91a06de4e5e8ddc5da35179f733e924135d3cf849d8c235e9efe
+
+=== beyond the S3 four — everything else a model emission writes
+  .state.bin         IDENTICAL      162529280 B  3a716409081f0c54d9bf554b85310e28c66562080865b65da79a99241628e493
+  .e4.seq.json       IDENTICAL         114423 B  a1d37112260edebeb0347d3040d617a195832e3cc19892fe626628a39e34f2a3
+  .emb.bin           IDENTICAL     2034237440 B  1742f211016525e7ac4d758d026d28308e11a6a5ff5226d4a6f2a50d8048ddca
+  .weights.json      IDENTICAL (prefix-normalised) be83598f708566025907fdf776fead35409ef5b6ae6fa28300b809546dd50155
+  _cv0.bin           IDENTICAL         131072 B  1e1f9ca7aff092c3a94611275c9c96370a8a68095eb54d4dd60c76eb31e4fb0f
+  _cv10.bin          IDENTICAL         131072 B  4a837bf9b91c11f568a5cd7761dec1b695c0239123b6ba2241ab7500eb14b8a1
+  _cv11.bin          IDENTICAL         131072 B  b796ba182769909a5e77e4ffd895ce5bf663983efc2beaa19bcf94233ec830f5
+  _cv12.bin          IDENTICAL         131072 B  b512b228c31abe9cbd47160ae27300fe5e59bcb6771954917b982f2550d2a72a
+  _cv13.bin          IDENTICAL         131072 B  755d82312c393d1695ed2b5d3c5d724db9ea5a1c6aebd4e33cadefac59b7ab1f
+  _cv14.bin          IDENTICAL         131072 B  07de837e4044d8b264a776b2de0d731d602170dda63bcd197fd3d7f5579ec1f0
+  _cv15.bin          IDENTICAL         131072 B  59cf070834c832449e4919ce86bd0f9ca02c278f64209c2ca1ae3ea92a446448
+  _cv16.bin          IDENTICAL         131072 B  eb87ec2a421b8d15e61ea03df061884b380677dc9ae4d5dba4923bf2689f1e4d
+  _cv17.bin          IDENTICAL         131072 B  63e9ba9de22167719aff28105c48ae098aa71a8b57d31600b6839ee7ba7164fb
+  _cv18.bin          IDENTICAL         131072 B  4788aac90c9b5d02cf97c6a6b256d17359cda6af0ce28a4be89bfae3813fd157
+  _cv19.bin          IDENTICAL         131072 B  892169568f2c4ef1f62c6dde14410007bdf0099f3b94eac1a825269a007058aa
+  _cv1.bin           IDENTICAL         131072 B  6e2571379324335d839b3353e44a6baf3be224dd02d32b7e346cf71ddca76780
+  _cv20.bin          IDENTICAL         131072 B  6f33310befd3761267d354262fc36eb29a78d7fd6fc8ca90474d27d946d5bb47
+  _cv21.bin          IDENTICAL         131072 B  66a4d1ea0b8204d1a7c319f2366d38e8f3d71c271d41279c958c2a4ddcb81bc6
+  _cv22.bin          IDENTICAL         131072 B  d5112b42cadb97890aa3c32413a52e1cb725e5c50fb02e6c75db8e1bc7914521
+  _cv23.bin          IDENTICAL         131072 B  c9e151ac578acc54e72e9a6776f31e61d32a7612f934e6124e24c535b7b2712e
+  _cv2.bin           IDENTICAL         131072 B  0025196bbb88af52630b07c7bc65c048ce8ce851a88842648fd60486544472e0
+  _cv3.bin           IDENTICAL         131072 B  603b406fa00e6dc06ed71d73f3e7ce7158a0f03dd233e6be135b0fc9f15af194
+  _cv4.bin           IDENTICAL         131072 B  921b90b27a63e69f4716df6122176e60d29833117e5abfa0b1586891fcd29e75
+  _cv5.bin           IDENTICAL         131072 B  0828e9ad75f6fa4bd80671e61995459a6884ebf47f3b46760ff175465d993841
+  _cv6.bin           IDENTICAL         131072 B  ce27aa0dbb83a6681dda5b6050f509d8fe8e3465c8c7f7b19aed9fd33b4c4f5c
+  _cv7.bin           IDENTICAL         131072 B  21c594e9dd33becc84d4a01fc3209f88b47edc190aa66901476bd83ed987218b
+  _cv8.bin           IDENTICAL         131072 B  8cb58fe03ae814f4b55ccd9f2b8a8c8450e9b01a4e793737cbaa846fc885f3b7
+  _cv9.bin           IDENTICAL         131072 B  705697e9b648db6311ff2e23fdae2ec8cce24981f428cc19ba7174dd22c0a9b5
+  _w*.bin            IDENTICAL 249 images, content sha256 dd85640709b86ec5bef176bfdd0825f52966c3f2578012936dbcaebfb2beaf30
+
+=== the manifest's state.sha256 against the file's bytes
+  state.bin      162529280 B  manifest 3a716409081f0c54  file 3a716409081f0c54  MATCH
+  state plan     dn=15032385536 kv=15057551360 cv=15191769088 end=15194914816
+  conv images    24
+
+EMIT_GATED s1: PASS — two independent emissions, byte-identical
+=== rc: 0
+=== end: 2026-09-05T10:26:25-06:00

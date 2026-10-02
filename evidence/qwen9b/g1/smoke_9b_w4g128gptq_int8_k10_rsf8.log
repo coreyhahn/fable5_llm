@@ -1,0 +1,57 @@
+=== host: snoke
+=== date: 2026-08-29T22:22:10-06:00
+=== tree: a971813+dirty
+=== cmd:  /home/cah/.local/bin/uv run --no-project --with torch --with transformers --with numpy python -u ref/fidelity_check.py --wire-group 128 --prompts 1 --ntok 3 --no-freerun --res-scale 1 --cache /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/ladder/golden_bf16_9b.npz --wq-cache /var/tmp/fable5_wq --wq-cache-verify 2 --dn-probe --json-out /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/smoke_9b_w4g128gptq_int8_k10_rsf8.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=6 MKL_NUM_THREADS=6
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=int8:10 FABLE5_RS_F=8
+===       FABLE5_CALIB_STATS=ref/calib_stats_9b_h.npz FABLE5_CALIB_MODE=gptq
+=== ---
+quantizer sources sha256 0c6077f82bf35ead85f427e9f11b2bc82ad33b3613219d9f5b3a42ba8cacd44c  (FABLE5_DN_STATE=int8:10 RS_F=8)
+host: snoke
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b (golden 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b)
+  loaded in 40.8s
+  CALIBRATED quantizer active, mode=gptq (V3 salience / V4 h2 / V4 gptq)
+    FABLE5_CALIB_STATS = ref/calib_stats_9b_h.npz
+    sha256 36689b5990c80e1208060b7864841a9387e19ea27e27ec09f0bfd4dd081dd7d4
+    model_tag=9b corpus=ref/ppl_corpus_calib.txt tokens=32768 tensors=249
+    wq-cache HIT   LM head: wq_head_9b_655e6e098f7822be.pkl (0.96 GiB, 0.7s)
+  LM head from cache (W4 g=128) e=-3 sh=7
+
+=== config S=1 mse gptq int8:10 ===
+    wq-cache HIT   layers: wq_layers_9b_d9ed134ca11f663f.pkl (6.55 GiB, 5.5s)
+    wq-cache VERIFY layer 2 (linear_attention) re-quantized live under FABLE5_DN_STATE=int8:10 RS_F=8: BYTE-IDENTICAL to the cache (309.2s)
+    emb table |q|max 120 of 32767 (15.2s)
+    DN state distribution over 75497472 pre-narrowing writes: rms 114.82 LSB (0.014016), |S|max 64444 LSB (7.8667), 41.26% exactly zero, dynamic range |S|max/rms = 561.3 -> 10 bits above the rms, before any headroom
+    log2|S| histogram (bucket i = |S| in [2^i, 2^(i+1)) LSB): {0: 12169423, 1: 10368863, 2: 8447851, 3: 6289193, 4: 3999295, 5: 2008515, 6: 735645, 7: 217128, 8: 59933, 9: 24524, 10: 17092, 11: 5985, 12: 3368, 13: 1870, 14: 625, 15: 109}
+    config done in 1055.9s
+  --- S=1 mse gptq int8:10 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France is Paris.\nThe capital of France is Paris.\nThe capital of France'
+    fixed  argmax [760, 12, 314, 314, 369, 47358]   top1=0/6  rank=[93, 32614, 1, 92, 2534, 89]  top5ovl=[0, 0, 1, 1, 1, 1]
+    block-float k histogram [dn]: {-14: 154, -13: 302, -12: 382, -11: 414, -10: 339, -9: 295, -8: 157, -7: 91, -6: 34, -5: 34, -4: 47, -3: 32, -2: 2, 0: 2325}
+    block-float k histogram [attn]: {9: 15, 10: 15, 11: 6, 12: 9, 13: 3}
+    block-float saturation: m_q15 max raw 8192000, clipped 2325 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x4096      |y|max=18457    clips=0/98304
+      12288x4096     |y|max=83784    clips=384/4718592
+      32x4096        |y|max=60283    clips=9/9216
+      4096x12288     |y|max=16358    clips=0/786432
+      4096x4096      |y|max=13117    clips=0/1376256
+      8192x4096      |y|max=14191    clips=0/1572864
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config                          top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat   S8 sat   |S|max
+S=1 mse gptq int8:10      0/6             92.5     32614      0.67    32767      1      109        0    64444
+
+state container [S=1 mse gptq int8:10]: FABLE5_DN_STATE=int8:10 (law=int8 k=10), RS_F=8; 75497472 state writes, |S|max 64444 LSB = 7.8667 at Q2.13, int16 rail 109, container rail 0
+weight quantization: 0 pass(es) this process, 2 cache hit(s), 0 miss(es); verify layer 2 BYTE-IDENTICAL
+
+-> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/smoke_9b_w4g128gptq_int8_k10_rsf8.json
+=== rc: 0
+=== end: 2026-08-29T22:43:28-06:00

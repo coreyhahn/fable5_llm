@@ -1,0 +1,51 @@
+########## FABLE5_MODEL=0.8b ##########
+model          : 0.8b  (models--Qwen--Qwen3.5-0.8B)
+checkpoint     : /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+header sha256  : c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+DN layers      : 18 x LNH=16 heads
+clamps in force: DT_Q12=[-32768,32767] A_Q15=[0,262143]  (layer_fixed.py:805-806)
+
+heads                                   : 288
+max A = exp(A_log)      (port [0, 8.0)) : 10.5843
+max |dt_bias|           (port +/-8.0)   : 13.0625
+max |conv_w|            (port +/-4.0)   : 1.8203  (CW_F=13, stored UNCLIPPED -> Mach.W asserts)
+A   out of uint18 Q15 BEFORE the clamp  : 1 / 288
+dt  out of int16  Q12 BEFORE the clamp  : 2 / 288
+decay CHANGED by the production clamp   : 2 / 288
+decay CHANGED by 18-bit/int16 wrap      : 3 / 288  (pre-82781e5 behaviour)
+
+offending heads (decay in Q15 / as a fraction):
+  layer head |      A    A_q15(spec) |     dt   dt_q12(spec) | decay spec ->   prod  |    wrap
+  L0    h3   |   0.5676       18598 |   8.375        34304 |        283 ->    350 |   32759   (0.00864 -> 0.01068)
+  L0    h8   |   0.0014          45 | -13.062       -53504 |      32767 ->  32767 |   32634   (0.99997 -> 0.99997)
+  L1    h15  |  10.5843      346827 |  -5.656       -23168 |      31522 ->  31822 |   32459   (0.96198 -> 0.97113)
+
+decay dynamics at a=0 (SPEC): 1/288 pinned at the no-decay rail 32767, 0/288 collapse to 0
+
+########## FABLE5_MODEL=2b ##########
+model          : 2b  (models--Qwen--Qwen3.5-2B)
+checkpoint     : /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+header sha256  : ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d
+DN layers      : 18 x LNH=16 heads
+clamps in force: DT_Q12=[-32768,32767] A_Q15=[0,262143]  (layer_fixed.py:805-806)
+
+heads                                   : 288
+max A = exp(A_log)      (port [0, 8.0)) : 10.4202
+max |dt_bias|           (port +/-8.0)   : 12.3125
+max |conv_w|            (port +/-4.0)   : 1.5625  (CW_F=13, stored UNCLIPPED -> Mach.W asserts)
+A   out of uint18 Q15 BEFORE the clamp  : 1 / 288
+dt  out of int16  Q12 BEFORE the clamp  : 5 / 288
+decay CHANGED by the production clamp   : 5 / 288
+decay CHANGED by 18-bit/int16 wrap      : 6 / 288  (pre-82781e5 behaviour)
+
+offending heads (decay in Q15 / as a fraction):
+  layer head |      A    A_q15(spec) |     dt   dt_q12(spec) | decay spec ->   prod  |    wrap
+  L0    h3   |   0.4798       15722 |   9.500        38912 |        343 ->    705 |   32745   (0.01047 -> 0.02151)
+  L0    h8   |   0.0027          89 | -12.312       -50432 |      32767 ->  32767 |   32439   (0.99997 -> 0.99997)
+  L0    h11  |   0.3247       10638 |   8.312        34048 |       2205 ->   2441 |   32763   (0.06729 -> 0.07449)
+  L0    h13  |   0.1375        4505 |  10.250        41984 |       8007 ->  10909 |   32754   (0.24435 -> 0.33292)
+  L1    h15  |  10.4202      341450 |  -5.688       -23296 |      31622 ->  31884 |   32498   (0.96503 -> 0.97302)
+  L22   h9   |   0.3402       11149 |   8.062        33024 |       2109 ->   2154 |   32763   (0.06436 -> 0.06573)
+
+decay dynamics at a=0 (SPEC): 1/288 pinned at the no-decay rail 32767, 0/288 collapse to 0
+

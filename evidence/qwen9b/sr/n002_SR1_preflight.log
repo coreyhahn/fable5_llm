@@ -1,0 +1,36 @@
+=== host: snoke  date: 2026-09-27T16:22:26-06:00
+=== tree: 642bc7f
+=== cmd : bash -c 
+echo PF out dir free: $(test -e synth/out_build_043_incr_probe && echo NO || echo yes)
+echo PF highest existing build: $(ls -d synth/out_build_0* | sed -E "s#.*out_build_([0-9]+).*#\1#" | sort -n | tail -1)
+echo PF vivado non-mcp procs: $(pgrep -af vivado | grep -v -c mcp)
+uptime; free -g | head -2
+ls -la --time-style=full-iso synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp synth/out_build_042_bm1/proj/stage1.runs/synth_1/bd_wrapper.dcp synth/constraints/fable5_clockroot_9b.xdc
+sha256sum synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp synth/out_build_042_bm1/proj/stage1.runs/synth_1/bd_wrapper.dcp synth/constraints/fable5_clockroot_9b.xdc synth/scripts/incr_impl.tcl synth/scripts/launch_incr.sh synth/scripts/full_impl.tcl
+grep -h "^TIMING" synth/out_build_041_ckr2_AltSpreadLogic_high/fullimpl.log
+grep -h "create_project" synth/out_build_042_bm1/build.log | head -1
+grep -h -E "^(EXTRA_XDC|FULL_IMPL_CFG)" synth/out_build_041_ckr2_AltSpreadLogic_high/fullimpl.log
+
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+PF out dir free: yes
+PF highest existing build: 042
+PF vivado non-mcp procs: 0
+ 16:22:27 up  9:14,  6 users,  load average: 1.94, 1.97, 1.97
+               total        used        free      shared  buff/cache   available
+Mem:             247           9         117           0         122         237
+-rw-rw-r-- 1 cah cah      7937 2026-09-07 22:52:32.185982258 -0600 synth/constraints/fable5_clockroot_9b.xdc
+-rw-rw-r-- 1 cah cah 288126447 2026-09-07 20:34:57.875355826 -0600 synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+-rw-rw-r-- 1 cah cah    607216 2026-09-24 23:38:13.977638265 -0600 synth/out_build_042_bm1/proj/stage1.runs/synth_1/bd_wrapper.dcp
+84b42d2a835cbc0c2dcb024aae23695912a5f5999d9c7f2c4ff35a7b7164d3a4  synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+9d68af2115a11329c3847369ed67a73842a1dd392a45ec32becef80b02599cb7  synth/out_build_042_bm1/proj/stage1.runs/synth_1/bd_wrapper.dcp
+72c3d197454235d602f82a60c06109c07b14f29f187018f87833276a787165e1  synth/constraints/fable5_clockroot_9b.xdc
+fbf8adbb069b6e58617c6a7df2cb40f50903a658f233abd254d88af49de316d4  synth/scripts/incr_impl.tcl
+5dd175e31d055aaaa69bb419de3eaae828c7a476fd45b6539873bceafe21c08e  synth/scripts/launch_incr.sh
+96eefdfd7a2ee13eeba779a6140b9bf7a5c6e8020bc211f24b54a2a6bba05d21  synth/scripts/full_impl.tcl
+TIMING: WNS=0.000 WHS=0.001 DIRECTIVE=AltSpreadLogic_high RECIPE=full XDC=/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc
+=== create_project (9b588e78) ===
+EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+FULL_IMPL_CFG: place=AltSpreadLogic_high phys_opt=AggressiveExplore (post-place AND post-route enabled)
+=== rc  : 0
+=== end : 2026-09-27T16:22:36-06:00

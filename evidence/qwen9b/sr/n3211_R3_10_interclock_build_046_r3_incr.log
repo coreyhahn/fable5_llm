@@ -1,0 +1,93 @@
+=== host: snoke  date: 2026-10-01T13:26:06-06:00
+=== tree: cf15810
+=== cmd : bash -c F=synth/out_build_046_r3_incr/reports/timing_summary.rpt
+ls -la --time-style=full-iso $F
+echo "IC Inter Clock Table rows (From Clock / To Clock / WNS / TNS / failing / total / WHS / THS / failing / total):"
+awk '/^\| Inter Clock Table/{f=1} /^\| Other Path Groups Table/{f=0} f && NF>=6 && $1 !~ /^(-|\||From)/' $F | tr -s " " | sed "s/^/IC   /"
+echo "IC Other Path Groups rows:"
+awk '/^\| Other Path Groups Table/{f=1} /^\| User Ignored Path Table/{f=0} /^\| Timing Details/{f=0} f && NF>=6 && $1 !~ /^(-|\||Path)/' $F | tr -s " " | sed "s/^/IC   /"
+echo "IC setup slack 0.00x occurrences (Slack lines):"; grep -nE "^Slack \(MET\) : +0\.00[0-9]ns" $F | head -10 | sed "s/^/IC   /"
+echo "IC the closure sequence (runme.log line: message):"; grep -nE "Post Placement Timing Summary|Incr Placement Change|Post Routing Timing Summary|Command: (place|route|phys_opt|write_bitstream)|The netlist was not modified|All physical synthesis setup optimizations will be skipped|Vivado_Tcl 4-2279" synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/runme.log | cut -c1-170 | sed "s/^/IC   /"; echo "IC Incr Placement Change count: $(grep -c "Incr Placement Change" synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/runme.log)"; echo "IC routed timing report: $(ls -la --time-style=full-iso synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_timing_summary_routed.rpt | cut -d" " -f6-)"; grep -A3 -m1 "Design Timing Summary" -n synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_timing_summary_routed.rpt >/dev/null; awk "/^\| Design Timing Summary/{f=1} f&&/^ +-?[0-9]/{print; exit}" synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_timing_summary_routed.rpt | tr -s " " | sed "s/^/IC   routed (pre post-route phys_opt) design row: /"
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+-rw-rw-r-- 1 cah cah 1715201 2026-10-01 13:11:48.571150545 -0600 synth/out_build_046_r3_incr/reports/timing_summary.rpt
+IC Inter Clock Table rows (From Clock / To Clock / WNS / TNS / failing / total / WHS / THS / failing / total):
+IC   mmcm_clkout5_1 dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/INTERNAL_TCK 12.647 0.000 0 8 
+IC   mmcm_clkout6 mmcm_clkout0 0.287 0.000 0 129 
+IC   mmcm_clkout5_1 mmcm_clkout0 2.468 0.000 0 28 
+IC   xdma_0_axi_aclk mmcm_clkout0 2.326 0.000 0 848 
+IC   mmcm_clkout0 pll_clk[0]_DIV 0.581 0.000 0 352 0.584 0.000 0 352 
+IC   mmcm_clkout0 pll_clk[1]_DIV 0.712 0.000 0 264 0.562 0.000 0 264 
+IC   mmcm_clkout0 pll_clk[2]_DIV 0.545 0.000 0 312 0.683 0.000 0 312 
+IC   mmcm_clkout0 mmcm_clkout6 1.316 0.000 0 36 0.342 0.000 0 1 
+IC   mmcm_clkout6_2 mmcm_clkout0_2 1.984 0.000 0 129 
+IC   mmcm_clkout5_1 mmcm_clkout0_2 2.519 0.000 0 28 
+IC   xdma_0_axi_aclk mmcm_clkout0_2 2.330 0.000 0 848 
+IC   mmcm_clkout0_2 pll_clk[0]_2_DIV 0.663 0.000 0 312 0.678 0.000 0 312 
+IC   mmcm_clkout0_2 pll_clk[1]_2_DIV 0.715 0.000 0 264 0.660 0.000 0 264 
+IC   mmcm_clkout0_2 pll_clk[2]_2_DIV 0.552 0.000 0 352 0.629 0.000 0 352 
+IC   mmcm_clkout0_2 mmcm_clkout6_2 1.926 0.000 0 36 0.107 0.000 0 1 
+IC   mmcm_clkout6_3 mmcm_clkout0_3 1.747 0.000 0 129 
+IC   mmcm_clkout5_1 mmcm_clkout0_3 2.341 0.000 0 28 
+IC   xdma_0_axi_aclk mmcm_clkout0_3 2.498 0.000 0 848 
+IC   mmcm_clkout0_3 pll_clk[0]_3_DIV 0.591 0.000 0 352 0.701 0.000 0 352 
+IC   mmcm_clkout0_3 pll_clk[1]_3_DIV 0.563 0.000 0 312 0.648 0.000 0 312 
+IC   mmcm_clkout0_3 pll_clk[2]_3_DIV 0.539 0.000 0 264 0.582 0.000 0 264 
+IC   mmcm_clkout0_3 mmcm_clkout6_3 1.778 0.000 0 36 0.173 0.000 0 1 
+IC   mmcm_clkout5_1 mmcm_clkout0_1 2.263 0.000 0 28 
+IC   mmcm_clkout6_1 mmcm_clkout0_1 1.739 0.000 0 129 
+IC   xdma_0_axi_aclk mmcm_clkout0_1 1.724 0.000 0 848 
+IC   mmcm_clkout0_1 pll_clk[0]_1_DIV 0.624 0.000 0 312 0.673 0.000 0 312 
+IC   mmcm_clkout0_1 pll_clk[1]_1_DIV 0.734 0.000 0 264 0.599 0.000 0 264 
+IC   mmcm_clkout0_1 pll_clk[2]_1_DIV 0.658 0.000 0 352 0.565 0.000 0 352 
+IC   dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/INTERNAL_TCK mmcm_clkout5_1 49.430 0.000 0 8 
+IC   mmcm_clkout0 mmcm_clkout5_1 11.314 0.000 0 10 
+IC   mmcm_clkout0_2 mmcm_clkout5_1 11.577 0.000 0 10 
+IC   mmcm_clkout0_3 mmcm_clkout5_1 11.372 0.000 0 10 
+IC   mmcm_clkout0_1 mmcm_clkout5_1 11.575 0.000 0 10 
+IC   mmcm_clkout0_1 mmcm_clkout6_1 1.559 0.000 0 36 0.173 0.000 0 1 
+IC   xdma_0_axi_aclk GTYE4_CHANNEL_TXOUTCLK[3]_1 0.231 0.000 0 641 0.010 0.000 0 641 
+IC   xdma_0_axi_aclk pipe_clk 2.377 0.000 0 1 0.131 0.000 0 1 
+IC   mmcm_clkout0 xdma_0_axi_aclk 1.397 0.000 0 583 
+IC   mmcm_clkout0_2 xdma_0_axi_aclk 2.171 0.000 0 583 
+IC   mmcm_clkout0_3 xdma_0_axi_aclk 1.944 0.000 0 583 
+IC   mmcm_clkout0_1 xdma_0_axi_aclk 1.575 0.000 0 583 
+IC   GTYE4_CHANNEL_TXOUTCLK[3]_1 xdma_0_axi_aclk 0.004 0.000 0 2383 0.013 0.000 0 2383 
+IC   pipe_clk xdma_0_axi_aclk 2.213 0.000 0 3 0.106 0.000 0 3 
+IC Other Path Groups rows:
+IC   **async_default** xdma_0_axi_aclk GTYE4_CHANNEL_TXOUTCLK[3]_1 0.177 0.000 0 98 0.113 0.000 0 98 
+IC   **async_default** bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[0].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[0].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O 7.369 0.000 0 18 0.149 0.000 0 18 
+IC   **async_default** bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[1].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[1].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O 7.265 0.000 0 18 0.124 0.000 0 18 
+IC   **async_default** bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[2].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[2].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O 7.464 0.000 0 18 0.144 0.000 0 18 
+IC   **async_default** bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[3].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[3].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O 6.246 0.000 0 18 0.511 0.000 0 18 
+IC   **async_default** bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[4].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[4].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O 7.315 0.000 0 18 0.142 0.000 0 18 
+IC   **async_default** bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[5].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[5].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O 7.370 0.000 0 18 0.154 0.000 0 18 
+IC   **async_default** bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[6].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[6].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O 7.434 0.000 0 18 0.164 0.000 0 18 
+IC   **async_default** bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[7].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_cpll_cal_gtye4.gen_cpll_cal_inst[7].gen_inst_cpll_cal.gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_inst/gtwizard_ultrascale_v1_7_19_gtye4_cpll_cal_tx_i/bufg_gt_txoutclkmon_inst/O 7.464 0.000 0 18 0.143 0.000 0 18 
+IC   **async_default** dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/INTERNAL_TCK dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/INTERNAL_TCK 47.985 0.000 0 100 0.133 0.000 0 100 
+IC   **async_default** mmcm_clkout5_1 mmcm_clkout5_1 12.308 0.000 0 122 0.095 0.000 0 122 
+IC   **async_default** pcie_refclk pcie_refclk 6.619 0.000 0 255 0.112 0.000 0 255 
+IC   **async_default** pipe_clk pipe_clk 2.253 0.000 0 21 0.140 0.000 0 21 
+IC   **async_default** xdma_0_axi_aclk xdma_0_axi_aclk 0.517 0.000 0 90 0.135 0.000 0 90 
+IC setup slack 0.00x occurrences (Slack lines):
+IC   4501:Slack (MET) :             0.004ns  (arrival time - required time)
+IC   5985:Slack (MET) :             0.001ns  (arrival time - required time)
+IC   10954:Slack (MET) :             0.004ns  (required time - arrival time)
+IC the closure sequence (runme.log line: message):
+IC   1306:Command: place_design -directive AltSpreadLogic_high
+IC   1511:INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.009. For the most accurate timing information please run report_timing.
+IC   1681:Command: phys_opt_design -directive AggressiveExplore
+IC   1688:INFO: [Vivado_Tcl 4-2279] Estimated Timing Summary | WNS= 0.004 | TNS= 0.000 | 
+IC   1689:INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.001 ns. All physical synthesis setup optimizations will be skipped.
+IC   1690:INFO: [Vivado_Tcl 4-232] No setup violation found. The netlist was not modified.
+IC   1729:Command: route_design
+IC   2130:Command: phys_opt_design -directive AggressiveExplore
+IC   2133:INFO: [Vivado_Tcl 4-2279] Estimated Timing Summary | WNS= 0.004 | TNS= 0.000 | 
+IC   2134:INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.001 ns. All physical synthesis setup optimizations will be skipped.
+IC   2135:INFO: [Vivado_Tcl 4-232] No setup violation found. The netlist was not modified.
+IC   2295:Command: write_bitstream -force bd_wrapper.bit
+IC Incr Placement Change count: 0
+IC routed timing report: 2026-10-01 12:38:11.009295324 -0600 synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_timing_summary_routed.rpt
+IC   routed (pre post-route phys_opt) design row:  0.004 0.000 0 1323185 0.001 0.000 0 1320049 0.000 0.000 0 393702 
+=== rc  : 0
+=== end : 2026-10-01T13:26:06-06:00

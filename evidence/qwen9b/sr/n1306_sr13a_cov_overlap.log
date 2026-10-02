@@ -1,0 +1,83 @@
+=== host: snoke  date: 2026-09-28T12:25:51-06:00
+=== tree: 137ee23
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr13a_cov.py overlap tb/scripts/w9/sr13a_cov_overlap
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr13a_cov overlap -> tb/scripts/w9/sr13a_cov_overlap  seed 1303  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  VALID at caps ['R1', 'R2'] (shape_isa 2)
+  REFUSED at caps ['R1']: rec 5: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x05 fl=0x00 tgt=0x0000 imm=0x4800800
+  REFUSED at caps []: rec 5: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x05 fl=0x00 tgt=0x0000 imm=0x4800800
+  45 records {'LDC*': 8, 'MOVX': 10, 'MVGO': 10, 'MOVY': 12, 'FENCE': 4, 'HALT': 1}; 10 records carry a bank field
+      0  LDC*   DDR[0x80000000] -> scratch[0x0] 4096 words
+      1  LDC*   DDR[0x80002000] -> scratch[0x1800] 4096 words
+      2  LDC*   DDR[0x80004000] -> scratch[0x3000] 4096 words
+      3  LDC*   DDR[0x80006000] -> scratch[0x4800] 4096 words
+      4  MOVX   mv0 XWIN <= scratch[0x0 .. +4096] int8
+      5  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x48008007 (ng=32 nrows=512 sh=7)
+      6  MOVX   mv0 XWIN <= scratch[0x1800 .. +4096] int8
+      7  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)  [no-wait]
+      8  MOVX   mv0 XWIN <= scratch[0x3000 .. +4096] int8
+      9  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x8000] int16
+     10  MOVX   mv1 XWIN <= scratch[0x4800 .. +4096] int8
+     11  MVGO   mv1 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)  [no-wait]
+     12  FENCE mask=0x1
+     13  MOVY   mv0 RES[0..512) >> 8 -> scratch[0x8200] int16
+     14  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x68008007 (ng=32 nrows=512 sh=7)  [no-wait]
+     15  MOVX   mv0 XWIN <= scratch[0x0 .. +4096] int8
+     16  MOVY   mv0 RES[0..512) >> 8 -> scratch[0x8400] int16
+     17  FENCE mask=0x3
+     18  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x8600] int16
+     19  MOVY   mv1 RES[0..512) >> 7 -> scratch[0x8800] int16
+     20  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     21  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x8a00] int16
+     22  LDC*   DDR[0x80008000] -> scratch[0x0] 6144 words
+     23  LDC*   DDR[0x8000b000] -> scratch[0x1800] 6144 words
+     24  LDC*   DDR[0x8000e000] -> scratch[0x3000] 6144 words
+     25  LDC*   DDR[0x80011000] -> scratch[0x4800] 6144 words
+     26  MOVX   mv2 XWIN <= scratch[0x0 .. +6144] int8
+     27  MVGO   mv2 WBASE=0x0010108000 BEATS=25600 SHAPE=0x4c008008 (ng=48 nrows=512 sh=8)
+     28  MOVX   mv2 XWIN <= scratch[0x1800 .. +6144] int8
+     29  MVGO   mv2 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)  [no-wait]
+     30  MOVX   mv2 XWIN <= scratch[0x3000 .. +6144] int8
+     31  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x8c00] int16
+     32  MOVX   mv3 XWIN <= scratch[0x4800 .. +6144] int8
+     33  MVGO   mv3 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)  [no-wait]
+     34  FENCE mask=0x4
+     35  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x8e00] int16
+     36  MVGO   mv2 WBASE=0x0010108000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)  [no-wait]
+     37  MOVX   mv2 XWIN <= scratch[0x0 .. +6144] int8
+     38  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x9000] int16
+     39  FENCE mask=0xc
+     40  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x9200] int16
+     41  MOVY   mv3 RES[0..512) >> 6 -> scratch[0x9400] int16
+     42  MVGO   mv2 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)
+     43  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x9600] int16
+     44  HALT
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 10, 'MOVY': 12, 'MVGO': 10, 'FENCE': 4, 'LDC': 8, 'MVGO_NOWAIT': 6}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+  NON-VACUITY (words a bank-BLIND RTL would get wrong, per MOVY):
+    [32768+ 512]   512 of  512 differ  ch0 ng32 row 2048 drained during a bank-0 run
+    [33280+ 512]     0 of  512 differ  ch0 ng32 bank 0 after the masked FENCE
+    [33792+ 512]   512 of  512 differ  ch0 ng32 bank 0 read during an RBANK run
+    [34304+ 512]     0 of  512 differ  ch0 ng32 XBANK|RBANK result
+    [34816+ 512]     0 of  512 differ  ch1 ng32 the other channel's run
+    [35328+ 512]     0 of  512 differ  ch0 ng32 bank 0 = the MOVX made mid-run
+    [35840+ 512]   512 of  512 differ  ch2 ng48 row 2048 drained during a bank-0 run
+    [36352+ 512]     0 of  512 differ  ch2 ng48 bank 0 after the masked FENCE
+    [36864+ 512]   512 of  512 differ  ch2 ng48 bank 0 read during an RBANK run
+    [37376+ 512]     0 of  512 differ  ch2 ng48 XBANK|RBANK result
+    [37888+ 512]     0 of  512 differ  ch3 ng48 the other channel's run
+    [38400+ 512]     0 of  512 differ  ch2 ng48 bank 0 = the MOVX made mid-run
+  4 of 12 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 7ec5594e8602e202cdd0c450bb373492536e48549fe043581bb698a08b7e7234  tb/scripts/w9/sr13a_cov_overlap.e4.seq
+  sha256 598c97c6b89b7489dcb2714763202df34fa96ead526d79dd836a7e7d998e9093  tb/scripts/w9/sr13a_cov_overlap.e4.seqdata.bin
+  sha256 5618c12c8f9e5669c71835f1269ddef248b27bfc735994b174a3058c2dcb3dba  tb/scripts/w9/sr13a_cov_overlap.e4.seq.json
+  sha256 f2358e44320737b2905c24c0b44c182aff5291cb8e08e00617e0a52f464185a6  tb/scripts/w9/sr13a_cov_overlap.weights.json
+  sha256 669dd8b9a3458848375f7da00bd87d0ea21d2dd09b66dfc84207f1b9dc6abf57  tb/scripts/w9/sr13a_cov_overlap_w0.bin
+  sha256 aafd2f2164abceec6c80521ef85bed180b57898098aea681a6c1d1d83c956070  tb/scripts/w9/sr13a_cov_overlap_w1.bin
+SR13A_COV overlap: PASS
+=== rc  : 0
+=== end : 2026-09-28T12:25:53-06:00

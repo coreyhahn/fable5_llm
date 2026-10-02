@@ -1,0 +1,107 @@
+=== host: snoke  date: 2026-08-25T08:00:48-06:00
+=== tree: 1725750+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/layer_cmd_census.py
+=== venv: 3.12.3 numpy 2.4.6
+{
+ "census_counts": {
+  "KVAP": 72,
+  "AMAX": 288,
+  "VNW": 366,
+  "VN": 4110,
+  "ALU": 14814,
+  "ATTN": 108,
+  "CONV": 108,
+  "DNST": 1728,
+  "CONVW": 36,
+  "ROPE": 360,
+  "GATE": 72,
+  "EMB": 288
+ },
+ "census_lensums": {
+  "KVAP": 0,
+  "AMAX": 0,
+  "VNW": 319488,
+  "VN": 835584,
+  "ALU": 7950720,
+  "ATTN": 0,
+  "CONV": 0,
+  "DNST": 0,
+  "CONVW": 0,
+  "ROPE": 0,
+  "GATE": 0,
+  "EMB": 0
+ },
+ "tokens_covered": 6.0,
+ "analytic_per_token": {
+  "VN": 625,
+  "VNW": 49,
+  "ALU": 991,
+  "CONV": 18,
+  "GATE": 18,
+  "DNST": 288,
+  "ROPE": 6,
+  "KVAP": 6,
+  "ATTN": 6,
+  "AMAX": 1
+ }
+}==============================================================================
+A. CENSUS of the 0.8B stream  tb/scripts/model_v2_s1.txt
+   (gitignored on disk -- .gitignore:13 -- but byte-locked by
+    ref/scripts/regen_gate.sh:41 against a committed emitter hash,
+    so it regenerates byte-identically from a clean checkout)
+==============================================================================
+    22,350 layer commands in the whole file (the file is a MULTI-token script; per-token figures below)
+    op          count       sum of n
+    VN          4,110        835,584
+    VNW           366        319,488
+    CONVW          36              0
+    ROPE          360              0
+    KVAP           72              0
+    ATTN          108              0
+    CONV          108              0
+    DNST        1,728              0
+    GATE           72              0
+    EMB           288              0
+    ALU        14,814      7,950,720
+    AMAX          288              0
+
+    VN lengths seen: {128: 3456, 256: 360, 1024: 294}
+    ALU lengths seen: {128: 10368, 2048: 2130, 1024: 870, 256: 576, 1536: 432, 16: 216}
+
+    DNST commands 1,728 / (18 DN x 16 heads) = 6.0000 tokens' worth
+
+==============================================================================
+B. the ANALYTIC model, checked against that census (per token)
+==============================================================================
+    op      analytic/tok   census/tok    ratio
+    VN               625        685.0    0.912
+    VNW               49         61.0    0.803
+    CONVW              0          6.0    0.000
+    ROPE               6         60.0    0.100
+    KVAP               6         12.0    0.500
+    ATTN               6         18.0    0.333
+    CONV              18         18.0    1.000
+    DNST             288        288.0    1.000
+    GATE              18         12.0    1.500
+    EMB                0         48.0    0.000
+    ALU              991       2469.0    0.401
+    AMAX               1         48.0    0.021
+
+    The DNST row is the one this study now depends on, and it is
+    EXACT by construction: 288 per token = 18 DN layers x 16 heads.
+
+==============================================================================
+C. PER-HEAD DeltaNet work — how it scales, per token
+==============================================================================
+    model   DN layers   heads  DNST cmds   x0.8B  per-head VN/ALU cmds
+    0.8B           18      16        288   1.000                 1,440
+    2B             18      16        288   1.000                 1,440
+    4B             24      32        768   2.667                 3,840
+    9B             24      32        768   2.667                 3,840
+
+    dn_step is ONE instance at ~1300 cycles/head (rtl/dn_step.sv:14),
+    so this column is a SERIAL cost: 4B/9B pay 2.667x the 0.8B/2B
+    DeltaNet recurrence, with no lane headroom to hide it.
+    At 1300 cyc/head and 250 MHz that alone is 1.498 ms/token at 0.8B/2B and 3.994 ms/token at 4B/9B.
+=== rc  : 0
+=== end : 2026-08-25T08:00:50-06:00

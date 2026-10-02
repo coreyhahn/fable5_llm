@@ -1,0 +1,12 @@
+--- seq_chat emb-geometry selftest: H=1024, row 2048 B, synthetic vocab 40 (real 248,320)
+    [ok] real vocab 248,320 x H=1024: the pre-fix reshape is LEGAL (248,320 x 1024 == 254,279,680) — silent, not loud, and 1x too many rows
+    [ok] emb_row_bytes reads 2048 B out of the manifest
+    [ok] load_emb -> shape (40, 1024), vocab 40 (want (40, 1024), 40)
+    [ok] every emb[t] is token t's WHOLE row (0 wrong)
+    [ok] H=1024: the pre-fix literals coincide with the truth (this is why the defect hid)
+    [ok] a partial final row is refused (ChatSeqError)
+    [ok] a 4096 B-row artifact is refused at H=1024
+    [ok] a table with no <base>.weights.json is refused, even at the right size (no guessed stride)
+    [ok] a 248,320-row 2048 B table is only correct at H=1024 (this is H=1024)
+    [ok] a path that is not <prefix>.emb.bin is refused
+EMB GEOMETRY SELFTEST: PASS  (H=1024)

@@ -1,0 +1,57 @@
+=== host: snoke
+=== date: 2026-09-05T16:41:01-06:00
+=== tree: 7cf6119
+=== cmd:  python3 evidence/qwen9b/o3/o3_cite_drift.py --base e16a3ec --edited synth/exp_uram/scripts/exp_ooc.tcl,synth/exp_uram/scripts/launch_exp.sh,synth/constraints/fable5_floorplan_9b_dngrp.xdc,synth/constraints/fable5_floorplan_9b_dngrpcr.xdc,synth/constraints/fable5_floorplan_9b_dnbank.xdc,synth/constraints/fable5_floorplan_9b_dnslr.xdc,synth/constraints/fable5_floorplan_9b_kvslr.xdc,synth/constraints/fable5_floorplan_9b_combo.xdc,synth/constraints/fable5_floorplan_9b_convcr.xdc,synth/constraints/fable5_floorplan_9b_layer0.xdc --check
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+o3 citation-drift gate  [check]
+  code base  e16a3ec
+  doc base   e16a3ec
+  files      10 edited files
+  citations  17 distinct (file, line) pairs
+  unmoved    1
+  half-ranges 1 (one endpoint unresolved — NEVER rewritten)
+  DRIFTED    synth/exp_uram/scripts/exp_ooc.tcl:57 -> :75   'set Rtl       "$RepoRoot/rtl"'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/g5/G5A_FLOORPLAN.md, rtl/layer_chan.sv
+  DRIFTED    synth/exp_uram/scripts/exp_ooc.tcl:109 -> :141   'set geom_ok 1'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    synth/exp_uram/scripts/exp_ooc.tcl:129 -> :164   'foreach f {fx_pkg fx_rsqrt fx_recip fx_silu vecnorm_unit rope_unit conv4_silu'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    synth/exp_uram/scripts/exp_ooc.tcl:131 -> :166   'puts "EXP_RTL_SRC: $Rtl/$f.sv"'
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  DRIFTED    synth/exp_uram/scripts/exp_ooc.tcl:211 -> :250   '# Floorplan sanity, copied from full_impl.tcl:50-59: prove the pblocks actuall'
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  DRIFTED    synth/exp_uram/scripts/exp_ooc.tcl:227 -> :266   '}'
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  DRIFTED    synth/exp_uram/scripts/exp_ooc.tcl:371 -> :406   'set wrdst [get_cells -quiet -hier -filter {REF_NAME =~ URAM288* && NAME =~ *g_'
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  UNRESOLVED synth/exp_uram/scripts/exp_ooc.tcl:42 (the cited line was rewritten or deleted)   'puts "FATAL: need <out_dir> <variant> <LNH> <N_DN> <N_KV> <NKVH> <CVD> <DN_EW>'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/exp_uram/scripts/exp_ooc.tcl:47 (the cited line was rewritten or deleted)   'set DN_BPG    [expr {[llength $argv] > 12 ? [lindex $argv 12] : 8}]'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/exp_uram/scripts/exp_ooc.tcl:88 (the cited line was rewritten or deleted)   'set DN_PER  [expr {int(ceil($DN_W / 72.0))}]'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/exp_uram/scripts/exp_ooc.tcl:90 (the cited line was rewritten or deleted)   'set PRED    [expr {$DN_NB * $DN_PER + $KV_NB * $KV_PER}]'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/exp_uram/scripts/exp_ooc.tcl:96 (the cited line was rewritten or deleted)   'puts "EXP_PREDICT: DN $DN_NB banks x $DN_PER + KV $KV_NB banks x $KV_PER = $PR'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/exp_uram/scripts/exp_ooc.tcl:130 (the cited line was rewritten or deleted)   'dn_step attn_core gate_unit vec_alu layer_chan} {'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/exp_uram/scripts/exp_ooc.tcl:157 (the cited line was rewritten or deleted)   'must {synth_design -top layer_chan -part $Part -mode out_of_context \\'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/exp_uram/scripts/exp_ooc.tcl:158 (the cited line was rewritten or deleted)   '-generic DN_PIPE=$DN_PIPE -generic DN_BPG=$DN_BPG}'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/exp_uram/scripts/launch_exp.sh:61 (the cited line was rewritten or deleted)   '-tclargs "$OUT_DIR" "$VARIANT" "$LNH" "$N_DN" "$N_KV" "$NKVH" "$CVD" "$DN_EW" '
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED synth/exp_uram/scripts/exp_ooc.tcl:129-130 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :129 'foreach f {fx_pkg fx_rsqrt fx_recip fx_silu vecnorm_unit rop' -> 164
+             :130 'dn_step attn_core gate_unit vec_alu layer_chan} {' -> GONE
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+O3_CITE_DRIFT CHECK FAIL (7 drifted, 9 unresolved, 0 missing, 1 half-mapped)
+=== rc: 1
+=== end: 2026-09-05T16:41:03-06:00

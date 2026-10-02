@@ -1,0 +1,66 @@
+=== host: snoke  date: 2026-08-22T17:09:40-06:00
+=== tree: f4495c7+dirty
+=== cmd : bash -c cd /home/cah/r2d2/code/fpga/fable5_llm/tb && make tb_seq_chip_w8_build JOBS=16 >/dev/null 2>&1; cd /home/cah/r2d2/code/fpga/fable5_llm && bash evidence/qwen2b/rc/t4_wall8_red_green.sh
+=== venv: 3.12.3 numpy 2.4.6
+RED-context copy made (repo tb_seq_chip.sv untouched)
+repo TB modifications: 1 (expect 0 or 1 for the staged fix, never a scratch edit)
+
+############ RED — token smoke vs a host BFM that never programs EMBLOG2
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/wall8/obj_dir_wall8'
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/wall8/obj_dir_wall8'
+MEM[000c] = fcbb, expected 017b
+MEM[000d] = fff2, expected ff44
+MEM[000e] = ff97, expected fe80
+[8836052000] %Fatal: tb_seq_chip.sv:850: Assertion failed in TOP.tb_seq_chip.unnamedblk4.unnamedblk14: too many scratch mismatches
+%Error: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/wall8/tb_seq_chip.sv:850: Verilog $stop
+Aborting...
+MEM[000b] = 020e, expected ffe6
+MEM[000c] = 005d, expected ff64
+MEM[000d] = 0059, expected 0291
+[8836052000] %Fatal: tb_seq_chip.sv:850: Assertion failed in TOP.tb_seq_chip.unnamedblk4.unnamedblk14: too many scratch mismatches
+%Error: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/wall8/tb_seq_chip.sv:850: Verilog $stop
+Aborting...
+MEM[000a] = 0147, expected 003a
+MEM[000b] = ff1c, expected 00c6
+MEM[000c] = fd2f, expected ff4a
+[8836052000] %Fatal: tb_seq_chip.sv:850: Assertion failed in TOP.tb_seq_chip.unnamedblk4.unnamedblk14: too many scratch mismatches
+%Error: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/wall8/tb_seq_chip.sv:850: Verilog $stop
+Aborting...
+MEM[000d] = fda2, expected 007f
+MEM[000e] = 03e6, expected 00d1
+MEM[000f] = 0100, expected fff5
+[8836052000] %Fatal: tb_seq_chip.sv:850: Assertion failed in TOP.tb_seq_chip.unnamedblk4.unnamedblk14: too many scratch mismatches
+%Error: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/wall8/tb_seq_chip.sv:850: Verilog $stop
+Aborting...
+RED: 4 of 4 seeds FAILED (4 = the improved smoke catches wall 8)
+
+############ GREEN — the same vectors on the repo TB (programs EMBLOG2)
+  burst: 1228 write bursts (306848 beats), 1736 read bursts (436288 beats), busy_wr 573738 busy_rd 506512, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 30
+  ddr beats 8749 (miss 0), weight beats 1029136 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w5/tok2b_w8_s1.e (launches 1, 2208904 cycles total, scratch 16384/launch, tokens 2, tcnt 6)
+- tb_seq_chip.sv:930: Verilog $finish
+  burst: 1228 write bursts (306848 beats), 1736 read bursts (436288 beats), busy_wr 573738 busy_rd 506512, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 30
+  ddr beats 8749 (miss 0), weight beats 1029136 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w5/tok2b_w8_s2.e (launches 1, 2208904 cycles total, scratch 16384/launch, tokens 2, tcnt 6)
+- tb_seq_chip.sv:930: Verilog $finish
+  burst: 1228 write bursts (306848 beats), 1736 read bursts (436288 beats), busy_wr 573738 busy_rd 506512, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 30
+  ddr beats 8749 (miss 0), weight beats 1029136 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w5/tok2b_w8_s3.e (launches 1, 2208904 cycles total, scratch 16384/launch, tokens 2, tcnt 6)
+- tb_seq_chip.sv:930: Verilog $finish
+  burst: 1228 write bursts (306848 beats), 1736 read bursts (436288 beats), busy_wr 573738 busy_rd 506512, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 30
+  ddr beats 8749 (miss 0), weight beats 1029136 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w5/tok2b_w8_s4.e (launches 1, 2208904 cycles total, scratch 16384/launch, tokens 2, tcnt 6)
+- tb_seq_chip.sv:930: Verilog $finish
+
+wall8 red/green: RED_failures=4/4  GREEN_rc=0
+VERDICT: the improved fail-fast catches wall 8, and the fix clears it.
+=== rc  : 0
+=== end : 2026-08-22T17:23:18-06:00

@@ -1,0 +1,39 @@
+=== host: snoke  date: 2026-09-27T22:23:54-06:00
+=== tree: 82e2ecb
+=== cmd : bash evidence/qwen9b/sr/run_sr_chip.sh model_9b_s4_reordB_r1 model_9b_s4 control --cycles-today 196706833 --tokens-ref evidence/qwen9b/s4/S4_REPLAY.md
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr5/tb_seq_chip_9b_sr5
+=== built    2026-09-27T19:20:50-06:00  sha256 f7b64e5a1c39503371db0cee64ceedb363b56a4cc7e8d2fadb9b31c7acc0353e
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s4_reordB_r1.e4  (.seq sha256 492e0def197b635b, .chip sha256 6cff0d041853b390)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s4   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr5_seed_model_9b_s4_reordB_r1_control.log
+=== cycles-today 196706833
+=== tokens-ref /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/s4/S4_REPLAY.md (record of model_9b_s4)
+=== wall     7812s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 160724 records, 6 tokens, 36864 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      TOK[0] = 0000b (11) == golden OK
+      TOK[1] = 00000 (0) == golden OK
+      TOK[2] = 0010f (271) == golden OK
+      TOK[3] = 00323 (803) == golden OK
+      TOK[4] = 00171 (369) == golden OK
+      TOK[5] = 001f2 (498) == golden OK
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s4_reordB_r1.e4 launch 0 [-]: 160724 records, 162967195 cycles (1013.96 cyc/rec, 651.869 ms @250MHz, PERF_CYC 162967188)
+    LAUNCH 0 PASS: [-] pc 160723, tokens 6, tcnt 8, scratch 36864, smem 112
+      state: 2676800 read beats, 2659968 write beats, 0 unmapped
+      burst: 97242 write bursts (22688256 beats), 116028 read bursts (29024256 beats), busy_wr 38002310 busy_rd 35405028, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 48
+      ddr beats 451692 (miss 0), weight beats 383606784 total across 4 chan (miss 0) [ 96180480/95876352/95774976/95774976]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s4_reordB_r1.e4 (launches 1, 162967195 cycles total, scratch 36864/launch, tokens 6, tcnt 8)
+    CYCLES measured  162967195
+    CYCLES BELOW TODAY (196706833): delta -33739638
+    TOKENS measured  [11,0,271,803,369,498]
+    TOKENS record    [11,0,271,803,369,498]  (S4_REPLAY.md, model_9b_s4)
+    TOKENS IDENTICAL TO THE SHIPPED RECORD
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 7812s
+SR_CHIP model_9b_s4_reordB_r1 control: PASS
+=== rc  : 0
+=== end : 2026-09-28T00:34:06-06:00

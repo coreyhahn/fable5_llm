@@ -1,0 +1,73 @@
+=== host: snoke  date: 2026-09-28T06:11:27-06:00
+=== tree: e3c2ff1
+=== cmd : bash -c 
+R=/home/cah/r2d2/code/fpga/fable5_llm
+echo "PF HEAD: $(git rev-parse HEAD)  short8: $(git rev-parse --short=8 HEAD)"
+echo "PF HEAD descends from a9cef01: $(git merge-base --is-ancestor a9cef01 HEAD && echo yes || echo NO)"
+echo "PF git status --porcelain lines: $(git status --porcelain | wc -l)"; git status --porcelain | sed "s/^/PF   /"
+echo "PF rtl/ delta SR3 commit 5c369c2..HEAD (comment-only expected):"; git diff 5c369c2 HEAD --stat -- rtl | sed "s/^/PF   /"
+echo "PF rtl/ non-comment changed lines 5c369c2..HEAD: $(git diff -U0 5c369c2 HEAD -- rtl | grep -E "^[+-][^+-]" | grep -vE "^[+-][[:space:]]*//" | wc -l)"
+echo "PF SEQ_CAPS literal in rtl/seq_unit.sv:"; grep -n "FAB1CA01\|32.hFAB1_CA01\|hFAB1CA01" rtl/seq_unit.sv | sed "s/^/PF   /"
+echo "PF SR1 verdict:"; sed -n "/^## 0. Verdict/,+1p" evidence/qwen9b/sr/SR1_INCR_PROBE.md | sed "s/^/PF   /"
+echo "PF SR5b verdict:"; grep -n "^\*\*GREEN. The model held" evidence/qwen9b/sr/SR5b_R1_CHIP.md | sed "s/^/PF   /"
+echo "PF incr_impl.tcl fixes present (TCL.POST hook, EFFECTIVE_DIRECTIVES):"; grep -nE "STEPS.PLACE_DESIGN.TCL.POST|^puts \"EFFECTIVE_DIRECTIVES" synth/scripts/incr_impl.tcl | sed "s/^/PF   /"
+echo "PF launch_incr.sh args line:"; sed -n 2p synth/scripts/launch_incr.sh | sed "s/^/PF   /"
+echo "PF other Vivado jobs (non-MCP):"; pgrep -af vivado | grep -v -e mcp -e pgrep -e "bash -c" | cut -c1-200 | sed "s/^/PF   /" || true; echo "PF   (end)"
+echo "PF load: $(cat /proc/loadavg)  nproc: $(nproc)"; free -g | sed "s/^/PF   /"; df -h $R | sed "s/^/PF   /"
+echo "PF out dirs (must be free):"; for d in build_044_r1 build_044_r1_incr build_044_r1_incr_bm1ref; do [ -e synth/out_$d ] && echo "PF   synth/out_$d EXISTS" || echo "PF   synth/out_$d free"; done
+echo "PF highest build: $(ls -d synth/out_build_0* | sed "s|synth/out_build_||" | cut -c1-3 | sort -n | tail -1)"
+echo "PF inputs sha256:"
+for f in synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp synth/out_build_043_incr_probe/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp synth/constraints/fable5_clockroot_9b.xdc synth/scripts/launch_build.sh synth/scripts/create_project.tcl synth/scripts/build.tcl synth/scripts/incr_impl.tcl synth/scripts/launch_incr.sh synth/scripts/launch_po2.sh synth/scripts/full_impl.tcl; do echo "PF   $(stat -c "%s %y" $f)  $(sha256sum $f)"; done
+source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh >/dev/null 2>&1; echo "PF tool: $(vivado -version | head -1)"
+
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+PF HEAD: e3c2ff1ecc4c52012639964b6b0d3a7eeca87fb9  short8: e3c2ff1e
+PF HEAD descends from a9cef01: yes
+PF git status --porcelain lines: 1
+PF   ?? evidence/qwen9b/sr/n700_SR7_preflight.log
+PF rtl/ delta SR3 commit 5c369c2..HEAD (comment-only expected):
+PF    rtl/layer_chan.sv | 2 +-
+PF    rtl/state_dma.sv  | 4 ++--
+PF    2 files changed, 3 insertions(+), 3 deletions(-)
+PF rtl/ non-comment changed lines 5c369c2..HEAD: 0
+PF SEQ_CAPS literal in rtl/seq_unit.sv:
+PF   333:    // copy of sw/hwmap.py's seq_caps_word({"R1"}) = 0xFAB1CA01; the unit TB
+PF SR1 verdict:
+PF   ## 0. Verdict: CLOSES
+PF   
+PF SR5b verdict:
+PF   22:**GREEN. The model held. There is nothing to STOP on.**
+PF incr_impl.tcl fixes present (TCL.POST hook, EFFECTIVE_DIRECTIVES):
+PF   114:set_property STEPS.PLACE_DESIGN.TCL.POST $hook $r
+PF   115:foreach p {AUTO_INCREMENTAL_CHECKPOINT INCREMENTAL_CHECKPOINT INCREMENTAL_CHECKPOINT.DIRECTIVE STEPS.PLACE_DESIGN.TCL.POST} {
+PF   131:puts "EFFECTIVE_DIRECTIVES: $effective"
+PF launch_incr.sh args line:
+PF   # launch_incr.sh <src_build> <out_build_name> <place_directive> <ref_dcp> <incr_directive> [<xdc>...]
+PF other Vivado jobs (non-MCP):
+PF   (end)
+PF load: 1.46 1.61 1.54 4/1321 457458  nproc: 48
+PF                  total        used        free      shared  buff/cache   available
+PF   Mem:             247          11          56           0         180         235
+PF   Swap:            127           0         127
+PF   Filesystem          Size  Used Avail Use% Mounted on
+PF   r2d2:/tank12t/code   22T  1.3T   20T   6% /home/cah/r2d2/code
+PF out dirs (must be free):
+PF   synth/out_build_044_r1 free
+PF   synth/out_build_044_r1_incr free
+PF   synth/out_build_044_r1_incr_bm1ref free
+PF highest build: 043
+PF inputs sha256:
+PF   288126447 2026-09-07 20:34:57.875355826 -0600  84b42d2a835cbc0c2dcb024aae23695912a5f5999d9c7f2c4ff35a7b7164d3a4  synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+PF   291053779 2026-09-27 20:42:07.974628750 -0600  68d5eb71df91bec136d758bb1b3d83674e2685f99c629652e8b957bfe4849941  synth/out_build_043_incr_probe/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+PF   7937 2026-09-07 22:52:32.185982258 -0600  72c3d197454235d602f82a60c06109c07b14f29f187018f87833276a787165e1  synth/constraints/fable5_clockroot_9b.xdc
+PF   1536 2026-06-10 23:02:09.826731339 -0600  62fe4c5aefa2f1225b6cf0627cade94f9ca38a931ac36f200d646a791ff27606  synth/scripts/launch_build.sh
+PF   34372 2026-09-24 20:11:28.661269287 -0600  4b13468783149036741b1c63ee7d9b33216a20e97edc4d04735f6fb8867edf55  synth/scripts/create_project.tcl
+PF   2697 2026-06-11 06:44:55.399667453 -0600  c4f8435ba28098f1646aa3af35870ae729d630ea6d7dbfaaffc1f4ea2fcc5f3d  synth/scripts/build.tcl
+PF   8675 2026-09-27 21:49:19.191096066 -0600  d44220c36c1eeed72829b5f9be3445eea0fae427b20791d65f440dc97063e178  synth/scripts/incr_impl.tcl
+PF   1659 2026-09-27 16:21:57.885166795 -0600  5dd175e31d055aaaa69bb419de3eaae828c7a476fd45b6539873bceafe21c08e  synth/scripts/launch_incr.sh
+PF   1743 2026-08-25 01:47:31.963460208 -0600  78780460f145c3894a62e186999f350efeae2095e9438e0243914633b7dd1a79  synth/scripts/launch_po2.sh
+PF   3947 2026-08-25 01:47:31.953459786 -0600  96eefdfd7a2ee13eeba779a6140b9bf7a5c6e8020bc211f24b54a2a6bba05d21  synth/scripts/full_impl.tcl
+PF tool: vivado v2024.2 (64-bit)
+=== rc  : 0
+=== end : 2026-09-28T06:11:34-06:00

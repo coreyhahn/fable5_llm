@@ -1,0 +1,200 @@
+=== host: snoke
+=== date: 2026-09-05T20:51:30-06:00
+=== tree: 3ec3185+dirty
+=== cmd:  bash -c set +u; source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh; set -u; mkdir -p synth/out_g5b_bdprobe && cd synth/out_g5b_bdprobe && vivado -mode batch -nojournal -log probe.log -source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g5/g5b_bd_pin_probe.tcl -tclargs /home/cah/r2d2/code/fpga/fable5_llm/synth/out_g5b_bdprobe
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Sat Sep  5 20:51:32 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g5/g5b_bd_pin_probe.tcl
+# if {[llength $argv] < 1} { puts "FATAL: need <out_dir>"; exit 1 }
+# set OutDir [lindex $argv 0]
+# set ScriptDir [file dirname [file normalize [info script]]]
+# set RepoRoot  [file normalize "$ScriptDir/../../.."]
+# set RtlDir    "$RepoRoot/rtl"
+# create_project probe $OutDir/proj -part xcvu9p-fsgd2104-2L-e
+create_project: Time (s): cpu = 00:00:10 ; elapsed = 00:00:11 . Memory (MB): peak = 1500.293 ; gain = 119.918 ; free physical = 79269 ; free virtual = 362025
+# foreach x {fx_pkg.sv fx_rsqrt.sv fx_recip.sv fx_silu.sv vecnorm_unit.sv \
+#            rope_unit.sv conv4_silu.sv dn_step.sv attn_core.sv gate_unit.sv \
+#            vec_alu.sv state_dma.sv layer_chan.sv} {
+#     add_files -norecurse $RtlDir/$x
+# }
+# add_files -norecurse $RtlDir/layer_chan_ipi.v
+# set_property XPM_LIBRARIES {XPM_CDC XPM_FIFO XPM_MEMORY} [current_project]
+# create_bd_design bd
+Wrote  : </home/cah/r2d2/code/fpga/fable5_llm/synth/out_g5b_bdprobe/proj/probe.srcs/sources_1/bd/bd/bd.bd> 
+# create_bd_cell -type module -reference layer_chan_ipi layer_0
+INFO: [IP_Flow 19-5107] Inferred bus interface 'aclk' of definition 'xilinx.com:signal:clock:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'aclk' of definition 'xilinx.com:signal:clock:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'aresetn' of definition 'xilinx.com:signal:reset:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'aresetn' of definition 'xilinx.com:signal:reset:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 's_axil' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 's_axil' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 's_axib' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 's_axib' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'm_axis' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'm_axis' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-4728] Bus Interface 'aclk': Added interface parameter 'ASSOCIATED_BUSIF' with value 's_axil'.
+INFO: [IP_Flow 19-4728] Bus Interface 'aclk': Added interface parameter 'ASSOCIATED_RESET' with value 'aresetn'.
+INFO: [IP_Flow 19-4728] Bus Interface 'aresetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axil': Added interface parameter 'PROTOCOL' with value 'AXI4LITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axil': Added interface parameter 'DATA_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axil': Added interface parameter 'ADDR_WIDTH' with value '12'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'PROTOCOL' with value 'AXI4'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'DATA_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'ADDR_WIDTH' with value '18'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'ID_WIDTH' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'READ_WRITE_MODE' with value 'READ_WRITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_BURST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_LOCK' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_PROT' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_CACHE' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_QOS' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_REGION' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_WSTRB' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_BRESP' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'HAS_RRESP' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'SUPPORTS_NARROW_BURST' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'MAX_BURST_LENGTH' with value '256'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'NUM_READ_OUTSTANDING' with value '4'.
+INFO: [IP_Flow 19-4728] Bus Interface 's_axib': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '4'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'PROTOCOL' with value 'AXI4'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'READ_WRITE_MODE' with value 'READ_WRITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'DATA_WIDTH' with value '512'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'ADDR_WIDTH' with value '34'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'ID_WIDTH' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'MAX_BURST_LENGTH' with value '16'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'SUPPORTS_NARROW_BURST' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'HAS_LOCK' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'HAS_PROT' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'HAS_CACHE' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'HAS_QOS' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'HAS_REGION' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'HAS_WSTRB' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'HAS_BRESP' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'HAS_RRESP' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'NUM_READ_OUTSTANDING' with value '8'.
+INFO: [IP_Flow 19-4728] Bus Interface 'm_axis': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '8'.
+WARNING: [IP_Flow 19-11770] Clock interface 'aclk' has no FREQ_HZ parameter.
+WARNING: [IP_Flow 19-3158] Bus Interface 'm_axis': FREQ_HZ bus parameter missing from AXI interface when interface is not associated to a clock.
+# puts "PROBE_CELL_OK"
+PROBE_CELL_OK
+# proc show {what obj prop} {
+#     puts "PROBE_${what}_BEFORE: '[get_property $prop $obj]'"
+# }
+# proc try_set {what obj prop val} {
+#     if {[catch {set_property $prop $val $obj} e]} {
+#         puts "PROBE_${what}_SET_ERR: $e"
+#     } else {
+#         puts "PROBE_${what}_SET_ERR: (none)"
+#     }
+#     puts "PROBE_${what}_AFTER: '[get_property $prop $obj]'"
+# }
+# set aclk  [get_bd_pins layer_0/aclk]
+# set maxis [get_bd_intf_pins layer_0/m_axis]
+# set saxil [get_bd_intf_pins layer_0/s_axil]
+# show    ABIF    $aclk  CONFIG.ASSOCIATED_BUSIF
+PROBE_ABIF_BEFORE: 's_axil:s_axib'
+# try_set ABIF    $aclk  CONFIG.ASSOCIATED_BUSIF {s_axil:s_axib:m_axis}
+CRITICAL WARNING: [BD 41-737] Cannot set the parameter ASSOCIATED_BUSIF on /layer_0/aclk. It is read-only.
+PROBE_ABIF_SET_ERR: (none)
+PROBE_ABIF_AFTER: 's_axil:s_axib'
+# show    FREQ    $maxis CONFIG.FREQ_HZ
+PROBE_FREQ_BEFORE: '100000000'
+# try_set FREQ    $maxis CONFIG.FREQ_HZ 250000000
+PROBE_FREQ_SET_ERR: (none)
+PROBE_FREQ_AFTER: '250000000'
+# show    CLKDOM  $maxis CONFIG.CLK_DOMAIN
+PROBE_CLKDOM_BEFORE: ''
+# puts "PROBE_CLKDOM_SAXIL: '[get_property CONFIG.CLK_DOMAIN $saxil]'"
+PROBE_CLKDOM_SAXIL: ''
+# try_set CLKDOM  $maxis CONFIG.CLK_DOMAIN probe_clk_domain
+PROBE_CLKDOM_SET_ERR: (none)
+PROBE_CLKDOM_AFTER: 'probe_clk_domain'
+# puts "PROBE_REPORT_ACLK_BEGIN"
+PROBE_REPORT_ACLK_BEGIN
+# report_property -all $aclk
+Property                  Type    Read-only  Value
+CLASS                     string  true       bd_pin
+CONFIG.ASSOCIATED_BUSIF   string  true       s_axil:s_axib
+CONFIG.ASSOCIATED_PORT    string  false      
+CONFIG.ASSOCIATED_RESET   string  true       aresetn
+CONFIG.CLK_DOMAIN         string  false      
+CONFIG.FREQ_HZ            string  false      100000000
+CONFIG.FREQ_TOLERANCE_HZ  string  false      0
+CONFIG.INSERT_VIP         string  false      0
+CONFIG.PHASE              string  false      0.0
+DEFAULT_DRIVER            string  true       
+DIR                       string  true       I
+INTF                      string  true       FALSE
+LEFT                      string  true       
+LOCATION                  string  false      
+NAME                      string  false      aclk
+PATH                      string  true       /layer_0/aclk
+RIGHT                     string  true       
+TYPE                      string  true       clk
+# puts "PROBE_REPORT_ACLK_END"
+PROBE_REPORT_ACLK_END
+# puts "PROBE_REPORT_MAXIS_BEGIN"
+PROBE_REPORT_MAXIS_BEGIN
+# report_property -all $maxis
+Property                      Type    Read-only  Value
+APERTURES                     string  true       
+BRIDGES                       string  true       
+CLASS                         string  true       bd_intf_pin
+CONFIG.ADDR_WIDTH             string  true       34
+CONFIG.ARUSER_WIDTH           string  true       0
+CONFIG.AWUSER_WIDTH           string  true       0
+CONFIG.BUSER_WIDTH            string  true       0
+CONFIG.CLK_DOMAIN             string  false      probe_clk_domain
+CONFIG.DATA_WIDTH             string  true       512
+CONFIG.FREQ_HZ                string  false      250000000
+CONFIG.HAS_BRESP              string  true       1
+CONFIG.HAS_BURST              string  true       1
+CONFIG.HAS_CACHE              string  true       0
+CONFIG.HAS_LOCK               string  true       0
+CONFIG.HAS_PROT               string  true       0
+CONFIG.HAS_QOS                string  true       0
+CONFIG.HAS_REGION             string  true       0
+CONFIG.HAS_RRESP              string  true       1
+CONFIG.HAS_WSTRB              string  true       1
+CONFIG.ID_WIDTH               string  true       1
+CONFIG.INSERT_VIP             string  false      0
+CONFIG.MAX_BURST_LENGTH       string  true       16
+CONFIG.NUM_READ_OUTSTANDING   string  true       8
+CONFIG.NUM_READ_THREADS       string  false      1
+CONFIG.NUM_WRITE_OUTSTANDING  string  true       8
+CONFIG.NUM_WRITE_THREADS      string  false      1
+CONFIG.PHASE                  string  false      0.0
+CONFIG.PROTOCOL               string  true       AXI4
+CONFIG.READ_WRITE_MODE        string  true       READ_WRITE
+CONFIG.RUSER_BITS_PER_BYTE    string  false      0
+CONFIG.RUSER_WIDTH            string  true       0
+CONFIG.SUPPORTS_NARROW_BURST  string  true       0
+CONFIG.WUSER_BITS_PER_BYTE    string  false      0
+CONFIG.WUSER_WIDTH            string  true       0
+LOCATION                      string  false      
+MODE                          string  true       Master
+NAME                          string  false      m_axis
+PATH                          string  true       /layer_0/m_axis
+TYPE                          string  true       ip
+VLNV                          string  true       xilinx.com:interface:aximm_rtl:1.0
+# puts "PROBE_REPORT_MAXIS_END"
+PROBE_REPORT_MAXIS_END
+# puts "PROBE_OK"
+PROBE_OK
+INFO: [Common 17-206] Exiting Vivado at Sat Sep  5 20:51:58 2026...
+=== rc: 0
+=== end: 2026-09-05T20:52:08-06:00

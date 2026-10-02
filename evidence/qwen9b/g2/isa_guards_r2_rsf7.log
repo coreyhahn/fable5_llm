@@ -1,0 +1,56 @@
+=== host: snoke
+=== date: 2026-08-31T09:43:14-06:00
+=== tree: 7a25713+dirty
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/g2/isa_guards_check.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=0.8b FABLE5_DN_STATE=unset FABLE5_RS_F=7
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+isa_guards_check: FABLE5_MODEL=0.8b  H=1024  LNH=16  NKV=2  RS_F=7
+  ceilings: SCRATCH_MAX=65536 ISA_SADDR_MAX=32768 DNST_HEAD_MAX=31 ARG0_HEAD_BITS=4 KVH_MAX=3 ARG0_KVH_BITS=1 VNW_MAX=4096 VNW_ISA_MAX=2048
+[1] ISA_SADDR_MAX — the ARG pair packing, on all four packers
+  PASS RED  enc_a1(lo=ISA) — refused, naming '15-bit ISA range'
+  PASS RED  enc_a1(hi=ISA) — refused, naming '15-bit ISA range'
+  PASS RED  enc_alu_a2(dst=ISA) — refused, naming '15-bit ISA range'
+  PASS RED  enc_isa_saddr(ISA) — refused, naming '15-bit ISA range'
+  PASS GRN  enc_a1(ISA-1, ISA-1) — in-range accepted
+  PASS GRN  enc_alu_a2(dst=ISA-1) — in-range accepted
+  PASS RED  enc_saddr(SCRATCH_MAX) — refused, naming 'scratchpad'
+  PASS GRN  enc_saddr(SCRATCH_MAX-1) — in-range accepted
+  PASS the pair packing round-trips over the whole legal range
+[2] VNW_ISA_MAX — ARG0[10:0], where 4096 & 0x7FF == 0 means 2048
+  PASS RED  vnw_(4096) — refused, naming 'ARG0[10:0]'
+  PASS GRN  vnw_(1024) — in-range accepted
+  PASS RED  vnw_(VNW_MAX+1) — refused, naming 'outside'
+  PASS the wrap this guard prevents is real: 4096 & 0x7FF == 0, and 0 encodes 2048
+[3] ARG0_HEAD_BITS — DNST and DNZ share layer_chan's dn_head[3:0]
+  PASS RED  dnst(head=16) — refused, naming 'ARG0[3:0]'
+  PASS GRN  dnst(head=15) — in-range accepted
+  PASS RED  dnz(head=16) — refused, naming 'ARG0[3:0]'
+  PASS GRN  dnz(head=15) — in-range accepted
+  PASS RED  dnz(head=32) — refused, naming 'outside'
+  PASS DNST_HEAD_MAX is the GEOMETRY bound and is >= the field bound
+[4] ARG0_KVH_BITS — KVAP and ATTN share layer_chan's kvhead[0]
+  PASS RED  kvap(kvh=2) — refused, naming 'ARG0[0:0]'
+  PASS RED  attn(kvh=2) — refused, naming 'ARG0[0:0]'
+  PASS GRN  kvap(kvh=1) — in-range accepted
+  PASS RED  kvap(kvh=4) — refused, naming 'outside'
+[4b] CONV_FIELD_MAX — the 13-bit CONV channel field (review N10)
+  PASS RED  convz(0, 8192) — refused, naming '13-bit field'
+  PASS GRN  convz(0, 8191) — in-range accepted
+      CONV_DIM=6144 vs field max 8191: a whole-block convz fits
+[5] B5 — the banked KV cache is _KVH wide, including after Treset
+  PASS kc/vc/T are _KVH=4 wide at construction
+  PASS Treset + main()'s explicit reset keep the full width
+  PASS kv head 3 is addressable in the model
+[6] B6 — the RS_F emit/consume tie
+  PASS ref's RS_F_MANIFEST_DEFAULT and sw/hwmap's RS_F_DEFAULT agree
+  PASS a manifest with no key reads back as exactly that default
+  PASS RED  withholding rs_f while RS_F != the default — refused, naming 'no `rs_f` key'
+  PASS GRN  passing rs_f explicitly is legal at any value — in-range accepted
+isa_guards_check: 32 passed, 0 failed
+=== rc: 0
+=== end: 2026-08-31T09:43:15-06:00

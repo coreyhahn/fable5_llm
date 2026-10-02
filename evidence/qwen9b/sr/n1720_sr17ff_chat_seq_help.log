@@ -1,0 +1,160 @@
+=== host: snoke  date: 2026-09-29T08:15:44-06:00
+=== tree: 1692cdc
+=== cmd : /home/cah/.venv/bin/python sw/chat_seq.py --help
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+usage: chat_seq.py [-h] [--dev DEV] [--chan CHAN] [--template TEMPLATE]
+                   [--any-template] [--nch {1,4}] [--prompt PROMPT]
+                   [--ntok NTOK] [--max-ctx MAX_CTX] [--raw] [--system SYSTEM]
+                   [--pos-mode {auto,xrf,ldc}] [--t-max T_MAX]
+                   [--prefill {lite,full}] [--continue-context] [--canned]
+                   [--smoke] [--verify] [--force-upload] [--timeout TIMEOUT]
+                   [--preamble-timeout PREAMBLE_TIMEOUT] [--out OUT]
+                   [--reorder {A,B,off}] [--seq-rtl {r0,r1,r2}]
+                   [--shape-isa {1,2}] [--reorder-check] [--selftest]
+                   [--model-only] [--steps STEPS] [--lock LOCK] [--no-lock]
+                   [--temp TEMP] [--top-k TOP_K] [--top-p TOP_P] [--seed SEED]
+                   [--topk-base TOPK_BASE] [--verify-head]
+                   [--head-cache HEAD_CACHE] [--no-head-cache] [--head-mmap]
+                   [--head-threads HEAD_THREADS]
+                   [--sample-fixture SAMPLE_FIXTURE]
+                   [--make-fixture MAKE_FIXTURE] [--passes PASSES]
+
+Interactive chat on the fable5_llm sequencer.
+
+options:
+  -h, --help            show this help message and exit
+  --dev DEV
+  --chan CHAN           DDR fetch channel (must match the template's)
+  --template TEMPLATE   gated artifact prefix the templates are sliced from
+  --any-template        do not require the frozen template sha256 (development
+                        only)
+  --nch {1,4}           matvec channels the stream drives (RUNG4_SPEC S4). 1 =
+                        the shipped, bit-exact greedy path. 4 = the opt-in
+                        row-split stream whose LM head is chunk-INTERLEAVED
+                        across the four engines; it selects model_9b_s1.e4 and
+                        a DIFFERENT weight placement in DDR. A session is one
+                        --nch for its whole life: switching means a full
+                        weight re-upload, which the residency probe detects
+                        and does for you (slow, ~900 MiB).
+  --prompt PROMPT       non-interactive turn (repeatable)
+  --ntok NTOK
+  --max-ctx MAX_CTX
+  --raw                 TEMPLATE OFF: feed the prompt verbatim, with no
+                        <|im_start|> chat wrapper (docs/INSTRUCT_SPEC.md T4 —
+                        the template is the DEFAULT; this is the pre-spec
+                        behaviour and the model will continue your text
+                        instead of answering it). With --model-only it selects
+                        the old canned gate B1 replay instead of the templated
+                        G2 turn.
+  --system SYSTEM       system message, fed once at session start / after
+                        every context reset (docs/INSTRUCT_SPEC.md T5). Costs
+                        5 + len(text) ids of context.
+  --pos-mode {auto,xrf,ldc}
+                        how a step addresses its RoPE tables. xrf = the frozen
+                        spec's XRF[4]=pos*1536 (SIGNED 18-bit -> pos <= 85,
+                        silently truncated beyond); ldc = agent A's escape
+                        hatch, patch the six position-LDC addresses (reaches
+                        the whole KV depth); auto picks by --max-ctx
+  --t-max T_MAX         positions in the generated position blob
+  --prefill {lite,full}
+                        lite = prefill steps skip the LM head (spec 3); full =
+                        every step emits a token (gate B1 shape)
+  --continue-context    keep KV/DN state across --prompt turns (default:
+                        preamble between them)
+  --canned              gate B1: replay the committed model_v2_s1 schedule
+                        (prompt 'The capital of France' = [760,6511,314,9338],
+                        6 steps) and compare EVERY argmax against the
+                        artifact's expect_tokens; implies --prefill full
+  --smoke               preamble + ONE full step (token 760 at pos 0) and
+                        report PERF_CYC; nothing else touches the board
+  --verify              lockstep ref/seq_model prediction for every step (~140
+                        s of host time per step at FABLE5_MODEL=9b; the board
+                        waits)
+  --force-upload        skip the residency probe and re-upload everything
+  --timeout TIMEOUT
+  --preamble-timeout PREAMBLE_TIMEOUT
+  --out OUT             JSON report path
+  --reorder {A,B,off}   BM1-T4/S1P: run the S1 reordered schedule (A = the SV1
+                        template, B = per-image, static costs; off = the
+                        shipped order). Default since 2026-09-27:
+                        $FABLE5_REORDER (off|A|B) if set, else auto = B at
+                        FABLE5_MODEL=9b --nch 4 on the shipped template, off
+                        anywhere else. When on, the in-process regeneration
+                        (hazard assert + OV1 postcheck) and the B6 model gate
+                        are MANDATORY and refuse before the board is opened
+  --seq-rtl {r0,r1,r2}  Task SR6: the sequencer RTL level the images are built
+                        for. r0 (default) = the shipped RTL. r1 = the FENCE
+                        channel mask (docs/SEQ_ISA.md B17.1): form B's per-
+                        image reorder emitting masked FENCEs (pinned images;
+                        needs --reorder B, 9B --nch 4). r2 (Task SR13b) = r1 +
+                        the XWIN/RES double banking (B17.2): bank-1 fields,
+                        caps R1+R2. Default: $FABLE5_SEQ_RTL if set, else r0.
+                        The images load only on a device whose SEQ_CAPS
+                        reports the level's capabilities (r1: R1; r2: R1 and
+                        R2, SEQ_CAPS 0xFAB1CA03); on any other the session
+                        refuses before any upload
+  --shape-isa {1,2}     SR11a fix round 2: the MVGO SHAPE layout the template
+                        is built and validated at before the board is open — 1
+                        = build_034/035 (bit 29 = w8; the frozen 2B W8
+                        template needs it), 2 = build_041+. Default: the
+                        artifact's own `shape_isa` key (9B artifacts carry 2).
+                        At open_board the session is re-validated at the
+                        DEVICE's layout (hwmap.shape_isa_for_version of its
+                        VERSION) and refused if it differs
+  --reorder-check       with --reorder: run its whole gate (regenerate, image
+                        hazards, B6 model gate) and exit; no board, no lock
+  --selftest            pure-host unit tests; touches no device at all
+  --model-only          gate G2: run ONE TEMPLATED turn through ref/seq_model
+                        and compare against the bf16 reference; NO board, NO
+                        lock, ~5-7 s per step. --model-only --raw is the older
+                        gate B1 replay of the committed canned schedule.
+  --steps STEPS         --model-only: stop after N launches (0 = all)
+  --lock LOCK           the shared board lock (default
+                        /home/cah/r2d2/code/fpga/.fable5_board.lock;
+                        $FABLE5_BOARD_LOCK overrides the default)
+  --no-lock             run WITHOUT the board lock. For a human who has
+                        confirmed sole use of the board; never for a script,
+                        and never to get past a stuck lock. Logged loudly on
+                        stdout, stderr and <lock>.nolock.log
+
+sampling:
+  temperature / top-k / top-p. DEFAULT IS GREEDY, which is 100% on-chip and
+  bit-exact. A sampled step is the SAME full launch plus the on-chip top-k
+  capture unit, which arrives with the next RTL rung — until then --temp
+  refuses instead of moving the model off the chip.
+
+  --temp TEMP, --temperature TEMP
+                        softmax temperature; 0 (default) = greedy
+  --top-k TOP_K         keep the k best candidates (0 = no cut); the on-chip
+                        capture depth is 32, which caps it
+  --top-p TOP_P         nucleus threshold in (0,1]; 1.0 = off
+  --seed SEED           RNG seed; one is drawn and REPORTED if omitted
+  --topk-base TOPK_BASE
+                        AXI-Lite byte offset of the on-chip top-k CSR block;
+                        RUNG4_SPEC S5 pins it at 0x5048 (the default). The
+                        IDENT read decides whether the unit is really there,
+                        so this is safe on a pre-rung-4 bitstream; pass 0 to
+                        skip the probe entirely.
+  --verify-head         cross-check EVERY decode step: rebuild the head's
+                        logits on the host from the chip's own x8/e_x and
+                        assert the host argmax == the chip's token (S6).
+                        Verification only — the chip still decides.
+  --head-cache HEAD_CACHE
+                        directory for the 1 GB f32 verification head (default
+                        $FABLE5_HEAD_CACHE, ~/.cache/fable5_llm, /tmp — never
+                        the NFS share)
+  --no-head-cache       always rebuild the verification head from the image
+  --head-mmap           mmap the cached f32 head instead of reading it in
+  --head-threads HEAD_THREADS
+                        BLAS threads for the verification head (S2)
+  --sample-fixture SAMPLE_FIXTURE
+                        --model-only: drive the sampler from a recorded
+                        candidate fixture instead of the model
+  --make-fixture MAKE_FIXTURE
+                        --model-only: write the candidate sets this run
+                        produced to a fixture JSON
+  --passes PASSES       --model-only sampled gate: passes to run (2 same-seed
+                        + N-2 different-seed)
+=== rc  : 0
+=== end : 2026-09-29T08:15:45-06:00

@@ -1,0 +1,15 @@
+=== FROZEN-FORMAT GUARD: the W4 side of tb/scripts/gen_matvec_v2_vectors.py
+=== HEAD (172aaaa) generator vs the W8-capable one, same seeds, same shapes.
+=== Shapes: c (K=4096 NG=32, the frozen-shape regression) g128+g64,
+===         f (K=6144 NG=48, MAX_NG) g128+g64, a (K=1024) g128 — 4 seeds each.
+
+20 vector dirs x {y32.hex, beats.hex, x8.hex} compared byte for byte: NO DIFFERENCES.
+
+The ONLY file that moved is params.txt, which gains the 7th (W8) field:
+1c1
+< 4096 32 7 13 33 0
+---
+> 4096 32 7 13 33 0 0
+
+=== and ref/w4a8_ref.py's W4 selftest sections are byte-identical to HEAD:
+  diff <(head -9 selftest@HEAD) <(head -9 selftest@new) -> EMPTY (byte-identical)

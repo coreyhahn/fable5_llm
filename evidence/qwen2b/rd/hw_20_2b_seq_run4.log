@@ -1,0 +1,76 @@
+=== host: snoke  date: 2026-08-24T23:49:42-06:00
+=== tree: dcdf5cd+dirty
+=== cmd : /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py --prefix tb/scripts/w5/model_w8_2b_s1.e --four-chan --out evidence/qwen2b/rd/seq_run4_2b_build035.json
+=== venv: 3.12.3 numpy 2.4.6
+--- SEQ stream: tb/scripts/w5/model_w8_2b_s1.e
+  artifacts base   tb/scripts/w5/model_w8_2b_s1
+  stream           68503 records, 1096048 B (sha256 fa8d9349cf1d0aa6) VALIDATED
+  seqdata          1107712 B (sha256 e8d536ee95880ff3)
+  profile          epsnorm  dyn_ka=True  loop 3 steps (structurally safe)
+  opcodes          {'CSRWR': 42887, 'CMD': 14252, 'MOVX': 2992, 'MOVY': 3464, 'MVGO': 3464, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'FENCE': 868, 'HALT': 1, 'LDC*': 538, 'XOP*': 28}
+  expected tokens  [279, 314, 279, 369, 11751, 13]
+  mode             4-CHANNEL row-split (weights over DDR chans [0, 1, 2, 3], fetch on chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=4)
+  stream    0x9000000 .. 0x910b970  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc10e700  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 187 images, chans [0, 1, 2, 3])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 538 LDC records (24 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 4 EMB records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0x54443b9f CALIB=0xf  SEQ=READY
+  weight plan: 187 images match the stream's MVGO plan; 3464 MVGO WBASEs row-aligned inside them
+--- upload
+  weights   187 images, 1847 MiB -> 0x10000000..0x2d0c4000/0x2cdac000/0x2cca4000/0x2cca4000 (row-split over chans [0, 1, 2, 3], wid [186] chunk-INTERLEAVED (rung 4 S4))  [readback OK]
+  embedding 970 MiB -> 0x60000000  [readback OK]
+  seqdata   1107712 B -> 0xc000000  [readback OK]
+  stream    1096048 B (68503 records) -> 0x9000000  [readback OK]
+  2819 MiB written, 2819 MiB read back and compared, 21.7s
+--- run
+  EMBLOG2    12 (4096 B embedding rows)
+  SEQ_BASE=0x9000000 LEN=68503 ENTRY=0 -> START
+    pc 344/68503  (0.0s)
+    pc 4169/68503  (0.0s)
+    pc 8357/68503  (0.0s)
+    pc 12923/68503  (0.0s)
+    pc 17111/68503  (0.1s)
+    pc 20526/68503  (0.1s)
+    pc 25072/68503  (0.1s)
+    pc 28873/68503  (0.1s)
+    pc 33062/68503  (0.1s)
+    pc 37231/68503  (0.1s)
+    pc 41041/68503  (0.1s)
+    pc 45219/68503  (0.2s)
+    pc 49786/68503  (0.2s)
+    pc 53483/68503  (0.2s)
+    pc 57623/68503  (0.2s)
+    pc 61571/68503  (0.2s)
+    pc 65711/68503  (0.2s)
+    pc 51828/68503  (0.2s)
+    pc 53348/68503  (0.3s)
+    pc 57922/68503  (0.3s)
+    pc 62114/68503  (0.3s)
+    pc 65902/68503  (0.3s)
+    pc 51784/68503  (0.3s)
+    pc 53329/68503  (0.3s)
+    pc 57875/68503  (0.3s)
+    pc 62070/68503  (0.3s)
+    pc 65855/68503  (0.4s)
+  halted at pc=68502/68503 in 0.372s wall / 371.763 ms device
+  STATUS=0x00010004 err=False err_code=0x00 (no error)
+  perf: {'cyc': 92940701, 'rec': 101991, 'axil_wr': 132968, 'axil_rd': 4548251, 'fetch_starved_cyc': 95, 'xrf_ovf': False}
+  tokens: [279, 314, 279, 369, 11751, 13]
+  TOKENS   IDENTICAL to the .seq.json (6 tokens)
+--- post-halt state vs tb/scripts/w5/model_w8_2b_s1.e.chip
+  golden    16404 state checks, 9 MISMATCH
+    ! scratch[0x1810] = 0xb183 want 0x0000
+    ! scratch[0x1811] = 0xfffc want 0x0000
+    ! scratch[0x1812] = 0x328c want 0x0000
+    ! scratch[0x1813] = 0xfff8 want 0x0000
+    ! scratch[0x1814] = 0x355a want 0x0000
+    ! scratch[0x1815] = 0xfffc want 0x0000
+    ! scratch[0x1816] = 0x193e want 0x0000
+    ! scratch[0x1817] = 0xfffe want 0x0000
+    ! ... 55 further scratch mismatches (63/16384 checked words differ)
+SEQ RUN: FAIL
+report -> evidence/qwen2b/rd/seq_run4_2b_build035.json
+=== rc  : 1
+=== end : 2026-08-24T23:50:06-06:00

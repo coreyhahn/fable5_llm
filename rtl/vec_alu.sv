@@ -101,11 +101,19 @@ module vec_alu #(
     output logic               done,
 
     input  wire [3:0]          cfg_op,
-    input  wire [11:0]         cfg_len,
+    // G3.1: 14 bits.  ARG0 = {spare[31:19], p0[16]@18, len[17:4],
+    // aop[3:0]} in layer_chan.  The count was 12 bits and topped out at
+    // 4095, which the Qwen3.5-2B MLP broke — it quantizes its whole
+    // FFN = 6144 intermediate in ONE DYNQ8, and a DYNQ8 CANNOT be chunked
+    // (one shared exponent from max|x| over the vector, reported on
+    // e_out).  R-c took it to 13 (max 8191); Qwen3.5-9B's FFN is 12288, so
+    // G3.1 takes it to 14 (max 16383) and `ag_i` moves with it.  There is
+    // no frozen stream to preserve: G3.1 is where the byte-lock is spent.
+    input  wire [13:0]         cfg_len,
     input  wire signed [16:0]  cfg_p0,
-    input  wire [13:0]         cfg_srca,
-    input  wire [13:0]         cfg_srcb,
-    input  wire [13:0]         cfg_dst,
+    input  wire [15:0]         cfg_srca,
+    input  wire [15:0]         cfg_srcb,
+    input  wire [15:0]         cfg_dst,
     output logic [3:0]         e_out,       // DYNQ8 exponent
     output logic [17:0]        amax_idx,    // AMAX32 running winner
     output logic signed [31:0] amax_val,
@@ -127,11 +135,11 @@ module vec_alu #(
     output logic [50:0]        topk_bun,
 
     // scratch ports (1-cycle read latency)
-    output logic [13:0]        a_addr,
+    output logic [15:0]        a_addr,
     input  wire signed [15:0]  a_q,
-    output logic [13:0]        b_addr,
+    output logic [15:0]        b_addr,
     input  wire signed [15:0]  b_q,
-    output logic [13:0]        w_addr,
+    output logic [15:0]        w_addr,
     output logic signed [15:0] w_data,
     output logic               w_en
 );
@@ -145,10 +153,10 @@ module vec_alu #(
     // on the 1-cycle `start` pulse; cfg_* may change afterwards)
     // ==================================================================
     logic [3:0]         op_q;     // internal ops 15 (DYNQ8 pass 2) / 1 (DYNQ16 pass 2)
-    logic [11:0]        len_q;
+    logic [13:0]        len_q;                 // G3.1: 14 bits, see cfg_len
     logic signed [16:0] p0_q;
-    logic [13:0]        srca_q, dst_q;   // srcb never survives pass 1
-    logic [13:0]        park_q;   // read-port parking address during drain
+    logic [15:0]        srca_q, dst_q;   // srcb never survives pass 1
+    logic [15:0]        park_q;   // read-port parking address during drain
     logic               probe_q;  // op-8 probe mode
     logic               kclamp_q; // clamp k at 0 (cfg_p0[1] / attn semantics)
 
@@ -175,12 +183,12 @@ module vec_alu #(
     // ==================================================================
     // address generator: one element per II cycles, index order
     // ==================================================================
-    logic [13:0] aa_r, ba_r;   // next port-a / port-b address to issue
-    logic [13:0] wa_r;         // next write address
-    logic [12:0] ag_i;         // element index being issued
+    logic [15:0] aa_r, ba_r;   // next port-a / port-b address to issue
+    logic [15:0] wa_r;         // next write address
+    logic [13:0] ag_i;         // element index being issued
     logic        ag_run;       // still issuing
     logic        ag_ph;        // op8: 2nd address phase / op9: II=2 gap
-    wire         ag_last = ((ag_i + 13'd1) == 13'(len_q));
+    wire         ag_last = ((ag_i + 14'd1) == 14'(len_q));
 
     // ==================================================================
     // pipeline tokens: [0] = valid, [1] = last element of the pass
@@ -329,17 +337,17 @@ module vec_alu #(
                     // op 8: 3 words/elem -> pair over port a in 2 cycles,
                     // b16 held on port b for both.  II = 2.
                     a_addr <= aa_r;
-                    aa_r   <= aa_r + 14'd1;
+                    aa_r   <= aa_r + 16'd1;
                     if (!ag_ph) begin
                         b_addr <= ba_r;
                         ag_ph  <= 1'b1;
                         t_ad   <= 2'b00;          // lo word: not the element yet
                     end else begin
-                        ba_r  <= ba_r + 14'd1;
+                        ba_r  <= ba_r + 16'd1;
                         ag_ph <= 1'b0;
                         t_ad  <= {ag_last, 1'b1};
                         if (ag_last) ag_run <= 1'b0;
-                        else         ag_i   <= ag_i + 13'd1;
+                        else         ag_i   <= ag_i + 14'd1;
                     end
                 end else if (op_w2 && ag_ph) begin
                     ag_ph <= 1'b0;                // op 9: write-port bound gap
@@ -347,12 +355,12 @@ module vec_alu #(
                 end else begin
                     a_addr <= aa_r;
                     b_addr <= ba_r;
-                    aa_r   <= aa_r + (op_str2 ? 14'd2 : 14'd1);
-                    ba_r   <= ba_r + (op_pr2  ? 14'd2 : 14'd1);
+                    aa_r   <= aa_r + (op_str2 ? 16'd2 : 16'd1);
+                    ba_r   <= ba_r + (op_pr2  ? 16'd2 : 16'd1);
                     ag_ph  <= op_w2;
                     t_ad   <= {ag_last, 1'b1};
                     if (ag_last) ag_run <= 1'b0;
-                    else         ag_i   <= ag_i + 13'd1;
+                    else         ag_i   <= ag_i + 14'd1;
                 end
             end else begin
                 // park both read ports past the end of the write region so
@@ -555,7 +563,7 @@ module vec_alu #(
             // ==========================================================
             if (t_rs[0]) begin
                 w_addr <= wa_r;
-                wa_r   <= wa_r + 14'd1;
+                wa_r   <= wa_r + 16'd1;
                 w_en   <= 1'b1;
                 if (op_w2) begin                   // SHIFT32W: clip32, lo then hi
                     logic signed [63:0] r;
@@ -579,7 +587,7 @@ module vec_alu #(
                 end
             end else if (w2_pend) begin
                 w_addr  <= wa_r;
-                wa_r    <= wa_r + 14'd1;
+                wa_r    <= wa_r + 16'd1;
                 w_data  <= w2_dat;
                 w_en    <= 1'b1;
                 w2_pend <= 1'b0;
@@ -610,7 +618,7 @@ module vec_alu #(
                     logic [5:0] amag;
                     logic signed [16:0] p0_e;
                     logic pr8, nw_pr2, nw_e32, nw_bb;
-                    logic [13:0] fb, na, nb;
+                    logic [15:0] fb, na, nb;
                     // op-8 probe flag lives in cfg_p0[6] and is MASKED OUT of
                     // the shift decode, so p0 in [0,63] is bit-identical to
                     // the shipped behaviour (see the module header).
@@ -638,8 +646,8 @@ module vec_alu #(
                     p0_q   <= cfg_p0;
                     srca_q <= cfg_srca;
                     dst_q  <= cfg_dst;
-                    park_q <= cfg_dst + ((cfg_op == 4'd9) ? 14'({cfg_len, 1'b0})
-                                                          : 14'(cfg_len));
+                    park_q <= cfg_dst + ((cfg_op == 4'd9) ? 16'({cfg_len, 1'b0})
+                                                          : 16'(cfg_len));
                     maxabs <= '0;
                     eq     <= '0;
                     busy   <= 1'b1;
@@ -652,17 +660,17 @@ module vec_alu #(
                     nw_e32 = (cfg_op == 4'd8);
                     nw_bb  = (cfg_op == 4'd3) || (cfg_op == 4'd4);
                     if (nw_pr2) begin
-                        fb = cfg_srca + 14'd1;
-                        na = cfg_srca + 14'd2;  nb = cfg_srca + 14'd3;
+                        fb = cfg_srca + 16'd1;
+                        na = cfg_srca + 16'd2;  nb = cfg_srca + 16'd3;
                     end else if (nw_e32) begin
                         fb = cfg_srcb;
-                        na = cfg_srca + 14'd1;  nb = cfg_srcb;
+                        na = cfg_srca + 16'd1;  nb = cfg_srcb;
                     end else if (nw_bb) begin
                         fb = cfg_srcb;
-                        na = cfg_srca + 14'd1;  nb = cfg_srcb + 14'd1;
+                        na = cfg_srca + 16'd1;  nb = cfg_srcb + 16'd1;
                     end else begin              // ops 0/2/5/7/11/13/14: b unused
                         fb = cfg_srca;
-                        na = cfg_srca + 14'd1;  nb = cfg_srca + 14'd1;
+                        na = cfg_srca + 16'd1;  nb = cfg_srca + 16'd1;
                     end
                     a_addr <= cfg_srca;
                     b_addr <= fb;
@@ -670,9 +678,9 @@ module vec_alu #(
                     ba_r   <= nb;
                     wa_r   <= cfg_dst;
                     ag_ph  <= nw_e32 || (cfg_op == 4'd9);
-                    ag_i   <= nw_e32 ? 13'd0 : 13'd1;
-                    ag_run <= nw_e32 ? 1'b1 : (cfg_len != 12'd1);
-                    t_ad   <= nw_e32 ? 2'b00 : {(cfg_len == 12'd1), 1'b1};
+                    ag_i   <= nw_e32 ? 14'd0 : 14'd1;
+                    ag_run <= nw_e32 ? 1'b1 : (cfg_len != 14'd1);
+                    t_ad   <= nw_e32 ? 2'b00 : {(cfg_len == 14'd1), 1'b1};
 
                     // a start pulse always begins with an empty pipe
                     {t_rd, t_cp, t_ex, t_m0, t_m1}  <= '0;
@@ -700,13 +708,13 @@ module vec_alu #(
                         // pass 2 is a stride-1, port-b-unused stream
                         a_addr <= srca_q;
                         b_addr <= srca_q;
-                        aa_r   <= srca_q + 14'd1;
-                        ba_r   <= srca_q + 14'd1;
+                        aa_r   <= srca_q + 16'd1;
+                        ba_r   <= srca_q + 16'd1;
                         wa_r   <= dst_q;
-                        ag_i   <= 13'd1;
+                        ag_i   <= 14'd1;
                         ag_ph  <= 1'b0;
-                        ag_run <= (len_q != 12'd1);
-                        t_ad   <= {(len_q == 12'd1), 1'b1};
+                        ag_run <= (len_q != 14'd1);
+                        t_ad   <= {(len_q == 14'd1), 1'b1};
                         st     <= C_RUN;
                     end
                 end
@@ -726,14 +734,14 @@ module vec_alu #(
                                               : 64'd0;
                         op_q   <= 4'd1;             // internal: SHIFT32 pass
                         a_addr <= srca_q;
-                        b_addr <= srca_q + 14'd1;
-                        aa_r   <= srca_q + 14'd2;
-                        ba_r   <= srca_q + 14'd3;
+                        b_addr <= srca_q + 16'd1;
+                        aa_r   <= srca_q + 16'd2;
+                        ba_r   <= srca_q + 16'd3;
                         wa_r   <= dst_q;
-                        ag_i   <= 13'd1;
+                        ag_i   <= 14'd1;
                         ag_ph  <= 1'b0;
-                        ag_run <= (len_q != 12'd1);
-                        t_ad   <= {(len_q == 12'd1), 1'b1};
+                        ag_run <= (len_q != 14'd1);
+                        t_ad   <= {(len_q == 14'd1), 1'b1};
                         st     <= C_RUN;
                     end else begin                  // op-8 probe: done
                         busy <= 1'b0;

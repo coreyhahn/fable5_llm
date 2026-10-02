@@ -1,0 +1,52 @@
+=== host: snoke  date: 2026-09-23T20:42:23-06:00
+=== tree: e603b0c
+=== cmd : env FABLE5_MODEL=9b /home/cah/.venv/bin/python ref/perplexity_eval.py --corpus ref/ppl_corpus_eval.txt --expect-corpus-sha256 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876 --window 512 --threads 12 --act a8 --json-out evidence/qwen_next/nvfp4/n57_ppl_9b_bf16_a8_cpu.json
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+corpus gate PASS: sha256 starts 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876 (checked before tokenizing)
+model      FABLE5_MODEL=9b  32 layers  H=4096  vocab=248320
+checkpoint /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+           /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00002-of-00004.safetensors  (6fb55b1326b7e6b4…)
+           /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00003-of-00004.safetensors  (fd6ddcdceb46ce1b…)
+           /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00004-of-00004.safetensors  (245c737a43e483e0…)
+           header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b   (combined over 4 shards)
+lm_head    lm_head.weight
+tokenizer  /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a
+corpus     ref/ppl_corpus_eval.txt
+           sha256 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876
+           24576 tokens, window=512, batch=4
+inject     (none — bf16 anchor)
+host       snoke
+torch 2.12.0+cpu  threads=12
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+  model built + loaded in 173.3s
+    class    quant    mats   weights   packed  (ideal)   footprint   [packed = w4a8_ref.row_stride, beat padding included]
+    qkv      bf16      24 mats   335.544 M 16.000 b/w (16.000)     640.0 MiB
+    o_proj   bf16       8 mats   134.218 M 16.000 b/w (16.000)     256.0 MiB
+    gate_up  bf16      64 mats  3221.225 M 16.000 b/w (16.000)    6144.0 MiB
+    down     bf16      32 mats  1610.613 M 16.000 b/w (16.000)    3072.0 MiB
+    dn_in    bf16      96 mats  1214.251 M 16.000 b/w (16.000)    2316.0 MiB
+    dn_out   bf16      24 mats   402.653 M 16.000 b/w (16.000)     768.0 MiB
+    lm_head  bf16       1 mats  1017.119 M 16.000 b/w (16.000)    1940.0 MiB
+    dn_conv  bf16      24 mats     0.786 M 16.000 b/w (16.000)       1.5 MiB
+    emb      bf16       1 mats  1017.119 M 16.000 b/w (16.000)    1940.0 MiB
+    _float   bf16     153 mats     0.275 M 16.000 b/w (16.000)       0.5 MiB
+    _total   bf16     427 mats  8953.803 M 16.000 b/w (16.000)   17078.0 MiB
+act        a8: 129 input sites hooked (249 matvecs incl. the head)
+  window 4/48  positions=2044  running PPL=6.6387  150.5s
+  window 8/48  positions=4088  running PPL=7.3321  302.7s
+  window 12/48  positions=6132  running PPL=7.5861  453.5s
+  window 16/48  positions=8176  running PPL=7.7043  583.2s
+  window 20/48  positions=10220  running PPL=7.9650  710.7s
+  window 24/48  positions=12264  running PPL=8.2730  835.6s
+  window 28/48  positions=14308  running PPL=7.9723  960.7s
+  window 32/48  positions=16352  running PPL=7.8080  1085.3s
+  window 36/48  positions=18396  running PPL=8.2278  1209.7s
+  window 40/48  positions=20440  running PPL=8.3502  1335.7s
+  window 44/48  positions=22484  running PPL=8.3724  1460.7s
+  window 48/48  positions=24528  running PPL=8.7090  1584.3s
+
+nll_sum 53087.321441  positions 24528  nll/pos 2.164356  eval 1584.3s (build 174.6s)
+json -> evidence/qwen_next/nvfp4/n57_ppl_9b_bf16_a8_cpu.json
+PPL 8.708991
+=== rc  : 0
+=== end : 2026-09-23T21:11:53-06:00

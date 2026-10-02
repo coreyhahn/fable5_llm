@@ -1,0 +1,63 @@
+=== host: snoke
+=== date: 2026-09-05T12:04:01-06:00
+=== tree: 8f89870
+=== cmd:  bash evidence/qwen9b/s4/census_nodrain_red.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+CENSUS_NODRAIN_RED: host snoke, script scripts/w9/lay9b_s1.txt
+
+=== arm nd8: NODRAIN=1 LAT=8
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55354 w=36976 miss=0, LAT=8 modelled
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=NODRAIN (the sequencer's rule: poll cmd_cnt only)
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0  wall=86s
+    F1_HOLD=0  F2_HOLD=17275  F2_FENCE=0  LCYC=1309741  SDMA=134963
+
+=== arm dr8: NODRAIN=0 LAT=8
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55354 w=36976 miss=0, LAT=8 modelled
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=         DRAINING (poll cmd_cnt AND busy_any low)
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0  wall=86s
+    F1_HOLD=0  F2_HOLD=0  F2_FENCE=0  LCYC=1292466  SDMA=134963
+
+=== arm nd4000: NODRAIN=1 LAT=4000
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55354 w=36976 miss=0, LAT=4000 modelled
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=NODRAIN (the sequencer's rule: poll cmd_cnt only)
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0  wall=141s
+    F1_HOLD=2041718  F2_HOLD=825566  F2_FENCE=0  LCYC=4159750  SDMA=3604419
+
+=== arm dr4000: NODRAIN=0 LAT=4000
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55354 w=36976 miss=0, LAT=4000 modelled
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=         DRAINING (poll cmd_cnt AND busy_any low)
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0  wall=149s
+    F1_HOLD=0  F2_HOLD=0  F2_FENCE=0  LCYC=1292466  SDMA=3604419
+
+=== the verdicts
+    ok   RED: the F1 hold counter FIRED at LAT 4000 under +nodrain (2041718 cycles)
+    ok   NEGATIVE ARM: the DRAINING mode at LAT 8 reports 0 / 0
+    ok   NEGATIVE ARM: the DRAINING mode at LAT 4000 reports 0 / 0
+    ok   IDENTITY at LAT 8: LCYC 1309741 - F1 0 - F2 17275 = 1292466 = the draining LCYC
+    ok   IDENTITY at LAT 4000: LCYC 4159750 - F1 2041718 - F2 825566 = 1292466 = the draining LCYC
+
+CENSUS_NODRAIN_RED: PASS — the fence-hold counters fire under
+  back-to-back dispatch at a latency the schedule cannot hide, read
+  zero when the drain makes a hold impossible, account to the CYCLE
+  for the whole difference between the two dispatch modes, and every
+  arm stayed bit-exact
+=== rc: 0
+=== end: 2026-09-05T12:11:44-06:00

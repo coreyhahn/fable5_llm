@@ -1,0 +1,108 @@
+=== host: snoke  date: 2026-09-15T16:30:02-06:00
+=== tree: 4916d39+dirty
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/feas2/ddr_fit2.py
+=== venv: 3.12.3 numpy 2.4.6
+
+==============================================================================
+VALIDATION 1 — the SHIPPED 9B W4 g128 pack, reproduced
+==============================================================================
+  bytes/token   4,091,805,696   want 4,091,805,696   OK
+                3902.25 MiB  (RD9_GATE 10.3 total 3,902.25 MiB)
+  chan 0        1,025,925,120 =   978.40 MiB   want 1,025,925,120 =   978.40 MiB   OK
+  chan 1        1,022,681,088 =   975.30 MiB   want 1,022,681,088 =   975.30 MiB   OK
+  chan 2        1,021,599,744 =   974.27 MiB   want 1,021,599,744 =   974.27 MiB   OK
+  chan 3        1,021,599,744 =   974.27 MiB   want 1,021,599,744 =   974.27 MiB   OK
+  max/min       1.004234  (RD9_GATE 10.3: 1.004234)
+
+==============================================================================
+VALIDATION 2 — every image list vs the checkpoint's own tensors
+==============================================================================
+  9B       derived CONV_DIM   8192  checkpoint conv1d rows   8192  OK
+           image list   7,935,623,168 params vs checkpoint (text+head)   8,953,803,264   ratio 0.886285
+           images 249
+  27B      derived CONV_DIM  10240  checkpoint conv1d rows  10240  OK
+           image list  25,621,954,560 params vs checkpoint (text+head)  26,895,998,464   ratio 0.952631
+           images 497
+  35B-A3B  derived CONV_DIM   8192  checkpoint conv1d rows   8192  OK
+           image list  34,150,809,600 params vs checkpoint (text+head)  34,660,610,688   ratio 0.985292
+           images 431
+
+==============================================================================
+STREAMED BYTES PER TOKEN, and the FOOTPRINT — ONE BOARD, nch=4
+==============================================================================
+model     map         images           B/token    MiB/tok    b/w   pack MiB  busiest ch   % 1280   % 3840
+9B        all:w8g128     249     8,059,617,280     7686.2  8.125     7686.9      1927.3    150.6     50.2
+9B        all:w4g128     249     4,091,805,696     3902.2  4.125     3902.9       978.6     76.5     25.5
+9B        all:w4g64      249     4,215,799,808     4020.5  4.250     4021.1      1008.2     78.8     26.3
+27B       all:w8g128     497    26,216,366,080    25001.9  8.186    25002.8      6257.8    488.9    163.0
+27B       all:w4g128     497    13,405,388,800    12784.4  4.186    12784.6      3199.8    250.0     83.3
+27B       all:w4g64      497    13,734,051,840    13097.8  4.288    13099.2      3278.5    256.1     85.4
+35B-A3B   all:w8g128     431     3,067,371,520     2925.3  8.486    34546.1      8639.4    674.9    225.0
+35B-A3B   all:w4g128     431     1,605,263,360     1530.9  4.488    18271.7      4569.4    357.0    119.0
+35B-A3B   all:w4g64      431     1,610,506,240     1535.9  4.489    18276.7      4570.6    357.1    119.0
+
+  '% 1280' is the AS-BUILT per-channel weight window (EMB_BASE-W_BASE = 1280 MiB, sw/hwmap.py:478-481).
+  '% 3840' is the window a per-channel RUNTIME EmB_BASE would give on a
+  channel with no embedding table (4096 - 256 MiB W_BASE) — docs/QWEN35_NEXT_FEASIBILITY.md 3.2.
+
+==============================================================================
+THE EMBEDDING TABLE, and the EMBLOG2 row stride
+==============================================================================
+model          H  nat row B  pow2 row B  EMBLOG2    nat MiB  padded MiB  waste MiB
+9B          4096       8192        8192       13     1940.0      1940.0        0.0
+27B         5120      10240       16384       14     2425.0      3880.0     1455.0
+35B-A3B     2048       4096        4096       12      970.0       970.0        0.0
+
+==============================================================================
+ONE BOARD: does the whole model fit 4 x 4 GiB = 16 GiB?
+==============================================================================
+model     map         weights GiB   emb GiB  total GiB  % of 16    verdict
+9B        all:w8g128        7.507     1.895      9.401     58.8       FITS
+9B        all:w4g128        3.811     1.895      5.706     35.7       FITS
+9B        all:w4g64         3.927     1.895      5.821     36.4       FITS
+27B       all:w8g128       24.417     3.789     28.206    176.3       OVER
+27B       all:w4g128       12.485     3.789     16.274    101.7       OVER
+27B       all:w4g64        12.792     3.789     16.581    103.6       OVER
+35B-A3B   all:w8g128       33.736     0.947     34.684    216.8       OVER
+35B-A3B   all:w4g128       17.843     0.947     18.791    117.4       OVER
+35B-A3B   all:w4g64        17.848     0.947     18.796    117.5       OVER
+
+==============================================================================
+TWO BOARDS — the three splits, per board
+==============================================================================
+Board A keeps the PCIe host (XDMA) and the embedding table; board B
+has power only.  'stream/tok' is what that board reads from its own
+DDR for one token; the embedding table is a single row read, not a
+stream, and is excluded from stream/tok exactly as it is on one board.
+
+--- 27B  all:w4g128  (64 layers) ---
+  PIPELINE cut@32, A holds the head  A 10.342 GiB /   6710.5 MiB/tok   B  5.932 GiB /   6073.9 MiB/tok   
+  PIPELINE cut@32, B holds the head  A  9.721 GiB /   6073.9 MiB/tok   B  6.553 GiB /   6710.5 MiB/tok   
+  TENSOR-PAR (rows halved)              A 10.032 GiB /   6392.2 MiB/tok   B  6.242 GiB /   6392.2 MiB/tok
+
+--- 27B  all:w8g128  (64 layers) ---
+  PIPELINE cut@32, A holds the head  A 16.604 GiB /  13122.3 MiB/tok   B 11.602 GiB /  11879.5 MiB/tok   A OVER 
+  PIPELINE cut@32, B holds the head  A 15.391 GiB /  11879.5 MiB/tok   B 12.815 GiB /  13122.3 MiB/tok   
+  TENSOR-PAR (rows halved)              A 15.997 GiB /  12500.9 MiB/tok   B 12.208 GiB /  12500.9 MiB/tok
+
+--- 35B-A3B  all:w4g128  (40 layers) ---
+  PIPELINE cut@20, A holds the head  A  9.995 GiB /    894.3 MiB/tok   B  8.796 GiB /    636.6 MiB/tok   
+  PIPELINE cut@20, B holds the head  A  9.743 GiB /    636.6 MiB/tok   B  9.048 GiB /    894.3 MiB/tok   
+  EXPERT-PAR, mixers REPLICATED         A 10.353 GiB   B  9.154 GiB
+     per board routed stream/tok: balanced 270.0 MiB (E/2 hold k/2=4), worst case 540.0 MiB (all 8 on one board)
+     mixers+shared+router/tok 733.2 MiB, head 257.7 MiB
+  EXPERT-PAR, mixers SPLIT (TP on attn/DN)  A  9.869 GiB   B  8.922 GiB
+
+--- 35B-A3B  all:w8g128  (40 layers) ---
+  PIPELINE cut@20, A holds the head  A 18.060 GiB /   1712.7 MiB/tok   B 16.624 GiB /   1212.6 MiB/tok   A OVER B OVER
+  PIPELINE cut@20, B holds the head  A 17.571 GiB /   1212.6 MiB/tok   B 17.112 GiB /   1712.7 MiB/tok   A OVER B OVER
+  EXPERT-PAR, mixers REPLICATED         A 18.746 GiB   B 17.310 GiB
+     per board routed stream/tok: balanced 510.0 MiB (E/2 hold k/2=4), worst case 1020.0 MiB (all 8 on one board)
+     mixers+shared+router/tok 1405.1 MiB, head 500.2 MiB
+  EXPERT-PAR, mixers SPLIT (TP on attn/DN)  A 17.815 GiB   B 16.868 GiB
+
+==============================================================================
+DONE
+==============================================================================
+=== rc  : 0
+=== end : 2026-09-15T16:30:02-06:00

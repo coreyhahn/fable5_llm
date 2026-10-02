@@ -4,11 +4,40 @@
 # Usage: ./stage1_hw_bringup.sh <bitfile> <expected_version_hex8>
 # Logs everything to evidence/stage1/hw_bringup_<ts>.log; exits nonzero on
 # any gate failure. Safe-reprogram flow: remove -> JTAG -> rescan.
+#
+# O3 (user ruling 2026-08-29): the WHOLE bring-up — remove, JTAG, rescan,
+# the CSR gates and both ddr_test runs — is ONE hold of the shared board
+# lock (sw/board_lock.py).  Not three: the reprogram window and the 16 GiB
+# of DDR writes that follow it are the same critical section, and handing
+# the lock back between them would let another checkout in.  program_fpga.sh
+# and ddr_test.py INHERIT the hold rather than re-taking it.
 set -euo pipefail
 
 BIT=${1:?usage: stage1_hw_bringup.sh <bitfile> <version_hex8>}
 EXPECT_VER=${2:?need expected version (git short8 hex)}
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+
+# STAGE1_NO_LOCK=1 is the --no-lock escape for this script.  It is NOT a
+# quiet one: it goes through sw/board_lock.py --announce-no-lock, so it
+# prints the same banner on stdout AND stderr, names the current holder, and
+# appends the same audit line to <lock>.nolock.log as every other tool.  It
+# is documented by name in docs/USAGE.md §5 and
+# evidence/qwen9b/o3/BOARD_LOCK.md §6.
+# NL is passed DOWN to every child that would otherwise take a lock of its
+# own.  Without it the escape is a lie: program_fpga.sh and ddr_test.py find
+# no inherited fd, take the lock themselves, and a live holder makes one of
+# them REFUSE in the middle of the sequence -- after the endpoint is out.
+NL=()
+if [ "${STAGE1_NO_LOCK:-0}" = 1 ]; then
+    python3 "$SCRIPT_DIR/board_lock.py" \
+        --tool "stage1_hw_bringup.sh (STAGE1_NO_LOCK=1)" \
+        --announce-no-lock || true
+    NL=(--no-lock)
+elif ! python3 "$SCRIPT_DIR/board_lock.py" --check-inherited >/dev/null 2>&1
+then
+    exec python3 "$SCRIPT_DIR/board_lock.py" \
+        --tool "stage1_hw_bringup.sh" --exec -- "$0" "$@"
+fi
 REPO=$(cd "$SCRIPT_DIR/.." && pwd)
 TS=$(date +%Y%m%d_%H%M%S)
 EV="$REPO/evidence/stage1"
@@ -18,8 +47,25 @@ exec > >(tee "$LOG") 2>&1
 
 PCIE="sudo -n $SCRIPT_DIR/pcie_helper.sh"
 BDF=82:00.0
+NEED_RESCAN=0
 
 step() { echo; echo "=== [$(date +%H:%M:%S)] $* ==="; }
+
+# `set -e` with no trap used to abort between step 1 (remove) and step 3
+# (rescan) and leave the endpoint OFF THE PCI TREE with the lock released on
+# unwind -- the board then looks dead to lspci and to every tool.  Every exit
+# path now puts it back.
+on_exit() {
+    rc=$?
+    if [ "$NEED_RESCAN" = 1 ]; then
+        NEED_RESCAN=0
+        echo "=== rescan on exit (rc=$rc): putting the endpoint back"
+        $PCIE rescan || echo "FATAL: rescan FAILED — the endpoint is OFF THE" \
+            "BUS.  Run: sudo -n $SCRIPT_DIR/pcie_helper.sh rescan" >&2
+    fi
+    exit $rc
+}
+trap on_exit EXIT INT TERM
 
 step "0. preconditions"
 [ -f "$BIT" ] || { echo "FATAL: bitstream $BIT missing"; exit 1; }
@@ -37,13 +83,17 @@ if [ "${SKIP_PROGRAM:-0}" = "1" ]; then
     step "1-3. SKIPPED (SKIP_PROGRAM=1): using already-programmed design"
 else
     step "1. remove device from PCI tree (host-hang safety)"
+    NEED_RESCAN=1                 # armed BEFORE the remove — see program_fpga.sh
     $PCIE remove
 
     step "2. JTAG program (volatile)"
-    "$SCRIPT_DIR/program_fpga.sh" "$BIT"
+    # --jtag-only: THIS script owns remove/rescan, and it already holds the
+    # board lock, which program_fpga.sh inherits instead of re-taking.
+    "$SCRIPT_DIR/program_fpga.sh" --jtag-only "${NL[@]}" "$BIT"
 
     step "3. rescan PCIe"
     $PCIE rescan
+    NEED_RESCAN=0
 fi
 
 step "4. link state check (want 8GT/s x8)"
@@ -81,10 +131,10 @@ print("CSR SANITY PASS")
 EOF
 
 step "6. quick integrity test (64 MiB/channel)"
-"$REPO/sw/.venv/bin/python" "$SCRIPT_DIR/ddr_test.py" --quick --evidence "$EV"
+"$REPO/sw/.venv/bin/python" "$SCRIPT_DIR/ddr_test.py" "${NL[@]}" --quick --evidence "$EV"
 
 step "7. FULL integrity test: 4 seeds x 2 runs x 4 ch x 4 GiB, no reprogram"
-"$REPO/sw/.venv/bin/python" "$SCRIPT_DIR/ddr_test.py" --evidence "$EV"
+"$REPO/sw/.venv/bin/python" "$SCRIPT_DIR/ddr_test.py" "${NL[@]}" --evidence "$EV"
 
 step "DONE — STAGE1 HARDWARE GATE PASSED"
 echo "log: $LOG"

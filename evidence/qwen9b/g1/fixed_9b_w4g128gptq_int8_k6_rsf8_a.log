@@ -1,0 +1,68 @@
+=== host: snoke
+=== date: 2026-08-29T23:04:31-06:00
+=== tree: a971813+dirty
+=== cmd:  /home/cah/.local/bin/uv run --no-project --with torch --with transformers --with numpy python -u ref/fidelity_check.py --wire-group 128 --prompts 1,2,3,4 --ntok 24 --free-ntok 12 --res-scale 1 --cache /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/ladder/golden_bf16_9b.npz --wq-cache /var/tmp/fable5_wq --wq-cache-verify 2 --json-out /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/fixed_9b_w4g128gptq_int8_k6_rsf8_a.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=6 MKL_NUM_THREADS=6
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=int8:6 FABLE5_RS_F=8
+===       FABLE5_CALIB_STATS=ref/calib_stats_9b_h.npz FABLE5_CALIB_MODE=gptq
+=== ---
+quantizer sources sha256 0c6077f82bf35ead85f427e9f11b2bc82ad33b3613219d9f5b3a42ba8cacd44c  (FABLE5_DN_STATE=int8:6 RS_F=8)
+host: snoke
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b (golden 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b)
+  loaded in 34.9s
+  CALIBRATED quantizer active, mode=gptq (V3 salience / V4 h2 / V4 gptq)
+    FABLE5_CALIB_STATS = ref/calib_stats_9b_h.npz
+    sha256 36689b5990c80e1208060b7864841a9387e19ea27e27ec09f0bfd4dd081dd7d4
+    model_tag=9b corpus=ref/ppl_corpus_calib.txt tokens=32768 tensors=249
+    wq-cache HIT   LM head: wq_head_9b_655e6e098f7822be.pkl (0.96 GiB, 0.7s)
+  LM head from cache (W4 g=128) e=-3 sh=7
+
+=== config S=1 mse gptq int8:6 ===
+    wq-cache HIT   layers: wq_layers_9b_d9ed134ca11f663f.pkl (6.55 GiB, 5.2s)
+    wq-cache VERIFY layer 2 (linear_attention) re-quantized live under FABLE5_DN_STATE=int8:6 RS_F=8: BYTE-IDENTICAL to the cache (333.7s)
+    emb table |q|max 120 of 32767 (16.4s)
+    config done in 14318.2s
+  --- S=1 mse gptq int8:6 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France is Paris.\nThe capital of France is Paris.\nThe capital of France'
+    fixed  argmax [2614, 314, 279, 11, 11751, 13, 198, 32, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 198, 6511, 314, 9338]   top1=24/27  rank=[0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0]  top5ovl=[2, 3, 2, 3, 1, 4, 3, 3, 3, 4, 4, 3, 2, 4, 4, 3, 1, 4, 3, 3, 3, 3, 3, 1, 2, 3, 1]
+    free-running gen=[11, 11751, 11, 369, 279, 3177, 314, 3000, 13, 198, 760, 6511] text=', Paris, is the city of light.\nThe capital'
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264, 22960, 4128, 314, 4947, 11, 1017, 11815, 264, 1809, 314, 2545, 1324, 4627, 13, 3648, 1834, 11, 781, 6426, 310, 1432]  text=', in a magical land of numbers, there lived a group of little number friends. One day, they decided to play'
+    fixed  argmax [279, 264, 854, 303, 303, 264, 854, 4128, 2512, 279, 11, 198, 557, 264, 855, 314, 4947, 1208, 6415, 13, 198, 314, 11, 11, 998, 310, 708]   top1=11/27  rank=[3, 0, 0, 1, 0, 0, 106, 0, 1, 214, 0, 2, 5, 0, 5, 0, 10, 19, 12, 0, 7, 1, 0, 4, 27, 0, 1]  top5ovl=[4, 2, 2, 2, 3, 4, 1, 3, 3, 0, 3, 2, 2, 3, 0, 2, 0, 2, 3, 2, 2, 2, 2, 1, 2, 3, 2]
+    free-running gen=[303, 264, 2526, 6092, 303, 279, 9897, 314, 279, 3516, 4042, 11] text=' in a small town in the north of the United States,'
+  prompt 3 'import numpy as np'
+    golden argmax [313, 430, 2510, 198, 464, 16309, 22974, 430, 6313, 198, 1445, 17451, 56199, 1120, 2706, 62, 40561, 198, 1445, 17451, 3090, 22931, 1120, 5257, 4306, 16551, 198]  text='\nimport matplotlib.pyplot as plt\nfrom sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\n'
+    fixed  argmax [348, 430, 2510, 198, 1445, 18056, 22974, 430, 6313, 198, 1445, 16309, 1120, 1120, 2706, 74183, 40561, 198, 1445, 17451, 56199, 22931, 1120, 5257, 4306, 198, 198]   top1=19/27  rank=[1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 2, 3, 0, 0, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 6, 0]  top5ovl=[3, 4, 3, 4, 5, 3, 5, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2, 5, 3, 3, 2, 1, 2, 2, 1, 1, 4]
+    free-running gen=[198, 1445, 27180, 1120, 10159, 271, 727, 615, 62, 7764, 901, 14308] text='\nfrom scipy import stats\n\ndef get_pearson_cor'
+  prompt 4 'Hello world! My'
+    golden argmax [11, 0, 271, 803, 369, 498, 7525, 3855, 60, 321, 353, 1044, 264, 498, 7525, 47557, 60, 3018, 303, 498, 7525, 9574, 906, 353, 1044, 23653, 883]  text=' name is [Your Name] and I am a [Your Profession] based in [Your Location]. I am passionate about'
+    fixed  argmax [11, 11, 353, 803, 369, 328, 7525, 3855, 906, 0, 353, 1044, 264, 498, 7525, 3855, 906, 0, 303, 498, 7525, 9574, 906, 353, 1044, 264, 883]   top1=18/27  rank=[0, 1, 2, 0, 0, 7, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 12, 0, 0, 0, 0, 0, 0, 0, 44, 0]  top5ovl=[4, 4, 4, 2, 3, 1, 4, 4, 3, 5, 5, 2, 3, 3, 4, 2, 4, 2, 4, 3, 4, 3, 4, 3, 2, 3, 2]
+    free-running gen=[803, 369, 328, 50, 1413, 319, 1, 321, 353, 1044, 264, 328] text=' name is "Sahil" and I am a "'
+    block-float k histogram [dn]: {-14: 2431, -13: 6205, -12: 12266, -11: 16708, -10: 21644, -9: 28604, -8: 21784, -7: 9588, -6: 3964, -5: 2237, -4: 2131, -3: 251, 0: 1211}
+    block-float k histogram [attn]: {7: 2, 8: 68, 9: 441, 10: 397, 11: 125, 12: 191, 13: 79, 14: 31, 15: 10}
+    block-float saturation: m_q15 max raw 8192000, clipped 1211 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x4096      |y|max=30867    clips=0/2752512
+      12288x4096     |y|max=114844   clips=12089/132120576
+      32x4096        |y|max=105326   clips=499/258048
+      4096x12288     |y|max=32253    clips=0/22020096
+      4096x4096      |y|max=41836    clips=6/38535168
+      8192x4096      |y|max=15474    clips=0/44040192
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config                          top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat   S8 sat   |S|max
+S=1 mse gptq int8:6       72/108            0.0       214      2.81    32767     15      635   115073    55757
+
+state container [S=1 mse gptq int8:6]: FABLE5_DN_STATE=int8:6 (law=int8 k=6), RS_F=8; 2113929216 state writes, |S|max 55757 LSB = 6.8063 at Q2.13, int16 rail 1031, container rail 115073
+weight quantization: 0 pass(es) this process, 2 cache hit(s), 0 miss(es); verify layer 2 BYTE-IDENTICAL
+
+-> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/fixed_9b_w4g128gptq_int8_k6_rsf8_a.json
+=== rc: 0
+=== end: 2026-08-30T03:06:42-06:00

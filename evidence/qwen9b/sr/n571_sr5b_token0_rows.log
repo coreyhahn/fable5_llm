@@ -1,0 +1,20 @@
+=== host: snoke  date: 2026-09-28T00:35:23-06:00
+=== tree: 9943a11
+=== cmd : bash -c echo "--- token 0 rows of the R1 s1 timeline CSV (pc op cyc0 ncyc), and the first EMB of token 1"; awk -F, '$1=="R" && $3==0 {n++; s+=$10; if ($4>=36) print "    pc", $4, "op", $5, "cyc0", $9, "ncyc", $10} $1=="R" && $3==1 && $5==6 && !e {print "    token 1 EMB at pc", $4; e=1} END {print "    token 0 rows", n, "window sum", s}' tb/scripts/w9/model_9b_s1_reordB_r1.timeline.csv; echo "--- S1-B (SV1) token 0 rows"; awk -F, '$1=="R" && $3==0 {n++; s+=$10} END {print "    token 0 rows", n, "window sum", s}' tb/scripts/w9/model_9b_s1_reordB.timeline.csv
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+--- token 0 rows of the R1 s1 timeline CSV (pc op cyc0 ncyc), and the first EMB of token 1
+    pc 36 op 2 cyc0 173 ncyc 30
+    pc 37 op 1 cyc0 203 ncyc 4
+    pc 38 op 1 cyc0 207 ncyc 4
+    pc 39 op 11 cyc0 211 ncyc 4662
+    pc 40 op 1 cyc0 4873 ncyc 3
+    pc 41 op 1 cyc0 4876 ncyc 3
+    pc 42 op 1 cyc0 4879 ncyc 3
+    pc 43 op 2 cyc0 4882 ncyc 12315
+    token 1 EMB at pc 44
+    token 0 rows 44 window sum 17159
+--- S1-B (SV1) token 0 rows
+    token 0 rows 39 window sum 173
+=== rc  : 0
+=== end : 2026-09-28T00:35:24-06:00

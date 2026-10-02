@@ -1,0 +1,152 @@
+=== host: snoke  date: 2026-09-27T08:17:22-06:00
+=== tree: 641cb3c+dirty
+=== dirty: ?? evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bmtl/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_control/
+=== dirty: ?? evidence/qwen9b/ov/s1p_cost_fit.py
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/ov/s1p_cost_fit.py census
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== stream /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq
+    sha256 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  manifest 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4, 5, 6): tok1=39624, tok2=39623, tok3=39625, tok4=39624, tok5=39624, tok6=39625
+=== token 1: segment 39..39662, 39624 nodes, 343 groups, leak 0, window sum 32771865
+=== token 2: segment 39663..79285, 39623 nodes, 343 groups, leak 0, window sum 32776832
+=== token 3: segment 79286..118910, 39625 nodes, 343 groups, leak 0, window sum 32782160
+=== token 4: segment 118911..158534, 39624 nodes, 343 groups, leak 0, window sum 32786868
+=== token 5: segment 118911..158534, 39624 nodes, 343 groups, leak 0, window sum 32792031
+=== token 6: segment 118911..158534, 39624 nodes, 343 groups, leak 0, window sum 32796843
+
+##### AMAXL: n      6 mean       17.00 min        17 max        17 sd      0.00
+
+##### CMD: n  52926 mean     1213.95 min        39 max     41002 sd   3117.90
+
+##### CSRWR: n    531 mean        3.00 min         2 max         4 sd      0.08
+
+##### EMB: n      6 mean     4699.00 min      4662 max      4725 sd     26.87
+
+##### FENCE: n   2058 mean    39645.60 min       299 max     85956 sd  24959.13
+
+##### JMP: n      3 mean       26.67 min         2 max        39 sd     17.44
+
+##### LDC: n    966 mean     1992.14 min        90 max      4710 sd   2201.70
+
+##### MOVX: n   5976 mean     5281.90 min      4216 max     12507 sd   2774.53
+
+##### MOVY: n   8220 mean     2078.29 min        76 max      4228 sd   1489.87
+
+##### MVGO: n   8220 mean       32.06 min        32 max        43 sd      0.84
+
+##### STREAM: n   8220 mean    39541.06 min       260 max     85853 sd  24963.69
+
+##### TAU: n   2058 mean       47.52 min        36 max       103 sd     14.61
+
+##### XOP*: n     54 mean        4.00 min         4 max         4 sd      0.00
+
+--- CSRWR (non-ARG) by (target, ind)
+  0x0030 ind 0: n    384 mean        3.00 min         3 max         3 sd      0.00
+  0x005c ind 0: n    144 mean        3.00 min         3 max         3 sd      0.00
+  0x2020 ind 0: n      1 mean        2.00 min         2 max         2 sd      0.00
+  0x204c ind 0: n      2 mean        4.00 min         4 max         4 sd      0.00
+
+--- CMD node dur by key (dur includes merged ARG CSRWRs); dur-L_CMP; L_DMA; nargs
+  ('ALU', 'ADD', 4096)                         n    384 mean     4134.00 min      4134 max      4134 sd      0.00 | dur-Lcmp mean     32.00 min     32 max     32 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'AMAX32', 2048)                      n    726 mean     2080.00 min      2080 max      2080 sd      0.00 | dur-Lcmp mean     27.00 min     27 max     27 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'AMAX32', 512)                       n      6 mean      546.00 min       546 max       546 sd      0.00 | dur-Lcmp mean     29.00 min     29 max     29 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'DYNQ16', 128)                       n   4608 mean      327.00 min       327 max       327 sd      0.00 | dur-Lcmp mean     58.00 min     58 max     58 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'DYNQ8', 12288)                      n    192 mean    24635.07 min     24635 max     24648 sd      0.94 | dur-Lcmp mean     43.43 min     40 max     52 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'DYNQ8', 4096)                       n    582 mean     8255.00 min      8255 max      8255 sd      0.00 | dur-Lcmp mean     44.44 min     41 max     49 | L_DMA mean   1994.51 | nargs [3]
+  ('ALU', 'EMUL', 128)                         n   9216 mean      169.00 min       169 max       169 sd      0.00 | dur-Lcmp mean     29.00 min     29 max     29 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'EMUL32', 2048)                      n   1152 mean     4147.00 min      4147 max      4147 sd      0.00 | dur-Lcmp mean     39.00 min     39 max     39 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'EMUL32', 4096)                      n     48 mean     8242.00 min      8242 max      8242 sd      0.00 | dur-Lcmp mean     38.00 min     38 max     38 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'EMUL32', 4096, 'probe')             n     48 mean     8270.00 min      8270 max      8270 sd      0.00 | dur-Lcmp mean     65.00 min     65 max     65 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'SCALE', 128)                        n   4608 mean      169.00 min       169 max       169 sd      0.00 | dur-Lcmp mean     29.00 min     29 max     29 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'SCALE', 2048)                       n    576 mean     2093.00 min      2093 max      2093 sd      0.00 | dur-Lcmp mean     33.00 min     33 max     33 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'SIGM16', 256)                       n    768 mean      299.00 min       299 max       299 sd      0.00 | dur-Lcmp mean     28.00 min     28 max     28 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'SILU16', 128)                       n   4608 mean      182.00 min       182 max       182 sd      0.00 | dur-Lcmp mean     35.00 min     35 max     35 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'SILU32', 1024)                      n    768 mean     1079.00 min      1079 max      1079 sd      0.00 | dur-Lcmp mean     36.00 min     36 max     36 | L_DMA mean      0.00 | nargs [3]
+  ('ALU', 'SILU32', 2048)                      n    768 mean     2106.00 min      2106 max      2106 sd      0.00 | dur-Lcmp mean     39.00 min     39 max     39 | L_DMA mean      0.00 | nargs [3]
+  ('ATTN', 'tok1')                             n    128 mean     1898.00 min      1898 max      1898 sd      0.00 | dur-Lcmp mean     37.00 min     37 max     37 | L_DMA mean      0.00 | nargs [3]
+  ('ATTN', 'tok2')                             n    128 mean     1937.00 min      1937 max      1937 sd      0.00 | dur-Lcmp mean     35.00 min     35 max     35 | L_DMA mean      0.00 | nargs [3]
+  ('ATTN', 'tok3')                             n    128 mean     1976.00 min      1976 max      1976 sd      0.00 | dur-Lcmp mean     33.00 min     33 max     33 | L_DMA mean      0.00 | nargs [3]
+  ('ATTN', 'tok4')                             n    128 mean     2015.00 min      2015 max      2015 sd      0.00 | dur-Lcmp mean     31.00 min     31 max     31 | L_DMA mean      0.00 | nargs [3]
+  ('ATTN', 'tok5')                             n    128 mean     2054.00 min      2054 max      2054 sd      0.00 | dur-Lcmp mean     29.00 min     29 max     29 | L_DMA mean      0.00 | nargs [3]
+  ('ATTN', 'tok6')                             n    128 mean     2093.00 min      2093 max      2093 sd      0.00 | dur-Lcmp mean     27.00 min     27 max     27 | L_DMA mean      0.00 | nargs [3]
+  ('CONV', 8192)                               n    144 mean    41002.00 min     41002 max     41002 sd      0.00 | dur-Lcmp mean     29.00 min     29 max     29 | L_DMA mean      0.00 | nargs [3]
+  ('DNST',)                                    n   4608 mean     2990.00 min      2990 max      2990 sd      0.00 | dur-Lcmp mean     31.00 min     31 max     31 | L_DMA mean      0.00 | nargs [3]
+  ('GATE',)                                    n    144 mean     1352.00 min      1352 max      1352 sd      0.00 | dur-Lcmp mean     37.00 min     37 max     37 | L_DMA mean      0.00 | nargs [3]
+  ('KVAP',)                                    n    192 mean     4654.00 min      4654 max      4654 sd      0.00 | dur-Lcmp mean     32.29 min     28 max     35 | L_DMA mean     90.83 | nargs [3]
+  ('ROPE',)                                    n    960 mean     1066.00 min      1066 max      1066 sd      0.00 | dur-Lcmp mean     39.00 min     39 max     39 | L_DMA mean      0.00 | nargs [3]
+  ('ROPET',)                                   n     48 mean      416.00 min       416 max       416 sd      0.00 | dur-Lcmp mean     31.00 min     31 max     31 | L_DMA mean      0.00 | nargs [3]
+  ('SLD', 0)                                   n    144 mean       39.00 min        39 max        39 sd      0.00 | dur-Lcmp mean     39.00 min     39 max     39 | L_DMA mean     29.62 | nargs [3]
+  ('SLD', 1)                                   n    384 mean       39.00 min        39 max        39 sd      0.00 | dur-Lcmp mean     39.00 min     39 max     39 | L_DMA mean     24.48 | nargs [3]
+  ('SLD', 2)                                   n    144 mean     5059.17 min        39 max     17251 sd   7823.36 | dur-Lcmp mean     35.50 min     27 max     39 | L_DMA mean   5050.17 | nargs [3]
+  ('SST', 0)                                   n    144 mean       39.00 min        39 max        39 sd      0.00 | dur-Lcmp mean     39.00 min     39 max     39 | L_DMA mean     19.00 | nargs [3]
+  ('SST', 1)                                   n    384 mean       39.00 min        39 max        39 sd      0.00 | dur-Lcmp mean     39.00 min     39 max     39 | L_DMA mean     21.58 | nargs [3]
+  ('SST', 2)                                   n    144 mean       39.00 min        39 max        39 sd      0.00 | dur-Lcmp mean     39.00 min     39 max     39 | L_DMA mean     30.00 | nargs [3]
+  ('VN', 'EPS-NORM', 128)                      n   4608 mean      338.00 min       338 max       338 sd      0.00 | dur-Lcmp mean     30.00 min     30 max     30 | L_DMA mean      0.00 | nargs [3]
+  ('VN', 'l2norm', 128)                        n   9216 mean      338.00 min       338 max       338 sd      0.00 | dur-Lcmp mean     34.00 min     34 max     34 | L_DMA mean      0.00 | nargs [3]
+  ('VN', 'rmsnorm0', 256)                      n    960 mean      598.00 min       598 max       598 sd      0.00 | dur-Lcmp mean     35.00 min     35 max     35 | L_DMA mean      0.00 | nargs [3]
+  ('VN', 'rmsnorm0', 4096)                     n    384 mean     8281.00 min      8281 max      8281 sd      0.00 | dur-Lcmp mean     38.00 min     38 max     38 | L_DMA mean   3102.00 | nargs [3]
+  ('VN', 'rmsnorm1', 4096)                     n      6 mean     8281.00 min      8281 max      8281 sd      0.00 | dur-Lcmp mean     38.00 min     38 max     38 | L_DMA mean   8272.00 | nargs [3]
+  ('VNW',)                                     n    486 mean    10048.84 min       806 max     12324 sd   4585.73 | dur-Lcmp mean     35.40 min     35 max     37 | L_DMA mean   3800.93 | nargs [3]
+
+--- MOVX by feature
+  12288                    n    768 mean    12507.00 min     12507 max     12507 sd      0.00
+  4096                     n   5208 mean     4216.44 min      4216 max      4219 sd      1.06
+
+--- MOVY by feature
+  (1024, 0)                n   1536 mean     2148.00 min      2148 max      2148 sd      0.00
+  (1024, 1)                n   2112 mean     1111.00 min      1111 max      1111 sd      0.00
+  (2048, 0)                n   2262 mean     4228.00 min      4228 max      4228 sd      0.00
+  (2048, 1)                n    768 mean     2155.00 min      2155 max      2155 sd      0.00
+  (256, 1)                 n    384 mean      325.00 min       324 max       328 sd      1.73
+  (512, 0)                 n      6 mean     1108.00 min      1108 max      1108 sd      0.00
+  (8, 1)                   n   1152 mean       76.00 min        76 max        76 sd      0.00
+
+--- MVGO by feature
+  0                        n   2058 mean       32.26 min        32 max        43 sd      1.66
+  1                        n   2058 mean       32.00 min        32 max        32 sd      0.00
+  2                        n   2052 mean       32.00 min        32 max        32 sd      0.00
+  3                        n   2052 mean       32.00 min        32 max        32 sd      0.00
+
+--- STREAM by feature
+  (101376, 4)              n    768 mean    85853.00 min     85853 max     85853 sd      0.00
+  (16896, 2)               n      6 mean    14338.67 min     14338 max     14339 sd      0.47
+  (264, 4)                 n   1152 mean      260.06 min       260 max       261 sd      0.24
+  (33792, 4)               n   2880 mean    28641.49 min     28641 max     28642 sd      0.50
+  (67584, 2)               n      6 mean    57247.33 min     57247 max     57248 sd      0.47
+  (67584, 4)               n   3024 mean    57247.31 min     57247 max     57248 sd      0.46
+  (8448, 4)                n    384 mean     7187.38 min      7187 max      7188 sd      0.49
+
+--- FENCE by feature
+  2                        n      6 mean    57276.00 min     57276 max     57276 sd      0.00
+  4                        n   2052 mean    39594.05 min       299 max     85956 sd  24977.35
+
+--- TAU by feature
+  2                        n      6 mean       60.67 min        60 max        61 sd      0.47
+  4                        n   2052 mean       47.48 min        36 max       103 sd     14.61
+
+--- LDC by feature
+  (128, 0)                 n    144 mean      204.25 min       198 max       246 sd     16.04
+  (128, 1)                 n     48 mean      199.00 min       198 max       246 sd      6.86
+  (256, 0)                 n     96 mean      347.00 min       342 max       390 sd     14.66
+  (32, 0)                  n    144 mean       93.33 min        90 max       138 sd     12.20
+  (4096, 0)                n    390 mean     4666.58 min      4662 max      4710 sd     13.13
+  (64, 0)                  n    144 mean      130.00 min       126 max       174 sd     13.27
+
+--- EMB by feature
+  4096                     n      6 mean     4699.00 min      4662 max      4725 sd     26.87
+=== rc  : 0
+=== end : 2026-09-27T08:17:28-06:00

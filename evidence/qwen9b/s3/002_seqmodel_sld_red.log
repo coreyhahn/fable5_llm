@@ -1,0 +1,39 @@
+=== host: darthplagueis
+=== date: 2026-09-04T21:16:00-06:00
+=== tree: 1eafa7c+dirty
+=== cmd:  sh evidence/qwen9b/g4/run_g4a_seqgate.sh lay9b_s1
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== interpreter /home/cah/r2d2/code/fpga/fable5_llm/ref/.venv/bin/python
+--- lay9b_s1
+    --- SEQ gate: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1.e4
+      stream   4088 records, 65408 B (sha256 3a9982fb85eb509d)
+      seqdata  51136 B (sha256 bfbc0c00bfcdccf6)
+      profile  epsnorm   newops from layer_fixed (agent A)
+      opcodes  {'CSRWR': 2711, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'FENCE': 38, 'HALT': 1, 'LDC*': 22, 'XOP*': 2}
+      loop     0 steps  (fewer than two decode steps)
+    Traceback (most recent call last):
+      File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1245, in <module>
+        main()
+      File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1234, in main
+        ok, rep = gate(a.gate, base=a.base)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 890, in gate
+        ref = TxtReplay(base + ".txt", emb=emb).run()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 730, in run
+        cmd(op, a0, a1, a2)
+      File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 835, in __call__
+        self.x._layer_cmd(op)
+      File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 493, in _layer_cmd
+        raise SF.SeqValidationError(f"unknown layer_chan opcode {op}")
+    seq_format.SeqValidationError: unknown layer_chan opcode 13
+    NO 'SEQ GATE: PASS' for lay9b_s1 (rc=1)
+G4A_SEQGATE: FAIL
+=== rc: 1
+=== end: 2026-09-04T21:16:00-06:00

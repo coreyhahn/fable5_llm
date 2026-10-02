@@ -1,0 +1,29 @@
+=== host: snoke  date: 2026-09-27T10:39:18-06:00
+=== tree: ba9ba4f
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/bm/bm1_reorder_tdd.py
+=== env : FABLE5_MODEL=9b  FABLE5_SEQ_EXPECT_VERSION=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+T1 CLI
+  [PASS] T1a --reorder in --help
+  [PASS] T1b --reorder C is an argparse error (rc 2)  rc 2
+T2 pins
+  [PASS] T2a form A pinned to the SV1 artifact
+  reorder    form B: PER IMAGE on the shipped template (static costs at position 0); pins lite c9efdf35175d55d4 full 7119833ca6ed7d1f
+  [PASS] T2b form B admitted (S1P lifts B7)  {'form': 'B', 'per_image': True, 'template': '/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4', 'pins': {'lite': 'c9efdf35175d55d45b460a18e0c31
+T3 off by default, byte-identical
+  [PASS] T3 preamble identical to 904b311  ('04f998daed6143c018d9589c47b94735ad709130c84af7028f80a1b1e71359b9', '04f998daed6143c018d9
+  [PASS] T3 lite identical to 904b311  ('9b6e3c005b88ec64586c132e33b590196408840c7559db147aff4fcc5e2b1c0e', '6cd8a5debaf82f0bd044
+  [PASS] T3 full identical to 904b311  ('2fd5b1a4a84ef815d8acd3b97cdaac7855c65c3a057f95b85f9f661663fcd370', '4b1ee083f3d9e78e89d6
+  [PASS] T3 blob identical to 904b311  a3ea37aa79d3e8041db8b8b841ca5d9c539c7604bf62bb1a8cfd299c20b66731
+  [PASS] T3 base identical to 904b311  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1
+  [PASS] T3 tmpl_sha identical to 904b311  9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+T4 resolve_reorder('A')
+  reorder    form A: regenerated model_9b_s1_reordA.e4 in-process == pin b6ced3f92d3fe8c3 (156616 records); hazard assert PASS {'MOVX': 2064, 'MVGO': 5480, 'MOVY': 5480, 'FENCE': 1372}; postcheck 220008 edges, 0 violations (19.7 s)
+  [PASS] T4a regenerated == pinned; template switched  {'form': 'A', 'template': '/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordA.e4', 'regenerated_sha256': 'b6ced3f92d3fe8c3fbb1bd02a3eda3b561478e4733ffd40a25ce1bd862ab319d', 'records'
+  [PASS] T4b a tampered pin is REFUSED  ChatSeqError('--reorder A: REFUSED — regenerated b6ced3f92d3fe8c3 (156616 records), pinned 0000000000000000 (156616), on disk b6ced3f92d3fe8c3: the pass no long
+T5 image hazard assert
+  [PASS] T5a the three reordered images pass  {'preamble': {'MOVX': 0, 'MVGO': 0, 'MOVY': 0, 'FENCE': 0}, 'lite': {'MOVX': 512, 'MVGO': 1248, 'MOVY': 1248, 'FENCE': 312}, 'full': {'MOVX': 516, 'MVGO': 1370,
+  [PASS] T5b FENCE-less lite REFUSED  --reorder: hazard assert REFUSED lite-nofence: image lite-nofence: record 37 MOVY on mv0 while the no-wait MVGO at record 30 is still pending (no FENCE between)
+BM1_REORDER_TDD: 14 passed, 0 failed
+=== rc  : 0
+=== end : 2026-09-27T10:40:06-06:00

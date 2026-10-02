@@ -1,0 +1,878 @@
+=== host: snoke  date: 2026-09-28T12:56:22-06:00
+=== tree: 8ec6f57
+=== cmd : bash evidence/qwen9b/sr/sr11c_drift.sh hwmap --audit
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SR11C_EXCLUDE evidence/qwen9b/s3/S3_CHAIN.md                                         standing: S3_CHAIN.md (history)
+SR11C_EXCLUDE evidence/qwen9b/sr/SR11a_R2_MODEL.md                                   standing: SR11a gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/SR7_R1_BUILD.md                                     standing: SR7 gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/sr11c_drift.sh                                      standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr13b_host_tdd.py                                   first commit 7523472 is after the base 67181c6
+SR11C_EXCLUDE evidence/qwen9b/sr/sr7_drift.sh                                        standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr7f1_drift.sh                                      standing: drift wrapper
+SR11C_EXCLUDE tb/scripts/gen_seq_chip_vectors.py                                     standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/scripts/gen_seq_unit_vectors.py                                     standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/seq_stub_mvchan.sv                                                  standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/tb_seq_chip.sv                                                      standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/tb_seq_unit.sv                                                      standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE total 12 document(s)
+=== NEXT_SESSION.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:114-130 -> sw/hwmap.py:118-134   doc lines 497   at-base yes
+      base sw/hwmap.py:114  'def shape_isa_for_version(version):'
+      work sw/hwmap.py:114  'perfectly plausible — and completely different — row shape.'
+      work sw/hwmap.py:118  'def shape_isa_for_version(version):'   <- proposed
+      base end :130 'return SHAPE_ISA_BY_VERSION[v]' / work end :134 'return SHAPE_ISA_BY_VERSION[v]'
+      doc:497  ...st.py` | **VALID** — the four direct-CSR tools; each derives `isa` from the VERSION CSR (`sw/hwmap.py:114-130`). `sw/infer.py` takes `--expect-versio...
+=== docs/ARCHITECTURE.md  (REPAIR 4, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:300-354 -> sw/hwmap.py:304-358   doc lines 118   at-base yes
+      base sw/hwmap.py:300  '# also what ref/seq_format.SEQ_CSR_BASE assumes.'
+      work sw/hwmap.py:300  '# ------------------------------------------- seq_unit (SEQ CSR block @ '
+      work sw/hwmap.py:304  '# also what ref/seq_format.SEQ_CSR_BASE assumes.'   <- proposed
+      base end :354 'SEQ_CAP_BITS = {"R1": 1 << 0,             # the FENCE channel mask (B17.' / work end :358 'SEQ_CAP_BITS = {"R1": 1 << 0,             # the FENCE channel mask (B17.'
+      doc:118  ...Channel-local layout, from the map in `sw/hwmap.py:300-354`:...
+  REPAIR         sw/hwmap.py:221-223 -> sw/hwmap.py:225-227   doc lines 155   at-base yes
+      base sw/hwmap.py:221  'L_SB_DN    = LB + 0x64    # RW DN state region base >> 16   (B15.3)'
+      work sw/hwmap.py:221  '# region bases are 64 KiB-granular (`base >> 16`, 18 bits of a 34-bit'
+      work sw/hwmap.py:225  'L_SB_DN    = LB + 0x64    # RW DN state region base >> 16   (B15.3)'   <- proposed
+      base end :223 'L_SB_CV    = LB + 0x6C    # RW conv region base >> 16' / work end :227 'L_SB_CV    = LB + 0x6C    # RW conv region base >> 16'
+      doc:155  ...**Three CSRs carry the bases, in 64 KiB units** (`sw/hwmap.py:221-223`), and...
+  REPAIR         sw/hwmap.py:174-240 -> sw/hwmap.py:178-244   doc lines 412   at-base yes
+      base sw/hwmap.py:174  'LB = 0x5000'
+      work sw/hwmap.py:174  'return 0x1000 * (c + 1)'
+      work sw/hwmap.py:178  'LB = 0x5000'   <- proposed
+      base end :240 '# ISA, and that script is RETIRED BY DESIGN — G3.1 is where the byte-loc' / work end :244 '# ISA, and that script is RETIRED BY DESIGN — G3.1 is where the byte-loc'
+      doc:412  ...SEQ CSRs (`rtl/seq_unit.sv:25-44`, mirrored in `sw/hwmap.py:174-240`):  <!--cites:noquote-->...
+  REPAIR         sw/hwmap.py:238-256 -> sw/hwmap.py:242-260   doc lines 418   at-base yes
+      base sw/hwmap.py:238  '# `evidence/qwen2b/rc/t4_bytes_unmoved.sh` as live proof of inertness.  '
+      work sw/hwmap.py:238  '# What does NOT agree is the SHIPPED bitstreams: `build_034`/`build_035`'
+      work sw/hwmap.py:242  '# `evidence/qwen2b/rc/t4_bytes_unmoved.sh` as live proof of inertness.  '   <- proposed
+      base end :256 '#                        Emitters and address maths use this.' / work end :260 '#                        Emitters and address maths use this.'
+      doc:418  ...> the post-fix block is `sw/hwmap.py:238-256`....
+=== docs/QWEN35_2BOARD_FEASIBILITY.md  (REPAIR 9, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:339 -> sw/hwmap.py:343   doc lines 460,1771   at-base yes
+      base sw/hwmap.py:339  '# (build_041/042) reads 0xDEADC0DE here, which'
+      work sw/hwmap.py:339  '# host tells "no EMBLOG2" from "row size 11".'
+      work sw/hwmap.py:343  '# (build_041/042) reads 0xDEADC0DE here, which'   <- proposed
+      doc:460  ...(`sw/hwmap.py:339` `SEQ_EMBLOG2_MIN, SEQ_EMBLOG2_MAX = 8,...
+      doc:1771  ...ift | `rtl/seq_unit.sv:337-338`, `rtl/seq_unit.sv:1296-1300`, `rtl/seq_unit.sv:903-904`, `sw/hwmap.py:339` |...
+  REPAIR         sw/hwmap.py:479 -> sw/hwmap.py:483   doc lines 469,795,1777   at-base yes
+      base sw/hwmap.py:479  '#                  the table and program EMBLOG2 instead of assuming 204'
+      work sw/hwmap.py:479  '# keys.  Every consumer that iterates wids must split the metadata off f'
+      work sw/hwmap.py:483  '#                  the table and program EMBLOG2 instead of assuming 204'   <- proposed
+      doc:469  ...> (`sw/hwmap.py:479` `W_BASE = 0x1000_0000      # weight im...
+      doc:795  ...(`sw/hwmap.py:479` and `sw/hwmap.py:482` `EMB_BASE = 0x60...
+  REPAIR         sw/hwmap.py:558 -> sw/hwmap.py:562   doc lines 516,1777   at-base yes
+      base sw/hwmap.py:558  '#                                        sweeps the WHOLE channel with i'
+      work sw/hwmap.py:558  '# does seq_0/m_axi (create_project.tcl gives it the SAME 16 GiB 4-channe'
+      work sw/hwmap.py:562  '#                                        sweeps the WHOLE channel with i'   <- proposed
+      doc:516  ...> region is sized to match on the host side, `sw/hwmap.py:558`...
+      doc:1777  ...| the DDR windows and the packing law | `sw/hwmap.py:479`, `sw/hwmap.py:482`, `sw/hwmap.py:558` |...
+  REPAIR         sw/hwmap.py:479 -> sw/hwmap.py:483   doc lines 469,795,1777   at-base yes
+      base sw/hwmap.py:479  '#                  the table and program EMBLOG2 instead of assuming 204'
+      work sw/hwmap.py:479  '# keys.  Every consumer that iterates wids must split the metadata off f'
+      work sw/hwmap.py:483  '#                  the table and program EMBLOG2 instead of assuming 204'   <- proposed
+      doc:469  ...> (`sw/hwmap.py:479` `W_BASE = 0x1000_0000      # weight im...
+      doc:795  ...(`sw/hwmap.py:479` and `sw/hwmap.py:482` `EMB_BASE = 0x60...
+  REPAIR         sw/hwmap.py:482 -> sw/hwmap.py:486   doc lines 795,1777   at-base yes
+      base sw/hwmap.py:482  '#                  0.8B/2B artifact carries and what A1.8 keeps as the s'
+      work sw/hwmap.py:482  '#   emb_row_bytes  (R-b) the embedding row stride = 2*H, so the host can'
+      work sw/hwmap.py:486  '#                  0.8B/2B artifact carries and what A1.8 keeps as the s'   <- proposed
+      doc:795  ...(`sw/hwmap.py:479` and `sw/hwmap.py:482` `EMB_BASE = 0x6000_0000    # embedding...
+      doc:1777  ...| the DDR windows and the packing law | `sw/hwmap.py:479`, `sw/hwmap.py:482`, `sw/hwmap.py:558` |...
+  REPAIR         sw/hwmap.py:339 -> sw/hwmap.py:343   doc lines 460,1771   at-base yes
+      base sw/hwmap.py:339  '# (build_041/042) reads 0xDEADC0DE here, which'
+      work sw/hwmap.py:339  '# host tells "no EMBLOG2" from "row size 11".'
+      work sw/hwmap.py:343  '# (build_041/042) reads 0xDEADC0DE here, which'   <- proposed
+      doc:460  ...(`sw/hwmap.py:339` `SEQ_EMBLOG2_MIN, SEQ_EMBLOG2_MAX = 8,...
+      doc:1771  ...ift | `rtl/seq_unit.sv:337-338`, `rtl/seq_unit.sv:1296-1300`, `rtl/seq_unit.sv:903-904`, `sw/hwmap.py:339` |...
+  REPAIR         sw/hwmap.py:479 -> sw/hwmap.py:483   doc lines 469,795,1777   at-base yes
+      base sw/hwmap.py:479  '#                  the table and program EMBLOG2 instead of assuming 204'
+      work sw/hwmap.py:479  '# keys.  Every consumer that iterates wids must split the metadata off f'
+      work sw/hwmap.py:483  '#                  the table and program EMBLOG2 instead of assuming 204'   <- proposed
+      doc:469  ...> (`sw/hwmap.py:479` `W_BASE = 0x1000_0000      # weight im...
+      doc:795  ...(`sw/hwmap.py:479` and `sw/hwmap.py:482` `EMB_BASE = 0x60...
+  REPAIR         sw/hwmap.py:482 -> sw/hwmap.py:486   doc lines 795,1777   at-base yes
+      base sw/hwmap.py:482  '#                  0.8B/2B artifact carries and what A1.8 keeps as the s'
+      work sw/hwmap.py:482  '#   emb_row_bytes  (R-b) the embedding row stride = 2*H, so the host can'
+      work sw/hwmap.py:486  '#                  0.8B/2B artifact carries and what A1.8 keeps as the s'   <- proposed
+      doc:795  ...(`sw/hwmap.py:479` and `sw/hwmap.py:482` `EMB_BASE = 0x6000_0000    # embedding...
+      doc:1777  ...| the DDR windows and the packing law | `sw/hwmap.py:479`, `sw/hwmap.py:482`, `sw/hwmap.py:558` |...
+  REPAIR         sw/hwmap.py:558 -> sw/hwmap.py:562   doc lines 516,1777   at-base yes
+      base sw/hwmap.py:558  '#                                        sweeps the WHOLE channel with i'
+      work sw/hwmap.py:558  '# does seq_0/m_axi (create_project.tcl gives it the SAME 16 GiB 4-channe'
+      work sw/hwmap.py:562  '#                                        sweeps the WHOLE channel with i'   <- proposed
+      doc:516  ...> region is sized to match on the host side, `sw/hwmap.py:558`...
+      doc:1777  ...| the DDR windows and the packing law | `sw/hwmap.py:479`, `sw/hwmap.py:482`, `sw/hwmap.py:558` |...
+=== docs/QWEN35_NEXT_FEASIBILITY.md  (REPAIR 8, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:146 -> sw/hwmap.py:150   doc lines 557   at-base yes
+      base sw/hwmap.py:146  'assert not (w8 and g == 64), \\'
+      work sw/hwmap.py:146  '# sim-only, so this is the only check a LIVE board gets.'
+      work sw/hwmap.py:150  'assert not (w8 and g == 64), \\'   <- proposed
+      doc:557  ...> `sw/hwmap.py:146` and `:656` already assert `not (w8 and...
+  REPAIR         `:656` -> `:660`   doc lines 557   at-base yes
+      base sw/hwmap.py:656  '`vocab`/`emb_row_bytes` are only consulted when the region would land'
+      work sw/hwmap.py:656  ''
+      work sw/hwmap.py:660  '`vocab`/`emb_row_bytes` are only consulted when the region would land'   <- proposed
+      doc:557  ...> `sw/hwmap.py:146` and `:656` already assert `not (w8 and g == 64)`, ...
+  REPAIR         sw/hwmap.py:386-395 -> sw/hwmap.py:390-399   doc lines 588   at-base yes
+      base sw/hwmap.py:386  'not a set of names."""'
+      work sw/hwmap.py:386  'def seq_caps_check(caps):'
+      work sw/hwmap.py:390  'not a set of names."""'   <- proposed
+      base end :395 'f" (known: {sorted(SEQ_CAP_BITS)}) — "' / work end :399 'f" (known: {sorted(SEQ_CAP_BITS)}) — "'
+      doc:588  ...and the host gate `sw/hwmap.py:386-395` raising `ValueError` on a non-power-of...
+  REPAIR         sw/hwmap.py:404 -> sw/hwmap.py:408   doc lines 843,911   at-base yes
+      base sw/hwmap.py:404  'for c in seq_caps_check(caps):'
+      work sw/hwmap.py:404  'def seq_caps_word(caps):'
+      work sw/hwmap.py:408  'for c in seq_caps_check(caps):'   <- proposed
+      doc:843  ...Window is `EMB_BASE − W_BASE = 1,280 MiB` per channel (`sw/hwmap.py:404`,...
+      doc:911  ...`4,096 − 256 (W_BASE, `sw/hwmap.py:404`) − 1,940 (the table)` — and the other...
+  REPAIR         sw/hwmap.py:686-694 -> sw/hwmap.py:690-698   doc lines 844   at-base yes
+      base sw/hwmap.py:686  'nobody reads back is not an audit.  The offsets are spread over the'
+      work sw/hwmap.py:686  ''
+      work sw/hwmap.py:690  'nobody reads back is not an audit.  The offsets are spread over the'   <- proposed
+      base end :694 'n = max(2, int(n))' / work end :698 'n = max(2, int(n))'
+      doc:844  ...`:407`); the fit assert is `sw/hwmap.py:686-694`....
+  REPAIR         `:407` -> `:411`   doc lines 844   at-base yes
+      base sw/hwmap.py:407  'SEQ_XRF_BITS = 18'
+      work sw/hwmap.py:407  'w = SEQ_CAPS_MAGIC << 8'
+      work sw/hwmap.py:411  'SEQ_XRF_BITS = 18'   <- proposed
+      doc:844  ...`:407`); the fit assert is `sw/hwmap.py:686-69...
+  REPAIR         sw/hwmap.py:692 -> sw/hwmap.py:696   doc lines 907   at-base yes
+      base sw/hwmap.py:692  'span = hi - lo'
+      work sw/hwmap.py:692  'included -- a short write is the failure this catches, and it shows at'
+      work sw/hwmap.py:696  'span = hi - lo'   <- proposed
+      doc:907  ...*"move EMB_BASE or split the images across DDR channels"* (`sw/hwmap.py:692`)....
+  REPAIR         sw/hwmap.py:404 -> sw/hwmap.py:408   doc lines 843,911   at-base yes
+      base sw/hwmap.py:404  'for c in seq_caps_check(caps):'
+      work sw/hwmap.py:404  'def seq_caps_word(caps):'
+      work sw/hwmap.py:408  'for c in seq_caps_check(caps):'   <- proposed
+      doc:843  ...Window is `EMB_BASE − W_BASE = 1,280 MiB` per channel (`sw/hwmap.py:404`,...
+      doc:911  ...`4,096 − 256 (W_BASE, `sw/hwmap.py:404`) − 1,940 (the table)` — and the other...
+=== docs/SEQ_ISA.md  (REPAIR 4, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:206 -> sw/hwmap.py:210   doc lines 236   at-base yes
+      base sw/hwmap.py:206  'L_TOPK_PTR    = LB + 0x50  # RW entry pointer 0..31 (5 bits; wraps at 32'
+      work sw/hwmap.py:206  "L_MAXPH = LB + 0x44       # R  {16'b0, max|prod|[47:32]}"
+      work sw/hwmap.py:210  'L_TOPK_PTR    = LB + 0x50  # RW entry pointer 0..31 (5 bits; wraps at 32'   <- proposed
+      doc:236  ...offset 0x6000, which is what sw/hwmap.py:206 (`SB`) and...
+  REPAIR         sw/hwmap.py:282-287 -> sw/hwmap.py:286-291   doc lines 305   at-base yes
+      base sw/hwmap.py:282  '# the 9B bitstream shipped (Task 15/G6), and the two names agree again n'
+      work sw/hwmap.py:282  '# THE COUPLING RESTATED AT G3.1, because it is the same two names for a'
+      work sw/hwmap.py:286  '# the 9B bitstream shipped (Task 15/G6), and the two names agree again n'   <- proposed
+      base end :287 'SCRATCH_WORDS = 65536' / work end :291 'SCRATCH_WORDS = 65536'
+      doc:305  ...    sw/hwmap.py:282-287 (SEQ_ST_OUTCNT_MASK = 0x7F, SEQ_ST_OF_O...
+  REPAIR         sw/hwmap.py:283-287 -> sw/hwmap.py:287-291   doc lines 329   at-base yes
+      base sw/hwmap.py:283  '#'
+      work sw/hwmap.py:283  '# different reason now.  The RTL array is 65,536 words and the ISA addre'
+      work sw/hwmap.py:287  '#'   <- proposed
+      base end :287 'SCRATCH_WORDS = 65536' / work end :291 'SCRATCH_WORDS = 65536'
+      doc:329  ...    the session as suspect (sw/hwmap.py:283-287)....
+  REPAIR         sw/hwmap.py:294-315 -> sw/hwmap.py:298-319   doc lines 489   at-base yes
+      base sw/hwmap.py:294  'ALU_AMAX32 = 10           # vec_alu op 10, arg2[0]=1 starts a fresh scan'
+      work sw/hwmap.py:294  '# layer_chan opcodes (rtl/layer_chan.sv header)'
+      work sw/hwmap.py:298  'ALU_AMAX32 = 10           # vec_alu op 10, arg2[0]=1 starts a fresh scan'   <- proposed
+      base end :315 'S_ENTRY    = SB + 0x24    # RW record index START jumps to' / work end :319 'S_ENTRY    = SB + 0x24    # RW record index START jumps to'
+      doc:489  ...also in rtl/seq_movers.sv:193-197. sw/hwmap.py:294-315 (SEQ_ERR) carries...
+=== docs/superpowers/plans/2026-08-12-qwen2b-track-r.md  (REPAIR 2, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:176 -> sw/hwmap.py:180   doc lines 249,289   at-base yes
+      base sw/hwmap.py:176  'L_SPTR, L_SWIN, L_EOUT, L_TCNT, L_IDENT = LB + 0x14, LB + 0x18, LB + 0x1'
+      work sw/hwmap.py:176  ''
+      work sw/hwmap.py:180  'L_SPTR, L_SWIN, L_EOUT, L_TCNT, L_IDENT = LB + 0x14, LB + 0x18, LB + 0x1'   <- proposed
+      doc:249  ...seq_unit.sv:1182`), `rtl/seq_movers.sv` (:72 cmd_saddr, :170 SCR_WORDS, MVB window map), `sw/hwmap.py:176` (SCRATCH_WORDS), `docs/SEQ_ISA.md` (v1...
+      doc:289  ...- `sw/hwmap.py:176` `SCRATCH_WORDS = 32768` — but ONLY if ...
+  REPAIR         sw/hwmap.py:176 -> sw/hwmap.py:180   doc lines 249,289   at-base yes
+      base sw/hwmap.py:176  'L_SPTR, L_SWIN, L_EOUT, L_TCNT, L_IDENT = LB + 0x14, LB + 0x18, LB + 0x1'
+      work sw/hwmap.py:176  ''
+      work sw/hwmap.py:180  'L_SPTR, L_SWIN, L_EOUT, L_TCNT, L_IDENT = LB + 0x14, LB + 0x18, LB + 0x1'   <- proposed
+      doc:249  ...seq_unit.sv:1182`), `rtl/seq_movers.sv` (:72 cmd_saddr, :170 SCR_WORDS, MVB window map), `sw/hwmap.py:176` (SCRATCH_WORDS), `docs/SEQ_ISA.md` (v1...
+      doc:289  ...- `sw/hwmap.py:176` `SCRATCH_WORDS = 32768` — but ONLY if ...
+=== docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md  (REPAIR 4, COLLATERAL 1)
+  REPAIR         sw/hwmap.py:434 -> sw/hwmap.py:438   doc lines 109   at-base yes
+      base sw/hwmap.py:434  '0x07: "unknown CSR space",'
+      work sw/hwmap.py:434  '0x03: "XRF index out of range",'
+      work sw/hwmap.py:438  '0x07: "unknown CSR space",'   <- proposed
+      doc:109  ...> `sw/hwmap.py:434`'s `RS_F_DEFAULT = 8` is the missing-ke...
+  REPAIR         sw/hwmap.py:211 -> sw/hwmap.py:215   doc lines 845   at-base yes
+      base sw/hwmap.py:211  '# {a_dec_base[31:16], a_beta_base[15:0]}; the DNST decode forms'
+      work sw/hwmap.py:211  'L_TOPK_VAL    = LB + 0x54  # R  entry[PTR].val int32 (no side effect)'
+      work sw/hwmap.py:215  '# {a_dec_base[31:16], a_beta_base[15:0]}; the DNST decode forms'   <- proposed
+      doc:845  ...- `sw/hwmap.py:211`'s `SCRATCH_WORDS` becomes the single d...
+  REPAIR         sw/hwmap.py:352 -> sw/hwmap.py:356   doc lines 869   at-base yes
+      base sw/hwmap.py:352  "# re-types the values.  The magic is the round plan's choice."
+      work sw/hwmap.py:352  '# SEQ_CAPS (SEQ_ISA v2.3 B17.0, the sequencer RTL round, Task SR2).  THE'
+      work sw/hwmap.py:356  "# re-types the values.  The magic is the round plan's choice."   <- proposed
+      doc:869  ...  - **`sw/hwmap.py:352` `MANIFEST_META_KEYS`** must gain `rs_f...
+  REPAIR         sw/hwmap.py:221-223 -> sw/hwmap.py:225-227   doc lines 2736   at-base yes
+      base sw/hwmap.py:221  'L_SB_DN    = LB + 0x64    # RW DN state region base >> 16   (B15.3)'
+      work sw/hwmap.py:221  '# region bases are 64 KiB-granular (`base >> 16`, 18 bits of a 34-bit'
+      work sw/hwmap.py:225  'L_SB_DN    = LB + 0x64    # RW DN state region base >> 16   (B15.3)'   <- proposed
+      base end :223 'L_SB_CV    = LB + 0x6C    # RW conv region base >> 16' / work end :227 'L_SB_CV    = LB + 0x6C    # RW conv region base >> 16'
+      doc:2736  ...>   `SB_DN`/`SB_KV`/`SB_CV` (64 KiB units, `sw/hwmap.py:221-223`);...
+  COLLATERAL     sw/hwmap.py:225 -> sw/hwmap.py:229   doc lines 2757   at-base yes
+      base sw/hwmap.py:225  'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'
+      work sw/hwmap.py:225  'L_SB_DN    = LB + 0x64    # RW DN state region base >> 16   (B15.3)'
+      work sw/hwmap.py:229  'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'   <- proposed
+      doc:2757  ...>   `busy_cmp`) beside `L_SDMA_CYC` (the DMA lane, `sw/hwmap.py:225`; any write...
+=== docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md  (REPAIR 12, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:175-206 -> sw/hwmap.py:179-210   doc lines 75   at-base yes
+      base sw/hwmap.py:175  'L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2 = LB + 0x00, LB + 0x04, LB + 0x08,'
+      work sw/hwmap.py:175  ''
+      work sw/hwmap.py:179  'L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2 = LB + 0x00, LB + 0x04, LB + 0x08,'   <- proposed
+      base end :206 'L_TOPK_PTR    = LB + 0x50  # RW entry pointer 0..31 (5 bits; wraps at 32' / work end :210 'L_TOPK_PTR    = LB + 0x50  # RW entry pointer 0..31 (5 bits; wraps at 32'
+      doc:75  ...- Modify: `sw/hwmap.py:175-206` (the layer CSR mirror; `L_TCNT` is `sw...
+  REPAIR         sw/hwmap.py:175 -> sw/hwmap.py:179   doc lines 75,80,651   at-base yes
+      base sw/hwmap.py:175  'L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2 = LB + 0x00, LB + 0x04, LB + 0x08,'
+      work sw/hwmap.py:175  ''
+      work sw/hwmap.py:179  'L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2 = LB + 0x00, LB + 0x04, LB + 0x08,'   <- proposed
+      doc:75  ...- Modify: `sw/hwmap.py:175-206` (the layer CSR mirror; `L_TCNT` is...
+      doc:80  ...ER CSR (`rtl/layer_chan.sv:25`, `sw/hwmap.py:186`, `ref/seq_format.py:321`), TCNT/TCNT2 (`sw/hwmap.py:175`, `sw/hwmap.py:178`)....
+  REPAIR         sw/hwmap.py:178 -> sw/hwmap.py:182   doc lines 75,80   at-base yes
+      base sw/hwmap.py:178  'L_TCNT2 = LB + 0x60       # RW KV append counters for kvheads 2 and 3,'
+      work sw/hwmap.py:178  'LB = 0x5000'
+      work sw/hwmap.py:182  'L_TCNT2 = LB + 0x60       # RW KV append counters for kvheads 2 and 3,'   <- proposed
+      doc:75  ...y: `sw/hwmap.py:175-206` (the layer CSR mirror; `L_TCNT` is `sw/hwmap.py:175`, `L_TCNT2` `sw/hwmap.py:178`, `L_LAYER` `sw/hwmap.py:186`, `L_DNSB`...
+      doc:80  ...chan.sv:25`, `sw/hwmap.py:186`, `ref/seq_format.py:321`), TCNT/TCNT2 (`sw/hwmap.py:175`, `sw/hwmap.py:178`)....
+  REPAIR         sw/hwmap.py:186 -> sw/hwmap.py:190   doc lines 75,80   at-base yes
+      base sw/hwmap.py:186  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"
+      work sw/hwmap.py:186  '# second pair got its own offset rather than'
+      work sw/hwmap.py:190  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"   <- proposed
+      doc:75  ... layer CSR mirror; `L_TCNT` is `sw/hwmap.py:175`, `L_TCNT2` `sw/hwmap.py:178`, `L_LAYER` `sw/hwmap.py:186`, `L_DNSB` `sw/hwmap.py:206`), a new `S...
+      doc:80  ... space (`rtl/layer_chan.sv:339-350`, 1..12 used), the LAYER CSR (`rtl/layer_chan.sv:25`, `sw/hwmap.py:186`, `ref/seq_format.py:321`), TCNT/TCNT2 ...
+  REPAIR         sw/hwmap.py:206 -> sw/hwmap.py:210   doc lines 75,214   at-base yes
+      base sw/hwmap.py:206  'L_TOPK_PTR    = LB + 0x50  # RW entry pointer 0..31 (5 bits; wraps at 32'
+      work sw/hwmap.py:206  "L_MAXPH = LB + 0x44       # R  {16'b0, max|prod|[47:32]}"
+      work sw/hwmap.py:210  'L_TOPK_PTR    = LB + 0x50  # RW entry pointer 0..31 (5 bits; wraps at 32'   <- proposed
+      doc:75  ...is `sw/hwmap.py:175`, `L_TCNT2` `sw/hwmap.py:178`, `L_LAYER` `sw/hwmap.py:186`, `L_DNSB` `sw/hwmap.py:206`), a new `STATE_*` block and `plan_stat...
+      doc:214  ...After `L_DNSB` (`sw/hwmap.py:206`), in the block's own comment style:  <...
+  REPAIR         sw/hwmap.py:518 -> sw/hwmap.py:522   doc lines 75   at-base yes
+      base sw/hwmap.py:518  'meta[k] = man.get(k)'
+      work sw/hwmap.py:518  '"""(wid entries, meta) — meta holds MANIFEST_META_KEYS with defaults."""'
+      work sw/hwmap.py:522  'meta[k] = man.get(k)'   <- proposed
+      doc:75  ...NSB` `sw/hwmap.py:206`), a new `STATE_*` block and `plan_state()` beside `plan_weights` (`sw/hwmap.py:518`)  <!--cites:noquote-->...
+  REPAIR         sw/hwmap.py:186 -> sw/hwmap.py:190   doc lines 75,80   at-base yes
+      base sw/hwmap.py:186  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"
+      work sw/hwmap.py:186  '# second pair got its own offset rather than'
+      work sw/hwmap.py:190  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"   <- proposed
+      doc:75  ... layer CSR mirror; `L_TCNT` is `sw/hwmap.py:175`, `L_TCNT2` `sw/hwmap.py:178`, `L_LAYER` `sw/hwmap.py:186`, `L_DNSB` `sw/hwmap.py:206`), a new `S...
+      doc:80  ... space (`rtl/layer_chan.sv:339-350`, 1..12 used), the LAYER CSR (`rtl/layer_chan.sv:25`, `sw/hwmap.py:186`, `ref/seq_format.py:321`), TCNT/TCNT2 ...
+  REPAIR         sw/hwmap.py:175 -> sw/hwmap.py:179   doc lines 75,80,651   at-base yes
+      base sw/hwmap.py:175  'L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2 = LB + 0x00, LB + 0x04, LB + 0x08,'
+      work sw/hwmap.py:175  ''
+      work sw/hwmap.py:179  'L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2 = LB + 0x00, LB + 0x04, LB + 0x08,'   <- proposed
+      doc:75  ...- Modify: `sw/hwmap.py:175-206` (the layer CSR mirror; `L_TCNT` is...
+      doc:80  ...ER CSR (`rtl/layer_chan.sv:25`, `sw/hwmap.py:186`, `ref/seq_format.py:321`), TCNT/TCNT2 (`sw/hwmap.py:175`, `sw/hwmap.py:178`)....
+  REPAIR         sw/hwmap.py:178 -> sw/hwmap.py:182   doc lines 75,80   at-base yes
+      base sw/hwmap.py:178  'L_TCNT2 = LB + 0x60       # RW KV append counters for kvheads 2 and 3,'
+      work sw/hwmap.py:178  'LB = 0x5000'
+      work sw/hwmap.py:182  'L_TCNT2 = LB + 0x60       # RW KV append counters for kvheads 2 and 3,'   <- proposed
+      doc:75  ...y: `sw/hwmap.py:175-206` (the layer CSR mirror; `L_TCNT` is `sw/hwmap.py:175`, `L_TCNT2` `sw/hwmap.py:178`, `L_LAYER` `sw/hwmap.py:186`, `L_DNSB`...
+      doc:80  ...chan.sv:25`, `sw/hwmap.py:186`, `ref/seq_format.py:321`), TCNT/TCNT2 (`sw/hwmap.py:175`, `sw/hwmap.py:178`)....
+  REPAIR         sw/hwmap.py:206 -> sw/hwmap.py:210   doc lines 75,214   at-base yes
+      base sw/hwmap.py:206  'L_TOPK_PTR    = LB + 0x50  # RW entry pointer 0..31 (5 bits; wraps at 32'
+      work sw/hwmap.py:206  "L_MAXPH = LB + 0x44       # R  {16'b0, max|prod|[47:32]}"
+      work sw/hwmap.py:210  'L_TOPK_PTR    = LB + 0x50  # RW entry pointer 0..31 (5 bits; wraps at 32'   <- proposed
+      doc:75  ...is `sw/hwmap.py:175`, `L_TCNT2` `sw/hwmap.py:178`, `L_LAYER` `sw/hwmap.py:186`, `L_DNSB` `sw/hwmap.py:206`), a new `STATE_*` block and `plan_stat...
+      doc:214  ...After `L_DNSB` (`sw/hwmap.py:206`), in the block's own comment style:  <...
+  REPAIR         sw/hwmap.py:428 -> sw/hwmap.py:432   doc lines 440   at-base yes
+      base sw/hwmap.py:428  '0x01: "unknown opcode",'
+      work sw/hwmap.py:428  ''
+      work sw/hwmap.py:432  '0x01: "unknown opcode",'   <- proposed
+      doc:440  ...- Modify: `sw/hwmap.py:428-` (line numbers as of e905cd3 — S1 inse...
+  REPAIR         sw/hwmap.py:175 -> sw/hwmap.py:179   doc lines 75,80,651   at-base yes
+      base sw/hwmap.py:175  'L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2 = LB + 0x00, LB + 0x04, LB + 0x08,'
+      work sw/hwmap.py:175  ''
+      work sw/hwmap.py:179  'L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2 = LB + 0x00, LB + 0x04, LB + 0x08,'   <- proposed
+      doc:75  ...- Modify: `sw/hwmap.py:175-206` (the layer CSR mirror; `L_TCNT` is...
+      doc:80  ...ER CSR (`rtl/layer_chan.sv:25`, `sw/hwmap.py:186`, `ref/seq_format.py:321`), TCNT/TCNT2 (`sw/hwmap.py:175`, `sw/hwmap.py:178`)....
+=== docs/superpowers/plans/2026-09-27-seq-rtl-round.md  (REPAIR 2, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:323 -> sw/hwmap.py:327   doc lines 76,152   at-base yes
+      base sw/hwmap.py:323  'S_EMBLOG2  = SB + 0x60    # RW log2 of the EMB row size in bytes (R-b).'
+      work sw/hwmap.py:323  'S_PERF_AXW = SB + 0x34    # R  AXI-Lite writes issued'
+      work sw/hwmap.py:327  'S_EMBLOG2  = SB + 0x60    # RW log2 of the EMB row size in bytes (R-b).'   <- proposed
+      doc:76  ... `sw/hwmap.py` | **the one definition** of `S_SEQ_CAPS = SB + 0x64` (beside `S_EMBLOG2`, `sw/hwmap.py:323`), `SEQ_CAPS_MAGIC`, `SEQ_CAP_BITS`, `s...
+      doc:152  ...- Modify: `sw/hwmap.py` — **the one definition**, beside `S_EMBLOG2` (`sw/hwmap.py:323`): `S_SEQ_CAPS = SB + 0x64`; `SEQ_CAPS_...
+  REPAIR         sw/hwmap.py:323 -> sw/hwmap.py:327   doc lines 76,152   at-base yes
+      base sw/hwmap.py:323  'S_EMBLOG2  = SB + 0x60    # RW log2 of the EMB row size in bytes (R-b).'
+      work sw/hwmap.py:323  'S_PERF_AXW = SB + 0x34    # R  AXI-Lite writes issued'
+      work sw/hwmap.py:327  'S_EMBLOG2  = SB + 0x60    # RW log2 of the EMB row size in bytes (R-b).'   <- proposed
+      doc:76  ... `sw/hwmap.py` | **the one definition** of `S_SEQ_CAPS = SB + 0x64` (beside `S_EMBLOG2`, `sw/hwmap.py:323`), `SEQ_CAPS_MAGIC`, `SEQ_CAP_BITS`, `s...
+      doc:152  ...- Modify: `sw/hwmap.py` — **the one definition**, beside `S_EMBLOG2` (`sw/hwmap.py:323`): `S_SEQ_CAPS = SB + 0x64`; `SEQ_CAPS_...
+=== docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md  (REPAIR 13, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:434 -> sw/hwmap.py:438   doc lines 239   at-base yes
+      base sw/hwmap.py:434  '0x07: "unknown CSR space",'
+      work sw/hwmap.py:434  '0x03: "XRF index out of range",'
+      work sw/hwmap.py:438  '0x07: "unknown CSR space",'   <- proposed
+      doc:239  ...> * `sw/hwmap.py:434` `RS_F_DEFAULT = 8` is the *missing-key...
+  REPAIR         sw/hwmap.py:367-376 -> sw/hwmap.py:371-380   doc lines 352,371,1622   at-base yes
+      base sw/hwmap.py:367  'if word >> 8 != SEQ_CAPS_MAGIC:'
+      work sw/hwmap.py:367  '0xDEADC0DE (the unmapped-read value) is the empty set.  With the magic,'
+      work sw/hwmap.py:371  'if word >> 8 != SEQ_CAPS_MAGIC:'   <- proposed
+      base end :376 'raise ValueError(f"SEQ_CAPS {word:#010x}: unknown capability "' / work end :380 'raise ValueError(f"SEQ_CAPS {word:#010x}: unknown capability "'
+      doc:352  ...all** — it is derived host-side from `2·H` by `sw/hwmap.py:367-376`....
+      doc:371  ...H = 8192 B) — exactly at `EMBLOG2_MAX` | **derived, not from the checkpoint**: `2·H` via `sw/hwmap.py:367-376`; ceiling at `rtl/seq_unit.sv:338` `EMB...
+  REPAIR         sw/hwmap.py:367-376 -> sw/hwmap.py:371-380   doc lines 352,371,1622   at-base yes
+      base sw/hwmap.py:367  'if word >> 8 != SEQ_CAPS_MAGIC:'
+      work sw/hwmap.py:367  '0xDEADC0DE (the unmapped-read value) is the empty set.  With the magic,'
+      work sw/hwmap.py:371  'if word >> 8 != SEQ_CAPS_MAGIC:'   <- proposed
+      base end :376 'raise ValueError(f"SEQ_CAPS {word:#010x}: unknown capability "' / work end :380 'raise ValueError(f"SEQ_CAPS {word:#010x}: unknown capability "'
+      doc:352  ...all** — it is derived host-side from `2·H` by `sw/hwmap.py:367-376`....
+      doc:371  ...H = 8192 B) — exactly at `EMBLOG2_MAX` | **derived, not from the checkpoint**: `2·H` via `sw/hwmap.py:367-376`; ceiling at `rtl/seq_unit.sv:338` `EMB...
+  REPAIR         sw/hwmap.py:146 -> sw/hwmap.py:150   doc lines 1571   at-base yes
+      base sw/hwmap.py:146  'assert not (w8 and g == 64), \\'
+      work sw/hwmap.py:146  '# sim-only, so this is the only check a LIVE board gets.'
+      work sw/hwmap.py:150  'assert not (w8 and g == 64), \\'   <- proposed
+      doc:1571  ...`sw/hwmap.py:146` and `:524`'s `assert not (w8 and g == ...
+  REPAIR         `:524` -> `:528`   doc lines 1571   at-base yes
+      base sw/hwmap.py:524  'with open(prefix + ".weights.json") as f:'
+      work sw/hwmap.py:524  ''
+      work sw/hwmap.py:528  'with open(prefix + ".weights.json") as f:'   <- proposed
+      doc:1571  ...`sw/hwmap.py:146` and `:524`'s `assert not (w8 and g == 64)` become ...
+  REPAIR         sw/hwmap.py:367-376 -> sw/hwmap.py:371-380   doc lines 352,371,1622   at-base yes
+      base sw/hwmap.py:367  'if word >> 8 != SEQ_CAPS_MAGIC:'
+      work sw/hwmap.py:367  '0xDEADC0DE (the unmapped-read value) is the empty set.  With the magic,'
+      work sw/hwmap.py:371  'if word >> 8 != SEQ_CAPS_MAGIC:'   <- proposed
+      base end :376 'raise ValueError(f"SEQ_CAPS {word:#010x}: unknown capability "' / work end :380 'raise ValueError(f"SEQ_CAPS {word:#010x}: unknown capability "'
+      doc:352  ...all** — it is derived host-side from `2·H` by `sw/hwmap.py:367-376`....
+      doc:371  ...H = 8192 B) — exactly at `EMBLOG2_MAX` | **derived, not from the checkpoint**: `2·H` via `sw/hwmap.py:367-376`; ceiling at `rtl/seq_unit.sv:338` `EMB...
+  REPAIR         sw/hwmap.py:460 -> sw/hwmap.py:464   doc lines 1944   at-base yes
+      base sw/hwmap.py:460  'def seq_emb_log2(row_bytes):'
+      work sw/hwmap.py:460  'def seq_err_name(code):'
+      work sw/hwmap.py:464  'def seq_emb_log2(row_bytes):'   <- proposed
+      doc:1944  ...* **Per-channel repack, and it fits.** `plan_weights` (`sw/hwmap.py:460`) with...
+  REPAIR         sw/hwmap.py:211 -> sw/hwmap.py:215   doc lines 2034,2612   at-base yes
+      base sw/hwmap.py:211  '# {a_dec_base[31:16], a_beta_base[15:0]}; the DNST decode forms'
+      work sw/hwmap.py:211  'L_TOPK_VAL    = LB + 0x54  # R  entry[PTR].val int32 (no side effect)'
+      work sw/hwmap.py:215  '# {a_dec_base[31:16], a_beta_base[15:0]}; the DNST decode forms'   <- proposed
+      doc:2034  ...| `sw/hwmap.py:211` `SCRATCH_WORDS = 32768` | exact — **th...
+      doc:2612  ...at the number is a bare literal where its siblings derive theirs from `SCRATCH_WORDS` in `sw/hwmap.py:211` | **CLOSED 2026-08-31 at G2a** | **G2 ...
+  REPAIR         sw/hwmap.py:426 -> sw/hwmap.py:430   doc lines 2035   at-base yes
+      base sw/hwmap.py:426  'SEQ_ERR = {'
+      work sw/hwmap.py:426  'SEQ_OUT_TOK_MASK = (1 << 18) - 1'
+      work sw/hwmap.py:430  'SEQ_ERR = {'   <- proposed
+      doc:2035  ...| `sw/hwmap.py:426` `EMB_ROW_BYTES_DEFAULT = 1 << SEQ_EMBL...
+  REPAIR         sw/hwmap.py:323-334 -> sw/hwmap.py:327-338   doc lines 2035   at-base yes
+      base sw/hwmap.py:323  'S_EMBLOG2  = SB + 0x60    # RW log2 of the EMB row size in bytes (R-b).'
+      work sw/hwmap.py:323  'S_PERF_AXW = SB + 0x34    # R  AXI-Lite writes issued'
+      work sw/hwmap.py:327  'S_EMBLOG2  = SB + 0x60    # RW log2 of the EMB row size in bytes (R-b).'   <- proposed
+      base end :334 '# 0xDEADC0DE (outside the map) — that is how the' / work end :338 '# 0xDEADC0DE (outside the map) — that is how the'
+      doc:2035  ...s and unreachable for a 9B artifact, whose manifest carries the key. Related comments at `sw/hwmap.py:323-334`, `sw/hwmap.py:503` and `sw/hwmap.py:51...
+  REPAIR         sw/hwmap.py:503 -> sw/hwmap.py:507   doc lines 2035   at-base yes
+      base sw/hwmap.py:503  '# `_META_DEFAULTS` (whose values go through `int()`).  `state` is'
+      work sw/hwmap.py:503  'RS_F_DEFAULT = 8                                  # ref/layer_fixed.py R'
+      work sw/hwmap.py:507  '# `_META_DEFAULTS` (whose values go through `int()`).  `state` is'   <- proposed
+      doc:2035  ... 9B artifact, whose manifest carries the key. Related comments at `sw/hwmap.py:323-334`, `sw/hwmap.py:503` and `sw/hwmap.py:512` |...
+  REPAIR         sw/hwmap.py:512 -> sw/hwmap.py:516   doc lines 2035   at-base yes
+      base sw/hwmap.py:512  ''
+      work sw/hwmap.py:512  '# artifact is, and it emits no SLD/SST for a region to serve.'
+      work sw/hwmap.py:516  ''   <- proposed
+      doc:2035  ...nifest carries the key. Related comments at `sw/hwmap.py:323-334`, `sw/hwmap.py:503` and `sw/hwmap.py:512` |...
+  REPAIR         sw/hwmap.py:211 -> sw/hwmap.py:215   doc lines 2034,2612   at-base yes
+      base sw/hwmap.py:211  '# {a_dec_base[31:16], a_beta_base[15:0]}; the DNST decode forms'
+      work sw/hwmap.py:211  'L_TOPK_VAL    = LB + 0x54  # R  entry[PTR].val int32 (no side effect)'
+      work sw/hwmap.py:215  '# {a_dec_base[31:16], a_beta_base[15:0]}; the DNST decode forms'   <- proposed
+      doc:2034  ...| `sw/hwmap.py:211` `SCRATCH_WORDS = 32768` | exact — **th...
+      doc:2612  ...at the number is a bare literal where its siblings derive theirs from `SCRATCH_WORDS` in `sw/hwmap.py:211` | **CLOSED 2026-08-31 at G2a** | **G2 ...
+=== docs/superpowers/specs/2026-09-24-board-idle-counters-design.md  (REPAIR 5, COLLATERAL 2)
+  REPAIR         sw/hwmap.py:301 -> sw/hwmap.py:305   doc lines 267   at-base yes
+      base sw/hwmap.py:301  'SB = 0x6000'
+      work sw/hwmap.py:301  '# rtl/seq_unit.sv:19-56 is authoritative; docs/SEQ_ISA.md v1.5 describes'
+      work sw/hwmap.py:305  'SB = 0x6000'   <- proposed
+      doc:267  ...| SEQ (`seq_0`) | `0x6000`, 4 KiB (`sw/hwmap.py:301`) | `0x00`..`0x3C` CTRL..PERF_FST, `0x4...
+  REPAIR         sw/hwmap.py:174 -> sw/hwmap.py:178   doc lines 268   at-base yes
+      base sw/hwmap.py:174  'LB = 0x5000'
+      work sw/hwmap.py:174  'return 0x1000 * (c + 1)'
+      work sw/hwmap.py:178  'LB = 0x5000'   <- proposed
+      doc:268  ...| layer_chan (`layer_0`) | `0x5000` (`sw/hwmap.py:174`) | `0x00`..`0x74` incl. TOPK `0x48`..`...
+  REPAIR         sw/hwmap.py:114-130 -> sw/hwmap.py:118-134   doc lines 324   at-base yes
+      base sw/hwmap.py:114  'def shape_isa_for_version(version):'
+      work sw/hwmap.py:114  'perfectly plausible — and completely different — row shape.'
+      work sw/hwmap.py:118  'def shape_isa_for_version(version):'   <- proposed
+      base end :130 'return SHAPE_ISA_BY_VERSION[v]' / work end :134 'return SHAPE_ISA_BY_VERSION[v]'
+      doc:324  ...(`sw/hwmap.py:114-130`), and the sequencer tools gate on...
+  REPAIR         sw/hwmap.py:856 -> sw/hwmap.py:860   doc lines 331   at-base yes
+      base sw/hwmap.py:856  'got = shape_word(13, 7, 32, g=g, w8=w8, isa=1)'
+      work sw/hwmap.py:856  '(64, False): base1 | SHAPE_G64,              # W4 g64 (v2)'
+      work sw/hwmap.py:860  'got = shape_word(13, 7, 32, g=g, w8=w8, isa=1)'   <- proposed
+      doc:331  ...   unchanged — plus its assert beside `sw/hwmap.py:856`, plus register...
+  REPAIR         sw/hwmap.py:321 -> sw/hwmap.py:325   doc lines 332   at-base yes
+      base sw/hwmap.py:321  'S_PERF_FST = SB + 0x3C    # R  {fetch-starved cycles[31:1], xrf_ovf[0]}'
+      work sw/hwmap.py:321  'S_PERF_CYC = SB + 0x2C    # R  cycles busy since START (@ ACLK_HZ)'
+      work sw/hwmap.py:325  'S_PERF_FST = SB + 0x3C    # R  {fetch-starved cycles[31:1], xrf_ovf[0]}'   <- proposed
+      doc:332  ...   constants `S_BM_*` next to `S_PERF_FST` (`sw/hwmap.py:321`)....
+  COLLATERAL     sw/hwmap.py:96-101 -> sw/hwmap.py:96-105   doc lines 329,622   at-base yes
+      base sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'
+      work sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'
+      work sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'   <- proposed
+      base end :101 '}' / work end :105 '}'
+      doc:329  ...1. **`sw/hwmap.py`**: one row in `SHAPE_ISA_BY_VERSION` (`sw/hwmap.py:96-101`)...
+      doc:622  ...to it. The frozen 0.8B/2B rows in `sw/hwmap.py:96-101` and the `nch=1` path...
+  COLLATERAL     sw/hwmap.py:96-101 -> sw/hwmap.py:96-105   doc lines 329,622   at-base yes
+      base sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'
+      work sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'
+      work sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'   <- proposed
+      base end :101 '}' / work end :105 '}'
+      doc:329  ...1. **`sw/hwmap.py`**: one row in `SHAPE_ISA_BY_VERSION` (`sw/hwmap.py:96-101`)...
+      doc:622  ...to it. The frozen 0.8B/2B rows in `sw/hwmap.py:96-101` and the `nch=1` path...
+=== evidence/qwen2b/q2/v4_v5/V4_V5.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:415-417 -> sw/hwmap.py:419-421   doc lines 215   at-base yes
+      base sw/hwmap.py:415  'SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPE'
+      work sw/hwmap.py:415  ''
+      work sw/hwmap.py:419  'SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPE'   <- proposed
+      base end :417 '# cleared by START, by a halt or by draining the' / work end :421 '# cleared by START, by a halt or by draining the'
+      doc:215  ...  the 485 MiB `sw/hwmap.py:415-417` describes for 0.8B's 2048 B rows. It...
+=== evidence/qwen2b/rb/seq_isa_ref_sweep.txt  (REPAIR 4, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:207 -> sw/hwmap.py:211   doc lines 17   at-base yes
+      base sw/hwmap.py:207  'L_TOPK_VAL    = LB + 0x54  # R  entry[PTR].val int32 (no side effect)'
+      work sw/hwmap.py:207  '# ---- TOPK-32 capture block (rung 4; SEQ_ISA v1.6 B8) ----------------'
+      work sw/hwmap.py:211  'L_TOPK_VAL    = LB + 0x54  # R  entry[PTR].val int32 (no side effect)'   <- proposed
+      doc:17  ...SEQ_ISA:225  sw/hwmap.py:207                     [SB-base] SB = 0x60...
+  REPAIR         sw/hwmap.py:283-288 -> sw/hwmap.py:287-292   doc lines 26   at-base yes
+      base sw/hwmap.py:283  '#'
+      work sw/hwmap.py:283  '# different reason now.  The RTL array is 65,536 words and the ISA addre'
+      work sw/hwmap.py:287  '#'   <- proposed
+      base end :288 'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_' / work end :292 'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_'
+      doc:26  ...SEQ_ISA:293  sw/hwmap.py:283-288                [status-decode] SEQ_ST_O...
+  REPAIR         sw/hwmap.py:284-288 -> sw/hwmap.py:288-292   doc lines 31   at-base yes
+      base sw/hwmap.py:284  '# `SCRATCH_WORDS` is THE canonical definition: `sw/seq_run.py`, `sw/infe'
+      work sw/hwmap.py:284  '# 16 bits, so `SCRATCH_WORDS` describes the CURRENT RTL — not a future b'
+      work sw/hwmap.py:288  '# `SCRATCH_WORDS` is THE canonical definition: `sw/seq_run.py`, `sw/infe'   <- proposed
+      base end :288 'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_' / work end :292 'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_'
+      doc:31  ...SEQ_ISA:317  sw/hwmap.py:284-288                [of-ovf-flag] SEQ_ST_OF_...
+  REPAIR         sw/hwmap.py:295-316 -> sw/hwmap.py:299-320   doc lines 50   at-base yes
+      base sw/hwmap.py:295  ''
+      work sw/hwmap.py:295  'OP_VN, OP_VNW, OP_ROPET, OP_ROPE = 1, 2, 3, 4'
+      work sw/hwmap.py:299  ''   <- proposed
+      base end :316 'S_IDENT    = SB + 0x28    # R  SEQ_IDENT' / work end :320 'S_IDENT    = SB + 0x28    # R  SEQ_IDENT'
+      doc:50  ...SEQ_ISA:474  sw/hwmap.py:295-316                [err-table] SEQ_ERR = {...
+=== evidence/qwen9b/g2/G2C_CHAIN.md  (REPAIR 3, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:518 -> sw/hwmap.py:522   doc lines 454   at-base yes
+      base sw/hwmap.py:518  'meta[k] = man.get(k)'
+      work sw/hwmap.py:518  '"""(wid entries, meta) — meta holds MANIFEST_META_KEYS with defaults."""'
+      work sw/hwmap.py:522  'meta[k] = man.get(k)'   <- proposed
+      doc:454  ...(`sw/hwmap.py:518`) is the authority and does every addre...
+  REPAIR         sw/hwmap.py:451 -> sw/hwmap.py:455   doc lines 505   at-base yes
+      base sw/hwmap.py:451  '"""AXI-Lite byte offset of the sequencer\'s XRF[i] window."""'
+      work sw/hwmap.py:451  '}'
+      work sw/hwmap.py:455  '"""AXI-Lite byte offset of the sequencer\'s XRF[i] window."""'   <- proposed
+      doc:505  ...(`sw/hwmap.py:451`), so a per-channel top is a sum over t...
+  REPAIR         sw/hwmap.py:434 -> sw/hwmap.py:438   doc lines 1407   at-base yes
+      base sw/hwmap.py:434  '0x07: "unknown CSR space",'
+      work sw/hwmap.py:434  '0x03: "XRF index out of range",'
+      work sw/hwmap.py:438  '0x07: "unknown CSR space",'   <- proposed
+      doc:1407  ...| `hwmap` line 225, `MANIFEST_META_KEYS` | `sw/hwmap.py:434` — `RS_F_DEFAULT = 8` | **stays 8** |...
+=== evidence/qwen9b/g3/G3_3_MATVEC.md  (REPAIR 12, COLLATERAL 2)
+  REPAIR         sw/hwmap.py:101 -> sw/hwmap.py:105   doc lines 290   at-base yes
+      base sw/hwmap.py:101  '}'
+      work sw/hwmap.py:101  '# SR11a fix round 3: build_042_bm1 (BM1 idle counters; its SHAPE decode'
+      work sw/hwmap.py:105  '}'   <- proposed
+      doc:290  ...merely outside the 7-bit field (`sw/hwmap.py:101` `SHAPE_MAX_NG`, `{1: 48,...
+  REPAIR         sw/hwmap.py:114-130 -> sw/hwmap.py:118-134   doc lines 417,656,916   at-base yes
+      base sw/hwmap.py:114  'def shape_isa_for_version(version):'
+      work sw/hwmap.py:114  'perfectly plausible — and completely different — row shape.'
+      work sw/hwmap.py:118  'def shape_isa_for_version(version):'   <- proposed
+      base end :130 'return SHAPE_ISA_BY_VERSION[v]' / work end :134 'return SHAPE_ISA_BY_VERSION[v]'
+      doc:417  ...(`sw/hwmap.py:114-130`) has **NO DEFAULT** — an unmapped VERS...
+      doc:656  ...y:40-71` (the two-layout block) and `sw/hwmap.py:133-165` (`shape_word(..., isa=…)`) and `sw/hwmap.py:114-130` (`shape_isa_for_version`).  §5.2 |...
+  REPAIR         sw/hwmap.py:133-165 -> sw/hwmap.py:137-169   doc lines 656   at-base yes
+      base sw/hwmap.py:133  'def shape_word(nrows, sh, ng, g=128, w8=False, isa=SHAPE_ISA):'
+      work sw/hwmap.py:133  '"two layouts decode each other\'s words as plausible garbage.")'
+      work sw/hwmap.py:137  'def shape_word(nrows, sh, ng, g=128, w8=False, isa=SHAPE_ISA):'   <- proposed
+      base end :165 'return (ng << 22) | (nrows << 6) | sh' / work end :169 'return (ng << 22) | (nrows << 6) | sh'
+      doc:656  ... the UNVERSIONED `shape_word` signature | `sw/hwmap.py:40-71` (the two-layout block) and `sw/hwmap.py:133-165` (`shape_word(..., isa=…)`) and `sw/hwm...
+  REPAIR         sw/hwmap.py:114-130 -> sw/hwmap.py:118-134   doc lines 417,656,916   at-base yes
+      base sw/hwmap.py:114  'def shape_isa_for_version(version):'
+      work sw/hwmap.py:114  'perfectly plausible — and completely different — row shape.'
+      work sw/hwmap.py:118  'def shape_isa_for_version(version):'   <- proposed
+      base end :130 'return SHAPE_ISA_BY_VERSION[v]' / work end :134 'return SHAPE_ISA_BY_VERSION[v]'
+      doc:417  ...(`sw/hwmap.py:114-130`) has **NO DEFAULT** — an unmapped VERS...
+      doc:656  ...y:40-71` (the two-layout block) and `sw/hwmap.py:133-165` (`shape_word(..., isa=…)`) and `sw/hwmap.py:114-130` (`shape_isa_for_version`).  §5.2 |...
+  REPAIR         sw/hwmap.py:104-130 -> sw/hwmap.py:108-134   doc lines 811   at-base yes
+      base sw/hwmap.py:104  'class UnknownBitstream(ValueError):'
+      work sw/hwmap.py:104  '0x9B588E78: SHAPE_ISA_9B,       # build_042_bm1 (BM1 counters; BM1-T4pre'
+      work sw/hwmap.py:108  'class UnknownBitstream(ValueError):'   <- proposed
+      base end :130 'return SHAPE_ISA_BY_VERSION[v]' / work end :134 'return SHAPE_ISA_BY_VERSION[v]'
+      doc:811  ...| **no default**: an unmapped VERSION raises `UnknownBitstream` | `sw/hwmap.py:104-130` |...
+  REPAIR         sw/hwmap.py:853-869 -> sw/hwmap.py:857-873   doc lines 814   at-base yes
+      base sw/hwmap.py:853  '(128, True): base1 | SHAPE_W8,               # W8 (V5)'
+      work sw/hwmap.py:853  'base1 = (13 << 12) | (7 << 6) | 32'
+      work sw/hwmap.py:857  '(128, True): base1 | SHAPE_W8,               # W8 (V5)'   <- proposed
+      base end :869 '# and at the three 9B row shapes.' / work end :873 '# and at the three 9B row shapes.'
+      doc:814  ...o `isa=1`, an unknown one must RAISE, and the two decodes of `0x02020005` are asserted | `sw/hwmap.py:853-869` |...
+  REPAIR         sw/hwmap.py:143-145 -> sw/hwmap.py:147-149   doc lines 815   at-base yes
+      base sw/hwmap.py:143  'assert 1 <= ng <= SHAPE_MAX_NG[isa], ('
+      work sw/hwmap.py:143  'assert isa in (SHAPE_ISA_PRE_G3, SHAPE_ISA_9B), f"unknown SHAPE isa {isa'
+      work sw/hwmap.py:147  'assert 1 <= ng <= SHAPE_MAX_NG[isa], ('   <- proposed
+      base end :145 'f"(rtl/matvec_engine.sv MAX_NG)")' / work end :149 'f"(rtl/matvec_engine.sv MAX_NG)")'
+      doc:815  ..., because the engine's own envelope guard is `` `ifndef SYNTHESIS `` | `sw/hwmap.py:85`, `sw/hwmap.py:143-145` |  <!--cites:noquote-->...
+  REPAIR         sw/hwmap.py:152 -> sw/hwmap.py:156   doc lines 858   at-base yes
+      base sw/hwmap.py:152  'return (((nrows << 12) | (sh << 6) | ng)'
+      work sw/hwmap.py:152  'if isa == SHAPE_ISA_PRE_G3:'
+      work sw/hwmap.py:156  'return (((nrows << 12) | (sh << 6) | ng)'   <- proposed
+      doc:858  ...| `sw/hwmap.py:152`, `sw/hwmap.py:165`, `sw/hwmap.py:823`,...
+  REPAIR         sw/hwmap.py:165 -> sw/hwmap.py:169   doc lines 858   at-base yes
+      base sw/hwmap.py:165  'return (ng << 22) | (nrows << 6) | sh'
+      work sw/hwmap.py:165  '"pass isa=1 to drive build_034/build_035"'
+      work sw/hwmap.py:169  'return (ng << 22) | (nrows << 6) | sh'   <- proposed
+      doc:858  ...| `sw/hwmap.py:152`, `sw/hwmap.py:165`, `sw/hwmap.py:823`, `sw/hwmap.py:808` ...
+  REPAIR         sw/hwmap.py:823 -> sw/hwmap.py:827   doc lines 858   at-base yes
+      base sw/hwmap.py:823  ''
+      work sw/hwmap.py:823  ''
+      work sw/hwmap.py:827  ''   <- proposed
+      doc:858  ...| `sw/hwmap.py:152`, `sw/hwmap.py:165`, `sw/hwmap.py:823`, `sw/hwmap.py:808` | the packer itself...
+  REPAIR         sw/hwmap.py:808 -> sw/hwmap.py:812   doc lines 858   at-base yes
+      base sw/hwmap.py:808  'base[int(wid)] = b[0] if rows_of is None else b'
+      work sw/hwmap.py:808  'b = tuple(a)'
+      work sw/hwmap.py:812  'base[int(wid)] = b[0] if rows_of is None else b'   <- proposed
+      doc:858  ...| `sw/hwmap.py:152`, `sw/hwmap.py:165`, `sw/hwmap.py:823`, `sw/hwmap.py:808` | the packer itself and its selftest |...
+  REPAIR         sw/hwmap.py:114-130 -> sw/hwmap.py:118-134   doc lines 417,656,916   at-base yes
+      base sw/hwmap.py:114  'def shape_isa_for_version(version):'
+      work sw/hwmap.py:114  'perfectly plausible — and completely different — row shape.'
+      work sw/hwmap.py:118  'def shape_isa_for_version(version):'   <- proposed
+      base end :130 'return SHAPE_ISA_BY_VERSION[v]' / work end :134 'return SHAPE_ISA_BY_VERSION[v]'
+      doc:417  ...(`sw/hwmap.py:114-130`) has **NO DEFAULT** — an unmapped VERS...
+      doc:656  ...y:40-71` (the two-layout block) and `sw/hwmap.py:133-165` (`shape_word(..., isa=…)`) and `sw/hwmap.py:114-130` (`shape_isa_for_version`).  §5.2 |...
+  COLLATERAL     sw/hwmap.py:96-101 -> sw/hwmap.py:96-105   doc lines 420,810   at-base yes
+      base sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'
+      work sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'
+      work sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'   <- proposed
+      base end :101 '}' / work end :105 '}'
+      doc:420  ...The map (`sw/hwmap.py:96-101`) names every image explicitly:...
+      doc:810  ...sa=1`; hashes taken from `sw/seq_run.py:115`, `sw/seq_run.py:121` and `sw/infer.py:98` | `sw/hwmap.py:96-101` |...
+  COLLATERAL     sw/hwmap.py:96-101 -> sw/hwmap.py:96-105   doc lines 420,810   at-base yes
+      base sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'
+      work sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'
+      work sw/hwmap.py:96  'SHAPE_ISA_BY_VERSION = {'   <- proposed
+      base end :101 '}' / work end :105 '}'
+      doc:420  ...The map (`sw/hwmap.py:96-101`) names every image explicitly:...
+      doc:810  ...sa=1`; hashes taken from `sw/seq_run.py:115`, `sw/seq_run.py:121` and `sw/infer.py:98` | `sw/hwmap.py:96-101` |...
+=== evidence/qwen9b/g3/G3_4_LAYER.md  (REPAIR 3, COLLATERAL 2)
+  REPAIR         sw/hwmap.py:238-249 -> sw/hwmap.py:242-253   doc lines 1024   at-base yes
+      base sw/hwmap.py:238  '# `evidence/qwen2b/rc/t4_bytes_unmoved.sh` as live proof of inertness.  '
+      work sw/hwmap.py:238  '# What does NOT agree is the SHIPPED bitstreams: `build_034`/`build_035`'
+      work sw/hwmap.py:242  '# `evidence/qwen2b/rc/t4_bytes_unmoved.sh` as live proof of inertness.  '   <- proposed
+      base end :249 '# DEFAULTS to this constant and three live callers pass nothing —' / work end :253 '# DEFAULTS to this constant and three live callers pass nothing —'
+      doc:1024  ...| M7 | `sw/hwmap.py:238-249` | the comment promised G3.4 would rais...
+  REPAIR         sw/hwmap.py:174-240 -> sw/hwmap.py:178-244   doc lines 1525   at-base yes
+      base sw/hwmap.py:174  'LB = 0x5000'
+      work sw/hwmap.py:174  'return 0x1000 * (c + 1)'
+      work sw/hwmap.py:178  'LB = 0x5000'   <- proposed
+      base end :240 '# ISA, and that script is RETIRED BY DESIGN — G3.1 is where the byte-loc' / work end :244 '# ISA, and that script is RETIRED BY DESIGN — G3.1 is where the byte-loc'
+      doc:1525  ...half-mapped `sw/hwmap.py:174-240` and its dead endpoint...
+  REPAIR         sw/hwmap.py:240 -> sw/hwmap.py:244   doc lines 1526   at-base yes
+      base sw/hwmap.py:240  '# ISA, and that script is RETIRED BY DESIGN — G3.1 is where the byte-loc'
+      work sw/hwmap.py:240  '# below is for.  (The earlier text here said "the RTL array is still 32K'
+      work sw/hwmap.py:244  '# ISA, and that script is RETIRED BY DESIGN — G3.1 is where the byte-loc'   <- proposed
+      doc:1526  ...`sw/hwmap.py:240`, both cited by `docs/ARCHITECTURE.md`,...
+  COLLATERAL     sw/hwmap.py:178 -> sw/hwmap.py:182   doc lines 294,1020   at-base yes
+      base sw/hwmap.py:178  'L_TCNT2 = LB + 0x60       # RW KV append counters for kvheads 2 and 3,'
+      work sw/hwmap.py:178  'LB = 0x5000'
+      work sw/hwmap.py:182  'L_TCNT2 = LB + 0x60       # RW KV append counters for kvheads 2 and 3,'   <- proposed
+      doc:294  ...* kvheads 2/3 (write `rtl/layer_chan.sv:933`, read `rtl/layer_chan.sv:989`); host mirror `sw/hwmap.py:178` |...
+      doc:1020  ...CNT2 was at 0x64; it is **0x60**, as `rtl/layer_chan.sv:21`, `rtl/layer_chan.sv:933` and `sw/hwmap.py:178` all already said |...
+  COLLATERAL     sw/hwmap.py:178 -> sw/hwmap.py:182   doc lines 294,1020   at-base yes
+      base sw/hwmap.py:178  'L_TCNT2 = LB + 0x60       # RW KV append counters for kvheads 2 and 3,'
+      work sw/hwmap.py:178  'LB = 0x5000'
+      work sw/hwmap.py:182  'L_TCNT2 = LB + 0x60       # RW KV append counters for kvheads 2 and 3,'   <- proposed
+      doc:294  ...* kvheads 2/3 (write `rtl/layer_chan.sv:933`, read `rtl/layer_chan.sv:989`); host mirror `sw/hwmap.py:178` |...
+      doc:1020  ...CNT2 was at 0x64; it is **0x60**, as `rtl/layer_chan.sv:21`, `rtl/layer_chan.sv:933` and `sw/hwmap.py:178` all already said |...
+=== evidence/qwen9b/g6/RD9_GATE.md  (REPAIR 7, COLLATERAL 1)
+  REPAIR         sw/hwmap.py:338 -> sw/hwmap.py:342   doc lines 1390   at-base yes
+      base sw/hwmap.py:338  '# Read-only, HOST-ONLY.  Every pre-round bitstream'
+      work sw/hwmap.py:338  '# 0xDEADC0DE (outside the map) — that is how the'
+      work sw/hwmap.py:342  '# Read-only, HOST-ONLY.  Every pre-round bitstream'   <- proposed
+      doc:1390  ...**The RTL refutes it.** `sw/hwmap.py:338` reads `SEQ_EMBLOG2_RST = 13`, and...
+  REPAIR         sw/hwmap.py:195 -> sw/hwmap.py:199   doc lines 1975   at-base yes
+      base sw/hwmap.py:195  'L_LCYC = LB + 0x34        # 32-bit busy-cycle accumulator @ ACLK_HZ;'
+      work sw/hwmap.py:195  '#  dn_slot[1:0]}, packed by'
+      work sw/hwmap.py:199  'L_LCYC = LB + 0x34        # 32-bit busy-cycle accumulator @ ACLK_HZ;'   <- proposed
+      doc:1975  ...`L_SDMA_CYC` are 32-bit accumulators at `ACLK_HZ` (`sw/hwmap.py:195`,...
+  REPAIR         sw/hwmap.py:225 -> sw/hwmap.py:229   doc lines 1976   at-base yes
+      base sw/hwmap.py:225  'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'
+      work sw/hwmap.py:225  'L_SB_DN    = LB + 0x64    # RW DN state region base >> 16   (B15.3)'
+      work sw/hwmap.py:229  'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'   <- proposed
+      doc:1976  ...`sw/hwmap.py:225`), so each one covers **2³² / 250 MHz =...
+  REPAIR         sw/hwmap.py:283-288 -> sw/hwmap.py:287-292   doc lines 2405   at-base yes
+      base sw/hwmap.py:283  '#'
+      work sw/hwmap.py:283  '# different reason now.  The RTL array is 65,536 words and the ISA addre'
+      work sw/hwmap.py:287  '#'   <- proposed
+      base end :288 'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_' / work end :292 'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_'
+      doc:2405  ...| `sw/hwmap.py:283-288` and `:284-288`, same citers | the END ...
+  REPAIR         `:284-288` -> `:288-292`   doc lines 2405   at-base yes
+      base sw/hwmap.py:284  '# `SCRATCH_WORDS` is THE canonical definition: `sw/seq_run.py`, `sw/infe'
+      work sw/hwmap.py:284  '# 16 bits, so `SCRATCH_WORDS` describes the CURRENT RTL — not a future b'
+      work sw/hwmap.py:288  '# `SCRATCH_WORDS` is THE canonical definition: `sw/seq_run.py`, `sw/infe'   <- proposed
+      base end :288 'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_' / work end :292 'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_'
+      doc:2405  ...| `sw/hwmap.py:283-288` and `:284-288`, same citers | the END endpoint is the ...
+  REPAIR         sw/hwmap.py:114-130 -> sw/hwmap.py:118-134   doc lines 2407   at-base yes
+      base sw/hwmap.py:114  'def shape_isa_for_version(version):'
+      work sw/hwmap.py:114  'perfectly plausible — and completely different — row shape.'
+      work sw/hwmap.py:118  'def shape_isa_for_version(version):'   <- proposed
+      base end :130 'return SHAPE_ISA_BY_VERSION[v]' / work end :134 'return SHAPE_ISA_BY_VERSION[v]'
+      doc:2407  ... `sw/hwmap.py:88-96` half-mapped range in this very document, which was hand-repaired to `sw/hwmap.py:114-130`". Rewriting a historical coordinate wo...
+  REPAIR         sw/hwmap.py:555 -> sw/hwmap.py:559   doc lines 3741   at-base yes
+      base sw/hwmap.py:555  '# view XDMA M_AXI has), while mvchan_c/m_axi sees its own channel at 0.'
+      work sw/hwmap.py:555  '# THE COMPLETE CHANNEL-0 MAP (4 GiB; every host tool in sw/ and every'
+      work sw/hwmap.py:559  '# view XDMA M_AXI has), while mvchan_c/m_axi sees its own channel at 0.'   <- proposed
+      doc:3741  ...| KV DDR block (`sw/hwmap.py:555`-`558`) | `STATE_KV_STRIDE = 1 << 21`, ...
+  COLLATERAL     sw/hwmap.py:288 -> sw/hwmap.py:292   doc lines 2404   at-base yes
+      base sw/hwmap.py:288  'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_'
+      work sw/hwmap.py:288  '# `SCRATCH_WORDS` is THE canonical definition: `sw/seq_run.py`, `sw/infe'
+      work sw/hwmap.py:292  'SCRATCH_WORDS_BUILT = 65536   # build_041 (0xc973c18a); 32768 for build_'   <- proposed
+      doc:2404  ...| `sw/hwmap.py:288`, cited by `docs/SEQ_ISA.md`, `evidence...
+=== evidence/qwen9b/g6/g6_census.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:225 -> sw/hwmap.py:229   doc lines 9   at-base yes
+      base sw/hwmap.py:225  'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'
+      work sw/hwmap.py:225  'L_SB_DN    = LB + 0x64    # RW DN state region base >> 16   (B15.3)'
+      work sw/hwmap.py:229  'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'   <- proposed
+      doc:9  ...    `L_SDMA_CYC` is the DMA lane (`sw/hwmap.py:225`); "any write clears", so...
+=== evidence/qwen9b/g6/g6_emblog2.py  (REPAIR 2, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:338 -> sw/hwmap.py:342   doc lines 11,81   at-base yes
+      base sw/hwmap.py:338  '# Read-only, HOST-ONLY.  Every pre-round bitstream'
+      work sw/hwmap.py:338  '# 0xDEADC0DE (outside the map) — that is how the'
+      work sw/hwmap.py:342  '# Read-only, HOST-ONLY.  Every pre-round bitstream'   <- proposed
+      doc:11  ...refuted it from the RTL: `sw/hwmap.py:338` reads `SEQ_EMBLOG2_RST = 13` and...
+      doc:81  ...          f"(sw/hwmap.py:338, mirroring rtl/seq_unit.sv:337)")...
+  REPAIR         sw/hwmap.py:338 -> sw/hwmap.py:342   doc lines 11,81   at-base yes
+      base sw/hwmap.py:338  '# Read-only, HOST-ONLY.  Every pre-round bitstream'
+      work sw/hwmap.py:338  '# 0xDEADC0DE (outside the map) — that is how the'
+      work sw/hwmap.py:342  '# Read-only, HOST-ONLY.  Every pre-round bitstream'   <- proposed
+      doc:11  ...refuted it from the RTL: `sw/hwmap.py:338` reads `SEQ_EMBLOG2_RST = 13` and...
+      doc:81  ...          f"(sw/hwmap.py:338, mirroring rtl/seq_unit.sv:337)")...
+=== evidence/qwen9b/g6/g6_lane_counters.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:225 -> sw/hwmap.py:229   doc lines 6   at-base yes
+      base sw/hwmap.py:225  'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'
+      work sw/hwmap.py:225  'L_SB_DN    = LB + 0x64    # RW DN state region base >> 16   (B15.3)'
+      work sw/hwmap.py:229  'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'   <- proposed
+      doc:6  ...`L_SDMA_CYC` (the DMA lane, `sw/hwmap.py:225`) around a `seq_run`...
+=== evidence/qwen9b/o3/BOARD_LOCK.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:231 -> sw/hwmap.py:235   doc lines 603   at-base yes
+      base sw/hwmap.py:231  '# fully-backed 64K-word array).  THE COUPLING, and G3.1 CHANGED WHICH HA'
+      work sw/hwmap.py:231  'TOPK_K = 32               # capture depth; reset ONLY by AMAX fresh flag'
+      work sw/hwmap.py:235  '# fully-backed 64K-word array).  THE COUPLING, and G3.1 CHANGED WHICH HA'   <- proposed
+      doc:603  ...> `sw/hwmap.py:231` (twice), `ref/gen_layer_script.py:1116...
+=== evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:598-599 -> sw/hwmap.py:602-603   doc lines 756   at-base yes
+      base sw/hwmap.py:598  '# against the blob as it goes.  That is what makes those emitter-side'
+      work sw/hwmap.py:598  '# reads at run time: they are baked into the LDC records as ABSOLUTE'
+      work sw/hwmap.py:602  '# against the blob as it goes.  That is what makes those emitter-side'   <- proposed
+      base end :599 '# addresses safe DESPITE landing inside the 2B embedding table' / work end :603 '# addresses safe DESPITE landing inside the 2B embedding table'
+      doc:756  ...     (`sw/hwmap.py:598-599`), so SLD/SST traffic could slow channe...
+=== evidence/qwen9b/ov/SV1_S1_VERIFY.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:599 -> sw/hwmap.py:603   doc lines 256   at-base yes
+      base sw/hwmap.py:599  '# addresses safe DESPITE landing inside the 2B embedding table'
+      work sw/hwmap.py:599  '# addresses, and sw/seq_run.py RELOCATES every one of them by'
+      work sw/hwmap.py:603  '# addresses safe DESPITE landing inside the 2B embedding table'   <- proposed
+      doc:256  ...     channel's DDR (`sw/hwmap.py:599`)....
+=== evidence/qwen9b/s1/S1_ISA.md  (REPAIR 24, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:216-225 -> sw/hwmap.py:220-229   doc lines 24,170   at-base yes
+      base sw/hwmap.py:216  '# SEQ_ISA v2.1 (B15.3, spec 5.3 + A1.4): layer state in DDR.  The three'
+      work sw/hwmap.py:216  '# a_beta = a_beta_base + head and a_dec = a_dec_base + head, so this is'
+      work sw/hwmap.py:220  '# SEQ_ISA v2.1 (B15.3, spec 5.3 + A1.4): layer state in DDR.  The three'   <- proposed
+      base end :225 'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears' / work end :229 'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'
+      doc:24  ...| 3 | `sw/hwmap.py:216-225`, `:186-194`, `:536-561` | the five CSR...
+      doc:170  ...(`sw/hwmap.py:216-225`) in the block's own comment style. `L_...
+  REPAIR         `:186-194` -> `:190-198`   doc lines 24   at-base yes
+      base sw/hwmap.py:186  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"
+      work sw/hwmap.py:186  '# second pair got its own offset rather than'
+      work sw/hwmap.py:190  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"   <- proposed
+      base end :194 '# still carries the v2.0 word.' / work end :198 '# still carries the v2.0 word.'
+      doc:24  ...| 3 | `sw/hwmap.py:216-225`, `:186-194`, `:536-561` | the five CSR mirrors, the...
+  REPAIR         `:536-561` -> `:540-565`   doc lines 24   at-base yes
+      base sw/hwmap.py:536  '"of_ovf": bool(w & SEQ_ST_OF_OVF),'
+      work sw/hwmap.py:536  '"busy": bool(w & SEQ_ST_BUSY),'
+      work sw/hwmap.py:540  '"of_ovf": bool(w & SEQ_ST_OF_OVF),'   <- proposed
+      base end :561 '#                                        upload, never between one and a' / work end :565 '#                                        upload, never between one and a'
+      doc:24  ...| 3 | `sw/hwmap.py:216-225`, `:186-194`, `:536-561` | the five CSR mirrors, the re-purposed...
+  REPAIR         sw/hwmap.py:216-225 -> sw/hwmap.py:220-229   doc lines 24,170   at-base yes
+      base sw/hwmap.py:216  '# SEQ_ISA v2.1 (B15.3, spec 5.3 + A1.4): layer state in DDR.  The three'
+      work sw/hwmap.py:216  '# a_beta = a_beta_base + head and a_dec = a_dec_base + head, so this is'
+      work sw/hwmap.py:220  '# SEQ_ISA v2.1 (B15.3, spec 5.3 + A1.4): layer state in DDR.  The three'   <- proposed
+      base end :225 'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears' / work end :229 'L_SDMA_CYC = LB + 0x74    # R  busy_dma cycles; any write clears'
+      doc:24  ...| 3 | `sw/hwmap.py:216-225`, `:186-194`, `:536-561` | the five CSR...
+      doc:170  ...(`sw/hwmap.py:216-225`) in the block's own comment style. `L_...
+  REPAIR         sw/hwmap.py:186-194 -> sw/hwmap.py:190-198   doc lines 171   at-base yes
+      base sw/hwmap.py:186  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"
+      work sw/hwmap.py:186  '# second pair got its own offset rather than'
+      work sw/hwmap.py:190  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"   <- proposed
+      base end :194 '# still carries the v2.0 word.' / work end :198 '# still carries the v2.0 word.'
+      doc:171  ...comment (`sw/hwmap.py:186-194`) now states BOTH words — v2.0's...
+  REPAIR         sw/hwmap.py:545-652 -> sw/hwmap.py:549-656   doc lines 175   at-base yes
+      base sw/hwmap.py:545  'WID_ALIGN = 4096          # per-image start alignment inside the pack'
+      work sw/hwmap.py:545  ''
+      work sw/hwmap.py:549  'WID_ALIGN = 4096          # per-image start alignment inside the pack'   <- proposed
+      base end :652 '' / work end :656 ''
+      doc:175  ...`sw/hwmap.py:545-652`, beside `plan_weights` (`sw/hwmap.py:6...
+  REPAIR         sw/hwmap.py:650 -> sw/hwmap.py:654   doc lines 175   at-base yes
+      base sw/hwmap.py:650  'return EMB_BASE + int(vocab) * int(emb_row_bytes)'
+      work sw/hwmap.py:650  ''
+      work sw/hwmap.py:654  'return EMB_BASE + int(vocab) * int(emb_row_bytes)'   <- proposed
+      doc:175  ...`sw/hwmap.py:545-652`, beside `plan_weights` (`sw/hwmap.py:650`)....
+  REPAIR         sw/hwmap.py:588 -> sw/hwmap.py:592   doc lines 178   at-base yes
+      base sw/hwmap.py:588  '#                                        at 2B the emb table runs to'
+      work sw/hwmap.py:588  '#                                        top < EMB_BASE on EVERY channel'
+      work sw/hwmap.py:592  '#                                        at 2B the emb table runs to'   <- proposed
+      doc:178  ...> `plan_state_base` (`sw/hwmap.py:588`), its embedding-table guard, and...
+  REPAIR         sw/hwmap.py:615 -> sw/hwmap.py:619   doc lines 179   at-base yes
+      base sw/hwmap.py:615  '# is why every base below is 64 KiB aligned.  The strides are the SHIFTS'
+      work sw/hwmap.py:615  '# -------------------------------------------------- the DDR state regio'
+      work sw/hwmap.py:619  '# is why every base below is 64 KiB aligned.  The strides are the SHIFTS'   <- proposed
+      doc:179  ...> `state_dn_witnesses` (`sw/hwmap.py:615`) sit between the `STATE_*`...
+  REPAIR         sw/hwmap.py:415 -> sw/hwmap.py:419   doc lines 386,387,389   at-base yes
+      base sw/hwmap.py:415  'SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPE'
+      work sw/hwmap.py:415  ''
+      work sw/hwmap.py:419  'SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPE'   <- proposed
+      doc:386  ...| `docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:109` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+      doc:387  ...s/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:239` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+  REPAIR         sw/hwmap.py:434 -> sw/hwmap.py:438   doc lines 386,387,389   at-base yes
+      base sw/hwmap.py:434  '0x07: "unknown CSR space",'
+      work sw/hwmap.py:434  '0x03: "XRF index out of range",'
+      work sw/hwmap.py:438  '0x07: "unknown CSR space",'   <- proposed
+      doc:386  .../plans/2026-08-29-qwen35-9b-migration.md:109` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+      doc:387  ...2026-08-29-qwen35-9b-migration-design.md:239` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+  REPAIR         sw/hwmap.py:415 -> sw/hwmap.py:419   doc lines 386,387,389   at-base yes
+      base sw/hwmap.py:415  'SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPE'
+      work sw/hwmap.py:415  ''
+      work sw/hwmap.py:419  'SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPE'   <- proposed
+      doc:386  ...| `docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:109` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+      doc:387  ...s/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:239` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+  REPAIR         sw/hwmap.py:434 -> sw/hwmap.py:438   doc lines 386,387,389   at-base yes
+      base sw/hwmap.py:434  '0x07: "unknown CSR space",'
+      work sw/hwmap.py:434  '0x03: "XRF index out of range",'
+      work sw/hwmap.py:438  '0x07: "unknown CSR space",'   <- proposed
+      doc:386  .../plans/2026-08-29-qwen35-9b-migration.md:109` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+      doc:387  ...2026-08-29-qwen35-9b-migration-design.md:239` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+  REPAIR         sw/hwmap.py:407 -> sw/hwmap.py:411   doc lines 388   at-base yes
+      base sw/hwmap.py:407  'SEQ_XRF_BITS = 18'
+      work sw/hwmap.py:407  'w = SEQ_CAPS_MAGIC << 8'
+      work sw/hwmap.py:411  'SEQ_XRF_BITS = 18'   <- proposed
+      doc:388  ...ign.md:2035` | `EMB_ROW_BYTES_DEFAULT` and its three sibling pointers in the same cell | `sw/hwmap.py:407` `sw/hwmap.py:304-315` `sw/hwmap.py:484...
+  REPAIR         sw/hwmap.py:304-315 -> sw/hwmap.py:308-319   doc lines 388   at-base yes
+      base sw/hwmap.py:304  'S_STATUS   = SB + 0x04    # R {err_code[31:24], of_ovf[23], out_cnt[22:1'
+      work sw/hwmap.py:304  '# also what ref/seq_format.SEQ_CSR_BASE assumes.'
+      work sw/hwmap.py:308  'S_STATUS   = SB + 0x04    # R {err_code[31:24], of_ovf[23], out_cnt[22:1'   <- proposed
+      base end :315 'S_ENTRY    = SB + 0x24    # RW record index START jumps to' / work end :319 'S_ENTRY    = SB + 0x24    # RW record index START jumps to'
+      doc:388  ...B_ROW_BYTES_DEFAULT` and its three sibling pointers in the same cell | `sw/hwmap.py:407` `sw/hwmap.py:304-315` `sw/hwmap.py:484` `sw/hwmap.py:493` | ...
+  REPAIR         sw/hwmap.py:484 -> sw/hwmap.py:488   doc lines 388   at-base yes
+      base sw/hwmap.py:484  '#                  without a global constant the two have to share.'
+      work sw/hwmap.py:484  '#   rs_f           (G2a, spec 4.4) the residual binary point this artifa'
+      work sw/hwmap.py:488  '#                  without a global constant the two have to share.'   <- proposed
+      doc:388  ...nd its three sibling pointers in the same cell | `sw/hwmap.py:407` `sw/hwmap.py:304-315` `sw/hwmap.py:484` `sw/hwmap.py:493` | `sw/hwmap.py:426` ...
+  REPAIR         sw/hwmap.py:493 -> sw/hwmap.py:497   doc lines 388   at-base yes
+      base sw/hwmap.py:493  '# PRE-R-b artifact, and G3.4 moved it 2048 -> 8192 with the RTL reset it'
+      work sw/hwmap.py:493  '# if it were an image record — the exact failure `emb_row_bytes` needed '
+      work sw/hwmap.py:497  '# PRE-R-b artifact, and G3.4 moved it 2048 -> 8192 with the RTL reset it'   <- proposed
+      doc:388  ...ng pointers in the same cell | `sw/hwmap.py:407` `sw/hwmap.py:304-315` `sw/hwmap.py:484` `sw/hwmap.py:493` | `sw/hwmap.py:426` `sw/hwmap.py:323-3...
+  REPAIR         sw/hwmap.py:426 -> sw/hwmap.py:430   doc lines 388   at-base yes
+      base sw/hwmap.py:426  'SEQ_ERR = {'
+      work sw/hwmap.py:426  'SEQ_OUT_TOK_MASK = (1 << 18) - 1'
+      work sw/hwmap.py:430  'SEQ_ERR = {'   <- proposed
+      doc:388  ...ame cell | `sw/hwmap.py:407` `sw/hwmap.py:304-315` `sw/hwmap.py:484` `sw/hwmap.py:493` | `sw/hwmap.py:426` `sw/hwmap.py:323-334` `sw/hwmap.py:503...
+  REPAIR         sw/hwmap.py:323-334 -> sw/hwmap.py:327-338   doc lines 388   at-base yes
+      base sw/hwmap.py:323  'S_EMBLOG2  = SB + 0x60    # RW log2 of the EMB row size in bytes (R-b).'
+      work sw/hwmap.py:323  'S_PERF_AXW = SB + 0x34    # R  AXI-Lite writes issued'
+      work sw/hwmap.py:327  'S_EMBLOG2  = SB + 0x60    # RW log2 of the EMB row size in bytes (R-b).'   <- proposed
+      base end :334 '# 0xDEADC0DE (outside the map) — that is how the' / work end :338 '# 0xDEADC0DE (outside the map) — that is how the'
+      doc:388  ...ap.py:407` `sw/hwmap.py:304-315` `sw/hwmap.py:484` `sw/hwmap.py:493` | `sw/hwmap.py:426` `sw/hwmap.py:323-334` `sw/hwmap.py:503` `sw/hwmap.py:512` |...
+  REPAIR         sw/hwmap.py:503 -> sw/hwmap.py:507   doc lines 388   at-base yes
+      base sw/hwmap.py:503  '# `_META_DEFAULTS` (whose values go through `int()`).  `state` is'
+      work sw/hwmap.py:503  'RS_F_DEFAULT = 8                                  # ref/layer_fixed.py R'
+      work sw/hwmap.py:507  '# `_META_DEFAULTS` (whose values go through `int()`).  `state` is'   <- proposed
+      doc:388  ...y:304-315` `sw/hwmap.py:484` `sw/hwmap.py:493` | `sw/hwmap.py:426` `sw/hwmap.py:323-334` `sw/hwmap.py:503` `sw/hwmap.py:512` |...
+  REPAIR         sw/hwmap.py:512 -> sw/hwmap.py:516   doc lines 388   at-base yes
+      base sw/hwmap.py:512  ''
+      work sw/hwmap.py:512  '# artifact is, and it emits no SLD/SST for a region to serve.'
+      work sw/hwmap.py:516  ''   <- proposed
+      doc:388  ...ap.py:484` `sw/hwmap.py:493` | `sw/hwmap.py:426` `sw/hwmap.py:323-334` `sw/hwmap.py:503` `sw/hwmap.py:512` |...
+  REPAIR         sw/hwmap.py:415 -> sw/hwmap.py:419   doc lines 386,387,389   at-base yes
+      base sw/hwmap.py:415  'SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPE'
+      work sw/hwmap.py:415  ''
+      work sw/hwmap.py:419  'SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPE'   <- proposed
+      doc:386  ...| `docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:109` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+      doc:387  ...s/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:239` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+  REPAIR         sw/hwmap.py:434 -> sw/hwmap.py:438   doc lines 386,387,389   at-base yes
+      base sw/hwmap.py:434  '0x07: "unknown CSR space",'
+      work sw/hwmap.py:434  '0x03: "XRF index out of range",'
+      work sw/hwmap.py:438  '0x07: "unknown CSR space",'   <- proposed
+      doc:386  .../plans/2026-08-29-qwen35-9b-migration.md:109` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+      doc:387  ...2026-08-29-qwen35-9b-migration-design.md:239` | `RS_F_DEFAULT = 8` | `sw/hwmap.py:415` | `sw/hwmap.py:434` |...
+  REPAIR         sw/hwmap.py:186 -> sw/hwmap.py:190   doc lines 171,469   at-base yes
+      base sw/hwmap.py:186  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"
+      work sw/hwmap.py:186  '# second pair got its own offset rather than'
+      work sw/hwmap.py:190  "L_LAYER = LB + 0x30       # bank select.  v2.0 / today's RTL:"   <- proposed
+      doc:171  ...comment (`sw/hwmap.py:186-194`) now states BOTH words — v2.0's...
+      doc:469  ...| UNRESOLVED `sw/hwmap.py:186` | `L_LAYER`, whose comment S1 rewrote;...
+=== evidence/qwen9b/sr/SR2_ISA.md  (REPAIR 6, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:336 -> sw/hwmap.py:340   doc lines 38   at-base yes
+      base sw/hwmap.py:336  'S_SEQ_CAPS = SB + 0x64    # R  SEQ_CAPS (docs/SEQ_ISA.md v2.3 B17.0):'
+      work sw/hwmap.py:336  '# outside [8,13] is REJECTED by the RTL.'
+      work sw/hwmap.py:340  'S_SEQ_CAPS = SB + 0x64    # R  SEQ_CAPS (docs/SEQ_ISA.md v2.3 B17.0):'   <- proposed
+      doc:38  ...| `S_SEQ_CAPS` (SB + 0x64), beside `S_EMBLOG2` | `sw/hwmap.py:336` |...
+  REPAIR         sw/hwmap.py:353 -> sw/hwmap.py:357   doc lines 39   at-base yes
+      base sw/hwmap.py:353  'SEQ_CAPS_MAGIC = 0xFAB1CA                 # word[31:8]'
+      work sw/hwmap.py:353  '# DEFINITION: ref/seq_format.py uses these through `import hwmap`, the d'
+      work sw/hwmap.py:357  'SEQ_CAPS_MAGIC = 0xFAB1CA                 # word[31:8]'   <- proposed
+      doc:39  ...| `SEQ_CAPS_MAGIC` = 0xFAB1CA | `sw/hwmap.py:353` |...
+  REPAIR         sw/hwmap.py:354-356 -> sw/hwmap.py:358-360   doc lines 40   at-base yes
+      base sw/hwmap.py:354  'SEQ_CAP_BITS = {"R1": 1 << 0,             # the FENCE channel mask (B17.'
+      work sw/hwmap.py:354  '# B17.0 table is tied to them by evidence/qwen9b/sr/sr2_isa_tdd.py (h), '
+      work sw/hwmap.py:358  'SEQ_CAP_BITS = {"R1": 1 << 0,             # the FENCE channel mask (B17.'   <- proposed
+      base end :356 '"R3": 1 << 2}             # MOVX broadcast         (B17.3)' / work end :360 '"R3": 1 << 2}             # MOVX broadcast         (B17.3)'
+      doc:40  ...| `SEQ_CAP_BITS` = R1 bit 0, R2 bit 1, R3 bit 2 | `sw/hwmap.py:354-356` |...
+  REPAIR         sw/hwmap.py:359 -> sw/hwmap.py:363   doc lines 41   at-base yes
+      base sw/hwmap.py:359  'def seq_caps_set(word):'
+      work sw/hwmap.py:359  '"R2": 1 << 1,             # XWIN/RES bank bits     (B17.2)'
+      work sw/hwmap.py:363  'def seq_caps_set(word):'   <- proposed
+      doc:41  ...et(word)` → frozenset; empty unless the magic; unknown bit → ValueError naming the bit | `sw/hwmap.py:359` |...
+  REPAIR         sw/hwmap.py:382 -> sw/hwmap.py:386   doc lines 42   at-base yes
+      base sw/hwmap.py:382  'def seq_caps_check(caps):'
+      work sw/hwmap.py:382  'f"{sorted(SEQ_CAP_BITS)}) — docs/SEQ_ISA.md B17.0")'
+      work sw/hwmap.py:386  'def seq_caps_check(caps):'   <- proposed
+      doc:42  ... (added: the one place the name check lives, used by `seq_format` and `seq_caps_word`) | `sw/hwmap.py:382` |...
+  REPAIR         sw/hwmap.py:400 -> sw/hwmap.py:404   doc lines 43   at-base yes
+      base sw/hwmap.py:400  'def seq_caps_word(caps):'
+      work sw/hwmap.py:400  'f"docs/SEQ_ISA.md B17.0")'
+      work sw/hwmap.py:404  'def seq_caps_word(caps):'   <- proposed
+      doc:43  ...| `seq_caps_word(caps)` → the word (for mocks and the TB side file) | `sw/hwmap.py:400` |...
+=== evidence/qwen_next/feas/addrmap_options.py  (REPAIR 3, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:482 -> sw/hwmap.py:486   doc lines 8   at-base yes
+      base sw/hwmap.py:482  '#                  0.8B/2B artifact carries and what A1.8 keeps as the s'
+      work sw/hwmap.py:482  '#   emb_row_bytes  (R-b) the embedding row stride = 2*H, so the host can'
+      work sw/hwmap.py:486  '#                  0.8B/2B artifact carries and what A1.8 keeps as the s'   <- proposed
+      doc:8  ...    (sw/hwmap.py:482).  The hardware takes the embedding bas...
+  REPAIR         sw/hwmap.py:750 -> sw/hwmap.py:754   doc lines 12   at-base yes
+      base sw/hwmap.py:750  'PER-CHANNEL REPACK (`rows_of` given) — the V5 fit prerequisite: at 1.85'
+      work sw/hwmap.py:750  'at nch=4 alike; it is byte-for-byte what this function did before the'
+      work sw/hwmap.py:754  'PER-CHANNEL REPACK (`rows_of` given) — the V5 fit prerequisite: at 1.85'   <- proposed
+      doc:12  ...    (sw/hwmap.py:750: "move EMB_BASE or split the images acr...
+  REPAIR         sw/hwmap.py:339 -> sw/hwmap.py:343   doc lines 171   at-base yes
+      base sw/hwmap.py:339  '# (build_041/042) reads 0xDEADC0DE here, which'
+      work sw/hwmap.py:339  '# host tells "no EMBLOG2" from "row size 11".'
+      work sw/hwmap.py:343  '# (build_041/042) reads 0xDEADC0DE here, which'   <- proposed
+      doc:171  ...    print(f"    sw/hwmap.py:339  SEQ_EMBLOG2_MIN, SEQ_EMBLOG2_MAX = "...
+=== evidence/qwen_next/feas/ddr_fit.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:352-361 -> sw/hwmap.py:356-365   doc lines 175   at-base yes
+      base sw/hwmap.py:352  "# re-types the values.  The magic is the round plan's choice."
+      work sw/hwmap.py:352  '# SEQ_CAPS (SEQ_ISA v2.3 B17.0, the sequencer RTL round, Task SR2).  THE'
+      work sw/hwmap.py:356  "# re-types the values.  The magic is the round plan's choice."   <- proposed
+      base end :361 '' / work end :365 ''
+      doc:175  ...    print("EMBEDDING TABLE — sw/hwmap.py:352-361 seq_emb_log2 rejects non-pow2")...
+=== evidence/qwen_next/feas2/board_split.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:479-482 -> sw/hwmap.py:483-486   doc lines 10   at-base yes
+      base sw/hwmap.py:479  '#                  the table and program EMBLOG2 instead of assuming 204'
+      work sw/hwmap.py:479  '# keys.  Every consumer that iterates wids must split the metadata off f'
+      work sw/hwmap.py:483  '#                  the table and program EMBLOG2 instead of assuming 204'   <- proposed
+      base end :482 '#                  0.8B/2B artifact carries and what A1.8 keeps as the s' / work end :486 '#                  0.8B/2B artifact carries and what A1.8 keeps as the s'
+      doc:10  ...                         channel (sw/hwmap.py:479-482)...
+=== evidence/qwen_next/feas2/ddr_fit2.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/hwmap.py:479-482 -> sw/hwmap.py:483-486   doc lines 261   at-base yes
+      base sw/hwmap.py:479  '#                  the table and program EMBLOG2 instead of assuming 204'
+      work sw/hwmap.py:479  '# keys.  Every consumer that iterates wids must split the metadata off f'
+      work sw/hwmap.py:483  '#                  the table and program EMBLOG2 instead of assuming 204'   <- proposed
+      base end :482 '#                  0.8B/2B artifact carries and what A1.8 keeps as the s' / work end :486 '#                  0.8B/2B artifact carries and what A1.8 keeps as the s'
+      doc:261  ...          f"(EMB_BASE-W_BASE = {WINDOW_BUILT/MIB:.0f} MiB, sw/hwmap.py:479-482).")...
+  EXCLUDED evidence/qwen9b/s3/S3_CHAIN.md
+--- UNRESOLVED (cited base line rewritten/deleted; o3 leaves these):
+--- HALF-MAPPED:
+--- MISSING (past the base EOF / absent):
+SR11C_AUDIT REPAIR 137 (of which SUSPECT 0)  COLLATERAL 8
+=== rc  : 0
+=== end : 2026-09-28T12:56:29-06:00

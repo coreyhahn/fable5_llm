@@ -1,0 +1,50 @@
+=== host: snoke  date: 2026-09-27T17:02:40-06:00
+=== tree: cceb282+dirty
+=== dirty:  M ref/seq_format.py
+=== dirty:  M sw/hwmap.py
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr2_isa_tdd.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+SR2 ISA TDD — B17.0 SEQ_CAPS, B17.1 FENCE mask, hwmap constants, seq_format caps=
+  (a) FAIL  FENCE target=0x5 admitted at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (b) PASS  FENCE target=0x5 refused at the default caps (today's rule)  -- refused: FENCE takes no operands
+  (b) FAIL  FENCE target=0x5 refused at caps=frozenset()  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (c) PASS  FENCE target=0x10 refused at the default caps  -- refused: FENCE takes no operands
+  (c) FAIL  FENCE target=0x10 refused at caps=frozenset()  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (c) FAIL  FENCE target=0x10 refused at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (d) PASS  HALT target=1 refused at the default caps  -- refused: HALT takes no operands
+  (d) FAIL  HALT target=1 refused at caps=frozenset()  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (d) FAIL  HALT target=1 refused at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (e) PASS  FENCE imm32=1 refused at the default caps  -- refused: FENCE takes no operands
+  (e) FAIL  FENCE imm32=1 refused at caps=frozenset()  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (e) FAIL  FENCE imm32=1 refused at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (e) FAIL  FENCE flags=1 refused at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (e) FAIL  FENCE addr_lo=1 refused at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (e) FAIL  FENCE len_or_addr_hi=1 refused at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (e) FAIL  FENCE target=0x8000 refused at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (e) FAIL  FENCE target=0 (mask 0 = all) admitted at caps={R1}  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (e) PASS  FENCE target=0 admitted at the default caps  -- admitted
+  (f) FAIL  validate(caps={R9}) raises ValueError naming R9  -- raised TypeError: validate() got an unexpected keyword argument 'caps'
+  (f) FAIL  validate_stream(caps={R9}) raises ValueError naming R9  -- raised TypeError: validate_stream() got an unexpected keyword argument 'caps'
+  (g) FAIL  seq_caps_set(0xDEADC0DE / 0xFAB1CA01 / 0xFAB1CA03 / 0xFAB1CA00)  -- raised AttributeError: module 'hwmap' has no attribute 'seq_caps_set'
+  (g) FAIL  seq_caps_word({R1}) == 0xFAB1CA01  -- raised AttributeError: module 'hwmap' has no attribute 'seq_caps_word'
+  (g) FAIL  seq_caps_word(set()) == 0xFAB1CA00 and round-trips every subset  -- raised AttributeError: module 'hwmap' has no attribute 'seq_caps_word'
+  (g) FAIL  HW.S_SEQ_CAPS - HW.SB == 0x64  -- raised AttributeError: module 'hwmap' has no attribute 'S_SEQ_CAPS'
+  (g) FAIL  SEQ_CAPS_MAGIC == 0xFAB1CA and SEQ_CAP_BITS == {R1:1, R2:2, R3:4}  -- raised AttributeError: module 'hwmap' has no attribute 'SEQ_CAPS_MAGIC'
+  (g) FAIL  seq_caps_set(0xFAB1CA08) refuses the unknown bit by name  -- raised AttributeError: module 'hwmap' has no attribute 'seq_caps_set'
+  (g) FAIL  seq_caps_word({R9}) refuses by name  -- raised AttributeError: module 'hwmap' has no attribute 'seq_caps_word'
+  (h) FAIL  B17.0's offset, magic and bit positions == hwmap's  -- raised AttributeError: module 'hwmap' has no attribute 'S_SEQ_CAPS'
+  (i) PASS  ref/seq_format defines no SEQ_CAPS* name of its own  -- namespace [], source []
+  (j) PASS  shipped 9B template sha256 == the chat_seq pin (9760899df53b3b42...)  -- 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+  (j) PASS  every FENCE in the shipped template carries target 0 (1372 FENCEs)
+  (j) PASS  shipped template validates at the default caps (158536 records)
+  (j) FAIL  shipped template validates at caps=frozenset(), same count  -- raised TypeError: validate_stream() got an unexpected keyword argument 'caps'
+  (j) FAIL  shipped template validates at caps={R1}, same count  -- raised TypeError: validate_stream() got an unexpected keyword argument 'caps'
+  (j) PASS  template with FENCE rec 70 target=0x5 REFUSED at the default caps  -- refused: rec 70: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0005 imm=0x00000000 lo=0x00000000 
+  (j) FAIL  template with FENCE rec 70 target=0x5 REFUSED at caps=frozenset()  -- raised TypeError: validate_stream() got an unexpected keyword argument 'caps'
+  (j) FAIL  template with FENCE rec 70 target=0x5 ADMITTED at caps={R1}  -- raised TypeError: validate_stream() got an unexpected keyword argument 'caps'
+  (j) FAIL  disasm prints 'FENCE mask=0x5' for the masked FENCE and plain 'FENCE' for mask 0  -- 'FENCE' / 'FENCE'
+sub-checks: 10 PASS, 28 FAIL; cases FAILING: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j'] of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
+SR2_ISA_TDD: FAIL (28)
+=== rc  : 1
+=== end : 2026-09-27T17:02:41-06:00

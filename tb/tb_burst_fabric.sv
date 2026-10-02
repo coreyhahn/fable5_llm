@@ -9,7 +9,11 @@
 // shims (rtl/matvec_chan.sv S5, rtl/layer_chan.sv S6) are written against.
 //
 //   master m_axib -> seq_burst_fabric -> MI0..3 = mvchan @ 0x1_0000..0x4_0000
-//                                     -> MI4    = layer  @ 0x5_0000
+//                                     -> MI4    = layer  @ 0x8_0000 (G3.1,
+//                                                 256 KiB; 0x5_0000-0x7_FFFF
+//                                                 is now a decode hole.  It
+//                                                 was 0x6_0000/128 KiB at
+//                                                 R-b and 0x5_0000 before)
 //   each stub's AXI-Lite port <- a TB-side AXI-Lite BFM (doorbells, CMD,
 //   SPTR/SWIN), so the burst window and the CSR window can be cross-checked
 //   against each other on the SAME memory.
@@ -61,7 +65,9 @@ module tb_burst_fabric #(
 
     // ---------------- fabric -> slaves ----------------
     logic [NSLV-1:0][0:0]  b_awid, b_arid, b_bid, b_rid;
-    logic [NSLV-1:0][15:0] b_awaddr, b_araddr;
+    // G3.1: MI4 (layer_0) is a 256 KiB window, so the MI address bus is
+    // 18 bits; the four mvchan MIs take the low 16 of it.  (17 at R-b.)
+    logic [NSLV-1:0][17:0] b_awaddr, b_araddr;
     logic [NSLV-1:0][7:0]  b_awlen, b_arlen;
     logic [NSLV-1:0][2:0]  b_awsize, b_arsize;
     logic [NSLV-1:0][1:0]  b_awburst, b_arburst, b_bresp, b_rresp;
@@ -152,7 +158,7 @@ module tb_burst_fabric #(
             .s_axil_arready(l_arready[c]), .s_axil_rdata(l_rdata[c]),
             .s_axil_rresp(l_rresp[c]), .s_axil_rvalid(l_rvalid[c]),
             .s_axil_rready(l_rready[c]),
-            .s_axib_awid(b_awid[c]), .s_axib_awaddr(b_awaddr[c]),
+            .s_axib_awid(b_awid[c]), .s_axib_awaddr(b_awaddr[c][15:0]),
             .s_axib_awlen(b_awlen[c]), .s_axib_awsize(b_awsize[c]),
             .s_axib_awburst(b_awburst[c]), .s_axib_awvalid(b_awvalid[c]),
             .s_axib_awready(b_awready[c]), .s_axib_wdata(b_wdata[c]),
@@ -160,7 +166,7 @@ module tb_burst_fabric #(
             .s_axib_wvalid(b_wvalid[c]), .s_axib_wready(b_wready[c]),
             .s_axib_bid(b_bid[c]), .s_axib_bresp(b_bresp[c]),
             .s_axib_bvalid(b_bvalid[c]), .s_axib_bready(b_bready[c]),
-            .s_axib_arid(b_arid[c]), .s_axib_araddr(b_araddr[c]),
+            .s_axib_arid(b_arid[c]), .s_axib_araddr(b_araddr[c][15:0]),
             .s_axib_arlen(b_arlen[c]), .s_axib_arsize(b_arsize[c]),
             .s_axib_arburst(b_arburst[c]), .s_axib_arvalid(b_arvalid[c]),
             .s_axib_arready(b_arready[c]), .s_axib_rid(b_rid[c]),
@@ -314,7 +320,12 @@ module tb_burst_fabric #(
     function automatic int unsigned mvbase(input int unsigned c);
         mvbase = (c + 1) << 16;
     endfunction
-    localparam int unsigned LAYBASE = 5 << 16;
+    // G3.1: 256 KiB at 8<<16.  `mvbase` above does NOT move — the mvchan
+    // windows are unchanged — and this TB is the confirmation of the
+    // re-alignment, not an afterthought: the old 6<<16 window would now
+    // collide with the next slot.
+    localparam int unsigned LAYBASE = 8 << 16;   // G3.1: 256 KiB, aligned
+    localparam int unsigned LAYTOPB = 32'd262140;  // byte addr of w = 65535
 
     function automatic int unsigned res_word(input int unsigned r,
                                              input int unsigned seed);
@@ -413,33 +424,40 @@ module tb_burst_fabric #(
         for (int i = 0; i < 8; i++)
             chk(rdbuf[i], 32'hAB00 + unsigned'(i),
                 "T2 burst read sees the AXI-Lite-written word");
-        // the very top scratch word (w = 16383) must be reachable
-        bwr(LAYBASE + 32'd65532, 1, 32'h0000_5A5A, 32'd0, resp);
+        // the very top scratch word (w = 65535, G3.1) must be reachable
+        bwr(LAYBASE + LAYTOPB, 1, 32'h0000_5A5A, 32'd0, resp);
         chk({30'd0, resp}, 32'd0, "T2 top scratch word BRESP");
-        brd(LAYBASE + 32'd65532, 1, resp);
+        brd(LAYBASE + LAYTOPB, 1, resp);
         chk(rdbuf[0], 32'h0000_5A5A, "T2 top scratch word");
-        $display("T2 PASS: layer scratch window == the AXI-Lite SWIN window (both directions), w=16383 reachable");
+        $display("T2 PASS: layer scratch window == the AXI-Lite SWIN window (both directions), w=65535 reachable");
 
         // ==============================================================
         // T3 — DECERR on every decode hole
         // ==============================================================
         begin
-            int unsigned holes [3];
+            // G3.1: the hole is 0x5_0000-0x7_FFFF now that layer_0 sits
+            // at 8<<16 with a 256 KiB range.  All three slots are probed,
+            // and 0xC_0000 (just past the layer window) is added — the
+            // realignment's own edge.
+            int unsigned holes [6];
             holes[0] = 32'h0000_0000;                   // slot 0
-            holes[1] = 32'h0006_0000;                   // slot 6
-            holes[2] = 32'h0080_0000;                   // above the aperture
-            for (int h = 0; h < 3; h++) begin
+            holes[1] = 32'h0005_0000;                   // slot 5 (G3.1 hole)
+            holes[2] = 32'h0006_0000;                   // slot 6 (R-b's base)
+            holes[3] = 32'h0007_0000;                   // slot 7
+            holes[4] = 32'h000C_0000;                   // just past layer_0
+            holes[5] = 32'h0080_0000;                   // above the aperture
+            for (int h = 0; h < 6; h++) begin
                 brd(holes[h], 4, resp);
                 chk({30'd0, resp}, 32'd3, "T3 read DECERR");
                 bwr(holes[h], 4, 32'hDEAD, 32'd1, resp);
                 chk({30'd0, resp}, 32'd3, "T3 write DECERR");
             end
         end
-        if (fb_ndec != 32'd6) begin
-            $display("T3: fabric counted %0d decode holes, expected 6", fb_ndec);
+        if (fb_ndec != 32'd12) begin
+            $display("T3: fabric counted %0d decode holes, expected 12", fb_ndec);
             nerr++;
         end
-        $display("T3 PASS: 3 decode holes x {read,write} -> DECERR, all beats returned/consumed (n_dec=%0d)", fb_ndec);
+        $display("T3 PASS: 6 decode holes x {read,write} -> DECERR, all beats returned/consumed (n_dec=%0d)", fb_ndec);
 
         // ==============================================================
         // T4 — SLVERR paths

@@ -1,0 +1,22 @@
+=== host: snoke  date: 2026-09-28T15:12:37-06:00
+=== tree: 588f1d3
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11c_bare_ptrs.py --apply --lines 278,450,597,602
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  SEQ_ISA:278  reset block at :856-876  [verified against the reset block]  C0 9e1ee44  anchor 'rstn'
+      856-876 -> 958-979   C0 :856 'if (!rstn) begin' | HEAD :958 'if (!rstn) begin' .. :979 "mv_shape <= '0; mv_wbase <= '0; mv_beats <= '0;"
+      PROVEN  'reset block at :856-876' -> 'reset block at :958-979'
+  SEQ_ISA:450  layer_chan.sv:44-47 says  [layer_chan says XRF[3] is unsigned in its XRFD window]  C0 6472f92  anchor 'UNSIGNED'
+      44-47 -> 85-88   C0 :44 '// XRF[3] (token id), which is UNSIGNED — the XRFD window is' | HEAD :85 '// XRF[3] (token id), which is UNSIGNED — the XRFD window is raw/' .. :88 '//   [1] k_dn   <- vec_alu DYNQ16 k     when cfg_p'
+      PROVEN  'layer_chan.sv:44-47 says' -> 'layer_chan.sv:85-88 says'
+  SEQ_ISA:597  layer_chan.sv:556-580, 729-736, 747-748  [TOPK-32: the block, its CSR reads, the PTR write]  C0 49f783f  anchor ['TOPK-32', 'TK_IDENT', 'tk_ptr_we']
+      556-580 -> 953-977   C0 :556 '// =========================================================' | HEAD :953 '// ==================================================================' .. :977 '// for a write commit / a read accept, mirrored ou'
+      729-736 -> 1179-1187   C0 :729 '// ---- rung 4 S5: TOPK-32 (0x48..0x58) ----' | HEAD :1179 '// ---- rung 4 S5: TOPK-32 (0x48..0x58) ----' .. :1187 "10'h016: s_axil_rdata <= {14'b0, tk_idx};"
+      747-748 -> 1198-1199   C0 :747 'assign tk_ptr_we = aw_got && w_got && !s_axil_bvalid' | HEAD :1198 'assign tk_ptr_we = aw_got && w_got && !s_axil_bvalid' .. :1199 "&& (awaddr_q == 10'h014);"
+      PROVEN  'layer_chan.sv:556-580, 729-736, 747-748' -> 'layer_chan.sv:953-977, 1179-1187, 1198-1199'
+  SEQ_ISA:602  vec_alu.sv:425-426)  [the TOPK feed bundle at the AMAX32 compare site]  C0 6472f92  anchor 'topk_bun'
+      425-426 -> 433-434   C0 :425 "topk_bun <= {(t_cp[0] && (op_q == 4'd10))," | HEAD :433 "topk_bun <= {(t_cp[0] && (op_q == 4'd10))," .. :434 "unsigned'(cp_v32), am_g};"
+      PROVEN  'vec_alu.sv:425-426)' -> 'vec_alu.sv:433-434)'
+SR11C_BARE_PTRS APPLIED: 4 pointer(s) proven (4 to rewrite), 0 not provable
+=== rc  : 0
+=== end : 2026-09-28T15:12:38-06:00

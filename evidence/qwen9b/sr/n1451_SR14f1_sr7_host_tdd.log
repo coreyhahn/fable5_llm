@@ -1,0 +1,52 @@
+=== host: snoke  date: 2026-09-29T03:34:50-06:00
+=== tree: 01564d8
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr7_host_tdd.py --r1 e3c2ff1e
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+R1 word 0xfab1ca01  unmapped 0xdeadc0de
+(a) SEQ_VERSIONS rows carry the expected SEQ_CAPS word
+  PASS every row is (shape_isa, what, caps_word)
+  PASS build_041 expects 0xDEADC0DE
+  PASS build_042_bm1 expects 0xDEADC0DE
+(b)/(c) the gate compares SEQ_CAPS against the row
+  PASS (b) shipped board + 0xDEADC0DE -> READY
+  PASS (c) shipped VERSION + R1 word -> REFUSED
+  PASS (c) BM1 VERSION + R1 word -> REFUSED
+(d) a scripted R1 row (table patched for this test only)
+  PASS (d) R1 VERSION + R1 word -> READY
+  PASS (d) R1 VERSION + 0xDEADC0DE -> REFUSED (caps missing)
+  PASS (d) R1 VERSION + an unknown capability bit -> REFUSED
+  PASS (e) the gate records the raw SEQ_CAPS word
+(f) parse_expect_version's refusal lists the rows
+  PASS (f) unknown hash -> ValueError listing c973c18a and 9b588e78
+(g)/(h) bm1_ident reads and judges SEQ_CAPS
+  PASS (g) bm1_ident has judge(regs, want_version, want_caps)
+  PASS (h) bm1_ident reads BAR 0x6064
+  PASS (g) 0xDEADC0DE + want none -> PASS, decoded 'none'
+  PASS (g) R1 word + want none -> FAIL (fail-closed)
+  PASS (g) R1 word + want R1 -> PASS, decoded R1
+  PASS (g) 0xDEADC0DE + want R1 -> FAIL
+  PASS (g) an unknown magic decodes as 'none'
+  PASS (g) an unknown capability bit -> FAIL, named
+(i) the R1 row 0xe3c2ff1e
+  PASS (i) the R1 row exists
+  PASS (i) decodes SHAPE_ISA_9B
+  PASS (i) expects the R1 word
+  PASS (i) admitted only when named (not the default)
+  PASS (i) parse_expect_version takes the bare hash
+  PASS (i) gate: R1 board + R1 word -> READY
+  PASS (i) gate: R1 VERSION + 0xDEADC0DE -> REFUSED
+  PASS (i) gate: R1 board + default expect -> REFUSED
+  PASS (i) hwmap.SHAPE_ISA_BY_VERSION maps it to SHAPE_ISA_9B
+(j) BM_IDENT expected per VERSION (fix round 1, I-1)
+  PASS (j) hwmap.SEQ_BM_IDENT_BY_VERSION exists
+  PASS (j) build_041 -> 0xDEADC0DE, build_042 / e3c2ff1e -> the BM1 magic
+  PASS (j) every SEQ_VERSIONS row has a BM_IDENT expectation
+  PASS (j) hwmap's BM1 magic == seq_run.SEQ_BM_IDENT
+  PASS (j) R1 board (BM1 block, R1 word), --want-version e3c2ff1e --want-caps R1 -> PASS
+  PASS (j) R1 VERSION without the BM1 block -> FAIL
+  PASS (j) build_042 (BM1, no caps) -> PASS
+  PASS (j) build_041 (0xDEADC0DE at 0x100) -> PASS
+sr7_host_tdd: 36 passed, 0 failed
+=== rc  : 0
+=== end : 2026-09-29T03:34:51-06:00

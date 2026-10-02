@@ -66,14 +66,17 @@ REF_DIR = os.path.join(os.path.dirname(SW_DIR), "ref")
 sys.path.insert(0, SW_DIR)
 sys.path.insert(0, REF_DIR)
 
+import board_lock as BL                                         # noqa: E402
+import hwmap as HW                                               # noqa: E402
 from hwmap import (                                             # noqa: E402
     R_MAGIC, R_VERSION, R_CALIB, MAGIC, CALIB_ALL,
     R_CTRL, R_STATUS, R_WBASE_LO, R_WBASE_HI, R_WBEATS, R_SHAPE, shape_word,
+    shape_isa_for_version, UnknownBitstream,
     R_XWIN, R_XPTR, R_RES_PTR, R_RES_DATA, R_IDENT, MV_IDENT0, mv_base,
     MV_ST_DONE, MV_ST_ERR_RRESP, MV_ST_XOVFL,
     L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2, L_SPTR, L_SWIN, L_EOUT,
     L_TCNT, L_IDENT, L_AMAXI, L_AMAXV, L_LAYER, LAYER_IDENT,
-    L_ST_BUSY, L_ST_ERR_OP, SCRATCH_WORDS,
+    L_ST_BUSY, L_ST_ERR_OP, SCRATCH_WORDS, SCRATCH_WORDS_BUILT,
     CH_STRIDE, W_BASE, RES_DEPTH, EMB_BASE,
 )
 from layer_test import plan_weights                             # noqa: E402
@@ -83,14 +86,16 @@ import layer_fixed as LF                                        # noqa: E402
 import load_qwen35 as LQ                                        # noqa: E402
 from layer_fixed import RS_F                                    # noqa: E402
 from w4a8_ref import matvec_y32, pack_ddr_rows, G               # noqa: E402
+import gen_layer_script as GLS                                  # noqa: E402
 from gen_layer_script import (Mach, dn_token, attn_token,       # noqa: E402
                               X0, XN, X8, STG, I64)
 from gen_token_script import slot_plan                          # noqa: E402
 from gen_model_script import (quant_linear_big, ROWCHUNK, Tok,  # noqa: E402
                               PROMPTS, _tokenizer_path, _bytes_to_unicode)
 
-# The netlist this tool was gated against (build_028_rr_SSI_HighUtilSLRs).
-EXPECT_VERSION = 0x33D720E5  # build_033 (rung4 zero-bubble + TOPK)
+# The netlist this tool is gated against; keep in lockstep with
+# sw/seq_run.py:EXPECTED_SEQ_VERSION.  Override per-run with --expect-version.
+EXPECT_VERSION = 0xC973C18A  # build_041 (9B); read back at g6/003. Was 0x54443B9F
 KV_DEPTH = 512            # rtl/layer_chan.sv: kv_waddr uses tcnt[8:0]
 DEFAULT_MODEL = os.path.join(os.path.dirname(SW_DIR), "tb", "scripts",
                              "model_v2_s1")
@@ -112,6 +117,9 @@ class Dev:
         self.n_mmio_wr = 0
         self.user = os.open(f"{path}_user", os.O_RDWR)
         self.ident = self._safety_check(expect_version)
+        # Resolved INSIDE the identity gate (below) so an image this checkout
+        # has no SHAPE layout for never reaches a wr().
+        self.shape_isa = self.ident["shape_isa"]
         # DMA fds are opened only AFTER the identity gate passes
         self.h2c = os.open(f"{path}_h2c_0", os.O_WRONLY)
         self.c2h = os.open(f"{path}_c2h_0", os.O_RDONLY)
@@ -143,6 +151,17 @@ class Dev:
         for c, v in enumerate(mvi):
             if v != MV_IDENT0 + c:
                 bad.append(f"matvec{c} IDENT={v:#010x} want {MV_IDENT0 + c:#010x}")
+        # WHICH R_SHAPE LAYOUT THIS BITSTREAM DECODES (G3.3), gated HERE
+        # rather than after the gate: `--expect-version` can be overridden on
+        # the command line, so the VERSION passing its own check is NOT
+        # enough — the layout has to be one this checkout actually knows.
+        # The two layouts put ng/nrows/sh on disjoint bits, so guessing is a
+        # silent mis-drive of a live board (sw/hwmap.UnknownBitstream).
+        shape_isa = None
+        try:
+            shape_isa = shape_isa_for_version(ver)
+        except UnknownBitstream as ex:
+            bad.append(str(ex))
         if bad:
             os.close(self.user)
             raise SystemExit("REFUSING TO TOUCH THE BOARD — identity gate "
@@ -150,7 +169,7 @@ class Dev:
                              + "\n(this tool never programs the FPGA; fix the "
                                "resident bitstream out of band)")
         return {"magic": magic, "version": ver, "calib": calib,
-                "layer_ident": li, "mv_ident": mvi}
+                "layer_ident": li, "mv_ident": mvi, "shape_isa": shape_isa}
 
     # ---------------- layer_chan scratch window ----------------
     def read_raw(self, addr, n):
@@ -210,6 +229,7 @@ class Dev:
         m = man[str(wid)] if str(wid) in man else man[wid]
         nrows, ng, sh, stride = m["nrows"], m["ng"], m["sh"], m["stride"]
         g = int(m.get("g", 128))
+        w8 = bool(m.get("w8", False))   # V5 weight width; absent == W4
         xb = bytes((int(w) & 0xFF) for w in x8_words)
         xb += b"\x00" * (-len(xb) % 4)
         mb = self.mb
@@ -221,7 +241,8 @@ class Dev:
             self.wr(mb + R_WBASE_LO, wbase & 0xFFFFFFFF)
             self.wr(mb + R_WBASE_HI, wbase >> 32)
             self.wr(mb + R_WBEATS, rc * stride // 64)
-            self.wr(mb + R_SHAPE, shape_word(rc, sh, ng, g))
+            self.wr(mb + R_SHAPE,
+                    shape_word(rc, sh, ng, g, w8=w8, isa=self.shape_isa))
             self.wr(mb + R_XPTR, 0)
             pw, u, xa = os.pwrite, self.user, mb + R_XWIN
             mv = memoryview(xb)
@@ -471,7 +492,11 @@ class HwMach(Mach):
     def W(self, addr, vals):
         vals = np.asarray(vals, dtype=I64)
         assert np.all(vals >= -32768) and np.all(vals <= 32767), "W range"
-        assert addr + len(vals) <= SCRATCH_WORDS
+        # G2a review N12: bound against the array the DEVICE has, not the
+        # one the 9B build will have.  `SCRATCH_WORDS` went to 65,536 in this
+        # gate, which would have let this write walk past the end of every
+        # bitstream that currently exists.
+        assert addr + len(vals) <= SCRATCH_WORDS_BUILT
         self.mem[addr:addr + len(vals)] = vals
         self.dev.write_scratch(addr, vals)
         self.nw += len(vals)
@@ -620,7 +645,7 @@ class FpgaModel:
         self.tmpl_turns = 0          # templated turns since the last reset
 
         prefix = args.model
-        self.man = json.load(open(f"{prefix}.weights.json"))
+        self.man, _mm = HW.load_weights_manifest(prefix)  # R-b: no meta key
         self.wdir = os.path.dirname(os.path.abspath(prefix))
         self.wbase_of, wtop = plan_weights(self.man, self.wdir)
         self.log(f"  weight plan: {len(self.man)} images, "
@@ -672,8 +697,16 @@ class FpgaModel:
                                  * (1 << 12)).astype(I64)
         assert int((np.abs(self.ln_f_q12) > 32767).sum()) == 0
 
+        # G2c: head and table are SEPARATE keys.  `load_model` returns an
+        # independent copy of the embedding table as `md["head"]` where
+        # `tie_word_embeddings` is true (0.8B / 2B / 4B), so this is
+        # byte-identical there; at 9B the head is the checkpoint's own
+        # `lm_head.weight` and quantizing `md["emb"]` as the head would put
+        # the wrong matrix on the board.
         emb_f = md["emb"]
-        self.qw_head = quant_linear_big(emb_f, g=a.w4_group)
+        head_f = md["head"]
+        self.qw_head = quant_linear_big(head_f, g=a.w4_group)
+        md["head"] = head_f = None
         emb_q = np.empty((self.vocab, LR.H), dtype="<i2")
         for r0 in range(0, self.vocab, ROWCHUNK):
             r1 = min(r0 + ROWCHUNK, self.vocab)
@@ -695,7 +728,8 @@ class FpgaModel:
             raise SystemExit(f"{embf} does not match this quantization "
                              f"(res_scale={a.res_scale})")
         self.log(f"    {os.path.basename(embf)} matches the freshly "
-                 f"quantized embedding table (248320x1024, bit-exact)")
+                 f"quantized embedding table ({self.vocab}x{LR.H}, "
+                 f"bit-exact)")
 
     def _upload(self, prefix):
         dev, man = self.dev, self.man
@@ -729,28 +763,26 @@ class FpgaModel:
         zeroed conv state, zeroed DeltaNet state, T=0)."""
         M = self.M
         t0 = time.monotonic()
-        for (lt, qw, cache, dn_slot, kv_slot) in self.layers:
-            M.layer(dn_slot, kv_slot)
-            if lt == "full_attention":
-                M.Treset()
-                M.kc[kv_slot] = [[], []]
-                M.vc[kv_slot] = [[], []]
-            else:
-                qd = qw["dn"]
-                for c in range(0, LR.CONV_DIM, 2048):
-                    M.W(STG, qd["conv_w"][c:c + 2048].reshape(-1))
-                    M.convw(c, 2048, STG)
-                M.convz(0, LR.CONV_DIM)
-                for h in range(LR.LNH):
-                    M.dnz(h)
+        # S3 (SEQ_ISA v2.1, spec 6.4): the session preamble is the TCNT
+        # resets and the first SLDs.  The conv taps and the zeroed DN region
+        # arrive as the HOST's upload (sw/seq_run.py, sw/chat_seq.py), which
+        # is what `seed_conv` records into the DDR state image here.
+        types = [lt for (lt, _q, _c, _d, _k) in self.layers]
+        self._n_dn = sum(1 for lt in types if lt != "full_attention")
+        self._kv_pf = GLS.sched_kv_prefetch(types)
+        for (lt, qw, cache, dn_l, kv_l) in self.layers:
+            if lt != "full_attention":
+                M.seed_conv(dn_l, qw["dn"]["conv_w"])
             if self.verify:
                 cache.clear()
                 cache.update(LF.new_cache_fx(lt))
+        GLS.sched_preamble(M, types)
         self.pos = 0
         self.next_in = None
         self.tok_times = []
         self.tmpl_turns = 0
-        self.log(f"  session preamble: 24 layer banks primed in "
+        self.log(f"  session preamble: {len(self.layers)} layer banks "
+                 f"primed in "
                  f"{time.monotonic() - t0:.1f}s")
 
     # ---------------- one forward step ----------------
@@ -758,8 +790,11 @@ class FpgaModel:
         M = self.M
         M.embed(tok, X0, LR.H)
         x = np.asarray(self.emb_q[tok], dtype=I64) if self.verify else None
-        for (lt, qw, cache, dn_slot, kv_slot) in self.layers:
-            M.layer(dn_slot, kv_slot)
+        for i, (lt, qw, cache, dn_l, kv_l) in enumerate(self.layers):
+            if lt != "full_attention":
+                GLS.sched_dn_pair(M, dn_l, self._n_dn, self._kv_pf[i])
+                GLS.sched_cv_pair(M, dn_l, self._n_dn)
+            M.layer(dn_l % 2, 0, dn_l % 2, kv_l)
             # verify: the independent layer_fixed golden residual.
             # live:   a VIEW of the on-chip residual, so ref/'s own
             #         self-check degenerates to a tautology and the
@@ -773,13 +808,37 @@ class FpgaModel:
                 dn_token(M, qw["dn"], qw["ln1"], qw["ln2"], qw["mlp"], gold)
             if self.verify:
                 x = gold
-        # final RMSNorm (plain-w mode 1, pre-folded (1+w) Q3.12) + DYNQ8
+        GLS.sched_token_end(M, self._n_dn)
+        # final RMSNorm (plain-w mode 1, pre-folded (1+w) Q3.12) + DYNQ8,
+        # over the WHOLE residual: H words, not 1024.
+        #
+        # DEFECT B (spec 7.3, `evidence/qwen_next/defect_a/CORRECTIONS.md` C2).
+        # These four literals were the ONLY unparameterized sites left on the
+        # online step() path — `M.embed(tok, X0, LR.H)` twelve lines up and
+        # `M.mem[X0:X0 + LR.H]` above already used LR.H.  The crash at the
+        # matvec was where it STOPPED, not where it started: at 2B the three
+        # lines above it ran silently on half the residual, and because
+        # RMSNorm's denominator is a mean over the words it is TOLD about,
+        # they corrupted even the words they did write — measured on an
+        # unevenly-split residual, the DYNQ8 exponent shifts and 99.6 % of the
+        # leading half changes, max |diff| 99.  `ref/gen_model_script.py:590-595`
+        # is the already-parameterized template this now follows — CLASS B,
+        # 2026-09-04 (S3, base 07eea51): the range also covered the RETIRED
+        # CONVW + DNZ preamble (spec 6.4), and the surviving half is the
+        # final-RMSNorm block of `gen_model_script.main`'s decode loop, and
+        # `evidence/qwen9b/g2/damage_defect_b.py` is the regression that puts
+        # the literals back and watches it fail.
         M.W(STG, self.ln_f_q12)
-        M.vnw_(STG, 1024)
-        M.vn(1, 1024, RS_F, RS_F, X0, XN)
-        M.alu(0, 1024, 0, XN, 0, X8)
-        # full-vocab LM head + chunked on-chip argmax
-        y32, _ = M.matvec(self.qw_head, X8, 1024, rowchunk=ROWCHUNK)
+        M.vnw_(STG, LR.H)
+        M.vn(1, LR.H, RS_F, RS_F, X0, XN)
+        M.alu(0, LR.H, 0, XN, 0, X8)
+        # full-vocab LM head + chunked on-chip argmax.  The 2048 below is the
+        # host W32 INJECTION CHUNK (`ref/gen_layer_script.CHUNK`), NOT H and
+        # NOT an ISA limit — an earlier revision of this comment said "an ISA
+        # limit", which is wrong and would send someone to the wrong file to
+        # change it.  It is the staging width `HD.AMAX` reserves (2*CHUNK
+        # words), so it moves only if CHUNK does.  Do not "fix" it to H.
+        y32, _ = M.matvec(self.qw_head, X8, LR.H, rowchunk=ROWCHUNK)
         for c in range(0, self.vocab, 2048):
             n = min(2048, self.vocab - c)
             M.W32(STG, y32[c:c + n])
@@ -865,8 +924,15 @@ def banner(dev, mdl, log=print):
         f"VERSION {i['version']:#010x}  CALIB {i['calib']:#x}")
     log(f"        layer_chan IDENT {i['layer_ident']:#010x}  matvec IDENTs "
         + " ".join(f"{v:#010x}" for v in i["mv_ident"]))
-    log(f"model   Qwen3.5-0.8B, 24 layers (18 DeltaNet / 6 GQA), "
-        f"vocab {mdl.vocab}")
+    # G2a review N18: this banner hard-coded "Qwen3.5-0.8B, 24 layers
+    # (18 DeltaNet / 6 GQA)" and would have mislabelled every 2B and 9B run.
+    # Cosmetic, but a banner is the first thing a gate log shows and a wrong
+    # one is worse than none.
+    _lt = [t for (t, *_r) in mdl.layers] if hasattr(mdl, "layers") else []
+    _dn = sum(1 for t in _lt if t != "full_attention")
+    _gq = len(_lt) - _dn
+    log(f"model   H={LR.H} FFN={LR.FFN} LNH={LR.LNH} NKV={LR.NKV}, "
+        f"{len(_lt)} layers ({_dn} DeltaNet / {_gq} GQA), vocab {mdl.vocab}")
     log(f"        W4A8 g={mdl.args.w4_group}, res_scale={mdl.args.res_scale}, "
         f"DN_NORM_F={LF.DN_NORM_F}, S_F={LF.S_F}, M_Q15_MAX={LF.M_Q15_MAX}")
     log(f"        images {os.path.basename(mdl.args.model)}.*  "
@@ -1056,6 +1122,7 @@ def main():
     ap.add_argument("--expect-version", default=hex(EXPECT_VERSION))
     ap.add_argument("--tok-test", action="store_true",
                     help="run the tokenizer self-test and exit (no board)")
+    BL.add_lock_args(ap)                        # O3: --lock PATH / --no-lock
     args = ap.parse_args()
     if args.max_ctx > KV_DEPTH:
         ap.error(f"--max-ctx must be <= the KV bank depth {KV_DEPTH}")
@@ -1065,6 +1132,19 @@ def main():
     except (ValueError, AssertionError):
         ap.error("--ntok must be a positive int or a comma-separated list")
     args.ntok = args.ntoks[0]
+
+    # O3 (user ruling 2026-08-29): THE shared board lock, taken before the
+    # ~10 s tokenizer build and long before the first device fd, so a
+    # refusal is instant and this path can no longer drive the board out
+    # from under a live chat_seq/serve session.  --tok-test is board-free
+    # and is the one mode that does not take it.
+    _lock = None
+    if not args.tok_test:
+        try:
+            _lock = BL.from_args(args, tool="infer.py").acquire()
+        except BL.BoardLockError as e:
+            print("*** %s" % e)
+            sys.exit(4)
 
     tp = _tokenizer_path()
     if tp is None:

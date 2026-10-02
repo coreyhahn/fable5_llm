@@ -1,0 +1,84 @@
+# THE SHIPPING RUN'S ONE CRITICAL WARNING — [Place 30-890] — and the measurement that answers it
+#
+# Review round 1, I-1.  G5D_TIMING.md said the clock-root XDC "parsed with no CRITICAL
+# WARNING this time".  That is true of the PARSE and it is not the whole truth about the
+# RUN: the shipping implementation carries exactly ONE critical warning, and it is the
+# placer telling the project to DELETE the constraint this gate turns on.  It is quoted
+# here verbatim, with the two independent measurements that answer it.
+#
+# Out dirs are gitignored, so the lines below are copied into evidence.  Sources and mtimes:
+#   synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/runme.log                    mtime 2026-09-07 20:46:11
+#   synth/out_build_041_ckr2_AltSpreadLogic_high/reports/timing_summary.rpt                           mtime 2026-09-07 20:55:17
+#   synth/out_build_041_po2_AltSpreadLogic_high/proj/stage1.runs/impl_1/runme.log                     mtime 2026-09-07 14:04:16
+#   synth/out_build_041_po2_AltSpreadLogic_high/reports/timing_summary.rpt                            mtime 2026-09-07 14:12:50
+#   synth/out_build_041/proj/stage1.runs/impl_1/runme.log                                             mtime 2026-09-07 09:37:20
+
+=== 1. THE SHIPPING ROLL'S CRITICAL-WARNING CENSUS ===
+
+# grep -c '^CRITICAL WARNING' on each roll's impl runme.log:
+#   synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/runme.log                        1
+#   synth/out_build_041_po2_AltSpreadLogic_high/proj/stage1.runs/impl_1/runme.log                         1
+#   synth/out_build_041/proj/stage1.runs/impl_1/runme.log                                                 1
+#
+# Vivado's own tally on the shipping roll's last (write_bitstream) invocation:
+runme.log:3471: 1625 Infos, 297 Warnings, 1 Critical Warnings and 0 Errors encountered.
+
+=== 2. THE CRITICAL WARNING, VERBATIM (and the WARNING immediately above it) ===
+
+runme.log:766:WARNING: [Place 30-934] CLOCK_ROOT is constrained to clock region X2Y2 on net 'bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/PHY_USERCLK' by the user while it needs to be located in one of the clock regions specified below in order to meet PCIE40E4 clock skew requirement under all circumstances. Use report_timing_summary or report_pulse_width to verify that max skew requirements are met on the cell 'bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_pcie_4_0_pipe_inst/pcie_4_0_e4_inst' in the routed design database. In case of max skew slack violation, please remove the USER_CLOCK_ROOT constraint or specify a recommended clock region instead. List of recommended clock regions to be used as root: { X5Y5 X2Y9 X5Y6 X1Y5 X2Y8 X1Y9 X4Y8 X2Y7 X4Y7 X2Y6 X4Y6 X2Y5 X5Y7 X1Y6 X4Y5 X3Y9 X3Y8 X3Y7 X3Y6 X3Y5 X4Y9 X1Y8 X5Y9 X1Y7 X5Y8 }.
+runme.log:767:CRITICAL WARNING: [Place 30-890] Clock net 'bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/PHY_USERCLK' has a user defined clock root in clock region X2Y2, which is different than the optimal location for the clock root of this net. Please remove the user defined clock root for better timing.
+
+=== 3. THE FIRST ANSWER: the controlled A/B at the same directive ===
+
+# The tool advises removing the user-defined clock root "for better timing".  The measurement
+# is the other way round.  Same netlist, same project, same directive AltSpreadLogic_high,
+# same full recipe, PBLOCK_COUNT: 0 on both sides; the ONLY difference is this one file.
+#   without the XDC  (po2_AltSpreadLogic_high) : WNS -0.156, 2,507 failing setup endpoints
+#   with    the XDC  (ckr2_AltSpreadLogic_high): WNS  0.000,     0 failing setup endpoints
+# => the constraint the tool asks to remove is worth +0.156 ns and 2,507 endpoints.
+# (G5D_TIMING.md section 8.1; the rows themselves are files 126 and 141.)
+
+=== 4. THE SECOND ANSWER: [Timing 38-282] is ABSENT here and PRESENT on the unconstrained rolls ===
+
+# The unconstrained rolls' single critical warning is the design missing timing.  The
+# shipping roll does not carry it — an independent statement, by the same tool in the same
+# log class, that this roll met.
+po2_AltSpreadLogic_high runme.log:3455:CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+build_041 runme.log:2554:CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+ckr2_AltSpreadLogic_high runme.log: [Timing 38-282] does not appear (grep count 0).
+#   grep -c 'Timing 38-282' synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/runme.log -> 0
+
+=== 5. THE THIRD ANSWER: the check [Place 30-934] ASKED FOR, run and MET ===
+
+# Line 766 above (the WARNING that precedes the critical one) is the actionable half: it
+# says the constrained root is outside the set of regions that meet the PCIE40E4 max-skew
+# requirement "under all circumstances", and instructs: "Use report_timing_summary or
+# report_pulse_width to verify that max skew requirements are met on the cell
+# .../pcie_4_0_e4_inst in the routed design database."  That verification exists, on the
+# shipping roll's own report_timing_summary, and BOTH max-skew checks on that exact cell
+# are MET.  The unconstrained roll's rows are given beside them so the COST is visible:
+
+ckr2 timing_summary.rpt:5368: Check Type        Corner  Lib Pin             Reference Pin     Required(ns)  Actual(ns)  Slack(ns)  Location       Pin
+ckr2 timing_summary.rpt:5372: Max Skew          Fast    PCIE40E4/CORECLK    PCIE40E4/PIPECLK  0.357         0.316       0.041      PCIE40E4_X1Y2  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_pcie_4_0_pipe_inst/pcie_4_0_e4_inst/CORECLK
+ckr2 timing_summary.rpt:5534: Check Type        Corner  Lib Pin                 Reference Pin     Required(ns)  Actual(ns)  Slack(ns)  Location             Pin
+ckr2 timing_summary.rpt:5538: Max Skew          Fast    PCIE40E4/PIPECLK        PCIE40E4/CORECLK  0.357         0.328       0.029      PCIE40E4_X1Y2        bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_pcie_4_0_pipe_inst/pcie_4_0_e4_inst/PIPECLK
+
+po2_ash timing_summary.rpt:5362: Max Skew          Fast    PCIE40E4/CORECLK    PCIE40E4/PIPECLK  0.357         0.260       0.097      PCIE40E4_X1Y2  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_pcie_4_0_pipe_inst/pcie_4_0_e4_inst/CORECLK
+po2_ash timing_summary.rpt:5528: Max Skew          Fast    PCIE40E4/PIPECLK        PCIE40E4/CORECLK  0.357         0.276       0.081      PCIE40E4_X1Y2        bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_pcie_4_0_pipe_inst/pcie_4_0_e4_inst/PIPECLK
+
+# READING.  PCIE40E4 max skew, CORECLK<->PIPECLK, at PCIE40E4_X1Y2:
+#   no XDC : slack +0.097 and +0.081
+#   XDC    : slack +0.041 and +0.029        <- both still MET
+# The clock root costs ~0.05 ns of PCIE max-skew margin and does not violate it.  The
+# design summary's pulse-width column is the same statement design-wide: WPWS 0.000,
+# 0 failing of 392,523 (file 141).
+
+=== 6. WHAT THIS FILE DOES NOT CLAIM ===
+
+# It does not claim the tool is wrong about its own heuristic.  [Place 30-890] is a
+# heuristic statement about where the placer would have put the root; the A/B is a
+# measurement of what the design does with the root where this file puts it.  The two
+# disagree, the measurement is the one with numbers on both sides, and the cost the
+# warning is really pointing at (PCIE max skew) is priced in section 5 rather than waved
+# away.  Nothing here is waived and no exception is applied: section 5's rows are the
+# tool's own checks, still armed, still passing.

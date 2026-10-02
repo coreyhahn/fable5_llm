@@ -2,7 +2,7 @@
 // front-end in layer_fixed.deltanet_decode_fx:
 //   pre = clip21(rshr(sum_j win[j]*w[j], RS_F+CW_F-12))   (Q12)
 //   y   = clip16(silu_q(pre))                              (Q12)
-// Pipelined, one channel per cycle; latency = 4 + fx_silu(6) = 10.
+// Pipelined, one channel per cycle; latency = 4 + fx_silu(7) = 11.
 // Inputs per channel: window win[0..3] (Q8, oldest first) and weights
 // w[0..3] (Q2.13) presented in parallel.
 
@@ -47,7 +47,11 @@ module conv4_silu #(
     always_ff @(posedge clk) begin
         logic signed [63:0] pre;
         v2 <= v1;
-        pre = rshr64(64'(acc1), 9);          // RS_F + CW_F - 12 = 9
+        // A2.1 (spec 0b): RS_F = 7 is the 9B operating point, so the
+        // baked shift is RS_F + CW_F - 12 = 7 + 13 - 12 = 8.  It was 9 at
+        // RS_F = 8.  This is the ONE RTL literal on the RS_F axis; the
+        // host expression beside it already reads the constant (A2.3).
+        pre = rshr64(64'(acc1), 8);          // RS_F + CW_F - 12 = 8
         if (pre > 64'sd1048575)        pre2 <= 21'sd1048575;
         else if (pre < -64'sd1048576)  pre2 <= -21'sd1048576;
         else                           pre2 <= 21'(pre);

@@ -1,0 +1,17 @@
+=== --inject / --res-scale validation now happens BEFORE the model build ===
+--- $ python3 ref/perplexity_eval.py --corpus ref/ppl_corpus_eval.txt --inject all:w4g128 --res-scale 8
+--res-scale 8.0 has no effect on this --inject spec: only emb16 consumes it (W4 images are bit-identical under a power-of-two rescale). Add emb:emb16, or drop --res-scale.
+    (rejected in 3.67 s wall = torch import only; no checkpoint opened, no quantize)
+--- $ python3 ref/perplexity_eval.py --corpus ref/ppl_corpus_eval.txt --inject emb:emb16 --res-scale 3
+--res-scale 3.0 is not a positive power of 2
+    (rejected in 3.76 s wall = torch import only; no checkpoint opened, no quantize)
+--- $ python3 ref/perplexity_eval.py --corpus ref/ppl_corpus_eval.txt --inject all:w8g128
+--inject ...:w8g128 needs w4a8_ref.quantize_weights8 (and its row format for the byte budget), which Task 9 of the Track Q plan adds. Task 4 ships w4g128 / w4g64 / emb16 / cw13.
+    (rejected in 3.68 s wall = torch import only; no checkpoint opened, no quantize)
+--- $ python3 ref/perplexity_eval.py --corpus ref/ppl_corpus_eval.txt --inject qkv:w8g128
+--inject ...:w8g128 needs w4a8_ref.quantize_weights8 (and its row format for the byte budget), which Task 9 of the Track Q plan adds. Task 4 ships w4g128 / w4g64 / emb16 / cw13.
+    (rejected in 3.68 s wall = torch import only; no checkpoint opened, no quantize)
+=== accept path: res-scale 8 WITH emb16 (Task 5 V1 shape) ===
+--- $ python3 ref/perplexity_eval.py --corpus ref/ppl_corpus_eval.txt --inject emb:emb16 --res-scale 8 --max-tokens 512 --quiet
+nll_sum 1137.907267  positions 511  nll/pos 2.226824  eval 4.1s (build 8.9s)
+PPL 9.270380

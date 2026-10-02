@@ -3,7 +3,10 @@
 
 Stage-5 increment (3): the REAL Qwen3.5-0.8B, end to end, as a layer_chan
 command script — real checkpoint weights for all 24 decoder layers, the
-real tied embedding table, and the FULL 248,320-row LM head.
+real embedding table, and the FULL 248,320-row LM head.  G2c: the head is
+read from `load_qwen35.load_model()["head"]`, which is an independent COPY
+of the embedding table where `tie_word_embeddings` is true (0.8B / 2B / 4B)
+and the checkpoint's own `lm_head.weight` where it is false (9B).
 
     embedding lookup -> 24 banked decoder layers (18 DeltaNet + 6 GQA)
       -> final RMSNorm -> LM head over the whole vocabulary -> on-chip argmax
@@ -108,10 +111,29 @@ quantizer, and the exponent-tightening variant is not implemented for it
    64 weights instead of per 128, so the row grows by one 64-byte scale
    beat once K > 2048 (only mlp.down, K=3584, does).  The manifest then
    carries "g": 64 per wid and the host sets SHAPE bit 28; ng (= K//128 =
-   the WEIGHT-beat count) and nbeats/stride keep their meaning.  Measured
+   the WEIGHT-beat count — W4 ONLY, see ref/w4a8_ref.py's W8 section, where
+   ng counts UNITS and a row is 2*ng weight beats) and nbeats/stride keep
+   their meaning.  Measured
    worth: g=64 + the mse rule scores 18/24 top-1 vs bf16 where g=128 scores
    16/24 (evidence/stage5/fidelity_phase0_0c_w4strategy.log).  Requires the
    dual-mode matvec_engine to be on the board.
+
+--wq=w4|w8      (default w4)  WEIGHT WIDTH of EVERY matvec matrix, the 24
+   layers and the tied LM head alike.  `w8` is V5, the gate-D operating
+   point (docs/QWEN2B_QUANT_STUDY.md): `layer_fixed.quant_linear_w8` ->
+   `w4a8_ref.quantize_weights8`, int8 codes in [-127,127], the SAME
+   (m, e, sh) encoding W4 uses, packed by `pack_ddr_rows8` and flagged
+   `"w8": true` per wid in the manifest / `SHAPE` bit 29 in the stream.
+   NOTHING else moves: the embedding table stays int16 Q7.8, the conv
+   window stays Q2.13, every norm / gate / DYNQ8 immediate is unchanged
+   (`layer_fixed._w8_invariance` asserts exactly that), so a W8 run is the
+   same script with different weight images and one SHAPE bit.
+   Constraints, all refused rather than ignored: g must be 128 (the W8 wire
+   format has no g64 cadence), and the calibrated quantizers
+   (FABLE5_CALIB_STATS: V3 salience / V4 h2 / gptq) are W4-only.
+   The 2B W8 pack is 1,847 MiB nch-independent, which does NOT fit the
+   1,280 MiB window — a W8 2B artifact set is emitted with `SEQ_NCH=4
+   SEQ_REPACK=1` (docs/USAGE.md), where the busiest channel holds 465 MiB.
 
 ------------------------------------------------------------------------
 Prompt
@@ -126,8 +148,23 @@ argmax after the last prompt token is generated token #1.  Total forward
 steps = P + ntok - 1, and RoPE position / KV-cache depth = the step index.
 
 Emits alongside the script: <prefix>_w*.bin + <prefix>.weights.json
-(187 matvec images incl. the 248,320-row LM head) and <prefix>.emb.bin
-(the int16 Q7.8 embedding table, 248320 x 1024 = 485 MiB).
+(187 matvec images incl. the 248,320-row LM head at 24 layers; 249 at the
+32-layer geometries) and <prefix>.emb.bin (the int16 Q7.8 embedding table,
+248320 x H = 485 MiB at H=1024, 1,940.0 MiB at H=4096).
+Geometry follows FABLE5_MODEL (ref/model_select.py): H=1024/FFN=3584 for
+0.8B, H=2048/FFN=6144 for 2B.  The scratch map is derived from it in
+gen_layer_script (docs/QWEN2B_SCRATCH_MAP.md).
+
+G2c (2026-08-31): this generator CANNOT run at FABLE5_MODEL=9b, and the
+refusal is in the SCRIPT emission, not in the weights.  A 9B layer body
+needs scratch addresses above `Mach.ISA_SADDR_MAX`, a 4096-word `vnw`
+above `Mach.VNW_ISA_MAX`, DNST heads above `Mach.ARG0_HEAD_BITS`, an FFN
+`alu` length above `Mach.ALU_LEN_MAX` and a whole-block `convz` above
+`Mach.CONV_FIELD_MAX` — five SEQ_ISA v1.7 ARG fields that Tasks 7/8/9/10
+widen.  Since `Mach.dump_weights` packs only the wids `Mach.matvec`
+registered, no 9B weight image can come out of this file until then;
+`evidence/qwen9b/g2/G2C_CHAIN.md` records the demonstration and the
+weight-side workaround it used instead.
 """
 import glob
 import json
@@ -136,9 +173,11 @@ import sys
 
 import numpy as np
 
+import gen_layer_script as GLS
 from gen_layer_script import (Mach, dn_token, attn_token,
-                              X0, XN, X8, STG, I64)
+                              X0, XN, X8, STG, H, I64, BYTELOCKED_TAGS)
 from gen_token_script import slot_plan
+import model_select as MS
 import fixedpoint as fp
 import layer_ref as LR
 import layer_fixed as LF
@@ -237,7 +276,7 @@ def resolve_prompt(pseed):
 # memory-lean W4 quantization for the full-vocab LM head
 # ----------------------------------------------------------------------
 def quant_linear_big(Wf, rowchunk=ROWCHUNK, tighten_e=False, mse_scale=True,
-                     g=G):
+                     g=G, salience=None, hess=None):
     """Bit-identical to layer_fixed.quant_linear, evaluated in row blocks.
 
     w4a8_ref.quantize_weights is row-separable ONCE the matrix-wide
@@ -246,10 +285,29 @@ def quant_linear_big(Wf, rowchunk=ROWCHUNK, tighten_e=False, mse_scale=True,
     temporary; this needs 64 MiB. Verified bit-identical by _selfcheck().
 
     `g` = W4 group size (128 legacy / 64 = the v2 row format).
+
+    `salience` (OPT-IN, default None) is layer_fixed.quant_linear_mse's
+    per-input-channel activation weighting (Track Q V3).  Row chunking is
+    orthogonal to it — the weights are per COLUMN and every chunk sees the
+    same (1, NG, g) array — so the bit-identity with quant_linear holds with
+    salience on too (_selfcheck covers both).
+
+    `hess` (OPT-IN, default None) selects the Track Q V4 GPTQ quantizer,
+    which row-chunks internally for the same reason (rows are independent),
+    so this just forwards to it — there is one implementation, not two.
     """
+    if hess is not None:
+        if salience is not None or tighten_e or not mse_scale:
+            raise SystemExit("GPTQ takes the MSE rule and its own weights "
+                             "(mse_scale=True, tighten_e=False, salience=None)")
+        import gptq
+        return gptq.quant_linear_gptq(Wf, g=g, hess=hess, rowchunk=rowchunk)
     N, K = Wf.shape
     assert K % g == 0
     NG = K // g
+    sw = LF._salience_weights(salience, K, g)      # None, or (1, NG, g)
+    if sw is not None and not mse_scale:
+        raise SystemExit("salience weighting needs the MSE group-scale rule")
     smax = np.empty((N, NG), dtype=np.float64)
     for r0 in range(0, N, rowchunk):
         r1 = min(r0 + rowchunk, N)
@@ -265,7 +323,8 @@ def quant_linear_big(Wf, rowchunk=ROWCHUNK, tighten_e=False, mse_scale=True,
             for a in np.linspace(0.55, 1.0, 17):
                 s = (smax[r0:r1] / 7.0) * a
                 q = np.clip(np.round(blk / s[:, :, None]), -8, 7)
-                err = ((q * s[:, :, None] - blk) ** 2).sum(axis=2)
+                sqerr = (q * s[:, :, None] - blk) ** 2
+                err = (sqerr if sw is None else sqerr * sw).sum(axis=2)
                 upd = err < best_e[r0:r1]
                 scale[r0:r1] = np.where(upd, s, scale[r0:r1])
                 best_e[r0:r1] = np.where(upd, err, best_e[r0:r1])
@@ -289,6 +348,12 @@ def quant_linear_big(Wf, rowchunk=ROWCHUNK, tighten_e=False, mse_scale=True,
             "sh": max(0, p_bound.bit_length() - 31)}
 
 
+def _rand_hess(rs, K):
+    """A random correlated second moment E[x x^T] for the V4 row-chunk check."""
+    A = rs.normal(0, 1, (K + 16, K)) * rs.lognormal(0, 0.5, K)[None, :]
+    return (A.T @ A) / A.shape[0]
+
+
 def _selfcheck():
     """quant_linear_big == layer_fixed.quant_linear, bit for bit."""
     rng = np.random.default_rng(5)
@@ -297,9 +362,19 @@ def _selfcheck():
         # {} is the production (mse) path; the other two are the historical
         # max-rule quantizer and its exponent-tightening variant.  g=64 is
         # the v2 row format on the production rule.
+        # the last two entries are Track Q V3: the salience-weighted MSE rule
+        # must stay row-chunk-invariant too (uniform salience is a no-op by
+        # construction, a non-uniform one exercises the weighted objective).
+        rs = np.random.default_rng(77)
         for kw in ({}, {"mse_scale": False},
                    {"mse_scale": False, "tighten_e": True},
-                   {"g": 64}, {"mse_scale": False, "g": 64}):
+                   {"g": 64}, {"mse_scale": False, "g": 64},
+                   {"g": 64, "salience": np.ones(K, dtype=np.float32)},
+                   {"g": 64, "salience": rs.lognormal(0, 1.5, K)},
+                   # Track Q V4: the GPTQ path forwards to ref/gptq.py, which
+                   # row-chunks internally — check the two entry points still
+                   # produce the same image with error feedback ON.
+                   {"g": 64, "hess": _rand_hess(rs, K)}):
             a = LF.quant_linear(W, **kw)
             b = quant_linear_big(W, rowchunk=97, **kw)
             assert a["e"] == b["e"] and a["sh"] == b["sh"], kw
@@ -338,8 +413,11 @@ def main():
     #                format) or 64 (the v2 row format — SHAPE bit 28, one
     #                extra scale beat on K>2048 rows).  See the w4a8_ref
     #                module header for the row layout.
+    # --wq=w4|w8 : WEIGHT WIDTH of every matvec matrix (V5, gate D).  See
+    #              the "--wq" section of the module header.
     res_scale = 1
     w4_group = G
+    wq = "w4"
     for fl in list(flags):
         if fl.startswith("--res-scale="):
             res_scale = int(fl.split("=", 1)[1])
@@ -347,8 +425,27 @@ def main():
         elif fl.startswith("--w4-group="):
             w4_group = int(fl.split("=", 1)[1])
             flags.discard(fl)
+        elif fl.startswith("--wq="):
+            wq = fl.split("=", 1)[1]
+            flags.discard(fl)
     if w4_group not in (128, 64):
         raise SystemExit("--w4-group must be 128 (legacy) or 64 (v2 format)")
+    if wq not in ("w4", "w8"):
+        raise SystemExit("--wq must be w4 (default, legacy) or w8 (V5)")
+    w8 = (wq == "w8")
+    if w8 and w4_group != 128:
+        raise SystemExit(
+            "--wq=w8 needs the g=128 cadence: the W8 row format is defined "
+            "at g128 only (sw/hwmap.shape_word and rtl/matvec_engine.sv both "
+            "refuse w8+g64). Drop --w4-group=64.")
+    if w8 and os.environ.get("FABLE5_CALIB_STATS"):
+        raise SystemExit(
+            "FABLE5_CALIB_STATS is set and --wq=w8 is on: the calibrated "
+            "quantizers (V3 salience / V4 h2 / gptq) are W4-only — V5 is "
+            "plain W8 and the Track Q study ruled GPTQ-on-W8 out of scope. "
+            "The body would refuse it (layer_fixed._quant_matvec) and the LM "
+            "head would silently ignore it, so this refuses BOTH here. Unset "
+            "the variable, or drop --wq=w8.")
     known = {"--allow-clip"}
     dead = {"--qfix", "--mse-scale"}
     if flags & dead:
@@ -374,9 +471,12 @@ def main():
     print(f"checkpoint: {md['path']}\n  header sha256 {md['header_sha256']}\n"
           f"  {len(types)} layers, H={LR.H}, vocab={vocab}\n"
           f"  res_scale={res_scale} DN_NORM_F={LF.DN_NORM_F} "
-          f"BF_GUARD={LF.BF_GUARD} mse_scale=True (production) "
-          f"w4_group={w4_group}"
-          + ("" if w4_group == 128 else "  [v2 row format: SHAPE bit 28]"),
+          f"BF_GUARD={LF.BF_GUARD} "
+          + ("group_rule=max|W_g|/127 (W8 has one rule) "
+             if w8 else "mse_scale=True (production) ")
+          + f"wq={wq} w4_group={w4_group}"
+          + ("" if w4_group == 128 else "  [v2 row format: SHAPE bit 28]")
+          + ("  [V5 W8 row format: SHAPE bit 29]" if w8 else ""),
           flush=True)
 
     # quantize layer by layer, freeing each layer's float weights as we go
@@ -384,7 +484,12 @@ def main():
     for i, (lt, dn_slot, kv_slot) in enumerate(slots):
         wf = md["layers"][i]
         assert wf["type"] == lt, f"layer {i}: {wf['type']} != {lt}"
-        qw = LF.quant_layer(wf, res_scale=res_scale, g=w4_group)
+        # layer_idx is used for ONE thing: per-tensor calibration lookup when
+        # FABLE5_CALIB_STATS is set (Track Q V3/V4).  With it unset — the
+        # default and every frozen artifact — quant_layer ignores it entirely,
+        # which ref/scripts/regen_gate.sh re-proves on every run.
+        qw = LF.quant_layer(wf, res_scale=res_scale, g=w4_group, layer_idx=i,
+                            w8=w8)
         md["layers"][i] = None
         if lt != "full_attention" and qw["dn"]["gate_sat"]:
             gate_sat[dn_slot] = (i, qw["dn"]["gate_sat"])
@@ -404,12 +509,40 @@ def main():
     print(f"  ln_f folded to (1+w) Q3.12: |q|max "
           f"{int(np.abs(ln_f_q12).max())} of 32767, 0 out of range", flush=True)
 
-    # tied embeddings: LM head (W4) + the int16 Q7.8 lookup table
+    # LM head (W4) + the int16 Q7.8 embedding lookup table.
     # NOTE the LM head is NOT res_scaled: it consumes the POST-ln_f vector,
     # which the residual scale-up leaves invariant.  The embedding TABLE is,
     # because it seeds the residual stream (that is the whole point).
+    #
+    # G2c (spec 7.2, "Two big images, and they are separate objects"): the two
+    # are read from SEPARATE keys.  `load_qwen35.load_model` already decides
+    # which is which — at 0.8B/2B/4B (`tie_word_embeddings: true`) `md["head"]`
+    # is an independent float COPY of `md["emb"]`, so this is byte-identical to
+    # the frozen generator; at 9B it is the checkpoint's own top-level
+    # `lm_head.weight`, a different tensor of 1,017,118,720 parameters.  Taking
+    # the head from `md["emb"]`, as this file did before, would have quantized
+    # the EMBEDDING TABLE as the head at 9B and produced a silently wrong
+    # image — the untied-head class of feasibility 2.9.
     emb_f = md["emb"]
-    qw_head = quant_linear_big(emb_f, g=w4_group)
+    head_f = md["head"]
+    # the head's input channels are the FINAL NORM's output — the synthetic
+    # 'lm_head' key of ref/calib_stats.py.  Both lookups are None (and this
+    # call is byte-identical to the frozen one) unless FABLE5_CALIB_STATS is
+    # set; wiring them here is what makes a calibrated DDR image possible at
+    # all, since a body quantized with calibration and an unweighted head
+    # would be a mixed image nobody could interpret.
+    # V5: the head is a matvec weight like any other, so --wq applies to it
+    # too — `quant_linear_w8` row-chunks for exactly the reason
+    # `quant_linear_big` does (the one-shot float64 temporary on the
+    # 248,320-row head is multiple GiB).  The calibration lookups are W4-only
+    # and are refused above rather than passed and ignored.
+    if w8:
+        qw_head = LF.quant_linear_w8(head_f, g=w4_group, rowchunk=ROWCHUNK)
+    else:
+        qw_head = quant_linear_big(head_f, g=w4_group,
+                                   salience=LF.calib_salience("lm_head"),
+                                   hess=LF.calib_hess("lm_head"))
+    md["head"] = head_f = None
     emb_q = np.empty((vocab, LR.H), dtype="<i2")
     for r0 in range(0, vocab, ROWCHUNK):
         r1 = min(r0 + ROWCHUNK, vocab)
@@ -421,7 +554,10 @@ def main():
     emb_clip = int((np.abs(emb_q) >= 32767).sum())
     assert emb_clip == 0, (f"--res-scale={res_scale} clips {emb_clip} "
                            f"embedding words at the int16 rail")
-    print(f"  LM head {qw_head['w4'].shape} e={qw_head['e']} "
+    print(f"  LM head {LF.qw_codes(qw_head)[0].shape} "
+          f"[{'W8' if w8 else 'W4'}] "
+          f"{'tied (a copy of embed_tokens)' if md['tied'] else md['head_key']}"
+          f" e={qw_head['e']} "
           f"sh={qw_head['sh']}; emb table |q|max "
           f"{int(np.abs(emb_q).max())} of 32767", flush=True)
 
@@ -429,6 +565,10 @@ def main():
     assert vocab <= (1 << 18), f"vocab {vocab} exceeds the 18-bit AMAXI port"
 
     # ---------------- emit ----------------
+    # S3: the SLD/SST schedule's two inputs -- how many DeltaNet layers the
+    # stack has, and which position must prefetch which attention layer.
+    n_dn = sum(1 for t in types if t != "full_attention")
+    kv_pf = GLS.sched_kv_prefetch(types)
     resid_max, step_toks = 0, []
     clampdiff = []            # (layer, head, a_q12, decay_spec, decay_clamped)
     # block-float instrumentation: layer_decode_fx (the golden) records; the
@@ -447,19 +587,17 @@ def main():
                                   int(decay[h])))
         M.gate_probe = probe
 
-        # ---- static preamble: prime every layer's banked state ----
-        for (lt, qw, cache, dn_slot, kv_slot) in layers:
-            M.layer(dn_slot, kv_slot)
-            if lt == "full_attention":
-                M.Treset()
-            else:
-                qd = qw["dn"]
-                for c in range(0, LR.CONV_DIM, 2048):
-                    M.W(STG, qd["conv_w"][c:c + 2048].reshape(-1))
-                    M.convw(c, 2048, STG)
-                M.convz(0, LR.CONV_DIM)
-                for h in range(LR.LNH):
-                    M.dnz(h)
+        # ---- S3: the DDR state image, and the 6.4 preamble ----
+        # The 768 DNZ and the 120 CONVW of the pre-S3 preamble are RETIRED
+        # (spec 6.4; 2,655,096 cycles at the first close,
+        # evidence/qwen9b/g4/G4B_STRUCT.md 5.1).  The host writes zeros to
+        # the DN region and these same conv taps to the conv region during
+        # upload, which is what `seed_conv` records and what
+        # `evidence/qwen9b/s3/preamble_equiv.py` proves byte for byte.
+        for (lt, qw, cache, dn_l, kv_l) in layers:
+            if lt != "full_attention":
+                M.seed_conv(dn_l, qw["dn"]["conv_w"])
+        GLS.sched_preamble(M, types)
 
         # ---- prefill + autoregressive decode ----
         nsteps = len(prompt_ids) + ntok - 1
@@ -468,26 +606,32 @@ def main():
             M.embed(tok, X0, LR.H)
             x = M.emb[tok].astype(I64)
 
-            for (lt, qw, cache, dn_slot, kv_slot) in layers:
-                M.layer(dn_slot, kv_slot)
-                gold = LF.layer_decode_fx(x, qw, cache, t)
+            # spec 6.1-6.3, per layer: the SST/SLD pair, then the body.
+            for i, (lt, qw, cache, dn_l, kv_l) in enumerate(layers):
                 if lt == "full_attention":
+                    M.layer(dn_l % 2, 0, dn_l % 2, kv_l)
+                    gold = LF.layer_decode_fx(x, qw, cache, t)
                     attn_token(M, qw["attn"], qw["ln1"], qw["ln2"],
                                qw["mlp"], t, gold)
                 else:
+                    GLS.sched_dn_pair(M, dn_l, n_dn, kv_pf[i])
+                    GLS.sched_cv_pair(M, dn_l, n_dn)
+                    M.layer(dn_l % 2, 0, dn_l % 2, kv_l)
+                    gold = LF.layer_decode_fx(x, qw, cache, t)
                     dn_token(M, qw["dn"], qw["ln1"], qw["ln2"],
                              qw["mlp"], gold)
                 x = gold
                 resid_max = max(resid_max, int(np.abs(x).max()))
+            GLS.sched_token_end(M, n_dn)
 
             # final RMSNorm: PLAIN-w mode 1 with the pre-folded (1+w) Q3.12
             M.W(STG, ln_f_q12)
-            M.vnw_(STG, 1024)
-            M.vn(1, 1024, RS_F, RS_F, X0, XN)
-            M.alu(0, 1024, 0, XN, 0, X8)
+            M.vnw_(STG, H)
+            M.vn(1, H, RS_F, RS_F, X0, XN)
+            M.alu(0, H, 0, XN, 0, X8)
 
             # full-vocab LM head + chunked on-chip argmax
-            y32, _ = M.matvec(qw_head, X8, 1024, rowchunk=ROWCHUNK)
+            y32, _ = M.matvec(qw_head, X8, H, rowchunk=ROWCHUNK)
             for c in range(0, vocab, 2048):
                 n = min(2048, vocab - c)
                 M.W32(STG, y32[c:c + n])
@@ -508,7 +652,18 @@ def main():
         print("Q", file=f)
 
     prefix = outfile.rsplit(".", 1)[0]
-    nW = M.dump_weights(prefix)
+    # R-b: the embedding row stride travels WITH the artifact (2*H bytes), so
+    # the host can program seq_unit's EMBLOG2 CSR instead of assuming 2048.
+    #
+    # G2a: `rs_f` rides the same caller-gated path (spec 4.4 makes RS_F
+    # MODEL-SELECTED rather than global).  It is passed only for a geometry
+    # whose artifacts are NOT byte-locked: 0.8B and 2B are pinned by G2b and
+    # consumed by frozen bitstreams, and an unconditional key would move
+    # every one of their manifest bytes — `evidence/qwen2b/rc/t4_bytes_unmoved.sh`
+    # byte-compares the weights manifest, and the gold 2B manifest carries no
+    # non-wid key at all.  A1.8: the shipped value is still 8.
+    nW = M.dump_weights(prefix, emb_row_bytes=2 * LR.H,
+                        rs_f=None if MS.TAG in BYTELOCKED_TAGS else RS_F)
     emb_q.tofile(f"{prefix}.emb.bin")
 
     # ---------------- runtime range audit (hard gate) ----------------
@@ -571,7 +726,8 @@ def main():
     tp = _tokenizer_path()
     dec = Tok(tp).decode(toks_out) if tp else None
     print(f"\nmodel script: prompt_seed={pseed} prompt={text!r} "
-          f"res_scale={res_scale} w4_group={w4_group} DN_NORM_F={LF.DN_NORM_F} "
+          f"res_scale={res_scale} wq={wq} w4_group={w4_group} "
+          f"DN_NORM_F={LF.DN_NORM_F} "
           f"ids={prompt_ids} steps={nsteps} ntok={ntok} vocab={vocab} "
           f"nlayers={len(layers)} cmds={M.ncmd} hostwords={M.nw} "
           f"weights={nW}\n  argmax per step={step_toks}\n"

@@ -1,0 +1,31 @@
+=== host: snoke
+=== date: 2026-09-09T19:33:38-06:00
+=== tree: f57fca2+dirty
+=== cmd:  bash -c set -x; python3 sw/hwmap.py && /home/cah/.venv/bin/python sw/seq_run.py --selftest
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
++ python3 sw/hwmap.py
+HWMAP SHAPE_WORD SELFTEST PASS: isa=1 pinned to RD_GATE 0x20800290/0x20200290 (+ the 0.8B W4 control), g64=0x1000d1e0 w8=0x2000d1e0, w8+g64 refused; isa=2 ng[28:22] nrows[21:6] sh[5:0] round-trips at ng 1/32/64/96 x nrows 0/1/4096/65535 x sh 0/1/63, spare [31:29] zero, g64/w8/over-wide fields and ng outside 1..MAX_NG all refused; an UNKNOWN VERSION refuses (build_034 0x4f908df2 and build_035 0x54443b9f are isa=1, build_041 0xc973c18a is isa=2)
++ /home/cah/.venv/bin/python sw/seq_run.py --selftest
+seq_run selftest (pure python, no board):
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+      1987 records, 63360 B blob, 25 LDC (0 indirected), 44 MVGO, 0 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/tok2_s1.e
+      1080 records, 61568 B blob, 14 LDC (1 indirected), 26 MVGO, 3 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e
+      60495 records, 1007360 B blob, 538 LDC (24 indirected), 1592 MVGO, 6 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e4
+      68119 records, 1007360 B blob, 538 LDC (24 indirected), 3464 MVGO, 6 expected tokens
+  --- /tmp/fable5_rp__ku3d2zp/rp.e
+      53 records, 2048 B blob, 1 LDC (0 indirected), 12 MVGO, 1 expected tokens
+  --- R-c: the emitter's placement-order guard
+  --- R-b: emb_row_bytes manifest key + EMBLOG2 CSR
+  --- S3: the DDR state region (plan, witnesses, bytes/token)
+  seq_run selftest: 2785 passed, 0 failed
+=== rc: 0
+=== end: 2026-09-09T19:33:44-06:00

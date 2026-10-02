@@ -1,0 +1,28 @@
+=== host: snoke  date: 2026-08-22T19:44:31-06:00
+=== tree: 37bb5cb+dirty
+=== cmd : bash -c 
+set -e
+cd /home/cah/r2d2/code/fpga/fable5_llm
+echo "### frozen locks with the DNZ head assert in place"
+bash evidence/qwen2b/rc/t3_locks.sh 2>&1 | grep -E "REGEN_GATE|E4_LOCK|got |gold |identical"
+echo
+echo "### host selftests"
+bash evidence/qwen2b/rc/t3_sw_selftests.sh 2>&1 | grep -E "passed,"
+
+=== venv: 3.12.3 numpy 2.4.6
+### frozen locks with the DNZ head assert in place
+  gold    = a69864d25b6b129a4d6c74b3c78dfcbedf1edce219d32cc05d05bc54f444aaf1
+  got     = a69864d25b6b129a4d6c74b3c78dfcbedf1edce219d32cc05d05bc54f444aaf1
+REGEN_GATE_PASS
+  e4 got  = e102e2df0835097d0d622cd17109b9cbfea1ab4e78818bcddf3873ec6d8ac933
+  e4 gold = e102e2df0835097d0d622cd17109b9cbfea1ab4e78818bcddf3873ec6d8ac933  (committed tb/scripts/w4/model_v2_s1.e4.seq)
+    identical (745456c8f2eb1ccb…, 74015 B)
+    identical
+E4_LOCK_PASS
+
+### host selftests
+  seq_run selftest: 2735 passed, 0 failed
+  serve selftest: 85 passed, 0 failed
+  chat_seq selftest: 337 passed, 0 failed
+=== rc  : 0
+=== end : 2026-08-22T19:54:16-06:00

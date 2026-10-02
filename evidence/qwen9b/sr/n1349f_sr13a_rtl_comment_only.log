@@ -1,0 +1,28 @@
+=== host: snoke  date: 2026-09-28T15:12:07-06:00
+=== tree: fb1ea0e
+=== cmd : bash -c H=$(git rev-parse --short HEAD); echo binary commit 0044b1b, HEAD $H; git diff --stat 0044b1b $H -- rtl/ tb/; n=0; for f in $(git diff --name-only 0044b1b $H -- rtl/ tb/); do d=$(diff <(git show 0044b1b:$f | sed -e "s://.*$::" -e "s/[[:space:]]*$//") <(git show $H:$f | sed -e "s://.*$::" -e "s/[[:space:]]*$//") | grep -c "^[<>]"); echo "  $f: $d non-comment lines differ (// stripped)"; n=$((n+d)); done; git diff 0044b1b $H -- rtl/ | grep "^[+-][^+-]"; echo NON-COMMENT LINES CHANGED: $n; [ $n = 0 ]
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+binary commit 0044b1b, HEAD fb1ea0e
+ rtl/layer_chan.sv    | 2 +-
+ rtl/matvec_engine.sv | 6 +++---
+ rtl/state_dma.sv     | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+  rtl/layer_chan.sv: 0 non-comment lines differ (// stripped)
+  rtl/matvec_engine.sv: 0 non-comment lines differ (// stripped)
+  rtl/state_dma.sv: 0 non-comment lines differ (// stripped)
+-// {16'd0, y_val[31:16]}, rtl/seq_movers.sv:589).  WSTRB[1:0] must be 00
++// {16'd0, y_val[31:16]}, rtl/seq_movers.sv:603).  WSTRB[1:0] must be 00
+-    // 3072-word XWIN (the decode is `rtl/matvec_chan.sv:587-588` and its
+-    // SLVERR `rtl/matvec_chan.sv:595`), and an AXI-Lite XWIN push past word
++    // 3072-word XWIN (the decode is `rtl/matvec_chan.sv:606-607` and its
++    // SLVERR `rtl/matvec_chan.sv:614`), and an AXI-Lite XWIN push past word
+-    // `rtl/matvec_engine.sv:596-598`.
++    // `rtl/matvec_engine.sv:626-628`.
+-// (rtl/seq_movers.sv:55-59): AW count == B count, not "the last W beat
++// (rtl/seq_movers.sv:62-66): AW count == B count, not "the last W beat
+-                // bw_idle (rtl/seq_movers.sv:55-59): the phase is complete
++                // bw_idle (rtl/seq_movers.sv:62-66): the phase is complete
+NON-COMMENT LINES CHANGED: 0
+=== rc  : 0
+=== end : 2026-09-28T15:12:08-06:00

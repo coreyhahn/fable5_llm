@@ -1,0 +1,81 @@
+=== host: snoke
+=== date: 2026-09-03T09:45:01-06:00
+=== tree: b9c0ad8
+=== cmd:  bash -c cd /home/cah/r2d2/code/fpga/fable5_llm/tb && for t in tok9b_s1 tok9b_s2 tok9b_s3 tok9b_s4; do echo "BEFORE $t $(sha256sum scripts/w9/$t.e4.seq | cut -c1-32) $(sha256sum scripts/w9/$t.e4.seq.json | cut -c1-32) $(sha256sum scripts/w9/$t.e4.chip | cut -c1-32)"; done && make -C /home/cah/r2d2/code/fpga/fable5_llm/tb w9_9b_tok_smoke_scripts MODELPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python && cd /home/cah/r2d2/code/fpga/fable5_llm/tb && for t in tok9b_s1 tok9b_s2 tok9b_s3 tok9b_s4; do echo "AFTER  $t $(sha256sum scripts/w9/$t.e4.seq | cut -c1-32) $(sha256sum scripts/w9/$t.e4.seq.json | cut -c1-32) $(sha256sum scripts/w9/$t.e4.chip | cut -c1-32)"; done
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+BEFORE tok9b_s1 842d375087784de214b51579fb39cab0 a74f9cefa19682e3b4969a5200147bae 155fc059d9e5c6fd2c30f2b74b6a9c95
+BEFORE tok9b_s2 81b07f109ba7ffe836c8e92ae246b301 21d2e98fc79e5a9e2eec68a159227cda 428872a36bbb8535e3b0cdf7eeba058b
+BEFORE tok9b_s3 46f0b0ece0b584f455a0c3a1693a189b 859a4e32f4b24e4c81e1053a00a7f40a e2de0257ad0418c2ca4917b19c870989
+BEFORE tok9b_s4 c18e96af371f1fb8839a3c700b949d57 447bdc0ff0cfc89172b49926cb4b8b75 2a23837f1a233c303a329f8acbdafac4
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+mkdir -p scripts/w9
+for s in 1 2 3 4; do \
+  ( cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 \
+      SEQ_EMIT=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s$s.e4 \
+      /home/cah/.venv/bin/python gen_token_script.py \
+      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s$s.txt $s 2 \
+      8192 2 ) || exit 1; \
+  FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py \
+    scripts/w9/tok9b_s$s.e4 --base scripts/w9/tok9b_s$s || exit 1; \
+done
+token script: seed=1 ntok=2 wq=w4 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=985 hostwords=460736 weights=16 tokens_out=[2380, 6362] -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.txt
+SEQ: 2139 records (34224 B) + 108480 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4.seq  [profile=epsnorm loop_steps=2]
+  plan re-derived from the manifest: 16 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[15], every base identical
+    wid 15 (LAYOUT_ILV, 8192 rows) -> per-channel rows [2048, 2048, 2048, 2048]
+  pack top: (327950336, 327950336, 327950336, 327950336)
+  scripts/w9/tok9b_s1.wimg0.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s1.wimg1.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s1.wimg2.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s1.wimg3.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 16 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/tok9b_s1.e4.chip: 2139 records, pc 2138, 2 tokens, 36864 scratch words checked (28672 staging words excluded)
+  seq_model stats: {'CSRWR': 2698, 'CMD': 897, 'MOVX': 128, 'MOVY': 160, 'MVGO': 160, 'EMB': 2, 'AMAXL': 2, 'JMP': 2, 'FENCE': 40, 'LDC': 26, 'XOP': 4, 'PROBE': 2, 'MVGO_NOWAIT': 160}
+token script: seed=2 ntok=2 wq=w4 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=985 hostwords=460736 weights=16 tokens_out=[5290, 4397] -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s2.txt
+SEQ: 2139 records (34224 B) + 108480 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s2.e4.seq  [profile=epsnorm loop_steps=2]
+  plan re-derived from the manifest: 16 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[15], every base identical
+    wid 15 (LAYOUT_ILV, 8192 rows) -> per-channel rows [2048, 2048, 2048, 2048]
+  pack top: (327950336, 327950336, 327950336, 327950336)
+  scripts/w9/tok9b_s2.wimg0.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s2.wimg1.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s2.wimg2.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s2.wimg3.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 16 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/tok9b_s2.e4.chip: 2139 records, pc 2138, 2 tokens, 36864 scratch words checked (28672 staging words excluded)
+  seq_model stats: {'CSRWR': 2698, 'CMD': 897, 'MOVX': 128, 'MOVY': 160, 'MVGO': 160, 'EMB': 2, 'AMAXL': 2, 'JMP': 2, 'FENCE': 40, 'LDC': 26, 'XOP': 4, 'PROBE': 2, 'MVGO_NOWAIT': 160}
+token script: seed=3 ntok=2 wq=w4 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=985 hostwords=460736 weights=16 tokens_out=[1235, 4971] -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s3.txt
+SEQ: 2139 records (34224 B) + 108480 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s3.e4.seq  [profile=epsnorm loop_steps=2]
+  plan re-derived from the manifest: 16 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[15], every base identical
+    wid 15 (LAYOUT_ILV, 8192 rows) -> per-channel rows [2048, 2048, 2048, 2048]
+  pack top: (327950336, 327950336, 327950336, 327950336)
+  scripts/w9/tok9b_s3.wimg0.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s3.wimg1.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s3.wimg2.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s3.wimg3.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 16 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/tok9b_s3.e4.chip: 2139 records, pc 2138, 2 tokens, 36864 scratch words checked (28672 staging words excluded)
+  seq_model stats: {'CSRWR': 2698, 'CMD': 897, 'MOVX': 128, 'MOVY': 160, 'MVGO': 160, 'EMB': 2, 'AMAXL': 2, 'JMP': 2, 'FENCE': 40, 'LDC': 26, 'XOP': 4, 'PROBE': 2, 'MVGO_NOWAIT': 160}
+token script: seed=4 ntok=2 wq=w4 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=985 hostwords=460736 weights=16 tokens_out=[5591, 703] -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s4.txt
+SEQ: 2139 records (34224 B) + 108480 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s4.e4.seq  [profile=epsnorm loop_steps=2]
+  plan re-derived from the manifest: 16 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[15], every base identical
+    wid 15 (LAYOUT_ILV, 8192 rows) -> per-channel rows [2048, 2048, 2048, 2048]
+  pack top: (327950336, 327950336, 327950336, 327950336)
+  scripts/w9/tok9b_s4.wimg0.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s4.wimg1.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s4.wimg2.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s4.wimg3.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 16 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/tok9b_s4.e4.chip: 2139 records, pc 2138, 2 tokens, 36864 scratch words checked (28672 staging words excluded)
+  seq_model stats: {'CSRWR': 2698, 'CMD': 897, 'MOVX': 128, 'MOVY': 160, 'MVGO': 160, 'EMB': 2, 'AMAXL': 2, 'JMP': 2, 'FENCE': 40, 'LDC': 26, 'XOP': 4, 'PROBE': 2, 'MVGO_NOWAIT': 160}
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+AFTER  tok9b_s1 842d375087784de214b51579fb39cab0 a74f9cefa19682e3b4969a5200147bae 155fc059d9e5c6fd2c30f2b74b6a9c95
+AFTER  tok9b_s2 81b07f109ba7ffe836c8e92ae246b301 21d2e98fc79e5a9e2eec68a159227cda 428872a36bbb8535e3b0cdf7eeba058b
+AFTER  tok9b_s3 46f0b0ece0b584f455a0c3a1693a189b 859a4e32f4b24e4c81e1053a00a7f40a e2de0257ad0418c2ca4917b19c870989
+AFTER  tok9b_s4 c18e96af371f1fb8839a3c700b949d57 447bdc0ff0cfc89172b49926cb4b8b75 2a23837f1a233c303a329f8acbdafac4
+=== rc: 0
+=== end: 2026-09-03T09:59:01-06:00

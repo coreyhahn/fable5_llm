@@ -1,0 +1,94 @@
+=== host: snoke
+=== date: 2026-09-10T00:58:46-06:00
+=== tree: 6815e3c+dirty
+=== cmd:  nice -n 5 bash evidence/qwen9b/g6/g6_i2_red.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## the frozen --nch 1 footprint at 4662b06
+=== FABLE5_MODEL=0.8b  template=model_v2_s1.e  (--nch 1, the frozen path)
+  T_MAX      chat_seq 512  seq_chat 512  compiling at 512
+  stride     POS_STRIDE 1536 B/pos  POSBLOB_BYTES 786432
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+------------------------------------------------------------------------
+  const blob 1784576 B  sha c59d9fe3c46bb09101c47f67d04c257f
+  plan.blob_bytes   0x1b3b00  (1784576)
+  plan.chan         0x0  (0)
+  plan.data_base    0xc000000  (201326592)
+  plan.data_delta   -0x74000000  (-1946157056)
+  plan.ddr_off      0x0  (0)
+  plan.emb_base     0x60000000  (1610612736)
+  plan.emb_delta    0x0  (0)
+  plan.nch          0x1  (1)
+  plan.seq_base     0x9000000  (150994944)
+  plan.stream_base  0x9000000  (150994944)
+  plan.stream_bytes 0x764c0  (484544)
+  image preamble  base 0x9000000    1526 recs     24416 B  sha babfe7db5fbeac167607ab1b5dab6aad
+  image lite      base 0x9005f80   14010 recs    224160 B  sha 753f32bc1208b57a612a4d57d3f6d1f1
+  image full      base 0x903cb40   14744 recs    235904 B  sha a1a4a9222fa165a9990284edd003015c
+  FOOTPRINT  c59d9fe3c46bb091/babfe7db5fbeac16/753f32bc1208b57a/a1a4a9222fa165a9
+FROZEN FOOTPRINT: PRINTED
+   rc=0
+
+########## the frozen --nch 1 footprint at 47e07cd
+=== FABLE5_MODEL=0.8b  template=model_v2_s1.e  (--nch 1, the frozen path)
+  T_MAX      chat_seq 4096  seq_chat 4096  compiling at 4096
+  stride     POS_STRIDE 1536 B/pos  POSBLOB_BYTES 6291456
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.4s)
+  blob       7289600 B = 998144 B constants + 4096 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+------------------------------------------------------------------------
+  const blob 7289600 B  sha 0dbd6a6a97f74c81bf8a1d96be90ba98
+  plan.blob_bytes   0x6f3b00  (7289600)
+  plan.chan         0x0  (0)
+  plan.data_base    0xc000000  (201326592)
+  plan.data_delta   -0x74000000  (-1946157056)
+  plan.ddr_off      0x0  (0)
+  plan.emb_base     0x60000000  (1610612736)
+  plan.emb_delta    0x0  (0)
+  plan.nch          0x1  (1)
+  plan.seq_base     0x9000000  (150994944)
+  plan.stream_base  0x9000000  (150994944)
+  plan.stream_bytes 0x764c0  (484544)
+  image preamble  base 0x9000000    1526 recs     24416 B  sha babfe7db5fbeac167607ab1b5dab6aad
+  image lite      base 0x9005f80   14010 recs    224160 B  sha 753f32bc1208b57a612a4d57d3f6d1f1
+  image full      base 0x903cb40   14744 recs    235904 B  sha a1a4a9222fa165a9990284edd003015c
+  FOOTPRINT  0dbd6a6a97f74c81/babfe7db5fbeac16/753f32bc1208b57a/a1a4a9222fa165a9
+FROZEN FOOTPRINT: PRINTED
+   rc=0
+
+########## splicing this tree's NEW selftest cases into 47e07cd
+  spliced 15 + 123 selftest lines into 47e07cd's 6202-line file -> 6274 lines
+  the spliced file's IMPLEMENTATION is 47e07cd's:
+251:T_MAX = SC.T_MAX if SC is not None else HW.STATE_T_MAX
+2795:POS_MODE_LDC_ONLY = ("9b",)
+2822:    if tag in POS_MODE_LDC_ONLY:
+  ...and it imports 47e07cd's ref/seq_chat.py:
+178:T_MAX = 4096                             # = sw/hwmap.STATE_T_MAX (S2/S3)
+
+########## the NEW cases against 47e07cd's implementation (RED)
+  [20] rung 4 S8: TOPK-32 STATUS decode + PTR auto-increment
+  [21] S3: conv-image witnesses + the session-reset DN memset
+  [22] S3/9B: the state region in the verifier, the session and the residency split
+  [23] E: T_MAX = the TARGET NETLIST's KV depth, the position blob, the FROZEN path's footprint, and pos_mode geometry
+    FAIL T_MAX is THIS selection's netlist ceiling, and agent A's is the same number: chat_seq 4096 / seq_chat 4096 / want 512 (FABLE5_MODEL=0.8b, hwmap 4096)
+    FAIL RED->GREEN: the FROZEN --nch 1 position pool is 786,432 B (512 x 1,536), as at 4662b06 — not 6,291,456: 6291456 B at t_max 4096
+    FAIL RED->GREEN: ...and its const blob is 1,784,576 B, so every data_base-relative image address is where it was: 7289600 B
+    FAIL RED->GREEN: ...and the three resident images sit at the offsets that blob end implies: [('session', 0), ('lite', 24576), ('full', 249856)]
+    FAIL RED->GREEN: ...and the converse — the geometry ALLOWS xrf at a tag the policy tuple DOES name, when --max-ctx - 1 fits the cap: REFUSED
+    FAIL ...and auto is geometric too, both ways, at the named tag: ('ldc', 'ldc')
+    FAIL RED->GREEN: the VERIFIER's refusal is the GEOMETRY too — it refuses xrf at a tag POS_MODE_LDC_ONLY does not name whose cap cannot reach --max-ctx (before this it returned True there): 
+    FAIL RED->GREEN: ...and the converse — the VERIFIER ACCEPTS xrf at the tag the tuple DOES name when the cap reaches the context: RAISED ChatSeqError: --verify with pos_mode='xrf' at FABLE5_MODEL=9b is REFUSED: ref/seq_model.SeqExec does not model the signed 18-bit XRF[4] read, so lockstep would PASS on a context the silicon truncates (XRF_POS_MAX is 85 here).  Use --pos-mode ldc.
+  chat_seq selftest: 372 passed, 8 failed
+   rc=1
+  removed /home/cah/r2d2/code/fpga/fable5_llm_wt_i2_47e07cd/sw/.red_chat_seq_47e07cd.py: gone
+=== rc: 0
+=== end: 2026-09-10T00:59:21-06:00

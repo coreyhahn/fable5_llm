@@ -1,0 +1,103 @@
+=== host: darthplagueis
+=== date: 2026-09-03T20:20:30-06:00
+=== tree: 5ee5f0e
+=== cmd:  ssh snoke echo '=== probe 1: the group/URAM name shapes ==='; grep -E '^PRB' /home/cah/r2d2/code/fpga/fable5_llm/synth/out_g5_probe/run.log; echo; echo '=== probe 2: where rq_p_reg[0] actually lives, and the per-scope census ==='; grep -E '^PRB|^   e.g' /home/cah/r2d2/code/fpga/fable5_llm/synth/out_g5_probe2/run.log
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== probe 1: the group/URAM name shapes ===
+PRB_TOP_CELLS: 63029
+PRB_TOP: GND
+PRB_TOP: GND_1
+PRB_TOP: VCC
+PRB_TOP: VCC_1
+PRB_TOP: alu_start_i_1
+PRB_TOP: alu_start_reg
+PRB_TOP: arg0[31]_i_1
+PRB_TOP: arg0[31]_i_2
+PRB_TOP: arg0_reg[0]
+PRB_TOP: arg0_reg[10]
+PRB_TOP: arg0_reg[11]
+PRB_TOP: arg0_reg[12]
+PRB_TOP: arg0_reg[13]
+PRB_TOP: arg0_reg[14]
+PRB_TOP: arg0_reg[15]
+PRB_TOP: arg0_reg[16]
+PRB_TOP: arg0_reg[17]
+PRB_TOP: arg0_reg[18]
+PRB_TOP: arg0_reg[19]
+PRB_TOP: arg0_reg[1]
+PRB_TOP: arg0_reg[20]
+PRB_TOP: arg0_reg[21]
+PRB_TOP: arg0_reg[22]
+PRB_TOP: arg0_reg[23]
+PRB_TOP: arg0_reg[24]
+PRB_TOP: arg0_reg[25]
+PRB_URAM_N: 928
+PRB_URAM: g_dnpipeN.g_grp[0].g_dn[0].mem_reg_uram_0
+PRB_URAM: g_dnpipeN.g_grp[0].g_dn[0].mem_reg_uram_1
+PRB_URAM: g_dnpipeN.g_grp[0].g_dn[0].mem_reg_uram_10
+PRB_URAM: g_dnpipeN.g_grp[0].g_dn[0].mem_reg_uram_11
+PRB_URAM: g_dnpipeN.g_grp[0].g_dn[0].mem_reg_uram_12
+PRB_FILTER {*g_grp*} -> 45963
+PRB_FILTER {*bs_p_reg*} -> 30
+PRB_FILTER {*g_dn*} -> 48053
+PRB_FILTER {*dnpipe*} -> 48053
+PRB_FILTER2 {*g_grp?0?.g_dn*} -> 240
+PRB_FILTER2 {*g_grp[0].g_dn*} -> 240
+PRB_FILTER2 {g_dnpipeN.g_grp?0?.*} -> 14636
+PRB_FILTER2 {g_dnpipeN.g_grp[0].*} -> 14636
+PRB_GLOB_TOP {g_dnpipeN.g_grp?0?.*} -> 14636
+PRB_GLOB_HIER {*g_grp?0?.*} -> 14643
+PRB_REGEXP -> 14643
+PRB_DONE
+
+=== probe 2: where rq_p_reg[0] actually lives, and the per-scope census ===
+PRB {*rq_p*} -> 30720
+   e.g. g_dnpipeN.g_grp[0].g_lmux.rq_p[0][0]_i_2 (LUT6)
+   e.g. g_dnpipeN.g_grp[0].g_lmux.rq_p[0][0]_i_3 (LUT6)
+   e.g. g_dnpipeN.g_grp[0].g_lmux.rq_p[0][1000]_i_2 (LUT6)
+PRB {*rq_p_reg*} -> 18432
+   e.g. g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][0] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][0]_i_1 (MUXF7)
+   e.g. g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][1000] (FDRE)
+PRB {*g_grp?0?.rq*} -> 2048
+   e.g. g_dnpipeN.g_grp[0].rq_p_reg[1][0] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].rq_p_reg[1][1000] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].rq_p_reg[1][1001] (FDRE)
+PRB {*dn_rdq_gq*} -> 0
+PRB {*g_grp?0?.w_p_reg*} -> 2
+   e.g. g_dnpipeN.g_grp[0].w_p_reg[0] (FDSE)
+   e.g. g_dnpipeN.g_grp[0].w_p_reg[1] (FDRE)
+PRB {*g_grp?0?.wd_p_reg?1?*} -> 2048
+   e.g. g_dnpipeN.g_grp[0].wd_p_reg[1][0] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].wd_p_reg[1][1000] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].wd_p_reg[1][1001] (FDRE)
+PRB {*g_grp?0?.ra_p_reg?1?*} -> 12
+   e.g. g_dnpipeN.g_grp[0].ra_p_reg[1][0] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].ra_p_reg[1][10] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].ra_p_reg[1][11] (FDRE)
+PRB {*g_grp?0?.wa_p_reg?1?*} -> 12
+   e.g. g_dnpipeN.g_grp[0].wa_p_reg[1][0] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].wa_p_reg[1][10] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].wa_p_reg[1][11] (FDRE)
+PRB {*g_grp?0?.bs_p_reg?1?*} -> 5
+   e.g. g_dnpipeN.g_grp[0].bs_p_reg[1][0] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].bs_p_reg[1][1] (FDRE)
+   e.g. g_dnpipeN.g_grp[0].bs_p_reg[1][2] (FDRE)
+PRB_BASE bs_p_reg 10
+PRB_BASE g_dn 240
+PRB_BASE g_lmux 8192
+PRB_BASE ra_p_reg 24
+PRB_BASE rq_p_reg 2048
+PRB_BASE w_p_reg 2
+PRB_BASE wa_p 7
+PRB_BASE wa_p_reg 24
+PRB_BASE wd_p_reg 4096
+PRB_DONE
+=== rc: 0
+=== end: 2026-09-03T20:20:30-06:00

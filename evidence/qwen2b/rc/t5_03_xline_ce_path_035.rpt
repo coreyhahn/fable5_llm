@@ -1,0 +1,210 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date              : Sun Aug 23 13:24:50 2026
+| Host              : darthplagueis running 64-bit Ubuntu 24.04.4 LTS
+| Command           : report_timing -to [get_pins -quiet -hier -filter {NAME =~ *u_engine/xline_q0_reg*/CE}] -setup -max_paths 2 -nworst 1 -file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_035_full_AltSpreadLogic_high/reports/xline_ce_path.rpt
+| Design            : bd_wrapper
+| Device            : xcvu9p-fsgd2104
+| Speed File        : -2L  PRODUCTION 1.28 03-30-2022
+| Design State      : Physopt postRoute
+| Temperature Grade : E
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.087ns  (required time - arrival time)
+  Source:                 bd_i/mvchan_3/inst/u_chan/u_streamer/f_wr_reg[6]/C
+                            (rising edge-triggered cell FDRE clocked by mmcm_clkout0_1  {rise@0.000ns fall@1.666ns period=3.332ns})
+  Destination:            bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[18]__6/CE
+                            (rising edge-triggered cell FDRE clocked by mmcm_clkout0_1  {rise@0.000ns fall@1.666ns period=3.332ns})
+  Path Group:             mmcm_clkout0_1
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.332ns  (mmcm_clkout0_1 rise@3.332ns - mmcm_clkout0_1 rise@0.000ns)
+  Data Path Delay:        3.025ns  (logic 0.497ns (16.431%)  route 2.528ns (83.569%))
+  Logic Levels:           4  (LUT3=2 LUT6=2)
+  Clock Path Skew:        -0.281ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    5.077ns = ( 8.409 - 3.332 ) 
+    Source Clock Delay      (SCD):    5.051ns
+    Clock Pessimism Removal (CPR):    -0.308ns
+  Clock Uncertainty:      0.052ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.077ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      2.982ns (routing 1.041ns, distribution 1.941ns)
+  Clock Net Delay (Destination): 2.561ns (routing 0.944ns, distribution 1.617ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock mmcm_clkout0_1 rise edge)
+                                                      0.000     0.000 r  
+    J16                                               0.000     0.000 r  dimm3_refclk_clk_p (IN)
+                         net (fo=0)                   0.100     0.100    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/I
+    HPIOBDIFFINBUF_X1Y276
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.516     0.616 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.050     0.666    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/OUT
+    J16                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     0.666 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/IBUFCTRL_INST/O
+                         net (fo=2, routed)           0.335     1.001    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/sys_clk_in
+    BUFGCE_X1Y264        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     1.029 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/sys_clk_in_BUFGCE_collapsed_inst/O
+                         net (fo=18, routed)          0.894     1.923    bd_i/ddr4_3/inst/u_ddr4_infrastructure/mmcm_clk_in
+    MMCM_X1Y12           MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                     -0.127     1.796 r  bd_i/ddr4_3/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.245     2.041    bd_i/ddr4_3/inst/u_ddr4_infrastructure/mmcm_clkout0
+    BUFGCE_X1Y301        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     2.069 r  bd_i/ddr4_3/inst/u_ddr4_infrastructure/u_bufg_divClk/O
+    X4Y10 (CLOCK_ROOT)   net (fo=55181, routed)       2.982     5.051    bd_i/mvchan_3/inst/u_chan/u_streamer/ui_clk
+    SLR Crossing[2->1]   
+    SLICE_X77Y454        FDRE                                         r  bd_i/mvchan_3/inst/u_chan/u_streamer/f_wr_reg[6]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y454        FDRE (Prop_DFF2_SLICEL_C_Q)
+                                                      0.081     5.132 r  bd_i/mvchan_3/inst/u_chan/u_streamer/f_wr_reg[6]/Q
+                         net (fo=10, routed)          0.490     5.622    bd_i/mvchan_3/inst/u_chan/u_streamer/f_wr_reg_n_0_[6]
+    SLICE_X76Y452        LUT6 (Prop_A6LUT_SLICEM_I3_O)
+                                                      0.100     5.722 f  bd_i/mvchan_3/inst/u_chan/u_streamer/scales_q[95][15]_i_9/O
+                         net (fo=1, routed)           0.296     6.018    bd_i/mvchan_3/inst/u_chan/u_streamer/scales_q[95][15]_i_9_n_0
+    SLICE_X76Y465        LUT3 (Prop_E5LUT_SLICEM_I1_O)
+                                                      0.102     6.120 f  bd_i/mvchan_3/inst/u_chan/u_streamer/scales_q[95][15]_i_3/O
+                         net (fo=14, routed)          0.304     6.424    bd_i/mvchan_3/inst/u_chan/u_engine/f_rd_reg[8]
+    SLICE_X79Y470        LUT6 (Prop_A6LUT_SLICEL_I0_O)
+                                                      0.124     6.548 r  bd_i/mvchan_3/inst/u_chan/u_engine/g_cnt[6]_i_2_replica_1/O
+                         net (fo=21, routed)          0.604     7.152    bd_i/mvchan_3/inst/u_chan/u_engine/beat_fire_repN_1
+    SLICE_X89Y498        LUT3 (Prop_A6LUT_SLICEL_I2_O)
+                                                      0.090     7.242 r  bd_i/mvchan_3/inst/u_chan/u_engine/ph_q_i_1_replica_33/O
+                         net (fo=45, routed)          0.834     8.076    bd_i/mvchan_3/inst/u_chan/u_engine/beat_q__0_repN_33
+    SLICE_X95Y521        FDRE                                         r  bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[18]__6/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock mmcm_clkout0_1 rise edge)
+                                                      3.332     3.332 r  
+    J16                                               0.000     3.332 r  dimm3_refclk_clk_p (IN)
+                         net (fo=0)                   0.079     3.411    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/I
+    HPIOBDIFFINBUF_X1Y276
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.420     3.831 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.040     3.871    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/OUT
+    J16                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     3.871 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/IBUFCTRL_INST/O
+                         net (fo=2, routed)           0.297     4.168    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/sys_clk_in
+    BUFGCE_X1Y264        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.024     4.192 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/sys_clk_in_BUFGCE_collapsed_inst/O
+                         net (fo=18, routed)          0.788     4.980    bd_i/ddr4_3/inst/u_ddr4_infrastructure/mmcm_clk_in
+    MMCM_X1Y12           MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                      0.630     5.610 r  bd_i/ddr4_3/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.215     5.825    bd_i/ddr4_3/inst/u_ddr4_infrastructure/mmcm_clkout0
+    BUFGCE_X1Y301        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.024     5.849 r  bd_i/ddr4_3/inst/u_ddr4_infrastructure/u_bufg_divClk/O
+    X4Y10 (CLOCK_ROOT)   net (fo=55181, routed)       2.561     8.409    bd_i/mvchan_3/inst/u_chan/u_engine/ui_clk
+    SLR Crossing[2->1]   
+    SLICE_X95Y521        FDRE                                         r  bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[18]__6/C
+                         clock pessimism             -0.308     8.101    
+                         clock uncertainty           -0.052     8.049    
+    SLICE_X95Y521        FDRE (Setup_EFF_SLICEM_C_CE)
+                                                     -0.061     7.988    bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[18]__6
+  -------------------------------------------------------------------
+                         required time                          7.988    
+                         arrival time                          -8.076    
+  -------------------------------------------------------------------
+                         slack                                 -0.087    
+
+Slack (VIOLATED) :        -0.087ns  (required time - arrival time)
+  Source:                 bd_i/mvchan_3/inst/u_chan/u_streamer/f_wr_reg[6]/C
+                            (rising edge-triggered cell FDRE clocked by mmcm_clkout0_1  {rise@0.000ns fall@1.666ns period=3.332ns})
+  Destination:            bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[19]__6/CE
+                            (rising edge-triggered cell FDRE clocked by mmcm_clkout0_1  {rise@0.000ns fall@1.666ns period=3.332ns})
+  Path Group:             mmcm_clkout0_1
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.332ns  (mmcm_clkout0_1 rise@3.332ns - mmcm_clkout0_1 rise@0.000ns)
+  Data Path Delay:        3.025ns  (logic 0.497ns (16.431%)  route 2.528ns (83.569%))
+  Logic Levels:           4  (LUT3=2 LUT6=2)
+  Clock Path Skew:        -0.281ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    5.077ns = ( 8.409 - 3.332 ) 
+    Source Clock Delay      (SCD):    5.051ns
+    Clock Pessimism Removal (CPR):    -0.308ns
+  Clock Uncertainty:      0.052ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.077ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      2.982ns (routing 1.041ns, distribution 1.941ns)
+  Clock Net Delay (Destination): 2.561ns (routing 0.944ns, distribution 1.617ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock mmcm_clkout0_1 rise edge)
+                                                      0.000     0.000 r  
+    J16                                               0.000     0.000 r  dimm3_refclk_clk_p (IN)
+                         net (fo=0)                   0.100     0.100    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/I
+    HPIOBDIFFINBUF_X1Y276
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.516     0.616 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.050     0.666    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/OUT
+    J16                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     0.666 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/IBUFCTRL_INST/O
+                         net (fo=2, routed)           0.335     1.001    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/sys_clk_in
+    BUFGCE_X1Y264        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     1.029 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/sys_clk_in_BUFGCE_collapsed_inst/O
+                         net (fo=18, routed)          0.894     1.923    bd_i/ddr4_3/inst/u_ddr4_infrastructure/mmcm_clk_in
+    MMCM_X1Y12           MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                     -0.127     1.796 r  bd_i/ddr4_3/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.245     2.041    bd_i/ddr4_3/inst/u_ddr4_infrastructure/mmcm_clkout0
+    BUFGCE_X1Y301        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     2.069 r  bd_i/ddr4_3/inst/u_ddr4_infrastructure/u_bufg_divClk/O
+    X4Y10 (CLOCK_ROOT)   net (fo=55181, routed)       2.982     5.051    bd_i/mvchan_3/inst/u_chan/u_streamer/ui_clk
+    SLR Crossing[2->1]   
+    SLICE_X77Y454        FDRE                                         r  bd_i/mvchan_3/inst/u_chan/u_streamer/f_wr_reg[6]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y454        FDRE (Prop_DFF2_SLICEL_C_Q)
+                                                      0.081     5.132 r  bd_i/mvchan_3/inst/u_chan/u_streamer/f_wr_reg[6]/Q
+                         net (fo=10, routed)          0.490     5.622    bd_i/mvchan_3/inst/u_chan/u_streamer/f_wr_reg_n_0_[6]
+    SLICE_X76Y452        LUT6 (Prop_A6LUT_SLICEM_I3_O)
+                                                      0.100     5.722 f  bd_i/mvchan_3/inst/u_chan/u_streamer/scales_q[95][15]_i_9/O
+                         net (fo=1, routed)           0.296     6.018    bd_i/mvchan_3/inst/u_chan/u_streamer/scales_q[95][15]_i_9_n_0
+    SLICE_X76Y465        LUT3 (Prop_E5LUT_SLICEM_I1_O)
+                                                      0.102     6.120 f  bd_i/mvchan_3/inst/u_chan/u_streamer/scales_q[95][15]_i_3/O
+                         net (fo=14, routed)          0.304     6.424    bd_i/mvchan_3/inst/u_chan/u_engine/f_rd_reg[8]
+    SLICE_X79Y470        LUT6 (Prop_A6LUT_SLICEL_I0_O)
+                                                      0.124     6.548 r  bd_i/mvchan_3/inst/u_chan/u_engine/g_cnt[6]_i_2_replica_1/O
+                         net (fo=21, routed)          0.604     7.152    bd_i/mvchan_3/inst/u_chan/u_engine/beat_fire_repN_1
+    SLICE_X89Y498        LUT3 (Prop_A6LUT_SLICEL_I2_O)
+                                                      0.090     7.242 r  bd_i/mvchan_3/inst/u_chan/u_engine/ph_q_i_1_replica_33/O
+                         net (fo=45, routed)          0.834     8.076    bd_i/mvchan_3/inst/u_chan/u_engine/beat_q__0_repN_33
+    SLICE_X95Y521        FDRE                                         r  bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[19]__6/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock mmcm_clkout0_1 rise edge)
+                                                      3.332     3.332 r  
+    J16                                               0.000     3.332 r  dimm3_refclk_clk_p (IN)
+                         net (fo=0)                   0.079     3.411    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/I
+    HPIOBDIFFINBUF_X1Y276
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.420     3.831 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.040     3.871    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/OUT
+    J16                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     3.871 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/diff_input_clk.u_ibufg_sys_clk/IBUFCTRL_INST/O
+                         net (fo=2, routed)           0.297     4.168    bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/sys_clk_in
+    BUFGCE_X1Y264        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.024     4.192 r  bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/inst/u_ddr4_phy_pll/sys_clk_in_BUFGCE_collapsed_inst/O
+                         net (fo=18, routed)          0.788     4.980    bd_i/ddr4_3/inst/u_ddr4_infrastructure/mmcm_clk_in
+    MMCM_X1Y12           MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                      0.630     5.610 r  bd_i/ddr4_3/inst/u_ddr4_infrastructure/gen_mmcme4.u_mmcme_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.215     5.825    bd_i/ddr4_3/inst/u_ddr4_infrastructure/mmcm_clkout0
+    BUFGCE_X1Y301        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.024     5.849 r  bd_i/ddr4_3/inst/u_ddr4_infrastructure/u_bufg_divClk/O
+    X4Y10 (CLOCK_ROOT)   net (fo=55181, routed)       2.561     8.409    bd_i/mvchan_3/inst/u_chan/u_engine/ui_clk
+    SLR Crossing[2->1]   
+    SLICE_X95Y521        FDRE                                         r  bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[19]__6/C
+                         clock pessimism             -0.308     8.101    
+                         clock uncertainty           -0.052     8.049    
+    SLICE_X95Y521        FDRE (Setup_FFF_SLICEM_C_CE)
+                                                     -0.061     7.988    bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[19]__6
+  -------------------------------------------------------------------
+                         required time                          7.988    
+                         arrival time                          -8.076    
+  -------------------------------------------------------------------
+                         slack                                 -0.087    
+
+
+
+

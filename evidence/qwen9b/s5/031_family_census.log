@@ -1,0 +1,83 @@
+=== host: snoke
+=== date: 2026-09-05T16:25:45-06:00
+=== tree: 282705b
+=== cmd:  bash evidence/qwen9b/s5/s5_finish_and_census.sh family s5_base s5_1slr s5_1slralt
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+S5FC_MODE: family
+S5FC_TCL:  /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/s5/s5_family_census.tcl
+S5FC_LAUNCH s5_base -> /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_s5_base/family_run.log
+S5FC_LAUNCH s5_1slr -> /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_s5_1slr/family_run.log
+S5FC_LAUNCH s5_1slralt -> /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_s5_1slralt/family_run.log
+=== s5_base family_run markers ===
+FAM_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_s5_base/post_place.dcp
+FAM_TABLE family cells worst_slack levels datapath logic route route_pct startSLR endSLR
+FAM_ROW DN_SLOT           4228    0.192   2   3.311   0.261   3.050   92.1 SLR0  SLR0 
+FAM_PATH DN_SLOT dma_act_reg/C -> g_dnslot[1].mem_reg_uram_9/ADDR_A[9]
+FAM_ROW KV_SLOT           4294    0.008   3   3.474   0.430   3.044   87.6 SLR0  SLR0 
+FAM_PATH KV_SLOT dma_kind_reg[1]_rep__14/C -> g_kvslot[0].mem_reg_uram_3/CAS_IN_ADDR_A[2]
+FAM_ROW CV_SLOT            680    0.079   7   3.855   2.407   1.448   37.6 SLR0  SLR0 
+FAM_PATH CV_SLOT g_cvslot[0].wm_reg_bram_0/CLKBWRCLK -> g_cvslot[0].cw_q_p_reg[0][14]/D
+FAM_ROW SDMA             28007    0.023   8   3.886   0.846   3.040   78.2 SLR0  SLR0 
+FAM_PATH SDMA u_dma/f_wp_reg[1]/C -> u_dma/fmem_reg_0_255_80_80/SP.A/I
+FAM_ROW ATTN_DSP         80762   -0.057   2   3.726   1.642   2.084   55.9 SLR0  SLR0 
+FAM_PATH ATTN_DSP g_kvslot[0].mem_reg_uram_12/CLK -> u_attn/g_lane[58].pv_p_reg[58]/DSP_A_B_DATA_INST/A[3]
+FAM_ROW SCRATCH            238    0.361   4   3.273   0.331   2.942   89.9 SLR0  SLR0 
+FAM_PATH SCRATCH cmd_op_reg[3]/C -> smem_b_reg_bram_16/ENARDEN
+FAM_HIST family paths worst_slack   (over the 200 worst setup PATHS)
+FAM_HIST_ROW ATTN_DSP          82   -0.057
+FAM_HIST_ROW KV_SLOT            1    0.008
+FAM_HIST_ROW OTHER            117   -0.136
+FAM_OTHER_WORST slack=-0.136 levels=17 datapath=4.115 logic=1.042 route=3.073 route_pct=74.7
+FAM_OTHER_PATH u_alu/op_q_reg[1]/C -> u_alu/r_res_reg[22]/D
+FAM_DONE
+=== s5_1slr family_run markers ===
+FAM_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_s5_1slr/post_place.dcp
+FAM_TABLE family cells worst_slack levels datapath logic route route_pct startSLR endSLR
+FAM_ROW DN_SLOT           4231    0.166   2   3.342   0.227   3.115   93.2 SLR1  SLR1 
+FAM_PATH DN_SLOT dma_kind_reg[1]/C -> g_dnslot[0].mem_reg_uram_28/ADDR_A[7]
+FAM_ROW KV_SLOT           4294   -0.110   3   3.758   0.480   3.278   87.2 SLR1  SLR1 
+FAM_PATH KV_SLOT dma_act_reg/C -> g_kvslot[1].mem_reg_uram_47/CAS_IN_ADDR_B[12]
+FAM_ROW CV_SLOT            680    0.302   2   3.384   0.214   3.170   93.7 SLR1  SLR1 
+FAM_PATH CV_SLOT dma_act_reg/C -> g_cvslot[0].sm_reg_bram_7/ADDRBWRADDR[13]
+FAM_ROW SDMA             28008    0.001   6   3.882   0.606   3.276   84.4 SLR1  SLR1 
+FAM_PATH SDMA u_dma/f_wp_reg[3]_rep__3/C -> u_dma/beat_acc_reg[40]/R
+FAM_ROW ATTN_DSP         80811   -0.245   2   3.882   1.587   2.295   59.1 SLR1  SLR1 
+FAM_PATH ATTN_DSP g_kvslot[0].mem_reg_uram_20/CLK -> u_attn/g_lane[92].prod_reg[92]/DSP_A_B_DATA_INST/B[10]
+FAM_ROW SCRATCH            238    0.347   5   3.285   0.321   2.964   90.2 SLR1  SLR1 
+FAM_PATH SCRATCH cmd_op_reg[2]/C -> smem_a_reg_0_0/ENARDEN
+FAM_HIST family paths worst_slack   (over the 200 worst setup PATHS)
+FAM_HIST_ROW ATTN_DSP         172   -0.245
+FAM_HIST_ROW OTHER             28   -0.150
+FAM_OTHER_WORST slack=-0.150 levels=5 datapath=3.806 logic=0.537 route=3.269 route_pct=85.9
+FAM_OTHER_PATH u_dn/p_1_out__15/DSP_OUTPUT_INST/CLK -> u_dn/g_lane[49].p2_p_reg[49]/DSP_A_B_DATA_INST/A[28]
+FAM_DONE
+=== s5_1slralt family_run markers ===
+FAM_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_s5_1slralt/post_place.dcp
+FAM_TABLE family cells worst_slack levels datapath logic route route_pct startSLR endSLR
+FAM_ROW DN_SLOT           4231    0.214   1   3.292   0.176   3.116   94.7 SLR1  SLR1 
+FAM_PATH DN_SLOT u_dma/slot_addr_reg[7]/C -> g_dnslot[1].mem_reg_uram_26/ADDR_A[7]
+FAM_ROW KV_SLOT           4294    0.048   2   3.645   0.384   3.261   89.5 SLR1  SLR1 
+FAM_PATH KV_SLOT u_dma/slot_addr_reg[2]/C -> g_kvslot[1].mem_reg_uram_53/CAS_IN_ADDR_B[2]
+FAM_ROW CV_SLOT            680    0.533   7   3.401   2.405   0.996   29.3 SLR1  SLR1 
+FAM_PATH CV_SLOT g_cvslot[1].wm_reg_bram_0/CLKBWRCLK -> g_cvslot[1].cw_q_p_reg[1][23]/D
+FAM_ROW SDMA             28005    0.006   3   3.916   0.415   3.501   89.4 SLR1  SLR1 
+FAM_PATH SDMA dma_kind_reg[0]_rep__10/C -> u_dma/fmem_reg_0_255_141_141/SP.C/I
+FAM_ROW ATTN_DSP         80801   -0.166   2   3.824   1.719   2.105   55.0 SLR1  SLR1 
+FAM_PATH ATTN_DSP g_kvslot[1].mem_reg_uram_36/CLK -> u_attn/g_lane[163].pv_p_reg[163]/DSP_A_B_DATA_INST/A[4]
+FAM_ROW SCRATCH            238    0.426   5   3.206   0.335   2.871   89.6 SLR1  SLR1 
+FAM_PATH SCRATCH cmd_op_reg[2]/C -> smem_a_reg_0_0/ENARDEN
+FAM_HIST family paths worst_slack   (over the 200 worst setup PATHS)
+FAM_HIST_ROW ATTN_DSP         116   -0.166
+FAM_HIST_ROW OTHER             84   -0.127
+FAM_OTHER_WORST slack=-0.127 levels=9 datapath=3.783 logic=0.899 route=2.884 route_pct=76.2
+FAM_OTHER_PATH u_dn/g_lane[4].kvm_acc_reg[4]/DSP_OUTPUT_INST/CLK -> u_dn/p_1_out__6__9/DSP_A_B_DATA_INST/A[28]
+FAM_DONE
+S5FC_RC: 0
+=== rc: 0
+=== end: 2026-09-05T16:29:39-06:00

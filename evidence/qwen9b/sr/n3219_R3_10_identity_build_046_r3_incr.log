@@ -1,0 +1,52 @@
+=== host: snoke  date: 2026-10-01T14:14:05-06:00
+=== tree: 46e926a
+=== cmd : bash -c I=synth/out_build_046_r3_incr/proj/stage1.runs/impl_1
+echo "ID artifacts (mtime, size):"; ls -la --time-style=full-iso $I/bd_wrapper.bit $I/bd_wrapper.mmi $I/bd_wrapper_routed.dcp $I/bd_wrapper_postroute_physopt.dcp | awk '{print "ID   " $6, $7, $5, $9}'
+echo "ID sha256:"; sha256sum $I/bd_wrapper.bit $I/bd_wrapper_postroute_physopt.dcp $I/bd_wrapper.mmi $I/bd_wrapper_routed.dcp | sed "s/^/ID   /"
+echo "ID .bit files under the two out dirs: $(find synth/out_build_046_r3 synth/out_build_046_r3_incr -name "*.bit" | wc -l)"; find synth/out_build_046_r3 synth/out_build_046_r3_incr -name "*.bit" | sed "s/^/ID   /"
+echo "ID .bit files carrying any build_046 name: $(ls -d synth/out_build_046* | tr "\n" " ")"
+echo "ID launch tree of the synthesised source: $(head -1 synth/out_build_046_r3/build.log)"
+echo "ID git rev-parse --short=8 2e87459: $(git rev-parse --short=8 2e87459)"
+echo "ID route status:"; grep -hE "routing errors|fully routed|# of (nets|logical)" $I/bd_wrapper_route_status.rpt | tr -s " " | sed "s/^/ID   /"
+echo "ID expected identity words (sw/hwmap.py):"
+/home/cah/.venv/bin/python -c "import sys; sys.path.insert(0,'sw'); import hwmap as H; print('ID   seq_caps_word({R1,R2,R3}) = 0x%08X' % H.seq_caps_word({'R1','R2','R3'})); print('ID   SEQ_BM_IDENT = 0x%08X' % H.SEQ_BM_IDENT); print('ID   seq_caps_set(0xFAB1CA07) =', sorted(H.seq_caps_set(0xFAB1CA07)))"
+echo "ID RTL literals (rtl/seq_unit.sv):"; sed -n "338,341p;1380p" rtl/seq_unit.sv | sed "s/^/ID   /"
+echo "ID rtl/ delta 2e87459..HEAD: $(git diff --stat 2e87459 HEAD -- rtl | wc -l) lines of stat; e4d8166..2e87459: $(git diff --stat e4d8166 2e87459 -- rtl | wc -l)"
+echo "ID seq_0 IP source = rtl/seq_unit.sv at the launch tree: worktree $(sha256sum rtl/seq_unit.sv | cut -c1-16) 2e87459 blob $(git show 2e87459:rtl/seq_unit.sv | sha256sum | cut -c1-16)"
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+ID artifacts (mtime, size):
+ID   2026-10-01 12:58:16.359244989 53079665 synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper.bit
+ID   2026-10-01 12:47:47.188024078 29668 synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper.mmi
+ID   2026-10-01 12:47:36.468557161 292160094 synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+ID   2026-10-01 12:44:04.743450328 292157558 synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_routed.dcp
+ID sha256:
+ID   8b6675315ed8fd832aeea189638587e2dda86641e8665408f9140dbc67964993  synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper.bit
+ID   e134d1b0c54ce16dd71d0fced2232185e188ebbdef3abc9477e7f84508c87c98  synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+ID   c647a5560d1687430f9bbac116e8cffeaacf2acac3fd78ea5e0672cf831d9a6d  synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper.mmi
+ID   f81aa0cd0eb62f4e53fb28cdfc42017df9599bee299c416ba5d1b1bc8a9355d2  synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_routed.dcp
+ID .bit files under the two out dirs: 1
+ID   synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper.bit
+ID .bit files carrying any build_046 name: synth/out_build_046_r3 synth/out_build_046_r3_incr 
+ID launch tree of the synthesised source: === create_project (2e874592) ===
+ID git rev-parse --short=8 2e87459: 2e874592
+ID route status:
+ID    # of logical nets.......................... : 2499333 :
+ID    # of nets not needing routing.......... : 1837761 :
+ID    # of nets with no loads............ : 266969 :
+ID    # of fully routed nets............. : 661572 :
+ID    # of nets with routing errors.......... : 0 :
+ID expected identity words (sw/hwmap.py):
+ID   seq_caps_word({R1,R2,R3}) = 0xFAB1CA07
+ID   SEQ_BM_IDENT = 0xFAB1B301
+ID   seq_caps_set(0xFAB1CA07) = ['R1', 'R2', 'R3']
+ID RTL literals (rtl/seq_unit.sv):
+ID       localparam logic [31:0] SEQ_CAPS = {24'hFAB1CA, 5'd0,
+ID                                           1'b1 /*r3*/, 1'b1 /*r2*/, 1'b1 /*r1*/};
+ID       // SR12 (SEQ_ISA v2.3 B17.2): the two windows the R2 range rules bound —
+ID       // the XWIN in 32-bit words (x_mem, 96 lines x 32 words, K <= 12288) and
+ID       localparam logic [31:0] BM_IDENT = 32'hFAB1_B301;
+ID rtl/ delta 2e87459..HEAD: 0 lines of stat; e4d8166..2e87459: 0
+ID seq_0 IP source = rtl/seq_unit.sv at the launch tree: worktree f0420aeb6af946f4 2e87459 blob f0420aeb6af946f4
+=== rc  : 0
+=== end : 2026-10-01T14:14:10-06:00

@@ -1,0 +1,24 @@
+=== host: snoke  date: 2026-09-29T20:55:43-06:00
+=== tree: 8ce4cc2
+=== cmd : bash evidence/qwen9b/sr/r3_8_mutants.sh
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+M1 diff:
+1001c1001
+<                      && (&xp_room_q);
+---
+>                      && (&(xp_room_q | 4'hF));
+M2 diff:
+781c781
+<     localparam int XP_INFLIGHT   = XP_FWD_STAGES + XP_RET_STAGES + 1;
+---
+>     localparam int XP_INFLIGHT   = 1;
+----- M1 run
+SEQ: x-push LOCKSTEP case: channel 0 drops room for 40 cycles from push #16
+[38066000] %Fatal: seq_stub_mvchan.sv:370: Assertion failed in TOP.tb_seq_unit.g_mv[0].u_mv: seq_stub_mvchan 0: x-push word 16 arrived 3 cycles after room dropped (the return path is 2 flops)
+----- M2 run
+[382000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_matvec_chan.dut: matvec_chan 2: x-push word 39 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+M1 rc 134 (must be non-zero), M2 rc 134 (must be non-zero)
+R3-8 MUTANTS: 2 of 2 CAUGHT
+=== rc  : 0
+=== end : 2026-09-29T20:56:13-06:00

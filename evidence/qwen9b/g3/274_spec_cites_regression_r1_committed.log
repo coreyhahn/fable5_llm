@@ -1,0 +1,36 @@
+=== host: snoke
+=== date: 2026-09-02T08:05:06-06:00
+=== tree: 89b2d7d
+=== cmd:  bash evidence/qwen9b/g2/spec_cites_selftest_regression.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== 1. NORMAL MODE — the repair must not move a single count ===
+  ok        FAIL 27   evidence/qwen2b/rc/RC_GATE.md
+  ok        FAIL 8    evidence/qwen2b/rd/RD_GATE.md
+  ok        FAIL 0    evidence/qwen9b/g2/FINAL_BYTELOCK.md
+  ok        FAIL 0    evidence/qwen9b/g2/G2A_HOST.md
+  ok        FAIL 3    evidence/qwen9b/g2/D_TOL.md
+  ok        FAIL 1    evidence/qwen9b/g1/RUNG_INT8_STATE.md
+  ok        FAIL 0    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  ok        FAIL 0    docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+
+=== 2. --selftest — six controls CAUGHT + the positive control ===
+  ok        SELFTEST: PASS  6/6 CAUGHT  2026-08-29-qwen35-9b-migration-design.md
+  ok        SELFTEST: PASS  6/6 CAUGHT  2026-08-29-qwen35-9b-migration.md
+  ok        SELFTEST: PASS  6/6 CAUGHT (synthesized)  FINAL_BYTELOCK.md
+  ok        SELFTEST: PASS  6/6 CAUGHT (synthesized)  G2A_HOST.md
+
+=== 3. COUNTER-EXPERIMENT — the fix that would have broken the checker ===
+  RC_GATE.md  real resolve(): FAIL 27   os.devnull sentinel: FAIL 4
+  ok        the sentinel SUPPRESSES 23 real failures — a checker
+            that stops failing.  This is why the repair threads a
+            directory instead of widening the candidate list.
+
+SPEC_CITES_REGRESSION PASS
+=== rc: 0
+=== end: 2026-09-02T08:05:09-06:00

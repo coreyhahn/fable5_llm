@@ -1,0 +1,107 @@
+=== host: snoke
+=== date: 2026-09-07T00:37:00-06:00
+=== tree: 96ae645
+=== cmd:  bash -c 
+set -u
+W=/home/cah/r2d2/code/fpga/fable5_t14a_base
+echo "=== WHY: tb_layershim_c PASSED 4 seeds at tree c51960f (072) and FAILED at"
+echo "=== 1dd2889 (078) with vecnorm_unit cfg_nlog2 13 at time 2000 — before any"
+echo "=== case runs.  The TB never issues a VN command (grep OP_VN tb_layershim_c.sv"
+echo "=== = nothing), so the start pulse can only come from RANDOM INITIAL STATE:"
+echo "=== the Makefile runs this TB with +verilator+rand+reset+2 and layer_chan(s"
+echo "=== local reset pipeline rstn_q/rstn_i (rtl/layer_chan.sv:527-531) carries no"
+echo "=== reset of its own, so a random 1 there lets the dispatcher run for a cycle"
+echo "=== with a random st/cmd_op/arg0 while aresetn is still low."
+echo "=== THE TEST: sweep the VERILATOR randomisation seed on BOTH trees.  If the"
+echo "=== failure is seed-dependent on BASE too, it is pre-existing and this round"
+echo "=== only reshuffled the random stream by adding registers."
+echo
+echo "=== building BASE (worktree a553f18) ==="
+cd $W/tb
+verilator --binary --timing -j 6 -Wall --Mdir obj_dir_tb_layershim_c \
+  -o tb_layershim_c --top-module tb_layershim_c \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv \
+  ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv \
+  ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv \
+  ../rtl/state_dma.sv ../rtl/layer_chan.sv tb_layershim_c.sv >/dev/null 2>&1 \
+  || { echo "BASE BUILD FAILED"; exit 3; }
+echo "=== base binary: $(date -Is -r obj_dir_tb_layershim_c/tb_layershim_c)"
+for v in 0 1 2 3 4 5 6 7; do
+  if ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 \
+       +verilator+seed+$v >/tmp/t14a_shim_base_$v.out 2>&1; then
+    echo "BASE  a553f18  vseed=$v  PASS"
+  else
+    echo "BASE  a553f18  vseed=$v  FAIL: $(grep -m1 -E "%Fatal|Assertion" /tmp/t14a_shim_base_$v.out | cut -c1-140)"
+  fi
+done
+echo
+echo "=== HEAD 1dd2889 (the binary 078 built) ==="
+cd /home/cah/r2d2/code/fpga/fable5_llm/tb
+echo "=== head binary: $(date -Is -r obj_dir_tb_layershim_c/tb_layershim_c)"
+for v in 0 1 2 3 4 5 6 7; do
+  if ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 \
+       +verilator+seed+$v >/tmp/t14a_shim_head_$v.out 2>&1; then
+    echo "HEAD  1dd2889  vseed=$v  PASS"
+  else
+    echo "HEAD  1dd2889  vseed=$v  FAIL: $(grep -m1 -E "%Fatal|Assertion" /tmp/t14a_shim_head_$v.out | cut -c1-140)"
+  fi
+done
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== WHY: tb_layershim_c PASSED 4 seeds at tree c51960f (072) and FAILED at
+=== 1dd2889 (078) with vecnorm_unit cfg_nlog2 13 at time 2000 — before any
+=== case runs.  The TB never issues a VN command (grep OP_VN tb_layershim_c.sv
+=== = nothing), so the start pulse can only come from RANDOM INITIAL STATE:
+=== the Makefile runs this TB with +verilator+rand+reset+2 and layer_chan(s
+=== local reset pipeline rstn_q/rstn_i (rtl/layer_chan.sv:527-531) carries no
+=== reset of its own, so a random 1 there lets the dispatcher run for a cycle
+=== with a random st/cmd_op/arg0 while aresetn is still low.
+=== THE TEST: sweep the VERILATOR randomisation seed on BOTH trees.  If the
+=== failure is seed-dependent on BASE too, it is pre-existing and this round
+=== only reshuffled the random stream by adding registers.
+
+=== building BASE (worktree a553f18) ===
+=== base binary: 2026-09-07T00:37:22-06:00
+bash: line 26: 2782776 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_base_$v.out 2>&1
+BASE  a553f18  vseed=0  FAIL: 
+bash: line 26: 2782798 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_base_$v.out 2>&1
+BASE  a553f18  vseed=1  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+bash: line 26: 2782989 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_base_$v.out 2>&1
+BASE  a553f18  vseed=2  FAIL: [2000] %Fatal: layer_chan.sv:2286: Assertion failed in TOP.tb_layershim_c.dut: layer_chan: kvhead_r 0 != slot tag kvhead 1
+bash: line 26: 2783053 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_base_$v.out 2>&1
+BASE  a553f18  vseed=3  FAIL: [2000] %Fatal: layer_chan.sv:2286: Assertion failed in TOP.tb_layershim_c.dut: layer_chan: kvhead_r 0 != slot tag kvhead 2
+bash: line 26: 2783121 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_base_$v.out 2>&1
+BASE  a553f18  vseed=4  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+bash: line 26: 2783416 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_base_$v.out 2>&1
+BASE  a553f18  vseed=5  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+bash: line 26: 2783828 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_base_$v.out 2>&1
+BASE  a553f18  vseed=6  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+bash: line 26: 2784077 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_base_$v.out 2>&1
+BASE  a553f18  vseed=7  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+
+=== HEAD 1dd2889 (the binary 078 built) ===
+=== head binary: 2026-09-07T00:31:21-06:00
+bash: line 38: 2784395 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_head_$v.out 2>&1
+HEAD  1dd2889  vseed=0  FAIL: 
+bash: line 38: 2784404 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_head_$v.out 2>&1
+HEAD  1dd2889  vseed=1  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+bash: line 38: 2784673 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_head_$v.out 2>&1
+HEAD  1dd2889  vseed=2  FAIL: [2000] %Fatal: layer_chan.sv:2286: Assertion failed in TOP.tb_layershim_c.dut: layer_chan: kvhead_r 0 != slot tag kvhead 1
+bash: line 38: 2784729 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_head_$v.out 2>&1
+HEAD  1dd2889  vseed=3  FAIL: [2000] %Fatal: layer_chan.sv:2286: Assertion failed in TOP.tb_layershim_c.dut: layer_chan: kvhead_r 0 != slot tag kvhead 2
+bash: line 38: 2784787 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_head_$v.out 2>&1
+HEAD  1dd2889  vseed=4  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+bash: line 38: 2785147 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_head_$v.out 2>&1
+HEAD  1dd2889  vseed=5  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+bash: line 38: 2785478 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_head_$v.out 2>&1
+HEAD  1dd2889  vseed=6  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+bash: line 38: 2785921 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=1 +verilator+rand+reset+2 +verilator+seed+$v > /tmp/t14a_shim_head_$v.out 2>&1
+HEAD  1dd2889  vseed=7  FAIL: [20000000000] %Fatal: tb_layershim_c.sv:672: Assertion failed in TOP.tb_layershim_c: TB_LAYERSHIM_C: watchdog timeout
+=== rc: 0
+=== end: 2026-09-07T00:53:56-06:00

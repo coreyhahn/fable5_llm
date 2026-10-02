@@ -1,0 +1,66 @@
+=== host: snoke
+=== date: 2026-09-10T19:10:23-06:00
+=== tree: 43c1409
+=== cmd:  bash evidence/qwen9b/g6/g6_15d_pre.sh 127
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] identity — the netlist word, off the silicon
+--- resident bitstream identity (AXI-Lite reads only; no DMA)
+  MAGIC        0xfab1e001 (OK)
+  VERSION      0xc973c18a   build_041_ckr2_AltSpreadLogic_high (Task 14-B, the 9B design)
+  SCRATCH      0x00000000
+  CALIB        0xf        (ALL FOUR CHANNELS CALIBRATED)
+  UPTIME       21294404780734 cycles = 85177.619 s @ 250 MHz  (lo 0xfd6ec2be hi 0x0000135d)
+  layer IDENT  0xfab1e5a0 (OK)
+  matvec0 IDENT 0xfab1c4a0 (OK)
+  matvec1 IDENT 0xfab1c4a1 (OK)
+  matvec2 IDENT 0xfab1c4a2 (OK)
+  matvec3 IDENT 0xfab1c4a3 (OK)
+  SEQ IDENT    0xfab1e5e0 (OK)
+  VERSION MATCHES the expected netlist word 0xc973c18a
+  json -> evidence/qwen9b/g6/127_15d_ident.json
+G6_IDENT: OK
+   rc=0
+
+########## [2] residency — is the divergent run's weight pack still there?
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+  residency  1146 witness blocks (1114 weight + 24 conv + 8 emb, 4584 KiB) in 35 ms -> 24 MISS
+  reupload_set  0 image(s) missed a witness; the R-d rule escalates to ALL 249 image(s) + the embedding — a miss means the pack is not ours to trust
+    ! MISS conv conv[L0] chan=3 addr=0x8980f800
+    ! MISS conv conv[L1] chan=3 addr=0x8982f800
+    ! MISS conv conv[L2] chan=3 addr=0x8984f800
+    ! MISS conv conv[L3] chan=3 addr=0x8986f800
+    ! MISS conv conv[L4] chan=3 addr=0x8988f800
+    ! MISS conv conv[L5] chan=3 addr=0x898af800
+    ! MISS conv conv[L6] chan=3 addr=0x898cf800
+    ! MISS conv conv[L7] chan=3 addr=0x898ef800
+  json -> evidence/qwen9b/g6/127_15d_witness.json
+G6_RESIDENCY: OK
+   rc=0
+
+########## [3] the KV tail the 526-step session left — rows 500..525
+=== KV ROWS pre-15d
+  region     dn=0x380000000 kv=0x381800000 cv=0x389800000 end=0x389b00000 (chan 3)
+  window     rows 500..525, layers [0, 4, 7], kvhead 0, K and V
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+  region     155 MiB [0x380000000,0x389b00000)  sha256 3049c05df09aea642df76bf380180154f8c00c8b243d81b34ae5c82cd3d1e11c
+  DN alone   24 MiB  sha256 eaa414de679357fc0f908619d36deade404d021b0edbbf0f7e7a06f804f6bd8f
+  L0  kvh0 K  addr 0x00381800000  rows 500..525: 26/26 non-zero  exp [252, 252, 252, 252, 253, 252, 252, 252]...
+  L0  kvh0 V  addr 0x00381a00000  rows 500..525: 26/26 non-zero  exp [251, 250, 251, 250, 251, 252, 250, 250]...
+  L4  kvh0 K  addr 0x00385800000  rows 500..525: 26/26 non-zero  exp [252, 252, 252, 252, 252, 252, 252, 252]...
+  L4  kvh0 V  addr 0x00385a00000  rows 500..525: 26/26 non-zero  exp [251, 251, 251, 251, 252, 252, 251, 251]...
+  L7  kvh0 K  addr 0x00388800000  rows 500..525: 26/26 non-zero  exp [252, 252, 252, 252, 252, 252, 252, 252]...
+  L7  kvh0 V  addr 0x00388a00000  rows 500..525: 26/26 non-zero  exp [254, 254, 254, 254, 254, 254, 254, 254]...
+  vs manifest sha256        differs (3a716409081f0c54…)
+  vs manifest final_sha256  differs (7bd38ff095ad91a0…)
+report -> evidence/qwen9b/g6/127_15d_kv_rows_pre.json
+G6_KV_ROWS: OK
+   rc=0
+
+=== rc: 0
+=== end: 2026-09-10T19:10:26-06:00

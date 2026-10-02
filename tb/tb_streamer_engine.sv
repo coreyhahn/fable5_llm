@@ -2,6 +2,11 @@
 //   behavioral AXI4 read slave (preloaded with the reference DDR image)
 //   -> ddr_rd_streamer -> matvec_engine -> compare y32 vs golden.
 //
+// G3.3: the engine's cfg_g64/cfg_w8 ports are GONE, cfg_ng is 7 b and
+// x_waddr 12 b (spec 4.5 W5 / 5.1 S5 / 5.2 S6).  This TB is a second
+// INSTANTIATOR of matvec_engine and moves with it; the sweep that found it
+// is in evidence/qwen9b/g3/G3_3_MATVEC.md 14.2.
+//
 // The AXI slave models DDR latency/jitter: random arready, random rvalid
 // gaps, in-order single-ID bursts. Same vectors/flags as tb_matvec
 // (+vecdir=...; --seed varies all randomization).
@@ -14,7 +19,7 @@ module tb_streamer_engine;
 
     localparam int MAXB = 1 << 16;
     localparam int MAXR = 1 << 12;
-    localparam int MAXX = 1024;
+    localparam int MAXX = 3072;          // x words (K <= 12288)
     localparam int BASE_BEAT = 64;       // weight image starts at 4 KiB
 
     logic clk = 0;
@@ -53,18 +58,20 @@ module tb_streamer_engine;
         .s_valid(b_valid), .s_ready(b_ready), .s_data(b_data)
     );
 
-    logic [5:0]   cfg_ng, cfg_sh;
+    logic [6:0]   cfg_ng;
+    logic [5:0]   cfg_sh;
     logic [15:0]  cfg_nrows;
     logic         en_start = 0, en_busy, en_done;
     logic         x_we = 0;
-    logic [9:0]   x_waddr = 0;
+    logic [11:0]  x_waddr = 0;
     logic [31:0]  x_wdata = 0;
     logic         m_valid, m_ready = 0;
     logic [31:0]  m_y32;
     logic [15:0]  m_row;
 
     matvec_engine u_engine (
-        .clk, .rstn, .cfg_ng, .cfg_sh, .cfg_g64(1'b0), .cfg_nrows,
+        .clk, .rstn, .cfg_ng, .cfg_sh, .cfg_nrows,
+        .cfg_xbank(1'b0), .cfg_rbank(1'b0),   // SR12 (B17.2): bank 0 only here
         .start(en_start), .busy(en_busy), .done(en_done),
         .x_we, .x_waddr, .x_wdata,
         .s_valid(b_valid), .s_ready(b_ready), .s_data(b_data),
@@ -179,7 +186,7 @@ module tb_streamer_engine;
         // place image at BASE_BEAT in slave memory
         for (int i = 0; i < NBEATS; i++) mem[BASE_BEAT + i] = beats_raw[i];
 
-        cfg_ng    = 6'(NG[5:0]);
+        cfg_ng    = 7'(NG[6:0]);
         cfg_sh    = 6'(SH[5:0]);
         cfg_nrows = 16'(NROWS);
         cfg_base  = 34'(BASE_BEAT) << 6;
@@ -189,7 +196,7 @@ module tb_streamer_engine;
         rstn = 1;
         repeat (3) @(negedge clk);
         for (int i = 0; i < (K + 3) / 4; i++) begin
-            x_we = 1; x_waddr = 10'(i); x_wdata = xwords[i];
+            x_we = 1; x_waddr = 12'(i); x_wdata = xwords[i];
             @(negedge clk);
         end
         x_we = 0;

@@ -1,0 +1,31 @@
+host snoke  (this comparison is itself arithmetic — run it on a clean host)
+A ref/calib_stats_2b.npz
+  torch=2.6.0+cu124 generated=2026-08-13T13:09:50-0600
+B /tmp/calib_stats_2b_snoke.npz
+  torch=2.12.0+cpu generated=2026-08-13T16:11:44-0600
+keys identical: 187 tensors
+
+--- 1. numerical agreement ---
+  bit-identical tensors : 4/187
+  worst RELATIVE delta  : 4.191e-07  (layers.12.linear_attn.out_proj)
+  channels over 1e-3 / 1e-4 / 1e-5 : 0 / 0 / 0
+  (a corrupted reduction would show as a gross single-channel outlier, not a uniform float32-scale spread)
+
+--- 2. does the difference change the W4 IMAGE? (187 real matrices, incl. the tied lm_head) ---
+  layers.0.mlp.up_proj                       (6144, 2048)   m:1 w4:1
+  layers.10.linear_attn.out_proj             (2048, 2048)   m:1 w4:1
+  layers.14.mlp.up_proj                      (6144, 2048)   m:1 w4:4
+  lm_head                                    (248320, 2048) m:1 w4:1
+
+  183/187 W4 images bit-identical
+  group scales differing : 4 of 29394944 (0.000014%)
+  INT4 nibbles differing : 7 of 1881276416 (0.00000037%)
+
+VERDICT
+  The calibration itself is NOT corrupted: worst relative delta
+  4.191e-07 with ZERO channels over 1e-5. A wrong reduction
+  baked into a vector would be a gross single-channel outlier.
+  The residual image difference is the 17-point alpha search
+  landing on a NEAR-TIE and flipping to the adjacent candidate
+  under a ~1e-7 perturbation — expected, measure-zero, and
+  quantified above (4 of 29394944 group scales).

@@ -1,0 +1,46 @@
+=== host: snoke  date: 2026-09-24T23:24:43-06:00
+=== tree: 19aac6c+dirty
+=== dirty: ?? evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+=== dirty: ?? evidence/qwen9b/bm/n23_T3_preflight_snoke.log
+=== dirty: ?? evidence/qwen9b/bm/n24_T3_launch_build_042_bm1.log
+=== dirty: ?? evidence/qwen9b/bm/n25_T3_launch_verify.log
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bmtl/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_control/
+=== cmd : /home/cah/.venv/bin/python -O ref/seq_model.py --selftest
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+dynq16/eps-norm semantics from: layer_fixed (agent A)
+DYNQ16 == op1+dn_o_shift on 200/200 blocks
+EPS-NORM vs frozen dn_norm_scale: 200/200 blocks bit-identical, worst |delta| = 0 LSB
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1809, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1791, in main
+    _selftest()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1537, in _selftest
+    w = selftest_w8_mvgo()
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1405, in selftest_w8_mvgo
+    _run(WW, bad)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1381, in _run
+    ex.run()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 888, in run
+    self._mvgo(r)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 828, in _mvgo
+    y = self.W.matvec(wbase, nrows, sh, ng, g, x8, w8=w8, chan=r.chan)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 442, in matvec
+    w = qw["w8" if w8 else "w4"][r0:r0 + nrows]
+        ~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'w4'
+=== rc  : 1
+=== end : 2026-09-24T23:24:45-06:00

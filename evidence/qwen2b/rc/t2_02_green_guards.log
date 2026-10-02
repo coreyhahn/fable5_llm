@@ -1,0 +1,55 @@
+T2 guards: 2026-08-22T10:07:50-06:00  host=snoke  python=Python 3.12.3
+  tree = d58126867a7af4bfdf8dadc5d272a2f00547de98 +dirty
+
+=== A. ref/w4a8_ref.py selftest (T2 changed nothing here) ===
+rc=0
+  BYTE-IDENTICAL vs HEAD (d581268)
+W4A8_REF SELFTEST PASS
+
+=== B. ref/layer_fixed.py selftest (W4 sections byte-identical) ===
+rc=0
+  W4 SECTIONS BYTE-IDENTICAL vs HEAD (drop the 5 new '  w8:' lines and the logs are equal)
+  w8: quant_linear_w8 == quantize_weights8 (rowchunk-identical), matvec_fx -> matvec_y32_w8 bit-exact on 4 seeds x 3 shapes x g128/g64; weight error beats the MSE W4 rule by >= 14.6x OK
+  w8: soak linear_attention   16 steps: rms=4.26 sat=0 OK
+  w8: soak full_attention     16 steps: rms=5.96 sat=0 OK
+  w8: quant_layer(w8=True) -> a W8 image behind all 15/15 matvecs of both layer types, every non-matvec tensor bit-identical to the W4 layer's OK
+  w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+  w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+LAYER_FIXED SELFTEST PASS
+
+=== C. ref/seq_model.py --selftest (incl. the synthetic W8 MVGO) ===
+rc=0
+dynq16/eps-norm semantics from: layer_fixed (agent A)
+DYNQ16 == op1+dn_o_shift on 200/200 blocks
+EPS-NORM vs frozen dn_norm_scale: 200/200 blocks bit-identical, worst |delta| = 0 LSB
+W8 MVGO (SHAPE 0x200111c2, 17x256, stride 320B): packed-DDR and live-dict paths both == matvec_y32_w8 (|y|max 3297945), 2/2 wrong SHAPE words refused — PASS
+
+=== D. seq_model --gate, BOTH 0.8B w3 streams ===
+lay_s1 rc=0  SEQ GATE: PASS
+   gate log DIFFERS vs HEAD:
+8c8
+<   .seq     460 commands issued, movers MOVX=30 MVGO=44 MOVY=44 LDC=25 EMB=0 AMAXL=0 (3.9s)
+---
+>   .seq     460 commands issued, movers MOVX=30 MVGO=44 MOVY=44 LDC=25 EMB=0 AMAXL=0 (1.8s)
+tok2_s1 rc=0  SEQ GATE: PASS
+   gate log DIFFERS vs HEAD:
+7,8c7,8
+<   .txt     773 commands, 282192 host-relayed words, checks {'R': 72, 'E': 48, 'A': 3, 'V': 48} (1.5s)
+<   .seq     701 commands issued, movers MOVX=48 MVGO=78 MOVY=78 LDC=36 EMB=3 AMAXL=3 (5.4s)
+---
+>   .txt     773 commands, 282192 host-relayed words, checks {'R': 72, 'E': 48, 'A': 3, 'V': 48} (1.4s)
+>   .seq     701 commands issued, movers MOVX=48 MVGO=78 MOVY=78 LDC=36 EMB=3 AMAXL=3 (3.0s)
+
+=== E. sw: make seq_selftest serve_test ===
+seq_selftest rc=0
+      68119 records, 1007360 B blob, 538 LDC (24 indirected), 3464 MVGO, 6 expected tokens
+  --- R-b: emb_row_bytes manifest key + EMBLOG2 CSR
+  seq_run selftest: 2574 passed, 0 failed
+serve_test rc=0
+  backend API check: PASS
+  serve selftest: 85 passed, 0 failed
+
+=== F. sw/hwmap.py SHAPE selftest ===
+HWMAP SHAPE_WORD SELFTEST PASS: g128=0x0000d1e0 g64=0x1000d1e0 w8=0x2000d1e0, spare [31:30] zero, w8+g64 refused
+
+[exited with code 0]

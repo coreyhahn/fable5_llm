@@ -1,0 +1,79 @@
+=== host: snoke  date: 2026-09-28T12:25:51-06:00
+=== tree: 137ee23
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr13a_cov.py xbank tb/scripts/w9/sr13a_cov_xbank
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr13a_cov xbank -> tb/scripts/w9/sr13a_cov_xbank  seed 1301  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  VALID at caps ['R1', 'R2'] (shape_isa 2)
+  REFUSED at caps ['R1']: rec 2: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=0x0600 imm=0x00000000 lo=0x00003000 h
+  REFUSED at caps []: rec 2: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=0x0600 imm=0x00000000 lo=0x00003000 h
+  41 records {'LDC*': 8, 'MOVX': 8, 'MVGO': 12, 'MOVY': 12, 'HALT': 1}; 16 records carry a bank field
+      0  LDC*   DDR[0x80000000] -> scratch[0x0] 4096 words
+      1  LDC*   DDR[0x80002000] -> scratch[0x3000] 4096 words
+      2  MOVX   mv0 XWIN <= scratch[0x3000 .. +4096] int8
+      3  MOVX   mv0 XWIN <= scratch[0x0 .. +4096] int8
+      4  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+      5  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x8000] int16
+      6  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+      7  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x8200] int16
+      8  MVGO   mv0 WBASE=0x0010000000 BEATS=8448 SHAPE=0x68004007 (ng=32 nrows=256 sh=7)
+      9  MOVY   mv0 RES[0..256) >> 7 -> scratch[0x8400] int16
+     10  LDC*   DDR[0x80004000] -> scratch[0x0] 6144 words
+     11  LDC*   DDR[0x80007000] -> scratch[0x3000] 6144 words
+     12  MOVX   mv1 XWIN <= scratch[0x3000 .. +6144] int8
+     13  MOVX   mv1 XWIN <= scratch[0x0 .. +6144] int8
+     14  MVGO   mv1 WBASE=0x0010108000 BEATS=25600 SHAPE=0x2c008008 (ng=48 nrows=512 sh=8)
+     15  MOVY   mv1 RES[0..512) >> 6 -> scratch[0x8500] int16
+     16  MVGO   mv1 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)
+     17  MOVY   mv1 RES[0..512) >> 7 -> scratch[0x8700] int16
+     18  MVGO   mv1 WBASE=0x0010108000 BEATS=12800 SHAPE=0x6c004008 (ng=48 nrows=256 sh=8)
+     19  MOVY   mv1 RES[0..256) >> 6 -> scratch[0x8900] int16
+     20  LDC*   DDR[0x8000a000] -> scratch[0x0] 6144 words
+     21  LDC*   DDR[0x8000d000] -> scratch[0x3000] 6144 words
+     22  MOVX   mv2 XWIN <= scratch[0x3000 .. +6144] int8
+     23  MOVX   mv2 XWIN <= scratch[0x0 .. +6144] int8
+     24  MVGO   mv2 WBASE=0x0010108000 BEATS=25600 SHAPE=0x2c008008 (ng=48 nrows=512 sh=8)
+     25  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x8a00] int16
+     26  MVGO   mv2 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)
+     27  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x8c00] int16
+     28  MVGO   mv2 WBASE=0x0010108000 BEATS=12800 SHAPE=0x6c004008 (ng=48 nrows=256 sh=8)
+     29  MOVY   mv2 RES[0..256) >> 7 -> scratch[0x8e00] int16
+     30  LDC*   DDR[0x80010000] -> scratch[0x0] 4096 words
+     31  LDC*   DDR[0x80012000] -> scratch[0x3000] 4096 words
+     32  MOVX   mv3 XWIN <= scratch[0x3000 .. +4096] int8
+     33  MOVX   mv3 XWIN <= scratch[0x0 .. +4096] int8
+     34  MVGO   mv3 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+     35  MOVY   mv3 RES[0..512) >> 8 -> scratch[0x8f00] int16
+     36  MVGO   mv3 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     37  MOVY   mv3 RES[0..512) >> 8 -> scratch[0x9100] int16
+     38  MVGO   mv3 WBASE=0x0010000000 BEATS=8448 SHAPE=0x68004007 (ng=32 nrows=256 sh=7)
+     39  MOVY   mv3 RES[0..256) >> 8 -> scratch[0x9300] int16
+     40  HALT
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 8, 'MOVY': 12, 'MVGO': 12, 'LDC': 8}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+  NON-VACUITY (words a bank-BLIND RTL would get wrong, per MOVY):
+    [32768+ 512]   512 of  512 differ  ch0 ng32 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [33280+ 512]     0 of  512 differ  ch0 ng32 bank-0 MVGO (xA)
+    [33792+ 256]   256 of  256 differ  ch0 ng32 XBANK|RBANK rows 2048..2304
+    [34048+ 512]   512 of  512 differ  ch1 ng48 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [34560+ 512]     0 of  512 differ  ch1 ng48 bank-0 MVGO (xA)
+    [35072+ 256]   256 of  256 differ  ch1 ng48 XBANK|RBANK rows 2048..2304
+    [35328+ 512]   512 of  512 differ  ch2 ng48 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [35840+ 512]     0 of  512 differ  ch2 ng48 bank-0 MVGO (xA)
+    [36352+ 256]   256 of  256 differ  ch2 ng48 XBANK|RBANK rows 2048..2304
+    [36608+ 512]   512 of  512 differ  ch3 ng32 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [37120+ 512]     0 of  512 differ  ch3 ng32 bank-0 MVGO (xA)
+    [37632+ 256]   256 of  256 differ  ch3 ng32 XBANK|RBANK rows 2048..2304
+  8 of 12 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 ce5055224411cfd767dd6e6076eab88d38d098138c7852cb26893d62d686fe4e  tb/scripts/w9/sr13a_cov_xbank.e4.seq
+  sha256 773778a7afbc171855024b87ab00d97300d562eb0a4c08f98e5deefc2e07ce90  tb/scripts/w9/sr13a_cov_xbank.e4.seqdata.bin
+  sha256 a7c6773b12abc1590038b894621cb4cc2288755474fbbf2012e1244fabd52ff4  tb/scripts/w9/sr13a_cov_xbank.e4.seq.json
+  sha256 af811bcf5281c81e4c1d1e54ba6971e2932b0087b96b7543dd093bfece9471da  tb/scripts/w9/sr13a_cov_xbank.weights.json
+  sha256 d48d729cd8bc1ed4e3ddf367e5a5f0340d15665078eb2e046077a750037c2ede  tb/scripts/w9/sr13a_cov_xbank_w0.bin
+  sha256 1bd33bd656193f09c85ab23a3716ee1450b23ea1fdd04909486d3e95b7b5c625  tb/scripts/w9/sr13a_cov_xbank_w1.bin
+SR13A_COV xbank: PASS
+=== rc  : 0
+=== end : 2026-09-28T12:25:53-06:00

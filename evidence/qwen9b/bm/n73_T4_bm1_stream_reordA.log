@@ -1,0 +1,38 @@
+=== host: snoke  date: 2026-09-27T07:31:46-06:00
+=== tree: 7b0695f
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/bm/bm1_census.py --stream --prefix tb/scripts/w9/model_9b_s1_reordA.e4 --base tb/scripts/w9/model_9b_s1 --fresh-state --json evidence/qwen9b/bm/n73_T4_bm1_stream_reordA.json
+=== env : FABLE5_MODEL=9b  FABLE5_SEQ_EXPECT_VERSION=9b588e78
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  identity gate: expecting VERSION 0x9b588e78 (build_042_bm1 (BM1 idle counters; admitted only when named)), NOT the shipped 0xc973c18a -- named by --expect-version or FABLE5_SEQ_EXPECT_VERSION
+--- board: MAGIC=0xfab1e001 VERSION=0x9b588e78 CALIB=0xf  SEQ=READY
+--- tb/scripts/w9/model_9b_s1_reordA.e4: 156616 records, 6 tokens
+  weights   SKIPPED (--skip-weights: assumed resident)
+  seqdata   563712 B -> 0xc000000  [readback OK]
+  stream    2505856 B (156616 records) -> 0x9000000  [readback OK]
+  state     CSRs only (--skip-weights): SB_* <- 0x38000/0x38180/0x38980
+  stream/blob re-uploaded and verified (2.9 MiB)
+--- fresh state: 155 MiB -> 0x380000000 (chan 3), sha256 3a716409081f0c54
+--- lanes cleared: 0 0
+  EMBLOG2    13 (8192 B embedding rows)
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+--- run: err_code=0x00 tokens [2614, 314, 279, 369, 11751, 13]
+  S_PERF_CYC 185348304 = 741.393 ms = 123.5655 ms/token
+  L_LCYC 62381893 (33.66 %)  L_SDMA_CYC 7685763 (4.15 %)
+  mvany          87233223  (47.06 %)
+  mv0            86631077  (46.74 %)
+  mv1            85925715  (46.36 %)
+  mv2            85834783  (46.31 %)
+  mv3            86004642  (46.40 %)
+  fence          74340819  (40.11 %)
+  mvwork         37587817  (20.28 %)
+  mvwork_any     544672  (0.29 %)
+  imover         111971824  (60.41 %)
+  steps          6  (0.00 %)
+  movx           19527985  (10.54 %)
+  movy           17342552  (9.36 %)
+  loop edge 0: pc->117471 cyc 123546520
+  loop edge 1: pc->117471 cyc 154446510 delta 30899990 = 123.600 ms
+  TOKENS IDENTICAL to the .seq.json
+BM1_CENSUS_STREAM: PASS
+=== rc  : 0
+=== end : 2026-09-27T07:31:49-06:00

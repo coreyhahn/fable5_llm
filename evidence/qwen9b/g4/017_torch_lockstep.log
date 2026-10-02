@@ -1,0 +1,34 @@
+=== host: snoke
+=== date: 2026-09-03T01:01:18-06:00
+=== tree: 00a2b1e
+=== cmd:  /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g4/g4a_torch_lockstep.py --chip /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.chip --emit-log /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g4/003_emit_9b_s1.log --prompt 1
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+G4a torch-golden lockstep — prompt 1
+  chip     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.chip  (6 TOK lines)
+  emit log /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g4/003_emit_9b_s1.log
+  fidelity evidence/qwen9b/g2/g2c_fixed_9b_w4g128gptq_int16_rsf7_g2c.json  key 'S=1 mse gptq rsf7'  (27 teacher-forced steps, 12 free-running)
+  fidelity top1 27/27, rank max 0
+
+  step | EMIT   CHIP   FX     GOLD   | fx==chip  gold==chip
+     0 | 2614   2614   2614   2614   | YES       YES
+     1 | 314    314    314    314    | YES       YES
+     2 | 279    279    279    279    | YES       YES
+     3 | 369    369    369    369    | YES       YES
+     4 | 11751  11751  11751  11751  | YES       YES
+     5 | 13     13     13     13     | YES       YES
+
+  EMIT == CHIP  : IDENTICAL (6 steps)
+  FX   == CHIP  : 6/6
+  GOLD == CHIP  : 6/6   <-- the quantization error, reported not asserted
+  generated     : [369, 11751, 13]
+  free_gen[:3]  : [369, 11751, 13]   IDENTICAL
+
+G4A_TORCH_LOCKSTEP: PASS (0 problem(s))
+=== rc: 0
+=== end: 2026-09-03T01:01:18-06:00

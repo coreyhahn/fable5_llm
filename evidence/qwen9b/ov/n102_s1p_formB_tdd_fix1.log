@@ -1,0 +1,116 @@
+=== host: snoke  date: 2026-09-27T09:27:02-06:00
+=== tree: 910a4a4+dirty
+=== dirty:  M evidence/qwen9b/bm/bm1_reorder_tdd.py
+=== dirty:  M evidence/qwen9b/ov/s1p_compare.py
+=== dirty:  M evidence/qwen9b/ov/s1p_formB_tdd.py
+=== dirty:  M ref/seq_cost.py
+=== dirty:  M sw/chat_seq.py
+=== dirty: ?? evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+=== dirty: ?? evidence/qwen9b/bm/n87_S1Pfix1_reorder_tdd.log
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bmtl/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_control/
+=== dirty: ?? evidence/qwen9b/ov/s1p_reorderA_nocsv.py
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/ov/s1p_formB_tdd.py --slow
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+T1 --reorder B admitted
+  [PASS] T1a B in REORDER_FORMS
+  [PASS] T1b resolve_reorder('B') admits it and keeps the shipped template  {'form': 'B', 'per_image': True, 'template': '/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4', 'pins': {'lite': 'c9efdf35175d55d45b460a18e0c314862c90e3d3102467b8718ad93788b9f565', 'f
+T2 the default switch (not flipped)
+  [PASS] T2 env {} -> None  None
+  [PASS] T2 env {'FABLE5_REORDER': ''} -> None  None
+  [PASS] T2 env {'FABLE5_REORDER': 'off'} -> None  None
+  [PASS] T2 env {'FABLE5_REORDER': 'A'} -> A  A
+  [PASS] T2 env {'FABLE5_REORDER': 'B'} -> B  B
+  [PASS] T2 env {'FABLE5_REORDER': 'b'} -> B  B
+  [PASS] T2 env {'FABLE5_REORDER': 'OFF'} -> None  None
+  [PASS] T2 env FABLE5_REORDER=C REFUSED  FABLE5_REORDER='C': expected unset, 'off', or one of ['A', 'B']
+  [PASS] T2 the default here is None (not flipped)  None
+  [PASS] T2 M4: importing chat_seq with FABLE5_REORDER=bogus does not fail (importers that ignore the switch survive)
+  [PASS] T2 M4: the CLI REFUSES FABLE5_REORDER=bogus at parse time (rc 2)  rc 2 "URE]\n                   [--make-fixture MAKE_FIXTURE] [--passes PASSES]\nchat_seq.py: error: FABLE5_REORDER='BOGUS': expected unset, 'off', or one of ['A', 'B']\n"
+T3 byte-identical to 06ebccd where B is not asked for
+  [PASS] T3 reorder=None: every digest identical to 06ebccd
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  [PASS] T3 reorder=A: every digest identical to 06ebccd
+T4 the B session
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  reorder    form B lite: 38858 -> 38378 records == pin c9efdf35175d55d4; MOVX elided 480, fences deferred 200; hazard assert PASS {'MOVX': 512, 'MVGO': 1248, 'MOVY': 1248, 'FENCE': 312}; postcheck 56205 edges
+  reorder    form B full: 39626 -> 39146 records == pin 7119833ca6ed7d1f; MOVX elided 480, fences deferred 200; hazard assert PASS {'MOVX': 516, 'MVGO': 1370, 'MOVY': 1370, 'FENCE': 343}; postcheck 57194 edges
+  reorder    form B images built in 5.8 s
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38378, full:39146  (7.1s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9096140
+  [PASS] T4a preamble identical to the shipped preamble
+  [PASS] T4b lite regenerated == pin  c9efdf35175d55d4 (38378 rec) vs pin ('c9efdf35175d55d45b460a18e0c314862c90e3d3102467b8718ad93788b9f565', 38378)
+  [PASS] T4c lite is reordered (differs from shipped)
+  [PASS] T4d lite head (tok/pos/tcnt records) unmoved
+  [PASS] T4e lite every kept record is the shipped record the permutation names (38066 of 38858)
+  [PASS] T4f lite same records except MOVX/FENCE; MOVX 992 -> 512
+  [PASS] T4b full regenerated == pin  7119833ca6ed7d1f (39146 rec) vs pin ('7119833ca6ed7d1f39adca6f7f67981461d94f4616574eb78c9134f42bf06a89', 39146)
+  [PASS] T4c full is reordered (differs from shipped)
+  [PASS] T4d full head (tok/pos/tcnt records) unmoved
+  [PASS] T4e full every kept record is the shipped record the permutation names (38803 of 39626)
+  [PASS] T4f full same records except MOVX/FENCE; MOVX 996 -> 516
+T5 the position patch follows the record
+  [PASS] T5a lite tok 760 pos 0 delta 0x0: patch(reorder) == reorder(patch)
+  [PASS] T5a lite tok 2614 pos 1 delta 0x0: patch(reorder) == reorder(patch)
+  [PASS] T5a lite tok 1234 pos 300 delta 0x40000: patch(reorder) == reorder(patch)
+  [PASS] T5a lite tok 99 pos 510 delta 0x0: patch(reorder) == reorder(patch)
+  [PASS] T5b lite: 8 mapped LDC writes, each on an XRF-indirect LDC's addr_lo
+  [PASS] T5c lite: patch_writes (host path) = the mapped patch
+  [PASS] T5a full tok 760 pos 0 delta 0x0: patch(reorder) == reorder(patch)
+  [PASS] T5a full tok 2614 pos 1 delta 0x0: patch(reorder) == reorder(patch)
+  [PASS] T5a full tok 1234 pos 300 delta 0x40000: patch(reorder) == reorder(patch)
+  [PASS] T5a full tok 99 pos 510 delta 0x0: patch(reorder) == reorder(patch)
+  [PASS] T5b full: 8 mapped LDC writes, each on an XRF-indirect LDC's addr_lo
+  [PASS] T5c full: patch_writes (host path) = the mapped patch
+T6 image hazard assert
+  [PASS] T6a the three B images pass  {'preamble': {'MOVX': 0, 'MVGO': 0, 'MOVY': 0, 'FENCE': 0}, 'lite': {'MOVX': 512, 'MVGO': 1248, 'MOVY': 1248, 'FENCE': 312}, 'full': {'MOVX': 516, 'MVGO': 1370,
+  [PASS] T6b FENCE-less B lite REFUSED  --reorder: hazard assert REFUSED lite-nofence: image lite-nofence: record 38 MOVY on mv0 while the no-wait MVGO at record 30 is still pending (no FENCE between)
+T7 the B6 model gate on the B images (slow)
+    [B6 shipped] preamble tok=0 pos=0: out [] (0 s)
+    [B6 shipped] lite tok=760 pos=0: out [] (121 s)
+    [B6 shipped] full tok=2614 pos=1: out [513] (139 s)
+    [B6 reordered] preamble tok=0 pos=0: out [] (0 s)
+    [B6 reordered] lite tok=760 pos=0: out [] (124 s)
+    [B6 reordered] full tok=2614 pos=1: out [513] (135 s)
+  B6 model gate: PASS — tokens [[], [], [513]] vs [[], [], [513]]; state diff []; 521.9 s
+  [PASS] T7a shipped-order vs form-B images: EXACT  {'ok': True, 'diff': [], 'tokens': [[], [], [513]], 'nrec': {'shipped': {'preamble': 39, 'lite': 38858, 'full': 39626}, 'reordered': {'preamble': 39, 'lite': 38378, 'full': 39146}}, 'wall_s': 521.9}
+    [B6 shipped] preamble tok=0 pos=0: out [] (0 s)
+    [B6 shipped] lite tok=760 pos=0: out [] (120 s)
+    [B6 shipped] full tok=2614 pos=1: out [513] (139 s)
+    [B6 reordered] preamble tok=0 pos=0: out [] (0 s)
+    [B6 reordered] lite tok=760 pos=0: out [] (123 s)
+    [B6 reordered] full tok=2614 pos=1: out [513] (139 s)
+  B6 model gate: PASS — tokens [[], [], [513]] vs [[], [], [513]]; state diff []; 523.7 s
+  [PASS] T7b-control an UNCORRUPTED override, patched by the real path, PASSES  []
+    T7c corruption: record 15 (CSRWR L_ARG1) imm32 ^= 0x10; 1 byte(s) differ from the control override
+    [B6 shipped] preamble tok=0 pos=0: out [] (0 s)
+    [B6 shipped] lite tok=760 pos=0: out [] (123 s)
+    [B6 shipped] full tok=2614 pos=1: out [513] (139 s)
+    [B6 reordered] preamble tok=0 pos=0: out [] (0 s)
+    [B6 reordered] lite tok=760 pos=0: out [] (122 s)
+    [B6 reordered] full tok=2614 pos=1: out [513] (138 s)
+  B6 model gate: FAIL — tokens [[], [], [513]] vs [[], [], [513]]; state diff ['mem: 37171 words differ, first at flat index 0 (-514 vs -489)', 'cs: 24296 words differ, first at flat index 1 (29 vs 25)', 'S: 660120 words differ, first at flat index 113 (9 vs 10)']; 525.4 s
+  [PASS] T7c the corrupted (identically patched) B lite FAILS the gate  ['mem: 37171 words differ, first at flat index 0 (-514 vs -489)', 'cs: 24296 words differ, first at flat index 1 (29 vs 25)', 'S: 660120 words differ, first at flat index 113 (9 vs 10)', 'am: (172426, 513, 248320, False) vs (167361, 513, 248320, False)', 'kc[0][0] differs', 'kc[1][0] differs', 'vc[0
+S1P_FORMB_TDD: 43 passed, 0 failed
+=== rc  : 0
+=== end : 2026-09-27T09:54:40-06:00

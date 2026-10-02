@@ -1,0 +1,29 @@
+=== host: snoke  date: 2026-09-27T12:20:01-06:00
+=== tree: 11e8947+dirty
+=== dirty: ?? evidence/qwen9b/bm/n91_S1Dfix1_reorder_tdd_committed.log
+=== cmd : /home/cah/.venv/bin/python -u -c import sys; sys.path.insert(0, "evidence/qwen9b/o3"); import o3_lock_gate as G; G.TOOLS = [t for t in G.TOOLS if t[0] == "chat_seq.py"]; G.SHELL_TOOLS = []; print("O3 gate phase 7, chat_seq.py row ONLY (TOOLS filtered, SHELL_TOOLS emptied; test lock", G.TEST_LOCK, ")"); G.clean(); G.phase7(); G.clean(); nf = sum(1 for _, ok, _ in G.RESULTS if ok is False); print(len(G.RESULTS) - nf, "passed,", nf, "failed"); print("O3_CHAT_SEQ_ROW " + ("PASS" if nf == 0 else "FAIL")); sys.exit(1 if nf else 0)
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+O3 gate phase 7, chat_seq.py row ONLY (TOOLS filtered, SHELL_TOOLS emptied; test lock /home/cah/r2d2/code/fpga/.fable5_board.lock.o3test )
+
+[7] adoption, measured per tool (RED under contention, GREEN without)
+    [ok] chat_seq.py      is pointed away from the board
+    [ok] chat_seq.py      imports sw/board_lock
+    [ok] a holder is in place for the RED half
+    [ok] chat_seq.py      RED: refuses under contention
+    [ok] chat_seq.py      ...before touching a device or an artifact
+    [ok] program_fpga.sh        traps EXIT INT TERM
+    [ok] program_fpga.sh        rescans from inside the trap
+    [ok] program_fpga.sh        arms the rescan BEFORE the remove
+    [ok] stage1_hw_bringup.sh   traps EXIT INT TERM
+    [ok] stage1_hw_bringup.sh   rescans from inside the trap
+    [ok] stage1_hw_bringup.sh   arms the rescan BEFORE the remove
+    [ok] test_ctl.sh            traps EXIT INT TERM
+    [ok] test_ctl.sh            rescans from inside the trap
+    [ok] test_ctl.sh            arms the rescan BEFORE the remove
+    -- GREEN half: with nobody holding it, the same invocations must get PAST the lock (an always-refusing tool cannot pass this)
+    [ok] chat_seq.py      GREEN: passes the lock when it is free
+15 passed, 0 failed
+O3_CHAT_SEQ_ROW PASS
+=== rc  : 0
+=== end : 2026-09-27T12:20:07-06:00

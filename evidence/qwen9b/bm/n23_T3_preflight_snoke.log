@@ -1,0 +1,69 @@
+=== host: snoke  date: 2026-09-24T23:15:56-06:00
+=== tree: 022459f
+=== cmd : bash -c 
+echo "PF uptime: $(uptime)"; free -g | head -2 | sed "s/^/PF mem: /"; nproc | sed "s/^/PF nproc: /"
+echo "PF other vivado/xelab/loader processes (excluding idle vivado-mcp servers):"; ps -eo pid,etime,args | grep -E "[v]ivado|[l]oader|[x]elab" | grep -v vivado-mcp || echo "PF   none"
+echo "PF vivado-mcp servers (idle MCP daemons, not builds): $(ps -eo args | grep -c [v]ivado-mcp)"
+echo "PF HEAD: $(git rev-parse HEAD) $(git log -1 --format=%s | cut -c1-80)"
+echo "PF tracked-dirty: $(git status --porcelain --untracked-files=no | wc -l)"
+echo "PF untracked outside evidence/qwen9b/{bm,bn}: $(git status --porcelain | grep "^??" | grep -v -E "evidence/qwen9b/(bm|bn)/" | wc -l)"
+echo "PF launch_build VERSION would be: $(git rev-parse --short=8 HEAD)"
+for d in build_042_bm1 build_042_bm1_ckr2_AltSpreadLogic_high build_042_bm1_ckr2_AltSpreadLogic_medium build_042_bm1_ckr2_ExtraNetDelay_high build_042_bm1_ckr2_ExtraTimingOpt; do [ -e synth/out_$d ] && echo "PF EXISTS synth/out_$d" || echo "PF free   synth/out_$d"; done
+echo "PF highest build numbers: $(ls -d synth/out_build_0* | sed -E "s#.*out_build_([0-9]+).*#\1#" | sort -u | tail -3 | tr "\n" " ")"
+echo "PF bm1 BD nets: "; sed -n 355,363p synth/scripts/create_project.tcl
+sha256sum synth/constraints/fable5_clockroot_9b.xdc synth/scripts/launch_build.sh synth/scripts/launch_po2.sh synth/scripts/create_project.tcl synth/scripts/build.tcl synth/scripts/full_impl.tcl | sed "s/^/PF sha256: /"
+echo "PF clockroot XDC active lines:"; grep -v -E "^\s*(#|$)" synth/constraints/fable5_clockroot_9b.xdc
+set +u; source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh; set -u
+vivado -version | head -2 | sed "s/^/PF /"
+echo "PF licences (~/.Xilinx/*.lic, Vivado features, expiry):"
+for f in ~/.Xilinx/*.lic; do grep -hoE "^(FEATURE|INCREMENT) Vivado[^ ]* xilinxd [^ ]+ [^ ]+" "$f" | awk -v f="$(basename "$f")" "{print \"PF   \" f \": \" \$2 \" expires \" \$5}" | sort -u; done
+echo "PF today: $(date +%d-%b-%Y)"
+df -h /home/cah/r2d2/code | tail -1 | sed "s/^/PF disk: /"
+
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+PF uptime:  23:15:56 up 4 days, 18:28,  8 users,  load average: 1.42, 2.70, 6.43
+PF mem:                total        used        free      shared  buff/cache   available
+PF mem: Mem:             247           8         135           0         106         239
+PF nproc: 48
+PF other vivado/xelab/loader processes (excluding idle vivado-mcp servers):
+PF   none
+PF vivado-mcp servers (idle MCP daemons, not builds): 9
+PF HEAD: 022459ff09b15667c290a469db47b2ac9f015534 docs(SV1): SV1_S1_VERIFY.md — un-backtick the artifact suffix list spec_cites 
+PF tracked-dirty: 0
+PF untracked outside evidence/qwen9b/{bm,bn}: 0
+PF launch_build VERSION would be: 022459ff
+PF free   synth/out_build_042_bm1
+PF free   synth/out_build_042_bm1_ckr2_AltSpreadLogic_high
+PF free   synth/out_build_042_bm1_ckr2_AltSpreadLogic_medium
+PF free   synth/out_build_042_bm1_ckr2_ExtraNetDelay_high
+PF free   synth/out_build_042_bm1_ckr2_ExtraTimingOpt
+PF highest build numbers: 039 040 041 
+PF bm1 BD nets: 
+# kind of wiring as the xrf_sb tie-offs above.  BOTH ends are on
+# xdma_0/axi_aclk (mvchan_$i/aclk and seq_0/aclk, connected above): the
+# source is a flop of the channel's ALREADY-synchronised STATUS bit
+# (rtl/matvec_chan.sv cdc_sync_stat[0]) and seq_unit takes it through two
+# more flops, so this adds no clock, no CDC and no constraint.
+for {set i 0} {$i < 4} {incr i} {
+    must {connect_bd_net [get_bd_pins mvchan_$i/mv_busy_bm] [get_bd_pins seq_0/mv_busy_bm$i]}
+}
+# seq_busy / seq_halted / seq_err are readback status only: left dangling on
+PF sha256: 72c3d197454235d602f82a60c06109c07b14f29f187018f87833276a787165e1  synth/constraints/fable5_clockroot_9b.xdc
+PF sha256: 62fe4c5aefa2f1225b6cf0627cade94f9ca38a931ac36f200d646a791ff27606  synth/scripts/launch_build.sh
+PF sha256: 78780460f145c3894a62e186999f350efeae2095e9438e0243914633b7dd1a79  synth/scripts/launch_po2.sh
+PF sha256: 4b13468783149036741b1c63ee7d9b33216a20e97edc4d04735f6fb8867edf55  synth/scripts/create_project.tcl
+PF sha256: c4f8435ba28098f1646aa3af35870ae729d630ea6d7dbfaaffc1f4ea2fcc5f3d  synth/scripts/build.tcl
+PF sha256: 96eefdfd7a2ee13eeba779a6140b9bf7a5c6e8020bc211f24b54a2a6bba05d21  synth/scripts/full_impl.tcl
+PF clockroot XDC active lines:
+set_property USER_CLOCK_ROOT X2Y2 [get_nets -hier -filter {NAME =~ *diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/PHY_USERCLK}]
+PF vivado v2024.2 (64-bit)
+PF Tool Version Limit: 2024.11
+PF licences (~/.Xilinx/*.lic, Vivado features, expiry):
+PF   Xilinx (15).lic: Vivado_System_Edition_Eval expires 22-sep-2026
+PF   Xilinx (1).lic: Vivado_System_Edition_Eval expires 07-nov-2026
+PF   Xilinx Aug 8th.lic: Vivado_System_Edition_Eval expires 22-sep-2026
+PF   Xilinx_valid_aug2026.lic: Vivado_ML_Enterprise_Edition expires 06-aug-2026
+PF today: 24-Sep-2026
+PF disk: r2d2:/tank12t/code   22T  1.3T   21T   6% /home/cah/r2d2/code
+=== rc  : 0
+=== end : 2026-09-24T23:15:59-06:00

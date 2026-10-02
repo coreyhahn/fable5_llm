@@ -1,0 +1,366 @@
+=== host: snoke
+=== date: 2026-09-15T18:23:09-06:00
+=== tree: d9bffce+dirty
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/bn/bn_timeline.py evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv --log evidence/qwen9b/bn/seedlogs_model_9b_s1_timeline/model_9b_s1.log --seq tb/scripts/w9/model_9b_s1.e4.seq --cols 150
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== rs_f: derived=7 (tag 9b) env=unset rider=0
+=== ---
+==============================================================================
+BN1 — WHOLE-TOKEN TIMELINE CENSUS, analysis
+==============================================================================
+csv          evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+log          evidence/qwen9b/bn/seedlogs_model_9b_s1_timeline/model_9b_s1.log
+seq          tb/scripts/w9/model_9b_s1.e4.seq
+records      237784   segments 7 [0, 1, 2, 3, 4, 5, 6]
+csv complete True   malformed/truncated rows skipped: 0
+THE TB IS NOT THE BOARD.  This testbench measures this same stream
+at 131.138 ms/token (S, evidence/qwen9b/s4/S4_REPLAY.md §4.2) while
+the silicon measures 137.121 (S, evidence/qwen9b/g6/RD9_GATE.md
+§10.1) — the board is 4.6 % slower end to end.  Every number below
+is a TB number and is labelled T (transcribed) or D (derived).
+
+--- CONSISTENCY (D): the per-record rows, the signature histogram
+    and (where given) the log's own block must agree.
+    The FIRST record's window opens when the issue FSM latches it,
+    so the sequencer's I_SYNC cycles before it are inside the
+    signature histogram and inside no record row; that residue is
+    expected in segment 0 and nowhere else.
+    seg 0: records          173   signatures          211
+    seg 1: records   32,771,865   signatures   32,771,865
+    seg 2: records   32,776,832   signatures   32,776,832
+    seg 3: records   32,782,160   signatures   32,782,160
+    seg 4: records   32,786,868   signatures   32,786,868
+    seg 5: records   32,792,031   signatures   32,792,031
+    seg 6: records   32,796,845   signatures   32,796,845
+    I_SYNC residue before the first record: 38
+    seg 0: log tcyc          211 vs signatures          211
+    seg 1: log tcyc   32,771,865 vs signatures   32,771,865
+    seg 2: log tcyc   32,776,832 vs signatures   32,776,832
+    seg 3: log tcyc   32,782,160 vs signatures   32,782,160
+    seg 4: log tcyc   32,786,868 vs signatures   32,786,868
+    seg 5: log tcyc   32,792,031 vs signatures   32,792,031
+    seg 6: log tcyc   32,796,845 vs signatures   32,796,845
+    log meta: {'ntok': 7, 'bcyc': 196706812, 'nrec': 237784, 'nmv': 4, 'wimgpc': 1, 'lat': 4, 'ddrlat': 32, 'wlat': 40, 'ncls': 16}
+    log backjump (backward pc steps): 2
+    busy cycles not inside any record window (pre-first-record I_SYNC): 38
+    consistency failures: 0
+
+--- §1  THE TOKEN, IN CYCLES (T for the counts, D for ms/shares)
+    whole launch         196,706,774 cycles =   786.827 ms
+    segment 0 (preamble)         173 cycles =     0.001 ms
+    tokens 1..6          196,706,601 cycles =   786.826 ms
+    MEAN PER TOKEN        32,784,433 cycles =   131.138 ms/token
+    per segment:
+      seg 0:          173 cyc      0.001 ms   stall        0   sequencer-only         29 (16.76 %)
+      seg 1:   32,771,865 cyc    131.087 ms   stall        0   sequencer-only    309,127 ( 0.94 %)
+      seg 2:   32,776,832 cyc    131.107 ms   stall        0   sequencer-only    307,217 ( 0.94 %)
+      seg 3:   32,782,160 cyc    131.129 ms   stall        0   sequencer-only    306,692 ( 0.94 %)
+      seg 4:   32,786,868 cyc    131.147 ms   stall       36   sequencer-only    306,218 ( 0.93 %)
+      seg 5:   32,792,031 cyc    131.168 ms   stall       36   sequencer-only    305,720 ( 0.93 %)
+      seg 6:   32,796,845 cyc    131.187 ms   stall        0   sequencer-only    305,411 ( 0.93 %)
+
+--- §2  CLASS TOTALS, mean over tokens 1..6 (D)
+    class                             cyc/token   ms/token  % of token
+    L_CMP                            10,402,465     41.610      31.73 %
+    L_DMA                             1,292,900      5.172       3.94 %
+    MOVER                            21,734,076     86.936      66.29 %
+    SEQBULK                             322,517      1.290       0.98 %
+    MV0_STR                          13,402,775     53.611      40.88 %
+    MV1_STR                          13,360,363     53.441      40.75 %
+    MV2_STR                          13,346,295     53.385      40.71 %
+    MV3_STR                          13,346,241     53.385      40.71 %
+    MV0_BSY                          13,582,164     54.329      41.43 %
+    MV1_BSY                          13,539,262     54.157      41.30 %
+    MV2_BSY                          13,524,904     54.100      41.25 %
+    MV3_BSY                          13,524,926     54.100      41.25 %
+    SMEM_RD                             446,130      1.785       1.36 %
+    SMEM_WR                             443,328      1.773       1.35 %
+    RECDDR                               74,719      0.299       0.23 %
+    BFAB                              8,334,361     33.337      25.42 %
+
+    grouped (a group's cycles are its EXACT UNION, from the
+    per-cycle signature histogram, not a sum of its members):
+    layer compute                    10,402,465     41.610      31.73 %
+    layer state-DMA                   1,292,900      5.172       3.94 %
+    mover engine                     21,734,076     86.936      66.29 %
+    weight streaming (any chan)      13,601,885     54.408      41.49 %
+    matvec engine (any chan)         13,614,984     54.460      41.53 %
+    record/LDC/EMB DDR                  361,840      1.447       1.10 %
+    state window                        889,458      3.558       2.71 %
+    burst fabric                      8,334,361     33.337      25.42 %
+
+    PER TOKEN, not just the mean (D) — ms at 250 MHz.  Segment 0 is
+    the launch PREAMBLE (the records before the first OP_EMB), not
+    a token; it is shown so the whole launch is accounted for.
+    group                             seg0      seg1      seg2      seg3      seg4      seg5      seg6
+    layer compute                    0.000    41.558    41.578    41.599    41.620    41.641    41.662
+    layer state-DMA                  0.000     5.239     5.153     5.155     5.158     5.161     5.164
+    mover engine                     0.000    86.936    86.936    86.937    86.936    86.937    86.936
+    weight streaming (any chan)      0.000    54.408    54.407    54.408    54.408    54.408    54.407
+    matvec engine (any chan)         0.000    54.460    54.460    54.460    54.460    54.460    54.460
+    record/LDC/EMB DDR               0.000     1.447     1.447     1.448     1.447     1.447     1.447
+    state window                     0.000     3.614     3.543     3.545     3.547     3.549     3.551
+    burst fabric                     0.000    33.337    33.337    33.338    33.337    33.337    33.337
+    UNION                            0.001   129.851   129.878   129.902   129.923   129.945   129.966
+    RESIDUE (sequencer only)         0.000     1.237     1.229     1.227     1.225     1.223     1.222
+    TOTAL                            0.001   131.087   131.107   131.129   131.147   131.168   131.187
+
+    UNION (any class active)         32,477,703    129.911      99.06 %
+    RESIDUE (sequencer only)            306,731      1.227       0.94 %
+
+--- §3  THE ACTIVE-SET SIGNATURE DISTRIBUTION — THE HEADLINE (T/D)
+    what was busy together, per cycle, summed over tokens 1..6.
+      #    mask     cyc/token  ms/token    share  active set
+      0    4084    12,775,116    51.100   38.97 %  {mover wstr0123 mvbsy0123}
+      1       1     9,539,320    38.157   29.10 %  {layer}
+      2   32772     7,720,364    30.881   23.55 %  {mover bfab}
+      3    4099       346,915     1.388    1.06 %  {layer sdma smemR}
+      4    8195       332,441     1.330    1.01 %  {layer sdma smemW}
+      5       0       306,731     1.227    0.94 %  {sequencer only}
+      6   32774       200,881     0.804    0.61 %  {sdma mover bfab}
+      7   32776       182,764     0.731    0.56 %  {bulk bfab}
+      8    3956       173,918     0.696    0.53 %  {mover wstr012 mvbsy0123}
+      9    4068       165,792     0.663    0.51 %  {mover wstr123 mvbsy0123}
+     10    4052       165,379     0.662    0.50 %  {mover wstr023 mvbsy0123}
+     11    4020       165,368     0.661    0.50 %  {mover wstr013 mvbsy0123}
+    distinct signatures over tokens 1..6: 129
+    top 12 cover 97.84 % of the token
+
+--- §4  WEIGHT STREAMING, PER CHANNEL (T for beats, D for rates)
+    chan    beats/token  MiB/token  streaming cyc  engine-busy cyc  beats/cyc  util in window
+       0     16,030,080     978.40     13,402,775       13,582,164     1.1960          98.68 %
+       1     15,979,392     975.30     13,360,363       13,539,262     1.1960          98.68 %
+       2     15,962,496     974.27     13,346,295       13,524,904     1.1960          98.68 %
+       3     15,962,496     974.27     13,346,241       13,524,926     1.1960          98.68 %
+    any channel STREAMING         13,601,885 cyc/token =   54.408 ms  (41.49 % of token)
+    any channel ENGINE BUSY       13,614,984 cyc/token =   54.460 ms  (41.53 % of token)
+    ALL FOUR streaming at once    12,816,019 cyc/token =   51.264 ms  (94.22 % of the any-channel streaming time)
+    channels streaming simultaneously (cycles/token):
+      0 channel(s):    19,182,548 (58.51 %)
+      1 channel(s):        65,078 ( 0.20 %)
+      2 channel(s):        35,844 ( 0.11 %)
+      3 channel(s):       684,944 ( 2.09 %)
+      4 channel(s):    12,816,019 (39.09 %)
+    matvec PHASES (maximal runs of records with any engine busy),
+      over tokens 1..6: 2058  = 343.0 per token
+
+--- §5  PER LAYER TYPE (boundaries DERIVED from the record types)
+    DNSB writes per token (= DeltaNet layers): {0: 0, 1: 24, 2: 24, 3: 24, 4: 24, 5: 24, 6: 24}
+    ROPET commands per token (= GQA layers):   {0: 0, 1: 8, 2: 8, 3: 8, 4: 8, 5: 8, 6: 8}
+    seg 0: 10 LAYER-marker cells {'-': 10}
+    seg 1: 64 LAYER-marker cells {'DN': 24, 'GQA': 39, 'HEAD': 1}
+    seg 2: 64 LAYER-marker cells {'DN': 24, 'GQA': 39, 'HEAD': 1}
+    seg 3: 64 LAYER-marker cells {'DN': 24, 'GQA': 39, 'HEAD': 1}
+    seg 4: 64 LAYER-marker cells {'DN': 24, 'GQA': 39, 'HEAD': 1}
+    seg 5: 64 LAYER-marker cells {'DN': 24, 'GQA': 39, 'HEAD': 1}
+    seg 6: 64 LAYER-marker cells {'DN': 24, 'GQA': 39, 'HEAD': 1}
+
+    label   count/token      cyc/token   ms/token   % token  class split (% of the cell)
+    DN             24.0     23,492,985     93.972    71.66 %  lcmp:35%  ldma:5%  mover:63%  wstr:38%  mvbsy:38%  recddr:1%  smem:2%  bfab:25%  seqonly:1%
+    GQA            39.0      6,101,817     24.407    18.61 %  lcmp:29%  ldma:0%  mover:69%  wstr:42%  mvbsy:42%  recddr:1%  smem:0%  bfab:27%  seqonly:1%
+    HEAD            1.0      3,184,855     12.739     9.71 %  lcmp:13%  ldma:2%  mover:87%  wstr:63%  mvbsy:63%  recddr:0%  smem:1%  bfab:22%  seqonly:0%
+    (wstr/mvbsy are the PER-CHANNEL MEAN over the four channels;
+     every other column is that resource's own busy fraction of
+     the cell.  They overlap, so they do not sum to 100 %.)
+
+--- §6  TWO UPPER BOUNDS (D)
+    (i) PERFECT OVERLAP.  If every resource below could run
+        concurrently with every other with no dependency and no
+        arbitration, the token could not be shorter than the
+        BUSIEST single resource.  'Perfect' therefore assumes:
+        no data dependency between a weight stream and the layer
+        command that consumes it, no shared bus, no re-ordering
+        cost, and the same per-resource busy time as measured.
+        It is an UPPER BOUND ON THE SAVING, not a design target.
+        union                32,477,703 cyc/token =  129.911 ms
+      (i-a) THE FORMULA LITERALLY, over the instrumented classes:
+        busiest class        21,734,076 cyc/token =   86.936 ms   (mover engine)
+        saving bound         10,743,627 cyc/token =   42.975 ms  = 32.77 % of the token
+        (the sequencer-only residue 306,731 cyc = 1.227 ms
+         is NOT in the union and no overlap removes it)
+
+      (i-b) AND THE SAME FORMULA OVER RESOURCES, WHICH IS THE ONE
+        TO READ.  (i-a) is bound by `mover engine`, and that class
+        is `mv_busy`, which stands for the whole of a FENCE drain
+        as well as for real mover work — a WAIT, not a resource
+        doing anything.  Splitting it at the signature level into
+        MOVER-and-nothing-streaming (real MOVX/MOVY/LDC traffic)
+        and MOVER-while-streaming (the FENCE wait, whose resource
+        is the weight path, already counted) gives the resources
+        that actually occupy hardware:
+          weight streaming (any chan)                 13,601,885 cyc =   54.408 ms  41.49 %
+          layer compute                               10,402,465 cyc =   41.610 ms  31.73 %
+          burst fabric                                 8,334,361 cyc =   33.337 ms  25.42 %
+          mover work (MOVER, nothing streaming)        8,136,299 cyc =   32.545 ms  24.82 %
+          layer state-DMA                              1,292,900 cyc =    5.172 ms   3.94 %
+          state window                                   889,458 cyc =    3.558 ms   2.71 %
+          record/LDC/EMB DDR                             361,840 cyc =    1.447 ms   1.10 %
+          (for reference, MOVER while a channel streams — the
+           FENCE wait — is 13,597,777 cyc = 54.391 ms;
+           it is a wait on the weight path and is NOT a resource)
+        BUSIEST RESOURCE     13,601,885 cyc/token =   54.408 ms   (weight streaming (any chan))
+        SAVING BOUND         18,875,818 cyc/token =   75.503 ms  = 57.58 % of the token
+        i.e. a token that is 131.138 ms could not, under
+        perfect overlap, be shorter than 55.634 ms
+        (busiest resource + the sequencer-only residue) — a
+        speed-up of at most 2.36x.
+
+    (ii) DDR-BOUND FLOOR.  The busiest channel's weight bytes at
+         the beats/cycle THIS RUN measured while that channel was
+         streaming — i.e. the floor this memory model imposes, not
+         a floor the board imposes (WLAT 40, tb/tb_seq_chip.sv:69).
+         chan 0: 16,030,080 beats at 1.1960 beats/cyc ->   13,402,775 cyc =   53.611 ms/token
+         chan 1: 15,979,392 beats at 1.1960 beats/cyc ->   13,360,363 cyc =   53.441 ms/token
+         chan 2: 15,962,496 beats at 1.1960 beats/cyc ->   13,346,295 cyc =   53.385 ms/token
+         chan 3: 15,962,496 beats at 1.1960 beats/cyc ->   13,346,241 cyc =   53.385 ms/token
+         BUSIEST is chan 0: floor 13,402,775 cyc = 53.611 ms/token = 40.88 % of the token
+
+    (ii-b) AND WHAT THAT RATE IS, IN THE MODEL'S OWN UNITS.
+         docs/QWEN35_NEXT_FEASIBILITY.md §4.2 (S) solves the 0.8B
+         and 2B silicon steps for r = 1.1037 ui-cycles per 64 B
+         beat = 17.40 GB/s/chan, with r = 1.000 called 'the
+         engine's hard floor'.  This run measures its own r:
+         chan 0: 1.1960 beats/aclk-cyc -> r = 1.0031 ui-cyc/beat = 19.14 GB/s
+         chan 1: 1.1960 beats/aclk-cyc -> r = 1.0031 ui-cyc/beat = 19.14 GB/s
+         chan 2: 1.1960 beats/aclk-cyc -> r = 1.0031 ui-cyc/beat = 19.14 GB/s
+         chan 3: 1.1960 beats/aclk-cyc -> r = 1.0031 ui-cyc/beat = 19.14 GB/s
+         So the TESTBENCH's weight path runs at r = 1.0031,
+         essentially the engine's hard floor, against the r =
+         1.1037 the model FITTED from two silicon steps — i.e.
+         the TB's weight memory is 10.0 % faster than the rate
+         the board's own measurements imply.  That is a REASON to
+         expect this census's matvec term to be optimistic against
+         the board, and it is stated as a reason, not a correction:
+         `tb/seq_mem_file.sv` is a file-backed model with no
+         refresh, no bank conflict and no read/write turnaround.
+
+--- §7  RECONCILIATION
+    (0) IS THE MODEL'S SERIAL STRUCTURE RIGHT?  The three terms
+        the model sums, measured LIKE FOR LIKE here — weight
+        streaming, mover WORK (not `mv_busy`), layer compute:
+          weight streaming   54.408 + mover work   32.545 + layer compute   41.610
+          =  128.563 ms against a measured token of  131.138 ms
+          -> the three terms fill 98.04 % of the token, so they are
+             very nearly DISJOINT: the model's SERIAL sum is the
+             right shape for this design, and that is a MEASURED
+             statement, not an assumption.
+
+    (a) against the SERIAL model, docs/QWEN35_NEXT_FEASIBILITY.md
+        §4.4's 9B W4 g128 row (S): matvec 58.95 + movers 32.66 +
+        layer 47.00 = 138.61 ms/token.
+        measured, this TB: matvec-engine-busy  54.460 ms (of which weight-streaming  54.408 ms),
+                           mover-engine-busy  86.936 ms, layer-compute  41.610 ms
+        their SUM 183.006 ms vs the measured token 131.138 ms -> overlap factor 1.3955
+        AND THE MOVER TERM IS NOT MOVER WORK.  `mv_busy` is high
+        for the whole of a FENCE too (mv_op 3, the drain wait),
+        so the model's 'movers' term and this class are not the
+        same quantity:
+          mover WORK (MOVX+MVGO+MOVY)    8,137,008 cyc/token =  32.548 ms (24.82 %)
+          FENCE drain WAIT              13,597,068 cyc/token =  54.388 ms (41.47 %)
+    (b) against the BOARD's two lanes, evidence/qwen9b/g6/RD9_GATE.md §10.2 (S):
+        L_LCYC 41.588 ms/token, L_SDMA_CYC 5.125 ms/token, the two
+        together 34.1 % of the step and 65.9 % in NEITHER lane.
+        measured here: layer compute  41.610 ms/token (31.73 %), state-DMA   5.172 ms/token ( 3.94 %)
+        cycles in NEITHER lane: 21,918,200 = 87.673 ms/token = 66.86 % of the token
+        (the board's 65.9 % is the same quantity measured on
+         silicon; this is the TB's value for it, and the two are
+         NOT the same instrument)
+
+--- §8  WHERE THE SEQUENCER'S TIME GOES, BY RECORD TYPE (T/D, tokens 1..6)
+    op       records/token      cyc/token   ms/token   % token  cyc/record
+    FENCE            343.0     13,598,440     54.394    41.48 %    39,645.6
+    CMD            8,821.0     10,628,887     42.516    32.42 %     1,205.0
+    MOVX             996.0      5,260,768     21.043    16.05 %     5,281.9
+    MOVY           1,370.0      2,847,256     11.389     8.68 %     2,078.3
+    LDC              161.0        320,734      1.283     0.98 %     1,992.1
+    CSRWR         26,551.5         79,655      0.319     0.24 %         3.0
+    MVGO           1,370.0         43,928      0.176     0.13 %        32.1
+    EMB                1.0          4,699      0.019     0.01 %     4,699.0
+    XOP                9.0             36      0.000     0.00 %         4.0
+    AMAXL              1.0             17      0.000     0.00 %        17.0
+    JMP                0.5             13      0.000     0.00 %        26.7
+    HALT               0.2              0      0.000     0.00 %         2.0
+
+--- §8b  THE ISSUE FSM, from the log's own histogram (T)
+    I_MOVER          21,742,234 cyc/token    86.969 ms   66.32 %
+    I_CMDPOLLW        9,651,254 cyc/token    38.605 ms   29.44 %
+    I_CMDPOLL           804,271 cyc/token     3.217 ms    2.45 %
+    I_BULKRUN           322,517 cyc/token     1.290 ms    0.98 %
+    I_CMDDRAIN          123,494 cyc/token     0.494 ms    0.38 %
+    I_FETCH              39,636 cyc/token     0.159 ms    0.12 %
+    I_EXEC               39,624 cyc/token     0.158 ms    0.12 %
+    I_WR                 26,551 cyc/token     0.106 ms    0.08 %
+    I_XRFSELD            10,864 cyc/token     0.043 ms    0.03 %
+    I_XRFRDW             10,860 cyc/token     0.043 ms    0.03 %
+    I_CMDW                8,821 cyc/token     0.035 ms    0.03 %
+    I_BULKEND             2,430 cyc/token     0.010 ms    0.01 %
+    I_XRFRD                 905 cyc/token     0.004 ms    0.00 %
+    I_XRFSEL                776 cyc/token     0.003 ms    0.00 %
+    I_BULKSPTR              162 cyc/token     0.001 ms    0.00 %
+    I_AMAXW                  12 cyc/token     0.000 ms    0.00 %
+    I_WTI                    10 cyc/token     0.000 ms    0.00 %
+    I_WTD                    10 cyc/token     0.000 ms    0.00 %
+    I_AMAX                    1 cyc/token     0.000 ms    0.00 %
+    I_HALT                    0 cyc/token     0.000 ms    0.00 %
+
+--- §8c  THE MOVER, by op, from the log (T)
+    FENCE        13,597,068 cyc/token    54.388 ms   41.47 %
+    MOVX          5,256,784 cyc/token    21.027 ms   16.03 %
+    MOVY          2,841,776 cyc/token    11.367 ms    8.67 %
+    MVGO             38,448 cyc/token     0.154 ms    0.12 %
+
+--- §9  ASCII GANTT, token 4: one layer of each derived type
+  [DN] token 4  records 118920..120336 (1417), 973902 cycles = 3.896 ms, 142 columns of ~10 records
+  layer compute               |%-    @@@%@%%%@%%%@%%@%%%@%%@%%%@%%%@%%@%%%@%%@%%%@%%%@%%@%%%@%%@%%%@%%%@%%@%%%@%%@%%%@%%%@%%@%%%@%%@%%%@%%%@%%@%%%@%%@%%%@%@ -@ -= -   @@- @ |
+  layer state-DMA             |@                                                                                                                                            @|
+  mover engine                | *@@@@                                                                                                                       @: @*+@*@@%  *@  |
+  weight streaming (any chan) |  ##                                                                                                                         *  #  %  #*   @  |
+  matvec engine (any chan)    |  ##                                                                                                                         *  #  %  #*   @  |
+  record/LDC/EMB DDR          |.                                                                                                                             :               |
+  state window                |-                                                                                                                                            =|
+  burst fabric                |.*::@@   .                                                                                                                   -* :*=.*@::  *   |
+                               legend: ' '=0  .:-=+*#%@ -> 100% busy (wstr/mvbsy are the per-channel mean)
+
+  [GQA] token 4  records 123163..123462 (300), 208520 cycles = 0.834 ms, 150 columns of ~2 records
+  layer compute               |  @ @ @                     @  @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ # @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @    |
+  layer state-DMA             |                                                                                                                                                   +@@|
+  mover engine                |       @@%%@@@@@%@@@@@%%@@*                                                                                                                           |
+  weight streaming (any chan) |          =@    .@     -@                                                                                                                             |
+  matvec engine (any chan)    |         .*@    =@    .*@                                                                                                                             |
+  record/LDC/EMB DDR          |+         .               :  +                                                                 .                                                    = |
+  state window                |                                                                                                                                                     .|
+  burst fabric                |@      @@   @@@@  %%@@   %@  @                                                                 :                                                      |
+                               legend: ' '=0  .:-=+*#%@ -> 100% busy (wstr/mvbsy are the per-channel mean)
+
+  [HEAD] token 4  records 157543..158534 (992), 3184952 cycles = 12.740 ms, 142 columns of ~7 records
+  layer compute               |@@@@@*  =@- =.@ -=   *@@@- @  @* .-= =.@ -= --@ .- -=- -- .-= =.@ -= --@ .- -=- -- .-= =.@ -= --@ .- -=- -- .-= =.@ -= --@ .- -=- -- .-= =. *%|
+  layer state-DMA             |                            %@@@.                                                                                                             |
+  mover engine                |     -@@  *@+# @*=@@@-   *@    -@%*+@+% @*+@** @%*@*+*@**@%*+@+% @*+@** @%*@*+*@**@%*+@+% @*+@** @%*@*+*@**@%*+@+% @*+@** @%*@*+*@**@%*+@+%@- |
+  weight streaming (any chan) |       %   @   %   #%     @     %   @   %  @   %  %   @  @   @   %  @   %  %   @  @   @   %  @   %  %   @  @   @   %  @   %  %   @  @   @  :  |
+  matvec engine (any chan)    |       %   @   %   #%     @     %   @   %  @   %  %   @  @   @   %  @   %  %   @  @   @   %  @   %  %   @  @   @   %  @   %  %   @  @   @  :  |
+  record/LDC/EMB DDR          |        :                    +                                                                                                                |
+  state window                |                            -==-                                                                                                              |
+  burst fabric                |     -@.+ * =# .*=@:.-   *   @ -.#*= +# .*+ **  #* *+* ** #*= +# .*+ **  #* *+* ** #*= +# .*+ **  #* *+* ** #*= +# .*+ **  #* *+* ** #*= +# - |
+                               legend: ' '=0  .:-=+*#%@ -> 100% busy (wstr/mvbsy are the per-channel mean)
+
+  [WHOLE TOKEN 4]  records 118911..158534 (39624), 32786868 cycles = 131.147 ms, 150 columns of ~265 records
+  layer compute               |-@@@::@@@@:@@@@::-:@@@@:@@@@:-@@@-.@:@@@@:-@@@::@@@@.@:-@@@::@@@@:@@@@:--:@@@@:@@@@:=@@@::@:@@@@:-@@@::@@@@.@:-@@@::@@@@:@@@@::-:@@@%:@@@@:-@@@::*. . |
+  layer state-DMA             |                             .            .            .                            .            .            .                 .                     |
+  mover engine                |+   *#    #    ##+#    #    #+   *# #    #*   *#    # #*   *#    #    #*+#    #    #+   *# #    #*   *#    # #*   *#    #    ##*#    #    #*   *#-%@%@|
+  weight streaming (any chan) |-   ==    =    =+-=    =    =:   -= =    =-   ==    = =-   ==    =    =--=    =    =:   == =    =-   ==    = =-   ==    =    =-=-    =    =-   ==:+***|
+  matvec engine (any chan)    |-   ==    =    =+-=    =    =:   -= =    =-   ==    = =-   ==    =    +--=    =    =:   == =    =-   ==    = =-   ==    =    =-=-    =    =-   ==:+#**|
+  record/LDC/EMB DDR          |                                                                                                                                                      |
+  state window                |                                                                                                                                                      |
+  burst fabric                |-   :-    -    -::-    -    ::   :- -    :-   :-    - :-   :-    -    :-:-    -    ::   :- -    ::   :-    - :-   ::    :    :-:-    -    :-   :-.:.:.|
+                               legend: ' '=0  .:-=+*#%@ -> 100% busy (wstr/mvbsy are the per-channel mean)
+
+==============================================================================
+END OF ANALYSIS
+==============================================================================
+=== rc: 0
+=== end: 2026-09-15T18:23:15-06:00

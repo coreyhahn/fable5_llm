@@ -1,0 +1,109 @@
+=== host: snoke
+=== date: 2026-09-10T19:19:04-06:00
+=== tree: f7e88b5
+=== cmd:  bash evidence/qwen9b/g6/g6_15d_chip.sh 136 4 4 k4
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] the lane counters, cleared
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+  cleared    L_LCYC=0 L_SDMA_CYC=0
+   rc=0
+
+########## [2] the session: 4 x the passage sentence, --ntok 4
+--- session bring-up
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38858, full:39626  (1.3s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+  EMBLOG2    13 (8192 B embedding rows)
+  residency  1122 witness blocks (1114 weight + 0 conv + 8 emb, 4488 KiB) in 37 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  state DN  24 MiB zeroed -> 0x380000000 (chan 3)  [8 witnesses zero]
+  state CV  24 conv image(s) -> 0x389800000  [readback OK]
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+  residency  24 witness blocks (0 weight + 24 conv + 0 emb, 96 KiB) in 1 ms -> 0 MISS
+  state CV   24 conv witness(es) match the region just written (NOT part of the weight pack's probe — §14.1)
+  upload     const blob + 3 images: 9957 KiB readback-verified in 0.0s
+  tokenizer  c202236235762e1c871ad0ccb60c8ee5ba337b9a: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  sampling   greedy (--temp 0): the chip's argmax, bit-exact  |  source chip-topk: ready  |  capture k=32
+--- preamble
+  state DN  24 MiB zeroed in 5 ms (session reset)  [8 witnesses zero]
+  state CV  24 conv image(s) restored to 0x389800000 in 16 ms  [readback OK]
+  preamble   0.0 ms device / 2.1 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 39 rec | lite 38858 rec | full 39626 rec
+  patch      pos_mode='ldc': 80 B in 9 write(s) per launch
+  prefill    lite  |  --ntok 4  |  --max-ctx 700 of KV depth 4096
+  template   ON: 5*messages+7 wrapper ids, closed-empty think block, incremental with carry
+  decode     greedy (--temp 0): the chip's argmax, bit-exact  |  the LM head + argmax run ON-CHIP every step
+  posture    never programs the FPGA, never touches flash, never sudo
+  board lock /home/cah/r2d2/code/fpga/.fable5_board.lock  held for this process's lifetime
+  O3         every in-repo tool that programs or DMAs the board takes this one shared lock, across checkouts and hosts (docs/USAGE.md §5)
+------------------------------------------------------------------------
+
+prompt> Summarise the following passage in one sentence. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. 
+  prefill 1/142 (126 ms/step, lite)     prefill 2/142 (126 ms/step, lite)     prefill 3/142 (126 ms/step, lite)     prefill 4/142 (126 ms/step, lite)     prefill 5/142 (126 ms/step, lite)     prefill 6/142 (126 ms/step, lite)     prefill 7/142 (126 ms/step, lite)     prefill 8/142 (127 ms/step, lite)     prefill 9/142 (127 ms/step, lite)     prefill 10/142 (127 ms/step, lite)     prefill 11/142 (127 ms/step, lite)     prefill 12/142 (127 ms/step, lite)     prefill 13/142 (127 ms/step, lite)     prefill 14/142 (127 ms/step, lite)     prefill 15/142 (127 ms/step, lite)     prefill 16/142 (127 ms/step, lite)     prefill 17/142 (127 ms/step, lite)     prefill 18/142 (127 ms/step, lite)     prefill 19/142 (127 ms/step, lite)     prefill 20/142 (127 ms/step, lite)     prefill 21/142 (127 ms/step, lite)     prefill 22/142 (127 ms/step, lite)     prefill 23/142 (127 ms/step, lite)     prefill 24/142 (127 ms/step, lite)     prefill 25/142 (127 ms/step, lite)     prefill 26/142 (127 ms/step, lite)     prefill 27/142 (127 ms/step, lite)     prefill 28/142 (127 ms/step, lite)     prefill 29/142 (127 ms/step, lite)     prefill 30/142 (127 ms/step, lite)     prefill 31/142 (127 ms/step, lite)     prefill 32/142 (127 ms/step, lite)     prefill 33/142 (127 ms/step, lite)     prefill 34/142 (127 ms/step, lite)     prefill 35/142 (127 ms/step, lite)     prefill 36/142 (127 ms/step, lite)     prefill 37/142 (127 ms/step, lite)     prefill 38/142 (127 ms/step, lite)     prefill 39/142 (127 ms/step, lite)     prefill 40/142 (127 ms/step, lite)     prefill 41/142 (127 ms/step, lite)     prefill 42/142 (127 ms/step, lite)     prefill 43/142 (127 ms/step, lite)     prefill 44/142 (127 ms/step, lite)     prefill 45/142 (127 ms/step, lite)     prefill 46/142 (127 ms/step, lite)     prefill 47/142 (127 ms/step, lite)     prefill 48/142 (127 ms/step, lite)     prefill 49/142 (127 ms/step, lite)     prefill 50/142 (127 ms/step, lite)     prefill 51/142 (127 ms/step, lite)     prefill 52/142 (127 ms/step, lite)     prefill 53/142 (127 ms/step, lite)     prefill 54/142 (127 ms/step, lite)     prefill 55/142 (127 ms/step, lite)     prefill 56/142 (128 ms/step, lite)     prefill 57/142 (128 ms/step, lite)     prefill 58/142 (128 ms/step, lite)     prefill 59/142 (128 ms/step, lite)     prefill 60/142 (128 ms/step, lite)     prefill 61/142 (128 ms/step, lite)     prefill 62/142 (128 ms/step, lite)     prefill 63/142 (128 ms/step, lite)     prefill 64/142 (128 ms/step, lite)     prefill 65/142 (128 ms/step, lite)     prefill 66/142 (128 ms/step, lite)     prefill 67/142 (128 ms/step, lite)     prefill 68/142 (128 ms/step, lite)     prefill 69/142 (128 ms/step, lite)     prefill 70/142 (128 ms/step, lite)     prefill 71/142 (128 ms/step, lite)     prefill 72/142 (128 ms/step, lite)     prefill 73/142 (128 ms/step, lite)     prefill 74/142 (128 ms/step, lite)     prefill 75/142 (128 ms/step, lite)     prefill 76/142 (128 ms/step, lite)     prefill 77/142 (128 ms/step, lite)     prefill 78/142 (128 ms/step, lite)     prefill 79/142 (128 ms/step, lite)     prefill 80/142 (128 ms/step, lite)     prefill 81/142 (128 ms/step, lite)     prefill 82/142 (128 ms/step, lite)     prefill 83/142 (128 ms/step, lite)     prefill 84/142 (128 ms/step, lite)     prefill 85/142 (128 ms/step, lite)     prefill 86/142 (128 ms/step, lite)     prefill 87/142 (128 ms/step, lite)     prefill 88/142 (128 ms/step, lite)     prefill 89/142 (128 ms/step, lite)     prefill 90/142 (128 ms/step, lite)     prefill 91/142 (128 ms/step, lite)     prefill 92/142 (128 ms/step, lite)     prefill 93/142 (128 ms/step, lite)     prefill 94/142 (128 ms/step, lite)     prefill 95/142 (128 ms/step, lite)     prefill 96/142 (128 ms/step, lite)     prefill 97/142 (128 ms/step, lite)     prefill 98/142 (128 ms/step, lite)     prefill 99/142 (128 ms/step, lite)     prefill 100/142 (128 ms/step, lite)     prefill 101/142 (128 ms/step, lite)     prefill 102/142 (128 ms/step, lite)     prefill 103/142 (128 ms/step, lite)     prefill 104/142 (129 ms/step, lite)     prefill 105/142 (129 ms/step, lite)     prefill 106/142 (129 ms/step, lite)     prefill 107/142 (129 ms/step, lite)     prefill 108/142 (129 ms/step, lite)     prefill 109/142 (129 ms/step, lite)     prefill 110/142 (129 ms/step, lite)     prefill 111/142 (129 ms/step, lite)     prefill 112/142 (129 ms/step, lite)     prefill 113/142 (129 ms/step, lite)     prefill 114/142 (129 ms/step, lite)     prefill 115/142 (129 ms/step, lite)     prefill 116/142 (129 ms/step, lite)     prefill 117/142 (129 ms/step, lite)     prefill 118/142 (129 ms/step, lite)     prefill 119/142 (129 ms/step, lite)     prefill 120/142 (129 ms/step, lite)     prefill 121/142 (129 ms/step, lite)     prefill 122/142 (129 ms/step, lite)     prefill 123/142 (129 ms/step, lite)     prefill 124/142 (129 ms/step, lite)     prefill 125/142 (129 ms/step, lite)     prefill 126/142 (129 ms/step, lite)     prefill 127/142 (129 ms/step, lite)     prefill 128/142 (129 ms/step, lite)     prefill 129/142 (129 ms/step, lite)     prefill 130/142 (129 ms/step, lite)     prefill 131/142 (129 ms/step, lite)     prefill 132/142 (129 ms/step, lite)     prefill 133/142 (129 ms/step, lite)     prefill 134/142 (129 ms/step, lite)     prefill 135/142 (129 ms/step, lite)     prefill 136/142 (129 ms/step, lite)     prefill 137/142 (129 ms/step, lite)     prefill 138/142 (129 ms/step, lite)     prefill 139/142 (129 ms/step, lite)     prefill 140/142 (129 ms/step, lite)     prefill 141/142 (129 ms/step, lite)     prefill 142/142 (129 ms/step, lite)                                                 The city of Paris
+  --> 'The city of Paris'
+  ids [760, 3177, 314, 11751]   4 tok in 19.00s
+  prefill 142 lite x 127.8 ms | decode 4 full x 140.1 ms | 0.21 tok/s wall | 99% of wall was device | context 146/700 (21%)
+  template   turn 1: +12 wrapper ids (131 body) | session 12 wrapper of 146 context steps (8%)
+             T7 budget: 12 fed + 0 generated <|im_end|> = 5*1+7 = 12 for the equivalent 1-message HF rendering
+
+  launches     147 (1 preamble / 142 lite / 4 full)
+  preamble     device ms  mean 0.0  min 0.0  max 0.0  (n=1)
+  lite         device ms  mean 127.8  min 126.4  max 129.3  (n=142)
+  full         device ms  mean 140.1  min 140.1  max 140.1  (n=4)
+  lite/full    91.2% of a decode step (spec risk 8: measured, not assumed)
+  context      146 of 700 forward steps (KV bank depth 4096)
+  stream       nch=4, head wid [248] chunk-interleaved over 4 channels (S4)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  template     ON: 12 wrapper ids over 1 turn(s) = 8% of the context; T7 says 5*1+7 = 12
+  sampling     OFF — greedy, 100% on-chip, bit-exact (the default)
+  MMIO         12407 reads / 2062 writes
+report -> evidence/qwen9b/g6/136_15d_chip_k4.json
+   rc=0
+
+  derived    launches=147 context=146 ntok=4 -> templated ids N=143
+             decode 1 is position 142, decode 2 is position 143
+
+########## [3] the two lanes over exactly this session
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+  ACLK_HZ    250000000.0
+  L_LCYC     1536249871 cycles = 6144.999 ms  (compute lane, busy_cmp)
+  L_SDMA_CYC 193448573 cycles = 773.794 ms  (DMA lane, busy_dma)
+  per STEP   L_LCYC 41.803 ms  L_SDMA_CYC 5.264 ms  (147 forward steps)
+  traffic    sw/tok_meter.state_bytes_per_token(146) = {'dn': 50331648, 'cv': 6291456, 'kv': 4808704, 'total': 61431808}
+             = 58.59 MiB/token  (label D, the model — DDR channel 3 holds the region)
+report -> evidence/qwen9b/g6/136_15d_lanes_k4.json
+   rc=0
+
+########## [4] the KV rows around the prompt end — 141..146
+=== KV ROWS chip-k4
+  region     dn=0x380000000 kv=0x381800000 cv=0x389800000 end=0x389b00000 (chan 3)
+  window     rows 141..146, layers [0, 4, 7], kvhead 0, K and V
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+  region     155 MiB [0x380000000,0x389b00000)  sha256 d22736a527dd44bea47730a08122e4f6fe41851358018490d136e9c2ad523b86
+  DN alone   24 MiB  sha256 aa497725db19b5035f5cf3d81d5470870058cf45e3269ef82d296b1b28f39eaa
+  L0  kvh0 K  addr 0x00381800000  rows 141..146: 6/6 non-zero  exp [252, 252, 252, 252, 252, 0]...
+  L0  kvh0 V  addr 0x00381a00000  rows 141..146: 6/6 non-zero  exp [250, 250, 251, 251, 250, 0]...
+  L4  kvh0 K  addr 0x00385800000  rows 141..146: 6/6 non-zero  exp [252, 252, 252, 253, 252, 0]...
+  L4  kvh0 V  addr 0x00385a00000  rows 141..146: 6/6 non-zero  exp [251, 251, 251, 252, 251, 0]...
+  L7  kvh0 K  addr 0x00388800000  rows 141..146: 6/6 non-zero  exp [252, 252, 252, 252, 252, 0]...
+  L7  kvh0 V  addr 0x00388a00000  rows 141..146: 6/6 non-zero  exp [254, 254, 254, 254, 253, 0]...
+  vs manifest sha256        differs (3a716409081f0c54…)
+  vs manifest final_sha256  differs (7bd38ff095ad91a0…)
+report -> evidence/qwen9b/g6/136_15d_kv_rows_k4.json
+G6_KV_ROWS: OK
+   rc=0
+
+=== rc: 0
+=== end: 2026-09-10T19:19:30-06:00

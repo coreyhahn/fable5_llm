@@ -1,0 +1,25 @@
+=== host: snoke  date: 2026-09-29T21:24:41-06:00
+=== tree: 0296f4b+dirty
+=== dirty: ?? evidence/qwen9b/sr/R3_8_RTL.md
+=== cmd : /home/cah/.venv/bin/python -u sw/chat_seq.py --nch 4 --seq-rtl r3 --reorder B --reorder-check
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  reorder    form B: PER IMAGE on the shipped template (static costs at position 0, --seq-rtl r3: masked FENCEs + XWIN/RES bank fields, caps ['R1', 'R2', 'R3']); pins lite 8a226ca17f197073 full fdfc6d0c7cd04bbd
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  reorder    form B r3 lite: 38858 -> 38930 records == pin 8a226ca17f197073; MOVX elided 480, fences deferred 280; hazard assert PASS {'MOVX': 128, 'MVGO': 1248, 'MOVY': 1248, 'FENCE': 1248}; postcheck 53983 edges; FENCE masks {1: 312, 2: 312, 4: 312, 8: 312}; static model 30209477 -> 22297831 cyc
+  reorder    form B r3 full: 39626 -> 39786 records == pin fdfc6d0c7cd04bbd; MOVX elided 480, fences deferred 310; hazard assert PASS {'MOVX': 129, 'MVGO': 1370, 'MOVY': 1370, 'FENCE': 1370}; postcheck 54966 edges; FENCE masks {1: 343, 2: 343, 4: 342, 8: 342}; static model 32771280 -> 24087146 cyc
+  reorder    form B images built in 5.5 s
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38930, full:39786  (6.9s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x90983c0
+    [B6 shipped] preamble tok=0 pos=0: out [] (0 s)
+    [B6 shipped] lite tok=760 pos=0: out [] (124 s)
+    [B6 shipped] full tok=2614 pos=1: out [513] (141 s)
+    [B6 reordered] preamble tok=0 pos=0: out [] (0 s)
+    [B6 reordered] lite tok=760 pos=0: out [] (119 s)
+    [B6 reordered] full tok=2614 pos=1: out [513] (135 s)
+  B6 model gate: PASS — tokens [[], [], [513]] vs [[], [], [513]]; state diff []; 522.3 s
+REORDER CHECK: PASS
+=== rc  : 0
+=== end : 2026-09-29T21:33:32-06:00

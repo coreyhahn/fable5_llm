@@ -1,0 +1,22 @@
+=== host: snoke
+=== date: 2026-09-02T06:52:36-06:00
+=== tree: bbda679
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/o3/o3_cite_drift.py --base 8138d66 --doc-base 8138d66 --edited rtl/layer_chan.sv,rtl/dn_step.sv,rtl/gate_unit.sv,rtl/seq_unit.sv,rtl/conv4_silu.sv,sw/hwmap.py,sw/seq_run.py,ref/gen_layer_script.py,ref/gen_layer_vectors.py,ref/layer_fixed.py,ref/seq_chat.py,tb/tb_dn_step.sv,tb/tb_gate_unit.sv,tb/tb_layer_chan.sv,tb/tb_seq_unit.sv,tb/scripts/gen_seq_unit_vectors.py,tb/scripts/gen_seq_c_vectors.py,tb/Makefile,evidence/qwen9b/g3/isa_bits.py,docs/ARCHITECTURE.md,docs/SEQ_ISA.md --range-control
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+o3 citation-drift gate  [range negative control]
+  both endpoints live                  '`rtl/layer_chan.sv:10-30`'  -> '`rtl/layer_chan.sv:20-40`'  ok
+  the END was deleted                  '`rtl/layer_chan.sv:10-30`'  -> '`rtl/layer_chan.sv:10-30`'  ok
+  the START was deleted                '`rtl/layer_chan.sv:10-30`'  -> '`rtl/layer_chan.sv:10-30`'  ok
+  a bare continuation, END deleted     'see `rtl/layer_chan.sv` at `:10-30`' -> 'see `rtl/layer_chan.sv` at `:10-30`' ok
+  the END is PAST the base file's end  '`rtl/layer_chan.sv:10-99`'  -> '`rtl/layer_chan.sv:10-99`'  ok
+  the START is PAST the base file's end '`rtl/layer_chan.sv:99-30`'  -> '`rtl/layer_chan.sv:99-30`'  ok
+  a SINGLE line past the base file's end '`rtl/layer_chan.sv:99`'     -> '`rtl/layer_chan.sv:99`'     ok
+O3_RANGE_CONTROL: PASS — a half-mapped range is never rewritten (0 problem(s))
+=== rc: 0
+=== end: 2026-09-02T06:52:36-06:00

@@ -1,0 +1,49 @@
+# T3: python goldens — seq_model selftest (incl. the R-c repack case)
+# 2026-08-22T12:21:10-06:00 darthplagueis bb26c6b+dirty
+dynq16/eps-norm semantics from: layer_fixed (agent A)
+DYNQ16 == op1+dn_o_shift on 200/200 blocks
+EPS-NORM vs frozen dn_norm_scale: 200/200 blocks bit-identical, worst |delta| = 0 LSB
+W8 MVGO (SHAPE 0x200111c2, 17x256, stride 320B): packed-DDR and live-dict paths both == matvec_y32_w8 (|y|max 3297945), 2/2 wrong SHAPE words refused — PASS
+REPACK (nch=2, 2 W8 images, 7 pieces): every piece's MVGO == matvec_y32_w8 on its global rows; per-channel packs [5440, 5248] B vs one span 10688 B; 8 wrong-plan/wrong-channel lookups refused or diverted — PASS
+
+# end-to-end: a REAL emitter run with SEQ_NCH=4 SEQ_REPACK=1, gated .txt vs .seq
+$ SEQ_EMIT=... SEQ_NCH=4 SEQ_REPACK=1 gen_token_script.py <p>.txt 1 3 8192 2   (vocab 8192)
+  opcodes  {'CSRWR': 757, 'CMD': 251, 'MOVX': 64, 'MOVY': 64, 'MVGO': 64, 'EMB': 1, 'AMAXL': 1, 'JMP': 1, 'FENCE': 16, 'HALT': 1, 'LDC*': 14, 'XOP*': 2}
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+  .txt     773 commands, 282192 host-relayed words, checks {'R': 72, 'E': 48, 'A': 3, 'V': 48} (0.6s)
+  .seq     713 commands issued, movers MOVX=192 MVGO=192 MOVY=192 LDC=36 EMB=3 AMAXL=3 (1.1s)
+  CHECKPT  72/72 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [219, 1891, 4436]
+SEQ GATE: PASS
+
+$ ... 2 3 7000 2   (vocab 7000 -> the ILV head splits 2048/2048/2048/856)
+  opcodes  {'CSRWR': 757, 'CMD': 251, 'MOVX': 64, 'MOVY': 64, 'MVGO': 64, 'EMB': 1, 'AMAXL': 1, 'JMP': 1, 'FENCE': 16, 'HALT': 1, 'LDC*': 14, 'XOP*': 2}
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+  .txt     773 commands, 275040 host-relayed words, checks {'R': 72, 'E': 48, 'A': 3, 'V': 48} (0.6s)
+  .seq     713 commands issued, movers MOVX=192 MVGO=192 MOVY=192 LDC=36 EMB=3 AMAXL=3 (1.1s)
+  CHECKPT  72/72 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2047 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [4264, 4112, 3827]
+SEQ GATE: PASS
+
+# the per-channel addressing the repack produces, shown against the same
+# model emitted WITHOUT SEQ_REPACK (both SEQ_NCH=4, 16 images, 7000-row head)
+#
+#   tok7k_flat  repack=False  per-channel tops 0x118ce600 x4   busiest 24.81 MiB
+#     head MVGOs: (0,0x114f6000) (1,0x11616000) (2,0x11736000) (3,0x11856000)
+#                 = base + GLOBAL row {0,2048,4096,6144} * stride
+#
+#   tok7k       repack=True   per-channel tops 0x1065e000 0x1065e000
+#                                              0x1065e000 0x105b6600
+#                                              busiest  6.37 MiB  (3.9x less)
+#     head MVGOs: (0,0x1053e000) (1,0x1053e000) (2,0x1053e000) (3,0x1053e000)
+#                 = each channel's OWN base + packed row 0, holding global
+#                   rows 0..2047 / 2048..4095 / 4096..6143 / 6144..6999
+#                   (2048/2048/2048/856 rows — an UNEVEN ILV split)
+#
+# The gate above is what proves the second reading is the right one: the
+# golden resolves each per-channel address back to those global rows and
+# reproduces the .txt state bit-for-bit.

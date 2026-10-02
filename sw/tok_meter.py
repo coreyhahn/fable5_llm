@@ -40,7 +40,10 @@ taking one extra row, so unequal/indivisible row counts are legal), then
 each channel chunks *its own* range by RES_DEPTH.  No divisibility
 constraint is ever imposed on nrows.  The 248,320-row LM head becomes
 62,080 rows per channel = 15 chunks of 4096 + 1 of 640 on every channel
-(64 engine runs vs 61 for one channel), perfectly balanced.
+(64 engine runs vs 61 for one channel), perfectly balanced.  (Those are row
+counts, so they hold at every geometry this project has -- the vocabulary is
+248,320 at 0.8B, 2B, 4B and 9B alike.  What is NOT geometry-independent is
+the PACK: see D-TOK below.)
 
 Usage (on snoke, board already programmed -- this tool NEVER programs):
   .venv/bin/python tok_meter.py --smoke-lcyc
@@ -58,10 +61,13 @@ from datetime import datetime, timezone
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import board_lock as BL                                         # noqa: E402
+import hwmap as HW                                              # noqa: E402
 from hwmap import (                                             # noqa: E402
     UI_CLK_HZ, ACLK_HZ,
     R_MAGIC, R_VERSION, R_CALIB, MAGIC, CALIB_ALL,
     R_CTRL, R_STATUS, R_WBASE_LO, R_WBASE_HI, R_WBEATS, R_SHAPE, shape_word,
+    shape_isa_for_version, UnknownBitstream,
     R_PERF_CYC_LO, R_PERF_CYC_HI, R_PERF_BEATS,
     R_XWIN, R_XPTR, R_RES_PTR, R_RES_DATA, R_IDENT,
     MV_IDENT0, MV_ST_DONE, MV_ST_ERR_RRESP, MV_ST_XOVFL, mv_base,
@@ -118,6 +124,33 @@ def new_acc(t):
             "lcyc_by_op": {}, "cmds_by_op": {}}
 
 
+def state_bytes_per_token(T, n_dn=24, n_kv=8, nkvh=4):
+    """DDR bytes the STATE traffic costs per token, at context length T.
+
+    LABEL D (derived from the plan, not measured): every term is a count of
+    transfers the emitter's schedule actually emits (spec 6.1-6.3, SEQ_ISA
+    v2.1 B15.1), times the block size the ISA fixes.
+
+      DN    2 x 24 x 1 MiB     one SLD + one SST per DeltaNet layer
+      conv  2 x 24 x 128 KiB   the same pair for the conv block
+      KV    2 x 8 x 4 x 2 x (T*256 + 64*ceil(T/64))
+            per attention layer, per kvhead, for K and V: one SLD and one
+            SST of TCNT rows of 256 B plus the exponent side array rounded
+            up to one 64 B beat (B15.1's "Length")
+
+    At T = 512 that is ~70 MiB and at T = 4,096 ~182 MiB.  **The spec's 9
+    "~ 50 MiB at T = 512" was low and this number corrects it**: it counted
+    the DN traffic once per layer rather than once each way, and left the
+    conv pair out.
+    """
+    T = int(T)
+    dn = 2 * n_dn * HW.STATE_DN_LAYER
+    cv = 2 * n_dn * HW.STATE_CV_STRIDE
+    exp = 64 * ((T + 63) // 64)
+    kv = 2 * n_kv * nkvh * 2 * (T * 256 + exp)
+    return {"dn": dn, "cv": cv, "kv": kv, "total": dn + cv + kv}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--script", default="../tb/scripts/model_s1.txt")
@@ -142,7 +175,22 @@ def main():
                     help="run the LCYC smoke test and stop (no DMA)")
     ap.add_argument("--dev", default="/dev/xdma0")
     ap.add_argument("--out", default=None)
+    # S3: the context length the state-traffic line (label D) is stated at.
+    ap.add_argument("--ctx", type=int, default=512,
+                    help="context length T for the state bytes/token line")
+    BL.add_lock_args(ap)                        # O3: --lock / --no-lock
     args = ap.parse_args()
+
+    # O3 (user ruling 2026-08-29): THE shared board lock, taken FIRST —
+    # before any artifact is opened and long before the first device fd,
+    # so a refusal is instant and this tool can no longer drive the board
+    # out from under a live session.
+    try:
+        _lock = BL.from_args(args, tool="tok_meter.py").acquire()
+    except BL.BoardLockError as e:
+        print("*** %s" % e)
+        raise SystemExit(4)
+
 
     chans = [0, 1, 2, 3] if args.four_chan else [args.chan]
     nch = len(chans)
@@ -159,9 +207,20 @@ def main():
 
     # ---- board identity gate (never DMA without it) --------------------
     magic, ver, calib = rd(R_MAGIC), rd(R_VERSION), rd(R_CALIB)
-    print(f"MAGIC={magic:08x} VERSION={ver:08x} CALIB={calib:x}")
     assert magic == MAGIC, "wrong design"
     assert calib == CALIB_ALL, "DDR not calibrated"
+    # WHICH R_SHAPE LAYOUT THE RESIDENT BITSTREAM DECODES (G3.3), gated in
+    # the SAME place as MAGIC/CALIB and BEFORE anything is packed: the word
+    # goes straight to a live BAR, so it follows the VERSION CSR and not this
+    # checkout's RTL, and an image this checkout has no layout for REFUSES
+    # rather than guessing (the two layouts decode each other's words as
+    # plausible garbage -- sw/hwmap.UnknownBitstream).
+    try:
+        shape_isa = shape_isa_for_version(ver)
+    except UnknownBitstream as ex:
+        raise SystemExit("REFUSING TO TOUCH THE BOARD — " + str(ex))
+    print(f"MAGIC={magic:08x} VERSION={ver:08x} CALIB={calib:x} "
+          f"SHAPE_ISA={shape_isa}")
     li = rd(L_IDENT)
     assert li == LAYER_IDENT, f"layer_chan IDENT={li:08x}"
     for c in chans:
@@ -176,6 +235,7 @@ def main():
                               cwd=os.path.dirname(os.path.abspath(__file__))
                               ).stdout.strip(),
         "version_csr": f"{ver:#010x}",
+        "shape_isa": shape_isa,
         "script": os.path.basename(args.script),
         "mode": "4chan" if args.four_chan else "1chan",
         "channels": chans, "runs": args.runs, "verify": args.verify,
@@ -242,23 +302,57 @@ def main():
     # weight/embedding placement
     # ================================================================
     prefix = args.script.rsplit(".", 1)[0]
-    man = json.load(open(f"{prefix}.weights.json"))
+    man, wmeta = HW.load_weights_manifest(prefix)
     wdir = os.path.dirname(args.script)
-    wbase_of, wtop = plan_weights(man, wdir)
+
+    # ---- D-TOK (spec 9): this tool could not plan a 2B pack, and could not
+    # have planned a 9B one either.  It called `plan_weights(man, wdir)` --
+    # the NCH-INDEPENDENT path, in which EVERY channel reserves the WHOLE
+    # image -- while its own uploader had always split rows across channels.
+    # At 0.8B the images are small enough that the 4x over-reservation still
+    # fits below EMB_BASE; at 2B it does not, and `plan_weights` aborts on
+    # its own assert before any DMA (RD_GATE.md follow-on 3).  At 9B the pack
+    # is 3,902 MiB against a 1,280 MiB window, so the same thing happens
+    # harder.
+    #
+    # The fix is to ask for the layout this tool ACTUALLY uploads.  Its row
+    # law is `split_rows` -- one contiguous row-quarter per channel, which is
+    # `seq_format.LAYOUT_CONTIG` -- so `rows_of` is exactly that split's row
+    # counts, and each channel then packs only the rows it owns.
+    repack = nch > 1
+
+    def _rows_of(_wid, nrows):
+        return [n for (_r0, n) in split_rows(nrows, nch)]
+
+    if repack:
+        wbase_of, wtop = plan_weights(man, wdir, nch=nch, rows_of=_rows_of)
+    else:
+        wbase_of, wtop = plan_weights(man, wdir)
+
+    def wbase_chan(wid, i):
+        """Channel-slot `i`'s base for image `wid` (repacked or shared)."""
+        b = wbase_of[int(wid)]
+        return b[i] if isinstance(b, (list, tuple)) else b
+
+    _tops = wtop if isinstance(wtop, (list, tuple)) else (wtop,)
     man_bytes_of = {int(k): int(v["nbeats"]) * 64 for k, v in man.items()}
     print(f"{os.path.basename(args.script)}: {len(man)} weight images, "
-          f"{wtop - W_BASE} bytes packed {W_BASE:#x}..{wtop:#x}; "
+          f"{max(_tops) - W_BASE} bytes packed {W_BASE:#x}.."
+          f"{'/'.join(f'{t:#x}' for t in _tops)}"
+          f"{' (per-channel repack)' if repack else ''}; "
           f"mode={'4chan' if args.four_chan else '1chan'} chans={chans}")
 
     # precompute the per-V engine plan once (pure arithmetic, no MMIO).
-    # plan[wid] = [(chan, [(row0, rowcount), ...]), ...]  -- channels with
-    # no rows at all (nrows < nch) are dropped, keeping the chan binding
-    # explicit rather than positional.
+    # plan[wid] = [(slot, chan, chan_row0, [(row0, rowcount), ...]), ...] --
+    # channels with no rows at all (nrows < nch) are dropped, keeping the
+    # chan binding explicit rather than positional.  `chan_row0` is the
+    # GLOBAL row that channel's packed block starts at, which is what turns
+    # a global row into a channel-local byte offset under the repack.
     plan = {}
     for k, m in man.items():
         wid = int(k)
         parts = split_rows(int(m["nrows"]), nch)
-        plan[wid] = [(chans[i], res_chunks(r0, n))
+        plan[wid] = [(i, chans[i], r0, res_chunks(r0, n))
                      for i, (r0, n) in enumerate(parts) if n > 0]
 
     if not args.skip_upload:
@@ -273,7 +367,11 @@ def main():
                 if n == 0:
                     continue
                 off, sz = r0 * stride, n * stride
-                wa = c * CH_STRIDE + wbase_of[wid] + off
+                # repacked: the channel's block starts at ITS first row, so
+                # the local offset is 0; shared: every channel holds the
+                # whole image and the global offset applies.
+                wa = (c * CH_STRIDE + wbase_chan(wid, i)
+                      + (0 if repack else off))
                 got = os.pwrite(h2c, mv[off:off + sz], wa)
                 assert got == sz, f"wid {wid} ch{c}: short write {got}/{sz}"
                 nbytes += sz
@@ -305,6 +403,10 @@ def main():
         # the PERF_BEATS cross-check below is `rc*stride//64` — so the mode
         # bit in SHAPE is the only thing the group size changes.
         g = int(m.get("g", 128))
+        # V5 weight width (manifest "w8", ABSENT == W4).  Same story as
+        # `g`: stride/nbeats already come from the packer's row law, so
+        # SHAPE bit 29 is the only thing the width changes here.
+        w8 = bool(m.get("w8", False))
         xb = bytes((w & 0xFF) for w in x8_words)
         xb += b"\x00" * (-len(xb) % 4)
         xw = [int.from_bytes(xb[i:i + 4], "little")
@@ -313,23 +415,26 @@ def main():
         out = np.zeros(nrows, dtype=np.int64)
         cyc_tot = beats_tot = runs = 0
 
-        for j in range(max(len(cl) for _, cl in clists)):
-            active = [(c, cl[j]) for c, cl in clists if j < len(cl)]
-            for c, (r0, rc) in active:
+        for j in range(max(len(cl) for (_i, _c, _r, cl) in clists)):
+            active = [(i, c, cr0, cl[j])
+                      for (i, c, cr0, cl) in clists if j < len(cl)]
+            for i, c, cr0, (r0, rc) in active:
                 b = mv_base(c)
-                wbase = wbase_of[int(wid)] + r0 * stride
+                wbase = (wbase_chan(wid, i)
+                         + (r0 - (cr0 if repack else 0)) * stride)
                 wr(b + R_WBASE_LO, wbase & 0xFFFFFFFF)
                 wr(b + R_WBASE_HI, wbase >> 32)
                 wr(b + R_WBEATS, rc * stride // 64)
-                wr(b + R_SHAPE, shape_word(rc, sh, ng, g))
+                wr(b + R_SHAPE,
+                   shape_word(rc, sh, ng, g, w8=w8, isa=shape_isa))
                 wr(b + R_XPTR, 0)
                 for w in xw:
                     wr(b + R_XWIN, w)
             # doorbells last and back to back: the 4 engines overlap
-            for c, _ in active:
+            for _i, c, _cr0, _rc in active:
                 wr(mv_base(c) + R_CTRL, 1)
             t0 = time.monotonic()
-            for c, _ in active:
+            for _i, c, _cr0, _rc in active:
                 b = mv_base(c)
                 while True:
                     st = rd(b + R_STATUS)
@@ -341,7 +446,7 @@ def main():
                 assert not (st & (MV_ST_ERR_RRESP | MV_ST_XOVFL)), \
                     f"matvec wid={wid} ch{c} STATUS={st:x}"
             cyc_j = 0
-            for c, (r0, rc) in active:
+            for _i, c, _cr0, (r0, rc) in active:
                 b = mv_base(c)
                 cyc = rd(b + R_PERF_CYC_LO) | (rd(b + R_PERF_CYC_HI) << 32)
                 beats = rd(b + R_PERF_BEATS)
@@ -479,8 +584,23 @@ def main():
                 acc = new_acc(time.monotonic())
                 acc["tok_in"] = tokid
                 seen_m = True
+                # D-TOK (spec 9): the row STRIDE on DDR is the manifest's
+                # `emb_row_bytes`, and the hardware addresses it by a SHIFT
+                # (seq_unit's EMBLOG2), not by a multiply.  `n * 2` agrees
+                # with that only when 2*H is the power of two the CSR
+                # encodes — true at 0.8B (2048), 2B (4096) and 9B (8192),
+                # and a COINCIDENCE at every one of them.  Assert it rather
+                # than depend on it, and address with the real stride.
+                row_bytes = int(wmeta["emb_row_bytes"])
+                assert row_bytes == n * 2, (
+                    f"the manifest says {row_bytes} B embedding rows but "
+                    f"the script's M record reads {n} words = {n * 2} B")
+                assert row_bytes == 1 << HW.seq_emb_log2(row_bytes), (
+                    f"embedding row stride {row_bytes} is not the power of "
+                    f"two seq_unit's EMBLOG2 can encode")
                 row = os.pread(c2h, n * 2,
-                               chans[0] * CH_STRIDE + EMB_BASE + tokid * n * 2)
+                               chans[0] * CH_STRIDE + EMB_BASE
+                               + tokid * row_bytes)
                 wr(L_SPTR, a)
                 for i in range(n):
                     wr(L_SWIN, int.from_bytes(row[2 * i:2 * i + 2], "little"))
@@ -587,6 +707,15 @@ def main():
               f"{100*(1-agg['matvec_frac']):.1f}%)")
         print(f"  WALL   tok/s = {agg['wall_toks']:.3f}   "
               f"({twall:.1f}s of token replay, {t_run:.1f}s incl. init)")
+        # S3 (spec 7.1, 9): the STATE traffic the SLD/SST schedule adds,
+        # beside the weight traffic measured above.  Label D -- it is the
+        # schedule's own arithmetic, not a measurement, and it is stated at
+        # the run's own context length.
+        sb = state_bytes_per_token(getattr(args, "ctx", 512))
+        agg["state_bytes_per_token"] = sb
+        print(f"  state    {sb['total'] / 2**20:.0f} MiB/token at T="
+              f"{getattr(args, 'ctx', 512)} (D): DN {sb['dn'] / 2**20:.0f} + "
+              f"conv {sb['cv'] / 2**20:.0f} + KV {sb['kv'] / 2**20:.0f} MiB")
         print(f"  streamed {agg['bytes_per_token']} B/token, "
               f"{agg['ddr_GBps']:.2f} GB/s aggregate DDR read; "
               f"beats*64 vs manifest: "

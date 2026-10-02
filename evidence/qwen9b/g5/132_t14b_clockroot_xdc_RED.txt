@@ -1,0 +1,35 @@
+# RED: the guard inside synth/constraints/fable5_clockroot_9b.xdc COULD NOT RUN.
+#
+# Task 14-B's first clock-root roll (TAG=ckr) was launched 2026-09-07T15:35:42 on snoke
+# and KILLED BY ME 22 minutes in, during opt_design's MIG-core phase and before any
+# checkpoint was written, because its own impl log showed the file's assertion was
+# being SKIPPED.  Verbatim, from
+#   synth/out_build_041_ckr_AltSpreadLogic_high/proj/stage1.runs/impl_1/runme.log
+# (out dirs are gitignored; the roll's dir synth/out_build_041_ckr_AltSpreadLogic_high
+#  is burnt and never reused, exactly as the four burnt build numbers of G5B_TIMING.md
+#  section 1.6 are):
+
+Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc]
+CRITICAL WARNING: [Designutils 20-1307] Command 'if' is not supported in the xdc constraint file. [/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc:87]
+CRITICAL WARNING: [Designutils 20-1307] Command 'if' is not supported in the xdc constraint file. [/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc:92]
+CRITICAL WARNING: [Designutils 20-1307] Command 'puts' is not supported in the xdc constraint file. [/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc:96]
+Finished Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc]
+
+# READING.  A managed project run parses an implementation-only XDC with Vivado's
+# RESTRICTED constraint parser, which accepts set_property but NOT 'if' and NOT 'puts'.
+# The two 'if' guards and the confirming 'puts' were dropped with a CRITICAL WARNING
+# each, so the file would have constrained the design with NO assertion that it had
+# constrained anything -- the same silent-no-op failure class that
+# synth/scripts/floorplan_check.tcl's header exists for, and the one this campaign has
+# been bitten by twice (a pblock matching zero cells; a set_property on an empty list).
+#
+# REPAIR: the XDC is rewritten with ONE parser-legal set_property and no control flow,
+# and the assertion moves OUT of it into evidence/qwen9b/g5/g5d_clockroot_check.tcl --
+# a read-only -source script, where the full Tcl interpreter IS available -- which
+# reads the property back off a real checkpoint BEFORE and AFTER applying the file.
+# That is a stronger guard than the deleted puts: it reads the netlist rather than
+# echoing what it just set.
+#
+# Evidence log number 131 was consumed by the burnt roll.  Its run.sh log has no
+# '=== rc:' line because I killed the wrapper, so it is NOT committed -- 131 is a
+# burnt number and this file is the finding it produced.

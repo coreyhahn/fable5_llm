@@ -1,0 +1,115 @@
+=== host: snoke  date: 2026-09-29T18:30:26-06:00
+=== tree: 40429a0
+=== cmd : git diff -U0 c5f255d 40429a0 --stat -- docs/SEQ_ISA.md sw/hwmap.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+ docs/SEQ_ISA.md | 100 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 100 insertions(+)
+
+diff --git a/docs/SEQ_ISA.md b/docs/SEQ_ISA.md
+index 10f3ae6..b1dbfab 100644
+--- a/docs/SEQ_ISA.md
++++ b/docs/SEQ_ISA.md
+@@ -1592,0 +1593,100 @@ layout does not move.
++
++CONTRACT (Task R3-1 of the R3 campaign, 2026-09-29; plan
++docs/superpowers/plans/2026-09-29-r3-broadcast.md, Task R3-1). This
++transcribes the design of spec §1.3 (a) and §1.4
++(docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md) into contract
++language and adds nothing to it. STATUS: NOT BUILT. No bitstream implements
++this section and the R3 RTL does not exist yet (it is Task R3-8's, in
++rtl/seq_unit.sv, rtl/seq_movers.sv and rtl/matvec_chan.sv); every RTL line
++cited below is TODAY's RTL. The status line above stays until the build task
++(R3-10) adds the AS BUILT note. evidence/qwen9b/sr/sr2_isa_tdd.py --r3 ties
++this text to sw/hwmap.py and to the RTL's error codes.
++
++Semantics: one MOVX reads its scratch source ONCE and writes the same x into
++the XWIN of all four channels, at the same words (the census's "one scratch
++read, four XWIN writes", `evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:633`).
++
++  field               where   value       meaning
++  MOVX flags[7:4]     record  0xF         BROADCAST to channels 0..3 (capability "R3")
++  MOVX flags[7:4]     record  4..14       reserved, err 0x05 (E_CHAN), as today
++  MVGO flags[7:4]     record  0xF         err 0x05: a broadcast is a MOVX only
++  MOVX flags[3:0]     record  IND_NONE    indirection refused, err 0x02 (E_IND), as today
++  MOVX target[11:0]   record  start word  the XWIN start word for ALL FOUR channels
++  MOVX target[15:12]  record  0           err 0x06, as B17.2
++  MOVX addr_lo, len   record  as unicast  scratch source word; int8 element count
++
++  The error codes are the RTL's E_IND = 0x02 and E_CHAN = 0x05
++  (`rtl/seq_unit.sv:298-299`). MOVY's channel field (target[3:0]) is
++  unchanged: 4 or more is still err 0x05 — there is no broadcast MOVY.
++
++WINDOW. The one target[11:0] names the window on every channel, so B17.2's
++range rule (start word + ceil(len/4) words <= 3072; start word <= 3071; err
++0x06) is applied to that one window, and a broadcast writes the same bank on
++all four channels (bank 1 = word 1536, B17.2). The pass that emits a
++broadcast forces the four consumers' XBANK to agree (spec §1.3, Emitter /
++pass).
++
++RETIREMENT. A broadcast MOVX retires only when every word is in every
++channel's XWIN FIFO — the same commit contract the unicast burst keeps
++(`rtl/matvec_chan.sv:100-110`), so the next MVGO's doorbell on any of the
++four channels cannot overtake its x. How form (a) meets this is Task R3-8's
++(the push leg's own commit contract).
++
++XPTR. Today a unicast MOVX writes its channel's XPTR to 0 before its burst
++(the X_XPTR state, `rtl/seq_movers.sv:904-905`); the burst itself never
++touches XPTR (`rtl/matvec_chan.sv:112`). A broadcast leaves all four XPTRs
++unchanged (the push carries its word index). This is architecturally
++visible: the XPTR readback (mvchan 0x28, `rtl/matvec_chan.sv:381`) and the
++next AXI-Lite XWIN write, which pushes at xptr (`rtl/matvec_chan.sv:350-353`),
++see whatever the last unicast MOVX or host write left — host diagnostics
++must not assume XPTR = 0 after a broadcast.
++
++NO RTL INTERLOCK — RUNNING RANGES, per destination (B17.2's rule, applied to
++each of the four channels). A broadcast is INVALID if, for ANY channel c,
++its word range overlaps channel c's pending x range — every destination
++channel's XWIN bank must be free. Such a stream is refused by the reference
++model gate (RunningChannelError, `ref/seq_model.py:455`) and by the pass's
++hazard assert (`ref/scripts/reorder_e4.py:225`), not by the RTL (spec §7
++Q8). The cited lines are today's unicast refusals; the per-destination
++check for a broadcast lands in the model at Task R3-3 and in the pass at
++Task R3-5. Spec §1.3 says "the validator requires every destination
++channel's XWIN bank free"; as B17.2 splits it, the per-record validator
++(ref/seq_format.validate) is stateless and cannot see pending ranges, so
++"the validator" there means the model gate plus the pass's assert.
++
++ADMISSION. A broadcast is validated only when {"R1", "R2", "R3"} ⊆ caps
++(the one bitstream that builds R3 also has R1 and R2; the validator names
++every missing capability). That bitstream's SEQ_CAPS word = 0xFAB1CA07,
++which is hwmap.seq_caps_word of {"R1", "R2", "R3"} (the bits are
++SEQ_CAP_BITS, `sw/hwmap.py:358-360`; B17.0). Without that set, MOVX
++flags[7:4] of 4 or more keeps today's refusal. As B17.0: caps are the
++DEVICE's, decoded from its SEQ_CAPS on a VERSION the caller named, never a
++manifest's claim. An r3 stream also carries B17.2 bank fields, which are
++NOT fail-closed on an older bitstream (B17.2, FORWARD COMPATIBILITY), so on
++an R1-only or R1+R2 device the admission must fail on the broadcast record,
++by the validator, before upload — never by reaching the RTL. (The validator
++is Task R3-2's.)
++
++FORWARD COMPATIBILITY — fail-closed. Every pre-R3 bitstream (build_041,
++build_042, build_044_r1_incr, build_045_r2_incr) faults err 0x05 at the
++decode of a broadcast MOVX, before any word moves: today's RTL refuses a
++MOVX or MVGO whose flags[7:4] is 4 or more as E_CHAN
++(`rtl/seq_unit.sv:798-800`; spec §1.3 reads the same refusal on
++build_041/042). The device-keyed admission refuses it first; the RTL fault
++is the second line.
++
++COUNTERS. A broadcast is one mover job with mv_op 0: BM_MVWORK (the BM1
++spec's C6) and BM_MOVX count its cycles once, as one MOVX; no counter
++changes (§B16).
++
++FORM. (a), the direct x-push bus (spec §1.3 (a), decision D3; the user's
++ruling 2026-09-29): seq_movers pushes each word with its word index to all
++four matvec_chan XWIN FIFOs on a new aclk point-to-point port, only when all
++four have room (lockstep); AXI-Lite still wins each FIFO's mux. The ISA
++above does not depend on the form (another form would have to meet the same
++XPTR and retirement rules).
++
++NOT CLAIMED. This section states semantics only. It does not claim that a
++broadcast costs one MOVX window (the spec's pricing, not measured), the push
++rate, the lockstep's back-pressure, or any timing; none is established
++(`evidence/qwen9b/sr/SR16_R3_DECISION.md:237-252`).
+=== rc  : 0
+=== end : 2026-09-29T18:30:26-06:00

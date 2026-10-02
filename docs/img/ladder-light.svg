@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 352" width="760" height="352" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-labelledby="t d">
+<!--
+  Tokens per second at 9B, rung by rung. Light theme.
+  Scale: x = 220 + value * 25 px per tok/s.  Axis 0..18 tok/s spans x = 220 .. 670.
+  Bar width = value * 25. Bars are 13 px tall; the stream bar sits 16 px below the chat bar.
+  Hollow bars (not measured) use a 1.5 px stroke inset by 0.75 px so the outer edge lands on the scale.
+  Values from the landing page (docs/index.html), section "Where a token's time goes".
+-->
+<title id="t">Tokens per second at 9B, rung by rung</title>
+<desc id="d">Chat and 6-token stream decode rates. Shipped order 6.770 and 7.293. Reordered stream, same bitstream 7.619 and 8.296. R1, fence channel mask 7.929 and 8.742. R2, double-banked buffers 8.182 and 9.057. R3, MOVX broadcast 8.70 to 8.77 and 9.70 to 9.83, model prediction. DDR bandwidth ceiling 17.3, derived.</desc>
+
+<text x="4" y="18" font-size="13" font-weight="600" fill="#14202b">Tokens per second at 9B, rung by rung</text>
+
+<!-- legend -->
+<rect x="220" y="32" width="11" height="11" fill="#2a78d6"/>
+<text x="236" y="42" font-size="12" fill="#3f4f5c">chat (context ≈ 505)</text>
+<rect x="378" y="32" width="11" height="11" fill="#eb6834"/>
+<text x="394" y="42" font-size="12" fill="#3f4f5c">6-token stream</text>
+<rect x="496.75" y="32.75" width="9.5" height="9.5" fill="none" stroke="#9aa6b0" stroke-width="1.5"/>
+<text x="512" y="42" font-size="12" fill="#3f4f5c">hollow = not measured</text>
+
+<!-- baseline, axis line and ticks every 2 tok/s: x = 220 + 2k * 25 = 220 + 50k -->
+<g stroke="#cfd7dd" stroke-width="1" fill="none">
+  <line x1="220" y1="58" x2="220" y2="310"/>
+  <line x1="220" y1="306" x2="670" y2="306"/>
+  <line x1="270" y1="306" x2="270" y2="310"/>
+  <line x1="320" y1="306" x2="320" y2="310"/>
+  <line x1="370" y1="306" x2="370" y2="310"/>
+  <line x1="420" y1="306" x2="420" y2="310"/>
+  <line x1="470" y1="306" x2="470" y2="310"/>
+  <line x1="520" y1="306" x2="520" y2="310"/>
+  <line x1="570" y1="306" x2="570" y2="310"/>
+  <line x1="620" y1="306" x2="620" y2="310"/>
+  <line x1="670" y1="306" x2="670" y2="310"/>
+</g>
+
+<!-- row labels, right-aligned at x = 210 -->
+<g font-size="12" fill="#14202b" text-anchor="end">
+  <text x="210" y="83">Shipped order</text>
+  <text x="210" y="127">Reordered stream, same bitstream</text>
+  <text x="210" y="171">R1, fence channel mask</text>
+  <text x="210" y="215">R2, double-banked buffers</text>
+  <text x="210" y="259">R3, MOVX broadcast</text>
+  <text x="210" y="294">DDR bandwidth ceiling</text>
+</g>
+
+<!-- Shipped order, row top y = 64 -->
+<rect x="220" y="64" width="169.25" height="13" fill="#2a78d6"/>   <!-- 6.770 * 25 = 169.25, ends 389.25 -->
+<rect x="220" y="80" width="182.325" height="13" fill="#eb6834"/>  <!-- 7.293 * 25 = 182.325, ends 402.325 -->
+<!-- Reordered stream, row top y = 108 -->
+<rect x="220" y="108" width="190.475" height="13" fill="#2a78d6"/> <!-- 7.619 * 25 = 190.475, ends 410.475 -->
+<rect x="220" y="124" width="207.4" height="13" fill="#eb6834"/>   <!-- 8.296 * 25 = 207.4, ends 427.4 -->
+<!-- R1, row top y = 152 -->
+<rect x="220" y="152" width="198.225" height="13" fill="#2a78d6"/> <!-- 7.929 * 25 = 198.225, ends 418.225 -->
+<rect x="220" y="168" width="218.55" height="13" fill="#eb6834"/>  <!-- 8.742 * 25 = 218.55, ends 438.55 -->
+<!-- R2, row top y = 196 -->
+<rect x="220" y="196" width="204.55" height="13" fill="#2a78d6"/>  <!-- 8.182 * 25 = 204.55, ends 424.55 -->
+<rect x="220" y="212" width="226.425" height="13" fill="#eb6834"/> <!-- 9.057 * 25 = 226.425, ends 446.425 -->
+<!-- R3, row top y = 240, hollow at the low end of each range -->
+<rect x="220.75" y="240.75" width="216" height="11.5" fill="none" stroke="#2a78d6" stroke-width="1.5"/> <!-- 8.70 * 25 = 217.5, ends 437.5; inset width 217.5 - 1.5 = 216 -->
+<rect x="220.75" y="256.75" width="241" height="11.5" fill="none" stroke="#eb6834" stroke-width="1.5"/> <!-- 9.70 * 25 = 242.5, ends 462.5; inset width 242.5 - 1.5 = 241 -->
+<!-- DDR bandwidth ceiling, row top y = 284, hollow neutral -->
+<rect x="220.75" y="284.75" width="431" height="11.5" fill="none" stroke="#9aa6b0" stroke-width="1.5"/> <!-- 17.3 * 25 = 432.5, ends 652.5; inset width 432.5 - 1.5 = 431 -->
+
+<!-- values, at bar end + 6 -->
+<g font-size="12" fill="#14202b">
+  <text x="395.25" y="74">6.770</text>
+  <text x="408.325" y="90">7.293</text>
+  <text x="416.475" y="118">7.619</text>
+  <text x="433.4" y="134">8.296</text>
+  <text x="424.225" y="162">7.929</text>
+  <text x="444.55" y="178">8.742</text>
+  <text x="430.55" y="206">8.182</text>
+  <text x="452.425" y="222">9.057</text>
+  <text x="443.5" y="250">8.70–8.77</text>
+  <text x="503" y="250" fill="#3f4f5c">model</text>
+  <text x="468.5" y="266">9.70–9.83</text>
+  <text x="528" y="266" fill="#3f4f5c">model</text>
+  <text x="658.5" y="294">17.3</text>
+  <text x="686" y="294" fill="#3f4f5c">derived</text>
+</g>
+
+<!-- axis tick labels at x = 220 + 50k -->
+<g font-size="12" fill="#3f4f5c" text-anchor="middle">
+  <text x="220" y="322">0</text>
+  <text x="270" y="322">2</text>
+  <text x="320" y="322">4</text>
+  <text x="370" y="322">6</text>
+  <text x="420" y="322">8</text>
+  <text x="470" y="322">10</text>
+  <text x="520" y="322">12</text>
+  <text x="570" y="322">14</text>
+  <text x="620" y="322">16</text>
+  <text x="670" y="322">18</text>
+  <text x="445" y="342">tokens per second</text>
+</g>
+</svg>

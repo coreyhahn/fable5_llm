@@ -114,6 +114,11 @@ module matvec_chan_ipi #(
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib RREADY" *)
     input  wire         s_axib_rready,
 
+    // BM1 (spec 2026-09-24 §1.1): engine busy on aclk (a flop of the already
+    // synchronised STATUS bit), wired to seq_0/mv_busy_bm<c> by
+    // synth/scripts/create_project.tcl.  Plain signal, no X_INTERFACE.
+    output wire         mv_busy_bm,
+    input wire xpush_valid, input wire [11:0] xpush_idx, input wire [31:0] xpush_data, output wire xpush_room, output wire xpush_busy,  // R3-8 (B17.3): the x-push port from seq_0/xpush<c>_*, wired by synth/scripts/create_project.tcl (aclk; no X_INTERFACE)
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 ui_clk CLK" *)
     (* X_INTERFACE_PARAMETER = "ASSOCIATED_BUSIF m_axi, ASSOCIATED_RESET ui_rstn" *)
     input  wire         ui_clk,
@@ -170,6 +175,7 @@ module matvec_chan_ipi #(
         .s_axib_rid(s_axib_rid), .s_axib_rdata(s_axib_rdata),
         .s_axib_rresp(s_axib_rresp), .s_axib_rlast(s_axib_rlast),
         .s_axib_rvalid(s_axib_rvalid), .s_axib_rready(s_axib_rready),
+        .mv_busy_bm(mv_busy_bm), .xpush_valid(xpush_valid), .xpush_idx(xpush_idx), .xpush_data(xpush_data), .xpush_room(xpush_room), .xpush_busy(xpush_busy),  // R3-8
         .ui_clk(ui_clk), .ui_rstn(ui_rstn),
         .m_axi_araddr(m_axi_araddr), .m_axi_arlen(m_axi_arlen), .m_axi_arsize(m_axi_arsize),
         .m_axi_arburst(m_axi_arburst), .m_axi_arvalid(m_axi_arvalid), .m_axi_arready(m_axi_arready),

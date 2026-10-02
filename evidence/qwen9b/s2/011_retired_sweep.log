@@ -1,0 +1,57 @@
+=== host: darthplagueis
+=== date: 2026-09-04T19:18:31-06:00
+=== tree: 8b93b6e
+=== cmd:  /usr/bin/grep -rn DN_PIPE\|DN_P2WAIT\|DN_BPG\|g_dnpipe\|g_cv\[ rtl/ tb/ synth/scripts/ --include=*.sv --include=*.v --include=*.tcl
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+rtl/dn_step.sv:22:// (DN_PIPE = 2 -> latency 2 + 2*DN_PIPE = 6) and dn_step must lead its
+rtl/layer_chan.sv:377:    // DN_SDEL / DN_RLAT / DN_P2WAIT / LDB / KVB / KV_AW / KV_NB / KV_BW.
+rtl/layer_chan.sv:741:    // pipelined SLR crossing: G3.4's DN_PIPE fan-out/return structure is
+tb/tb_dn_step.sv:6:// crossings and presents 2 + 2*DN_PIPE = 6 instead of 2.  The TB models
+tb/tb_dn_step.sv:9:// ORDER (both legs traverse the same DN_PIPE stages there, so the order at
+tb/tb_dn_step.sv:53:    // (RLAT=2 is URAM + OREG; RLAT=6 adds layer_chan's DN_PIPE=2 fan-out
+tb/obj_dir_p2wait0_optii/layer_chan.sv:195:    // DN_PIPE is PART OF THE STRUCTURE, not a tuning knob: 2 register
+tb/obj_dir_p2wait0_optii/layer_chan.sv:199:    // the crossing.  Read latency 2 -> 2 + 2*DN_PIPE = 6; write latency
+tb/obj_dir_p2wait0_optii/layer_chan.sv:200:    // +DN_PIPE.  Cost is FLIP-FLOPS ONLY (URAM stays 928).
+tb/obj_dir_p2wait0_optii/layer_chan.sv:207:    // gate requires the dn_step cycle cost to be MEASURED at DN_PIPE 0 and
+tb/obj_dir_p2wait0_optii/layer_chan.sv:210:    parameter int DN_PIPE = 2,
+tb/obj_dir_p2wait0_optii/layer_chan.sv:211:    // DN_BPG: banks per pipeline GROUP.  8 groups the 24 banks onto the 3
+tb/obj_dir_p2wait0_optii/layer_chan.sv:212:    // SLRs; DN_BPG=1 (a fan-out register per bank) MEASURED WORSE
+tb/obj_dir_p2wait0_optii/layer_chan.sv:214:    parameter int DN_BPG = 8
+tb/obj_dir_p2wait0_optii/layer_chan.sv:327:    localparam int DN_GRP = (DN_NB + DN_BPG - 1) / DN_BPG;   // 3 at BPG=8
+tb/obj_dir_p2wait0_optii/layer_chan.sv:329:    localparam int DN_SDEL = 2 * DN_PIPE + 1;   // bank-select delay line
+tb/obj_dir_p2wait0_optii/layer_chan.sv:331:    localparam int DN_RLAT = 2 + 2 * DN_PIPE;   // 6 at DN_PIPE = 2
+tb/obj_dir_p2wait0_optii/layer_chan.sv:337:    localparam int DN_P2WAIT = 0;   // G4b option (ii), SCRATCH COPY
+tb/obj_dir_p2wait0_optii/layer_chan.sv:521:    dn_step #(.RLAT(DN_RLAT), .P2_WAIT(DN_P2WAIT)) u_dn (
+tb/obj_dir_p2wait0_optii/layer_chan.sv:569:    if (DN_PIPE == 0) begin : g_dnpipe0
+tb/obj_dir_p2wait0_optii/layer_chan.sv:587:    end else begin : g_dnpipeN
+tb/obj_dir_p2wait0_optii/layer_chan.sv:592:        //            gets DN_PIPE dont_touch'd per-group copies.  This is the
+tb/obj_dir_p2wait0_optii/layer_chan.sv:596:        //   RETURN   a local mux over the group's banks, then DN_PIPE
+tb/obj_dir_p2wait0_optii/layer_chan.sv:609:            (* dont_touch = "true" *) logic [11:0]      ra_p [DN_PIPE];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:610:            (* dont_touch = "true" *) logic [11:0]      wa_p [DN_PIPE];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:611:            (* dont_touch = "true" *) logic [2047:0]    wd_p [DN_PIPE];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:612:            (* dont_touch = "true" *) logic             w_p  [DN_PIPE];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:613:            (* dont_touch = "true" *) logic [DN_BW-1:0] bs_p [DN_PIPE];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:617:                for (int i = 1; i < DN_PIPE; i++) begin
+tb/obj_dir_p2wait0_optii/layer_chan.sv:624:            localparam int LO = gg * DN_BPG;
+tb/obj_dir_p2wait0_optii/layer_chan.sv:625:            localparam int NB = (DN_NB - LO > DN_BPG) ? DN_BPG : (DN_NB - LO);
+tb/obj_dir_p2wait0_optii/layer_chan.sv:630:                    rdq_l[gd] <= mem[ra_p[DN_PIPE-1]];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:631:                    if (w_p[DN_PIPE-1] && bs_p[DN_PIPE-1] == DN_BW'(LO + gd))
+tb/obj_dir_p2wait0_optii/layer_chan.sv:632:                        mem[wa_p[DN_PIPE-1]] <= wd_p[DN_PIPE-1];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:635:            // local mux over this group, then DN_PIPE return registers.
+tb/obj_dir_p2wait0_optii/layer_chan.sv:636:            // At DN_BPG=1 there is no local mux at all — the bank's CQ feeds
+tb/obj_dir_p2wait0_optii/layer_chan.sv:638:            (* dont_touch = "true" *) logic [2047:0] rq_p [DN_PIPE];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:642:                    rq_p[0] <= rdq_l[LW'(dn_bsel_d[DN_PIPE] - DN_BW'(LO))];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:647:                for (int i = 1; i < DN_PIPE; i++) rq_p[i] <= rq_p[i-1];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:648:            assign dn_rdq_gq[gg] = rq_p[DN_PIPE-1];
+tb/obj_dir_p2wait0_optii/layer_chan.sv:653:                ? DN_GW'(dn_bsel_d[2*DN_PIPE] / DN_BW'(DN_BPG)) : '0];
+synth/scripts/ooc_9b.tcl:21:#     [dn_pipe] layer_chan only: override DN_PIPE (default = the RTL's own).
+synth/scripts/ooc_9b.tcl:22:#               The DN_PIPE=0 run is the CONTROL the DN_PIPE=2 cost is
+synth/scripts/ooc_9b.tcl:111:    lappend generics -generic DN_PIPE=$DnPipe
+=== rc: 0
+=== end: 2026-09-04T19:18:31-06:00

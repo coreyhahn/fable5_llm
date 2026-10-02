@@ -1,0 +1,538 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date              : Thu Sep  3 21:32:50 2026
+| Host              : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command           : report_timing -to [get_cells -quiet -hier -filter {NAME =~ *g_grp*rq_p*reg*}] -max_paths 10 -nworst 10 -setup -file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_g5_v2alt/reports/dn_group_return_paths.rpt
+| Design            : layer_chan
+| Device            : xcvu9p-fsgd2104
+| Speed File        : -2L  PRODUCTION 1.28 03-30-2022
+| Design State      : Fully Placed
+| Temperature Grade : E
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.488ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][47]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[2].rq_p_reg[1][47]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.467ns  (logic 0.079ns (1.769%)  route 4.388ns (98.231%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 4.021 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.021ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X109Y756       FDRE                                         r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][47]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X109Y756       FDRE (Prop_DFF_SLICEL_C_Q)
+                                                      0.079     0.107 r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][47]/Q
+                         net (fo=1, estimated)        4.388     4.495                         g_dnpipeN.g_grp[2].rq_p[0][47]
+    SLR Crossing[2->1]   
+    SLICE_X76Y343        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][47]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.021     4.021                         aclk
+    SLICE_X76Y343        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][47]/C
+                         clock pessimism              0.000     4.021                           
+                         inter-SLR compensation      -0.003     4.018                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X76Y343        FDRE (Setup_FFF_SLICEM_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[2].rq_p_reg[1][47]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.495                           
+  -------------------------------------------------------------------
+                         slack                                 -0.488                           
+
+Slack (VIOLATED) :        -0.488ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][47]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[2].rq_p_reg[1][47]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.467ns  (logic 0.079ns (1.769%)  route 4.388ns (98.231%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 4.021 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.021ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X109Y756       FDRE                                         r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][47]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X109Y756       FDRE (Prop_DFF_SLICEL_C_Q)
+                                                      0.079     0.107 f  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][47]/Q
+                         net (fo=1, estimated)        4.388     4.495                         g_dnpipeN.g_grp[2].rq_p[0][47]
+    SLR Crossing[2->1]   
+    SLICE_X76Y343        FDRE                                         f                       g_dnpipeN.g_grp[2].rq_p_reg[1][47]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.021     4.021                         aclk
+    SLICE_X76Y343        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][47]/C
+                         clock pessimism              0.000     4.021                           
+                         inter-SLR compensation      -0.003     4.018                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X76Y343        FDRE (Setup_FFF_SLICEM_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[2].rq_p_reg[1][47]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.495                           
+  -------------------------------------------------------------------
+                         slack                                 -0.488                           
+
+Slack (VIOLATED) :        -0.487ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][455]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].rq_p_reg[1][455]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.466ns  (logic 0.079ns (1.769%)  route 4.387ns (98.231%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 4.021 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.021ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X41Y98         FDRE                                         r  pb_dn_grp0           g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][455]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X41Y98         FDRE (Prop_DFF_SLICEL_C_Q)
+                                                      0.079     0.107 r  pb_dn_grp0           g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][455]/Q
+                         net (fo=1, estimated)        4.387     4.494                         g_dnpipeN.g_grp[0].rq_p[0][455]
+    SLR Crossing[0->1]   
+    SLICE_X62Y493        FDRE                                         r                       g_dnpipeN.g_grp[0].rq_p_reg[1][455]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.021     4.021                         aclk
+    SLICE_X62Y493        FDRE                                         r                       g_dnpipeN.g_grp[0].rq_p_reg[1][455]/C
+                         clock pessimism              0.000     4.021                           
+                         inter-SLR compensation      -0.003     4.018                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X62Y493        FDRE (Setup_FFF_SLICEM_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[0].rq_p_reg[1][455]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.494                           
+  -------------------------------------------------------------------
+                         slack                                 -0.487                           
+
+Slack (VIOLATED) :        -0.487ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][455]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].rq_p_reg[1][455]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.466ns  (logic 0.079ns (1.769%)  route 4.387ns (98.231%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 4.021 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.021ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X41Y98         FDRE                                         r  pb_dn_grp0           g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][455]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X41Y98         FDRE (Prop_DFF_SLICEL_C_Q)
+                                                      0.079     0.107 f  pb_dn_grp0           g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][455]/Q
+                         net (fo=1, estimated)        4.387     4.494                         g_dnpipeN.g_grp[0].rq_p[0][455]
+    SLR Crossing[0->1]   
+    SLICE_X62Y493        FDRE                                         f                       g_dnpipeN.g_grp[0].rq_p_reg[1][455]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.021     4.021                         aclk
+    SLICE_X62Y493        FDRE                                         r                       g_dnpipeN.g_grp[0].rq_p_reg[1][455]/C
+                         clock pessimism              0.000     4.021                           
+                         inter-SLR compensation      -0.003     4.018                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X62Y493        FDRE (Setup_FFF_SLICEM_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[0].rq_p_reg[1][455]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.494                           
+  -------------------------------------------------------------------
+                         slack                                 -0.487                           
+
+Slack (VIOLATED) :        -0.480ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][1251]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[2].rq_p_reg[1][1251]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.459ns  (logic 0.079ns (1.772%)  route 4.380ns (98.228%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 4.021 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.021ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X67Y886        FDRE                                         r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][1251]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X67Y886        FDRE (Prop_DFF_SLICEL_C_Q)
+                                                      0.079     0.107 r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][1251]/Q
+                         net (fo=1, estimated)        4.380     4.487                         g_dnpipeN.g_grp[2].rq_p[0][1251]
+    SLR Crossing[2->1]   
+    SLICE_X90Y432        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][1251]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.021     4.021                         aclk
+    SLICE_X90Y432        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][1251]/C
+                         clock pessimism              0.000     4.021                           
+                         inter-SLR compensation      -0.003     4.018                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X90Y432        FDRE (Setup_GFF2_SLICEM_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[2].rq_p_reg[1][1251]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.487                           
+  -------------------------------------------------------------------
+                         slack                                 -0.480                           
+
+Slack (VIOLATED) :        -0.480ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][1251]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[2].rq_p_reg[1][1251]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.459ns  (logic 0.079ns (1.772%)  route 4.380ns (98.228%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 4.021 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.021ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X67Y886        FDRE                                         r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][1251]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X67Y886        FDRE (Prop_DFF_SLICEL_C_Q)
+                                                      0.079     0.107 f  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][1251]/Q
+                         net (fo=1, estimated)        4.380     4.487                         g_dnpipeN.g_grp[2].rq_p[0][1251]
+    SLR Crossing[2->1]   
+    SLICE_X90Y432        FDRE                                         f                       g_dnpipeN.g_grp[2].rq_p_reg[1][1251]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.021     4.021                         aclk
+    SLICE_X90Y432        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][1251]/C
+                         clock pessimism              0.000     4.021                           
+                         inter-SLR compensation      -0.003     4.018                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X90Y432        FDRE (Setup_GFF2_SLICEM_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[2].rq_p_reg[1][1251]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.487                           
+  -------------------------------------------------------------------
+                         slack                                 -0.480                           
+
+Slack (VIOLATED) :        -0.475ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][38]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[2].rq_p_reg[1][38]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.454ns  (logic 0.079ns (1.774%)  route 4.375ns (98.226%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.008ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 4.020 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.020ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X109Y755       FDRE                                         r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][38]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X109Y755       FDRE (Prop_BFF_SLICEL_C_Q)
+                                                      0.079     0.107 r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][38]/Q
+                         net (fo=1, estimated)        4.375     4.482                         g_dnpipeN.g_grp[2].rq_p[0][38]
+    SLR Crossing[2->1]   
+    SLICE_X79Y351        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][38]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.020     4.020                         aclk
+    SLICE_X79Y351        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][38]/C
+                         clock pessimism              0.000     4.020                           
+                         inter-SLR compensation      -0.003     4.017                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X79Y351        FDRE (Setup_EFF_SLICEL_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[2].rq_p_reg[1][38]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.482                           
+  -------------------------------------------------------------------
+                         slack                                 -0.475                           
+
+Slack (VIOLATED) :        -0.475ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][38]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[2].rq_p_reg[1][38]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.454ns  (logic 0.079ns (1.774%)  route 4.375ns (98.226%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.008ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 4.020 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.020ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X109Y755       FDRE                                         r  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][38]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X109Y755       FDRE (Prop_BFF_SLICEL_C_Q)
+                                                      0.079     0.107 f  pb_dn_grp2           g_dnpipeN.g_grp[2].g_lmux.rq_p_reg[0][38]/Q
+                         net (fo=1, estimated)        4.375     4.482                         g_dnpipeN.g_grp[2].rq_p[0][38]
+    SLR Crossing[2->1]   
+    SLICE_X79Y351        FDRE                                         f                       g_dnpipeN.g_grp[2].rq_p_reg[1][38]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.020     4.020                         aclk
+    SLICE_X79Y351        FDRE                                         r                       g_dnpipeN.g_grp[2].rq_p_reg[1][38]/C
+                         clock pessimism              0.000     4.020                           
+                         inter-SLR compensation      -0.003     4.017                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X79Y351        FDRE (Setup_EFF_SLICEL_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[2].rq_p_reg[1][38]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.482                           
+  -------------------------------------------------------------------
+                         slack                                 -0.475                           
+
+Slack (VIOLATED) :        -0.471ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][460]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].rq_p_reg[1][460]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.450ns  (logic 0.079ns (1.775%)  route 4.371ns (98.225%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 4.021 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.021ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X41Y98         FDRE                                         r  pb_dn_grp0           g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][460]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X41Y98         FDRE (Prop_BFF_SLICEL_C_Q)
+                                                      0.079     0.107 r  pb_dn_grp0           g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][460]/Q
+                         net (fo=1, estimated)        4.371     4.478                         g_dnpipeN.g_grp[0].rq_p[0][460]
+    SLR Crossing[0->1]   
+    SLICE_X62Y493        FDRE                                         r                       g_dnpipeN.g_grp[0].rq_p_reg[1][460]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.021     4.021                         aclk
+    SLICE_X62Y493        FDRE                                         r                       g_dnpipeN.g_grp[0].rq_p_reg[1][460]/C
+                         clock pessimism              0.000     4.021                           
+                         inter-SLR compensation      -0.003     4.018                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X62Y493        FDRE (Setup_CFF_SLICEM_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[0].rq_p_reg[1][460]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.478                           
+  -------------------------------------------------------------------
+                         slack                                 -0.471                           
+
+Slack (VIOLATED) :        -0.471ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][460]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].rq_p_reg[1][460]/D
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.450ns  (logic 0.079ns (1.775%)  route 4.371ns (98.225%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 4.021 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.003ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.021ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.028     0.028                         aclk
+    SLICE_X41Y98         FDRE                                         r  pb_dn_grp0           g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][460]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X41Y98         FDRE (Prop_BFF_SLICEL_C_Q)
+                                                      0.079     0.107 f  pb_dn_grp0           g_dnpipeN.g_grp[0].g_lmux.rq_p_reg[0][460]/Q
+                         net (fo=1, estimated)        4.371     4.478                         g_dnpipeN.g_grp[0].rq_p[0][460]
+    SLR Crossing[0->1]   
+    SLICE_X62Y493        FDRE                                         f                       g_dnpipeN.g_grp[0].rq_p_reg[1][460]/D
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=95256, unset)        0.021     4.021                         aclk
+    SLICE_X62Y493        FDRE                                         r                       g_dnpipeN.g_grp[0].rq_p_reg[1][460]/C
+                         clock pessimism              0.000     4.021                           
+                         inter-SLR compensation      -0.003     4.018                           
+                         clock uncertainty           -0.035     3.982                           
+    SLICE_X62Y493        FDRE (Setup_CFF_SLICEM_C_D)
+                                                      0.025     4.007                           g_dnpipeN.g_grp[0].rq_p_reg[1][460]
+  -------------------------------------------------------------------
+                         required time                          4.007                           
+                         arrival time                          -4.478                           
+  -------------------------------------------------------------------
+                         slack                                 -0.471                           
+
+
+
+

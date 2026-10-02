@@ -1,0 +1,34 @@
+t3_audit_prod: 2026-08-22T12:10:17-06:00  host=snoke
+  python = /home/cah/.venv/bin/python
+  tree   = bb26c6b628e380681c36e27fc842ae9373dd796d +dirty
+  generated=[369, 279, 6511] decoded=' is the capital'
+  -> /tmp/tmp.cMTt76Estp/model_v2_s1.txt
+SEQ: 68119 records (1089904 B) + 1007360 B const blob -> /tmp/tmp.cMTt76Estp/model_v2_s1.er.seq  [profile=epsnorm loop_steps=3]
+
+=== /tmp/tmp.cMTt76Estp/model_v2_s1.er
+    187 images, 68119 records, nch=4, repack=True, tops 0x1645c000/0x16384000/0x1633c000/0x1633c000
+    stream plan == host pack, 3464 MVGO WBASEs row-aligned inside a packed image on their OWN channel
+    chan 0: host spans == engine spans,   100.30 MiB
+    chan 1: host spans == engine spans,    99.45 MiB
+    chan 2: host spans == engine spans,    99.17 MiB
+    chan 3: host spans == engine spans,    99.17 MiB
+    RANGE EQUALITY: PASS  (3464 MVGOs resolved to global rows)
+    wid 186 (ILV, 122 chunks of 2048): chunk j -> chan j%4, every row once: PASS   first [(0, 0), (0, 8192), (0, 16384), (0, 24576)]
+    mutation +32 KiB base shift                         KILLED
+    mutation ILV chunks collapsed to packed row 0       KILLED
+    mutation repacked image addressed by GLOBAL row     KILLED
+
+=== tb/scripts/w4/model_v2_s1.e4
+    187 images, 68119 records, nch=4, repack=False, tops 0x28e34000
+    stream plan == host pack, 3464 MVGO WBASEs row-aligned inside a packed image on their OWN channel
+    chan 0: host spans == engine spans,   100.30 MiB
+    chan 1: host spans == engine spans,    99.45 MiB
+    chan 2: host spans == engine spans,    99.17 MiB
+    chan 3: host spans == engine spans,    99.17 MiB
+    RANGE EQUALITY: PASS  (3464 MVGOs resolved to global rows)
+    wid 186 (ILV, 122 chunks of 2048): chunk j -> chan j%4, every row once: PASS   first [(0, 0), (0, 8192), (0, 16384), (0, 24576)]
+    mutation +32 KiB base shift                         KILLED
+    mutation ILV chunks collapsed to packed row 0       KILLED
+    mutation repacked image addressed by GLOBAL row     n/a for this stream
+
+T3 AUDIT PASS

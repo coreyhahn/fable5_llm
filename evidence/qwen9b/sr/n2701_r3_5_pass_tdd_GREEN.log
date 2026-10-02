@@ -1,0 +1,120 @@
+=== host: snoke  date: 2026-09-29T20:27:22-06:00
+=== tree: a7dd4ed+dirty
+=== dirty:  M tb/Makefile
+=== dirty:  M tb/scripts/gen_seq_unit_vectors.py
+=== dirty:  M tb/seq_stub_mvchan.sv
+=== dirty:  M tb/tb_seq_unit.sv
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/r3_pass_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== r3_pass_tdd.py  FABLE5_MODEL=9b FABLE5_RS_F=7  base a65f87c
+    reorder_e4.RTLS ('r0', 'r1', 'r2', 'r3'); r3 PRESENT
+=== (a) one broadcast per matvec with four live MOVX
+  [PASS] (a) synthetic_r3 form A: 3 matvecs -> 3 broadcasts at 1536 / 0 / 1536, no unicast MOVX, replay <= r2  -- broadcasts 3 (sources ['0x100', '0x800', '0xc00'], targets [1536, 0, 1536]); unicast MOVX left 0; replay r3 9503 <= r2 9503
+  [PASS] (a) synthetic_r3 form B: 3 matvecs -> 3 broadcasts at 1536 / 0 / 1536, no unicast MOVX, replay <= r2  -- broadcasts 3 (sources ['0x100', '0x800', '0xc00'], targets [1536, 0, 1536]); unicast MOVX left 0; replay r3 9503 <= r2 9503
+  [PASS] (a) _synthetic (one channel): no broadcast, counted unicast-left, r3 stream byte-identical to r2's  -- r3 stream == r2 stream True; broadcasts 0, unicast-left groups 1
+=== (b) the merged node: the union of the four siblings' edges
+  [PASS] (b) synthetic_r3 form A: every carrier's preds/sdeps == the union of its four siblings' (r2 edges), siblings dead, no live edge onto a sibling  -- carrier pc 2: preds [1] (union [1]), sdeps [] (union []); carrier pc 15: preds [] (union []), sdeps [] (union []); carrier pc 28: preds [2] (union [2]), sdeps [6, 7, 8, 9] (union [6, 7, 8, 9]); edges onto a merged sibling []
+  [PASS] (b) synthetic_r3 form B: every carrier's preds/sdeps == the union of its four siblings' (r2 edges), siblings dead, no live edge onto a sibling  -- carrier pc 2: preds [1] (union [1]), sdeps [] (union []); carrier pc 15: preds [] (union []), sdeps [] (union []); carrier pc 28: preds [2] (union [2]), sdeps [6, 7, 8, 9] (union [6, 7, 8, 9]); edges onto a merged sibling []
+  [PASS] (b) synthetic_r3 form B: C's broadcast starts after the LATEST of the four channels' readers (channel 3's 3000-cycle stream)  -- C's broadcast waits on A's streams on channels [0, 1, 2, 3]; starts at 3360 >= the latest stream end + tail 3350 (per channel {0: 1480, 1: 1970, 2: 2460, 3: 3350})
+=== (c) / (i) disagreeing banks: FORCED onto channel 0's bank
+  [PASS] (c) synthetic_r3 forced form A: ONE forced node (B, channel 3, bank 1 -> 0) with the edge from D's channel-3 MVGO (the last reader of bank 0 there) added  -- forced [(18, 3, 1, 0, {15})]; D's ch3 MVGO (pc 16) in the carrier's sdeps True, not in r2's True
+  [PASS] (c) synthetic_r3 forced form A: counts 3 broadcasts / 1 forced; every consumer's XBANK = its broadcast's window; the model runs it to the r0 output's state  -- counts bcast 3 forced 1; consumers (bcast idx -> [(mvgo, chan, XBANK)]) [(2, [(3, 3, 1), (5, 2, 1), (6, 1, 1), (7, 0, 1)]), (17, [(26, 0, 1), (29, 1, 1), (32, 2, 1), (37, 3, 1)]), (19, [(20, 3, 0), (21, 2, 0), (23, 1, 0), (24, 0, 0)])]; every MVGO reads its program-order x (mismatches []) and XBANK agrees True; model at {R1,R2,R3} ran 8 MOVX; final state vs the r0 stream: IDENTICAL
+  [PASS] (i) synthetic_r3 forced form A: the forced channel's MVGO XBANK = the forced bank (0), and its later rotation follows (C: bank 1 on all four, not forced)  -- B's broadcast word 0, its channel-3 consumer XBANK [0]; C's word 1536, channel-3 XBANK [1] (the rotation followed the forced bank)
+  [PASS] (c) synthetic_r3 forced form B: ONE forced node (B, channel 3, bank 1 -> 0) with the edge from D's channel-3 MVGO (the last reader of bank 0 there) added  -- forced [(18, 3, 1, 0, {15})]; D's ch3 MVGO (pc 16) in the carrier's sdeps True, not in r2's True
+  [PASS] (c) synthetic_r3 forced form B: counts 3 broadcasts / 1 forced; every consumer's XBANK = its broadcast's window; the model runs it to the r0 output's state  -- counts bcast 3 forced 1; consumers (bcast idx -> [(mvgo, chan, XBANK)]) [(2, [(3, 3, 1), (5, 2, 1), (6, 1, 1), (7, 0, 1)]), (17, [(26, 0, 1), (29, 1, 1), (32, 2, 1), (37, 3, 1)]), (19, [(20, 3, 0), (21, 2, 0), (23, 1, 0), (24, 0, 0)])]; every MVGO reads its program-order x (mismatches []) and XBANK agrees True; model at {R1,R2,R3} ran 8 MOVX; final state vs the r0 stream: IDENTICAL
+  [PASS] (i) synthetic_r3 forced form B: the forced channel's MVGO XBANK = the forced bank (0), and its later rotation follows (C: bank 1 on all four, not forced)  -- B's broadcast word 0, its channel-3 consumer XBANK [0]; C's word 1536, channel-3 XBANK [1] (the rotation followed the forced bank)
+  [PASS] (i) the pass's consumer assert passes the output and names a consumer MVGO whose XBANK was flipped  -- pairs 12; HazardError: MUTATED: record 20 MVGO on mv3 reads XWIN bank 1 (word 1536) but its x is the broadcast at record 19, window word 0: every consumer of a broadcast takes its XBANK (B17.3 WINDOW)
+=== (d) a group whose siblings differ in source stays unicast
+  [PASS] (d) synthetic_r3 differ form A: E stays four unicast MOVX, counted (two key groups, 4 MOVX)  -- broadcasts 3; unicast MOVX [(0, '0xd00'), (1, '0xd00'), (2, '0xe00'), (3, '0xd00')]; counted groups 2 / MOVX 4
+  [PASS] (d) synthetic_r3 differ form A: the model runs the mixed output to the r0 output's state  -- final state vs the r0 stream: IDENTICAL
+  [PASS] (d) synthetic_r3 differ form B: E stays four unicast MOVX, counted (two key groups, 4 MOVX)  -- broadcasts 3; unicast MOVX [(0, '0xd00'), (1, '0xd00'), (2, '0xe00'), (3, '0xd00')]; counted groups 2 / MOVX 4
+  [PASS] (d) synthetic_r3 differ form B: the model runs the mixed output to the r0 output's state  -- final state vs the r0 stream: IDENTICAL
+=== (e) the hazard assert refuses a broadcast over a pending range on channel 3
+  [PASS] (e) ch3 bank-0 stream pending: broadcast into bank 0 -> HazardError naming mv3  -- HazardError: R3-5: record 2 broadcast MOVX (chan 0xF) writes XWIN words (0, 32) on every channel while the no-wait MVGO at record 1 on mv3 still reads x words (0, 32) (no FENCE covering mv3 between; B17.3, per destination)
+  [PASS] (e) ch3 bank-0 stream pending: broadcast into bank 1 (word 1536) -> legal  -- no HazardError
+  [PASS] (e) ch3 bank-1 stream pending: broadcast at word 1540 -> HazardError  -- HazardError: R3-5: record 2 broadcast MOVX (chan 0xF) writes XWIN words (1540, 1572) on every channel while the no-wait MVGO at record 1 on mv3 still reads x words (1536, 1568) (no FENCE covering mv3 between; B17.3, per destination)
+  [PASS] (e) ch0 drained by FENCE 0b0001, ch3 still pending -> HazardError naming mv3  -- HazardError: R3-5: record 5 broadcast MOVX (chan 0xF) writes XWIN words (0, 32) on every channel while the no-wait MVGO at record 3 on mv3 still reads x words (0, 32) (no FENCE covering mv3 between; B17.3, per destination)
+  [PASS] (e) every channel drained (FENCE 0) -> legal  -- no HazardError
+  [PASS] (e) R3-2's M1 row: MVGO no-wait, MVGO wait, then a broadcast -> refused (MVGO on a pending channel)  -- HazardError: R3-5: record 2 MVGO on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between)
+  [PASS] (e) synthetic_r3 form B output: every broadcast hand-hoisted above the FENCE that drains channel 3's same-bank stream is refused naming mv3  -- (broadcast, hoisted above ch3's FENCE after MVGO, refused naming mv3) [(21, 3, True)]
+=== (f) valid at {R1,R2,R3} only
+  [PASS] (f) synthetic_r3 plain form B: VALID at {R1,R2,R3}; REFUSED at {R1,R2} (first refusal the broadcast), {R1}, {}; rep caps / refused_at_r1r2  -- {R1R2R3}: VALID | {R1R2}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device' | {R1}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device' | {}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device'
+  [PASS] (f) synthetic_r3 forced form B: VALID at {R1,R2,R3}; REFUSED at {R1,R2} (first refusal the broadcast), {R1}, {}; rep caps / refused_at_r1r2  -- {R1R2R3}: VALID | {R1R2}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device' | {R1}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device' | {}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device'
+  [PASS] (f) synthetic_r3 differ form B: VALID at {R1,R2,R3}; REFUSED at {R1,R2} (first refusal the broadcast), {R1}, {}; rep caps / refused_at_r1r2  -- {R1R2R3}: VALID | {R1R2}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device' | {R1}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device' | {}: REFUSED: rec 2: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device'
+=== (g) r0 / r1 / r2 byte-identical to the pass at a65f87c
+  [PASS] (g) _synthetic form A r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) _synthetic form A r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) _synthetic form A r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) _synthetic form B r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) _synthetic form B r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) _synthetic form B r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r2 form A r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r2 form A r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r2 form A r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r2 form B r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r2 form B r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r2 form B r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 form A r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 form A r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 form A r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 form B r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 form B r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 form B r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 forced form A r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 forced form A r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 forced form A r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 forced form B r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 forced form B r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 forced form B r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 differ form A r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 differ form A r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 differ form A r2: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 differ form B r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 differ form B r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (g) synthetic_r3 differ form B r2: == the base pass  -- stream True, checkpoints True, manifest True
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  [PASS] (g) model_9b_s1 form B CSV r0 == its pin (FULL sha256)  -- regenerated 57ec3051a0d6e68ee689859bc020b44001bcce6323b8d5c78415055853bee4da, pin 57ec3051a0d6e68ee689859bc020b44001bcce6323b8d5c78415055853bee4da
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  [PASS] (g) model_9b_s1 form B CSV r1 == its pin (FULL sha256)  -- regenerated 4e11a2ae6872970ecb61e2bb37524b7bd863815e47df1fb9c3af2fbb3218cb28, pin 4e11a2ae6872970ecb61e2bb37524b7bd863815e47df1fb9c3af2fbb3218cb28
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  [PASS] (g) model_9b_s1 form B CSV r2 == its pin (FULL sha256)  -- regenerated 117ed8b061d5662517d67f905ff1b5900520ba39eff680548e8af9a7efc17d19, pin 117ed8b061d5662517d67f905ff1b5900520ba39eff680548e8af9a7efc17d19
+  [PASS] (g) write_out at r3: seq_isa 2.3, caps [R1,R2,R3], rtl r3, shape_isa kept, broadcasts / forced / unicast-left counts, refused_at_r1r2  -- manifest ('2.3', ['R1', 'R2', 'R3'], 'r3', 2, 3, 1, 1, True) (want ('2.3', ['R1', 'R2', 'R3'], 'r3', 2, 3, 1, 1, True))
+=== (h) the channel-keyed paths meet chan 0xF by name
+  [PASS] (h) hazard assert: a broadcast is checked against every channel, not filed under channel 15  -- HazardError: h1: record 2 broadcast MOVX (chan 0xF) writes XWIN words (0, 32) on every channel while the no-wait MVGO at record 1 on mv3 still reads x words (0, 32) (no FENCE covering mv3 between; B17.3, per destination)
+  [PASS] (h) hazard assert: a MVGO with chan 0xF is refused BY NAME  -- HazardError: h2: record 0 MVGO names channel field 0xf: no engine channel has it (only a MOVX broadcasts, chan 0xF, B17.3)
+  [PASS] (h) the pass refuses an INPUT carrying a broadcast by name (before the census's per-channel elision key)  -- ReorderError: the input already carries 1 broadcast MOVX (chan 0xF, B17.3), first at [2]: the pass reorders r0 streams only (the census keys XWIN state and MOVX elision per channel 0..3)
+  [PASS] (h) replay() / predict() on an order containing broadcasts: handled (the carrier node), equal to the report  -- replay 12653 (report 12653), POSTCHECK (48, 156); predict 12697 (report 12697), fence windows 13
+  [PASS] (h) the census (build_edges) never sees a chan-15 MOVX node on an r3 run that emits broadcasts  -- build_edges calls 1, any with a chan-15 MOVX False
+=== per case: (a) 3/3  (b) 3/3  (c) 4/4  (d) 4/4  (e) 7/7  (f) 3/3  (g) 34/34  (h) 5/5  (i) 3/3
+=== 66 passed, 0 failed; failing cases: none
+R3-5 PASS TDD: PASS
+=== rc  : 0
+=== end : 2026-09-29T20:28:20-06:00

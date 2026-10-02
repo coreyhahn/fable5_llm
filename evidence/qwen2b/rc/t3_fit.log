@@ -1,0 +1,77 @@
+# Task 3 (R-c) — DDR fit checker over the ladder points that matter
+# generated 2026-08-22T11:12:27-06:00 on darthplagueis, tree 3c278a3+dirty
+
+$ bytes_per_token.py --fit --model 2b --map all:w8g128 --nch 4
+=== DDR fit, 2b, nch=4, PER-CHANNEL REPACK ===
+  map   qkv:w8g128,o_proj:w8g128,gate_up:w8g128,down:w8g128,dn_in:w8g128,dn_out:w8g128,lm_head:w8g128
+  187 images packed from W_BASE 0x10000000, window 1,280.0 MiB per channel to EMB_BASE 0x60000000
+  chan 0: top 0x2d0c4000  464.8 MiB (36.3% of the window, 815.2 MiB free)
+  chan 1: top 0x2cdac000  461.7 MiB (36.1% of the window, 818.3 MiB free)
+  chan 2: top 0x2cca4000  460.6 MiB (36.0% of the window, 819.4 MiB free)
+  chan 3: top 0x2cca4000  460.6 MiB (36.0% of the window, 819.4 MiB free)
+  cross-check vs packed_footprint (independent re-implementation): AGREES [487342080, 484098048, 483016704, 483016704]
+  embedding table 970.0 MiB at EMB_BASE ends 0x9ca00000 — above every weight top, inside the 4,096.0 MiB channel: OK
+FIT PASS
+  (exit 0)
+
+$ bytes_per_token.py --fit --model 2b --map all:w8g128 --nch 4 --no-repack
+=== DDR fit, 2b, nch=4, nch-INDEPENDENT pack ===
+  map   qkv:w8g128,o_proj:w8g128,gate_up:w8g128,down:w8g128,dn_in:w8g128,dn_out:w8g128,lm_head:w8g128
+  187 images packed from W_BASE 0x10000000, window 1,280.0 MiB per channel to EMB_BASE 0x60000000
+  chan 0: top 0x8374c000  1,847.3 MiB (144.3% of the window, -567.3 MiB free)  OVERFLOWS
+  chan 1: top 0x8374c000  1,847.3 MiB (144.3% of the window, -567.3 MiB free)  OVERFLOWS
+  chan 2: top 0x8374c000  1,847.3 MiB (144.3% of the window, -567.3 MiB free)  OVERFLOWS
+  chan 3: top 0x8374c000  1,847.3 MiB (144.3% of the window, -567.3 MiB free)  OVERFLOWS
+  hwmap.plan_weights REFUSED this pack (the assert doing its job):
+    weight images (187 wids, 1937031168 bytes packed from 0x10000000) reach chan 0 0x8374c000, chan 1 0x8374c000, chan 2 0x8374c000, chan 3 0x8374c000, past EMB_BASE 0x60000000
+  embedding table 970.0 MiB at EMB_BASE ends 0x9ca00000 — above every weight top, inside the 4,096.0 MiB channel: OK
+FIT FAIL
+  (exit 1)
+
+$ bytes_per_token.py --fit --model 2b --map all:w8g128 --nch 1
+=== DDR fit, 2b, nch=1, single channel (the repack is a no-op) ===
+  map   qkv:w8g128,o_proj:w8g128,gate_up:w8g128,down:w8g128,dn_in:w8g128,dn_out:w8g128,lm_head:w8g128
+  187 images packed from W_BASE 0x10000000, window 1,280.0 MiB per channel to EMB_BASE 0x60000000
+  chan 0: top 0x8374c000  1,847.3 MiB (144.3% of the window, -567.3 MiB free)  OVERFLOWS
+  hwmap.plan_weights REFUSED this pack (the assert doing its job):
+    weight images (187 wids, 1937031168 bytes packed from 0x10000000) reach chan 0 0x8374c000, past EMB_BASE 0x60000000
+  embedding table 970.0 MiB at EMB_BASE ends 0x9ca00000 — above every weight top, inside the 4,096.0 MiB channel: OK
+FIT FAIL
+  (exit 1)
+
+$ bytes_per_token.py --fit --model 2b --map all:w4g64gptq,gate_up:w8g128 --nch 4
+=== DDR fit, 2b, nch=4, PER-CHANNEL REPACK ===
+  map   qkv:w4g64gptq,o_proj:w4g64gptq,gate_up:w8g128,down:w4g64gptq,dn_in:w4g64gptq,dn_out:w4g64gptq,lm_head:w4g64gptq
+  187 images packed from W_BASE 0x10000000, window 1,280.0 MiB per channel to EMB_BASE 0x60000000
+  chan 0: top 0x237e0000  311.9 MiB (24.4% of the window, 968.1 MiB free)
+  chan 1: top 0x23648000  310.3 MiB (24.2% of the window, 969.7 MiB free)
+  chan 2: top 0x235c0000  309.8 MiB (24.2% of the window, 970.2 MiB free)
+  chan 3: top 0x235c0000  309.8 MiB (24.2% of the window, 970.2 MiB free)
+  cross-check vs packed_footprint (independent re-implementation): AGREES [327024640, 325353472, 324796416, 324796416]
+  embedding table 970.0 MiB at EMB_BASE ends 0x9ca00000 — above every weight top, inside the 4,096.0 MiB channel: OK
+FIT PASS
+  (exit 0)
+
+$ bytes_per_token.py --fit --model 0.8b --map all:w4g128 --nch 1
+=== DDR fit, 0.8b, nch=1, single channel (the repack is a no-op) ===
+  map   qkv:w4g128,o_proj:w4g128,gate_up:w4g128,down:w4g128,dn_in:w4g128,dn_out:w4g128,lm_head:w4g128
+  187 images packed from W_BASE 0x10000000, window 1,280.0 MiB per channel to EMB_BASE 0x60000000
+  chan 0: top 0x28e34000  398.2 MiB (31.1% of the window, 881.8 MiB free)
+  cross-check vs packed_footprint (independent re-implementation): AGREES [417546240]
+  embedding table 485.0 MiB at EMB_BASE ends 0x7e500000 — above every weight top, inside the 4,096.0 MiB channel: OK
+FIT PASS
+  (exit 0)
+
+$ bytes_per_token.py --fit --model 0.8b --map all:w8g128 --nch 4
+=== DDR fit, 0.8b, nch=4, PER-CHANNEL REPACK ===
+  map   qkv:w8g128,o_proj:w8g128,gate_up:w8g128,down:w8g128,dn_in:w8g128,dn_out:w8g128,lm_head:w8g128
+  187 images packed from W_BASE 0x10000000, window 1,280.0 MiB per channel to EMB_BASE 0x60000000
+  chan 0: top 0x1bec0000  190.8 MiB (14.9% of the window, 1,089.2 MiB free)
+  chan 1: top 0x1bd28000  189.2 MiB (14.8% of the window, 1,090.8 MiB free)
+  chan 2: top 0x1bca0000  188.6 MiB (14.7% of the window, 1,091.4 MiB free)
+  chan 3: top 0x1bca0000  188.6 MiB (14.7% of the window, 1,091.4 MiB free)
+  cross-check vs packed_footprint (independent re-implementation): AGREES [200015872, 198344704, 197787648, 197787648]
+  embedding table 485.0 MiB at EMB_BASE ends 0x7e500000 — above every weight top, inside the 4,096.0 MiB channel: OK
+FIT PASS
+  (exit 0)
+

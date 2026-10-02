@@ -1,0 +1,69 @@
+=== host: snoke
+=== date: 2026-09-09T23:05:43-06:00
+=== tree: 432e6ab+dirty
+=== cmd:  bash -c 
+set +e
+PY=/home/cah/.venv/bin/python
+echo "########## [1] chat_seq --selftest at the new ceiling"
+$PY -u sw/chat_seq.py --selftest 2>&1 | tail -6
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [2] ref/seq_chat.py --selftest (agent A) at the new ceiling"
+$PY -u ref/seq_chat.py --selftest 2>&1 | tail -6
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [3] the ceiling and the blob, per model selection"
+for t in unset 2b 9b; do
+  if [ $t = unset ]; then unset FABLE5_MODEL; else export FABLE5_MODEL=$t; fi
+  $PY -c "
+import sys; sys.path[:0]=[\"sw\",\"ref\"]
+import chat_seq as C, hwmap as H
+print(\"  FABLE5_MODEL=%-5s T_MAX %-5d (hwmap.STATE_T_MAX %d)  POS_STRIDE %-5d POSBLOB %9d B = %.1f MiB  XRF_POS_MAX %d\" % (
+  C.MODEL_TAG, C.T_MAX, H.STATE_T_MAX, C.POS_STRIDE, C.POSBLOB_BYTES,
+  C.POSBLOB_BYTES/2**20, C.SC.XRF_POS_MAX))"
+done
+echo
+echo "########## [4] the refusal, live, at FABLE5_MODEL=9b — BEFORE the lock and the board"
+FABLE5_MODEL=9b $PY sw/chat_seq.py --nch 4 --pos-mode xrf --prompt hi --ntok 1 2>&1 | tail -6
+echo "   rc=${PIPESTATUS[0]}"
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] chat_seq --selftest at the new ceiling
+  [19c] rung 4 S6: OUT FIFO depth 64, 7-bit count, sticky of_ovf
+  [20] rung 4 S8: TOPK-32 STATUS decode + PTR auto-increment
+  [21] S3: conv-image witnesses + the session-reset DN memset
+  [22] S3/9B: the state region in the verifier, the session and the residency split
+  [23] E: T_MAX = the hardware ceiling, the position blob, and pos_mode at 9B
+  chat_seq selftest: 397 passed, 0 failed
+   rc=0
+
+########## [2] ref/seq_chat.py --selftest (agent A) at the new ceiling
+    [ok] emb geometry at FABLE5_MODEL=0.8b [EMB GEOMETRY SELFTEST: PASS  (H=1024)]
+    [ok] emb geometry at FABLE5_MODEL=2b [EMB GEOMETRY SELFTEST: PASS  (H=2048)]
+    [ok] emb geometry at FABLE5_MODEL=4b [EMB GEOMETRY SELFTEST: PASS  (H=2560)]
+    [ok] emb geometry at FABLE5_MODEL=9b [EMB GEOMETRY SELFTEST: PASS  (H=4096)]
+SELFTEST: PASS
+seq_chat: PASS
+   rc=0
+
+########## [3] the ceiling and the blob, per model selection
+  FABLE5_MODEL=0.8b  T_MAX 4096  (hwmap.STATE_T_MAX 4096)  POS_STRIDE 1536  POSBLOB   6291456 B = 6.0 MiB  XRF_POS_MAX 85
+  FABLE5_MODEL=2b    T_MAX 4096  (hwmap.STATE_T_MAX 4096)  POS_STRIDE 1536  POSBLOB   6291456 B = 6.0 MiB  XRF_POS_MAX 85
+  FABLE5_MODEL=9b    T_MAX 4096  (hwmap.STATE_T_MAX 4096)  POS_STRIDE 2048  POSBLOB   8388608 B = 8.0 MiB  XRF_POS_MAX 63
+
+########## [4] the refusal, live, at FABLE5_MODEL=9b — BEFORE the lock and the board
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 1965, in __init__
+    self.pos_mode = resolve_pos_mode(args)
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 2824, in resolve_pos_mode
+    raise ChatSeqError(
+ChatSeqError: --pos-mode xrf is REFUSED at FABLE5_MODEL=9b: XRF[4] is a SIGNED 18-bit register, so at this geometry's position stride it reaches pos 63 and rtl/seq_unit.sv TRUNCATES a larger write silently.  ref/seq_model.SeqExec does not model the truncation either, so a --verify run would agree with itself and the silicon would read the wrong RoPE table.  63 positions is not a chat context (the templated wrapper alone is 19 ids).  Use --pos-mode ldc, or auto, which picks it.
+   rc=1
+=== rc: 0
+=== end: 2026-09-09T23:06:25-06:00

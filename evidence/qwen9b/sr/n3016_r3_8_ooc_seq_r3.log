@@ -1,0 +1,753 @@
+=== host: snoke  date: 2026-09-29T20:45:15-06:00
+=== tree: 5d52639+dirty
+=== dirty: ?? evidence/qwen9b/sr/R3_5_PASS.md
+=== cmd : bash evidence/qwen9b/g4/run_g4b_ooc.sh r3_seq_r3 seq_unit
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== G4b OOC structure run: r3_seq_r3 ===
+host      : snoke
+date      : 2026-09-29T20:45:15-06:00
+tree      : 5d52639b 21 dirty files
+vivado    : /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/vivado
+params    : top=seq_unit dn_pipe=-1 (-1 = the RTL's own default)
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Tue Sep 29 20:45:18 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /home/cah/r2d2/code/fpga/fable5_llm/synth/scripts/ooc_9b.tcl
+# if {[llength $argv] < 2} {
+#     puts "FATAL: need <out_dir> <top> \[dn_pipe\]"
+#     exit 1
+# }
+# set OutDir [lindex $argv 0]
+# set Top    [lindex $argv 1]
+# set DnPipe [expr {[llength $argv] > 2 ? [lindex $argv 2] : -1}]
+# if {$DnPipe >= 0} {
+#     puts "FATAL: the dn_pipe argument is retired (S2) — layer_chan has no\
+#           such parameter any more; drop the third tclarg"
+#     exit 1
+# }
+# set ScriptDir [file dirname [file normalize [info script]]]
+# set RepoRoot  [file normalize "$ScriptDir/../.."]
+# set Rtl       "$RepoRoot/rtl"
+# set Part xcvu9p-fsgd2104-2L-e
+# if {[string compare [version -short] "2024.2"] != 0} {
+#     puts "FATAL: this script expects Vivado 2024.2, got [version -short]"; exit 1
+# }
+# proc must {script} {
+#     if {[catch {uplevel 1 $script} err]} { puts "FATAL: $err"; exit 1 }
+# }
+# file mkdir $OutDir/reports
+# set_param general.maxThreads 8
+# puts "OOC9B_TOP: $Top"
+OOC9B_TOP: seq_unit
+# puts "OOC9B_PART: $Part"
+OOC9B_PART: xcvu9p-fsgd2104-2L-e
+# puts "OOC9B_VIVADO: [version -short]"
+OOC9B_VIVADO: 2024.2
+# puts "OOC9B_DNPIPE_ARG: $DnPipe"
+OOC9B_DNPIPE_ARG: -1
+# switch -- $Top {
+#     layer_chan {
+#         # S5 fix round 1 (2026-09-05): state_dma joins the list.  layer_chan
+#         # instantiates it (`state_dma u_dma`, rtl/layer_chan.sv:705), so a file
+#         # list without it elaborates the DMA as a BLACK BOX -- Vivado says so
+#         # only in a warning, while every LUT/FF number comes out silently
+#         # short.  synth/exp_uram/scripts/exp_ooc.tcl:164-165 carries the same
+#         # list, and tb/Makefile's LAYER_RTL is the third copy.
+#         set Files {fx_pkg fx_rsqrt fx_recip fx_silu vecnorm_unit rope_unit
+#                    conv4_silu dn_step attn_core gate_unit vec_alu state_dma
+#                    layer_chan}
+#         set Clocks {aclk}
+#     }
+#     matvec_chan {
+#         set Files {matvec_engine ddr_rd_streamer matvec_chan}
+#         set Clocks {aclk ui_clk}
+#     }
+#     seq_unit {
+#         set Files {seq_movers seq_unit}
+#         set Clocks {aclk}
+#     }
+#     default { puts "FATAL: unknown top '$Top'"; exit 1 }
+# }
+# foreach f $Files { must {read_verilog -sv $Rtl/$f.sv} }
+read_verilog: Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 1500.961 ; gain = 73.910 ; free physical = 43285 ; free virtual = 361927
+# if {[string equal $Top layer_chan]} {
+#     foreach r {rsqrt_rom sigmoid_pair_rom softplus_pair_rom exp2_pair_rom recip_rom} {
+#         if {![file exists $OutDir/$r.hex]} {
+#             puts "FATAL: $OutDir/$r.hex missing — evidence/qwen9b/g4/run_g4b_ooc.sh must stage rtl/roms"
+#             exit 1
+#         }
+#     }
+# }
+# set xdc $OutDir/ooc_9b.xdc
+# set fh [open $xdc w]
+# foreach c $Clocks {
+#     puts $fh "create_clock -period 4.000 -name $c \[get_ports $c\]"
+# }
+# close $fh
+# must {read_xdc $xdc}
+# set generics {}
+# set t0 [clock seconds]
+# must {eval synth_design -top $Top -part $Part -mode out_of_context $generics}
+Command: synth_design -top seq_unit -part xcvu9p-fsgd2104-2L-e -mode out_of_context
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xcvu9p'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xcvu9p'
+INFO: [Device 21-403] Loading part xcvu9p-fsgd2104-2L-e
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 1519169
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 2859.414 ; gain = 320.863 ; free physical = 40894 ; free virtual = 359585
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'seq_unit' [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_unit.sv:143]
+INFO: [Synth 8-6157] synthesizing module 'seq_movers' [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_movers.sv:75]
+	Parameter MVGO_GUARD bound to: 32'sb00000000000000000000000001000000 
+	Parameter TIMEOUT_LOG2 bound to: 32'sb00000000000000000000000000011010 
+	Parameter LAYER_BASE bound to: 20480 - type: integer 
+	Parameter MV_BASE bound to: 4096 - type: integer 
+	Parameter MV_STRIDE bound to: 4096 - type: integer 
+	Parameter MVB_BASE bound to: 65536 - type: integer 
+	Parameter MVB_STRIDE bound to: 65536 - type: integer 
+	Parameter LAYB_BASE bound to: 524288 - type: integer 
+INFO: [Synth 8-226] default block is never used [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_movers.sv:651]
+INFO: [Synth 8-6155] done synthesizing module 'seq_movers' (0#1) [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_movers.sv:75]
+INFO: [Synth 8-6155] done synthesizing module 'seq_unit' (0#1) [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_unit.sv:143]
+WARNING: [Synth 8-6014] Unused sequential element r_rem_reg was removed.  [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_movers.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element sh_reg was removed.  [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_movers.sv:770]
+WARNING: [Synth 8-6014] Unused sequential element mm_reg was removed.  [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_movers.sv:771]
+WARNING: [Synth 8-6014] Unused sequential element arg1_sh_reg was removed.  [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_unit.sv:968]
+WARNING: [Synth 8-6014] Unused sequential element do_xrfrd_reg was removed.  [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_unit.sv:971]
+WARNING: [Synth 8-6014] Unused sequential element rec_valid_reg was removed.  [/home/cah/r2d2/code/fpga/fable5_llm/rtl/seq_unit.sv:973]
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_wstrb[3] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_wstrb[2] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_wstrb[1] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_wstrb[0] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_bready driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_rready driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arsize[2] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arsize[1] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arsize[0] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arburst[1] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arburst[0] driven by constant 1
+WARNING: [Synth 8-7129] Port rd_rsp_data[31] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[30] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[29] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[28] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[27] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[26] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[25] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[24] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[23] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[22] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[21] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[20] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[19] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[18] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[17] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[16] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[15] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[14] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[13] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[12] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[11] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[10] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[9] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[8] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[7] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[6] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[5] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[4] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_axib_bid in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_axib_rid in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_awaddr[1] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_awaddr[0] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[3] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[2] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[1] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[0] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_araddr[1] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_araddr[0] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_we in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_idx[2] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_idx[1] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_idx[0] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[17] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[16] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[15] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[14] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[13] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[12] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[11] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[10] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[9] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[8] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[7] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[6] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[5] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[4] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[3] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[2] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[1] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_data[0] in module seq_unit is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2977.352 ; gain = 438.801 ; free physical = 40068 ; free virtual = 358770
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:10 ; elapsed = 00:00:10 . Memory (MB): peak = 2983.289 ; gain = 444.738 ; free physical = 40075 ; free virtual = 358777
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:10 ; elapsed = 00:00:10 . Memory (MB): peak = 2983.289 ; gain = 444.738 ; free physical = 40075 ; free virtual = 358777
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.1 ; elapsed = 00:00:00.1 . Memory (MB): peak = 2983.289 ; gain = 0.000 ; free physical = 40107 ; free virtual = 358809
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_seq_r3/ooc_9b.xdc]
+create_clock: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 3139.078 ; gain = 0.000 ; free physical = 39280 ; free virtual = 358019
+Finished Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_seq_r3/ooc_9b.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 3139.078 ; gain = 0.000 ; free physical = 39221 ; free virtual = 357960
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.16 ; elapsed = 00:00:00.09 . Memory (MB): peak = 3139.078 ; gain = 0.000 ; free physical = 39247 ; free virtual = 357986
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 3139.078 ; gain = 600.527 ; free physical = 38616 ; free virtual = 357364
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xcvu9p-fsgd2104-2L-e
+INFO: [Synth 8-6742] Reading net delay rules and data
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 3147.082 ; gain = 608.531 ; free physical = 38599 ; free virtual = 357347
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 3147.082 ; gain = 608.531 ; free physical = 38571 ; free virtual = 357319
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6904] The RAM "seq_movers:/yf_mem_reg" of size (depth=32 x width=32) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/fq_mem_reg" of size (depth=64 x width=128) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/out_fifo_reg" of size (depth=64 x width=18) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/bq_mem_reg" of size (depth=64 x width=16) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:33 ; elapsed = 00:00:33 . Memory (MB): peak = 3147.082 ; gain = 608.531 ; free physical = 37612 ; free virtual = 356411
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   3 Input   64 Bit       Adders := 1     
+	   2 Input   64 Bit       Adders := 1     
+	   2 Input   34 Bit       Adders := 3     
+	   3 Input   34 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 10    
+	   5 Input   32 Bit       Adders := 1     
+	   3 Input   32 Bit       Adders := 2     
+	   2 Input   26 Bit       Adders := 2     
+	   3 Input   26 Bit       Adders := 1     
+	   2 Input   24 Bit       Adders := 4     
+	   3 Input   24 Bit       Adders := 3     
+	   3 Input   21 Bit       Adders := 2     
+	   2 Input   21 Bit       Adders := 1     
+	   3 Input   19 Bit       Adders := 1     
+	   2 Input   16 Bit       Adders := 9     
+	   3 Input   16 Bit       Adders := 3     
+	   2 Input   14 Bit       Adders := 1     
+	   2 Input   13 Bit       Adders := 6     
+	   2 Input   12 Bit       Adders := 1     
+	   2 Input    9 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 3     
+	   2 Input    7 Bit       Adders := 3     
+	   3 Input    7 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 6     
+	   2 Input    5 Bit       Adders := 2     
+	   2 Input    4 Bit       Adders := 3     
+	   3 Input    4 Bit       Adders := 1     
+	   2 Input    3 Bit       Adders := 5     
+	   2 Input    2 Bit       Adders := 6     
++---Registers : 
+	              128 Bit    Registers := 2     
+	               64 Bit    Registers := 6     
+	               40 Bit    Registers := 2     
+	               34 Bit    Registers := 3     
+	               32 Bit    Registers := 35    
+	               26 Bit    Registers := 2     
+	               24 Bit    Registers := 14    
+	               21 Bit    Registers := 1     
+	               18 Bit    Registers := 9     
+	               16 Bit    Registers := 12    
+	               12 Bit    Registers := 9     
+	                9 Bit    Registers := 2     
+	                8 Bit    Registers := 2     
+	                7 Bit    Registers := 5     
+	                6 Bit    Registers := 4     
+	                5 Bit    Registers := 5     
+	                4 Bit    Registers := 12    
+	                3 Bit    Registers := 5     
+	                2 Bit    Registers := 10    
+	                1 Bit    Registers := 47    
++---RAMs : 
+	               8K Bit	(64 X 128 bit)          RAMs := 1     
+	             1024 Bit	(32 X 32 bit)          RAMs := 1     
+	               1K Bit	(64 X 18 bit)          RAMs := 1     
+	             1024 Bit	(64 X 16 bit)          RAMs := 1     
++---Muxes : 
+	   2 Input   64 Bit        Muxes := 4     
+	   2 Input   34 Bit        Muxes := 7     
+	  12 Input   34 Bit        Muxes := 1     
+	   2 Input   32 Bit        Muxes := 36    
+	  22 Input   32 Bit        Muxes := 2     
+	   4 Input   32 Bit        Muxes := 2     
+	   3 Input   32 Bit        Muxes := 4     
+	  12 Input   32 Bit        Muxes := 3     
+	  26 Input   32 Bit        Muxes := 1     
+	  10 Input   32 Bit        Muxes := 1     
+	  22 Input   26 Bit        Muxes := 1     
+	  26 Input   26 Bit        Muxes := 1     
+	   2 Input   24 Bit        Muxes := 8     
+	  12 Input   24 Bit        Muxes := 1     
+	   2 Input   18 Bit        Muxes := 34    
+	  12 Input   18 Bit        Muxes := 1     
+	   2 Input   17 Bit        Muxes := 2     
+	   2 Input   16 Bit        Muxes := 5     
+	   3 Input   16 Bit        Muxes := 1     
+	  12 Input   16 Bit        Muxes := 1     
+	   8 Input   16 Bit        Muxes := 1     
+	   2 Input   15 Bit        Muxes := 3     
+	   9 Input   15 Bit        Muxes := 1     
+	  10 Input   15 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 1     
+	   2 Input    9 Bit        Muxes := 12    
+	   3 Input    8 Bit        Muxes := 1     
+	  22 Input    8 Bit        Muxes := 1     
+	   2 Input    8 Bit        Muxes := 6     
+	   2 Input    6 Bit        Muxes := 3     
+	   2 Input    5 Bit        Muxes := 30    
+	   3 Input    5 Bit        Muxes := 4     
+	   4 Input    5 Bit        Muxes := 6     
+	   2 Input    4 Bit        Muxes := 17    
+	  22 Input    4 Bit        Muxes := 1     
+	   5 Input    4 Bit        Muxes := 2     
+	   3 Input    4 Bit        Muxes := 2     
+	   4 Input    4 Bit        Muxes := 1     
+	   2 Input    3 Bit        Muxes := 5     
+	  22 Input    3 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 1     
+	  12 Input    3 Bit        Muxes := 2     
+	   6 Input    3 Bit        Muxes := 1     
+	   5 Input    3 Bit        Muxes := 1     
+	  26 Input    3 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 7     
+	  22 Input    2 Bit        Muxes := 2     
+	   3 Input    2 Bit        Muxes := 6     
+	   4 Input    2 Bit        Muxes := 1     
+	  12 Input    2 Bit        Muxes := 2     
+	  22 Input    1 Bit        Muxes := 17    
+	   2 Input    1 Bit        Muxes := 201   
+	   3 Input    1 Bit        Muxes := 13    
+	   4 Input    1 Bit        Muxes := 1     
+	   9 Input    1 Bit        Muxes := 2     
+	  26 Input    1 Bit        Muxes := 31    
+	   8 Input    1 Bit        Muxes := 6     
+	   5 Input    1 Bit        Muxes := 1     
+	  12 Input    1 Bit        Muxes := 27    
+	  10 Input    1 Bit        Muxes := 2     
+	  19 Input    1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 6840 (col length:120)
+BRAMs: 4320 (col length: RAMB18 360 RAMB36 180)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+INFO: [Synth 8-6904] The RAM "u_mov/yf_mem_reg" of size (depth=32 x width=32) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/fq_mem_reg" of size (depth=64 x width=128) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/out_fifo_reg" of size (depth=64 x width=18) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/bq_mem_reg" of size (depth=64 x width=16) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_wstrb[3] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_wstrb[2] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_wstrb[1] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_wstrb[0] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_bready driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axil_rready driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_araddr[3] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_araddr[2] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_araddr[1] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_araddr[0] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arsize[2] driven by constant 1
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arsize[1] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arsize[0] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arburst[1] driven by constant 0
+WARNING: [Synth 8-3917] design seq_unit has port m_axi_arburst[0] driven by constant 1
+WARNING: [Synth 8-7129] Port rd_rsp_data[31] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[30] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[29] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[28] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[27] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[26] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[25] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[24] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[23] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[22] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[21] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[20] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[19] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[18] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[17] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[16] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[15] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[14] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[13] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[12] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[11] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[10] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[9] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[8] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[7] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[6] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[5] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rd_rsp_data[4] in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_axib_bid in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_axib_rid in module seq_movers is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_awaddr[1] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_awaddr[0] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[3] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[2] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[1] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[0] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_we in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_idx[2] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_idx[1] in module seq_unit is either unconnected or has no load
+WARNING: [Synth 8-7129] Port xrf_sb_idx[0] in module seq_unit is either unconnected or has no load
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-6904] The RAM "u_mov/yf_mem_reg" of size (depth=32 x width=32) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/fq_mem_reg" of size (depth=64 x width=128) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/out_fifo_reg" of size (depth=64 x width=18) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "seq_unit/bq_mem_reg" of size (depth=64 x width=16) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:59 ; elapsed = 00:01:00 . Memory (MB): peak = 3147.082 ; gain = 608.531 ; free physical = 35927 ; free virtual = 354932
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++------------+--------------+-----------+----------------------+---------------+
+|Module Name | RTL Object   | Inference | Size (Depth x Width) | Primitives    | 
++------------+--------------+-----------+----------------------+---------------+
+|u_mov       | yf_mem_reg   | Implied   | 32 x 32              | RAM32M16 x 3  | 
+|seq_unit    | fq_mem_reg   | Implied   | 64 x 128             | RAM64M8 x 19  | 
+|seq_unit    | out_fifo_reg | Implied   | 64 x 18              | RAM64M8 x 3   | 
+|seq_unit    | bq_mem_reg   | Implied   | 64 x 16              | RAM64M8 x 3   | 
++------------+--------------+-----------+----------------------+---------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:09 ; elapsed = 00:01:11 . Memory (MB): peak = 3529.621 ; gain = 991.070 ; free physical = 35531 ; free virtual = 354531
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:01:30 ; elapsed = 00:01:32 . Memory (MB): peak = 3673.598 ; gain = 1135.047 ; free physical = 34278 ; free virtual = 353481
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Distributed RAM: Final Mapping Report
++------------+--------------+-----------+----------------------+---------------+
+|Module Name | RTL Object   | Inference | Size (Depth x Width) | Primitives    | 
++------------+--------------+-----------+----------------------+---------------+
+|u_mov       | yf_mem_reg   | Implied   | 32 x 32              | RAM32M16 x 3  | 
+|seq_unit    | fq_mem_reg   | Implied   | 64 x 128             | RAM64M8 x 19  | 
+|seq_unit    | out_fifo_reg | Implied   | 64 x 18              | RAM64M8 x 3   | 
+|seq_unit    | bq_mem_reg   | Implied   | 64 x 16              | RAM64M8 x 3   | 
++------------+--------------+-----------+----------------------+---------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:01:34 ; elapsed = 00:01:36 . Memory (MB): peak = 3673.598 ; gain = 1135.047 ; free physical = 34655 ; free virtual = 353963
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:01:39 ; elapsed = 00:01:41 . Memory (MB): peak = 3768.410 ; gain = 1229.859 ; free physical = 34606 ; free virtual = 353941
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:01:39 ; elapsed = 00:01:41 . Memory (MB): peak = 3768.410 ; gain = 1229.859 ; free physical = 34597 ; free virtual = 353932
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:01:39 ; elapsed = 00:01:42 . Memory (MB): peak = 3768.410 ; gain = 1229.859 ; free physical = 34623 ; free virtual = 353958
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:01:39 ; elapsed = 00:01:42 . Memory (MB): peak = 3768.410 ; gain = 1229.859 ; free physical = 34528 ; free virtual = 353863
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:01:40 ; elapsed = 00:01:42 . Memory (MB): peak = 3768.410 ; gain = 1229.859 ; free physical = 34387 ; free virtual = 353722
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:01:40 ; elapsed = 00:01:42 . Memory (MB): peak = 3768.410 ; gain = 1229.859 ; free physical = 34430 ; free virtual = 353765
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY8   |   237|
+|2     |LUT1     |   292|
+|3     |LUT2     |   879|
+|4     |LUT3     |   675|
+|5     |LUT4     |   522|
+|6     |LUT5     |   957|
+|7     |LUT6     |  1516|
+|8     |MUXF7    |    84|
+|9     |MUXF8    |     1|
+|10    |RAM32M   |     1|
+|11    |RAM32M16 |     2|
+|12    |RAM64M   |     2|
+|13    |RAM64M8  |    23|
+|14    |FDRE     |  3252|
+|15    |FDSE     |     3|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:01:40 ; elapsed = 00:01:42 . Memory (MB): peak = 3768.410 ; gain = 1229.859 ; free physical = 34358 ; free virtual = 353693
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 74 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:01:29 ; elapsed = 00:01:32 . Memory (MB): peak = 3768.410 ; gain = 1074.070 ; free physical = 34426 ; free virtual = 353761
+Synthesis Optimization Complete : Time (s): cpu = 00:01:40 ; elapsed = 00:01:43 . Memory (MB): peak = 3768.410 ; gain = 1229.859 ; free physical = 34426 ; free virtual = 353761
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.06 . Memory (MB): peak = 3768.410 ; gain = 0.000 ; free physical = 34657 ; free virtual = 353992
+INFO: [Netlist 29-17] Analyzing 350 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_seq_r3/ooc_9b.xdc]
+create_clock: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 3784.797 ; gain = 0.000 ; free physical = 36651 ; free virtual = 355995
+Finished Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_seq_r3/ooc_9b.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3784.797 ; gain = 0.000 ; free physical = 36619 ; free virtual = 355964
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 28 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 1 instance 
+  RAM32M16 => RAM32M16 (RAMD32(x14), RAMS32(x2)): 2 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 2 instances
+  RAM64M8 => RAM64M8 (RAMD64E(x8)): 23 instances
+
+Synth Design complete | Checksum: f8277bbf
+INFO: [Common 17-83] Releasing license: Synthesis
+33 Infos, 133 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:02:08 ; elapsed = 00:02:08 . Memory (MB): peak = 3784.797 ; gain = 2283.836 ; free physical = 36679 ; free virtual = 356023
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2968.638; main = 2797.110; forked = 239.343
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4659.656; main = 3784.801; forked = 917.055
+# puts "OOC9B_SYNTH_S: [expr {[clock seconds]-$t0}]"
+OOC9B_SYNTH_S: 129
+# must {report_utilization -file $OutDir/reports/util_synth.rpt}
+# must {report_utilization -hierarchical -file $OutDir/reports/util_synth_hier.rpt}
+# must {write_checkpoint -force $OutDir/post_synth.dcp}
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3856.453 ; gain = 0.000 ; free physical = 35800 ; free virtual = 355153
+INFO: [Common 17-1381] The checkpoint '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_seq_r3/post_synth.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:14 ; elapsed = 00:00:14 . Memory (MB): peak = 3856.453 ; gain = 71.656 ; free physical = 35644 ; free virtual = 355009
+# proc ncells {pat} { return [llength [get_cells -quiet -hier -filter "REF_NAME =~ $pat"]] }
+# set uram   [ncells URAM288*]
+# set bram36 [ncells RAMB36*]
+# set bram18 [ncells RAMB18*]
+# set dsp    [ncells DSP48E2*]
+# puts "OOC9B_URAM: $uram"
+OOC9B_URAM: 0
+# puts "OOC9B_BRAM: RAMB36=$bram36 RAMB18=$bram18 tiles=[expr {$bram36 + $bram18 / 2.0}]"
+OOC9B_BRAM: RAMB36=0 RAMB18=0 tiles=0.0
+# puts "OOC9B_DSP: $dsp"
+OOC9B_DSP: 0
+# proc util_row {rpt name} {
+#     set fh [open $rpt r]; set data [read $fh]; close $fh
+#     foreach line [split $data \n] {
+#         if {[regexp "^\\|\\s*[string map {* \\*} $name]\\s*\\|\\s*(\[0-9.\]+)\\s*\\|" $line -> v]} {
+#             return $v
+#         }
+#     }
+#     return "n/a"
+# }
+# set R $OutDir/reports/util_synth.rpt
+# set lut  [util_row $R "CLB LUTs*"]
+# set lutl [util_row $R "LUT as Logic"]
+# set lutm [util_row $R "LUT as Memory"]
+# set ff   [util_row $R "CLB Registers"]
+# set c8   [util_row $R "CARRY8"]
+# puts "OOC9B_LUT: $lut (logic $lutl, memory $lutm)"
+OOC9B_LUT: 4078 (logic 3866, memory 212)
+# puts "OOC9B_FF: $ff"
+OOC9B_FF: 3255
+# puts "OOC9B_CARRY8: $c8"
+OOC9B_CARRY8: 237
+# if {[string equal $Top layer_chan]} {
+#     # THE STOP CONDITION (brief Step 1), RESTATED FOR THE STATE-SPILL DESIGN
+#     # (S5 fix round 1, 2026-09-05).  What stood here was the study's 24 DN
+#     # banks x 29 URAM288 + 8 KV banks x 29 = 928, which Track P PLACED at the
+#     # same geometry (PLACE_EXP.md 3.1).  S2 retired the banked arrays: each
+#     # kind now keeps two CACHE SLOTS and the rest of the state lives in DDR
+#     # (spec 2026-09-04 state-spill 3).  A URAM288 is 4096 x 72 b, so a W-bit
+#     # row costs ceil(W/72) of them SIDE BY SIDE and a D-row memory ceil(D/4096)
+#     # DEEP.  DERIVED below by the same proc synth/exp_uram/scripts/exp_ooc.tcl
+#     # uses (its :115-121), so the two harnesses cannot disagree by a typo:
+#     #   DN slot  4096 rows x 2048 b                  -> 29
+#     #   KV slot  8192 rows x 2048 b                  -> 58, plus an 8192 x 8 b
+#     #            exponent memory that is BLOCK RAM BY DESIGN (`emem` carries no
+#     #            ram_style, rtl/layer_chan.sv:837) and predicts 0 URAM here
+#     #   CV slot  8192 x 64 b weights + 8192 x 48 b state -> 2 + 2 = 4
+#     #   total    N_SLOT x (29 + 58 + 4) = 2 x 91     = 182
+#     # The geometry is MAINTAINED here, not read out of the RTL
+#     # (rtl/layer_chan.sv:361-365 LNH/N_DN/N_KV/NKVH/CVD, N_SLOT at :382), so
+#     # this stays a prediction the measurement can contradict.  A disagreement
+#     # is news, not a number to reconcile: S5's first count read 174 because the
+#     # conv slots carried no ram_style and inferred block RAM instead
+#     # (evidence/qwen9b/s5/011_mem_census.log).
+#     proc uram_of {depth width} {
+#         return [expr {int(ceil($width / 72.0)) * int(ceil($depth / 4096.0))}]
+#     }
+#     set N_SLOT 2
+#     set PRED [expr {$N_SLOT * ([uram_of 4096 2048] + [uram_of 8192 2048] +
+#                                [uram_of 8192 64] + [uram_of 8192 48])}]
+#     puts "OOC9B_URAM_PREDICT: $PRED (2 slots x (DN 29 + KV 58 + CV 2 + 2))"
+#     if {$uram == $PRED} {
+#         puts "OOC9B_URAM_MATCH: YES"
+#     } else {
+#         puts "OOC9B_URAM_MATCH: NO — inferred $uram, predicted $PRED"
+#     }
+#     # Any SLOT memory that fell OUT of URAM is the "maps to something worse"
+#     # failure mode; name it rather than leaving it to a reader of the table.
+#     # S5 fix round 1 widened this from DN-only to all three kinds: a DN-only
+#     # probe read 0 on the very netlist whose conv slots had gone to block RAM.
+#     # The KV filter excludes `emem`, which is block RAM BY DESIGN
+#     # (rtl/layer_chan.sv:813, :837) and would otherwise read as a defect.
+#     proc nonuram {sel} {
+#         return [llength [get_cells -quiet -hier -filter \
+#             "($sel) && (REF_NAME =~ RAMB* || REF_NAME =~ RAMD* || REF_NAME =~ RAMS*)"]]
+#     }
+#     set dn_nonuram [nonuram {NAME =~ *g_dnslot*}]
+#     set kv_nonuram [nonuram {NAME =~ *g_kvslot* && NAME !~ *emem*}]
+#     set cv_nonuram [nonuram {NAME =~ *g_cvslot*}]
+#     puts "OOC9B_DN_NONURAM_CELLS: $dn_nonuram"
+#     puts "OOC9B_SLOT_NONURAM_CELLS: dn=$dn_nonuram kv=$kv_nonuram cv=$cv_nonuram"
+#     # and the split, so 58/116/8 is checked and not just the total.  The
+#     # generate-block names are the S2 slot names (`g_dnslot`, `g_kvslot`,
+#     # `g_cvslot` -- rtl/layer_chan.sv:766, :829, :882); the retired banked
+#     # array's `g_dn`/`g_kv`/`g_cv` patterns are gone with it.
+#     set dn_uram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ URAM288* && NAME =~ *g_dnslot*}]]
+#     set kv_uram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ URAM288* && NAME =~ *g_kvslot*}]]
+#     set cv_uram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ URAM288* && NAME =~ *g_cvslot*}]]
+#     puts "OOC9B_URAM_SPLIT: dn=$dn_uram kv=$kv_uram cv=$cv_uram other=[expr {$uram - $dn_uram - $kv_uram - $cv_uram}]"
+#     # the block-RAM consumers this design is judged on: the scratchpad, the KV
+#     # exponent memories (block RAM by design), and the conv slots -- which MUST
+#     # now read 0, since spec 3 puts them in URAM.
+#     set scr_bram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ RAMB36* && (NAME =~ *smem_a* || NAME =~ *smem_b*)}]]
+#     set cv_bram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ RAMB36* && NAME =~ *g_cvslot*}]]
+#     set kvx_bram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ RAMB36* && NAME =~ *g_kvslot*emem*}]]
+#     puts "OOC9B_BRAM_SPLIT: scratch=$scr_bram conv=$cv_bram kvexp=$kvx_bram"
+# }
+# puts "OOC9B_DONE"
+OOC9B_DONE
+INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 20:48:02 2026...
+=== exit: 2 OOC9B_DONE marker(s) ===
+=== G4b OOC structure run: r3_seq_r3 ===
+host      : snoke
+date      : 2026-09-29T20:45:15-06:00
+tree      : 5d52639b 21 dirty files
+vivado    : /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/vivado
+params    : top=seq_unit dn_pipe=-1 (-1 = the RTL's own default)
+OOC9B_TOP: seq_unit
+OOC9B_PART: xcvu9p-fsgd2104-2L-e
+OOC9B_VIVADO: 2024.2
+OOC9B_DNPIPE_ARG: -1
+OOC9B_SYNTH_S: 129
+OOC9B_URAM: 0
+OOC9B_BRAM: RAMB36=0 RAMB18=0 tiles=0.0
+OOC9B_DSP: 0
+OOC9B_LUT: 4078 (logic 3866, memory 212)
+OOC9B_FF: 3255
+OOC9B_CARRY8: 237
+OOC9B_DONE
+=== exit: 2 OOC9B_DONE marker(s) ===
+=== rc  : 0
+=== end : 2026-09-29T20:48:13-06:00

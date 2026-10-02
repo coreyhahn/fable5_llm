@@ -1,0 +1,57 @@
+=== FROZEN-BEHAVIOUR PROOF: tb_vecnorm_diff — rtl/vecnorm_unit.sv (12-bit) vs
+    tb/legacy/vecnorm_legacy.sv (frozen HEAD copy, 11-bit), n_log2 0..10 ===
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_vecnorm_diff -o tb_vecnorm_diff \
+  --top-module tb_vecnorm_diff \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/vecnorm_unit.sv \
+  legacy/vecnorm_legacy.sv tb_vecnorm_diff.sv
+  modes: 0:36 1:34 2:50 | eps vectors=21 (k -14..17) | all-zero blocks=20 | n_max=1024
+  busy cycles: legacy=223831 new=63849 (speedup x100 = 350)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 1, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:37 1:33 2:50 | eps vectors=28 (k -14..17) | all-zero blocks=18 | n_max=1024
+  busy cycles: legacy=270118 new=74056 (speedup x100 = 364)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 2, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:40 1:32 2:48 | eps vectors=27 (k -14..17) | all-zero blocks=16 | n_max=1024
+  busy cycles: legacy=313974 new=88649 (speedup x100 = 354)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 3, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:37 1:38 2:45 | eps vectors=27 (k -14..17) | all-zero blocks=19 | n_max=1024
+  busy cycles: legacy=250467 new=74642 (speedup x100 = 335)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 4, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECNORM_DIFF OK: 4 seeds + 3 comparator self-tests
+MAKE_EXIT=0
+
+======================================================================
+ADDENDUM 2026-08-13 — CORRECTION to this log's own description line
+======================================================================
+The header above calls tb/legacy/vecnorm_legacy.sv a "frozen HEAD copy".
+THAT IS WRONG and is left in place unaltered rather than rewritten.
+
+tb/legacy/vecnorm_legacy.sv was added at a324f5d ("docs(rung2): freeze
+spec ... legacy RTL copies for diff TBs") and its own header reads
+"Serial: FILL -> RSQ -> OUT (~6 cycles/elem)".  It is the PRE-RUNG-2
+SERIAL implementation, not a copy of the pre-R-b HEAD (which is the II=1
+pipelined rewrite).  The ~350x busy-cycle ratios printed above are the
+same fact showing through.
+
+So this run alone does NOT close "post-change == pre-change".  The claim
+holds TRANSITIVELY, and both links are green:
+
+  link A  pre-change RTL (c0ef76f)  ==  legacy   4 seeds x 120 vectors
+          PASS.  Run by the TASK REVIEWER, not by this task; recorded
+          here so a future auditor does not have to redo it.
+  link B  post-change RTL (337ea78) ==  legacy   4 seeds x 120 vectors
+          PASS.  THIS log.
+
+  => post-change == pre-change for n_log2 0..10, modes 0/1/2, cfg_eps
+     on/off, random s_valid gaps and random m_ready backpressure.
+
+Independent of the chain, the DIRECT pre/post evidence for N <= 1024 is
+evidence/qwen2b/rb/green_tb_vecnorm.log: cases 1-4 (rmsnorm 1024, l2norm
+128, 68 EPS-NORM cases, the cfg_eps=0 back-compat replay) are checked
+against goldens that were byte-identical before and after the change
+(md5sum -c OK, all 4 seeds).

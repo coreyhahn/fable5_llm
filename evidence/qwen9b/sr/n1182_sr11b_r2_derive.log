@@ -1,0 +1,35 @@
+=== host: snoke  date: 2026-09-28T11:48:03-06:00
+=== tree: b2331f2+dirty
+=== dirty:  M NEXT_SESSION.md
+=== cmd : /home/cah/.venv/bin/python -c ship = 32786868            # n120:12 body window sum, token 4 (shipped order)
+r1_meas = 27163998         # n570:39 the R1 chip-TB token-4 body window
+r1_old = 27136513          # n570:61 SR4's prediction (old convention)
+r1_add = 27175723          # n1160: the corrected model, residual ADDITIVE
+r1_plc = 27164369          # n1160: the corrected model, residual PLACED
+r2_census = 26146927       # n1165:50 the r2 replay (census convention) = n120:18
+r2_lane = 26164282         # n1165:56 the corrected r2 lane
+resid = 19308              # n570:67 the inherited CMD residual (additive)
+stall = 17212              # n1160 / n1158: the one DMA-queue stall (SLD) of R1
+r2_pred = r2_lane + resid  # n1165:56 26183590
+r2_lo = r2_lane + resid - stall   # the stall absorbed by a FENCE wait, as at R1
+tb_ms, board_ms = 131.138, 137.121  # ov_census.py TB_MS / BOARD_MS (OV1 uniform)
+ms = lambda c: c / 250e6 * 1e3
+tok = lambda c: 1000.0 / (ms(c) * board_ms / tb_ms)
+print(f"r2 corrected prediction {r2_pred} cyc (= lane {r2_lane} + residual {resid}); census convention {r2_census}; corrected - census {r2_pred - r2_census:+d}")
+print(f"r2 band for the residual's placement: {r2_lo} .. {r2_pred} (the {stall}-cyc DMA stall absorbed by a FENCE wait, as at R1, or not)")
+print(f"R1 corrected (additive) {r1_add} vs measured {r1_meas}: {100.0 * (r1_add - r1_meas) / r1_meas:+.3f} %; placed {r1_plc}: {100.0 * (r1_plc - r1_meas) / r1_meas:+.3f} %; old {r1_old}: {100.0 * (r1_old - r1_meas) / r1_meas:+.3f} %")
+print(f"x shipped (body windows): census R1+R2 {ship / r2_census:.4f}; corrected r2 {ship / r2_pred:.4f} (band {ship / r2_pred:.4f} .. {ship / r2_lo:.4f})")
+print(f"x R1: corrected r2 vs corrected R1 (both additive) {r1_add / r2_pred:.4f}; vs R1 MEASURED {r1_meas / r2_pred:.4f}; census R1+R2 vs census R1 {r1_old / r2_census:.4f}")
+print(f"TB ms: r2 corrected {ms(r2_pred):.3f}; census {ms(r2_census):.3f}")
+print(f"board-scaled MODEL tok/s (OV1 uniform 137.121/131.138): r2 corrected {tok(r2_pred):.3f} (band {tok(r2_pred):.3f} .. {tok(r2_lo):.3f}); census R1+R2 {tok(r2_census):.3f} (n120 GRID: 9.144); R1 measured-window {tok(r1_meas):.3f}")
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+r2 corrected prediction 26183590 cyc (= lane 26164282 + residual 19308); census convention 26146927; corrected - census +36663
+r2 band for the residual's placement: 26166378 .. 26183590 (the 17212-cyc DMA stall absorbed by a FENCE wait, as at R1, or not)
+R1 corrected (additive) 27175723 vs measured 27163998: +0.043 %; placed 27164369: +0.001 %; old 27136513: -0.101 %
+x shipped (body windows): census R1+R2 1.2539; corrected r2 1.2522 (band 1.2522 .. 1.2530)
+x R1: corrected r2 vs corrected R1 (both additive) 1.0379; vs R1 MEASURED 1.0374; census R1+R2 vs census R1 1.0378
+TB ms: r2 corrected 104.734; census 104.588
+board-scaled MODEL tok/s (OV1 uniform 137.121/131.138): r2 corrected 9.131 (band 9.131 .. 9.137); census R1+R2 9.144 (n120 GRID: 9.144); R1 measured-window 8.802
+=== rc  : 0
+=== end : 2026-09-28T11:48:03-06:00

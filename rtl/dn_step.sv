@@ -16,9 +16,41 @@
 `timescale 1ns/1ps
 `default_nettype none
 
+// ---- G3.4 (spec 4.1 W1'(a), A1.2): the state-memory READ LATENCY ----
+// The state memory's read latency is a PARAMETER of this module now,
+// because layer_chan's DN banking pipelines its SLR crossings
+// (DN_PIPE = 2 -> latency 2 + 2*DN_PIPE = 6) and dn_step must lead its
+// read address by exactly that much.  Two changes carry it:
+//
+//   1. `s_rdaddr <= row + 1` MOVED from each loop's TAIL (P1_KW, P2_QW)
+//      to each loop's HEAD (P1_RD, P2_RD).  The address is then held for a
+//      whole loop period, so the memory samples it RLAT cycles before the
+//      consumer state at every RLAT the two loops can serve — which is
+//      what makes ONE FSM correct at both 2 and 6 and lets G3.4 measure
+//      the price instead of modelling it.
+//   2. Pass 1's FIRST read has no previous iteration to lead it: IDLE
+//      issues address 0 immediately before P1_RD.  P1_PRE holds RLAT-2
+//      cycles so that read is in flight before P1_DECM consumes it.  This
+//      is Track P's "only pass 1's first read pays" (PLACE_EXP.md 5).
+//
+// P2_WAIT is THE DECISION spec 4.1 W1'(a) forbids taking silently:
+//   P2_WAIT = 1  option (i), a wait state in pass 2's loop.  +128 cyc/head
+//                (plus pass 1's RLAT-2 entry cycles).  THIS IS WHAT SHIPS
+//                at RLAT = 6.  It is one cycle of MARGIN on the pass-2
+//                lead, not a structural necessity — see the gate doc.
+//                P2_WAIT = 1 is ONLY legal at RLAT > 2: at RLAT = 2 the
+//                6-state loop overshoots the lead by one and the caller
+//                must pass 0 (layer_chan derives it from DN_RLAT).
+//   P2_WAIT = 0  option (ii), two reads outstanding with no wait state.
+//                NOT TAKEN at G3.4.
+// The measurement, the sketch and why (i) was taken are
+// evidence/qwen9b/g3/G3_4_LAYER.md section 4.  Do not flip P2_WAIT without
+// reading it.
 module dn_step #(
     parameter int LDK = 128,
-    parameter int LDV = 128
+    parameter int LDV = 128,
+    parameter int RLAT = 2,        // state-memory read latency in cycles
+    parameter int P2_WAIT = 0      // 1 = option (i)'s pass-2 wait state
 ) (
     input  wire                clk,
     input  wire                rstn,
@@ -85,14 +117,24 @@ module dn_step #(
     (* keep = "true" *) logic               oacc_en_r [4];
     (* keep = "true" *) logic               clr_r     [4];
 
-    typedef enum logic [4:0] {IDLE,
+    typedef enum logic [4:0] {IDLE, P1_PRE,
                               P1_RD, P1_W, P1_DECM, P1_DEC, P1_KM, P1_KW,
                               DLT_K, DLT_S, DLT_M, DLT_D, DLT_B,
-                              P2_RD, P2_M, P2_OUT, P2_QM, P2_QW,
-                              O_EMIT, O_EMIT2} st_e;
+                              P2_RD, P2_WT, P2_M, P2_OUT, P2_QM, P2_QW,
+                              O_FILL, O_EMIT, O_EMIT2} st_e;
     st_e st;
     logic [7:0] row;
-    logic signed [39:0] o_sel;     // registered acc mux for O_EMIT
+    // pass-1 entry hold: RLAT-2 cycles, 0 at the unpipelined latency
+    localparam int PRE_N = (RLAT > 2) ? (RLAT - 2) : 0;
+    // WIDTH DERIVED FROM PRE_N, not a loose literal: the counter must be
+    // able to hold PRE_N-1 and nothing wider, so a future RLAT cannot
+    // silently overflow it.  ($clog2(1) is 0 in Verilator, so the max()
+    // keeps the vector at least one bit wide at PRE_N <= 1.)
+    localparam int PRE_W = (PRE_N > 1) ? $clog2(PRE_N) : 1;
+    logic [PRE_W-1:0] pre_i;
+    logic signed [39:0] o_sel;     // second mux level: 16:1, for O_EMIT
+    logic signed [39:0] o_g8 [16]; // FIRST mux level: 16x 8:1 (stage D2)
+    logic [2:0]         og_i;      // the low index o_g8 is gathering for
 
     // UNPACKED lane arrays: element selects of signed PACKED arrays are
     // UNSIGNED per LRM (zero-extend in width casts, unsigned compares).
@@ -160,6 +202,25 @@ module dn_step #(
         end
     end
 
+    // ---- stage D2: the output mux, split ----------------------------
+    // `oi -> o_sel` was a 128:1 mux over 128 40-bit accumulators spread
+    // across the die: 5 logic levels, 0.476 ns of logic against 3.704 ns of
+    // ROUTE (design note section 7.2).  It is now two levels, so each cycle
+    // covers half the physical span: 16 x 8:1 over EIGHT ADJACENT lanes
+    // here, then the 16:1 into o_sel.  Same index: o_g8[h] is
+    // o_acc[h*8 + og_i] and o_sel is o_g8[oi[6:3]] = o_acc[oi[6:0]].
+    //
+    // og_i LEADS oi by one emit iteration (set in O_EMIT2), so the drain
+    // loop keeps its 3-cycle period and the whole change costs exactly ONE
+    // cycle per DNST command: O_FILL, which primes this register for
+    // oi = 0.  o_acc is stable for the whole drain (oacc_en_r is
+    // st == P2_QM, clr_r is IDLE), so the gather needs no enable — the
+    // module's own rule, state-decoded lane enables were a timing killer.
+    always_ff @(posedge clk) begin
+        for (int h = 0; h < 16; h++)
+            o_g8[h] <= signed'(o_acc[{4'(h), og_i}]);
+    end
+
     always_ff @(posedge clk) begin
         if (!rstn) begin
             st <= IDLE;
@@ -177,11 +238,21 @@ module dn_step #(
                     busy <= 1'b1;
                     in_p2 <= 1'b0;
                     s_rdaddr <= '0;
-                    st <= P1_RD;
+                    pre_i <= '0;
+                    st <= (PRE_N > 0) ? P1_PRE : P1_RD;
+                end
+                // read-latency entry hold (see the header): the address
+                // for row 0 must be in flight PRE_N cycles before P1_RD.
+                P1_PRE: begin
+                    if (pre_i == PRE_W'((PRE_N > 0) ? PRE_N - 1 : 0))
+                        st <= P1_RD;
+                    else pre_i <= pre_i + 1'b1;
                 end
                 // ---------------- pass 1 ----------------
                 P1_RD: begin
                     kn_dk <= kn[row[6:0]];
+                    // lead the use by a whole loop period (header note 1)
+                    s_rdaddr <= row[6:0] + 1'b1;
                     st <= P1_W;
                 end
                 P1_W: st <= P1_DECM;   // s_rddata valid after 2 cycles
@@ -197,7 +268,6 @@ module dn_step #(
                         st <= DLT_K;
                     end else begin
                         row <= row + 1'b1;
-                        s_rdaddr <= row[6:0] + 1'b1;
                         st <= P1_RD;
                     end
                 end
@@ -216,8 +286,11 @@ module dn_step #(
                 P2_RD: begin
                     kn_dk <= kn[row[6:0]];
                     qn_dk <= qn[row[6:0]];
-                    st <= P2_M;
+                    // lead the use by a whole loop period (header note 1)
+                    s_rdaddr <= row[6:0] + 1'b1;
+                    st <= (P2_WAIT != 0) ? P2_WT : P2_M;
                 end
+                P2_WT:  st <= P2_M;        // option (i): the wait state
                 P2_M:   st <= P2_OUT;      // p2_p latches
                 P2_OUT: st <= P2_QM;       // sf_row latches
                 P2_QM: begin               // q_p + s_wrdata latch
@@ -228,17 +301,21 @@ module dn_step #(
                 P2_QW: begin               // o_acc accumulates (oacc_en)
                     if (row == 8'(LDK - 1)) begin
                         oi <= '0;
-                        st <= O_EMIT;
+                        og_i <= '0;
+                        st <= O_FILL;
                     end else begin
                         row <= row + 1'b1;
-                        s_rdaddr <= row[6:0] + 1'b1;
                         st <= P2_RD;
                     end
                 end
                 // ---------------- output ----------------
+                // O_FILL: one cycle, once per command — o_g8 gathers for
+                // oi = 0 (stage D2).  This is the ONE architecturally
+                // visible cycle the split costs: DNST's LCYC +1.
+                O_FILL: st <= O_EMIT;
                 O_EMIT: begin
                     if (!m_valid) begin
-                        o_sel <= signed'(o_acc[oi[6:0]]);  // 128:1 mux stage
+                        o_sel <= o_g8[oi[6:3]];            // 16:1 mux stage
                         st <= O_EMIT2;
                     end else if (m_ready) begin
                         m_valid <= 1'b0;
@@ -254,6 +331,7 @@ module dn_step #(
                     m_data <= 32'(rshr64(64'(o_sel), 14));
                     m_idx <= oi[6:0];
                     m_valid <= 1'b1;
+                    og_i <= oi[2:0] + 3'd1;   // lead the next gather (D2)
                     st <= O_EMIT;
                 end
                 default: st <= IDLE;

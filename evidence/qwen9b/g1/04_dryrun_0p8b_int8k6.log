@@ -1,0 +1,52 @@
+=== host: snoke
+=== date: 2026-08-29T17:51:50-06:00
+=== tree: 64e4b4e+dirty
+=== cmd:  /home/cah/.local/bin/uv run --no-project --with torch --with transformers --with numpy python -u /home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py --wire-group 128 --prompts 1 --ntok 3 --no-freerun --res-scale 1 --cache /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/golden_bf16.npz --wq-cache /var/tmp/fable5_wq --wq-cache-verify 2 --json-out /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/dryrun_0p8b_int8k6.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=6 MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=0.8b FABLE5_DN_STATE=int8:6 FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+host: snoke
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083 (golden c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083)
+  loaded in 2.9s
+    wq-cache HIT   LM head: wq_head_0.8b_43fe6e37eca6bb5e.pkl (0.24 GiB, 0.2s)
+  LM head from cache (W4 g=128) e=-4 sh=5
+
+=== config S=1 mse int8:6 ===
+    wq-cache HIT   layers: wq_layers_0.8b_8b653bf946c83c91.pkl (0.47 GiB, 0.3s)
+    wq-cache VERIFY layer 2 (linear_attention) re-quantized live under FABLE5_DN_STATE=int8:6 RS_F=8: BYTE-IDENTICAL to the cache (5.6s)
+    emb table |q|max 59 of 32767 (2.9s)
+    config done in 72.0s
+  --- S=1 mse int8:6 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France'
+    fixed  argmax [328, 1954, 279, 369, 279, 13]   top1=3/6  rank=[116, 2, 0, 0, 57, 0]  top5ovl=[0, 2, 2, 3, 2, 3]
+    block-float k histogram [dn]: {-14: 81, -13: 175, -12: 206, -11: 266, -10: 275, -9: 253, -8: 145, -7: 100, -6: 84, -5: 54, -4: 17, -3: 2, 0: 70}
+    block-float k histogram [attn]: {8: 2, 9: 20, 10: 10, 11: 3, 12: 1}
+    block-float saturation: m_q15 max raw 8192000, clipped 70 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x2048      |y|max=344      clips=0/147456
+      1024x3584      |y|max=956      clips=0/147456
+      16x1024        |y|max=76175    clips=5/3456
+      2048x1024      |y|max=3024     clips=0/221184
+      3584x1024      |y|max=38475    clips=2/1032192
+      4096x1024      |y|max=3479     clips=0/147456
+      512x1024       |y|max=5147     clips=0/36864
+      6144x1024      |y|max=19702    clips=0/663552
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config                          top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat   S8 sat   |S|max
+S=1 mse int8:6            3/6              1.0       116      2.00     1232      0        5      416    38875
+
+state container: FABLE5_DN_STATE=int8:6 (law=int8 k=6), RS_F=8; 28311552 state writes, |S|max 38875 LSB = 4.7455 at Q2.13, int16 rail 5, container rail 416
+weight quantization: 0 pass(es) this process, 2 cache hit(s), 0 miss(es); verify layer 2 BYTE-IDENTICAL
+
+-> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/dryrun_0p8b_int8k6.json
+=== rc: 0
+=== end: 2026-08-29T17:53:05-06:00

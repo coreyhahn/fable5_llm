@@ -1,0 +1,60 @@
+=== host: snoke
+=== date: 2026-09-10T02:01:10-06:00
+=== tree: 4e6e09e+dirty
+=== cmd:  bash /tmp/g6_drift3d.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] the doc class, RD9_GATE.md excluded (its 2 are by hand)
+o3 citation-drift gate  [plan — dry run, nothing is written]
+  code base  47e07cd
+  files      2 edited file(s)
+  docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md REPAIR 12  COLLATERAL   0
+  evidence/qwen9b/g3/G3_3_MATVEC.md                              REPAIR  4  COLLATERAL   0
+  evidence/qwen9b/g3/G3_4_LAYER.md                               REPAIR  1  COLLATERAL   0
+  evidence/qwen9b/g5/G5D_TIMING.md                               REPAIR  2  COLLATERAL   0
+  EXCLUDED   evidence/qwen9b/g6/RD9_GATE.md
+  TOTAL      REPAIR 19  COLLATERAL 0
+O3_FIX_PLAN: SAFE — every rewrite repairs a citation --verify reports stale
+   rc=0
+
+########## [2] --fix
+o3 citation-drift gate  [fix]
+  code base  47e07cd
+  doc base   47e07cd
+  files      2 edited files
+  citations  39 distinct (file, line) pairs
+  unmoved    13
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  EXCLUDED   evidence/qwen9b/g6/RD9_GATE.md (written in post-fix coordinates)
+  fixed      docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  fixed      evidence/qwen9b/g3/G3_3_MATVEC.md
+  fixed      evidence/qwen9b/g3/G3_4_LAYER.md
+  fixed      evidence/qwen9b/g5/G5D_TIMING.md
+  FIXED      25 citation(s) in 4 document(s)
+O3_CITE_DRIFT FIX APPLIED — now run --verify
+   rc=0
+
+########## [3] --verify
+  files      2 edited files
+  citations  39 distinct (file, line) pairs
+  unmoved    13
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  relocated  25 citation(s) checked against the base content and the citing documents
+  excluded   evidence/qwen9b/g6/RD9_GATE.md
+  ! UNRESOLVED docs/USAGE.md:244 (the cited line was rewritten or deleted) cited by evidence/qwen9b/o3/BOARD_LOCK.md
+O3_CITE_DRIFT VERIFY FAIL (1 problem(s))
+   rc=1
+
+########## [4] what moved
+10	10	docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+3	3	evidence/qwen9b/g3/G3_3_MATVEC.md
+1	1	evidence/qwen9b/g3/G3_4_LAYER.md
+1	1	evidence/qwen9b/g5/G5D_TIMING.md
+2	2	evidence/qwen9b/g6/RD9_GATE.md
+=== rc: 0
+=== end: 2026-09-10T02:01:19-06:00

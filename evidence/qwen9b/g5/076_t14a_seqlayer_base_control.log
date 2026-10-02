@@ -1,0 +1,68 @@
+=== host: snoke
+=== date: 2026-09-07T00:02:07-06:00
+=== tree: c51960f
+=== cmd:  bash -c 
+set -u
+B=/tmp/t14a_base_rtl_a553f18
+rm -rf "$B"; mkdir -p "$B"
+for f in fx_pkg fx_rsqrt fx_recip fx_silu vecnorm_unit rope_unit conv4_silu \
+         dn_step attn_core gate_unit vec_alu state_dma layer_chan; do
+    git show a553f18:rtl/$f.sv > "$B/$f.sv" || exit 3
+done
+echo "=== the tb_seq_layer BUILD command, verbatim, but on BASE a553f18 rtl/ ==="
+echo "=== (the only difference from HEAD is Task 14-A: two (* cascade_height *) attributes) ==="
+diff <(git show a553f18:rtl/layer_chan.sv) rtl/layer_chan.sv | head -20
+cd tb
+verilator --lint-only -Wall --timing \
+  --top-module tb_layer_chan \
+  "$B"/fx_pkg.sv "$B"/fx_rsqrt.sv "$B"/fx_recip.sv "$B"/fx_silu.sv \
+  "$B"/vecnorm_unit.sv "$B"/rope_unit.sv "$B"/conv4_silu.sv "$B"/dn_step.sv \
+  "$B"/attn_core.sv "$B"/gate_unit.sv "$B"/vec_alu.sv "$B"/state_dma.sv \
+  "$B"/layer_chan.sv tb_layer_chan.sv 2>&1 | tail -25
+rc=${PIPESTATUS[0]}
+echo "=== BASE-rtl tb_seq_layer lint rc=$rc (2 = the SAME pre-existing -Wall failure) ==="
+exit 0
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== the tb_seq_layer BUILD command, verbatim, but on BASE a553f18 rtl/ ===
+=== (the only difference from HEAD is Task 14-A: two (* cascade_height *) attributes) ===
+503,504c503,504
+<     logic signed [15:0] smem_a [65536];
+<     logic signed [15:0] smem_b [65536];
+---
+>     (* cascade_height = 2 *) logic signed [15:0] smem_a [65536];
+>     (* cascade_height = 2 *) logic signed [15:0] smem_b [65536];
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:174:53: Parameter is not used: 'SC_GAA'
+                                             : ... note: In instance 'tb_layer_chan'
+  174 |                    SC_GB  = 'h1000, SC_GA = 'h1040, SC_GAA = 'h1080,
+      |                                                     ^~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:175:20: Parameter is not used: 'SC_GDT'
+                                             : ... note: In instance 'tb_layer_chan'
+  175 |                    SC_GDT = 'h1100, SC_GO = 'h1140,      
+      |                    ^~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:175:37: Parameter is not used: 'SC_GO'
+                                             : ... note: In instance 'tb_layer_chan'
+  175 |                    SC_GDT = 'h1100, SC_GO = 'h1140,      
+      |                                     ^~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:176:20: Parameter is not used: 'SC_CW'
+                                             : ... note: In instance 'tb_layer_chan'
+  176 |                    SC_CW  = 'h1200, SC_CX = 'h1240, SC_CD = 'h1280;
+      |                    ^~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:176:37: Parameter is not used: 'SC_CX'
+                                             : ... note: In instance 'tb_layer_chan'
+  176 |                    SC_CW  = 'h1200, SC_CX = 'h1240, SC_CD = 'h1280;
+      |                                     ^~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:176:53: Parameter is not used: 'SC_CD'
+                                             : ... note: In instance 'tb_layer_chan'
+  176 |                    SC_CW  = 'h1200, SC_CX = 'h1240, SC_CD = 'h1280;
+      |                                                     ^~~~~
+%Error: Exiting due to 25 warning(s)
+=== BASE-rtl tb_seq_layer lint rc=1 (2 = the SAME pre-existing -Wall failure) ===
+=== rc: 0
+=== end: 2026-09-07T00:02:10-06:00

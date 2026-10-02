@@ -1,0 +1,39 @@
+=== host: snoke
+=== date: 2026-09-02T19:53:48-06:00
+=== tree: 20e1214
+=== cmd:  /home/cah/.venv/bin/python -c 
+import py_compile, tempfile, os, sys
+tmp = tempfile.mkdtemp()
+for p in ("evidence/qwen_next/feas/layer_cmd_census.py",
+          "evidence/qwen_next/feas/toks_model.py",
+          "evidence/qwen_next/feas/resource_budget.py",
+          "evidence/qwen9b/g3/g34_shape_isa_paths.py",
+          "evidence/qwen9b/o3/o3_cite_drift.py",
+          "evidence/qwen9b/g3/isa_bits.py",
+          "tb/scripts/gen_seq_chip_vectors.py",
+          "ref/seq_chat.py", "ref/seq_model.py", "ref/seq_format.py"):
+    py_compile.compile(p, cfile=os.path.join(tmp, p.replace("/", "_") + "c"),
+                       doraise=True)
+    print("  py_compile OK  " + p)
+print("PY_COMPILE: PASS (10 files)")
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+  py_compile OK  evidence/qwen_next/feas/layer_cmd_census.py
+  py_compile OK  evidence/qwen_next/feas/toks_model.py
+  py_compile OK  evidence/qwen_next/feas/resource_budget.py
+  py_compile OK  evidence/qwen9b/g3/g34_shape_isa_paths.py
+  py_compile OK  evidence/qwen9b/o3/o3_cite_drift.py
+  py_compile OK  evidence/qwen9b/g3/isa_bits.py
+  py_compile OK  tb/scripts/gen_seq_chip_vectors.py
+  py_compile OK  ref/seq_chat.py
+  py_compile OK  ref/seq_model.py
+  py_compile OK  ref/seq_format.py
+PY_COMPILE: PASS (10 files)
+=== rc: 0
+=== end: 2026-09-02T19:53:48-06:00

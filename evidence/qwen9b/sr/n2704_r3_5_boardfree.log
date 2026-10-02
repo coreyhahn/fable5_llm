@@ -1,0 +1,147 @@
+=== host: snoke  date: 2026-09-29T20:28:30-06:00
+=== tree: a7dd4ed+dirty
+=== dirty:  M tb/Makefile
+=== dirty:  M tb/scripts/gen_seq_unit_vectors.py
+=== dirty:  M tb/seq_stub_mvchan.sv
+=== dirty:  M tb/tb_matvec_chan.sv
+=== dirty:  M tb/tb_seq_unit.sv
+=== cmd : bash evidence/qwen2b/rd/rd_boardfree.sh
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== version constants in the tree ===
+seq_run.py:132:EXPECTED_SEQ_VERSION = 0xC973C18A  # build_041_ckr2_AltSpreadLogic_high (9B state
+infer.py:98:EXPECT_VERSION = 0xC973C18A  # build_041 (9B); read back at g6/003. Was 0x54443B9F
+
+=== make seq_selftest ===
+.venv/bin/python -u seq_run.py --selftest
+seq_run selftest (pure python, no board):
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+      1987 records, 63360 B blob, 25 LDC (0 indirected), 44 MVGO, 0 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/tok2_s1.e
+      1080 records, 61568 B blob, 14 LDC (1 indirected), 26 MVGO, 3 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e
+      60495 records, 1007360 B blob, 538 LDC (24 indirected), 1592 MVGO, 6 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e4
+      68119 records, 1007360 B blob, 538 LDC (24 indirected), 3464 MVGO, 6 expected tokens
+  --- /tmp/fable5_rp_ul1zbpof/rp.e
+      53 records, 2048 B blob, 1 LDC (0 indirected), 12 MVGO, 1 expected tokens
+  --- R-c: the emitter's placement-order guard
+  --- R-b: emb_row_bytes manifest key + EMBLOG2 CSR
+  --- BM1: the SEQ 0x100 idle-counter block is feature-detected
+  --- BM1-T4prep: --expect-version admits a NAMED sequencer bitstream
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--caps R1[,R2..]]
+                  [--shape-isa {1,2}] [--lock LOCK] [--no-lock]
+seq_run.py: error: argument --expect-version: expect-version 0x9b588e79 is not a known sequencer bitstream (known: 0x266e3ae7 build_045_r2_incr (R2 XWIN/RES banks + R1 + BM1 counters; admitted only when named), 0x54443b9f build_035_fp2a_exc_po (frozen 2B W8, isa=1 SHAPE; admitted only when named), 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default), 0xe3c2ff1e build_044_r1_incr (R1 FENCE mask + BM1 counters; admitted only when named)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess
+  --- BM1-T4prep fix 1: strict hash parse; main refuses before DMA
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+  SEQ CSRs untouched: scripted: VERSION mismatch
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+  SEQ CSRs untouched: scripted: VERSION mismatch
+  capabilities     {}  (default (board-free: --dry-run never reads the SEQ window))
+  SHAPE layout     unstated  (none stated (--dry-run: pass --shape-isa 1|2))
+--- SEQ stream: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+  artifacts base   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1
+  stream           1987 records, 31792 B (sha256 407429b498e92634) VALIDATED at capabilities {}
+  seqdata          63360 B (sha256 afd5bea218f7add4)
+  profile          epsnorm  dyn_ka=True  loop 0 steps (fewer than two decode steps)
+  opcodes          {'CSRWR': 1381, 'CMD': 460, 'MOVX': 30, 'MOVY': 44, 'MVGO': 44, 'HALT': 1, 'LDC*': 25, 'XOP*': 2}
+  expected tokens  []
+  mode             single-channel (engine chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=1)
+  stream    0x9000000 .. 0x9007c30  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc00f780  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 15 images, chans [0])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 25 LDC records (0 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 0 EMB records checked, delta +0x0
+  weight plan: 15 images match the stream's MVGO plan; 44 MVGO WBASEs row-aligned inside them
+--- upload
+  --- SR6: Dev.seq_caps / manifest_caps_check / --caps
+  --- S3: the DDR state region (plan, witnesses, bytes/token)
+  --- SR14: the R2 row; the frozen-stream pins (SR13b m2 / m4)
+  seq_run selftest: 2840 passed, 0 failed
+=== make serve_test ===
+.venv/bin/python -u serve.py --selftest
+serve.py selftest (no board):
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template OFF (--raw)
+  chat template (T4/T5/T8) in BoardBackend/MockBackend.encode:
+  rung 4 S4: the per-request nch assertion
+  sampling request fields, refusal path and telemetry (S5)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  chat_seq API the adapter depends on (/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py):
+    chat_seq.ChatSession                                       ok
+    chat_seq.SeqLock                                           ok
+    chat_seq.ChatSeqError                                      ok
+    chat_seq.load_tokenizer                                    ok
+    chat_seq.TEMPLATE_PREFIX                                   ok
+    chat_seq.T_MAX                                             ok
+    chat_seq.ChatTemplate                                      ok
+    chat_seq.CHAT_STOP_IDS                                     ok
+    chat_seq.TOK_IM_START                                      ok
+    chat_seq.TOK_IM_END                                        ok
+    chat_seq.TOK_THINK                                         ok
+    chat_seq.TOK_THINK_END                                     ok
+    chat_seq.HF_REF_SINGLE                                     ok
+    chat_seq.HF_REF_3MSG_INCR                                  ok
+    ChatTemplate.turn_ids(self, text, system=None, first=True, carry=None) ok
+    ChatTemplate.render(self, messages, add_generation_prompt=True) ok
+    ChatTemplate.visible(self, ids)                            ok
+    ChatSession.open_board(self)                               ok
+    ChatSession.bring_up(self)                                 ok
+    ChatSession.preamble(self)                                 ok
+    ChatSession.step(self, tok, lite)                          ok
+    ChatSession.plan_turn(self, ids, ntok)                     ok
+    ChatSession.attach_template(self, tk, log=<built-in function print>) ok
+    ChatSession.truncate_history(self, ids, ntok)              ok
+    SeqLock.acquire()                                          ok
+    SeqLock.release()                                          ok
+    args namespace covers chat_seq's args.* reads              ok
+  backend API check: PASS
+  serve selftest: 85 passed, 0 failed
+=== chat_seq --selftest ===
+  reorder    auto -> the shipped order (form B, the default, runs only at FABLE5_MODEL=9b --nch 4 on the shipped template; here FABLE5_MODEL=0.8b, --nch 1, template model_v2_s1.e)
+chat_seq selftest (pure python, NO board):
+  [1] template source, frozen sha256, spec slice indices
+  [2] image assembly: agent A vs my own spec slices
+  [3] position blob (gate A2 in host form) + const blob
+    (posblob generated in 0.0s)
+  [4] the per-launch patch (agent A) in both position modes
+  [5] DDR plan, image placement, one-shot relocation
+  [6] context guard T+(P-1)+N < 512 and history truncation
+  [7] residency witness manifest + sha256 probe
+  [8] launch protocol against the offline seq_unit model
+  [9] turn bookkeeping: schedule, prefill-lite, EOS, --ntok, reset
+  [9b] canned schedule reconstruction (the always-seed rule)
+  [10] tokenizer (infer.py BpeTok) + stop ids
+  [11] the shared board lock (O3) — exclusivity and its PATH
+  [12] chat template G1: HF id equality, incremental multi-turn, T7
+  [13] sampling: dequant, temperature/top-k/top-p, seeded draws
+  [14] candidate sources: chip stub, fixture, refusal path
+  [15] the full step path over a fixture + a fake board
+  [16] --verify-head against a fake head + fake scratchpad
+  [17] S7 layout: the LM head never overwrites x8 (0x800..0xBFF)
+  [18] sw/head_cache.py: exact integer path + cache discipline
+  [19] rung 4 S4: nch sessions, derived geometry, weight placement
+  [19c] rung 4 S6: OUT FIFO depth 64, 7-bit count, sticky of_ovf
+  [20] rung 4 S8: TOPK-32 STATUS decode + PTR auto-increment
+  [21] S3: conv-image witnesses + the session-reset DN memset
+  [22] S3/9B: the state region in the verifier, the session and the residency split
+    FAIL a region image that does not span the plan is REFUSED, not silently truncated: 
+  [23] E: T_MAX = the TARGET NETLIST's KV depth, the position blob, the FROZEN path's footprint, and pos_mode geometry
+  chat_seq selftest: 407 passed, 1 failed
+SELFTEST_RCS seq=0 serve=0 chat=1
+BOARDFREE_FAIL
+=== rc  : 0
+=== end : 2026-09-29T20:29:14-06:00

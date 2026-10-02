@@ -1,5 +1,5 @@
 // gate_unit: per-head DeltaNet gates — bit-exact mirror of the gate chain
-// in layer_fixed.deltanet_decode_fx (16 heads, serial):
+// in layer_fixed.deltanet_decode_fx (NH heads, serial; NH = 32 at 9B):
 //   beta[h]  = sigmoid_q(b[h])                                  (Q15)
 //   sp       = softplus_q(b17'(a[h] + dt[h]))                   (Q12)
 //   g        = -rshr(A[h] * sp, 11)                             (Q16, <=0)
@@ -9,11 +9,18 @@
 `timescale 1ns/1ps
 `default_nettype none
 
+// G3.4 (spec 4.6 wall 10): NH moved 16 -> 32 and w_addr with it.  The
+// DEFAULT was load-bearing until now — layer_chan instantiated this module
+// with no NH override — so both moved together and layer_chan now passes
+// .NH(LNH) explicitly.
 module gate_unit #(
-    parameter int NH = 16,
+    parameter int NH = 32,
     parameter string SIGMOID_ROM = "sigmoid_pair_rom.hex",
     parameter string SOFTPLUS_ROM = "softplus_pair_rom.hex",
-    parameter string EXP2_ROM = "exp2_pair_rom.hex"
+    parameter string EXP2_ROM = "exp2_pair_rom.hex",
+    // head-index width; a localparam so it cannot be overridden apart
+    // from NH (SV-2009 allows localparam in the parameter port list).
+    localparam int HB = $clog2(NH)
 ) (
     input  wire                clk,
     input  wire                rstn,
@@ -24,7 +31,7 @@ module gate_unit #(
     // preload: sel 0=b 1=a 2=A(Q15,18b) 3=dt
     input  wire                w_we,
     input  wire [1:0]          w_sel,
-    input  wire [3:0]          w_addr,
+    input  wire [HB-1:0]       w_addr,
     input  wire signed [17:0]  w_data,
 
     // results readable after done
@@ -37,7 +44,7 @@ module gate_unit #(
     // write decode; see attn_core q port)
     logic               wwe_q;
     logic [1:0]         wsel_q;
-    logic [3:0]         waddr_q;
+    logic [HB-1:0]      waddr_q;
     logic signed [17:0] wdata_q;
     logic signed [15:0] bv [NH];
     logic signed [15:0] av [NH];
@@ -70,7 +77,7 @@ module gate_unit #(
                               GM_B, EX_NF, EX_ROM,
                               EX_I1, EX_I2, EX_I3, EX_I4, EX_I5, NXT} st_e;
     st_e st;
-    logic [4:0] h;
+    logic [HB:0] h;                 // one bit above the head index
 
     // PWL interp helper over [-16,16) domain, 256 segs (sigmoid/softplus)
     function automatic logic [17:0] pwl_idx_lo(input logic signed [17:0] x);
@@ -136,7 +143,7 @@ module gate_unit #(
                 end
                 // sigmoid(b)
                 SG_I: begin
-                    u_q <= 17'(pwl_idx_lo(18'(bv[h[3:0]])));
+                    u_q <= 17'(pwl_idx_lo(18'(bv[h[HB-1:0]])));
                     st <= SG_O;
                 end
                 SG_O: begin
@@ -158,9 +165,9 @@ module gate_unit #(
                 end
                 // beta write — and set up softplus(a + dt) index
                 SG_W: begin
-                    beta_o[h[3:0]] <= 16'(ba + 17'((bpm + 28'd256) >> 9));
-                    u_q <= 17'(pwl_idx_lo(18'(av[h[3:0]]) + 18'(dtv[h[3:0]])));
-                    adt_q <= 18'(av[h[3:0]]) + 18'(dtv[h[3:0]]);
+                    beta_o[h[HB-1:0]] <= 16'(ba + 17'((bpm + 28'd256) >> 9));
+                    u_q <= 17'(pwl_idx_lo(18'(av[h[HB-1:0]]) + 18'(dtv[h[HB-1:0]])));
+                    adt_q <= 18'(av[h[HB-1:0]]) + 18'(dtv[h[HB-1:0]]);
                     st <= SP_O;
                 end
                 SP_O: begin
@@ -189,7 +196,7 @@ module gate_unit #(
                     if (adt_hi) spx = adt_q;
                     if (adt_lo) spx = '0;
                     sp_val <= spx;
-                    mul_a <= {15'b0, Av[h[3:0]]};   // zero-extend
+                    mul_a <= {15'b0, Av[h[HB-1:0]]};   // zero-extend
                     mul_b <= 33'(spx);
                     wcnt <= '0;
                     st <= GM_B;
@@ -248,11 +255,11 @@ module gate_unit #(
                 EX_I5: begin
                     logic [16:0] dv;
                     dv = 17'((32'(gesv) + 32'd16384) >> 15);   // rshr15, v>=0
-                    decay_o[h[3:0]] <= (dv > 17'd32767) ? 16'd32767 : 16'(dv);
+                    decay_o[h[HB-1:0]] <= (dv > 17'd32767) ? 16'd32767 : 16'(dv);
                     st <= NXT;
                 end
                 NXT: begin
-                    if (h + 1'b1 == 5'(NH)) begin
+                    if (h + 1'b1 == (HB+1)'(NH)) begin
                         busy <= 1'b0;
                         done <= 1'b1;
                         st <= IDLE;

@@ -1,0 +1,18 @@
+=== bytes/token ladder, 2b (187 images, packed rows) ===
+  variant             bytes/token      MiB     b/w   xV2   nch=1 fit   nch=4 fit   tok/s band (2B)
+  V1  g128             996,282,368    950.1  4.237 0.997    74.2% OK     18.7% OK    20.8- 21.5
+  V2  g64              999,428,096    953.1  4.250 1.000    74.5% OK     18.7% OK    20.7- 21.5
+  V3  g64 salience     999,428,096    953.1  4.250 1.000    74.5% OK     18.7% OK    20.7- 21.5
+  V4gptq g64           999,428,096    953.1  4.250 1.000    74.5% OK     18.7% OK    20.7- 21.5
+  V4mix top-1        1,301,417,984   1241.1  5.534 1.302    97.0% OK     24.4% OK    19.0- 19.8
+  V4mix top-2        1,555,697,664   1483.6  6.615 1.557   115.9% OVER    29.2% OK    17.7- 18.6
+  V4mix top-3        1,707,282,432   1628.2  7.260 1.708   127.2% OVER    32.0% OK    17.0- 17.9
+  V4gptq+gate_up W8  1,301,417,984   1241.1  5.534 1.302    97.0% OK     24.4% OK    19.0- 19.8
+  V5  W8 everywhere  1,936,920,576   1847.2  8.237 1.938   144.3% OVER    36.3% OK    16.1- 17.0
+  weight window per channel: 1,280.0 MiB (W_BASE 0x10000000 .. EMB_BASE 0x60000000, sw/layer_test.py:plan_weights asserts it)
+  NOTE: the nch=4 column is BYTES per channel, not today's fit — plan_weights takes no nch and
+        packs FULL image spans (seq_run.plan_weight_split slices inside them), so a variant that
+        overflows at nch=1 overflows at nch=4 too.  A per-channel repack (incl. rebasing the
+        ILV-placed LM head per chunk) is a host/emitter prerequisite — W8_SKETCH.md section 6.1.
+  embedding table: 248,320 rows x 4096 B = 970.0 MiB at EMB_BASE (traffic is ONE row/token: 4,096 B)
+  tok/s band = 1000 / (matvec(r) + movers 15.994 + layer 17.4) ms, r in [1.0, 1.131] ui-cyc/beat (evidence/qwen2b/ra/MOVER_NORM.md sections 3.2, 4)

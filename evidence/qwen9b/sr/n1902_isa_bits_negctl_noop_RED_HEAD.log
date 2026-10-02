@@ -1,0 +1,38 @@
+=== host: snoke  date: 2026-09-27T21:55:01-06:00
+=== tree: b6cf9bb
+=== cmd : /home/cah/.venv/bin/python -c 
+import sys; sys.path.insert(0, "evidence/qwen9b/g3"); import isa_bits as IB
+# VACUITY DEMO: every perturbation made a NO-OP (fields left exactly as the RTL has them).
+IB._apply_perturbation = lambda fields, which: None
+print("n1902: _apply_perturbation monkeypatched to a no-op; a meaningful control must FAIL")
+ok = IB.negative_control()
+print("negative_control returned", ok)
+sys.exit(0 if ok else 1)
+
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+n1902: _apply_perturbation monkeypatched to a no-op; a meaningful control must FAIL
+a1_hi        narrow ARG1's high address half by one bit              REFUSED
+a1_lo        narrow ARG1's low address half by one bit               REFUSED
+a1_lo_wide   WIDEN ARG1's low half by one bit (it then overlaps hi)  REFUSED
+a2_hi        narrow ARG2's high address half by one bit              REFUSED
+a2_lo        narrow ARG2's low address half by one bit               REFUSED
+a2_lo_wide   WIDEN ARG2's low half by one bit (it then overlaps hi)  REFUSED
+alu_dst      narrow the ALU ARG2 dst field by one bit                REFUSED
+alu_len      narrow the ALU length field by one bit                  REFUSED
+alu_p0       narrow the ALU p0 field by one bit                      REFUSED
+conv_first   narrow the CONV first-channel field by one bit          REFUSED
+conv_nch     narrow the CONV channel-count field by one bit          REFUSED
+convw_first  narrow the CONVW first-channel field by one bit         REFUSED
+convw_nch    narrow the CONVW channel-count field by one bit         REFUSED
+dn_head      narrow the DNST/DNZ head field by one bit               REFUSED
+gate_dst     narrow the GATE ARG0 dst field by one bit               REFUSED
+kv_expbias   narrow the KVAP expbias field by one bit                REFUSED
+kvhead       narrow the KVAP/ATTN kvhead field by one bit            REFUSED
+vn_nlog2     narrow the VN nlog2 field by one bit                    REFUSED
+vnw_n        narrow the VNW count field by one bit                   REFUSED
+
+NEGATIVE_CONTROL: PASS (every perturbation refused)
+negative_control returned True
+=== rc  : 0
+=== end : 2026-09-27T21:55:02-06:00

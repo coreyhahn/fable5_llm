@@ -1,0 +1,59 @@
+=== host: snoke
+=== date: 2026-09-10T04:19:12-06:00
+=== tree: a8a93e6+dirty
+=== cmd:  bash /home/cah/r2d2/code/fpga/.preship_clockroot_scratch/rsf_green.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== GREEN for triage (b)11 / #26 — RS_F is DERIVED from MS.TAG
+=== tree: a8a93e6 (+ this chore's working edit)
+=== ref/layer_fixed.py RS_F law:
+99:RS_F_BY_TAG = {"0.8b": 8, "2b": 8, "4b": 8, "9b": 7}
+100:_RS_F_LAW = RS_F_BY_TAG[_MS.TAG]
+114:RS_F = int(_RS_F_ENV) if _RS_F_ENV is not None else _RS_F_LAW
+
+=== The reference set is the COMMITTED 9B smoke pair re-emitted under the
+=== wired gate at evidence/qwen9b/s3/S3_CHAIN.md section 9.4, which records
+=== lay9b_s1.state.bin sha256 = 36969da490db28c48693f0b9c50dd72ca8fedb40b5a2cb33605ff41b42054854
+=== Files on disk now:  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1.*
+
+=== CASE unset   W9_MODEL='FABLE5_MODEL=9b'
+=== CASE unset make rc: 0
+layer script: seed=1 ntok=2 wq=w4 cmds=978 hostwords=395200 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9_green_unset/lay9b_s1.txt
+-n 
+  manifest rs_f: 7
+  unset: 23 file(s) BYTE-IDENTICAL to the committed set, 0 differing/missing
+-n 
+  state.bin sha256: 36969da490db28c48693f0b9c50dd72ca8fedb40b5a2cb33605ff41b42054854
+
+=== CASE rsf7   W9_MODEL='FABLE5_MODEL=9b FABLE5_RS_F=7'
+=== CASE rsf7 make rc: 0
+  ( cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 \
+    EMIT_SEQ_ENV="FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1" \
+  FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py \
+layer script: seed=1 ntok=2 wq=w4 cmds=978 hostwords=395200 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9_green_rsf7/lay9b_s1.txt
+-n 
+  manifest rs_f: 7
+  rsf7: 23 file(s) BYTE-IDENTICAL to the committed set, 0 differing/missing
+-n 
+  state.bin sha256: 36969da490db28c48693f0b9c50dd72ca8fedb40b5a2cb33605ff41b42054854
+
+=== CASE rsf8   W9_MODEL='FABLE5_MODEL=9b FABLE5_RS_F=8'
+=== CASE rsf8 make rc: 2
+  ( cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=8 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 \
+    EMIT_SEQ_ENV="FABLE5_MODEL=9b FABLE5_RS_F=8 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1" \
+  FABLE5_MODEL=9b FABLE5_RS_F=8 /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py \
+FABLE5_RS_F=8 disagrees with the operating point FABLE5_MODEL='9b' selects, which is RS_F=7 (ref/layer_fixed.py RS_F_BY_TAG).  REFUSED: at 9b the RTL literal in rtl/conv4_silu.sv bakes RS_F=7, so an artifact emitted at any other value is self-consistent and WRONG against the shipping bitstream, and its manifest records the wrong value rather than the mismatch (#26).  Unset FABLE5_RS_F, or set it to 7.  A DELIBERATE rider sweep sets FABLE5_RS_F_RIDER=1 as well.
+make: *** [Makefile:1312: w9_9b_smoke_scripts] Error 1
+  rsf8 REFUSED as it must be (rc 2)
+  the refusal NAMES THE TAG
+  rsf8 wrote no artifact at all
+
+=== the scratch emission directories are removed; tb/scripts/w9 is untouched
+RS_F_ENFORCED_GREEN: PASS
+=== rc: 0
+=== end: 2026-09-10T04:25:42-06:00

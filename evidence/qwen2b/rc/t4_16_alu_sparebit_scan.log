@@ -1,0 +1,21 @@
+=== host: snoke  date: 2026-08-22T13:26:05-06:00
+=== tree: 9eb9bf7+dirty
+=== cmd : bash evidence/qwen2b/rc/t4_alu_sparebit.sh
+=== venv: 3.12.3 numpy 2.4.6
+ALU ARG0 bit-16 scan (R-b scan_spare_bits argument, ALU count field)
+
+script                                         ALU      max_len    arg0>=2^16
+tb/scripts/w4/model_v2_s1.txt                  14814    3584       0
+tb/scripts/w3/lay_s1.txt                       306      3584       0
+tb/scripts/w3/tok2_s1.txt                      474      3584       0
+tb/scripts/w5/bis/bis_08_w4_n4.txt             306      3584       0
+tb/scripts/w5/bis/bis_08_w8_n4.txt             306      3584       0
+tb/scripts/w5/bis/bis_2b_w4_n4.txt             318      6144       4
+tb/scripts/w5/lay2b_w8_s1.txt                  318      6144       4
+tb/scripts/w5/model_w8_2b_s1.txt               15246    6144       144
+
+READING: every 0.8B script has max_len 3584 < 4096 and never sets
+arg0 bit 16, so cfg_len [11:0] -> [12:0] with .cfg_len(arg0[16:4]) is
+BIT-IDENTICAL for them.  The 2B scripts are the ones that need it.
+=== rc  : 0
+=== end : 2026-08-22T13:26:16-06:00

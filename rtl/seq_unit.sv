@@ -15,8 +15,8 @@
 //   bulk       LDC + EMB: DDR read -> layer scratch burst write
 //   burst      AXI4 32-bit READ_WRITE master m_axib (rung 3, S3) owned by
 //              seq_movers: the MOVX/MOVY/LDC/EMB DATA streams, on a private
-//              64 KiB-stride map (mvchan_c at (c+1)<<16, layer_0 at 5<<16)
-//              through the new burst_smc SmartConnect.  CSR/poll/doorbell
+//              map (mvchan_c at (c+1)<<16, 64 KiB each; layer_0 at 6<<16,
+//              128 KiB since R-b) through the new burst_smc SmartConnect.  CSR/poll/doorbell
 //              traffic did NOT move — it is still AXI-Lite, bit-identical.
 //   CSR        its own AXI-Lite slave = the ISA's 0x2nn sequencer space
 //
@@ -41,6 +41,23 @@
 //   0x38 PERF_AXR R  AXI-Lite reads issued
 //   0x3C PERF_FST R  cycles the issue FSM waited on an empty fetch FIFO
 //   0x40 + 4*i    RW XRF[i], i = 0..7 (18-bit; [3] unsigned, rest signed)
+//   0x60 EMBLOG2  RW log2 of the EMB row size in bytes, reset 13 (8192 B).
+//                 HOST-ONLY (not reachable from the ISA's 0x2nn CSRWR
+//                 space); legal 8..13, a write outside that range is
+//                 rejected and $error'd.  R-b: one bitstream serves H=1024
+//                 (11) and H=2048 (12).
+//   0x64 SEQ_CAPS R  {24'hFAB1CA, 5'b0, r3, r2, r1} (docs/SEQ_ISA.md v2.3
+//                 B17.0): the capabilities this RTL implements — r1 = 1
+//                 (the FENCE channel mask, B17.1), r2 = 1 (SR12: the XWIN
+//                 start word, the RES start row and the SHAPE bank bits,
+//                 B17.2), r3 = 1 (R3-8: the MOVX broadcast, B17.3).  HOST-ONLY, read-only;
+//                 writes fall through (no write decode).  The literal is
+//                 tied to sw/hwmap.py's seq_caps_word by tb_seq_unit.
+//   0x100..0x1FC  R  BM1 idle counters (docs/SEQ_ISA.md B16, v2.2): 0x100
+//                 BM_IDENT 0xFAB1B301, 0x104..0x128 and 0x130/0x134 the
+//                 counters, the rest read 0.  Host-read-only; cleared by
+//                 START, counted while busy, frozen at HALT.  See the
+//                 "BM1 idle counters" block below.
 //
 // ---------------------------------------------------------------------
 // err_code (STATUS[31:24])
@@ -51,6 +68,7 @@
 //   0x07 unknown CSR space           0x08 JMP target outside the stream
 //   0x09 pc outside the stream       0x0A illegal XOP sign code
 //   0x0B unaligned LDC/EMB address   0x0C host ABORT
+//   0x0D command envelope (S9): MVGO SHAPE ng outside 1..96
 //   0x10 layer_chan err_op           0x11 layer CMD watchdog
 //   0x12 AXI-Lite SLVERR/DECERR
 //   0x20 matvec err_rresp            0x21 matvec done watchdog
@@ -146,11 +164,14 @@ module seq_unit #(
     parameter logic [31:0] LAYER_BASE = 32'h0000_5000,
     parameter logic [31:0] MV_BASE    = 32'h0000_1000,
     parameter logic [31:0] MV_STRIDE  = 32'h0000_1000,
-    // m_axib burst map (RUNG3 S4): 64 KiB stride, mvchan_c at (c+1)<<16,
-    // layer_0 at 5<<16.  Private to this master — nothing else sees it.
+    // m_axib burst map (RUNG3 S4 + R-b + G3.1): mvchan_c at (c+1)<<16,
+    // 64 KiB each; layer_0 at 8<<16, 256 KiB (65536 scratch words).
+    // 5<<16 .. 7<<16 is a decode HOLE — an AXI segment must be
+    // range-aligned and 0x6_0000 (R-b's base) is not 256 KiB-aligned.
+    // Private to this master — nothing else sees it.
     parameter logic [31:0] MVB_BASE   = 32'h0001_0000,
     parameter logic [31:0] MVB_STRIDE = 32'h0001_0000,
-    parameter logic [31:0] LAYB_BASE  = 32'h0005_0000
+    parameter logic [31:0] LAYB_BASE  = 32'h0008_0000
 ) (
     input  wire         aclk,
     input  wire         aresetn,
@@ -244,6 +265,12 @@ module seq_unit #(
     input  wire [2:0]   xrf_sb_idx,
     input  wire [17:0]  xrf_sb_data,
 
+    // ---------------- BM1: matvec engine busy, one bit per channel ------
+    // matvec_chan c's mv_busy_bm (its STATUS busy bit, on aclk, behind
+    // one source flop).  Counted only (the idle counters, SEQ 0x100..);
+    // no control depends on it.  Unbuilt channels tie 0.
+    input  wire [3:0]   mv_busy_bm,  output logic [3:0] xpush_valid, output logic [47:0] xpush_idx, output logic [127:0] xpush_data, input wire [3:0] xpush_room, input wire [3:0] xpush_busy,  // R3-8 x-push bus (B17.3; seq_movers' R3 block)
+
     output logic        seq_busy,
     output logic        seq_halted,
     output logic        seq_err
@@ -272,10 +299,63 @@ module seq_unit #(
                            E_FLAGS  = 8'h04, E_CHAN   = 8'h05, E_RSVD   = 8'h06,
                            E_CSRSP  = 8'h07, E_JMP    = 8'h08, E_PC     = 8'h09,
                            E_XOPSGN = 8'h0A, E_ALIGN  = 8'h0B, E_ABORT  = 8'h0C,
+                           E_ENV    = 8'h0D,
                            E_LAYEROP= 8'h10, E_CMDTMO = 8'h11, E_AXI    = 8'h12;
+    // S9 (spec 5.4): the MVGO SHAPE ENVELOPE, and it is the SECOND of two
+    // lines of defence, not the only one.
+    //   EMIT side   sw/hwmap.shape_word refuses ng outside 1..MAX_NG per
+    //               layout (G3.3), which covers every host that packs a
+    //               SHAPE word or writes the CSR directly.
+    //   RUN side    THIS check, which covers a stream the sequencer is
+    //               handed -- the case no host packer sees.
+    // It has to live here because `cfg_ng` is decoded in
+    // rtl/matvec_engine.sv, whose own 1..MAX_NG guard is `ifndef SYNTHESIS
+    // and whose file is closed to G3.4 (Tasks 8/9): on silicon an
+    // out-of-envelope SHAPE wrapped `n_scale_beats` and streamed a wrong
+    // row instead of reporting.  MVGO's imm32 IS the SHAPE word, so the
+    // validator can see it; the record is refused with E_ENV before the
+    // doorbell, on the existing err_op/STATUS mechanism.
+    // MAX_NG is stated in FOUR places -- rtl/matvec_engine.sv (the
+    // authority), here, sw/hwmap.py's SHAPE_MAX_NG[2] and
+    // ref/seq_format.py -- because RTL cannot consume another module's
+    // parameter without a package, and matvec_engine is closed (G3.3).
+    // The four are TIED BY evidence/qwen9b/g3/isa_bits.py, which PARSES
+    // all four out of their own source, requires them equal and carries a
+    // perturbation control; they are not "consumed" here and this comment
+    // does not claim they are.  The reference twin
+    // ref/seq_format.validate carries the identical clause -- a validator
+    // stricter than its golden is the encoder/decoder mismatch G3's
+    // mechanization exists to prevent.
+    // SEQ_ISA v2.0 / G3.3 layout: {spare[31:29], ng[28:22], nrows[21:6],
+    // sh[5:0]}.
+    localparam int MVGO_MAX_NG = 96;
 
     localparam logic [31:0] IDENT = 32'hFAB1_E5E0;
-    localparam int EMB_ROW_BYTES = 2048;
+    // SR3 (SEQ_ISA v2.3 B17.0): the capabilities word at SEQ 0x64.  The RTL's
+    // copy of sw/hwmap.py's seq_caps_word({"R1", "R2", "R3"}) = 0xFAB1CA07 since
+    // R3-8 (R1 alone 0xFAB1CA01, R1+R2 0xFAB1CA03); the unit TB reads it back against the
+    // hwmap-derived <vec>.caps.hex.
+    localparam logic [31:0] SEQ_CAPS = {24'hFAB1CA, 5'd0,
+                                        1'b1 /*r3*/, 1'b1 /*r2*/, 1'b1 /*r1*/};
+    // SR12 (SEQ_ISA v2.3 B17.2): the two windows the R2 range rules bound —
+    // the XWIN in 32-bit words (x_mem, 96 lines x 32 words, K <= 12288) and
+    // the RES in rows.  Twins of ref/seq_format XWIN_WORDS / RES_ROWS, tied
+    // by evidence/qwen9b/g3/isa_bits.py (section 7).
+    localparam int R2_XWIN_WORDS = 3072;
+    localparam int R2_RES_ROWS   = 4096;
+    // R-b: the EMB row size is RUNTIME (CSR 0x60 EMBLOG2), not a localparam.
+    // Reset 11 = 2048 B = the 0.8B H=1024 row, so a host that never writes
+    // the CSR sees the pre-R-b behaviour bit for bit.
+    // S8 (spec 5.3): the reset moved 11 -> 13 at G3.4.  The CSR STAYS
+    // RUNTIME (MIN 8 / MAX 13) — keeping it costs a 5-bit register and a
+    // shift, and making it constant would delete the R-b infrastructure
+    // the TB set exercises.  The RESET is the 9B win: 13 is 8192 B =
+    // H 4096 x 2 B, the 9B row, so a site that never learned to program
+    // EMBLOG2 from the artifact is now RIGHT BY DEFAULT instead of
+    // silently addressing the wrong row.  Host mirror: sw/hwmap.py
+    // SEQ_EMBLOG2_RST (and EMB_ROW_BYTES_DEFAULT, derived from it).
+    localparam logic [4:0] EMBLOG2_RST = 5'd13;
+    localparam logic [4:0] EMBLOG2_MIN = 5'd8, EMBLOG2_MAX = 5'd13;
 
     wire rstn = aresetn;
 
@@ -284,6 +364,7 @@ module seq_unit #(
     // ==================================================================
     logic [17:0] xrf [8];
     logic        xrf_ovf;                  // sticky: an XOP result truncated
+    logic  [4:0] emb_row_log2;             // R-b: EMBLOG2, log2(EMB row B)
     logic [31:0] tcnt_seq;
     logic [33:0] seq_base;
     logic [31:0] seq_len, seq_entry, pc;
@@ -684,6 +765,17 @@ module seq_unit #(
     // ---- validation (ref/seq_format.validate, executed in one cycle) ----
     logic        v_bad;
     logic  [7:0] v_code;
+    // SR12 (SEQ_ISA v2.3 B17.2) range rules, err 0x06.  Written as ROOM
+    // compares so no adder sits on the 24-bit length:
+    //   MOVX  start + ceil(len/4) <= 3072  <=>  len <= 4 * (3072 - start)
+    //         (for start <= 3071, checked separately); 14-bit room
+    //   MOVY  start row + len <= 4096      <=>  len <= 4096 - start row
+    wire [13:0] v_xroom = 14'(4 * R2_XWIN_WORDS) - {r_tgt[11:0], 2'b00};
+    wire [12:0] v_yroom = 13'(R2_RES_ROWS) - {1'b0, r_tgt[15:4]};
+    wire        v_movx_rsvd = (r_tgt[15:12] != 4'd0)
+                              || (r_tgt[11:0] >= 12'(R2_XWIN_WORDS))
+                              || (r_hi[23:0] > {10'd0, v_xroom});
+    wire        v_movy_rsvd = (r_hi[23:0] > {11'd0, v_yroom});
     always_comb begin
         v_bad  = 1'b0;
         v_code = 8'd0;
@@ -705,7 +797,18 @@ module seq_unit #(
             end
             OP_MOVX, OP_MVGO: begin
                 if (r_ind != IND_NONE)           begin v_bad=1; v_code=E_IND; end
-                else if (r_chan >= 4'd4)         begin v_bad=1; v_code=E_CHAN; end
+                else if ((r_chan >= 4'd4) && !((r_op == OP_MOVX) && (r_chan == 4'hF))) begin v_bad=1; v_code=E_CHAN; end   // R3-8: MOVX 0xF = broadcast (B17.3)
+                // S9: ng outside 1..96 is refused HERE, before the doorbell
+                else if ((r_op == OP_MVGO)
+                         && ((r_imm[28:22] == 7'd0)
+                             || (r_imm[28:22] > 7'(MVGO_MAX_NG))))
+                                                 begin v_bad=1; v_code=E_ENV; end
+                // SR12 (B17.2): MOVX target[11:0] = the XWIN start word,
+                // target[15:12] reserved, the window must fit the XWIN.
+                // (MVGO SHAPE bits 29/30 need no decode here — the mover
+                // writes SHAPE whole; bank LEGALITY is validator-side only.)
+                else if ((r_op == OP_MOVX) && v_movx_rsvd)
+                                                 begin v_bad=1; v_code=E_RSVD; end
             end
             OP_MOVY: begin
                 if ((r_ind != IND_NONE) && (r_ind != IND_ADD)
@@ -713,7 +816,9 @@ module seq_unit #(
                 else if ((r_ind == IND_NONE) && (r_xrfy != 3'd0))
                                                  begin v_bad=1; v_code=E_IND; end
                 else if (r_tgt[3:0] >= 4'd4)     begin v_bad=1; v_code=E_CHAN; end
-                else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end
+                // SR12 (B17.2): target[15:4] is the RES start row (it was
+                // reserved, err 0x06); start row + len <= 4096 (err 0x06)
+                else if (v_movy_rsvd)            begin v_bad=1; v_code=E_RSVD; end
             end
             OP_EMB: if (r_flags != 8'd0)         begin v_bad=1; v_code=E_FLAGS; end
             OP_AMAXL: if ((r_flags != 8'd0) || (r_tgt != 16'd0)
@@ -724,7 +829,13 @@ module seq_unit #(
                                                  begin v_bad=1; v_code=E_FLAGS; end
                 else if (r_imm >= seq_len)       begin v_bad=1; v_code=E_JMP; end
             end
-            OP_FENCE, OP_HALT:
+            // SR3 (SEQ_ISA v2.3 B17.1): FENCE target[3:0] is the channel
+            // mask (0 = all four); every other field must be zero.
+            OP_FENCE:
+                if ((r_flags != 8'd0) || (r_tgt[15:4] != 12'd0)
+                    || (r_imm != 32'd0) || (r_lo != 32'd0) || (r_hi != 32'd0))
+                                                 begin v_bad=1; v_code=E_RSVD; end
+            OP_HALT:
                 if ((r_flags != 8'd0) || (r_tgt != 16'd0) || (r_imm != 32'd0)
                     || (r_lo != 32'd0) || (r_hi != 32'd0))
                                                  begin v_bad=1; v_code=E_RSVD; end
@@ -761,7 +872,7 @@ module seq_unit #(
     logic [2:0]  wt_idx;
     logic [17:0] wt_val;
     logic [23:0] bulk_left;
-    logic [13:0] bulk_dst;
+    logic [15:0] bulk_dst;
     logic        do_xrfrd;
 
     // LDC/EMB scratch-write side, moved onto seq_movers' burst master
@@ -777,7 +888,10 @@ module seq_unit #(
     wire         mv_cmd_ready, mv_done, mv_err, mv_busy;
     wire  [7:0]  mv_err_code;
     logic [1:0]  mv_op, mv_chan;
-    logic [13:0] mv_saddr;
+    logic [3:0]  mv_fmask;           // SR3: FENCE channel mask (B17.1)
+    logic [11:0] mv_xword;  logic mv_bcast;   // SR12: MOVX XWIN start word (B17.2); R3-8: MOVX broadcast (B17.3)
+    logic [11:0] mv_row;             // SR12: MOVY RES start row (B17.2)
+    logic [15:0] mv_saddr;
     logic [23:0] mv_len;
     logic        mv_i16, mv_nowait;
     logic signed [31:0] mv_shift;
@@ -824,9 +938,11 @@ module seq_unit #(
                         && (r_tgt[7:0] < 8'h60);
     wire is_seq_tcnt  = is_seq_space && (r_tgt[7:0] == 8'h20);
 
-    // EMB / LDC address
+    // EMB / LDC address.  R-b: the row stride is 2**EMBLOG2 (a power of two
+    // by construction — 2048 B at H=1024, 4096 B at H=2048), so the old
+    // `* EMB_ROW_BYTES` multiply is a shift by the CSR.
     wire [ADDR_W-1:0] emb_a = ADDR_W'({r_tgt, r_imm})
-                              + ADDR_W'({14'd0, xrf[3]} * EMB_ROW_BYTES);
+                              + (ADDR_W'(xrf[3]) << emb_row_log2);
     wire signed [63:0] ldc_base = signed'({r_hi, r_lo});
     wire signed [63:0] ldc_a = (r_ind == IND_ADD) ? (ldc_base + 64'(xv))
                              : (r_ind == IND_SUB) ? (ldc_base - 64'(xv))
@@ -843,6 +959,7 @@ module seq_unit #(
             ist <= I_IDLE;
             for (int i = 0; i < 8; i++) xrf[i] <= 18'd0;
             xrf_ovf <= 1'b0; tcnt_seq <= '0;
+            emb_row_log2 <= EMBLOG2_RST;   // 8192 B row until told else
             seq_base <= '0; seq_len <= '0; seq_entry <= '0; pc <= '0;
             busy_r <= 1'b0; halted_r <= 1'b0; err_r <= 1'b0; err_code <= '0;
             of_wp <= '0; of_rp <= '0; of_ovf <= 1'b0;
@@ -857,6 +974,7 @@ module seq_unit #(
             bulk_go <= 1'b0; bulk_addr <= '0; bulk_words <= '0; bulk_woff <= '0;
             mv_cmd_valid <= 1'b0;
             mv_op <= '0; mv_chan <= '0; mv_saddr <= '0; mv_len <= '0;
+            mv_fmask <= '0; mv_xword <= '0; mv_row <= '0; mv_bcast <= 1'b0;
             mv_i16 <= 1'b0; mv_nowait <= 1'b0; mv_shift <= '0;
             mv_shape <= '0; mv_wbase <= '0; mv_beats <= '0;
         end else begin
@@ -962,8 +1080,13 @@ module seq_unit #(
                         ist <= I_CMDW;
                     end
                     OP_MOVX: begin
-                        mv_op <= 2'd0; mv_chan <= r_chan[1:0];
-                        mv_saddr <= r_lo[13:0]; mv_len <= r_hi[23:0];
+                        // 16-bit scratch addressing (SEQ_ISA v2.0): addr_lo
+                        // is a full 32-bit field, so widening the pointer
+                        // costs nothing in the record — only in the width
+                        // of what latches it.
+                        mv_op <= 2'd0; mv_chan <= r_chan[1:0]; mv_bcast <= (r_chan == 4'hF);   // R3-8: B17.3
+                        mv_saddr <= r_lo[15:0]; mv_len <= r_hi[23:0];
+                        mv_xword <= r_tgt[11:0];  // SR12: B17.2 start word
                         mv_cmd_valid <= 1'b1;
                         ist <= I_MOVER;
                     end
@@ -978,7 +1101,8 @@ module seq_unit #(
                     end
                     OP_MOVY: begin
                         mv_op <= 2'd2; mv_chan <= r_tgt[1:0];
-                        mv_saddr <= r_lo[13:0]; mv_len <= r_hi[23:0];
+                        mv_saddr <= r_lo[15:0]; mv_len <= r_hi[23:0];
+                        mv_row <= r_tgt[15:4];    // SR12: B17.2 start row
                         mv_i16 <= r_flags[4];
                         mv_shift <= imm_res;
                         mv_cmd_valid <= 1'b1;
@@ -986,6 +1110,7 @@ module seq_unit #(
                     end
                     OP_FENCE: begin
                         mv_op <= 2'd3;
+                        mv_fmask <= r_tgt[3:0];   // SR3: B17.1, 0 = all
                         mv_cmd_valid <= 1'b1;
                         ist <= I_MOVER;
                     end
@@ -998,7 +1123,7 @@ module seq_unit #(
                             bulk_woff <= emb_a[3:1];
                             bulk_words <= r_hi[23:0];
                             bulk_left <= r_hi[23:0];
-                            bulk_dst <= r_lo[13:0];
+                            bulk_dst <= r_lo[15:0];
                             bulk_go <= (r_hi[23:0] != 24'd0);
                             ist <= (r_hi[23:0] == 24'd0) ? I_FETCH : I_BULKSPTR;
                             if (r_hi[23:0] == 24'd0) pc <= pc + 32'd1;
@@ -1013,7 +1138,7 @@ module seq_unit #(
                             bulk_woff <= ldc_a[3:1];
                             bulk_words <= r_imm[23:0];
                             bulk_left <= r_imm[23:0];
-                            bulk_dst <= r_tgt[13:0];
+                            bulk_dst <= r_tgt[15:0];
                             bulk_go <= (r_imm[23:0] != 24'd0);
                             ist <= (r_imm[23:0] == 24'd0) ? I_FETCH : I_BULKSPTR;
                             if (r_imm[23:0] == 24'd0) pc <= pc + 32'd1;
@@ -1156,11 +1281,11 @@ module seq_unit #(
             // --------------------------------------------------------
             I_BULKSPTR: if (fsm_wr_fire) begin
                 bulk_bgo    <= 1'b1;
-                bulk_baddr  <= LAYB_BASE + {16'd0, bulk_dst, 2'b00};
+                bulk_baddr  <= LAYB_BASE + {14'd0, bulk_dst, 2'b00};
                 bulk_bbeats <= bulk_words;
 `ifndef SYNTHESIS
-                if ((32'({8'd0, bulk_words}) + 32'({18'd0, bulk_dst}))
-                    > 32'd16384)
+                if ((32'({8'd0, bulk_words}) + 32'({16'd0, bulk_dst}))
+                    > 32'd65536)                      // G3.1: 64K words
                     $error("seq_unit LDC/EMB: scratch window overflow (dst %0d + %0d words)",
                            bulk_dst, bulk_words);
 `endif
@@ -1204,12 +1329,138 @@ module seq_unit #(
                     10'h004: seq_len   <= csr_wdata;
                     10'h008: tcnt_seq  <= csr_wdata;
                     10'h009: seq_entry <= csr_wdata;
+                    10'h018: begin                             // 0x60 EMBLOG2
+                        // Host misuse, not a stream error: an out-of-range
+                        // row size would silently corrupt every embedding
+                        // fetch, so it is loud in sim and the register keeps
+                        // its old value on hardware (no err_code exists for
+                        // a host CSR write, and inventing one would change
+                        // the frozen err map).
+                        if (csr_wdata[4:0] < EMBLOG2_MIN
+                                || csr_wdata[4:0] > EMBLOG2_MAX) begin
+`ifndef SYNTHESIS
+                            $error("seq_unit EMBLOG2: %0d outside [%0d,%0d] (host misuse), register unchanged",
+                                   csr_wdata[4:0], EMBLOG2_MIN, EMBLOG2_MAX);
+`endif
+                        end
+                        else emb_row_log2 <= csr_wdata[4:0];
+                    end
                     default: if (csr_waddr[9:3] == 7'h02)      // 0x40..0x5C
                         xrf[csr_waddr[2:0]] <= csr_wdata[17:0];
                 endcase
             end
             if (csr_of_pop) of_rp <= of_rp + 7'd1;
         end
+    end
+
+    // ==================================================================
+    // BM1 idle counters — SEQ 0x100..0x1FC, host-read-only (docs/SEQ_ISA.md
+    // B16, v2.2; spec docs/superpowers/specs/2026-09-24-board-idle-
+    // counters-design.md §1.2-§1.3 + OV1's MOVX/MOVY split).
+    //
+    //   one WINDOW  the PERF_CYC window: counted only while busy_r
+    //   one CLEAR   the START that clears the PERF_* registers (below,
+    //               the same I_IDLE && start_req condition); no host write
+    //               clears them (the block has no write decode), nor ABORT
+    //   one READ    after HALT, over the existing AXI-Lite slave
+    //
+    // ALIGNMENT.  mv_busy_bm[c] is matvec_chan c's cdc_sync_stat[0] (the
+    // STATUS busy bit, already on aclk) behind ONE source flop in
+    // matvec_chan, then two flops here (bm_mvb_q1/q2; the net may cross an
+    // SLR, so it is flop -> route -> flop with no logic between).  Every
+    // LOCAL term is delayed by the SAME three cycles (bm_loc_d1..d3), so
+    // each counter evaluates the values of ONE cycle: the set of cycles a
+    // counter counts is exactly the set the census's negedge sampler
+    // classed the same way (tb/seq_timeline.svh).  START clears while the
+    // delayed busy_r is still low and a host read comes long after the
+    // delayed window has closed, so the delay changes no count.
+    //
+    // Single clock domain: every input here is on aclk (spec §1.0).
+    // ==================================================================
+    localparam logic [31:0] BM_IDENT = 32'hFAB1_B301;
+
+    // the local terms, packed so one shift register delays them together
+    //   [0] busy_r  [1] mv_busy  [2] FENCE  [3] MOVX  [4] MOVY
+    //   [5] ist == I_MOVER  [6] an OP_EMB record dispatched (I_EXEC, valid)
+    wire [6:0] bm_loc = {
+        (ist == I_EXEC) && !v_bad && (r_op == OP_EMB),
+        (ist == I_MOVER),
+        (mv_op == 2'd2),
+        (mv_op == 2'd0),
+        (mv_op == 2'd3),
+        mv_busy,
+        busy_r };
+    logic [6:0] bm_loc_d1, bm_loc_d2, bm_loc_d3;
+    logic [3:0] bm_mvb_q1, bm_mvb_q2;
+
+    wire       bm_b    = bm_loc_d3[0];
+    wire       bm_mb   = bm_loc_d3[1];
+    wire       bm_fen  = bm_loc_d3[2];
+    wire       bm_movx = bm_loc_d3[3];
+    wire       bm_movy = bm_loc_d3[4];
+    wire       bm_imov = bm_loc_d3[5];
+    wire       bm_emb  = bm_loc_d3[6];
+    wire       bm_any  = |bm_mvb_q2;
+    wire       bm_clr  = (ist == I_IDLE) && start_req;   // == the PERF clear
+
+    logic [31:0] bm_mvany, bm_fence, bm_mvwork, bm_mvwork_any, bm_imover,
+                 bm_steps, bm_movx_c, bm_movy_c;
+    logic [31:0] bm_mv [4];
+
+    always_ff @(posedge aclk) begin
+        if (!rstn) begin
+            bm_loc_d1 <= '0; bm_loc_d2 <= '0; bm_loc_d3 <= '0;
+            bm_mvb_q1 <= '0; bm_mvb_q2 <= '0;
+            bm_mvany <= '0; bm_fence <= '0; bm_mvwork <= '0;
+            bm_mvwork_any <= '0; bm_imover <= '0; bm_steps <= '0;
+            bm_movx_c <= '0; bm_movy_c <= '0;
+            for (int c = 0; c < 4; c++) bm_mv[c] <= '0;
+        end else begin
+            bm_loc_d1 <= bm_loc;
+            bm_loc_d2 <= bm_loc_d1;
+            bm_loc_d3 <= bm_loc_d2;
+            bm_mvb_q1 <= mv_busy_bm;
+            bm_mvb_q2 <= bm_mvb_q1;
+            if (bm_clr) begin
+                bm_mvany <= '0; bm_fence <= '0; bm_mvwork <= '0;
+                bm_mvwork_any <= '0; bm_imover <= '0; bm_steps <= '0;
+                bm_movx_c <= '0; bm_movy_c <= '0;
+                for (int c = 0; c < 4; c++) bm_mv[c] <= '0;
+            end else if (bm_b) begin
+                if (bm_any)                       bm_mvany      <= bm_mvany + 32'd1;
+                for (int c = 0; c < 4; c++)
+                    if (bm_mvb_q2[c])             bm_mv[c]      <= bm_mv[c] + 32'd1;
+                if (bm_mb && bm_fen)              bm_fence      <= bm_fence + 32'd1;
+                if (bm_mb && !bm_fen)             bm_mvwork     <= bm_mvwork + 32'd1;
+                if (bm_mb && !bm_fen && bm_any)   bm_mvwork_any <= bm_mvwork_any + 32'd1;
+                if (bm_mb && bm_movx)             bm_movx_c     <= bm_movx_c + 32'd1;
+                if (bm_mb && bm_movy)             bm_movy_c     <= bm_movy_c + 32'd1;
+                if (bm_imov)                      bm_imover     <= bm_imover + 32'd1;
+                if (bm_emb)                       bm_steps      <= bm_steps + 32'd1;
+            end
+        end
+    end
+
+    // read side: word index = araddr[7:2] inside the 0x100..0x1FC block.
+    // 0x12C and 0x138..0x1FC are reserved and read 0.
+    logic [31:0] bm_rdata;
+    always_comb begin
+        case (s_axil_araddr[7:2])
+            6'h00:   bm_rdata = BM_IDENT;        // 0x100
+            6'h01:   bm_rdata = bm_mvany;        // 0x104
+            6'h02:   bm_rdata = bm_mv[0];        // 0x108
+            6'h03:   bm_rdata = bm_mv[1];        // 0x10C
+            6'h04:   bm_rdata = bm_mv[2];        // 0x110
+            6'h05:   bm_rdata = bm_mv[3];        // 0x114
+            6'h06:   bm_rdata = bm_fence;        // 0x118
+            6'h07:   bm_rdata = bm_mvwork;       // 0x11C
+            6'h08:   bm_rdata = bm_mvwork_any;   // 0x120
+            6'h09:   bm_rdata = bm_imover;       // 0x124
+            6'h0A:   bm_rdata = bm_steps;        // 0x128
+            6'h0C:   bm_rdata = bm_movx_c;       // 0x130 (OV1's split)
+            6'h0D:   bm_rdata = bm_movy_c;       // 0x134 (OV1's split)
+            default: bm_rdata = 32'd0;           // 0x12C, 0x138..0x1FC
+        endcase
     end
 
     // ---- FSM request generation ----
@@ -1246,7 +1497,7 @@ module seq_unit #(
                           fsm_rd_addr  = LAYER_BASE + {20'd0, L_AMAXI}; end
             I_BULKSPTR: begin fsm_wr_valid = 1'b1;
                               fsm_wr_addr  = LAYER_BASE + {20'd0, L_SPTR};
-                              fsm_wr_data  = {18'd0, bulk_dst}; end
+                              fsm_wr_data  = {16'd0, bulk_dst}; end
             default: ;
         endcase
     end
@@ -1266,7 +1517,8 @@ module seq_unit #(
         .cmd_op(mv_op), .cmd_chan(mv_chan), .cmd_saddr(mv_saddr),
         .cmd_len(mv_len), .cmd_movy_i16(mv_i16), .cmd_shift(mv_shift),
         .cmd_shape(mv_shape), .cmd_wbase(mv_wbase), .cmd_beats(mv_beats),
-        .cmd_nowait(mv_nowait),
+        .cmd_nowait(mv_nowait), .cmd_fmask(mv_fmask),
+        .cmd_xword(mv_xword), .cmd_row(mv_row), .cmd_bcast(mv_bcast),   // SR12: B17.2; R3-8: B17.3
         .done(mv_done), .err(mv_err), .err_code(mv_err_code), .busy(mv_busy),
         .wr_valid(mv_wr_valid), .wr_addr(mv_wr_addr), .wr_data(mv_wr_data),
         .wr_ready(axw_ready && mv_owns), .wr_idle(wr_idle),
@@ -1295,7 +1547,7 @@ module seq_unit #(
         .m_axib_arready(m_axib_arready),
         .m_axib_rid(m_axib_rid), .m_axib_rdata(m_axib_rdata),
         .m_axib_rresp(m_axib_rresp), .m_axib_rlast(m_axib_rlast),
-        .m_axib_rvalid(m_axib_rvalid), .m_axib_rready(m_axib_rready)
+        .m_axib_rvalid(m_axib_rvalid), .m_axib_rready(m_axib_rready), .xpush_valid(xpush_valid), .xpush_idx(xpush_idx), .xpush_data(xpush_data), .xpush_room(xpush_room), .xpush_busy(xpush_busy)   // R3-8
     );
 
     // ==================================================================
@@ -1380,8 +1632,12 @@ module seq_unit #(
                     10'h00D: s_axil_rdata <= perf_axw;
                     10'h00E: s_axil_rdata <= perf_axr;
                     10'h00F: s_axil_rdata <= {perf_fst[31:1], xrf_ovf};
+                    10'h018: s_axil_rdata <= {27'd0, emb_row_log2}; // EMBLOG2
+                    10'h019: s_axil_rdata <= SEQ_CAPS;       // SR3: B17.0
                     default: if (s_axil_araddr[11:5] == 7'h02)
                         s_axil_rdata <= {14'd0, xrf[s_axil_araddr[4:2]]};
+                    else if (s_axil_araddr[11:8] == 4'h1)       // BM1 0x100..0x1FC
+                        s_axil_rdata <= bm_rdata;
                     else s_axil_rdata <= 32'hDEAD_C0DE;
                 endcase
             end else if (s_axil_rvalid && s_axil_rready)
@@ -1392,6 +1648,32 @@ module seq_unit #(
     assign seq_busy   = busy_r;
     assign seq_halted = halted_r;
     assign seq_err    = err_r;
+
+
+    // ==================================================================
+    // R3-8 (docs/SEQ_ISA.md v2.3 B17.3): the MOVX BROADCAST.  Appended
+    // below every cited line (zero drift); the edits above are one line
+    // each:
+    //   * the validator (the OP_MOVX/OP_MVGO arm): MOVX flags[7:4] = 0xF is
+    //     ADMITTED and falls through to the B17.2 start-word rule
+    //     (v_movx_rsvd, err 0x06) on its ONE window; MOVX 4..14 and every
+    //     MVGO >= 4 (0xF included) keep E_CHAN (0x05); MOVY is untouched
+    //     (target[3:0] >= 4 is still 0x05: there is no broadcast MOVY).
+    //     The admission here is the RTL's; the device-keyed host validator
+    //     (ref/seq_format, caps {R1,R2,R3} from SEQ_CAPS) refuses first;
+    //   * the MOVX dispatch sets mv_bcast = (flags[7:4] == 0xF), reset with
+    //     the other mv_* (seq_movers qualifies it with MOP_MOVX, so a stale
+    //     1 under a later MVGO/MOVY/FENCE is inert);
+    //   * u_mov gains .cmd_bcast and the four-channel x-push ports, which
+    //     leave this module as xpush_valid[3:0] / xpush_idx[47:0] /
+    //     xpush_data[127:0] (channel c at [c], [12c +: 12], [32c +: 32]) and
+    //     come back as xpush_room[3:0] / xpush_busy[3:0] — FLOPS at both
+    //     ends inside seq_movers (its R3 block), plain wires here;
+    //     rtl/seq_unit_ipi.v splits them into per-channel scalar pins for
+    //     the block design (synth/scripts/create_project.tcl);
+    //   * SEQ_CAPS = 0xFAB1CA07 = sw/hwmap.py's seq_caps_word({"R1", "R2",
+    //     "R3"}), read back by tb_seq_unit against <vec>.caps.hex.
+    // ==================================================================
 
 endmodule
 

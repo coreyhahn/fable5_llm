@@ -1,0 +1,97 @@
+=== host: snoke  date: 2026-09-28T12:24:32-06:00
+=== tree: 3f74fec+dirty
+=== dirty: ?? evidence/qwen9b/sr/sr13a_cov.py
+=== cmd : env FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11b_pass_tdd.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr11b_pass_tdd.py  FABLE5_MODEL=9b FABLE5_RS_F=7  base 99c13ce
+    reorder_e4.RTLS ('r0', 'r1', 'r2'); r2 PRESENT; predict PRESENT
+=== (a) the census (evidence/qwen9b/ov/ov_census.py): bank per MOVY
+  [PASS] (a) depth 2: every MOVY node's bank == the RES bank of the MVGO it drains (-1 for the 4096-row span)  -- MOVY banks [1, 1, 0, 0, -1, 1], writers' RES banks [1, 1, 0, 0, -1, 1]
+  [PASS] (a) depth 1: every MOVY node's bank is 0  -- MOVY banks [0, 0, 0, 0, 0, 0]
+  [PASS] (a) depth 2: MOVX/MVGO banks as the census assigns them (alternation from bank 1; spans -1; the elided MOVX's MVGO reads bank 0 where ch1's surviving copy sits)  -- MOVX [(2, 1), (3, 1), (9, 0), (10, 0), (16, -1)]; MVGO [(4, (1, 1)), (5, (1, 1)), (11, (0, 0)), (12, (0, 0)), (17, (-1, -1)), (21, (0, 1))]
+=== (b) / (b2) the pass at r2
+  [PASS] (b) _synthetic form A: banks emitted, <= r1, hazard assert, {R1,R2}-only valid  -- bank-1 fields 4, legal True, walk True (unbacked reads []); replay r2 2453 vs r1 2503 (<= True, < True); refused at {R1} True, at {} True | MOVX0:1536 MVGO0:(1, 1) MVGO0:(1, 0) MOVY0:2048 MOVY0:0
+  [PASS] (b) _synthetic form A: SR11a's model runs the r2 output (ranges armed) to the r0 output's final state  -- model at {R1,R2} ran 2 MOVX / 4 MVGO / 4 MOVY; final state vs the r0 stream: IDENTICAL; model at {R1} refuses it: True
+  [PASS] (b) _synthetic form B: banks emitted, <= r1, hazard assert, {R1,R2}-only valid  -- bank-1 fields 4, legal True, walk True (unbacked reads []); replay r2 2453 vs r1 2503 (<= True, < True); refused at {R1} True, at {} True | MOVX0:1536 MVGO0:(1, 1) MVGO0:(1, 0) MOVY0:2048 MOVY0:0
+  [PASS] (b) _synthetic form B: SR11a's model runs the r2 output (ranges armed) to the r0 output's final state  -- model at {R1,R2} ran 2 MOVX / 4 MVGO / 4 MOVY; final state vs the r0 stream: IDENTICAL; model at {R1} refuses it: True
+  [PASS] (b2) synthetic_r2 form A: banks emitted, <= r1 (strictly), hazard assert, {R1,R2}-only valid  -- bank-1 fields 8, legal True, walk True (unbacked reads []); replay r2 7653 vs r1 7803 (<= True, < True); refused at {R1} True, at {} True | MOVX0:1536 MVGO0:(1, 1) MOVX0:0 MOVX1:1536 MVGO1:(1, 1) MOVX1:0 MVGO0:(0, 0) MOVY0:2048 MVGO1:(0, 0) MOVY1:2048 MOVX0:0 MOVY0:0 MVGO0:(0, 0) MVGO1:(0, 1) MOVY1:0 MOVY1:2048 MOVY0:0
+  [PASS] (b2) synthetic_r2 form A: SR11a's model runs the r2 output (ranges armed) to the r0 output's final state  -- model at {R1,R2} ran 10 MOVX / 12 MVGO / 12 MOVY; final state vs the r0 stream: IDENTICAL; model at {R1} refuses it: True
+  [PASS] (b2) synthetic_r2 form B: banks emitted, <= r1 (strictly), hazard assert, {R1,R2}-only valid  -- bank-1 fields 8, legal True, walk True (unbacked reads []); replay r2 7653 vs r1 7803 (<= True, < True); refused at {R1} True, at {} True | MOVX0:1536 MVGO0:(1, 1) MOVX0:0 MOVX1:1536 MVGO1:(1, 1) MOVX1:0 MVGO0:(0, 0) MOVY0:2048 MVGO1:(0, 0) MOVY1:2048 MOVX0:0 MOVY0:0 MVGO0:(0, 0) MVGO1:(0, 1) MOVY1:0 MOVY1:2048 MOVY0:0
+  [PASS] (b2) synthetic_r2 form B: SR11a's model runs the r2 output (ranges armed) to the r0 output's final state  -- model at {R1,R2} ran 10 MOVX / 12 MVGO / 12 MOVY; final state vs the r0 stream: IDENTICAL; model at {R1} refuses it: True
+  [PASS] (b) _synthetic: the elided MOVX's MVGO names the bank of the surviving copy  -- elided 1; MOVX words [1536]; MVGO (XBANK, RBANK) [(1, 1), (1, 0)]
+  [PASS] (b2) synthetic_r2: elision keyed by bank; the K 12288 MOVX at word 0 and the 4096-row MVGO at bank bits 0  -- elided 1; ch1 MOVX words [1536, 0], ch1 MVGO XBANK [1, 0, 0]; span MOVX [(0, 12288)]; 4096-row MVGO bank bits [0]
+=== (c) reorder_e4.assert_no_pending_hazard: range-aware at R2
+  [PASS] (c) bank-0 stream pending: MOVX into bank 1 (word 1536) -> legal  -- no HazardError
+  [PASS] (c) bank-0 stream pending: MOVX into bank 0 -> HazardError  -- HazardError: SR11b: record 2 MOVX on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between); its range (0, 32) overlaps the pending x words (0, 32)
+  [PASS] (c) bank-1 stream pending: MOVX at word 1540 (inside) -> HazardError  -- HazardError: SR11b: record 2 MOVX on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between); its range (1540, 1572) overlaps the pending x words (1536, 1568)
+  [PASS] (c) spanning stream (ng 96) pending: MOVX at 1536 -> HazardError  -- HazardError: SR11b: record 2 MOVX on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between); its range (1536, 1568) overlaps the pending x words (0, 3072)
+  [PASS] (c) RBANK-1 stream pending: MOVY of rows 0.. -> legal  -- no HazardError
+  [PASS] (c) RBANK-1 stream pending: MOVY of rows 2048.. -> HazardError  -- HazardError: SR11b: record 2 MOVY on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between); its range (2048, 2052) overlaps the pending RES rows (2048, 2052)
+  [PASS] (c) a pending stream in ANY bank: MVGO on the channel -> HazardError  -- HazardError: SR11b: record 3 MVGO on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between)
+  [PASS] (c) zero banks: the per-channel rule (MOVX ch0 while ch0 pends)  -- HazardError: SR11b: record 5 MOVX on mv0 while the no-wait MVGO at record 1 is still pending (no FENCE between); its range (0, 32) overlaps the pending x words (0, 32)
+  [PASS] (c) mask-aware: FENCE 0b0001 drains ch0, MOVX ch0 bank 0 -> legal  -- no HazardError
+  [PASS] (c) a stream still pending at HALT -> HazardError  -- HazardError: SR11b: record 3 HALT with streams still pending [(0, 1)]
+=== (d) r0 / r1 byte-identical to the pass at 99c13ce
+  [PASS] (d) _synthetic form A r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (d) _synthetic form A r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (d) _synthetic form B r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (d) _synthetic form B r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (d) synthetic_r2 form A r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (d) synthetic_r2 form A r1: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (d) synthetic_r2 form B r0: == the base pass  -- stream True, checkpoints True, manifest True
+  [PASS] (d) synthetic_r2 form B r1: == the base pass  -- stream True, checkpoints True, manifest True
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  [PASS] (d) model_9b_s1 form B CSV r0 == SV1's pin (n32)  -- regenerated 57ec3051a0d6e68e, pin 57ec3051a0d6e68e
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  [PASS] (d) model_9b_s1 form B CSV r1 == SR4's pin (n410)  -- regenerated 4e11a2ae6872970e, pin 4e11a2ae6872970e
+=== (e) ref/seq_cost.py: the FENCE correction (predictions only)
+  [PASS] (e) FENCE_REC = 23 cycles per FENCE record (n570:80)  -- FENCE_REC 23
+  [PASS] (e) a per-CLASS single-channel tail (dn_out apart from the others), a default for an unknown class  -- TAIL1 {('DN', 'dn_out'): 18, ('DN', 'in_a'): 18, ('DN', 'in_qkv'): 22, ('DN', 'in_z'): 27, ('DN', 'mlp_down'): 74, ('DN', 'mlp_gate'): 25, ('DN', 'mlp_up'): 26, ('GQA', 'mlp_down'): 75, ('GQA', 'mlp_gate'): 25, ('GQA', 'mlp_up'): 26, ('GQA', 'o_proj'): 19, ('GQA', 'q_proj'): 26, ('HEAD', 'lm_head'): 23}; default 28
+  [PASS] (e) the inherited CMD residual (n570:67) as a fraction of CMD work  -- CMD_RESID_FRAC 0.0018026715166136514 (want 0.001802672 = +19,308 / 10,710,770)
+  [PASS] (e) reorder_e4.predict: zero-wait FENCE = 23, waiting FENCE = max(t, end + tail) + 23, + the CMD residual  -- predict 2526 (hand walk 2526); FENCE windows [536, 1051] (hand [536, 1051])
+  [PASS] (e) the SCHEDULING rows are the base commit's (no schedule moves)  -- cost_of_segment == base on both synthetics: [True, True]
+=== (f) the corrected model re-predicts R1's measured window
+=== R1 timeline /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r1.timeline.csv
+    sha256 1f586cbfb3f2fcd2ce6b2c472c0ee09859718697ffceb1d868e642fbba38361f  committed 1f586cbfb3f2fcd2ce6b2c472c0ee09859718697ffceb1d868e642fbba38361f  MATCH
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  model: body 118911..158534; replay of the emitted r1 order 27136513 (SR4's prediction 27136513: REPRODUCED)
+  emitted body == the r1 stream's body 120552..160722 (sha 4e11a2ae6872970e MATCH): 40171/40171 records identical
+    token 4: 0 body pcs absent []; of them FENCE/stream-window pcs: 0
+    token 5: 0 body pcs absent []; of them FENCE/stream-window pcs: 0
+    token 6: 5 body pcs absent [(120552, 'LDC*'), (120553, 'CSRWR'), (120554, 'CSRWR'), (120555, 'CSRWR'), (120556, 'CMD')]; of them FENCE/stream-window pcs: 0
+    body FENCEs 1370; tokens read [4, 5, 6]: [40171, 40171, 40167] rows
+  [PASS] (f1) GATE: the ADDITIVE form (the r2 prediction model) within +-0.5 % of 27,163,998 with the FENCE record charged (zero-wait exact); SR4's convention fails it  -- ADDITIVE 27175723 vs measured 27163998: model - measured +11725 = +0.043 %; zero-wait (n, model, measured) (981, 22563, 22563) | negative control BEFORE 27136513 (-0.101 %), zero-wait (981, 0, 22563) -> FAILS
+  [DIAG] (f2) PLACED (IN-SAMPLE on the 19,308 CMD part): predicted 27164369, model - measured +371; FENCE class -358 (diag threshold 5,000); worst class ('DN', 'mlp_down') -397 (diag threshold 2,500); DN dn_out -65 (BEFORE +9,524) -> within the diagnostic thresholds (not a gate)
+  [DIAG] (f2) ADDITIVE: predicted 27175723, model - measured +11725; FENCE class +10996 (diag threshold 5,000); worst class ('DN', 'dn_out') +11273 (diag threshold 2,500); DN dn_out +11273 (BEFORE +9,524) -> OUTSIDE the diagnostic thresholds (not a gate)
+=== (g) r2 input refused; (h) the r2 manifest
+  [PASS] (g) the pass refuses an input that already carries bank fields (the census assigns banks from program order)  -- ReorderError: the input already carries 1 bank field(s) (MOVX target / SHAPE 29-30 / MOVY target[15:4]), first at [2]: the pass reorders r0 streams only
+  [PASS] (h) write_out at r2: seq_isa 2.3, caps [R1, R2], rtl r2  -- manifest ('2.3', ['R1', 'R2'], 'r2')
+=== per case: (a) 3/3  (b) 5/5  (b2) 5/5  (c) 10/10  (d) 10/10  (e) 5/5  (f1) 1/1  (g) 1/1  (h) 1/1
+=== 41 passed, 0 failed; failing cases: none
+SR11B PASS TDD: PASS
+=== rc  : 0
+=== end : 2026-09-28T12:25:18-06:00

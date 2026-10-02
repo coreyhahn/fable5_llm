@@ -1,0 +1,24 @@
+N= 1024 K= 1024: rel_fp=11.498% (INT4 noise floor) rel_pipeline=3.43e-07 max_lsb=0.50 stride=576B e=-5 sh=5
+N=  256 K= 3584: rel_fp=12.359% (INT4 noise floor) rel_pipeline=1.86e-06 max_lsb=0.50 stride=1856B e=-4 sh=7
+N=   64 K=  256: rel_fp=13.572% (INT4 noise floor) rel_pipeline=1.87e-07 max_lsb=0.50 stride=192B e=-5 sh=3
+--- v2 row format (g=128 legacy | g=64) ---
+  N=  64 K= 1024  g128: 8w+1s beats stride=  576B rel_fp=14.512% rel_W=11.859%  g64: 8w+1s beats stride=  576B rel_fp=15.214% rel_W=10.854%
+  N=  37 K= 3584  g128: 28w+1s beats stride= 1856B rel_fp=14.142% rel_W=11.829%  g64: 28w+2s beats stride= 1920B rel_fp=13.030% rel_W=10.824%
+  N= 256 K= 2048  g128: 16w+1s beats stride= 1088B rel_fp=12.507% rel_W=11.744%  g64: 16w+1s beats stride= 1088B rel_fp=11.306% rel_W=10.774%
+  N=   5 K=  128  g128: 1w+1s beats stride=  128B rel_fp=10.396% rel_W=12.106%  g64: 1w+1s beats stride=  128B rel_fp=9.738% rel_W=11.345%
+  contract beat counts OK: K=1024 g64 -> 8w+1s (576B), K=1024 g128 -> 8w+1s (576B), K=2048 g64 -> 16w+1s (1088B), K=2048 g128 -> 16w+1s (1088B), K=3584 g64 -> 28w+2s (1920B), K=3584 g128 -> 28w+1s (1856B)
+--- W8 row format (Track Q V5; RTL: matvec_engine cfg_w8) ---
+  N=  64 K= 1024  g128: 16w+1s beats stride= 1088B rel_fp=0.974% rel_W=0.656% (W4 11.859% = 18.1x) sh=9 (W4 5)
+  N=  37 K= 3584  g128: 56w+1s beats stride= 3648B rel_fp=0.783% rel_W=0.651% (W4 11.829% = 18.2x) sh=11 (W4 7)
+  N= 256 K= 2048  g128: 32w+1s beats stride= 2112B rel_fp=0.961% rel_W=0.647% (W4 11.744% = 18.2x) sh=10 (W4 6)
+  N=   5 K=  128  g128: 2w+1s beats stride=  192B rel_fp=0.723% rel_W=0.707% (W4 12.106% = 17.1x) sh=6 (W4 2)
+  N=  17 K= 6144  g128: 96w+2s beats stride= 6272B rel_fp=1.054% rel_W=0.644% (W4 11.660% = 18.1x) sh=12 (W4 8)
+  W8 weight error beats W4's by >= 17.0x on every shape/seed/g (floor 4x; codes 7 -> 127)
+  matvec_y32_w8 == matvec_y32 on every pair above, and agrees with dequantized float math to 0.50 lsb (bound 0.51) — the m*2^(e-15) law is the W4 one, unchanged
+  illegal code -128 rejected: W8 code out of range: [-128, -128] not in +-127
+  contract beat counts OK: K=1024 g128 -> 16w+1s (1088B), K=2048 g128 -> 32w+1s (2112B), K=3584 g128 -> 56w+1s (3648B), K=6144 g128 -> 96w+2s (6272B)
+  envelope K= 2048 g128: sh=10 (W4  6)  signed widths: p 42b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 2048 g 64: sh=10 (W4  6)  signed widths: p 42b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 6144 g128: sh=12 (W4  8)  signed widths: p 44b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 6144 g 64: sh=12 (W4  8)  signed widths: p 44b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+W4A8_REF SELFTEST PASS

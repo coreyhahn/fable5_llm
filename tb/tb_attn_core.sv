@@ -10,11 +10,16 @@ module tb_attn_core;
     /* verilator lint_off UNUSEDSIGNAL */
     wire bu = busy;
     /* verilator lint_on UNUSEDSIGNAL */
-    logic [9:0] cfg_t = 0;
+    // S2 (spec 2026-09-04 state-spill A1.5): cfg_t/kv_addr are 13 bits
+    // now, T <= 4096.  Only the widths move here — the vectors, the
+    // golden and this TB's KV model are unchanged at T = 48.
+    logic [12:0] cfg_t = 0;
     logic q_we = 0;
     logic [7:0] q_waddr = 0;
     logic signed [15:0] q_wdata = 0;
-    logic [9:0] kv_addr;
+    /* verilator lint_off UNUSEDSIGNAL */   // T = 48: t[11:9] stay 0
+    logic [12:0] kv_addr;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [2047:0] kv_data;
     logic signed [7:0] kv_exp;
     logic m_valid, m_ready = 0;
@@ -37,8 +42,8 @@ module tb_attn_core;
     logic [2047:0] kv_p;
     logic signed [7:0] ke_p;
     always_ff @(posedge clk) begin
-        kv_p    <= kv_addr[9] ? vmem[kv_addr[8:0]] : kmem[kv_addr[8:0]];
-        ke_p    <= kv_addr[9] ? vexp[kv_addr[8:0]] : kexp[kv_addr[8:0]];
+        kv_p    <= kv_addr[12] ? vmem[kv_addr[8:0]] : kmem[kv_addr[8:0]];
+        ke_p    <= kv_addr[12] ? vexp[kv_addr[8:0]] : kexp[kv_addr[8:0]];
         kv_data <= kv_p;
         kv_exp  <= ke_p;
     end
@@ -93,7 +98,7 @@ module tb_attn_core;
             q_we = 1; q_waddr = 8'(i); q_wdata = signed'(qvf[i]);
         end
         @(negedge clk); q_we = 0;
-        cfg_t = 10'd48;
+        cfg_t = 13'd48;
         start = 1; @(negedge clk); start = 0;
         begin
             int guard = 0;

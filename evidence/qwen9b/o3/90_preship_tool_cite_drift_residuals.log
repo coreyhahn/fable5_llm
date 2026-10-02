@@ -1,0 +1,94 @@
+=== host: darthplagueis
+=== date: 2026-09-10T04:57:41-06:00
+=== tree: 45758a2+dirty
+=== cmd:  bash /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/297477f1-b332-4f12-8141-aed7689cf8e7/scratchpad/drift_final.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== THE PRE-SHIP TOOL CHORE'S CITATION-DRIFT RECORD, base b9e0851.
+=== THIS IS THE FIXED DRIFT TOOL'S FIRST REAL USE: the sha-pin gap (#158) and
+=== the mixed-tree double-shift were both closed in this chore's FIRST commit
+=== (8f0c5f6), and both features are exercised below on the real tree.
+===
+=== The two --exclude'd files: o3_cite_drift.py's own docstring carries
+=== ILLUSTRATIVE citation examples that a pass would turn into instances of
+=== themselves (its header says so); evidence/qwen9b/g6/RD9_GATE.md is G6 and
+=== is LIVE, the same exclusion the pre-ship documentation chore took.
+
+############ 1. --plan, RE-RUN AFTER THE FIX LANDED ####################
+=== The new COLLATERAL refusal, demonstrated on the real tree: a second
+=== --fix at this base would move 58 citations that are ALREADY correct,
+=== and since 8f0c5f6 --fix REFUSES that instead of writing it.
+      collateral  sw/seq_run.py:2858 -> sw/seq_run.py:2886
+  EXCLUDED   evidence/qwen9b/g6/RD9_GATE.md
+  TOTAL      REPAIR 0  COLLATERAL 58
+O3_FIX_PLAN: UNSAFE — 58 of 58 rewrites would move a citation that is already correct; repair the 0 stale one(s) BY HAND or --exclude the document
+
+############ 2. --verify, the sw/-style half ###########################
+  relocated  62 citation(s) checked against the base content and the citing documents
+  excluded   evidence/qwen9b/g6/RD9_GATE.md, evidence/qwen9b/o3/o3_cite_drift.py
+  ! UNRESOLVED evidence/qwen2b/rd/rd_2b_artifact_shas.sh:19 (the cited line was rewritten or deleted) cited by evidence/qwen2b/rc/RC_GATE.md, evidence/qwen9b/g2/FINAL_BYTELOCK.md, evidence/qwen9b/g2/final_bytelock_pin.sh
+  ! UNRESOLVED evidence/qwen9b/g4/g4b_layer_term.py:42 (the cited line was rewritten or deleted) cited by evidence/qwen9b/g5/G5C_RTL.md
+  ! UNRESOLVED evidence/qwen9b/g4/g4b_layer_term.py:43 (the cited line was rewritten or deleted) cited by evidence/qwen9b/g5/G5C_RTL.md
+  ! UNRESOLVED ref/layer_fixed.py:74 (the cited line was rewritten or deleted) cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2C_CHAIN.md, evidence/qwen9b/g3/G3_2_VECNORM.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  ! MISSING docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:0 — line 0 not in b9e0851:docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+O3_CITE_DRIFT VERIFY FAIL (5 problem(s))
+
+=== THE FIVE RESIDUALS, NAMED, WITH THE DISPOSITION OF EACH.
+=== All four UNRESOLVED entries are the SAME class and it is structural: the
+=== sweep is taken from the BASE documents by design ("where did the line this
+=== document USED to name go?" has one answer forever), and this chore
+=== REWROTE those four lines, so no map can carry them.  Each citer was
+=== repaired BY HAND, and the repair is a SHA PIN — which is the first thing
+=== this chore's own fix (#158) made safe to write.
+===
+===  1  evidence/qwen2b/rd/rd_2b_artifact_shas.sh:19 (the locale-dependent
+===     digest line, replaced by (b)13).  Three citers, all describing the OLD
+===     line: evidence/qwen2b/rc/RC_GATE.md, evidence/qwen9b/g2/FINAL_BYTELOCK.md
+===     and evidence/qwen9b/g2/final_bytelock_pin.sh -> all PINNED to
+===     b9e0851, and final_bytelock_pin.sh gains a dated CLOSED clause.
+===  2  evidence/qwen9b/g4/g4b_layer_term.py:42 and
+===  3  :43 (the pre-14-A baselines, replaced by (b)16).  One citer,
+===     evidence/qwen9b/g5/G5C_RTL.md, which QUOTES the old constants ->
+===     PINNED to b9e0851 with a dated DONE clause naming the re-measurement.
+===  4  ref/layer_fixed.py:74 (the env read, replaced by (b)11).  Five citers,
+===     every one of them a HISTORICAL statement of the defect -> all PINNED
+===     to b9e0851; the three that read as live claims (the migration plan
+===     twice, G2C_CHAIN's finding) gain dated CLOSED clauses.
+===     PLUS tb/Makefile:1279, which this sweep CANNOT SEE (`sweep` filters on
+===     file EXTENSION and a Makefile has none) and which is a LIVE
+===     operational pointer, not a record -> repointed to ref/layer_fixed.py:114
+===     and reworded, found by hand grep.  That blind spot is worth a follow-on.
+===  5  MISSING ...-design.md:0 is NOT A CITATION.  It is the regression
+===     script's own pinned expected-count column (`<doc>:<FAIL>:<quote>`)
+===     parsing as a line number -- a pre-existing false positive already
+===     recorded at evidence/qwen9b/g3/G3_2_VECNORM.md:383.
+
+############ 3. --doc-cites, the document->document half ###############
+  doc base   b9e0851
+  targets    5 document(s) whose line count moved since b9e0851
+               docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md   3074 -> 3081 lines
+               evidence/qwen2b/rc/RC_GATE.md                              1110 -> 1121 lines
+               evidence/qwen9b/g2/D_TOL.md                                638 -> 660 lines
+               evidence/qwen9b/g2/G2C_CHAIN.md                            1486 -> 1488 lines
+               evidence/qwen9b/g5/G5C_RTL.md                              1161 -> 1166 lines
+  citations  30 line number(s) cited into them at b9e0851
+  unmoved    21
+  ! docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:0 was rewritten away; evidence/qwen9b/g2/spec_cites_selftest_regression.sh must be re-read by hand
+  relocated  9 citation(s) checked against the base content and the citing files
+O3_DOC_CITES VERIFY FAIL (1 problem(s))
+=== Eight doc->doc citations drifted under this chore's line insertions and
+=== all eight were repaired by hand (--doc-cites is check-only by design):
+===   evidence/qwen9b/g2/D_TOL.md:4              plan :418-482 -> :422-486
+===   evidence/qwen9b/g2/FINAL_BYTELOCK.md:9     plan :896-941 -> :903-948
+===   evidence/qwen9b/g2/G2C_CHAIN.md:5          plan :945     -> :952
+===   evidence/qwen9b/g4/G4A_REPLAY.md:1451      plan :1463-1464 -> :1470-1471
+===   evidence/qwen9b/g2/FINAL_BYTELOCK.md:504   RC_GATE :1030 -> :1031
+===     (this last one the main --fix did itself, RC_GATE.md being an edited file)
+=== The one residual is residual 5 above, the same EXPECT-column false positive.
+=== rc: 0
+=== end: 2026-09-10T04:57:50-06:00

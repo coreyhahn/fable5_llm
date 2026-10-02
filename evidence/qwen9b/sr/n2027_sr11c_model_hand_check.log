@@ -1,0 +1,116 @@
+=== host: snoke  date: 2026-09-28T13:10:39-06:00
+=== tree: e048ae1+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/QWEN35_2BOARD_FEASIBILITY.md
+=== dirty:  M docs/QWEN35_NEXT_FEASIBILITY.md
+=== dirty:  M docs/SEQ_ISA.md
+=== dirty:  M docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+=== dirty:  M docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+=== dirty:  M docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+=== dirty:  M docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+=== dirty:  M evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+=== dirty:  M evidence/qwen9b/g2/G2A_HOST.md
+=== dirty:  M evidence/qwen9b/g2/d_stage_check.py
+=== dirty:  M evidence/qwen9b/g3/G3_1_ISA.md
+=== dirty:  M evidence/qwen9b/g3/G3_3_MATVEC.md
+=== dirty:  M evidence/qwen9b/g3/G3_4_LAYER.md
+=== dirty:  M evidence/qwen9b/g4/G4A_REPLAY.md
+=== dirty:  M evidence/qwen9b/g5/G5C_RTL.md
+=== dirty:  M evidence/qwen9b/g6/RD9_GATE.md
+=== dirty:  M evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+=== dirty:  M evidence/qwen9b/ov/SV1_S1_VERIFY.md
+=== dirty:  M evidence/qwen9b/s1/S1_ISA.md
+=== dirty:  M evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+=== dirty:  M evidence/qwen9b/sr/SR2_ISA.md
+=== dirty:  M evidence/qwen9b/sr/SR4_R1_MODEL.md
+=== dirty:  M evidence/qwen9b/sr/SR_ISABITS.md
+=== dirty:  M evidence/qwen_next/defect_a/CORRECTIONS.md
+=== dirty:  M evidence/qwen_next/feas/toks_model.py
+=== dirty:  M ref/scripts/bytes_per_token.py
+=== dirty:  M ref/seq_chat.py
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11c_hand_repairs.py --check --pass model
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:28  ref/seq_model.py:528 -> ref/seq_model.py:682   (o3 REPAIR: self.caps = HW.seq_caps_check(caps))
+      7e64d05 ref/seq_model.py:528  'self.caps = HW.seq_caps_check(caps)'
+      work    ref/seq_model.py:682  'self.caps = HW.seq_caps_check(caps)'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:36  ref/seq_model.py:783 -> ref/seq_model.py:944   (o3 REPAIR: _movx's raise RunningChannelError()
+      7e64d05 ref/seq_model.py:783  'raise RunningChannelError('
+      work    ref/seq_model.py:944  'raise RunningChannelError('
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:37  ref/seq_model.py:799 -> ref/seq_model.py:961   (o3 REPAIR: _mvgo's raise RunningChannelError()
+      7e64d05 ref/seq_model.py:799  'raise RunningChannelError('
+      work    ref/seq_model.py:961  'raise RunningChannelError('
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:37  ref/seq_model.py:852 -> ref/seq_model.py:1035   (o3 REPAIR: _movy's raise RunningChannelError()
+      7e64d05 ref/seq_model.py:852  'raise RunningChannelError('
+      work    ref/seq_model.py:1035  'raise RunningChannelError('
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:39  ref/seq_model.py:1240 -> ref/seq_model.py:1435   (o3 REPAIR: gate's SeqExec(... caps=caps).run)
+      7e64d05 ref/seq_model.py:1240  'region=reg_seq, caps=caps).run(max_steps=50 * len(recs))'
+      work    ref/seq_model.py:1435  'region=reg_seq, caps=caps).run(max_steps=50 * len(recs))'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:40  ref/seq_model.py:1835 -> ref/seq_model.py:2096   (o3 REPAIR: the --seq help line)
+      7e64d05 ref/seq_model.py:1835  '"the .seq prefix; defaults to --gate")'
+      work    ref/seq_model.py:2096  '"the .seq prefix; defaults to --gate")'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:43  ref/seq_model.py:1667 -> ref/seq_model.py:1887   (o3 REPAIR: selftest r1_movx_mask_skipped)
+      7e64d05 ref/seq_model.py:1667  '"r1_movx_mask_skipped": ([movx(0), mvgo(0), movx(1), mvgo(1),'
+      work    ref/seq_model.py:1887  '"r1_movx_mask_skipped": ([movx(0), mvgo(0), movx(1), mvgo(1),'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:252  ref/seq_model.py:1684 -> ref/seq_model.py:1920   (o3 REPAIR: except RunningChannelError as e:)
+      7e64d05 ref/seq_model.py:1684  'except RunningChannelError as e:'
+      work    ref/seq_model.py:1920  'except RunningChannelError as e:'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:253  ref/seq_model.py:1689 -> ref/seq_model.py:1925   (o3 REPAIR: got[name] = "error")
+      7e64d05 ref/seq_model.py:1689  'got[name] = "error"'
+      work    ref/seq_model.py:1925  'got[name] = "error"'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:27  ref/seq_model.py:615 -> ref/seq_model.py:615   (KEEP: SR11b's hand re-aim, SeqExec's caps=frozenset() line (base :470))
+      7e64d05 ref/seq_model.py:615  'self.dnsb = val'
+      work    ref/seq_model.py:615  'region=None, caps=frozenset()):'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:38  ref/seq_model.py:1369 -> ref/seq_model.py:1369   (KEEP: SR11b's hand re-aim, def gate(... caps=frozenset()) (base :1174))
+      7e64d05 ref/seq_model.py:1369  '* the same image addressed with a W4 SHAPE word must NOT execute'
+      work    ref/seq_model.py:1369  'def gate(prefix, use_files=True, verbose=True, base=None, caps=frozenset()):'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:29  ref/seq_model.py:873 -> ref/seq_model.py:1063   (SF.validate(r, nrec=n, idx=pc, caps=self.caps, (now + shape_isa))
+      7e64d05 ref/seq_model.py:873  'SF.validate(r, nrec=n, idx=pc, caps=self.caps)'
+      work    ref/seq_model.py:1063  'SF.validate(r, nrec=n, idx=pc, caps=self.caps,'
+OK  [model] evidence/qwen9b/sr/SR4_R1_MODEL.md:32  ref/seq_model.py:923-927 -> ref/seq_model.py:1116-1122   (the FENCE arm: fmask .. the per-channel pop (was running -= {...}))
+      7e64d05 ref/seq_model.py:923  'fmask = r.target & 0xF'
+      work    ref/seq_model.py:1116  'fmask = r.target & 0xF'
+      7e64d05 ref/seq_model.py:927  'self.running -= {c for c in range(4) if (fmask >> c) & 1}'
+      work    ref/seq_model.py:1122  'self.running.pop(c, None)'
+OK  [model] docs/QWEN35_NEXT_FEASIBILITY.md:478  ref/seq_model.py:504-510 -> ref/seq_model.py:649-656   (SeqExec state init tcnt_seq .. res (xwin/res now XWinMem/ResMem))
+      7e64d05 ref/seq_model.py:504  'self.tcnt_seq = 0'
+      work    ref/seq_model.py:649  'self.tcnt_seq = 0'
+      7e64d05 ref/seq_model.py:510  'self.res = {}'
+      work    ref/seq_model.py:656  'self.res = ResMem()'
+OK  [model] evidence/qwen9b/ov/SV1_S1_VERIFY.md:110  ref/seq_model.py:784 -> ref/seq_model.py:945   (the MOVX refusal message (content successor; the SV1 pair is pre-existing stale, pass 4))
+      7e64d05 ref/seq_model.py:784  'f"MOVX writes mv{r.chan} XWIN while a NO-WAIT MVGO is still "'
+      work    ref/seq_model.py:945  'f"MOVX writes mv{r.chan} XWIN words [{w0}, "'
+OK  [model] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:418  ref/seq_model.py:769-785 -> ref/seq_model.py:923-947   (base :769 (= work :923) .. the end of _movx's refusal (rewritten, now :947))
+      7e64d05 ref/seq_model.py:769  'return'
+      work    ref/seq_model.py:923  'return'
+      7e64d05 ref/seq_model.py:785  '"running on it — the stream needs a FENCE first")'
+      work    ref/seq_model.py:947  'f"words [{p[0]}, {p[1]}) — the stream needs a FENCE first")'
+OK  [model] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:418  ref/seq_model.py:833 -> ref/seq_model.py:1003   (the MVGO no-MOVX check (assert -> if x8 is None: raise UnwrittenReadError))
+      7e64d05 ref/seq_model.py:833  'assert x8 is not None, f"MVGO on mv{r.chan} before any MOVX"'
+      work    ref/seq_model.py:1003  'if x8 is None:'
+OK  [model] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:277  ref/seq_model.py:769-785 -> ref/seq_model.py:923-947   (as the plan's :418)
+      7e64d05 ref/seq_model.py:769  'return'
+      work    ref/seq_model.py:923  'return'
+      7e64d05 ref/seq_model.py:785  '"running on it — the stream needs a FENCE first")'
+      work    ref/seq_model.py:947  'f"words [{p[0]}, {p[1]}) — the stream needs a FENCE first")'
+OK  [model] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:278  ref/seq_model.py:833 -> ref/seq_model.py:1003   (as the plan's :418)
+      7e64d05 ref/seq_model.py:833  'assert x8 is not None, f"MVGO on mv{r.chan} before any MOVX"'
+      work    ref/seq_model.py:1003  'if x8 is None:'
+OK  [model] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:357  ref/seq_model.py:769-785 -> ref/seq_model.py:923-947   (_movx, as the plan's :418)
+      7e64d05 ref/seq_model.py:769  'return'
+      work    ref/seq_model.py:923  'return'
+      7e64d05 ref/seq_model.py:785  '"running on it — the stream needs a FENCE first")'
+      work    ref/seq_model.py:947  'f"words [{p[0]}, {p[1]}) — the stream needs a FENCE first")'
+OK  [model] evidence/qwen9b/g3/G3_4_LAYER.md:1167  ref/seq_format.py:506-509 -> ref/seq_format.py:506-509   (KEEP: the row's first column records where SEQ_ISA v1.5's pointers POINTED (history); its 'now' column is o3's)
+      7e64d05 ref/seq_format.py:506  '# -- exactly the discipline sw/hwmap.shape_word(isa=...) established at'
+      work    ref/seq_format.py:506  '# -- exactly the discipline sw/hwmap.shape_word(isa=...) established at'
+      7e64d05 ref/seq_format.py:509  "# `sw/chat_seq.py`'s artifact checks therefore pass nothing and get the"
+      work    ref/seq_format.py:509  '# caller states shape_isa = hwmap.SHAPE_ISA_PRE_G3: with the layout'
+OK  [model] sw/chat_seq.py:2243  ref/seq_model.py:456-595 -> ref/seq_model.py:456-595   (KEEP (chat_seq.py excluded from the fix): 'The old docstring cited ...' quotes a past cite)
+      7e64d05 ref/seq_model.py:456  '"""SV1 fix round 1: a MOVX / MVGO / MOVY on a channel whose no-wait'
+      work    ref/seq_model.py:456  '"""SV1 fix round 1: a MOVX / MVGO / MOVY on a channel whose no-wait'
+      7e64d05 ref/seq_model.py:595  '# forbids, and it would otherwise read the right bytes here'
+      work    ref/seq_model.py:595  'if v is None:'
+SR11C_HAND_REPAIRS PASS: 22 entries, 0 bad
+=== rc  : 0
+=== end : 2026-09-28T13:10:40-06:00

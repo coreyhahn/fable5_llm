@@ -1,0 +1,74 @@
+=== host: snoke  date: 2026-09-28T11:01:26-06:00
+=== tree: a26f612
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11a_fix2_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--caps R1[,R2..]]
+                  [--lock LOCK] [--no-lock]
+seq_run.py: error: argument --expect-version: expect-version 0x54443b9f is not a known sequencer bitstream (known: 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default), 0xe3c2ff1e build_044_r1_incr (R1 FENCE mask + BM1 counters; admitted only when named)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--caps R1[,R2..]]
+                  [--lock LOCK] [--no-lock]
+seq_run.py: error: unrecognized arguments: --shape-isa 1
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--caps R1[,R2..]]
+                  [--lock LOCK] [--no-lock]
+seq_run.py: error: argument --expect-version: expect-version 0x54443b9f is not a known sequencer bitstream (known: 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default), 0xe3c2ff1e build_044_r1_incr (R1 FENCE mask + BM1 counters; admitted only when named)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess
+SR11a fix 2 host TDD — FABLE5_MODEL=9b
+=== seq_run: the board-admission path on mock SEQ windows
+    (a) W8 2B on build_035: outcome 'exit 2'; events []
+      | exit 2
+  [a] FAIL the frozen 2B W8 artifact LOADS at build_035's VERSION with caps {} (reaches the upload tripwire)  -- exit 2
+  [a] FAIL ... validated at the device's layout (isa=1, printed)
+    (b) XBANK on build_041: outcome "exit 'REFUSING before any DMA: /tmp/sr11af2_fx_zx1ecksk/xb/rp.e at capabilities {}: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); witho"; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      | exit 'REFUSING before any DMA: /tmp/sr11af2_fx_zx1ecksk/xb/rp.e at capabilities {}: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x0
+  [b] PASS an XBANK record (rec 4) is REFUSED at build_041's VERSION with caps {} before any DMA, naming R2  -- exit 'REFUSING before any DMA: /tmp/sr11af2_fx_zx1ecksk/xb/rp.e at capabilities {}: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x0
+    (b) XBANK on build_044_r1: outcome 'exit "REFUSING before any DMA: /tmp/sr11af2_fx_zx1ecksk/xb/rp.e at capabilities [\'R1\']: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); w'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xe3c2ff1e CALIB=0xf  SEQ=READY
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      | exit "REFUSING before any DMA: /tmp/sr11af2_fx_zx1ecksk/xb/rp.e at capabilities ['R1']: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op
+  [b] PASS ... and at build_044_r1_incr's VERSION with caps {R1}  -- exit "REFUSING before any DMA: /tmp/sr11af2_fx_zx1ecksk/xb/rp.e at capabilities ['R1']: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op
+    (c) XBANK on a mock {R1,R2}: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [c] PASS the XBANK stream LOADS on a mock reporting caps {R1,R2}  -- tripped upload
+    (d) W8 dry-run, no --shape-isa: outcome "exit 'REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e at capabilities {}: rec 1545: MVGO SHAPE bits 29/30 (XBANK/RBA"; events ['dev']
+      |   SEQ CSRs untouched: --dry-run: the SEQ CSR window is not touched
+      |   capabilities     {}  (default (board-free: --dry-run never reads the SEQ window))
+      | exit 'REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e at capabilities {}: rec 1545: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without 
+  [d] FAIL --dry-run of the W8 artifact without --shape-isa is REFUSED before any DMA, naming --shape-isa  -- exit 'REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e at capabilities {}: rec 1545: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without 
+    (d) W8 dry-run --shape-isa 1: outcome 'exit 2'; events []
+      | exit 2
+  [d] FAIL ... with --shape-isa 1 it proceeds (reaches the upload tripwire)  -- exit 2
+    (d) --shape-isa on a SEQ run: outcome 'exit 2'; events []
+      | exit 2
+  [d] FAIL --shape-isa on a SEQ run is REFUSED before any DMA (the layout is the device's)  -- exit 2
+  [f] FAIL on a SEQ run every seq_run validate_stream call states shape_isa_for_version(VERSION) (= 2 on build_041)  -- tripped upload shape_isa seen ['UNSTATED', 'UNSTATED', 'UNSTATED']
+=== chat_seq (rd_chat2b.sh's recipe) on the build_035 mock, FABLE5_MODEL=2b, in a child process
+    (with --shape-isa 1): outcome 'exit 2' events [] (1 s)
+    (without --shape-isa 1): outcome 'raised SeqValidationError: rec 22: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x05 fl=0x00 tgt=0x0001 imm=0x20600290 lo=0x10000000 hi=0x0' events [] (1 s)
+      |   File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 571, in bad
+      |     raise SeqValidationError(f"{where}{msg}  [{_disasm_raw(r)}]")
+      | seq_format.SeqValidationError: rec 22: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x05 fl=0x00 tgt=0x0001 imm=0x20600290 lo=0x10000000 hi=0x00c60000]
+  [e] FAIL chat_seq on the 2B W8 template with --shape-isa 1 LOADS at build_035 (reaches bring_up)  -- exit 2
+  [e] FAIL ... without --shape-isa it is REFUSED before any upload, naming --shape-isa  -- raised SeqValidationError: rec 22: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x05 fl=0x00 tgt=0x0001 imm=0x20600290 lo=0x10000000 hi=0x0
+per case: (a) 0/2  (b) 2/2  (c) 1/1  (d) 0/3  (f) 0/1  (e) 0/2
+SR11A_FIX2_HOST_TDD: 3 passed, 8 failed (1 s) -> FAIL
+=== rc  : 1
+=== end : 2026-09-28T11:01:28-06:00

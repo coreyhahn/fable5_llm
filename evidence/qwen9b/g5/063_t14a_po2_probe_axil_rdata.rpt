@@ -1,0 +1,122 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date              : Sun Sep  6 23:09:50 2026
+| Host              : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command           : report_timing -of_objects {bd_i/layer_0/inst/u_core/u_dn/p_0_out__12__7/DSP_A_B_DATA_INST/B[2]} -path_type full_clock_expanded -input_pins -file evidence/qwen9b/g5/063_t14a_po2_probe_axil_rdata.rpt
+| Design            : bd_wrapper
+| Device            : xcvu9p-fsgd2104
+| Speed File        : -2L  PRODUCTION 1.28 03-30-2022
+| Design State      : Physopt postRoute
+| Temperature Grade : E
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.212ns  (required time - arrival time)
+  Source:                 bd_i/layer_0/inst/u_core/smem_a_reg_bram_0/CLKBWRCLK
+                            (rising edge-triggered cell RAMB36E2 clocked by xdma_0_axi_aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            bd_i/layer_0/inst/u_core/s_axil_rdata_reg[8]/D
+                            (rising edge-triggered cell FDRE clocked by xdma_0_axi_aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             xdma_0_axi_aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (xdma_0_axi_aclk rise@4.000ns - xdma_0_axi_aclk rise@0.000ns)
+  Data Path Delay:        4.052ns  (logic 2.600ns (64.170%)  route 1.452ns (35.830%))
+  Logic Levels:           11  (LUT3=1 LUT5=1 LUT6=2 RAMB36E2=7)
+  Clock Path Skew:        -0.139ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.853ns = ( 6.853 - 4.000 ) 
+    Source Clock Delay      (SCD):    3.236ns
+    Clock Pessimism Removal (CPR):    0.244ns
+  Clock Uncertainty:      0.046ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.060ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      3.021ns (routing 1.183ns, distribution 1.838ns)
+  Clock Net Delay (Destination): 2.661ns (routing 1.071ns, distribution 1.590ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock xdma_0_axi_aclk rise edge)
+                                                      0.000     0.000 r  
+    GTYE4_CHANNEL_X1Y35  GTYE4_CHANNEL                0.000     0.000 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[32].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK
+                         net (fo=7, routed)           0.085     0.085    bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/GT_TXOUTCLK[0]
+    BUFG_GT_X1Y198                                                    r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/I
+    BUFG_GT_X1Y198       BUFG_GT (Prop_BUFG_GT_I_O)
+                                                      0.130     0.215 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O
+    X3Y9 (CLOCK_ROOT)    net (fo=148450, routed)      3.021     3.236    bd_i/layer_0/inst/u_core/aclk
+    SLR Crossing[1->2]   
+    RAMB36_X7Y145        RAMB36E2                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_0/CLKBWRCLK
+  -------------------------------------------------------------------    -------------------
+    RAMB36_X7Y145        RAMB36E2 (Prop_RAMB36E2_RAMB36_CLKBWRCLK_CASDOUTPB[0])
+                                                      1.082     4.318 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_0/CASDOUTPB[0]
+                         net (fo=1, routed)           0.031     4.349    bd_i/layer_0/inst/u_core/smem_a_reg_bram_0_n_139
+    RAMB36_X7Y146                                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_1/CASDINPB[0]
+    RAMB36_X7Y146        RAMB36E2 (Prop_RAMB36E2_RAMB36_CASDINPB[0]_CASDOUTPB[0])
+                                                      0.210     4.559 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_1/CASDOUTPB[0]
+                         net (fo=1, routed)           0.031     4.590    bd_i/layer_0/inst/u_core/smem_a_reg_bram_1_n_139
+    RAMB36_X7Y147                                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_2/CASDINPB[0]
+    RAMB36_X7Y147        RAMB36E2 (Prop_RAMB36E2_RAMB36_CASDINPB[0]_CASDOUTPB[0])
+                                                      0.210     4.800 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_2/CASDOUTPB[0]
+                         net (fo=1, routed)           0.031     4.831    bd_i/layer_0/inst/u_core/smem_a_reg_bram_2_n_139
+    RAMB36_X7Y148                                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_3/CASDINPB[0]
+    RAMB36_X7Y148        RAMB36E2 (Prop_RAMB36E2_RAMB36_CASDINPB[0]_CASDOUTPB[0])
+                                                      0.210     5.041 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_3/CASDOUTPB[0]
+                         net (fo=1, routed)           0.031     5.072    bd_i/layer_0/inst/u_core/smem_a_reg_bram_3_n_139
+    RAMB36_X7Y149                                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_4/CASDINPB[0]
+    RAMB36_X7Y149        RAMB36E2 (Prop_RAMB36E2_RAMB36_CASDINPB[0]_CASDOUTPB[0])
+                                                      0.210     5.282 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_4/CASDOUTPB[0]
+                         net (fo=1, routed)           0.031     5.313    bd_i/layer_0/inst/u_core/smem_a_reg_bram_4_n_139
+    RAMB36_X7Y150                                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_5/CASDINPB[0]
+    RAMB36_X7Y150        RAMB36E2 (Prop_RAMB36E2_RAMB36_CASDINPB[0]_CASDOUTPB[0])
+                                                      0.210     5.523 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_5/CASDOUTPB[0]
+                         net (fo=1, routed)           0.031     5.554    bd_i/layer_0/inst/u_core/smem_a_reg_bram_5_n_139
+    RAMB36_X7Y151                                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_6/CASDINPB[0]
+    RAMB36_X7Y151        RAMB36E2 (Prop_RAMB36E2_RAMB36_CASDINPB[0]_CASDOUTPB[0])
+                                                      0.210     5.764 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_6/CASDOUTPB[0]
+                         net (fo=1, routed)           0.031     5.795    bd_i/layer_0/inst/u_core/smem_a_reg_bram_6_n_139
+    RAMB36_X7Y152                                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_7/CASDINPB[0]
+    RAMB36_X7Y152        RAMB36E2 (Prop_RAMB36E2_RAMB36_CASDINPB[0]_DOUTPBDOUTP[0])
+                                                      0.117     5.912 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_7/DOUTPBDOUTP[0]
+                         net (fo=11, routed)          0.638     6.550    bd_i/layer_0/inst/u_core/u_alu/cp_v32_reg[8]_0[0]
+    SLICE_X86Y753                                                     r  bd_i/layer_0/inst/u_core/u_alu/fdat_reg_0_3_0_13_i_9/I2
+    SLICE_X86Y753        LUT3 (Prop_B6LUT_SLICEL_I2_O)
+                                                      0.036     6.586 r  bd_i/layer_0/inst/u_core/u_alu/fdat_reg_0_3_0_13_i_9/O
+                         net (fo=1, routed)           0.083     6.669    bd_i/layer_0/inst/u_core/sa_q[8]
+    SLICE_X86Y754                                                     r  bd_i/layer_0/inst/u_core/s_axil_rdata[8]_i_19/I4
+    SLICE_X86Y754        LUT5 (Prop_F6LUT_SLICEL_I4_O)
+                                                      0.035     6.704 f  bd_i/layer_0/inst/u_core/s_axil_rdata[8]_i_19/O
+                         net (fo=1, routed)           0.334     7.038    bd_i/layer_0/inst/u_core/s_axil_rdata[8]_i_19_n_0
+    SLICE_X83Y769                                                     f  bd_i/layer_0/inst/u_core/s_axil_rdata[8]_i_18/I0
+    SLICE_X83Y769        LUT6 (Prop_E6LUT_SLICEL_I0_O)
+                                                      0.035     7.073 f  bd_i/layer_0/inst/u_core/s_axil_rdata[8]_i_18/O
+                         net (fo=1, routed)           0.134     7.207    bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[8]_i_4_1
+    SLICE_X83Y772                                                     f  bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[8]_i_1_comp_1/I5
+    SLICE_X83Y772        LUT6 (Prop_E6LUT_SLICEL_I5_O)
+                                                      0.035     7.242 r  bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[8]_i_1_comp_1/O
+                         net (fo=1, routed)           0.046     7.288    bd_i/layer_0/inst/u_core/u_alu_n_122
+    SLICE_X83Y772        FDRE                                         r  bd_i/layer_0/inst/u_core/s_axil_rdata_reg[8]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock xdma_0_axi_aclk rise edge)
+                                                      4.000     4.000 r  
+    GTYE4_CHANNEL_X1Y35  GTYE4_CHANNEL                0.000     4.000 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[32].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK
+                         net (fo=7, routed)           0.078     4.078    bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/GT_TXOUTCLK[0]
+    BUFG_GT_X1Y198                                                    r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/I
+    BUFG_GT_X1Y198       BUFG_GT (Prop_BUFG_GT_I_O)
+                                                      0.114     4.192 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O
+    X3Y9 (CLOCK_ROOT)    net (fo=148450, routed)      2.661     6.853    bd_i/layer_0/inst/u_core/aclk
+    SLR Crossing[1->2]   
+    SLICE_X83Y772        FDRE                                         r  bd_i/layer_0/inst/u_core/s_axil_rdata_reg[8]/C
+                         clock pessimism              0.244     7.097    
+                         clock uncertainty           -0.046     7.051    
+    SLICE_X83Y772        FDRE (Setup_EFF_SLICEL_C_D)
+                                                      0.025     7.076    bd_i/layer_0/inst/u_core/s_axil_rdata_reg[8]
+  -------------------------------------------------------------------
+                         required time                          7.076    
+                         arrival time                          -7.288    
+  -------------------------------------------------------------------
+                         slack                                 -0.212    
+
+
+
+

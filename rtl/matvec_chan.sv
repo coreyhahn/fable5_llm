@@ -15,15 +15,35 @@
 //   0x08 WBASE_LO  W  weight image byte address [31:0] (64B aligned)
 //   0x0C WBASE_HI  W  [33:32]
 //   0x10 WBEATS    W  total 64B beats
-//   0x14 SHAPE     W  {3'b0, g64[28], nrows[27:12], sh[11:6], ng[5:0]}
-//                     bit 28 g64: 0 = legacy G=128 rows, 1 = G=64 v2 rows
-//                     (ng is the WEIGHT-BEAT count per row in both modes;
-//                      a v2 row is ng + ceil(2*ng/32) beats, see
-//                      matvec_engine header)
+//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],
+//                      nrows[21:6], sh[5:0]}
+//                     SEQ_ISA v2.0 / G3.3 layout, CONTIGUOUS: ng is 7 bits
+//                     (1..96), nrows 16, sh 6.  SR12 (SEQ_ISA v2.3 B17.2,
+//                     R2): bit 29 XBANK (the engine's x_line starts at line
+//                     48) and bit 30 RBANK (result rows land at 2048 + r)
+//                     are latched into csr_static_xbank / csr_static_rbank
+//                     -- quasi-static like the other csr_static_* and
+//                     covered by the same false path by name; bit 31 is
+//                     spare and dropped (until SR12 all of [31:29] were).
+//                     The READBACK is unchanged: [31:29] read 0.  Bank
+//                     LEGALITY (XBANK needs ng <= 48, RBANK nrows <= 2048)
+//                     is the host validator's; the engine's twin is
+//                     sim-only.  Packed by sw/hwmap.shape_word(...,
+//                     isa=2); isa=1 still packs the build_034 / build_035
+//                     word {2'b0, w8[29], g64[28], nrows[27:12], sh[11:6],
+//                     ng[5:0]} for the tools that drive those bitstreams.
+//                     ng is the group count per row = K//128 = the WEIGHT
+//                     beat count.  Row beats: ng + ceil(ng/32).
+//                     (ref/w4a8_ref.py row_beats; matvec_engine header)
+//                     G3.3 DELETED the two mode bits this word used to
+//                     carry -- 29 (w8) and 28 (g64) -- with the engine
+//                     modes they selected (spec 5.1 S5, 5.2 S6), and ng
+//                     took bit 28 as its 7th.  The 9B down_proj row is
+//                     K = 12288 -> ng = 96, which does not fit six bits.
 //   0x18 PERF_CYC_LO R   0x1C PERF_CYC_HI R (cycles@ui_clk, frozen at done)
 //   0x20 PERF_BEATS  R
 //   0x24 XWIN      W  push x word at xptr; xptr++
-//   0x28 XPTR      RW x word pointer
+//   0x28 XPTR      RW x word pointer (12 bits: 3072 x words at K = 12288)
 //   0x2C RES_PTR   RW result read pointer
 //   0x30 RES_DATA  R  result[res_ptr]; res_ptr++ (data valid: poll done)
 //   0x34 IDENT     R  0xFAB1C4A0 | CHAN_ID
@@ -44,7 +64,10 @@
 //                         xpm_memory_tdpram READ_LATENCY_B = 2 in a
 //                         credit-limited pipeline, so no RES_GAP pacing
 //                         is needed on this path.
-//   WRITE 0x4000-0x4FFF : XWIN word w at byte 4w, w = awaddr[11:2].
+//   WRITE 0x4000-0x6FFF : XWIN word w at byte 4w, w = awaddr[13:2],
+//                         3072 words (K <= 12288).  0x7000-0x7FFF is NOT
+//                         in the window (x_mem holds 3072 words) and
+//                         answers SLVERR like any other stray address.
 //                         Pushes the EXISTING, UNMODIFIED xpm_fifo_async
 //                         at <= 1 word/cycle through a 2:1 mux on
 //                         xf_din/xf_push.  FIFO full backpressures
@@ -156,6 +179,13 @@ module matvec_chan #(
     output logic        s_axib_rvalid,
     input  wire         s_axib_rready,
 
+    // ------- BM1 (spec 2026-09-24 §1.1, SEQ_ISA B16): engine busy, aclk -------
+    // cdc_sync_stat[0] -- the bit this channel's own STATUS returns, ALREADY
+    // synchronised into aclk -- re-registered by ONE dedicated flop so the
+    // net to seq_0's idle counters starts at a flop with no logic behind
+    // it (it may cross an SLR).  aclk -> aclk: no new CDC.
+    output logic        mv_busy_bm,  input wire xpush_valid, input wire [11:0] xpush_idx, input wire [31:0] xpush_data, output logic xpush_room, output logic xpush_busy,  // R3-8 x-push port (aclk), see the R3 block at the end
+
     // ---------------- ui_clk domain ----------------
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 ui_clk CLK" *)
     (* X_INTERFACE_PARAMETER = "ASSOCIATED_BUSIF m_axi, ASSOCIATED_RESET ui_rstn" *)
@@ -195,12 +225,14 @@ module matvec_chan #(
     // quasi-static cfg (named csr_static_* for the CDC false-path rule)
     logic [33:0] csr_static_wbase;
     logic [31:0] csr_static_wbeats;
-    logic [5:0]  csr_static_ng, csr_static_sh;
+    logic [6:0]  csr_static_ng;
+    logic [5:0]  csr_static_sh;
     logic [15:0] csr_static_nrows;
-    logic        csr_static_g64;
+    logic        csr_static_xbank;   // SR12 (SEQ_ISA B17.2): SHAPE bit 29, XBANK
+    logic        csr_static_rbank;   // SR12 (SEQ_ISA B17.2): SHAPE bit 30, RBANK
 
     logic        start_tgl;          // toggles on doorbell
-    logic [9:0]  xptr;
+    logic [11:0] xptr;               // x word index (K <= 12288 -> 3072 words)
     logic [11:0] res_ptr;
     logic        xfifo_ovfl;
 
@@ -211,29 +243,33 @@ module matvec_chan #(
         cdc_meta_stat <= {ui_err, ui_done, ui_busy};
         cdc_sync_stat <= cdc_meta_stat;
     end
+    // BM1: the source flop of the mv_busy_bm net (port comment above).  Like
+    // cdc_sync_stat it has no reset: it is a pure delay of a level that is
+    // only COUNTED while seq_unit is busy, never used for control.
+    always_ff @(posedge aclk) mv_busy_bm <= cdc_sync_stat[0];
 
     // perf buses from ui domain (frozen when done; false-pathed)
     logic [47:0] perf_cycles;
     logic [31:0] perf_beats;
 
-    // x write fifo (aclk -> ui_clk).  Two push sources, 2:1 mux, AXI-Lite
-    // wins (see the arbitration note in the header).
+    // x write fifo (aclk -> ui_clk).  Three push sources (R3-8 added the x-push leg), AXI-Lite
+    // wins, then the x-push leg, then the burst (header's arbitration note + the R3 block).
     logic        xf_full;
     logic        xf_push_a;              // AXI-Lite XWIN write (registered)
-    logic [41:0] xf_din_a;
+    logic [43:0] xf_din_a;
     logic        xf_push_b;              // s_axib burst write window
-    logic [41:0] xf_din_b;
-    wire         xf_push = xf_push_a | xf_push_b;
-    wire  [41:0] xf_din  = xf_push_a ? xf_din_a : xf_din_b;
+    logic [43:0] xf_din_b;  logic xf_push_p;  logic [43:0] xf_din_p;   // R3-8: the x-push leg's drain (R3 block)
+    wire         xf_push = xf_push_a | xf_push_p | xf_push_b;
+    wire  [43:0] xf_din  = xf_push_a ? xf_din_a : (xf_push_p ? xf_din_p : xf_din_b);
     logic        xf_empty;
-    logic [41:0] xf_dout;
+    logic [43:0] xf_dout;
     logic        xf_pop;
 
     xpm_fifo_async #(
         .FIFO_MEMORY_TYPE("distributed"),
         .FIFO_WRITE_DEPTH(32),
-        .WRITE_DATA_WIDTH(42),
-        .READ_DATA_WIDTH(42),
+        .WRITE_DATA_WIDTH(44),
+        .READ_DATA_WIDTH(44),
         .READ_MODE("fwft"),
         .FIFO_READ_LATENCY(0),
         .CDC_SYNC_STAGES(2),
@@ -285,7 +321,7 @@ module matvec_chan #(
             xf_push_a <= 1'b0; xfifo_ovfl <= 1'b0;
             csr_static_wbase <= '0; csr_static_wbeats <= '0;
             csr_static_ng <= '0; csr_static_sh <= '0; csr_static_nrows <= '0;
-            csr_static_g64 <= 1'b0;
+            csr_static_xbank <= 1'b0; csr_static_rbank <= 1'b0;
         end else begin
             xf_push_a <= 1'b0;
 
@@ -303,10 +339,11 @@ module matvec_chan #(
                     10'h003: csr_static_wbase[33:32] <= wdata_q[1:0];     // WBASE_HI
                     10'h004: csr_static_wbeats <= wdata_q;                // WBEATS
                     10'h005: begin                                        // SHAPE
-                        csr_static_ng    <= wdata_q[5:0];
-                        csr_static_sh    <= wdata_q[11:6];
-                        csr_static_nrows <= wdata_q[27:12];
-                        csr_static_g64   <= wdata_q[28];
+                        csr_static_sh    <= wdata_q[5:0];
+                        csr_static_nrows <= wdata_q[21:6];
+                        csr_static_ng    <= wdata_q[28:22];
+                        csr_static_xbank <= wdata_q[29];  // SR12: B17.2
+                        csr_static_rbank <= wdata_q[30];  // bit 31 dropped
                     end
                     10'h009: begin                                        // XWIN
                         if (!xf_full) begin
@@ -315,7 +352,7 @@ module matvec_chan #(
                         end else xfifo_ovfl <= 1'b1;
                         xptr <= xptr + 1'b1;
                     end
-                    10'h00A: xptr <= wdata_q[9:0];                        // XPTR
+                    10'h00A: xptr <= wdata_q[11:0];                       // XPTR
                     10'h00B: res_ptr <= wdata_q[11:0];                    // RES_PTR
                     default: ;
                 endcase
@@ -332,13 +369,16 @@ module matvec_chan #(
                     10'h002: s_axil_rdata <= csr_static_wbase[31:0];
                     10'h003: s_axil_rdata <= {30'b0, csr_static_wbase[33:32]};
                     10'h004: s_axil_rdata <= csr_static_wbeats;
-                    10'h005: s_axil_rdata <= {3'b0, csr_static_g64,
+                    // SR12 (B17.2): the readback is UNCHANGED — bits [31:29]
+                    // still read 0 although 29/30 are now latched (the host
+                    // ladders and tb_mvshim_b T1 pin a zero spare; n1234)
+                    10'h005: s_axil_rdata <= {3'b0, csr_static_ng,
                                               csr_static_nrows,
-                                              csr_static_sh, csr_static_ng};
+                                              csr_static_sh};
                     10'h006: s_axil_rdata <= perf_cycles[31:0];
                     10'h007: s_axil_rdata <= {16'b0, perf_cycles[47:32]};
                     10'h008: s_axil_rdata <= perf_beats;
-                    10'h00A: s_axil_rdata <= {22'b0, xptr};
+                    10'h00A: s_axil_rdata <= {20'b0, xptr};
                     10'h00B: s_axil_rdata <= {20'b0, res_ptr};
                     10'h00C: begin                                        // RES_DATA
                         s_axil_rdata <= res_rdata;
@@ -372,7 +412,7 @@ module matvec_chan #(
     // x_mem write-decode path was the ui_clk WNS once placement got tight)
     assign xf_pop = !xf_empty;
     logic        xq_we;
-    logic [41:0] xq_d;
+    logic [43:0] xq_d;
     always_ff @(posedge ui_clk) begin
         if (!ui_rstn) xq_we <= 1'b0;
         else          xq_we <= xf_pop;
@@ -402,9 +442,10 @@ module matvec_chan #(
     matvec_engine u_engine (
         .clk(ui_clk), .rstn(ui_rstn),
         .cfg_ng(csr_static_ng), .cfg_sh(csr_static_sh),
-        .cfg_g64(csr_static_g64), .cfg_nrows(csr_static_nrows),
+        .cfg_nrows(csr_static_nrows),
+        .cfg_xbank(csr_static_xbank), .cfg_rbank(csr_static_rbank),   // SR12: B17.2
         .start(start_pulse), .busy(en_busy), .done(en_done),
-        .x_we(xq_we), .x_waddr(xq_d[41:32]), .x_wdata(xq_d[31:0]),
+        .x_we(xq_we), .x_waddr(xq_d[43:32]), .x_wdata(xq_d[31:0]),
         .s_valid(b_valid), .s_ready(b_ready), .s_data(b_data),
         .m_valid(m_valid), .m_ready(1'b1), .m_y32(m_y32), .m_row(m_row)
     );
@@ -524,10 +565,16 @@ module matvec_chan #(
         end
     end
 
-    // ---------------- write side (XWIN window 0x4000-0x4FFF) ----------
+    // ---------------- write side (XWIN window 0x4000-0x6FFF) ----------
+    // 3072 words (K <= 12288), i.e. 12 KiB: the whole 0x4000-0x7FFF QUADRANT
+    // MINUS its top quarter (awaddr[13:12] == 2'b11), so every address the
+    // engine's x_mem cannot hold still answers SLVERR.  The per-channel
+    // burst aperture is 64 KiB with RES reads at 0x0000-0x3FFF, so 12 KiB
+    // of XWIN fits with the SLVERR behaviour unchanged (spec 4.5).
     localparam logic [1:0] W_IDLE = 2'd0, W_DATA = 2'd1, W_RESP = 2'd2;
+    localparam int XWIN_WORDS = 3072;
     logic [1:0]  wstate;
-    logic [9:0]  wb_ptr;                          // x word index
+    logic [11:0] wb_ptr;                          // x word index
     logic        wb_win;
     logic [0:0]  wb_id;
     logic        ws_v, ws_last;                   // 1-deep W skid
@@ -542,7 +589,7 @@ module matvec_chan #(
     // dropped into xfifo_ovfl.  Holding the burst for that one cycle
     // keeps the AXI-Lite path bit-identical.
     wire axil_wr_commit = aw_got && w_got && !s_axil_bvalid;
-    wire ws_can   = wb_win ? (!xf_full && !xf_push_a && !axil_wr_commit) : 1'b1;
+    wire ws_can   = wb_win ? (!xf_full && !xf_push_a && !axil_wr_commit && !xf_push_p) : 1'b1;   // R3-8: push > burst
     wire ws_drain = ws_v && (wstate == W_DATA) && ws_can;
 
     assign s_axib_awready = (wstate == W_IDLE);
@@ -561,14 +608,15 @@ module matvec_chan #(
                 ws_v <= 1'b1; ws_d <= s_axib_wdata; ws_last <= s_axib_wlast;
             end else if (ws_drain) ws_v <= 1'b0;
 
-            if (ws_drain) wb_ptr <= wb_ptr + 10'd1;
+            if (ws_drain) wb_ptr <= wb_ptr + 12'd1;
 
             case (wstate)
                 W_IDLE:
                     if (s_axib_awvalid && s_axib_awready) begin
                         wb_id  <= s_axib_awid;
-                        wb_win <= (s_axib_awaddr[15:12] == 4'h4);
-                        wb_ptr <= s_axib_awaddr[11:2];
+                        wb_win <= (s_axib_awaddr[15:14] == 2'b01)
+                                  && (s_axib_awaddr[13:12] != 2'b11);
+                        wb_ptr <= s_axib_awaddr[13:2];
                         wstate <= W_DATA;
                     end
                 W_DATA:
@@ -615,10 +663,12 @@ module matvec_chan #(
                             s_axib_awsize, s_axib_awburst))
             $fatal(1, "matvec_chan s_axib AW: bad request addr=%h len=%0d size=%b burst=%b (INCR/4B/aligned/no-4KiB-cross required)",
                    s_axib_awaddr, s_axib_awlen, s_axib_awsize, s_axib_awburst);
-        if (s_axib_awvalid && s_axib_awready && (s_axib_awaddr[15:12] == 4'h4)
-            && ((int'({22'd0, s_axib_awaddr[11:2]}) + int'({24'd0, s_axib_awlen})) > 1023))
-            $fatal(1, "matvec_chan s_axib AW: XWIN burst leaves the 1024-word window (addr=%h len=%0d)",
-                   s_axib_awaddr, s_axib_awlen);
+        if (s_axib_awvalid && s_axib_awready
+            && (s_axib_awaddr[15:14] == 2'b01) && (s_axib_awaddr[13:12] != 2'b11)
+            && ((int'({20'd0, s_axib_awaddr[13:2]}) + int'({24'd0, s_axib_awlen}))
+                > (XWIN_WORDS - 1)))
+            $fatal(1, "matvec_chan s_axib AW: XWIN burst leaves the %0d-word window (addr=%h len=%0d)",
+                   XWIN_WORDS, s_axib_awaddr, s_axib_awlen);
         if (s_axib_wvalid && s_axib_wready && (s_axib_wstrb != 4'hF))
             $fatal(1, "matvec_chan s_axib W: partial WSTRB %b unsupported", s_axib_wstrb);
         if (xf_push_a && xf_push_b)
@@ -651,6 +701,133 @@ module matvec_chan #(
     wire axib_unused = (^s_axib_arsize) ^ (^s_axib_arburst)
                      ^ (^s_axib_awsize) ^ (^s_axib_awburst) ^ (^s_axib_wstrb);
     /* verilator lint_on UNUSEDSIGNAL */
+`endif
+
+
+    // ==================================================================
+    // R3-8 (docs/SEQ_ISA.md v2.3 B17.3; spec §1.3 (a), the direct x-push
+    // bus): THE X-PUSH LEG — the third source on the XWIN FIFO mux.
+    //
+    // Appended here, below every cited line, so no citation moves: the
+    // ports ride on the mv_busy_bm line, the drain's declaration on the
+    // xf_din_b line, the mux on its own two lines (xf_push / xf_din) and the
+    // burst's hold on the ws_can line.
+    //
+    // A MOVX BROADCAST (flags[7:4] = 0xF) reads its scratch source ONCE and
+    // seq_movers pushes every packed x word, with its XWIN word index, to
+    // ALL FOUR channels in the same cycle — only when all four report room
+    // (lockstep).  Everything on aclk: seq_0/aclk and mvchan_c/aclk are both
+    // xdma_0/axi_aclk (synth/scripts/create_project.tcl), so the bus adds no
+    // clock and no CDC; the only aclk -> ui_clk crossing it feeds is the
+    // existing, UNMODIFIED u_xfifo (the rejected alternative, prog_full on
+    // u_xfifo — USE_ADV_FEATURES "0000" today — would change the one CDC
+    // primitive every XWIN word crosses).
+    //
+    //   xpush_valid/idx/data -> xp_in_*   (the INPUT REGISTER: every forward
+    //                                      net ends at a flop; it may cross
+    //                                      an SLR — SLR1 -> SLR0 into mvchan_0)
+    //                        -> xp_mem    (the SKID: XP_SKID entries, LUTRAM)
+    //                        -> xf_push_p (the drain, the mux's 2nd priority)
+    //   xpush_room  <- a FLOP of "the skid has >= XP_INFLIGHT free entries"
+    //   xpush_busy  <- a FLOP of "input register or skid non-empty"
+    //                                     (both return nets start at a flop;
+    //                                      SLR0 -> SLR1 out of mvchan_0)
+    //
+    // The FIFO entry is {12-bit word index, 32-bit data} for every leg; the
+    // push's index is the broadcast's start word + the word offset (formed
+    // in seq_movers), so R2's banks (B17.2) are unchanged: bank 1 is word
+    // 1536 + w exactly as for the burst leg (wb_ptr).  The push leg never
+    // touches xptr (B17.3: a broadcast leaves XPTR unchanged) and never sets
+    // xfifo_ovfl (it is flow-controlled; the AXI-Lite leg alone can
+    // overflow, as shipped).
+    //
+    // PRIORITY: AXI-Lite > x-push > burst.  The drain holds on exactly the
+    // burst's condition (the ws_can line): !xf_full && !xf_push_a &&
+    // !axil_wr_commit — so the AXI-Lite leg's `if (!xf_full)` decision,
+    // made in the axil_wr_commit cycle, can never be made stale by a push
+    // taking the last slot (the shipped XWIN write is then never dropped),
+    // and the burst's ws_can also holds while a push drains (never both in
+    // one cycle).  xf_push_a is a one-cycle pulse, so the push always drains.
+    //
+    // THE REGISTER STAGES (ONE parameter set, shared with seq_movers, which
+    // declares the same two numbers; tb/tb_seq_chip.sv and
+    // tb/tb_matvec_chan.sv check them equal):
+    //   XP_FWD_STAGES = 2   seq_movers' output flop, this input register
+    //   XP_RET_STAGES = 2   this room/busy flop, seq_movers' input flop
+    // XP_INFLIGHT = XP_FWD_STAGES + XP_RET_STAGES + 1 = 5: the pushes the
+    // room flop cannot have counted when it is computed from xp_cnt in cycle
+    // T — the words in the two forward flops (fired T-2, T-1) and the three
+    // fired in T, T+1, T+2 while the answer travels back (T+2 is the last
+    // fire that can still see it high) — so a room of XP_INFLIGHT free
+    // entries covers every word in flight; the skid is XP_SKID = 8 >= 5 + 3
+    // so that at one word per cycle with a free drain the room never drops.
+    // THE COMMIT CONTRACT (plan review I-4, the burst leg's contract at
+    // :100-110 restated): seq_movers waits XP_RT = XP_FWD_STAGES +
+    // XP_RET_STAGES cycles after the last push leaves its output flop and
+    // only then trusts xpush_busy — busy low in its input flop in cycle X
+    // means the input register and the skid were both empty in cycle X-2,
+    // which after the wait is later than the last word's arrival, so every
+    // pushed word is in u_xfifo.  Retiming either end changes these two
+    // numbers, and both modules' copies together.
+    // Sim-only checks (below): a push arriving with the skid full (a lost
+    // word: XP_INFLIGHT under-sized), a push-leg FIFO write while xpush_busy
+    // reads low (the local half of "nothing lands after retire"; the
+    // end-to-end half, at the broadcast's retire, is tb/tb_seq_chip.sv's and
+    // tb/tb_matvec_chan.sv's), a push outside the 3072-word XWIN, and the
+    // mux collisions.
+    // ==================================================================
+    localparam int XP_FWD_STAGES = 2;
+    localparam int XP_RET_STAGES = 2;
+    localparam int XP_INFLIGHT   = XP_FWD_STAGES + XP_RET_STAGES + 1;
+    localparam int XP_SKID       = 8;
+    localparam int XP_AW         = $clog2(XP_SKID);
+
+    (* keep = "true" *) logic        xp_in_v;       // the input register
+    (* keep = "true" *) logic [43:0] xp_in_d;
+    logic [43:0]      xp_mem [XP_SKID];              // the skid (LUTRAM)
+    logic [XP_AW-1:0] xp_wp, xp_rp;
+    logic [XP_AW:0]   xp_cnt;
+    wire              xp_can = !xf_full && !xf_push_a && !axil_wr_commit;
+
+    assign xf_push_p = (xp_cnt != '0) && xp_can;
+    assign xf_din_p  = xp_mem[xp_rp];
+
+    always_ff @(posedge aclk)
+        if (xp_in_v) xp_mem[xp_wp] <= xp_in_d;
+
+    always_ff @(posedge aclk) begin
+        xp_in_d <= {xpush_idx, xpush_data};
+        if (!aresetn) begin
+            xp_in_v <= 1'b0;
+            xp_wp <= '0; xp_rp <= '0; xp_cnt <= '0;
+            xpush_room <= 1'b0; xpush_busy <= 1'b0;
+        end else begin
+            xp_in_v <= xpush_valid;
+            if (xp_in_v)   xp_wp <= xp_wp + 1'b1;
+            if (xf_push_p) xp_rp <= xp_rp + 1'b1;
+            xp_cnt <= xp_cnt + {{XP_AW{1'b0}}, xp_in_v}
+                             - {{XP_AW{1'b0}}, xf_push_p};
+            xpush_room <= ((XP_AW+1)'(XP_SKID) - xp_cnt) >= (XP_AW+1)'(XP_INFLIGHT);
+            xpush_busy <= xp_in_v || (xp_cnt != '0);
+        end
+    end
+
+`ifndef SYNTHESIS
+    always_ff @(posedge aclk) if (aresetn) begin
+        if (xp_in_v && (xp_cnt == (XP_AW+1)'(XP_SKID)))
+            $fatal(1, "matvec_chan %0d: x-push word %0d arrived with the %0d-entry skid FULL (a lost word: XP_INFLIGHT %0d under-sized)",
+                   CHAN_ID, xp_in_d[43:32], XP_SKID, XP_INFLIGHT);
+        if (xf_push_p && xf_push_a)
+            $fatal(1, "matvec_chan %0d: x-push and AXI-Lite drained in one cycle (arbitration broken)", CHAN_ID);
+        if (xf_push_p && xf_push_b)
+            $fatal(1, "matvec_chan %0d: x-push and burst drained in one cycle (arbitration broken)", CHAN_ID);
+        if (xf_push_p && !xpush_busy)
+            $fatal(1, "matvec_chan %0d: a push-leg word entered the XWIN fifo while xpush_busy read low (commit contract)",
+                   CHAN_ID);
+        if (xpush_valid && (int'({20'd0, xpush_idx}) >= XWIN_WORDS))
+            $fatal(1, "matvec_chan %0d: x-push word %0d outside the %0d-word XWIN", CHAN_ID,
+                   xpush_idx, XWIN_WORDS);
+    end
 `endif
 
 endmodule

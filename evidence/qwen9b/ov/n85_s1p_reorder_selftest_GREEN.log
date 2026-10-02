@@ -1,0 +1,40 @@
+=== host: snoke  date: 2026-09-27T08:26:12-06:00
+=== tree: 97a06e1+dirty
+=== dirty:  M evidence/qwen9b/ov/s1p_cost_fit.py
+=== dirty:  M ref/scripts/reorder_e4.py
+=== dirty: ?? evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bmtl/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_control/
+=== cmd : /home/cah/.venv/bin/python ref/scripts/reorder_e4.py --selftest
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+[A] out: CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+[A] checkpoints [[5, 1024, 4], [10, 1024, 4], [13, 1280, 4]] -> [[1, 1024, 4], [10, 1024, 4], [11, 1280, 4]]
+[A] refused: stream: record 4 MOVX on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[A] refused: stream: record 4 MVGO on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[A] refused: stream: record 8 MOVY on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[A] fence deferred True; MOVX elided True; JMP -> body start True; replay 2503 - schedule 2500 <= JMP window 3, < program order 3118: True; checkpoints True; hazards refused 3/3 -> PASS
+[B] out: CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+[B] checkpoints [[5, 1024, 4], [10, 1024, 4], [13, 1280, 4]] -> [[1, 1024, 4], [10, 1024, 4], [11, 1280, 4]]
+[B] refused: stream: record 4 MOVX on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[B] refused: stream: record 4 MVGO on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[B] refused: stream: record 8 MOVY on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[B] fence deferred True; MOVX elided True; JMP -> body start True; replay 2503 - schedule 2500 <= JMP window 3, < program order 3118: True; checkpoints True; hazards refused 3/3 -> PASS
+  [static] [PASS] --cost defaults to static  static
+=== cost source: STATIC ref/seq_cost.py (segment k priced at position 0 + k; no CSV read)
+  [static] [PASS] form A: fence deferred past the VN, MOVX elided, no CSV read  CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+  [static] [PASS] form B: fence deferred past the VN, MOVX elided, no CSV read  CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+=== cost source: STATIC ref/seq_cost.py (segment k priced at position 0 + k; no CSV read)
+  [static] [PASS] an unpriceable stream is refused  no static cost for EMB x128
+REORDER_E4 SELFTEST: PASS
+=== rc  : 0
+=== end : 2026-09-27T08:26:13-06:00

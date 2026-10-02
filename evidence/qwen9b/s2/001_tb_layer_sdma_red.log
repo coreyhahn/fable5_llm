@@ -1,0 +1,30 @@
+=== host: snoke
+=== date: 2026-09-04T18:14:04-06:00
+=== tree: a51bc8e+dirty
+=== cmd:  make -C tb tb_layer_sdma SDMA_SEEDS=1 2 3 4
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_layersdma -o tb_layersdma \
+  --top-module tb_layer_sdma \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv axi_ram_bfm.sv tb_layer_sdma.sv
+%Error: Cannot find file containing module: ../rtl/state_dma.sv
+%Error: This may be because there's no search path specified with -I<dir>.
+        ... Looked in:
+             ../rtl/state_dma.sv
+             ../rtl/state_dma.sv.v
+             ../rtl/state_dma.sv.sv
+             obj_dir_tb_layersdma/../rtl/state_dma.sv
+             obj_dir_tb_layersdma/../rtl/state_dma.sv.v
+             obj_dir_tb_layersdma/../rtl/state_dma.sv.sv
+%Error: Exiting due to 2 error(s)
+make: *** [Makefile:490: tb_layer_sdma] Error 1
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc: 2
+=== end: 2026-09-04T18:14:05-06:00

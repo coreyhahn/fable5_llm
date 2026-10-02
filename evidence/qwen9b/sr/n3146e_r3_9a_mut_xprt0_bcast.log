@@ -1,0 +1,178 @@
+=== host: snoke  date: 2026-09-30T19:50:27-06:00
+=== tree: 5952bc7
+=== cmd : bash tb/scripts_scratch/r3_9a/mutrun.sh xprt0 bcast
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+----- driver text:
+#!/usr/bin/env bash
+# R3-9a resume: ONE chip mutant over 4 seeds of its broadcast coverage stream;
+# every run MUST FAIL.  Scratch driver; its text is printed into the log.
+#   mutrun.sh <set> <kind> [hold]   (K = the set's obj_dir tag, r3_8_mutants.sh --meta)
+set -u
+cd /home/cah/r2d2/code/fpga/fable5_llm || exit 1
+echo "----- driver text:"; cat "$0"; echo "----- end driver text"
+R=evidence/qwen9b/sr; SET=$1; KIND=$2; HOLD=${3:-}
+META=$(bash $R/r3_8_mutants.sh --meta "$SET") || exit 2
+TAG=$(echo "$META" | cut -d" " -f1); export K=$TAG
+echo "=== set $SET: meta '$META' -> K=$K"
+echo "=== n3140's recorded sha: $(awk -v s="$SET" '/^######## set /{on=($3==s)} on && /binary sha256/{print $NF; exit}' $R/n3140_r3_9a_mut_builds.log)"
+echo "=== re-hash now        : $(sha256sum tb/obj_dir_seq_chip_sr$K/tb_seq_chip_9b_sr$K | cut -d" " -f1)"
+CAUGHT=0
+for s in 1 2 3 4; do
+  st=r3_9a_${KIND}_s$s
+  args=(--plusarg +caps_expect=fab1ca07)
+  [ -n "$HOLD" ] && args+=(--plusarg +xp_hold=$HOLD --logtag hold)
+  echo "######## $SET on $st ${HOLD:+(+xp_hold=$HOLD)} — MUST FAIL"
+  if bash $R/run_sr_chip.sh "$st" "$st" control "${args[@]}"; then
+    echo "    MUTANT $SET PASSED on $st — VACUOUS"
+  else
+    CAUGHT=$((CAUGHT + 1)); sl=$R/sr${K}_seed_${st}_control${HOLD:+_hold}.log
+    echo "    MUTANT $SET FAILED on $st, first failure lines of $sl:"
+    grep -m3 -E "%Fatal|MEM\[|%Error|WATCHDOG" "$sl" | sed 's/^/      /'
+  fi
+done
+echo "R3_9A_MUTANT $SET on $KIND: $CAUGHT of 4 seeds CAUGHT"
+[ "$CAUGHT" = 4 ]
+----- end driver text
+=== set xprt0: meta 'r3b_mxprt0 1 seq_movers.sv' -> K=r3b_mxprt0
+=== n3140's recorded sha: 9a61d5b569a7d017eb3492d76ad4ee391b804d6f2dc92cc5b66c827c55466cc6
+=== re-hash now        : 9a61d5b569a7d017eb3492d76ad4ee391b804d6f2dc92cc5b66c827c55466cc6
+######## xprt0 on r3_9a_bcast_s1  — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mxprt0/tb_seq_chip_9b_srr3b_mxprt0
+=== built    2026-09-30T03:13:09-06:00  sha256 9a61d5b569a7d017eb3492d76ad4ee391b804d6f2dc92cc5b66c827c55466cc6
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.e4  (.seq sha256 afcfab6de542ab1f, .chip sha256 914f4569cc39e0ed)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_mxprt0_seed_r3_9a_bcast_s1_control.log
+=== plusargs +caps_expect=fab1ca07
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1710448 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     2s   rc=134
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+    %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+    NO PASS LINE — last 15 lines:
+        mem region 0: 1072 B @ 000090000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.e4.seq
+        mem region 1: 126976 B @ 000080000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.e4.seqdata.bin
+        mem region -: (absent) /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.emb.bin
+        state window: 64 B image   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.state.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.wimg0.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.wimg1.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.wimg2.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.wimg3.bin
+      tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+      %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 2s
+SR_CHIP r3_9a_bcast_s1 control: FAIL
+    MUTANT xprt0 FAILED on r3_9a_bcast_s1, first failure lines of evidence/qwen9b/sr/srr3b_mxprt0_seed_r3_9a_bcast_s1_control.log:
+      [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+      %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+######## xprt0 on r3_9a_bcast_s2  — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mxprt0/tb_seq_chip_9b_srr3b_mxprt0
+=== built    2026-09-30T03:13:09-06:00  sha256 9a61d5b569a7d017eb3492d76ad4ee391b804d6f2dc92cc5b66c827c55466cc6
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.e4  (.seq sha256 ad543c8275fc8393, .chip sha256 cfaab2dc5ac89604)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_mxprt0_seed_r3_9a_bcast_s2_control.log
+=== plusargs +caps_expect=fab1ca07
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1710679 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     4s   rc=134
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+    %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+    NO PASS LINE — last 15 lines:
+        mem region 0: 1072 B @ 000090000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.e4.seq
+        mem region 1: 126976 B @ 000080000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.e4.seqdata.bin
+        mem region -: (absent) /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.emb.bin
+        state window: 64 B image   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.state.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.wimg0.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.wimg1.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.wimg2.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.wimg3.bin
+      tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+      %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 4s
+SR_CHIP r3_9a_bcast_s2 control: FAIL
+    MUTANT xprt0 FAILED on r3_9a_bcast_s2, first failure lines of evidence/qwen9b/sr/srr3b_mxprt0_seed_r3_9a_bcast_s2_control.log:
+      [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+      %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+######## xprt0 on r3_9a_bcast_s3  — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mxprt0/tb_seq_chip_9b_srr3b_mxprt0
+=== built    2026-09-30T03:13:09-06:00  sha256 9a61d5b569a7d017eb3492d76ad4ee391b804d6f2dc92cc5b66c827c55466cc6
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.e4  (.seq sha256 88f35e81e7108f02, .chip sha256 1aff13b396507b86)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_mxprt0_seed_r3_9a_bcast_s3_control.log
+=== plusargs +caps_expect=fab1ca07
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1711015 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     3s   rc=134
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+    %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+    NO PASS LINE — last 15 lines:
+        mem region 0: 1072 B @ 000090000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.e4.seq
+        mem region 1: 126976 B @ 000080000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.e4.seqdata.bin
+        mem region -: (absent) /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.emb.bin
+        state window: 64 B image   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.state.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.wimg0.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.wimg1.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.wimg2.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.wimg3.bin
+      tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+      %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 3s
+SR_CHIP r3_9a_bcast_s3 control: FAIL
+    MUTANT xprt0 FAILED on r3_9a_bcast_s3, first failure lines of evidence/qwen9b/sr/srr3b_mxprt0_seed_r3_9a_bcast_s3_control.log:
+      [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+      %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+######## xprt0 on r3_9a_bcast_s4  — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mxprt0/tb_seq_chip_9b_srr3b_mxprt0
+=== built    2026-09-30T03:13:09-06:00  sha256 9a61d5b569a7d017eb3492d76ad4ee391b804d6f2dc92cc5b66c827c55466cc6
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.e4  (.seq sha256 7afe12eafff067ef, .chip sha256 ed5a110894631a67)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_mxprt0_seed_r3_9a_bcast_s4_control.log
+=== plusargs +caps_expect=fab1ca07
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1711261 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     4s   rc=134
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+    %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+    NO PASS LINE — last 15 lines:
+        mem region 0: 1072 B @ 000090000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.e4.seq
+        mem region 1: 126976 B @ 000080000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.e4.seqdata.bin
+        mem region -: (absent) /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.emb.bin
+        state window: 64 B image   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.state.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.wimg0.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.wimg1.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.wimg2.bin
+        mem region 0: 8126464 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.wimg3.bin
+      tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+      %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 4s
+SR_CHIP r3_9a_bcast_s4 control: FAIL
+    MUTANT xprt0 FAILED on r3_9a_bcast_s4, first failure lines of evidence/qwen9b/sr/srr3b_mxprt0_seed_r3_9a_bcast_s4_control.log:
+      [73576000] %Fatal: tb_seq_chip.sv:1545: Assertion failed in TOP.tb_seq_chip.g_xpchk[1]: R3-9a COMMIT AT X_END EXIT: channel 1: the mover left X_END with 1023 of 1024 pushed words in the XWIN FIFO (XP_RT too short)
+      %Error: /tmp/sr_src_3f38efd_srr3b_mxprt0/tb/tb_seq_chip.sv:1545: Verilog $stop
+R3_9A_MUTANT xprt0 on bcast: 4 of 4 seeds CAUGHT
+=== rc  : 0
+=== end : 2026-09-30T19:50:41-06:00

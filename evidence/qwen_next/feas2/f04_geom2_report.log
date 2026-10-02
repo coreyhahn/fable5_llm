@@ -1,0 +1,283 @@
+=== host: snoke  date: 2026-09-15T16:25:37-06:00
+=== tree: 84abd6a+dirty
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/feas2/geom2_report.py
+=== venv: 3.12.3 numpy 2.4.6
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+==============================================================================
+CONFIG GEOMETRY (from each checkpoint's own config.json)
+==============================================================================
+field                                     9B           27B       35B-A3B
+hidden_size                             4096          5120          2048
+intermediate_size                      12288         17408          None
+num_hidden_layers                         32            64            40
+vocab_size                            248320        248320        248320
+head_dim                                 256           256           256
+num_attention_heads                       16            24            16
+num_key_value_heads                        4             4             2
+linear_num_key_heads                      16            16            16
+linear_num_value_heads                    32            48            32
+linear_key_head_dim                      128           128           128
+linear_value_head_dim                    128           128           128
+linear_conv_kernel_dim                     4             4             4
+full_attention_interval                    4             4             4
+tie_word_embeddings                     None          None          None
+mtp_num_hidden_layers                      1             1             1
+max_position_embeddings               262144        262144        262144
+layer_types (DN/full)                   24/8         48/16         30/10
+rope partial_rotary                     0.25          0.25          0.25
+rope theta                          10000000      10000000      10000000
+rope type                            default       default       default
+
+==============================================================================
+MoE / FFN CONFIG — the RAW text_config keys, printed by PRESENCE
+(a key that is ABSENT prints <absent>; a key that is present and null
+ prints None.  The 4B/9B study learned that distinction the hard way:
+ docs/QWEN35_NEXT_FEASIBILITY.md 1.2.)
+==============================================================================
+key                                             9B               27B           35B-A3B
+intermediate_size                            12288             17408          <absent>
+num_experts                               <absent>          <absent>               256
+num_experts_per_tok                       <absent>          <absent>                 8
+moe_intermediate_size                     <absent>          <absent>               512
+shared_expert_intermediate_size           <absent>          <absent>               512
+num_shared_experts                        <absent>          <absent>          <absent>
+decoder_sparse_step                       <absent>          <absent>          <absent>
+mlp_only_layers                                 []                []                []
+norm_topk_prob                            <absent>          <absent>          <absent>
+router_aux_loss_coef                      <absent>          <absent>             0.001
+scoring_func                              <absent>          <absent>          <absent>
+topk_method                               <absent>          <absent>          <absent>
+n_group                                   <absent>          <absent>          <absent>
+topk_group                                <absent>          <absent>          <absent>
+routed_scaling_factor                     <absent>          <absent>          <absent>
+first_k_dense_replace                     <absent>          <absent>          <absent>
+moe_layer_freq                            <absent>          <absent>          <absent>
+
+tie_word_embeddings, by PRESENCE (top level / text_config):
+  9B             top-level: present=False            text_config: ABSENT
+                 lm_head tensor in checkpoint: True
+  27B            top-level: present=False            text_config: ABSENT
+                 lm_head tensor in checkpoint: True
+  35B-A3B        top-level: present=False            text_config: ABSENT
+                 lm_head tensor in checkpoint: True
+
+==============================================================================
+CHECKPOINT CENSUS (safetensors headers — ranged reads, no weights)
+==============================================================================
+
+### Qwen/Qwen3.5-9B   shards=4  tensors=775  9,653,104,368 params  17.98 GiB on disk
+    prefix lm_head                      1 tensors   1,017,118,720 params      1940.0 MiB
+    prefix model.language_model       426 tensors   7,936,684,544 params     15138.0 MiB
+    prefix mtp                         15 tensors     243,290,624 params       464.0 MiB
+    prefix vision                     333 tensors     456,010,480 params       869.8 MiB
+    per-class (text tower + head + mtp):
+      gate_up         64 t    3,221,225,472 p      6144.0 MiB
+      down            32 t    1,610,612,736 p      3072.0 MiB
+      dn_in           96 t    1,214,251,008 p      2316.0 MiB
+      emb              1 t    1,017,118,720 p      1940.0 MiB
+      lm_head          1 t    1,017,118,720 p      1940.0 MiB
+      dn_out          24 t      402,653,184 p       768.0 MiB
+      qkv             24 t      335,544,320 p       640.0 MiB
+      mtp             15 t      243,290,624 p       464.0 MiB
+      o_proj           8 t      134,217,728 p       256.0 MiB
+      dn_conv         24 t          786,432 p         1.5 MiB
+      norm/gate      153 t          274,944 p         0.5 MiB
+
+### Qwen/Qwen3.5-27B   shards=11  tensors=1199  27,781,427,952 params  51.75 GiB on disk
+    prefix lm_head                      1 tensors   1,271,398,400 params      2425.0 MiB
+    prefix model.language_model       850 tensors  25,624,600,064 params     48875.1 MiB
+    prefix mtp                         15 tensors     424,699,392 params       810.0 MiB
+    prefix vision                     333 tensors     460,730,096 params       878.8 MiB
+    per-class (text tower + head + mtp):
+      gate_up        128 t   11,408,506,880 p     21760.0 MiB
+      down            64 t    5,704,253,440 p     10880.0 MiB
+      dn_in          192 t    4,050,124,800 p      7725.0 MiB
+      dn_out          48 t    1,509,949,440 p      2880.0 MiB
+      emb              1 t    1,271,398,400 p      2425.0 MiB
+      lm_head          1 t    1,271,398,400 p      2425.0 MiB
+      qkv             48 t    1,174,405,120 p      2240.0 MiB
+      o_proj          16 t      503,316,480 p       960.0 MiB
+      mtp             15 t      424,699,392 p       810.0 MiB
+      dn_conv         48 t        1,966,080 p         3.8 MiB
+      norm/gate      305 t          679,424 p         1.3 MiB
+
+### Qwen/Qwen3.5-35B-A3B   shards=14  tensors=1811  35,951,822,704 params  66.97 GiB on disk
+    prefix lm_head                      1 tensors     508,559,360 params       970.0 MiB
+    prefix model.language_model       692 tensors  34,152,051,328 params     65139.9 MiB
+    prefix mtp                        785 tensors     844,640,768 params      1611.0 MiB
+    prefix vision                     333 tensors     446,571,248 params       851.8 MiB
+    per-class (text tower + head + mtp):
+      gate_up        120 t   21,558,722,560 p     41120.0 MiB
+      down            80 t   10,779,361,280 p     20560.0 MiB
+      mtp            785 t      844,640,768 p      1611.0 MiB
+      dn_in          120 t      758,906,880 p      1447.5 MiB
+      emb              1 t      508,559,360 p       970.0 MiB
+      lm_head          1 t      508,559,360 p       970.0 MiB
+      dn_out          30 t      251,658,240 p       480.0 MiB
+      qkv             30 t      188,743,680 p       360.0 MiB
+      o_proj          10 t       83,886,080 p       160.0 MiB
+      other           80 t       21,053,440 p        40.2 MiB
+      dn_conv         30 t          983,040 p         1.9 MiB
+      norm/gate      191 t          176,768 p         0.3 MiB
+
+==============================================================================
+REPRESENTATIVE TENSOR SHAPES  (L0 = DeltaNet, L3 = full attention)
+the `mtp.` per-expert tensors are COUNTED below, not listed
+==============================================================================
+
+### Qwen/Qwen3.5-9B
+    lm_head.weight                                                           [248320, 4096]  BF16
+    LM.embed_tokens.weight                                                   [248320, 4096]  BF16
+    LM.layers.0.input_layernorm.weight                                               [4096]  BF16
+    LM.layers.0.linear_attn.A_log                                                      [32]  F32
+    LM.layers.0.linear_attn.conv1d.weight                                      [8192, 1, 4]  BF16
+    LM.layers.0.linear_attn.dt_bias                                                    [32]  BF16
+    LM.layers.0.linear_attn.in_proj_a.weight                                     [32, 4096]  BF16
+    LM.layers.0.linear_attn.in_proj_b.weight                                     [32, 4096]  BF16
+    LM.layers.0.linear_attn.in_proj_qkv.weight                                 [8192, 4096]  BF16
+    LM.layers.0.linear_attn.in_proj_z.weight                                   [4096, 4096]  BF16
+    LM.layers.0.linear_attn.norm.weight                                               [128]  F32
+    LM.layers.0.linear_attn.out_proj.weight                                    [4096, 4096]  BF16
+    LM.layers.0.mlp.down_proj.weight                                          [4096, 12288]  BF16
+    LM.layers.0.mlp.gate_proj.weight                                          [12288, 4096]  BF16
+    LM.layers.0.mlp.up_proj.weight                                            [12288, 4096]  BF16
+    LM.layers.0.post_attention_layernorm.weight                                      [4096]  BF16
+    LM.layers.3.input_layernorm.weight                                               [4096]  BF16
+    LM.layers.3.mlp.down_proj.weight                                          [4096, 12288]  BF16
+    LM.layers.3.mlp.gate_proj.weight                                          [12288, 4096]  BF16
+    LM.layers.3.mlp.up_proj.weight                                            [12288, 4096]  BF16
+    LM.layers.3.post_attention_layernorm.weight                                      [4096]  BF16
+    LM.layers.3.self_attn.k_norm.weight                                               [256]  BF16
+    LM.layers.3.self_attn.k_proj.weight                                        [1024, 4096]  BF16
+    LM.layers.3.self_attn.o_proj.weight                                        [4096, 4096]  BF16
+    LM.layers.3.self_attn.q_norm.weight                                               [256]  BF16
+    LM.layers.3.self_attn.q_proj.weight                                        [8192, 4096]  BF16
+    LM.layers.3.self_attn.v_proj.weight                                        [1024, 4096]  BF16
+    LM.norm.weight                                                                   [4096]  BF16
+    [15 mtp.* tensors elided]
+
+### Qwen/Qwen3.5-27B
+    lm_head.weight                                                           [248320, 5120]  BF16
+    LM.embed_tokens.weight                                                   [248320, 5120]  BF16
+    LM.layers.0.input_layernorm.weight                                               [5120]  BF16
+    LM.layers.0.linear_attn.A_log                                                      [48]  F32
+    LM.layers.0.linear_attn.conv1d.weight                                     [10240, 1, 4]  BF16
+    LM.layers.0.linear_attn.dt_bias                                                    [48]  BF16
+    LM.layers.0.linear_attn.in_proj_a.weight                                     [48, 5120]  BF16
+    LM.layers.0.linear_attn.in_proj_b.weight                                     [48, 5120]  BF16
+    LM.layers.0.linear_attn.in_proj_qkv.weight                                [10240, 5120]  BF16
+    LM.layers.0.linear_attn.in_proj_z.weight                                   [6144, 5120]  BF16
+    LM.layers.0.linear_attn.norm.weight                                               [128]  F32
+    LM.layers.0.linear_attn.out_proj.weight                                    [5120, 6144]  BF16
+    LM.layers.0.mlp.down_proj.weight                                          [5120, 17408]  BF16
+    LM.layers.0.mlp.gate_proj.weight                                          [17408, 5120]  BF16
+    LM.layers.0.mlp.up_proj.weight                                            [17408, 5120]  BF16
+    LM.layers.0.post_attention_layernorm.weight                                      [5120]  BF16
+    LM.layers.3.input_layernorm.weight                                               [5120]  BF16
+    LM.layers.3.mlp.down_proj.weight                                          [5120, 17408]  BF16
+    LM.layers.3.mlp.gate_proj.weight                                          [17408, 5120]  BF16
+    LM.layers.3.mlp.up_proj.weight                                            [17408, 5120]  BF16
+    LM.layers.3.post_attention_layernorm.weight                                      [5120]  BF16
+    LM.layers.3.self_attn.k_norm.weight                                               [256]  BF16
+    LM.layers.3.self_attn.k_proj.weight                                        [1024, 5120]  BF16
+    LM.layers.3.self_attn.o_proj.weight                                        [5120, 6144]  BF16
+    LM.layers.3.self_attn.q_norm.weight                                               [256]  BF16
+    LM.layers.3.self_attn.q_proj.weight                                       [12288, 5120]  BF16
+    LM.layers.3.self_attn.v_proj.weight                                        [1024, 5120]  BF16
+    LM.norm.weight                                                                   [5120]  BF16
+    [15 mtp.* tensors elided]
+
+### Qwen/Qwen3.5-35B-A3B
+    lm_head.weight                                                           [248320, 2048]  BF16
+    LM.embed_tokens.weight                                                   [248320, 2048]  BF16
+    LM.layers.0.input_layernorm.weight                                               [2048]  BF16
+    LM.layers.0.linear_attn.A_log                                                      [32]  F32
+    LM.layers.0.linear_attn.conv1d.weight                                      [8192, 1, 4]  BF16
+    LM.layers.0.linear_attn.dt_bias                                                    [32]  BF16
+    LM.layers.0.linear_attn.in_proj_a.weight                                     [32, 2048]  BF16
+    LM.layers.0.linear_attn.in_proj_b.weight                                     [32, 2048]  BF16
+    LM.layers.0.linear_attn.in_proj_qkv.weight                                 [8192, 2048]  BF16
+    LM.layers.0.linear_attn.in_proj_z.weight                                   [4096, 2048]  BF16
+    LM.layers.0.linear_attn.norm.weight                                               [128]  F32
+    LM.layers.0.linear_attn.out_proj.weight                                    [2048, 4096]  BF16
+    LM.layers.0.mlp.experts.down_proj                                      [256, 2048, 512]  BF16
+    LM.layers.0.mlp.experts.gate_up_proj                                  [256, 1024, 2048]  BF16
+    LM.layers.0.mlp.gate.weight                                                 [256, 2048]  BF16
+    LM.layers.0.mlp.shared_expert.down_proj.weight                              [2048, 512]  BF16
+    LM.layers.0.mlp.shared_expert.gate_proj.weight                              [512, 2048]  BF16
+    LM.layers.0.mlp.shared_expert.up_proj.weight                                [512, 2048]  BF16
+    LM.layers.0.mlp.shared_expert_gate.weight                                     [1, 2048]  BF16
+    LM.layers.0.post_attention_layernorm.weight                                      [2048]  BF16
+    LM.layers.3.input_layernorm.weight                                               [2048]  BF16
+    LM.layers.3.mlp.experts.down_proj                                      [256, 2048, 512]  BF16
+    LM.layers.3.mlp.experts.gate_up_proj                                  [256, 1024, 2048]  BF16
+    LM.layers.3.mlp.gate.weight                                                 [256, 2048]  BF16
+    LM.layers.3.mlp.shared_expert.down_proj.weight                              [2048, 512]  BF16
+    LM.layers.3.mlp.shared_expert.gate_proj.weight                              [512, 2048]  BF16
+    LM.layers.3.mlp.shared_expert.up_proj.weight                                [512, 2048]  BF16
+    LM.layers.3.mlp.shared_expert_gate.weight                                     [1, 2048]  BF16
+    LM.layers.3.post_attention_layernorm.weight                                      [2048]  BF16
+    LM.layers.3.self_attn.k_norm.weight                                               [256]  BF16
+    LM.layers.3.self_attn.k_proj.weight                                         [512, 2048]  BF16
+    LM.layers.3.self_attn.o_proj.weight                                        [2048, 4096]  BF16
+    LM.layers.3.self_attn.q_norm.weight                                               [256]  BF16
+    LM.layers.3.self_attn.q_proj.weight                                        [8192, 2048]  BF16
+    LM.layers.3.self_attn.v_proj.weight                                         [512, 2048]  BF16
+    LM.norm.weight                                                                   [2048]  BF16
+    [785 mtp.* tensors elided]
+
+==============================================================================
+PER-TOKEN ACTIVE PARAMETERS — DERIVED FROM THE TENSOR SHAPES
+(not from the model card; the '-A3B' in a name is not evidence)
+==============================================================================
+
+### 9B   H=4096  L=32 (24 DN + 8 full)
+    DN mixer / layer           67,403,776
+    GQA mixer / layer          58,720,256
+    dense FFN / layer         150,994,944   (3 x 4096 x 12288)
+    ---
+    all mixers              2,087,452,672
+    all FFN (total)         4,831,838,208
+    all FFN (active/tok)    4,831,838,208
+    embedding               1,017,118,720   (1 row read per token, not streamed)
+    lm_head                 1,017,118,720
+    TEXT TOWER total        7,936,409,600   (+ head 1,017,118,720)
+    STREAMED PER TOKEN      7,936,409,600   = mixers + active FFN + head  (no embedding table)
+    census model.language_model = 7,936,684,544  (this derivation accounts for 100.00 % of it; the rest is norms/biases/A_log)
+
+### 27B   H=5120  L=64 (48 DN + 16 full)
+    DN mixer / layer          115,875,840
+    GQA mixer / layer         104,857,600
+    dense FFN / layer         267,386,880   (3 x 5120 x 17408)
+    ---
+    all mixers              7,239,761,920
+    all FFN (total)        17,112,760,320
+    all FFN (active/tok)   17,112,760,320
+    embedding               1,271,398,400   (1 row read per token, not streamed)
+    lm_head                 1,271,398,400
+    TEXT TOWER total       25,623,920,640   (+ head 1,271,398,400)
+    STREAMED PER TOKEN     25,623,920,640   = mixers + active FFN + head  (no embedding table)
+    census model.language_model = 25,624,600,064  (this derivation accounts for 100.00 % of it; the rest is norms/biases/A_log)
+
+### 35B-A3B   H=2048  L=40 (30 DN + 10 full)
+    DN mixer / layer           33,718,272
+    GQA mixer / layer          27,262,976
+    MoE experts           256 experts, moe_intermediate 512, top-k 8
+      router  gate.weight            [256, 2048]          524,288
+      experts gate_up          [256, 1024, 2048]      536,870,912
+      experts down              [256, 2048, 512]      268,435,456
+      shared expert (3 t)                               3,145,728   shared_expert_gate [1, 2048]
+      per-expert params         3,145,728
+    MoE FFN / layer TOTAL     808,978,432
+    MoE FFN / layer ACTIVE     28,837,888   = 8 x 3,145,728 + shared 3,145,728 + gates
+    ---
+    all mixers              1,284,177,920
+    all FFN (total)        32,359,137,280
+    all FFN (active/tok)    1,153,515,520
+    embedding                 508,559,360   (1 row read per token, not streamed)
+    lm_head                   508,559,360
+    TEXT TOWER total       34,151,874,560   (+ head 508,559,360)
+    STREAMED PER TOKEN      2,946,252,800   = mixers + active FFN + head  (no embedding table)
+    census model.language_model = 34,152,051,328  (this derivation accounts for 100.00 % of it; the rest is norms/biases/A_log)
+=== rc  : 0
+=== end : 2026-09-15T16:25:38-06:00

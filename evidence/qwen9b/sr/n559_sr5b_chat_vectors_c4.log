@@ -1,0 +1,44 @@
+=== host: snoke  date: 2026-09-27T22:07:28-06:00
+=== tree: 59b5538
+=== cmd : /home/cah/.venv/bin/python -u evidence/qwen9b/sr/sr5b_chat_vectors.py c4 --toks 11 0 271 --far-pos 510
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  effective_reorder(auto, 9b, --nch 4, shipped template) = 'B'  (the per-image order below is what a default 9B session runs)
+  [ship] seq_rtl r0, caps []
+  [ship] launch 0 preamble tok=None pos=0: 39 recs, pc 38, out [], image sha 04f998daed6143c0 (0 s)
+  [ship] launch 1 lite tok=11 pos=0: 38858 recs, pc 38857, out [], image sha f74df4dde28d3232 (156 s)
+  [ship] launch 2 lite tok=0 pos=1: 38858 recs, pc 38857, out [], image sha af6b8aa8d44e0abb (160 s)
+  [ship] launch 3 full tok=271 pos=2: 39626 recs, pc 39625, out [11], image sha 1ff8f357b9541bd6 (175 s)
+  [ship] launch 4 full tok=11 pos=510: 39626 recs, pc 39625, out [271], image sha 9eb565637fdbc211 (167 s)
+  wrote tb/scripts/w9/sr5b_c4_ship.e4.{seq,seqdata.bin,chip}  .seq 5949aa638d10d53e .seqdata.bin a3ea37aa79d3e804 .chip fcf97a0a1767620e
+  reorder    form B: PER IMAGE on the shipped template (static costs at position 0, --seq-rtl r1: masked FENCEs, caps ['R1']); pins lite 999911226f9a70b4 full bf115a04ffcc6bfa
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  reorder    form B r1 lite: 38858 -> 39314 records == pin 999911226f9a70b4; MOVX elided 480, fences deferred 352; hazard assert PASS {'MOVX': 512, 'MVGO': 1248, 'MOVY': 1248, 'FENCE': 1248}; postcheck 56205 edges; FENCE masks {1: 312, 2: 312, 4: 312, 8: 312}; static model 30209477 -> 25195119 cyc
+  reorder    form B r1 full: 39626 -> 40173 records == pin bf115a04ffcc6bfa; MOVX elided 480, fences deferred 382; hazard assert PASS {'MOVX': 516, 'MVGO': 1370, 'MOVY': 1370, 'FENCE': 1370}; postcheck 57194 edges; FENCE masks {1: 343, 2: 343, 4: 342, 8: 342}; static model 32771280 -> 27135354 cyc
+  reorder    form B images built in 4.6 s
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:39314, full:40173  (6.1s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9099bc0
+  [r1] seq_rtl r1, caps ['R1']
+  r1 lite: == pin 999911226f9a70b43dda1b520b95fa544b1aa2c0e15935420aa317c9a5de0723 (39314 records, 1248 masked FENCEs)
+  r1 full: == pin bf115a04ffcc6bfa8342576c275ef2998b01f7522bc15b315ac63f992adc7281 (40173 records, 1370 masked FENCEs)
+  [r1] launch 0 preamble tok=None pos=0: 39 recs, pc 38, out [], image sha 04f998daed6143c0 (0 s)
+  [r1] launch 1 lite tok=11 pos=0: 39314 recs, pc 39313, out [], image sha 0c7018e3ff256a27 (152 s)
+  [r1] launch 2 lite tok=0 pos=1: 39314 recs, pc 39313, out [], image sha a75f0d522fd6efcf (152 s)
+  [r1] launch 3 full tok=271 pos=2: 40173 recs, pc 40172, out [11], image sha 61d0d7d63ce7ac25 (167 s)
+  [r1] launch 4 full tok=11 pos=510: 40173 recs, pc 40172, out [271], image sha d0b872d6b8f4366f (166 s)
+  wrote tb/scripts/w9/sr5b_c4_r1.e4.{seq,seqdata.bin,chip}  .seq 52aa657055726cdc .seqdata.bin a3ea37aa79d3e804 .chip 1397df46c9893b38
+  ship.seq vs S1T's tb/scripts/w9/s1t_c4_ship.e4.seq: IDENTICAL (5949aa638d10d53e)
+  ship.seqdata.bin vs S1T's tb/scripts/w9/s1t_c4_ship.e4.seqdata.bin: IDENTICAL (a3ea37aa79d3e804)
+  ship.chip vs S1T's tb/scripts/w9/s1t_c4_ship.e4.chip: IDENTICAL (fcf97a0a1767620e)
+--- acceptance: shipped vs r1, launch by launch
+  launch 0 preamble tok None pos 0: records 39 -> 39, pc 38 -> 38; tokens [] vs []; golden lines IDENTICAL (36882); image identical; head same -> OK
+  launch 1 lite     tok 11 pos 0: records 38858 -> 39314, pc 38857 -> 39313; tokens [] vs []; golden lines IDENTICAL (36994); image reordered; head same -> OK
+  launch 2 lite     tok 0 pos 1: records 38858 -> 39314, pc 38857 -> 39313; tokens [] vs []; golden lines IDENTICAL (36994); image reordered; head same -> OK
+  launch 3 full     tok 271 pos 2: records 39626 -> 40173, pc 39625 -> 40172; tokens [11] vs [11]; golden lines IDENTICAL (36995); image reordered; head same -> OK
+  launch 4 full     tok 11 pos 510: records 39626 -> 40173, pc 39625 -> 40172; tokens [271] vs [271]; golden lines IDENTICAL (36995); image reordered; head same -> OK
+  seqdata identical: True
+SR5B_CHAT_VECTORS c4: PASS tokens [[], [], [], [11], [271]] (1308 s)
+=== rc  : 0
+=== end : 2026-09-27T22:29:17-06:00

@@ -66,11 +66,13 @@ Safety
 * Binds 127.0.0.1 by default and REFUSES a non-loopback bind without
   --i-know-what-im-doing.  There is no auth: this is a lab tool, reach it
   over an ssh tunnel.
-* Real mode takes the chat_seq flock (sw/.seq.lock, spec decision 10)
-  before any device fd is opened and holds it for the process lifetime;
-  SIGTERM/SIGINT release it cleanly.
+* Real mode takes THE shared board lock (sw/board_lock.py, user ruling
+  O3 2026-08-29 — one NFS-visible file for every checkout and every host,
+  superseding the per-checkout sw/.seq.lock) before any device fd is
+  opened, and holds it for the process lifetime; SIGTERM/SIGINT release it
+  cleanly.  --no-lock runs without it, loudly.
 * --mock runs the whole server (queue, sessions, SSE, metrics) against a
-  deterministic fake backend: no board, no flock, no chat_seq import.
+  deterministic fake backend: no board, no lock, no chat_seq import.
 * Never programs the FPGA, never touches flash, never runs sudo.
 
 ------------------------------------------------------------------
@@ -267,7 +269,7 @@ class BackendBase(object):
 
 
 class MockBackend(BackendBase):
-    """Deterministic fake board: no device, no flock, no chat_seq import.
+    """Deterministic fake board: no device, no board lock, no chat_seq import.
 
     Same arithmetic as chat_seq.ChatSession for plan_turn/truncate_history
     (the two are asserted equal by hand in the docstrings of those methods
@@ -319,7 +321,7 @@ class MockBackend(BackendBase):
 
     def start(self):
         self.log("  mock       deterministic fake backend: no board, no "
-                 "flock (%s)"
+                 "board lock (%s)"
                  % ("realtime: steps sleep the real %.1f/%.1f ms"
                     % (self.LITE_MS, self.FULL_MS) if self.realtime
                     else "fast: %.1f ms/step, and the device ms it reports "
@@ -556,7 +558,10 @@ class BoardBackend(BackendBase):
         ChatSession.plan_turn(ids, ntok)      feed/steps/need_reset
         ChatSession.truncate_history(...)     history that still fits
         chat_seq.load_tokenizer()             infer.py BpeTok + stop ids
-        chat_seq.SeqLock                      flock (taken in main(), not here)
+        chat_seq.SeqLock                      the shared board lock
+                                              (sw/board_lock.BoardLock under
+                                              its old name; taken in main(),
+                                              not here)
 
     NOT used: chat_seq.run_turn().  It is the right loop but it writes the
     stream to stdout and installs a SIGINT handler (illegal off the main
@@ -604,7 +609,18 @@ class BoardBackend(BackendBase):
             verify_head=o.verify_head, topk_base=o.topk_base,
             head_cache=o.head_cache, no_head_cache=o.no_head_cache,
             head_mmap=o.head_mmap, head_threads=o.head_threads,
-            sample_fixture=None, make_fixture=None, passes=4)
+            sample_fixture=None, make_fixture=None, passes=4,
+            # serve runs the SHIPPED order: chat_seq's auto default resolves
+            # to form B only on its own CLI path; serve does not opt in (a
+            # decision the user has not made) -- so None, never "B"
+            reorder=None, reorder_check=False,
+            # SR6: the shipped RTL level.  --seq-rtl r1 needs form B and
+            # its gates (resolve_reorder, the image hazard assert, B6),
+            # which live in chat_seq's main(), not in ChatSession -- serve
+            # runs none of them, so it stays at r0 until the user decides
+            # otherwise.  ChatSession.open_board() still reads the device's
+            # SEQ_CAPS and validates serve's (r0) images at it.
+            seq_rtl="r0")
 
     def start(self):
         import chat_seq as CS                                    # noqa: N806
@@ -1875,7 +1891,8 @@ def selftest(opts, log=print):
     evn = _drain(jn)
     errs = [d for n, d in evn if n == "error"]
     check("a sampled request is REFUSED end to end, with the reason",
-          len(errs) == 1 and "rung 4" in errs[0]["error"], str(evn[:2]))
+          len(errs) == 1 and errs[0]["error"] == en.b.sampling["why"],
+          str(evn[:2]))
     check("the refusal produces NO tokens and NO stats (never silently "
           "greedy)", not [n for n, _ in evn if n in ("token", "stats")],
           str([n for n, _ in evn]))
@@ -2174,7 +2191,9 @@ def main():
     ap.add_argument("--step-timeout", type=float, default=20.0,
                     help="chat_seq per-launch device timeout")
     ap.add_argument("--preamble-timeout", type=float, default=30.0)
-    ap.add_argument("--lock", default=os.path.join(SW_DIR, ".seq.lock"))
+    # O3: THE shared board lock, not this checkout's sw/.seq.lock.
+    import board_lock as BL                                     # noqa: N806
+    BL.add_lock_args(ap)                        # --lock PATH / --no-lock
     ap.add_argument("--verbose", action="store_true",
                     help="log every HTTP request")
     ap.add_argument("--selftest", action="store_true",
@@ -2208,12 +2227,18 @@ def main():
     lock = None
     if not opts.mock:
         import chat_seq as CS                                   # noqa: N806
+        # O3: the ONE board lock, before any device fd.  Same class as
+        # chat_seq's (SeqLock IS BoardLock), same file for every checkout
+        # and both hosts, and --no-lock is the audited escape.
         try:
-            lock = CS.SeqLock(opts.lock).acquire()
+            lock = BL.from_args(opts, tool="serve.py",
+                                error=CS.ChatSeqError).acquire()
         except CS.ChatSeqError as e:
             print("*** %s" % e)
             raise SystemExit(2)
-        print("  lock       held: %s (spec decision 10)" % opts.lock)
+        print("  lock       %s: %s (O3)"
+              % ("NOT HELD (--no-lock)" if opts.no_lock else "held",
+                 opts.lock))
         backend = BoardBackend(opts, log=print)
     else:
         backend = MockBackend(max_ctx=opts.max_ctx, step_ms=opts.mock_step_ms,

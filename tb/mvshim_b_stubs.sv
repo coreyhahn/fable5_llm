@@ -12,7 +12,7 @@
 //   * X echo.  Outside a sweep, every activation write the engine receives
 //     (x_we/x_waddr/x_wdata — i.e. every word that made it through the
 //     xpm_fifo_async into the ui_clk domain) is echoed into RES row
-//     {6'b0, x_waddr}.  That makes "did this XWIN word reach x_mem, at the
+//     {4'b0, x_waddr}.  That makes "did this XWIN word reach x_mem, at the
 //     right index, with the right data" directly observable through the
 //     normal result read paths — and identical for AXI-Lite pushes and for
 //     s_axib burst-window pushes.
@@ -33,24 +33,25 @@ endpackage
 // ---------------------------------------------------------------------
 module matvec_engine #(
     /* verilator lint_off UNUSEDPARAM */
-    parameter int MAX_NG = 32,
+    parameter int MAX_NG = 96,
     /* verilator lint_on UNUSEDPARAM */
     parameter int ROW_W  = 16
 ) (
     input  wire                clk,
     input  wire                rstn,
     /* verilator lint_off UNUSEDSIGNAL */
-    input  wire [5:0]          cfg_ng,
+    input  wire [6:0]          cfg_ng,
     input  wire [5:0]          cfg_sh,
-    input  wire                cfg_g64,
     input  wire [ROW_W-1:0]    cfg_nrows,
+    input  wire                cfg_xbank,   // SR12 (B17.2): the real engine's
+    input  wire                cfg_rbank,   // ports, unused by this stub
     /* verilator lint_on UNUSEDSIGNAL */
     input  wire                start,
     output logic               busy,
     output logic               done,
 
     input  wire                x_we,
-    input  wire [9:0]          x_waddr,
+    input  wire [11:0]         x_waddr,
     input  wire [31:0]         x_wdata,
 
     /* verilator lint_off UNUSEDSIGNAL */
@@ -98,7 +99,7 @@ module matvec_engine #(
                 end
             end else if (x_we) begin
                 m_valid <= 1'b1;
-                m_row   <= {6'b0, x_waddr};
+                m_row   <= {4'b0, x_waddr};
                 m_y32   <= x_wdata;
             end
 `ifndef SYNTHESIS

@@ -1,0 +1,43 @@
+=== host: snoke
+=== date: 2026-09-10T19:33:17-06:00
+=== tree: 73c879e
+=== cmd:  /home/cah/.venv/bin/python -u sw/chat_seq.py --nch 4 --max-ctx 700 --ntok 2 --verify-head --prompt Summarise the following passage in one sentence. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries. The city of Paris grew from a settlement on an island in the Seine, and its streets, bridges and markets were rebuilt many times over the centuries.  --out evidence/qwen9b/g6/148_15d_verify_head.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- session bring-up
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38858, full:39626  (1.3s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+  EMBLOG2    13 (8192 B embedding rows)
+  residency  1122 witness blocks (1114 weight + 0 conv + 8 emb, 4488 KiB) in 40 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  state DN  24 MiB zeroed -> 0x380000000 (chan 3)  [8 witnesses zero]
+  state CV  24 conv image(s) -> 0x389800000  [readback OK]
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+  residency  24 witness blocks (0 weight + 24 conv + 0 emb, 96 KiB) in 1 ms -> 0 MISS
+  state CV   24 conv witness(es) match the region just written (NOT part of the weight pack's probe — §14.1)
+  upload     const blob + 3 images: 9957 KiB readback-verified in 0.0s
+  tokenizer  c202236235762e1c871ad0ccb60c8ee5ba337b9a: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  head blas  threads=16 via scipy_openblas_set_num_threads64_() in libscipy_openblas64_-32a4b2a6.so
+  head hint  2 NUMA nodes: the 1 GB copy lands on one of them, so the GEMV runs at that node's bandwidth.  `numactl --interleave=all` measured 10.3 ms vs 17.9 ms on snoke — worth it for --verify-head, irrelevant for greedy.
+  head build model_9b_s1_w248.bin -> f32 3880 MiB in 13.86s (max|w4*m| = 91520 < 2^24, exact in f32)
+  head cache wrote 3880 MiB -> /home/cah/.cache/fable5_llm/head_w248_b1d8e3419e4d73bc_f32.bin (2.66s)
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6361, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6276, in main
+    sess.attach_sampling(log=print, offline=False)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 2520, in attach_sampling
+    raise ChatSeqError(
+ChatSeqError: the manifest's head dequant is 2^(e_x-18), this file expects 2^(e_x-21) for a head with e=-4 sh=5 at rs_f=7 (S4)
+=== rc: 1
+=== end: 2026-09-10T19:33:41-06:00

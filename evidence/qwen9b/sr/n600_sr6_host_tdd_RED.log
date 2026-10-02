@@ -1,0 +1,155 @@
+=== host: snoke  date: 2026-09-27T19:32:37-06:00
+=== tree: a24c256
+=== cmd : /home/cah/.venv/bin/python -u evidence/qwen9b/sr/sr6_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+SR6 host TDD — FABLE5_MODEL=9b FABLE5_RS_F=7
+=== seq_run: the real load path (main) on mock SEQ windows
+    fixtures: r0 / r1 (12 masked FENCEs, first at record 5) / r1 manifest [] / r0 manifest [R2]; SEQ_CAPS words R1 0xfab1ca01, old 0xdeadc0de
+    (a) r1 on R1: outcome 'raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'; events []
+      | raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+  [a] FAIL an r1 stream LOADS through seq_run.main on a 0xFAB1CA01 mock  -- raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+  [a] FAIL ... and SEQ_CAPS was read before the upload  -- []
+    (b) r1 on old: outcome 'raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'; events []
+      | raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+  [b] PASS the r1 stream is REFUSED on a 0xDEADC0DE mock, before any DMA (upload tripwire untouched)  (raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000])
+  [b] PASS the refusal is the validator's and names the first masked FENCE (record 5)  (raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000])
+  [b2] FAIL the refusal is DEVICE-keyed: SEQ_CAPS was read first  -- []
+    (c) r0 on R1: outcome 'tripped upload'; events ['dev', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [c] PASS a shipped-form (r0) stream loads on the R1 mock  (tripped upload)
+  [c2] FAIL ... with SEQ_CAPS read (R1)  -- ['dev', 'upload']
+    (c) r0 on old: outcome 'tripped upload'; events ['dev', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [c] PASS a shipped-form (r0) stream loads on the old mock  (tripped upload)
+  [c2] FAIL ... with SEQ_CAPS read (old)  -- ['dev', 'upload']
+    (d) r1 manifest [] on old: outcome 'raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'; events []
+      | raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+  [d] PASS r1 with manifest caps [] still REFUSES on 0xDEADC0DE (before any DMA)  (raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000])
+    (d) r1 manifest [] on R1: outcome 'raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'; events []
+      | raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+  [d] FAIL r1 with manifest caps [] still LOADS on 0xFAB1CA01 (the manifest is not the key)  -- raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+    (e) manifest [R2] on R1: outcome 'tripped upload'; events ['dev', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [e] FAIL a manifest claiming caps [R2] on a 0xFAB1CA01 device is REFUSED before any DMA  -- tripped upload
+  [e] FAIL ... BY NAME (the message names R2)  -- records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+  weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+--- upload
+
+  [l] FAIL --caps defaults to the empty set; --caps R1 parses to {R1}  -- 'AttributeError("\'Namespace\' object has no attribute \'caps\'")' / None
+  [l] PASS --caps R9 (unknown) is an argparse error
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--lock LOCK]
+                  [--no-lock]
+seq_run.py: error: unrecognized arguments: --caps R1
+    (l) SEQ run with --caps: outcome 'exit 2'; events []
+      | exit 2
+  [l] FAIL --caps on a SEQ run (not --dry-run) is refused before any DMA (a run validates at the DEVICE's caps)  -- exit 2
+    (l) dry-run r1, no --caps: outcome 'raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'; events []
+      | raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+  [l] PASS --dry-run of an r1 stream without --caps is refused (the board-free default is the EMPTY set)  (raised SeqValidationError: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000])
+  [l] PASS ... and the dry-run never read SEQ_CAPS (the SEQ window is untouched)  ([])
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--lock LOCK]
+                  [--no-lock]
+seq_run.py: error: unrecognized arguments: --caps R1
+    (l) dry-run r1 --caps R1: outcome 'exit 2'; events []
+      | exit 2
+  [l] FAIL --dry-run --caps R1 uploads the r1 stream (and still never reads SEQ_CAPS)  -- exit 2
+  [m] FAIL Dev.seq_caps(): 0xDEADC0DE -> {}, 0xFAB1CA01 -> {R1}  -- AttributeError("'MockDev_deadc0de' object has no attribute 'seq_caps'")
+      | AttributeError("'MockDev_fab1ca01' object has no attribute 'seq_caps'")
+  [m] FAIL a closed SEQ gate refuses seq_caps() without reading 0x64
+    (m) unknown caps bit: outcome 'tripped upload'; events ['dev', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [m] FAIL an unknown SEQ_CAPS bit (0xFAB1CA08) is refused before any DMA, by bit  -- tripped upload
+=== serve: BoardBackend._args() pins seq_rtl
+  [h] FAIL serve's args namespace pins seq_rtl = 'r0' (serve runs the shipped level)  -- '<absent>'
+=== chat_seq: main() on mock SEQ windows (FABLE5_MODEL=9b)
+  [setup] PASS chat_seq imported at FABLE5_MODEL=9b  (9b)
+    g0: outcome 'tripped bring_up' (9 s); events ['load_template(caps=None)', 'independent_step_images(caps=None)', 'B6-stub', 'dev', 'bring_up']
+      |   blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+      |   crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9096140
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+  [g0] PASS control: the default --nch 4 session (r0, form B) LOADS on the 0xDEADC0DE mock  (tripped bring_up)
+  [g0] PASS ... its form-B images still equal the S1P pins (REORDER_B_IMAGES)
+usage: chat_seq.py [-h] [--dev DEV] [--chan CHAN] [--template TEMPLATE]
+                   [--any-template] [--nch {1,4}] [--prompt PROMPT]
+                   [--ntok NTOK] [--max-ctx MAX_CTX] [--raw] [--system SYSTEM]
+                   [--pos-mode {auto,xrf,ldc}] [--t-max T_MAX]
+                   [--prefill {lite,full}] [--continue-context] [--canned]
+                   [--smoke] [--verify] [--force-upload] [--timeout TIMEOUT]
+                   [--preamble-timeout PREAMBLE_TIMEOUT] [--out OUT]
+                   [--reorder {A,B,off}] [--reorder-check] [--selftest]
+                   [--model-only] [--steps STEPS] [--lock LOCK] [--no-lock]
+                   [--temp TEMP] [--top-k TOP_K] [--top-p TOP_P] [--seed SEED]
+                   [--topk-base TOPK_BASE] [--verify-head]
+                   [--head-cache HEAD_CACHE] [--no-head-cache] [--head-mmap]
+                   [--head-threads HEAD_THREADS]
+                   [--sample-fixture SAMPLE_FIXTURE]
+                   [--make-fixture MAKE_FIXTURE] [--passes PASSES]
+chat_seq.py: error: unrecognized arguments: --seq-rtl r1
+    f: outcome 'exit 2' (0 s); events []
+  [f] FAIL `chat_seq --seq-rtl r1` on the 0xDEADC0DE mock REFUSES (exit 4) at open_board, before any upload  -- exit 2
+  [f] FAIL ... device-keyed (SEQ_CAPS read) and naming the masked FENCE
+usage: chat_seq.py [-h] [--dev DEV] [--chan CHAN] [--template TEMPLATE]
+                   [--any-template] [--nch {1,4}] [--prompt PROMPT]
+                   [--ntok NTOK] [--max-ctx MAX_CTX] [--raw] [--system SYSTEM]
+                   [--pos-mode {auto,xrf,ldc}] [--t-max T_MAX]
+                   [--prefill {lite,full}] [--continue-context] [--canned]
+                   [--smoke] [--verify] [--force-upload] [--timeout TIMEOUT]
+                   [--preamble-timeout PREAMBLE_TIMEOUT] [--out OUT]
+                   [--reorder {A,B,off}] [--reorder-check] [--selftest]
+                   [--model-only] [--steps STEPS] [--lock LOCK] [--no-lock]
+                   [--temp TEMP] [--top-k TOP_K] [--top-p TOP_P] [--seed SEED]
+                   [--topk-base TOPK_BASE] [--verify-head]
+                   [--head-cache HEAD_CACHE] [--no-head-cache] [--head-mmap]
+                   [--head-threads HEAD_THREADS]
+                   [--sample-fixture SAMPLE_FIXTURE]
+                   [--make-fixture MAKE_FIXTURE] [--passes PASSES]
+chat_seq.py: error: unrecognized arguments: --seq-rtl r1
+    g: outcome 'exit 2' (0 s); events []
+  [g] FAIL `chat_seq --seq-rtl r1` LOADS on the 0xFAB1CA01 mock (reaches bring_up, the first upload)  -- exit 2
+  [g] FAIL the device's caps {R1} reach chat_seq.load_template (the :474 validate_stream site) after open_board read them  -- []
+  [g] FAIL ... and chat_seq.independent_step_images (the :514 site)  -- []
+  [g] FAIL an r1 session was built
+    iA: outcome 'exit 2' (0 s); events []
+  [i] FAIL refused before the board: ['--seq-rtl', 'r1', '--reorder', 'A'] -> exit 4  -- exit 2; ['chat_seq.py: error: unrecognized arguments: --seq-rtl r1']
+    ioff: outcome 'exit 2' (0 s); events []
+  [i] FAIL refused before the board: ['--seq-rtl', 'r1', '--reorder', 'off'] -> exit 4  -- exit 2; ['chat_seq.py: error: unrecognized arguments: --seq-rtl r1']
+    ienv: outcome 'tripped bring_up' (3 s); events ['load_template(caps=None)', 'independent_step_images(caps=None)', 'dev', 'bring_up']
+      |   blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+      |   crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+  [i] FAIL refused before the board: {'FABLE5_SEQ_RTL': 'r1', 'FABLE5_REORDER': 'off'} -> exit 4  -- tripped bring_up; ['  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY']
+    ir9: outcome 'exit 2' (0 s); events []
+  [i] PASS refused before the board: ['--seq-rtl', 'r9'] -> exit 2  (exit 2; ['chat_seq.py: error: unrecognized arguments: --seq-rtl r9'])
+    ibad: outcome 'tripped bring_up' (9 s); events ['load_template(caps=None)', 'independent_step_images(caps=None)', 'B6-stub', 'dev', 'bring_up']
+      |   blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+      |   crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9096140
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+  [i] FAIL refused before the board: {'FABLE5_SEQ_RTL': 'bogus'} -> exit 2  -- tripped bring_up; ['  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY']
+  [k] FAIL sessions for the model-gate caps check
+per case: (a) 0/2, (b) 2/2, (b2) 0/1, (c) 2/2, (c2) 0/2, (d) 1/2, (e) 0/2, (l) 3/6, (m) 0/3, (h) 0/1, (setup) 1/1, (g0) 2/2, (f) 0/2, (g) 0/4, (i) 1/5, (k) 0/1
+SR6_HOST_TDD: 12 passed, 26 failed (21 s) -> FAIL
+=== rc  : 1
+=== end : 2026-09-27T19:32:59-06:00

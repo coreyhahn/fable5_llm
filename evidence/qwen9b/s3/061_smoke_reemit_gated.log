@@ -1,0 +1,267 @@
+=== host: darthplagueis
+=== date: 2026-09-05T00:53:49-06:00
+=== tree: 66c3cf9
+=== cmd:  ssh snoke cd /home/cah/r2d2/code/fpga/fable5_llm/tb && FABLE5_MODEL=9b FABLE5_RS_F=7 make w9_9b_smoke_scripts w9_9b_tok_smoke_scripts MODELPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+mkdir -p scripts/w9 scripts/w9/emit2
+for s in 1 2 3 4; do \
+  ( cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 \
+      SEQ_EMIT=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s$s.e4 \
+      /home/cah/.venv/bin/python gen_layer_script.py \
+      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s$s.txt $s 2 ) \
+    || exit 1; \
+  if [ "1" = 1 ]; then \
+    EMIT_GEN=gen_layer_script.py \
+    EMIT_ARGS="$s 2" MODELPY=/home/cah/.venv/bin/python \
+    EMIT_SEQ_ENV="FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1" \
+    REF_PREFIX=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s$s \
+      sh ../evidence/qwen9b/s3/emit_repeat.sh 1 /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s$s || exit 1; \
+  fi; \
+  FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py \
+    scripts/w9/lay9b_s$s.e4 --base scripts/w9/lay9b_s$s || exit 1; \
+done
+layer script: seed=1 ntok=2 wq=w4 cmds=978 hostwords=395200 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1.txt
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1.e4.seq  [profile=epsnorm loop_steps=0]
+emit_repeat: n=1 gen=gen_layer_script.py args='1 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s1
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s1/rep1.e4.seq  [profile=epsnorm loop_steps=0]
+  run 1  2fab6e5d042c3cbb b6ba7d8dcbadd11d bfbc0c00bfcdccf6 ca6e6e7f1fb21d4e
+  .txt  1 distinct sha over 1 run(s)   2fab6e5d042c3cbbf766d6ac07e43edba06c698e8c636c7e95080b1c97b6297e
+  .e4.seq  1 distinct sha over 1 run(s)   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   bfbc0c00bfcdccf6fa074d9a4fd4f8ad8f09b003ce9a2f1656d2fa142a0f3d5b
+  .state_final.bin  1 distinct sha over 1 run(s)   ca6e6e7f1fb21d4e98c0ba430ad604f1bc1f5b92d740903d9c53d70023ed5bfd
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1
+  .txt  IDENTICAL   2fab6e5d042c3cbbf766d6ac07e43edba06c698e8c636c7e95080b1c97b6297e
+  .e4.seq  IDENTICAL   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  IDENTICAL   bfbc0c00bfcdccf6fa074d9a4fd4f8ad8f09b003ce9a2f1656d2fa142a0f3d5b
+  .state_final.bin  IDENTICAL   ca6e6e7f1fb21d4e98c0ba430ad604f1bc1f5b92d740903d9c53d70023ed5bfd
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 15 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (323624960, 323624960, 323624960, 323624960)
+  scripts/w9/lay9b_s1.wimg0.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s1.wimg1.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s1.wimg2.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s1.wimg3.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/lay9b_s1.e4.chip: 4091 records, pc 4090, 0 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2714, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 38, 'LDC': 22, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 152}
+layer script: seed=2 ntok=2 wq=w4 cmds=978 hostwords=395200 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s2.txt
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s2.e4.seq  [profile=epsnorm loop_steps=0]
+emit_repeat: n=1 gen=gen_layer_script.py args='2 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s2
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s2/rep1.e4.seq  [profile=epsnorm loop_steps=0]
+  run 1  5d451ffb465de442 b6ba7d8dcbadd11d 34fd8dd3ff2c7dcb bae8b4e4262104d1
+  .txt  1 distinct sha over 1 run(s)   5d451ffb465de4425a2b0c0ad476e355de42b7a23d344c68c8ede83a8374ef63
+  .e4.seq  1 distinct sha over 1 run(s)   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   34fd8dd3ff2c7dcba369d2f94342fb39ea42aac4def0b018f02d3c76dffe49bd
+  .state_final.bin  1 distinct sha over 1 run(s)   bae8b4e4262104d1233f1e8597ec14ca9972d2c4884448cba07c40f2296c687f
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s2
+  .txt  IDENTICAL   5d451ffb465de4425a2b0c0ad476e355de42b7a23d344c68c8ede83a8374ef63
+  .e4.seq  IDENTICAL   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  IDENTICAL   34fd8dd3ff2c7dcba369d2f94342fb39ea42aac4def0b018f02d3c76dffe49bd
+  .state_final.bin  IDENTICAL   bae8b4e4262104d1233f1e8597ec14ca9972d2c4884448cba07c40f2296c687f
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 15 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (323624960, 323624960, 323624960, 323624960)
+  scripts/w9/lay9b_s2.wimg0.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s2.wimg1.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s2.wimg2.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s2.wimg3.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/lay9b_s2.e4.chip: 4091 records, pc 4090, 0 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2714, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 38, 'LDC': 22, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 152}
+layer script: seed=3 ntok=2 wq=w4 cmds=978 hostwords=395200 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s3.txt
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s3.e4.seq  [profile=epsnorm loop_steps=0]
+emit_repeat: n=1 gen=gen_layer_script.py args='3 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s3
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s3/rep1.e4.seq  [profile=epsnorm loop_steps=0]
+  run 1  87bdd51529876b45 b6ba7d8dcbadd11d a3b8eca42f52e177 c382328df0ede08e
+  .txt  1 distinct sha over 1 run(s)   87bdd51529876b45534c6fb7fb37162d1b7cec2ab01aa5466f81654a71bdd93d
+  .e4.seq  1 distinct sha over 1 run(s)   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   a3b8eca42f52e177ddc8ea66936dd8fe58f7f75e36b7573e0a13a104edc4dae2
+  .state_final.bin  1 distinct sha over 1 run(s)   c382328df0ede08e062bc195709dfb89aa0d5810e787aad2903ce68434b4f916
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s3
+  .txt  IDENTICAL   87bdd51529876b45534c6fb7fb37162d1b7cec2ab01aa5466f81654a71bdd93d
+  .e4.seq  IDENTICAL   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  IDENTICAL   a3b8eca42f52e177ddc8ea66936dd8fe58f7f75e36b7573e0a13a104edc4dae2
+  .state_final.bin  IDENTICAL   c382328df0ede08e062bc195709dfb89aa0d5810e787aad2903ce68434b4f916
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 15 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (323624960, 323624960, 323624960, 323624960)
+  scripts/w9/lay9b_s3.wimg0.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s3.wimg1.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s3.wimg2.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s3.wimg3.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/lay9b_s3.e4.chip: 4091 records, pc 4090, 0 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2714, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 38, 'LDC': 22, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 152}
+layer script: seed=4 ntok=2 wq=w4 cmds=978 hostwords=395200 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s4.txt
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s4.e4.seq  [profile=epsnorm loop_steps=0]
+emit_repeat: n=1 gen=gen_layer_script.py args='4 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s4
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s4/rep1.e4.seq  [profile=epsnorm loop_steps=0]
+  run 1  68fac68faaf16831 b6ba7d8dcbadd11d 1cac16ade3b23f47 73ec7f58d2486a4a
+  .txt  1 distinct sha over 1 run(s)   68fac68faaf16831a2313f3d311c4b500ad059f17bb47409d41f964f0ff168bb
+  .e4.seq  1 distinct sha over 1 run(s)   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   1cac16ade3b23f47e57810f524a14b359cc28b554610849be53e5bc32946af17
+  .state_final.bin  1 distinct sha over 1 run(s)   73ec7f58d2486a4a428d80fd607e86aafd82cbdba7ed83f15a7c7da81b1b19cd
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s4
+  .txt  IDENTICAL   68fac68faaf16831a2313f3d311c4b500ad059f17bb47409d41f964f0ff168bb
+  .e4.seq  IDENTICAL   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  IDENTICAL   1cac16ade3b23f47e57810f524a14b359cc28b554610849be53e5bc32946af17
+  .state_final.bin  IDENTICAL   73ec7f58d2486a4a428d80fd607e86aafd82cbdba7ed83f15a7c7da81b1b19cd
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 15 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (323624960, 323624960, 323624960, 323624960)
+  scripts/w9/lay9b_s4.wimg0.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s4.wimg1.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s4.wimg2.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s4.wimg3.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/lay9b_s4.e4.chip: 4091 records, pc 4090, 0 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2714, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 38, 'LDC': 22, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 152}
+mkdir -p scripts/w9 scripts/w9/emit2
+for s in 1 2 3 4; do \
+  ( cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 \
+      SEQ_EMIT=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s$s.e4 \
+      /home/cah/.venv/bin/python gen_token_script.py \
+      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s$s.txt $s 2 \
+      8192 2 ) || exit 1; \
+  if [ "1" = 1 ]; then \
+    EMIT_GEN=gen_token_script.py \
+    EMIT_ARGS="$s 2 8192 2" \
+    MODELPY=/home/cah/.venv/bin/python EMIT_SEQ_ENV="FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1" \
+    REF_PREFIX=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s$s \
+      sh ../evidence/qwen9b/s3/emit_repeat.sh 1 /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s$s || exit 1; \
+  fi; \
+  FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py \
+    scripts/w9/tok9b_s$s.e4 --base scripts/w9/tok9b_s$s || exit 1; \
+done
+token script: seed=1 ntok=2 wq=w4 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=990 hostwords=427968 weights=16 tokens_out=[2380, 6362] -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.txt
+SEQ: 2108 records (33728 B) + 42944 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4.seq  [profile=epsnorm loop_steps=2]
+emit_repeat: n=1 gen=gen_token_script.py args='1 2 8192 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s1
+SEQ: 2108 records (33728 B) + 42944 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s1/rep1.e4.seq  [profile=epsnorm loop_steps=2]
+  run 1  164514606fcb75fa cbf0513e029596c4 85bea32f932720a3 e95f47c658c30479
+  .txt  1 distinct sha over 1 run(s)   164514606fcb75fa5c20f294b210d05a2977dd5c8f7040cf57440bb69839a461
+  .e4.seq  1 distinct sha over 1 run(s)   cbf0513e029596c4a76e02d6c3ec44d7952663b9bdc497e718d94114033ea8aa
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   85bea32f932720a38bd8ede7fbbdb98b9e58d5a4df4e11d7fcb44703ebbfec0f
+  .state_final.bin  1 distinct sha over 1 run(s)   e95f47c658c304798c9cf8d92d8f5b55d2c88b631894d54559f589808aadc583
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1
+  .txt  IDENTICAL   164514606fcb75fa5c20f294b210d05a2977dd5c8f7040cf57440bb69839a461
+  .e4.seq  IDENTICAL   cbf0513e029596c4a76e02d6c3ec44d7952663b9bdc497e718d94114033ea8aa
+  .e4.seqdata.bin  IDENTICAL   85bea32f932720a38bd8ede7fbbdb98b9e58d5a4df4e11d7fcb44703ebbfec0f
+  .state_final.bin  IDENTICAL   e95f47c658c304798c9cf8d92d8f5b55d2c88b631894d54559f589808aadc583
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 16 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[15], every base identical
+    wid 15 (LAYOUT_ILV, 8192 rows) -> per-channel rows [2048, 2048, 2048, 2048]
+  pack top: (327950336, 327950336, 327950336, 327950336)
+  scripts/w9/tok9b_s1.wimg0.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s1.wimg1.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s1.wimg2.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s1.wimg3.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 16 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/tok9b_s1.e4.chip: 2108 records, pc 2107, 2 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2752, 'CMD': 902, 'MOVX': 128, 'MOVY': 160, 'MVGO': 160, 'EMB': 2, 'AMAXL': 2, 'JMP': 2, 'FENCE': 40, 'LDC': 22, 'XOP': 4, 'PROBE': 2, 'MVGO_NOWAIT': 160}
+token script: seed=2 ntok=2 wq=w4 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=990 hostwords=427968 weights=16 tokens_out=[5290, 4397] -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s2.txt
+SEQ: 2108 records (33728 B) + 42944 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s2.e4.seq  [profile=epsnorm loop_steps=2]
+emit_repeat: n=1 gen=gen_token_script.py args='2 2 8192 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s2
+SEQ: 2108 records (33728 B) + 42944 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s2/rep1.e4.seq  [profile=epsnorm loop_steps=2]
+  run 1  2f1e13db826127ac 92382b7bf5a17c14 c472baf14708073f 944092425780215c
+  .txt  1 distinct sha over 1 run(s)   2f1e13db826127ac0ae4c0a726aad09b750a1bffa433505ec76ec4cd5b961ef4
+  .e4.seq  1 distinct sha over 1 run(s)   92382b7bf5a17c14b468487c334c0eb5f7d01cb4138423b5ec242f395d5fef92
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   c472baf14708073f03df748792dd103795291314cabcb2fc0d43b46e47d3db5b
+  .state_final.bin  1 distinct sha over 1 run(s)   944092425780215c50edbba38e3d0da851ecc3fcc3b591e228c2517049024cbc
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s2
+  .txt  IDENTICAL   2f1e13db826127ac0ae4c0a726aad09b750a1bffa433505ec76ec4cd5b961ef4
+  .e4.seq  IDENTICAL   92382b7bf5a17c14b468487c334c0eb5f7d01cb4138423b5ec242f395d5fef92
+  .e4.seqdata.bin  IDENTICAL   c472baf14708073f03df748792dd103795291314cabcb2fc0d43b46e47d3db5b
+  .state_final.bin  IDENTICAL   944092425780215c50edbba38e3d0da851ecc3fcc3b591e228c2517049024cbc
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 16 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[15], every base identical
+    wid 15 (LAYOUT_ILV, 8192 rows) -> per-channel rows [2048, 2048, 2048, 2048]
+  pack top: (327950336, 327950336, 327950336, 327950336)
+  scripts/w9/tok9b_s2.wimg0.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s2.wimg1.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s2.wimg2.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s2.wimg3.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 16 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/tok9b_s2.e4.chip: 2108 records, pc 2107, 2 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2752, 'CMD': 902, 'MOVX': 128, 'MOVY': 160, 'MVGO': 160, 'EMB': 2, 'AMAXL': 2, 'JMP': 2, 'FENCE': 40, 'LDC': 22, 'XOP': 4, 'PROBE': 2, 'MVGO_NOWAIT': 160}
+token script: seed=3 ntok=2 wq=w4 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=990 hostwords=427968 weights=16 tokens_out=[1235, 4971] -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s3.txt
+SEQ: 2108 records (33728 B) + 42944 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s3.e4.seq  [profile=epsnorm loop_steps=2]
+emit_repeat: n=1 gen=gen_token_script.py args='3 2 8192 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s3
+SEQ: 2108 records (33728 B) + 42944 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s3/rep1.e4.seq  [profile=epsnorm loop_steps=2]
+  run 1  72b295b481fdd804 5093b01df7479909 c1921068e5161309 9b9cf4b4f04a54ec
+  .txt  1 distinct sha over 1 run(s)   72b295b481fdd804281126a312e4a3d2f013a8e66d04ea5c4e0463e439369038
+  .e4.seq  1 distinct sha over 1 run(s)   5093b01df74799096b6afdd448acddabb0c39248dcf3a2740ca656bcaf71d78e
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   c1921068e51613096397de9aa81f2886b40bf068a2f5684bda6cf0b2034372a6
+  .state_final.bin  1 distinct sha over 1 run(s)   9b9cf4b4f04a54ecdeb4d85fa8f1603ea1c79d5b06294942b1efaec7e87cb5cc
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s3
+  .txt  IDENTICAL   72b295b481fdd804281126a312e4a3d2f013a8e66d04ea5c4e0463e439369038
+  .e4.seq  IDENTICAL   5093b01df74799096b6afdd448acddabb0c39248dcf3a2740ca656bcaf71d78e
+  .e4.seqdata.bin  IDENTICAL   c1921068e51613096397de9aa81f2886b40bf068a2f5684bda6cf0b2034372a6
+  .state_final.bin  IDENTICAL   9b9cf4b4f04a54ecdeb4d85fa8f1603ea1c79d5b06294942b1efaec7e87cb5cc
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 16 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[15], every base identical
+    wid 15 (LAYOUT_ILV, 8192 rows) -> per-channel rows [2048, 2048, 2048, 2048]
+  pack top: (327950336, 327950336, 327950336, 327950336)
+  scripts/w9/tok9b_s3.wimg0.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s3.wimg1.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s3.wimg2.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s3.wimg3.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 16 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/tok9b_s3.e4.chip: 2108 records, pc 2107, 2 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2752, 'CMD': 902, 'MOVX': 128, 'MOVY': 160, 'MVGO': 160, 'EMB': 2, 'AMAXL': 2, 'JMP': 2, 'FENCE': 40, 'LDC': 22, 'XOP': 4, 'PROBE': 2, 'MVGO_NOWAIT': 160}
+token script: seed=4 ntok=2 wq=w4 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=990 hostwords=427968 weights=16 tokens_out=[5591, 703] -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s4.txt
+SEQ: 2108 records (33728 B) + 42944 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s4.e4.seq  [profile=epsnorm loop_steps=2]
+emit_repeat: n=1 gen=gen_token_script.py args='4 2 8192 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s4
+SEQ: 2108 records (33728 B) + 42944 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/tok9b_s4/rep1.e4.seq  [profile=epsnorm loop_steps=2]
+  run 1  2c3e35604f22f3ba b894229e55549afb 865f9dee20445914 8ef4637a9634d5e6
+  .txt  1 distinct sha over 1 run(s)   2c3e35604f22f3ba17a9593b1f768850a033fa6e3b37cb43affc8e2db1132ee4
+  .e4.seq  1 distinct sha over 1 run(s)   b894229e55549afb767309b8482e932f85fd924bd33f6399f5dbc3c68223e264
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   865f9dee20445914f6f37a2e70bc6d980a73614673eb1de5951334f4f1120e58
+  .state_final.bin  1 distinct sha over 1 run(s)   8ef4637a9634d5e6af7c5937a534f11985e9a4b142cd290182e03a98d5e53436
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s4
+  .txt  IDENTICAL   2c3e35604f22f3ba17a9593b1f768850a033fa6e3b37cb43affc8e2db1132ee4
+  .e4.seq  IDENTICAL   b894229e55549afb767309b8482e932f85fd924bd33f6399f5dbc3c68223e264
+  .e4.seqdata.bin  IDENTICAL   865f9dee20445914f6f37a2e70bc6d980a73614673eb1de5951334f4f1120e58
+  .state_final.bin  IDENTICAL   8ef4637a9634d5e6af7c5937a534f11985e9a4b142cd290182e03a98d5e53436
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 16 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[15], every base identical
+    wid 15 (LAYOUT_ILV, 8192 rows) -> per-channel rows [2048, 2048, 2048, 2048]
+  pack top: (327950336, 327950336, 327950336, 327950336)
+  scripts/w9/tok9b_s4.wimg0.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s4.wimg1.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s4.wimg2.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  scripts/w9/tok9b_s4.wimg3.bin: 59514880 B (56.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 16 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/tok9b_s4.e4.chip: 2108 records, pc 2107, 2 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2752, 'CMD': 902, 'MOVX': 128, 'MOVY': 160, 'MVGO': 160, 'EMB': 2, 'AMAXL': 2, 'JMP': 2, 'FENCE': 40, 'LDC': 22, 'XOP': 4, 'PROBE': 2, 'MVGO_NOWAIT': 160}
+=== rc: 0
+=== end: 2026-09-05T01:45:11-06:00

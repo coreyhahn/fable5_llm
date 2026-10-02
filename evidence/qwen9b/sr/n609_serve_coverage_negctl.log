@@ -1,0 +1,47 @@
+=== host: snoke  date: 2026-09-27T19:43:20-06:00
+=== tree: 8f2edae
+=== cmd : /home/cah/.venv/bin/python -c import sys, types; sys.path.insert(0, "sw"); import serve as SV
+orig = SV.BoardBackend._args
+def drop(self):
+    a = orig(self); delattr(a, "seq_rtl"); return a
+SV.BoardBackend._args = drop
+class O(object):
+    nch = 4; template = None
+    def __getattr__(self, n): return None
+ok = SV.check_backend_api(O())
+print("NEGCTL: coverage check with seq_rtl removed ->", "PASS (BAD: it did not bite)" if ok else "FAIL (it bites: good)")
+sys.exit(0 if not ok else 1)
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  chat_seq API the adapter depends on (/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py):
+    chat_seq.ChatSession                                       ok
+    chat_seq.SeqLock                                           ok
+    chat_seq.ChatSeqError                                      ok
+    chat_seq.load_tokenizer                                    ok
+    chat_seq.TEMPLATE_PREFIX                                   ok
+    chat_seq.T_MAX                                             ok
+    chat_seq.ChatTemplate                                      ok
+    chat_seq.CHAT_STOP_IDS                                     ok
+    chat_seq.TOK_IM_START                                      ok
+    chat_seq.TOK_IM_END                                        ok
+    chat_seq.TOK_THINK                                         ok
+    chat_seq.TOK_THINK_END                                     ok
+    chat_seq.HF_REF_SINGLE                                     ok
+    chat_seq.HF_REF_3MSG_INCR                                  ok
+    ChatTemplate.turn_ids(self, text, system=None, first=True, carry=None) ok
+    ChatTemplate.render(self, messages, add_generation_prompt=True) ok
+    ChatTemplate.visible(self, ids)                            ok
+    ChatSession.open_board(self)                               ok
+    ChatSession.bring_up(self)                                 ok
+    ChatSession.preamble(self)                                 ok
+    ChatSession.step(self, tok, lite)                          ok
+    ChatSession.plan_turn(self, ids, ntok)                     ok
+    ChatSession.attach_template(self, tk, log=<built-in function print>) ok
+    ChatSession.truncate_history(self, ids, ntok)              ok
+    SeqLock.acquire()                                          ok
+    SeqLock.release()                                          ok
+    args namespace covers chat_seq's args.* reads (missing: seq_rtl) MISSING
+  backend API check: FAIL
+NEGCTL: coverage check with seq_rtl removed -> FAIL (it bites: good)
+=== rc  : 0
+=== end : 2026-09-27T19:43:21-06:00

@@ -1,0 +1,40 @@
+python3 ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+python3 ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+python3 ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+python3 ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_se -o tb_se \
+  --top-module tb_streamer_engine \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv tb_streamer_engine.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_se'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+/usr/bin/python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtb_streamer_engine.cpp Vtb_streamer_engine___024root__DepSet_h950a76dc__0.cpp Vtb_streamer_engine___024root__DepSet_h77b4abaf__0.cpp Vtb_streamer_engine__main.cpp Vtb_streamer_engine__ConstPool_0.cpp Vtb_streamer_engine___024root__Slow.cpp Vtb_streamer_engine___024root__DepSet_h950a76dc__0__Slow.cpp Vtb_streamer_engine___024root__DepSet_h77b4abaf__0__Slow.cpp Vtb_streamer_engine__Syms.cpp > Vtb_streamer_engine__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o Vtb_streamer_engine__ALL.o Vtb_streamer_engine__ALL.cpp
+echo "" > Vtb_streamer_engine__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_streamer_engine__ALL.a Vtb_streamer_engine__ALL.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_streamer_engine__ALL.a    -pthread -lpthread -latomic   -o tb_se
+rm Vtb_streamer_engine__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_se'
+obj_dir_tb_se/tb_se --seed 1 +vecdir=vec_s1
+perf: 576 beats in 700 cycles (82.3% bus util)
+TB_STREAMER_ENGINE PASS: 64 rows bit-exact (K=1024)
+- tb_streamer_engine.sv:219: Verilog $finish
+obj_dir_tb_se/tb_se --seed 2 +vecdir=vec_s2
+perf: 928 beats in 1138 cycles (81.5% bus util)
+TB_STREAMER_ENGINE PASS: 32 rows bit-exact (K=3584)
+- tb_streamer_engine.sv:219: Verilog $finish
+obj_dir_tb_se/tb_se --seed 3 +vecdir=vec_s3
+perf: 384 beats in 471 cycles (81.5% bus util)
+TB_STREAMER_ENGINE PASS: 128 rows bit-exact (K=256)
+- tb_streamer_engine.sv:219: Verilog $finish
+obj_dir_tb_se/tb_se --seed 4 +vecdir=vec_s4
+perf: 272 beats in 330 cycles (82.4% bus util)
+TB_STREAMER_ENGINE PASS: 16 rows bit-exact (K=2048)
+- tb_streamer_engine.sv:219: Verilog $finish
+EXIT_SE=0

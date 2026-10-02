@@ -1,0 +1,161 @@
+=== host: snoke  date: 2026-08-25T07:37:42-06:00
+=== tree: 9a654e0+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/toks_model.py /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/toks_model.json
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+A. THE COUNTERS — validated against MOVER_NORM.md section 2's counted 0.8B nch=4 stream
+==============================================================================
+    movx_rec         model        748  counted        748  OK
+    movx_elem        model  1,110,016  counted  1,110,016  OK
+    movy_i16_rows    model    227,904  counted    227,904  OK
+    movy_p32_rows    model    420,352  counted    420,352  OK
+    movy_i16_rec     model        552  counted        552  OK
+    movy_p32_rec     model        314  counted        314  OK
+    mvgo_rec         model        866  counted        866  OK
+    mvgo_rows        model    648,256  counted    648,256  OK
+    ldc_rec          model        121  counted        121  OK
+    ldc_words        model     57,184  counted     57,184  OK
+    csrwr            model     10,371  counted     10,371  OK
+    cmd              model      3,449  counted      3,449  OK
+    busiest-channel beats  1,643,280  (MOVER_NORM 3.1 chan0 1,643,280)  OK
+    total bytes/token      417,435,648  (RD_GATE 417,435,648)  OK
+    -> movers 11.332 ms   (MOVER_NORM 3.3 recompute 11.334, measured residual 11.401, bracket [11.17, 11.89])
+    COUNTER VALIDATION: PASS
+
+==============================================================================
+B. THE LAYER FIT — two components, two silicon points
+==============================================================================
+    0.8B  inv    5,160,960  var    271,360  measured 15.128 ms
+    2B    inv    5,160,960  var    493,568  measured 17.960 ms
+    A  (invariant, DN state + conv) = 2.261123e-06 ms/element = 0.5653 aclk cycles/element
+    Bv (H/FFN-proportional)         = 1.274482e-05 ms/element = 3.1862 aclk cycles/element
+    split at 0.8B: invariant 11.670 ms (77.1 %), variable 3.458 ms (22.9 %)
+    *** READ THE SPLIT AS AN INTERCEPT, NOT A COST. *** Both
+    calibration points share DeltaNet geometry, so `A` is the
+    INTERCEPT of a two-point fit: it is whatever is left after the
+    H/FFN term explains the 0.8B->2B difference. Nothing measured
+    the DeltaNet contribution directly. What IS primary-source is
+    that the work it stands for scales with nDN x LNH: rtl/dn_step.sv
+    :1,:13-14 (one head per invocation, ~1300 cyc/head, 128 lanes),
+    rtl/layer_chan.sv:393 (ONE instance), :891 (head is a command
+    arg), ref/gen_layer_script.py:954-961 (the per-head emit loop).
+    For scale, the DNST commands alone at 1300 cyc/head and 250 MHz:
+      0.8B/2B  18 x 16 = 288 cmd/token -> 1.498 ms  (9.9 % of the 0.8B layer term)
+      4B/9B    24 x 32 = 768 cmd/token -> 3.994 ms
+
+==============================================================================
+C. THE STEP MODEL — (r, overlap) solved from the TWO silicon steps
+==============================================================================
+    R-d re-measured the layer term UPWARD (MOVER_NORM used build_033's
+    14.130 ms; R-d's L_LCYC census on build_035 reads 15.128).  With
+    that term a SERIAL sum over-predicts the 0.8B step, which is direct
+    evidence for what MOVER_NORM 3.2 flagged as possible but could not
+    resolve: at nch=4 some mover work HIDES under engine time (no-wait
+    MVGO, 217 FENCEs/token).  So the model carries one overlap factor:
+
+        step = beats_busiest * r / UI  +  movers_counted * m  +  layer
+
+    and (r, m) are solved from the two measured steps.  Nothing else
+    is fitted; both come out physically admissible, which is the test.
+
+    0.8B W4: matvec 5.4754*r + movers 11.332*m + layer 15.128 = 31.5023
+    2B   W8: matvec 25.3651*r + movers 15.969*m + layer 17.960 = 60.5145
+    -> r = 1.1037 ui-cyc/beat  = 17.40 GB/s/chan  (INSIDE MOVER_NORM 3.2's calibration-free bracket [1.0, 1.131])
+    -> m = 0.9117  i.e. 8.8 % of counted mover work overlaps engine time at nch=4
+       (MOVER_NORM 3.1's independently derived r was 1.0892; this solve lands +1.3 % from it)
+    Both are admissible: r >= 1.000 is the engine's hard floor and
+    0 <= 1-m <= 1 is required of an overlap.  Neither was constrained.
+
+    --- HONESTY CHECK 1: the calibration-free bracket, RE-ANCHORED ---
+    MOVER_NORM 3.2(b) derives r <= 1.131 from
+        45.018 = 14.13 + matvec_1 + movers_1,  movers_1 >= 6.308
+    but 14.13 is build_033's layer term, which R-d SUPERSEDES with
+    15.128 (RD_GATE 3).  Re-running that same inequality:
+      layer  14.130  (MOVER_NORM's 14.130 (build_033))
+        matvec_1 <= 24.580 ms  ->  r <= 1.1310   (16.98 GB/s/chan)
+      layer  15.128  (R-d's 15.128 (build_035))
+        matvec_1 <= 23.582 ms  ->  r <= 1.0851   (17.70 GB/s/chan)
+    => the bracket becomes [1.000, 1.0851], and this study's
+       r = 1.1037 is **OUTSIDE it by 1.7 %**.
+    An earlier revision claimed r landed INSIDE MOVER_NORM's bracket.
+    That was true only against the bracket's SUPERSEDED anchor, and
+    it is withdrawn.  MOVER_NORM:161-165 also states its own point
+    estimate is soft: r rests on a bubble figure of 8.252 where the
+    repo's other figure is 8.94, and 8 % on the bubble moves r 7 %
+    (to 1.013).  So neither r=1.0892 nor the bracket is a hard rail.
+
+    --- HONESTY CHECK 2: nch=1, a configuration NOTHING here was fitted to ---
+      counted nch=1 busiest beats 6,522,432 (MOVER_NORM 2: 6,522,432)  OK
+      counted nch=1 movers 7.306 ms (MOVER_NORM 3.3: 7.293)
+      m = 1.000 (MOVER_NORM: at nch=1 nothing overlaps)
+        predicted step 46.422 ms vs MEASURED 45.018  -> +3.1 %
+      m = 0.9117 (this study's nch=4 solve)
+        predicted step 45.776 ms vs MEASURED 45.018  -> +1.7 %
+    The model OVER-predicts nch=1 by 1-3 %.  Reported, not hidden:
+    the (r, m) pair is exactly determined by two nch=4 equations, so
+    it has no residual AT those points and cannot be 'validated' by
+    them; nch=1 is the only out-of-sample test available and it does
+    not close.  Consequence for this study: the ABSOLUTE tok/s carry
+    a few per cent of unmodelled configuration dependence on top of
+    the layer allowance, and the RELATIVE 4B-vs-9B comparison — which
+    shares r, m and the mover law — is much the sounder of the two.
+
+==============================================================================
+D. PROJECTION — 4B and 9B, nch=4, steady-state convention
+==============================================================================
+    r = 1.1037, m = 0.9117 (from C).
+    ONE layer figure per target, not a bracket: the LOW bracket an
+    earlier revision carried is refuted by the RTL (see layer_ms).
+    The +/-10 % column is the stated allowance for the fact that no
+    measurement has ever varied the DeltaNet geometry.
+
+### map = all:w8g128
+    model   MiB/tok  busiest MiB   matvec   movers    layer       law spread   step ms    tok/s   tok/s +/-10 % layer
+    2B       1847.2        464.6    28.00    14.56    17.96   17.96.. 17.96     60.51    16.52      16.05..   17.03
+    4B       4104.2       1029.6    62.04    24.93    41.92   41.29.. 42.51    128.89     7.76       7.51..    8.02
+    9B       7686.2       1927.1   116.12    32.66    47.00   46.96.. 47.04    195.78     5.11       4.99..    5.23
+
+### map = all:w4g128
+    model   MiB/tok  busiest MiB   matvec   movers    layer       law spread   step ms    tok/s   tok/s +/-10 % layer
+    2B        950.1        239.0    14.40    14.56    17.96   17.96.. 17.96     46.92    21.31      20.53..   22.16
+    4B       2099.2        526.6    31.73    24.93    41.92   41.29.. 42.51     98.59    10.14       9.73..   10.59
+    9B       3902.2        978.4    58.95    32.66    47.00   46.96.. 47.04    138.61     7.21       6.98..    7.47
+
+### map = all:w4g64
+    model   MiB/tok  busiest MiB   matvec   movers    layer       law spread   step ms    tok/s   tok/s +/-10 % layer
+    2B        953.1        239.7    14.45    14.56    17.96   17.96.. 17.96     46.96    21.29      20.51..   22.14
+    4B       2188.5        549.0    33.08    24.93    41.92   41.29.. 42.51     99.93    10.01       9.60..   10.44
+    9B       4020.5       1008.0    60.74    32.66    47.00   46.96.. 47.04    140.40     7.12       6.89..    7.37
+
+==============================================================================
+E. WHERE THE TIME GOES (share of the step, central layer term)
+==============================================================================
+    2B   all:w8g128  matvec  46.3 %  movers  24.1 %  layer  29.7 %   (step 60.5 ms, 16.52 tok/s)
+    4B   all:w8g128  matvec  48.1 %  movers  19.3 %  layer  32.5 %   (step 128.9 ms, 7.76 tok/s)
+    9B   all:w8g128  matvec  59.3 %  movers  16.7 %  layer  24.0 %   (step 195.8 ms, 5.11 tok/s)
+    2B   all:w4g128  matvec  30.7 %  movers  31.0 %  layer  38.3 %   (step 46.9 ms, 21.31 tok/s)
+    4B   all:w4g128  matvec  32.2 %  movers  25.3 %  layer  42.5 %   (step 98.6 ms, 10.14 tok/s)
+    9B   all:w4g128  matvec  42.5 %  movers  23.6 %  layer  33.9 %   (step 138.6 ms, 7.21 tok/s)
+
+==============================================================================
+F. SENSITIVITY — r swept over MOVER_NORM 3.2's bracket, m re-solved
+   on the 0.8B point only, and the 2B W8 step used as the CHECK
+==============================================================================
+          r  GB/s/ch       m  2B W8 pred  err vs 60.5145  4B W8 tok/s  9B W4 tok/s
+     1.0000    19.21  0.9618      58.683          -3.03 %         8.03         7.42
+     1.0500    18.29  0.9376      59.566          -1.57 %         7.90         7.32
+     1.1037    17.40  0.9117      60.515          +0.00 %         7.76         7.21
+     1.1000    17.46  0.9135      60.448          -0.11 %         7.77         7.22
+     1.1310    16.98  0.8985      60.995          +0.79 %         7.69         7.16
+
+==============================================================================
+G. CALIBRATION DATUM — the 2B study's own projection error
+==============================================================================
+    layer-term ratio 0.8B -> 2B: projected 1.2314 (+23.1 %), MEASURED 1.1872 (+18.7 %) — RD_GATE 3 states this as -3.6 % on the
+    ratio; 1.2314/1.1872 = 1.0372 is this study's reciprocal of that.
+    This model is FITTED to both points, so it carries no error AT
+    them; the exposure is entirely in the DeltaNet term, whose
+    coefficient is a fit INTERCEPT (section B) even though its
+    SCALING LAW is primary-source (section B's dn_step citations).
+=== rc  : 0
+=== end : 2026-08-25T07:37:43-06:00

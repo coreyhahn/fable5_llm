@@ -1,0 +1,157 @@
+=== host: snoke  date: 2026-09-29T18:48:04-06:00
+=== tree: dfd8863+dirty
+=== dirty: ?? evidence/qwen9b/sr/r3_g6state_tdd.py
+=== dirty: ?? evidence/qwen9b/sr/r3_synthonly_probe.tcl
+=== dirty: ?? evidence/qwen9b/sr/r3_tool_tdd.sh
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/r3_validator_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== r3_validator_tdd.py  FABLE5_MODEL=9b  base 76a0c2d
+=== (a) admission matrix: a broadcast only at {R1,R2,R3}
+  [PASS] (a) broadcast at {}: REFUSED naming ['R1', 'R2', 'R3']  -- missing ['R1', 'R2', 'R3']; stream: REFUSED: rec 0: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1, R2, R3  [op=0x03 fl=0
+  [PASS] (a) broadcast at {R1}: REFUSED naming ['R2', 'R3']  -- missing ['R2', 'R3']; stream: REFUSED: rec 0: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} lack R2, R3  [op=0x03 fl=0xf
+  [PASS] (a) broadcast at {R2}: REFUSED naming ['R1', 'R3']  -- missing ['R1', 'R3']; stream: REFUSED: rec 0: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R2} lack R1, R3  [op=0x03 fl=0xf
+  [PASS] (a) broadcast at {R3}: REFUSED naming ['R1', 'R2']  -- missing ['R1', 'R2']; stream: REFUSED: rec 0: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R3} lack R1, R2  [op=0x03 fl=0xf
+  [PASS] (a) broadcast at {R1,R2}: REFUSED naming ['R3']  -- missing ['R3']; stream: REFUSED: rec 0: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1, R2} lack R3  [op=0x03 fl=0xf
+  [PASS] (a) broadcast at {R1,R3}: REFUSED naming ['R2']  -- missing ['R2']; stream: REFUSED: rec 0: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1, R3} lack R2  [op=0x03 fl=0xf
+  [PASS] (a) broadcast at {R2,R3}: REFUSED naming ['R1']  -- missing ['R1']; stream: REFUSED: rec 0: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R2, R3} lack R1  [op=0x03 fl=0xf
+  [PASS] (a) broadcast at {R1,R2,R3}: ADMITTED  -- validate OK; stream OK 2
+  [PASS] (a) the caps set decoded by hwmap: 0xFAB1CA07 admits, 0xFAB1CA03/0xFAB1CA01/0xDEADC0DE refuse  -- hwmap word 0xfab1ca07; admitted by word {'0xfab1ca07': True, '0xfab1ca03': False, '0xfab1ca01': False, '0xdeadc0de': False}
+  [PASS] (a) ref/seq_format.py types no SEQ_CAPS word (hwmap is the ONE definition)  -- literal tokens in ref/seq_format.py: []
+=== (b) the B17.2 window on the one start word, caps {R1,R2,R3}
+  [PASS] (b) start 3000 + 256 words (len 1024) refused  -- REFUSED: MOVX XWIN range: start word 3000 + 256 words > 3072 (B17.2, err 0x06)  [op=0x03 fl=0xf0 tgt=0x0bb8 imm=0x000000
+  [PASS] (b) start 2048 + 1024 words (len 4096) admitted  -- OK
+  [PASS] (b) start 1536 + 1536 words (bank 1 full) admitted  -- OK
+  [PASS] (b) start 1537 + 1536 words refused  -- REFUSED: MOVX XWIN range: start word 1537 + 1536 words > 3072 (B17.2, err 0x06)  [op=0x03 fl=0xf0 tgt=0x0601 imm=0x00000
+  [PASS] (b) start 0 + 3072 words (K 12288) admitted  -- OK
+  [PASS] (b) start 3071 + ceil(5/4)=2 words refused (ragged tail)  -- REFUSED: MOVX XWIN range: start word 3071 + 2 words > 3072 (B17.2, err 0x06)  [op=0x03 fl=0xf0 tgt=0x0bff imm=0x00000000
+  [PASS] (b) start 3071 + 1 word admitted  -- OK
+  [PASS] (b) target[15:12] != 0 refused  -- REFUSED: MOVX target[15:12] is reserved (must be 0, B17.2)  [op=0x03 fl=0xf0 tgt=0x1000 imm=0x00000000 lo=0x00000000 hi=
+  [PASS] (b) target 0x8000 refused  -- REFUSED: MOVX target[15:12] is reserved (must be 0, B17.2)  [op=0x03 fl=0xf0 tgt=0x8000 imm=0x00000000 lo=0x00000000 hi=
+=== (c) reserved encodings refused at every caps, today's message
+  [PASS] (c) MOVX flags[7:4] 4..14 refused at all 8 caps sets with the base's message (err 0x05's 'engine channel N >= 4')  -- 88 cases; bad []
+  [PASS] (c) MVGO flags[7:4] 0xF refused at all 8 caps sets (message the base's)  -- 16 cases; bad []
+  [PASS] (c) broadcast with flags[3:0] != 0 refused at all 8 caps sets (indirection, the base's message)  -- 32 cases; bad []
+=== (d) a unicast MOVX: the base's verdict at every caps/layout
+  [PASS] (d) unicast MOVX chans 0..3 x 5 words x 6 lens x 8 caps x 2 layouts: verdict strings identical to the base  -- 1920 cases, 0 differ []
+=== (e) the running rule per destination, validate_stream at {R1,R2,R3}
+  [PASS] (e) broadcast while mv0 runs (NO-WAIT, bank 0) -> refused naming the channel and the record  -- REFUSED: rec 2: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv0 still reads words [0, 32) -- every destination's
+  [PASS] (e) ... and the refusal names mv0  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv0 still reads words [0, 32) -- every destination's
+  [PASS] (e) broadcast into bank 1 while mv0 reads bank 0 -> admitted  -- OK 3
+  [PASS] (e) K = 12288 pending on mv0 spans both banks -> a bank-1 broadcast refused  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [1536, 1568) on every channel while a NO-WAIT MVGO on mv0 still reads words [0, 3072) -- every destin
+  [PASS] (e) after a FENCE (all) -> admitted  -- OK 4
+  [PASS] (e) after a FENCE mask covering mv0 (R1) -> admitted  -- OK 4
+  [PASS] (e) a FENCE mask SKIPPING mv0 leaves it running -> refused  -- REFUSED: rec 2: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv0 still reads words [0, 32) -- every destination's
+  [PASS] (e) after a WAITING MVGO on mv0 -> admitted  -- OK 3
+  [PASS] (e) mv0 running XBANK: bank-0 broadcast admitted, bank-1 refused  -- xb pending [1536,1568)
+  [PASS] (e) broadcast while mv1 runs (NO-WAIT, bank 0) -> refused naming the channel and the record  -- REFUSED: rec 2: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv1 still reads words [0, 32) -- every destination's
+  [PASS] (e) ... and the refusal names mv1  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv1 still reads words [0, 32) -- every destination's
+  [PASS] (e) broadcast into bank 1 while mv1 reads bank 0 -> admitted  -- OK 3
+  [PASS] (e) K = 12288 pending on mv1 spans both banks -> a bank-1 broadcast refused  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [1536, 1568) on every channel while a NO-WAIT MVGO on mv1 still reads words [0, 3072) -- every destin
+  [PASS] (e) after a FENCE (all) -> admitted  -- OK 4
+  [PASS] (e) after a FENCE mask covering mv1 (R1) -> admitted  -- OK 4
+  [PASS] (e) a FENCE mask SKIPPING mv1 leaves it running -> refused  -- REFUSED: rec 2: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv1 still reads words [0, 32) -- every destination's
+  [PASS] (e) after a WAITING MVGO on mv1 -> admitted  -- OK 3
+  [PASS] (e) mv1 running XBANK: bank-0 broadcast admitted, bank-1 refused  -- xb pending [1536,1568)
+  [PASS] (e) broadcast while mv2 runs (NO-WAIT, bank 0) -> refused naming the channel and the record  -- REFUSED: rec 2: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv2 still reads words [0, 32) -- every destination's
+  [PASS] (e) ... and the refusal names mv2  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv2 still reads words [0, 32) -- every destination's
+  [PASS] (e) broadcast into bank 1 while mv2 reads bank 0 -> admitted  -- OK 3
+  [PASS] (e) K = 12288 pending on mv2 spans both banks -> a bank-1 broadcast refused  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [1536, 1568) on every channel while a NO-WAIT MVGO on mv2 still reads words [0, 3072) -- every destin
+  [PASS] (e) after a FENCE (all) -> admitted  -- OK 4
+  [PASS] (e) after a FENCE mask covering mv2 (R1) -> admitted  -- OK 4
+  [PASS] (e) a FENCE mask SKIPPING mv2 leaves it running -> refused  -- REFUSED: rec 2: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv2 still reads words [0, 32) -- every destination's
+  [PASS] (e) after a WAITING MVGO on mv2 -> admitted  -- OK 3
+  [PASS] (e) mv2 running XBANK: bank-0 broadcast admitted, bank-1 refused  -- xb pending [1536,1568)
+  [PASS] (e) broadcast while mv3 runs (NO-WAIT, bank 0) -> refused naming the channel and the record  -- REFUSED: rec 2: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv3 still reads words [0, 32) -- every destination's
+  [PASS] (e) ... and the refusal names mv3  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv3 still reads words [0, 32) -- every destination's
+  [PASS] (e) broadcast into bank 1 while mv3 reads bank 0 -> admitted  -- OK 3
+  [PASS] (e) K = 12288 pending on mv3 spans both banks -> a bank-1 broadcast refused  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [1536, 1568) on every channel while a NO-WAIT MVGO on mv3 still reads words [0, 3072) -- every destin
+  [PASS] (e) after a FENCE (all) -> admitted  -- OK 4
+  [PASS] (e) after a FENCE mask covering mv3 (R1) -> admitted  -- OK 4
+  [PASS] (e) a FENCE mask SKIPPING mv3 leaves it running -> refused  -- REFUSED: rec 2: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv3 still reads words [0, 32) -- every destination's
+  [PASS] (e) after a WAITING MVGO on mv3 -> admitted  -- OK 3
+  [PASS] (e) mv3 running XBANK: bank-0 broadcast admitted, bank-1 refused  -- xb pending [1536,1568)
+  [PASS] (e) one of four running: mv0,mv1,mv2 bank 1 and mv3 bank 0 -> a bank-0 broadcast refused naming mv3  -- REFUSED: rec 4: broadcast MOVX writes XWIN words [0, 32) on every channel while a NO-WAIT MVGO on mv3 still reads words [0, 32) -- every destination's
+  [PASS] (e) a ZERO-length broadcast on a running channel refused (the model's conservative empty-range overlap)  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [0, 0) on every channel while a NO-WAIT MVGO on mv2 still reads words [1536, 1568) -- every destinati
+  [PASS] (e) a running range that ends before the window -> admitted (ng 1 = words [0,32), broadcast at word 32)  -- OK 3
+  [PASS] (e) ... and one word into it -> refused  -- REFUSED: rec 1: broadcast MOVX writes XWIN words [31, 63) on every channel while a NO-WAIT MVGO on mv1 still reads words [0, 32) -- every destination'
+  [PASS] (e) unicast MOVX over a pending range: validate_stream's verdict is the base's at every caps (the unicast running rule stays the model gate's)  -- 32 streams; bad []
+=== (f) disasm
+  [PASS] (f) disasm(broadcast) prints 'MOVX' and 'chan=ALL'  -- MOVX   chan=ALL XWIN[1536] <= scratch[0x0 .. +128] int8
+  [PASS] (f) unicast disasm identical to the base  -- bad []; e.g. '      7  MOVX   mv2 XWIN <= scratch[0x0 .. +128] int8'
+=== (g) randomized records vs the base validator
+  [PASS] (g) every verdict is the base's except a broadcast MOVX; a broadcast is refused by both below {R1,R2,R3}  -- 12000 records x 8 caps x 3 layouts = 288000; identical 286680; broadcast refused by both (message names caps) 1155; broadcast at {R1,R2,R3} 165; any other difference 0 []
+=== (h) every tb/scripts/w9/*.e4.seq: validate_stream verdict == base at {}, {R1}, {R1,R2}, {R1,R2,R3} x layout {none, 9B}
+  [PASS] (h) lay9b_s1.e4.seq (4091 recs, sha256 b6ba7d8dcbadd11d)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) lay9b_s2.e4.seq (4091 recs, sha256 b6ba7d8dcbadd11d)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) lay9b_s3.e4.seq (4091 recs, sha256 b6ba7d8dcbadd11d)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) lay9b_s4.e4.seq (4091 recs, sha256 b6ba7d8dcbadd11d)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s1.e4.seq (158536 recs, sha256 9760899df53b3b42)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s1_reordA.e4.seq (156616 recs, sha256 b6ced3f92d3fe8c3)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s1_reordB.e4.seq (156616 recs, sha256 57ec3051a0d6e68e)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s1_reordB_r1.e4.seq (160724 recs, sha256 4e11a2ae6872970e)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s1_reordB_r2.e4.seq (160724 recs, sha256 117ed8b061d56625)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s2.e4.seq (79289 recs, sha256 dae5873430562646)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s2_reordA.e4.seq (78329 recs, sha256 fcc508f5b8e284ea)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s2_reordB.e4.seq (78329 recs, sha256 e883a016e1ee5e2b)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s2_reordB_r1.e4.seq (80383 recs, sha256 cc982e4f66be17ce)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s2_reordB_r2.e4.seq (80383 recs, sha256 5d0a8bdd8298ea25)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s3.e4.seq (79289 recs, sha256 8dfad7db118d5da4)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s3_reordA.e4.seq (78329 recs, sha256 3e41bf4f04d49587)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s3_reordB.e4.seq (78329 recs, sha256 42fa77cbdb2f1c20)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s3_reordB_r1.e4.seq (80383 recs, sha256 0f85a974ffa9aa7e)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s3_reordB_r2.e4.seq (80383 recs, sha256 e35772cc8ed3e554)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s4.e4.seq (158536 recs, sha256 3483d82ab9116456)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s4_reordA.e4.seq (156616 recs, sha256 2fa7a550bcb37e6f)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s4_reordB.e4.seq (156616 recs, sha256 059e0ba6820f0646)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s4_reordB_r1.e4.seq (160724 recs, sha256 492e0def197b635b)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) model_9b_s4_reordB_r2.e4.seq (160724 recs, sha256 8b16c7b15d1f204a)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) s1t_c1_B.e4.seq (155648 recs, sha256 f553db89d955a7e8)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) s1t_c1_ship.e4.seq (157696 recs, sha256 4535697af56f33ee)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) s1t_c2_B.e4.seq (155648 recs, sha256 aec42334633f67a7)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) s1t_c2_ship.e4.seq (157696 recs, sha256 af042d1f0a965713)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) s1t_c3_B.e4.seq (155648 recs, sha256 baf47720e2141fe3)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) s1t_c3_ship.e4.seq (157696 recs, sha256 c6caecebffb5a261)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) s1t_c4_B.e4.seq (155648 recs, sha256 57858cb2065578ff)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) s1t_c4_ship.e4.seq (157696 recs, sha256 5949aa638d10d53e)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr11b_regen_s1_r1.e4.seq (160724 recs, sha256 4e11a2ae6872970e)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr11b_regen_s2_r1.e4.seq (80383 recs, sha256 cc982e4f66be17ce)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr11b_regen_s3_r1.e4.seq (80383 recs, sha256 0f85a974ffa9aa7e)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr11b_regen_s4_r1.e4.seq (160724 recs, sha256 492e0def197b635b)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_overlap.e4.seq (45 recs, sha256 7ec5594e8602e202)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_overlap_s2.e4.seq (45 recs, sha256 77571b7935b25a84)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_overlap_s3.e4.seq (45 recs, sha256 1562fae1419c91e9)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_overlap_s4.e4.seq (45 recs, sha256 2bcfb733f4a0eefd)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_rbank.e4.seq (41 recs, sha256 f1d4571eb831d9f3)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_rbank_s2.e4.seq (41 recs, sha256 3b66239c04dcf4a9)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_rbank_s3.e4.seq (41 recs, sha256 1c54466d2181bf59)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_rbank_s4.e4.seq (41 recs, sha256 3b66239c04dcf4a9)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_xbank.e4.seq (41 recs, sha256 ce5055224411cfd7)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_xbank_s2.e4.seq (41 recs, sha256 1d51fafe82bed471)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_xbank_s3.e4.seq (41 recs, sha256 1d70e487acc283eb)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr13a_cov_xbank_s4.e4.seq (41 recs, sha256 f44547ca84126280)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr5b_c1_r1.e4.seq (159744 recs, sha256 b9ff6362e21b33d3)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr5b_c1_ship.e4.seq (157696 recs, sha256 4535697af56f33ee)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr5b_c2_r1.e4.seq (159744 recs, sha256 aeda53ad72d4be01)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr5b_c2_ship.e4.seq (157696 recs, sha256 af042d1f0a965713)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr5b_c3_r1.e4.seq (159744 recs, sha256 9bef15300b50c759)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr5b_c3_ship.e4.seq (157696 recs, sha256 c6caecebffb5a261)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr5b_c4_r1.e4.seq (159744 recs, sha256 52aa657055726cdc)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr5b_c4_ship.e4.seq (157696 recs, sha256 5949aa638d10d53e)  -- {}:REF {}/9B:REF {R1}:REF {R1}/9B:REF {R1,R2}:REF {R1,R2}/9B:REF {R1,R2,R3}:REF {R1,R2,R3}/9B:REF
+  [PASS] (h) sr5b_regen_s1_r1.e4.seq (160724 recs, sha256 4e11a2ae6872970e)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr5b_regen_s2_r1.e4.seq (80383 recs, sha256 cc982e4f66be17ce)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr5b_regen_s3_r1.e4.seq (80383 recs, sha256 0f85a974ffa9aa7e)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) sr5b_regen_s4_r1.e4.seq (160724 recs, sha256 492e0def197b635b)  -- {}:REF {}/9B:REF {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) tok9b_s1.e4.seq (2108 recs, sha256 cbf0513e029596c4)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) tok9b_s2.e4.seq (2108 recs, sha256 92382b7bf5a17c14)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) tok9b_s3.e4.seq (2108 recs, sha256 5093b01df7479909)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) tok9b_s4.e4.seq (2108 recs, sha256 b894229e55549afb)  -- {}:OK {}/9B:OK {R1}:OK {R1}/9B:OK {R1,R2}:OK {R1,R2}/9B:OK {R1,R2,R3}:OK {R1,R2,R3}/9B:OK
+  [PASS] (h) streams examined  -- 64 files
+=== (k) named constants
+  [PASS] (k) SF.MOVX_BCAST == 0xF  -- 15
+  [PASS] (k) SF.MOVX_BCAST_CAPS == {R1,R2,R3}, names valid in hwmap  -- frozenset({'R3', 'R1', 'R2'})
+=== per case: (a) 10/10  (b) 9/9  (c) 3/3  (d) 1/1  (e) 41/41  (f) 2/2  (g) 1/1  (h) 65/65  (k) 2/2
+=== 134 passed, 0 failed; failing cases: none
+R3-2 VALIDATOR TDD: PASS
+=== rc  : 0
+=== end : 2026-09-29T18:48:37-06:00

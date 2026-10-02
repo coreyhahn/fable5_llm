@@ -1,0 +1,22 @@
+=== host: snoke  date: 2026-09-24T20:06:55-06:00
+=== tree: 0110ca5+dirty
+=== dirty: ?? evidence/qwen9b/bm/n04_build_bm1_RED.log
+=== dirty: ?? ref/scripts/reorder_e4.py
+=== cmd : /home/cah/.venv/bin/python ref/scripts/reorder_e4.py --selftest
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+[A] out: CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+[A] checkpoints [[5, 1024, 4], [10, 1024, 4], [13, 1280, 4]] -> [[1, 1024, 4], [10, 1024, 4], [11, 1280, 4]]
+[A] refused: stream: record 4 MOVX on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[A] refused: stream: record 4 MVGO on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[A] refused: stream: record 8 MOVY on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[A] fence deferred True; MOVX elided True; JMP -> body start True; replay 2503 - schedule 2500 <= JMP window 3, < program order 3118: True; checkpoints True; hazards refused 3/3 -> PASS
+[B] out: CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+[B] checkpoints [[5, 1024, 4], [10, 1024, 4], [13, 1280, 4]] -> [[1, 1024, 4], [10, 1024, 4], [11, 1280, 4]]
+[B] refused: stream: record 4 MOVX on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[B] refused: stream: record 4 MVGO on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[B] refused: stream: record 8 MOVY on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[B] fence deferred True; MOVX elided True; JMP -> body start True; replay 2503 - schedule 2500 <= JMP window 3, < program order 3118: True; checkpoints True; hazards refused 3/3 -> PASS
+REORDER_E4 SELFTEST: PASS
+=== rc  : 0
+=== end : 2026-09-24T20:06:56-06:00

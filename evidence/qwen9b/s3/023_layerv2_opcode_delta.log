@@ -1,0 +1,64 @@
+=== host: darthplagueis
+=== date: 2026-09-04T22:10:14-06:00
+=== tree: c34d093+dirty
+=== cmd:  sh -c 
+echo "The layerv2_s1 command census, pre-S3 vs S3.  The pre-S3 script is"
+echo "re-emitted from a worktree-free copy of gen_layer_script.py at 07eea51"
+echo "(the tree S3 started from); the S3 one is tb/scripts/layerv2_s1.txt as"
+echo "make -C tb layer_v2_scripts just built it."
+echo
+echo "=== pre-S3 (07eea51), cmds=1438 -- G3_4_LAYER.md:595 reports the same"
+/usr/bin/grep "^C " /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/297477f1-b332-4f12-8141-aed7689cf8e7/scratchpad/w9/oldlv2.txt | awk "{print \$2}" | sort -n | uniq -c | sort -k2 -n
+echo "=== S3, cmds=$(/usr/bin/grep -c "^C " tb/scripts/layerv2_s1.txt)"
+/usr/bin/grep "^C " tb/scripts/layerv2_s1.txt | awk "{print \$2}" | sort -n | uniq -c | sort -k2 -n
+echo
+echo "op 5 = CONVW/CONVZ, 12 (c) = DNZ, 13 (d) = SLD, 14 (e) = SST"
+echo "RETIRED: 5 x op5 (4 CONVW chunks + 1 CONVZ) + 32 x DNZ = 37"
+echo "ADDED:   34 SLD + 30 SST = 64"
+echo "1438 - 37 + 64 = $((1438 - 37 + 64))"
+
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+The layerv2_s1 command census, pre-S3 vs S3.  The pre-S3 script is
+re-emitted from a worktree-free copy of gen_layer_script.py at 07eea51
+(the tree S3 started from); the S3 one is tb/scripts/layerv2_s1.txt as
+make -C tb layer_v2_scripts just built it.
+
+=== pre-S3 (07eea51), cmds=1438 -- G3_4_LAYER.md:595 reports the same
+     32 c
+     48 a
+    894 b
+    264 1
+     18 2
+      3 3
+     60 4
+      5 5
+      3 6
+      3 7
+     96 8
+     12 9
+=== S3, cmds=1465
+     30 e
+     34 d
+     48 a
+    894 b
+    264 1
+     18 2
+      3 3
+     60 4
+      3 6
+      3 7
+     96 8
+     12 9
+
+op 5 = CONVW/CONVZ, 12 (c) = DNZ, 13 (d) = SLD, 14 (e) = SST
+RETIRED: 5 x op5 (4 CONVW chunks + 1 CONVZ) + 32 x DNZ = 37
+ADDED:   34 SLD + 30 SST = 64
+1438 - 37 + 64 = 1465
+=== rc: 0
+=== end: 2026-09-04T22:10:14-06:00

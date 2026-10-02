@@ -1,0 +1,239 @@
+=== host: darthplagueis
+=== date: 2026-09-01T22:12:06-06:00
+=== tree: d2d774b+dirty
+=== cmd:  bash -c set -e
+echo "--- the GATE DOC (must pass)"; ref/.venv/bin/python evidence/qwen_next/spec_cites.py evidence/qwen9b/g3/G3_1_ISA.md
+echo; echo "--- the PLAN (must pass; two citations into sw/chat_seq.py were re-derived here)"; ref/.venv/bin/python evidence/qwen_next/spec_cites.py docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+echo; echo "--- the checker NEGATIVE CONTROL"; ref/.venv/bin/python evidence/qwen_next/spec_cites.py --selftest docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+echo; echo "--- the SPEC: 19 QUOTE failures, ALL of them source this task deleted (see G3_1_ISA.md section 13)"; ref/.venv/bin/python evidence/qwen_next/spec_cites.py docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md || true
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- the GATE DOC (must pass)
+checked: 70 exist, 30 range, 2 quote  |  pending 0  |  retired 0  |  noquote 0  |  FAIL 0
+SPEC CITES: PASS
+
+--- the PLAN (must pass; two citations into sw/chat_seq.py were re-derived here)
+checked: 400 exist, 79 range, 4 quote  |  pending 11  |  retired 3  |  noquote 0  |  FAIL 0
+  2026-08-29-qwen35-9b-migration.md:1865  PENDING  evidence/qwen9b/g3/G3_4_LAYER.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2116  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2195  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2215  PENDING  synth/scripts/ooc_9b.tcl (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2216  PENDING  evidence/qwen9b/g4/G4B_STRUCT.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2342  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2456  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2499  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2573  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2597  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2699  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:641  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration.md:882  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration.md:894  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: PASS
+
+--- the checker NEGATIVE CONTROL
+checked: 400 exist, 79 range, 4 quote  |  pending 11  |  retired 3  |  noquote 0  |  FAIL 1
+  case.md:35  RANGE  progress.md:999999 but file has 120 lines
+  case.md:1865  PENDING  evidence/qwen9b/g3/G3_4_LAYER.md (a future gate creates this)
+  case.md:2116  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2195  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2215  PENDING  synth/scripts/ooc_9b.tcl (a future gate creates this)
+  case.md:2216  PENDING  evidence/qwen9b/g4/G4B_STRUCT.md (a future gate creates this)
+  case.md:2342  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2456  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2499  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2573  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2597  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:2699  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:641  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:882  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:894  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: FAIL
+  negative control [line past EOF]: CAUGHT
+
+checked: 400 exist, 78 range, 4 quote  |  pending 11  |  retired 3  |  noquote 0  |  FAIL 1
+  case.md:35  EXIST  rtl/no_such_file_xyz.md does not exist
+  case.md:1865  PENDING  evidence/qwen9b/g3/G3_4_LAYER.md (a future gate creates this)
+  case.md:2116  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2195  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2215  PENDING  synth/scripts/ooc_9b.tcl (a future gate creates this)
+  case.md:2216  PENDING  evidence/qwen9b/g4/G4B_STRUCT.md (a future gate creates this)
+  case.md:2342  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2456  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2499  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2573  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2597  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:2699  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:641  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:882  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:894  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: FAIL
+  negative control [nonexistent path]: CAUGHT
+
+checked: 400 exist, 79 range, 4 quote  |  pending 11  |  retired 3  |  noquote 0  |  FAIL 1
+  case.md:109  QUOTE  "RS_F_DEFAULT = 8" — present in sw/hwmap.py but NOT within 6 lines of the cited line (cited: sw/hwmap.py:527)
+  case.md:1865  PENDING  evidence/qwen9b/g3/G3_4_LAYER.md (a future gate creates this)
+  case.md:2116  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2195  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2215  PENDING  synth/scripts/ooc_9b.tcl (a future gate creates this)
+  case.md:2216  PENDING  evidence/qwen9b/g4/G4B_STRUCT.md (a future gate creates this)
+  case.md:2342  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2456  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2499  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2573  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2597  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:2699  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:641  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:882  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:894  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: FAIL
+  negative control [quotation moved away from its cite]: CAUGHT
+
+checked: 400 exist, 79 range, 5 quote  |  pending 11  |  retired 3  |  noquote 0  |  FAIL 1
+  case.md:109  QUOTE  "zz_fabricated_token = 12345;" — not found in any cited file (cited: sw/hwmap.py:281)
+  case.md:1865  PENDING  evidence/qwen9b/g3/G3_4_LAYER.md (a future gate creates this)
+  case.md:2116  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2195  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2215  PENDING  synth/scripts/ooc_9b.tcl (a future gate creates this)
+  case.md:2216  PENDING  evidence/qwen9b/g4/G4B_STRUCT.md (a future gate creates this)
+  case.md:2342  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2456  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2499  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2573  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2597  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:2699  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:641  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:882  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:894  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: FAIL
+  negative control [fabricated quotation]: CAUGHT
+
+checked: 400 exist, 79 range, 4 quote  |  pending 11  |  retired 3  |  noquote 0  |  FAIL 1
+  case.md:2875  ORPHAN  bare continuation `:4242` on a line that names no file — it binds to nothing and is NOT checked; write the full path
+  case.md:1865  PENDING  evidence/qwen9b/g3/G3_4_LAYER.md (a future gate creates this)
+  case.md:2116  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2195  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2215  PENDING  synth/scripts/ooc_9b.tcl (a future gate creates this)
+  case.md:2216  PENDING  evidence/qwen9b/g4/G4B_STRUCT.md (a future gate creates this)
+  case.md:2342  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2456  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2499  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2573  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2597  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:2699  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:641  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:882  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:894  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: FAIL
+  negative control [orphan continuation (no file on the line)]: CAUGHT
+
+checked: 403 exist, 82 range, 4 quote  |  pending 11  |  retired 3  |  noquote 0  |  FAIL 1
+  case.md:2875  AMBIG  bare continuation `:2` on a line naming 2 files (ref/layer_ref.py, ref/model_select.py) — write the full path
+  case.md:1865  PENDING  evidence/qwen9b/g3/G3_4_LAYER.md (a future gate creates this)
+  case.md:2116  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2195  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  case.md:2215  PENDING  synth/scripts/ooc_9b.tcl (a future gate creates this)
+  case.md:2216  PENDING  evidence/qwen9b/g4/G4B_STRUCT.md (a future gate creates this)
+  case.md:2342  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2456  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  case.md:2499  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2573  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  case.md:2597  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:2699  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  case.md:641  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:882  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  case.md:894  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: FAIL
+  negative control [ambiguous continuation (two files on the line)]: CAUGHT
+
+  positive control [unperturbed document]:
+checked: 400 exist, 79 range, 4 quote  |  pending 11  |  retired 3  |  noquote 0  |  FAIL 0
+  2026-08-29-qwen35-9b-migration.md:1865  PENDING  evidence/qwen9b/g3/G3_4_LAYER.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2116  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2195  PENDING  evidence/qwen9b/g4/G4A_REPLAY.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2215  PENDING  synth/scripts/ooc_9b.tcl (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2216  PENDING  evidence/qwen9b/g4/G4B_STRUCT.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2342  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2456  PENDING  evidence/qwen9b/g5/G5A_FLOORPLAN.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2499  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2573  PENDING  evidence/qwen9b/g5/G5B_TIMING.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2597  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:2699  PENDING  evidence/qwen9b/g6/RD9_GATE.md (a future gate creates this)
+  2026-08-29-qwen35-9b-migration.md:641  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration.md:882  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration.md:894  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: PASS
+SELFTEST: PASS
+
+--- the SPEC: 19 QUOTE failures, ALL of them source this task deleted (see G3_1_ISA.md section 13)
+checked: 651 exist, 477 range, 66 quote  |  pending 0  |  retired 15  |  noquote 24  |  FAIL 24
+  2026-08-29-qwen35-9b-migration-design.md:216  QUOTE  "HEAD_LOGIT_EXP0 = head_logit_exp0() # -22 at the shipped rs_f = 8" — present in sw/chat_seq.py but NOT within 6 lines of the cited line (cited: sw/chat_seq.py:321)
+  2026-08-29-qwen35-9b-migration-design.md:219  QUOTE  "want_exp0 = head_logit_exp0(self.head.spec.rs_f)" — present in sw/chat_seq.py but NOT within 6 lines of the cited line (cited: sw/chat_seq.py:2217)
+  2026-08-29-qwen35-9b-migration-design.md:222  QUOTE  "head_logit_exp0(7) == HEAD_LOGIT_EXP0 + 1" — present in sw/chat_seq.py but NOT within 6 lines of the cited line (cited: sw/chat_seq.py:4282)
+  2026-08-29-qwen35-9b-migration-design.md:786  QUOTE  "logic [10:0] vn_waddr;" — present in rtl/layer_chan.sv but NOT within 6 lines of the cited line (cited: rtl/layer_chan.sv:314)
+  2026-08-29-qwen35-9b-migration-design.md:789  QUOTE  "ld_n <= arg0[10:0]" — not found in any cited file (cited: rtl/layer_chan.sv:916, rtl/layer_chan.sv:1251, rtl/layer_chan.sv:1267)
+  2026-08-29-qwen35-9b-migration-design.md:807  QUOTE  "logic [14:0] sa_addr, sb_addr;" — not found in any cited file (cited: rtl/layer_chan.sv:282)
+  2026-08-29-qwen35-9b-migration-design.md:809  QUOTE  "SCR_WORDS = 32768" — not found in any cited file (cited: rtl/seq_movers.sv:175)
+  2026-08-29-qwen35-9b-migration-design.md:874  QUOTE  "M.dnst(h, QNS, KN, v_src, decay_base + h, beta_base + h, DO32)" — present in ref/gen_layer_script.py but NOT within 6 lines of the cited line (cited: ref/gen_layer_script.py:1330)
+  2026-08-29-qwen35-9b-migration-design.md:895  QUOTE  "for h in range(LR.LNH):" — present in ref/gen_layer_script.py but NOT within 6 lines of the cited line (cited: ref/gen_layer_script.py:1313)
+  2026-08-29-qwen35-9b-migration-design.md:1081  QUOTE  "logic signed [15:0]" — present in rtl/layer_chan.sv but NOT within 6 lines of the cited line (cited: rtl/layer_chan.sv:280)
+  2026-08-29-qwen35-9b-migration-design.md:1313  QUOTE  "input wire [12:0] cfg_len" — not found in any cited file (cited: rtl/vec_alu.sv:112, rtl/layer_chan.sv:552, ref/gen_layer_script.py:682, ref/seq_format.py:1189)
+  2026-08-29-qwen35-9b-migration-design.md:1313  QUOTE  ".cfg_len(arg0[16:4])" — not found in any cited file (cited: rtl/vec_alu.sv:112, rtl/layer_chan.sv:552, ref/gen_layer_script.py:682, ref/seq_format.py:1189)
+  2026-08-29-qwen35-9b-migration-design.md:1314  QUOTE  "logic kvhead_r;" — present in rtl/layer_chan.sv but NOT within 6 lines of the cited line (cited: rtl/layer_chan.sv:468, rtl/layer_chan.sv:1332, rtl/layer_chan.sv:464, rtl/layer_chan.sv:469, rtl/layer_chan.sv:258, rtl/layer_chan.sv:433, rtl/layer_chan.sv:892)
+  2026-08-29-qwen35-9b-migration-design.md:1314  QUOTE  "kvhead_r <= arg0[0];" — present in rtl/layer_chan.sv but NOT within 6 lines of the cited line (cited: rtl/layer_chan.sv:468, rtl/layer_chan.sv:1332, rtl/layer_chan.sv:464, rtl/layer_chan.sv:469, rtl/layer_chan.sv:258, rtl/layer_chan.sv:433, rtl/layer_chan.sv:892)
+  2026-08-29-qwen35-9b-migration-design.md:1316  QUOTE  "if (cvi == arg0[25:13])" — not found in any cited file (cited: rtl/layer_chan.sv:1204, rtl/layer_chan.sv:1251, rtl/layer_chan.sv:1267, ref/gen_layer_script.py:475)
+  2026-08-29-qwen35-9b-migration-design.md:1325  QUOTE  "KVH_MAX = _KVH - 1" — present in ref/gen_layer_script.py but NOT within 6 lines of the cited line (cited: ref/gen_layer_script.py:726)
+  2026-08-29-qwen35-9b-migration-design.md:1832  QUOTE  "u_layer.smem[exp_mem_a[i][14:0]]" — not found in any cited file (cited: tb/tb_seq_unit.sv:878, tb/tb_seq_unit.sv:419, tb/tb_seq_chip.sv:76, tb/tb_seq_chip.sv:545, tb/tb_seq_chip.sv:849)
+  2026-08-29-qwen35-9b-migration-design.md:1835  QUOTE  "smem [32768]" — not found in any cited file (cited: tb/seq_stub_layer.sv:120, tb/seq_stub_layer.sv:122, tb/seq_stub_layer.sv:151, tb/seq_stub_layer.sv:279, tb/seq_stub_layer.sv:283)
+  2026-08-29-qwen35-9b-migration-design.md:1835  QUOTE  "sptr <= sptr + 14'd1;" — not found in any cited file (cited: tb/seq_stub_layer.sv:120, tb/seq_stub_layer.sv:122, tb/seq_stub_layer.sv:151, tb/seq_stub_layer.sv:279, tb/seq_stub_layer.sv:283)
+  2026-08-29-qwen35-9b-migration-design.md:1838  QUOTE  "MAXMEM = 32768" — not found in any cited file (cited: tb/tb_seq_chip.sv:76, tb/tb_seq_chip.sv:86)
+  2026-08-29-qwen35-9b-migration-design.md:1842  QUOTE  "LAYBASE = 6 << 16" — not found in any cited file (cited: tb/tb_burst_fabric.sv:320, tb/tb_burst_fabric.sv:317)
+  2026-08-29-qwen35-9b-migration-design.md:1885  QUOTE  "B_TOP = 0x7FF8" — not found in any cited file (cited: tb/scripts/gen_seq_layer_script.py:96, tb/scripts/gen_seq_layer_script.py:72, tb/scripts/gen_seq_layer_script.py:68)
+  2026-08-29-qwen35-9b-migration-design.md:1885  QUOTE  "the LAST 8 words of the 32K scratchpad" — not found in any cited file (cited: tb/scripts/gen_seq_layer_script.py:96, tb/scripts/gen_seq_layer_script.py:72, tb/scripts/gen_seq_layer_script.py:68)
+  2026-08-29-qwen35-9b-migration-design.md:1974  QUOTE  ".cfg_dst({arg2[31], arg2[30:17]})" — not found in any cited file (cited: rtl/layer_chan.sv:556)
+  2026-08-29-qwen35-9b-migration-design.md:869  NOQUOTE  4 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1315  NOQUOTE  3 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1674  NOQUOTE  4 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1675  NOQUOTE  2 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1676  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1677  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1678  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1679  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1681  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1683  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1684  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1754  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1800  NOQUOTE  2 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1801  NOQUOTE  2 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1802  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1803  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1805  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1806  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1808  NOQUOTE  3 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1810  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1881  NOQUOTE  2 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1884  NOQUOTE  2 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1890  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:2275  NOQUOTE  1 span(s) exempted (proposed encoding / shorthand, not a quotation)
+  2026-08-29-qwen35-9b-migration-design.md:1438  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1803  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1862  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1883  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:1957  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+  2026-08-29-qwen35-9b-migration-design.md:2277  RETIRED  tb/scripts/gen_seq_vectors.py (deleted by a gate; the citing text needs a dated supersession note, not a fix)
+SPEC CITES: FAIL
+=== rc: 0
+=== end: 2026-09-01T22:12:06-06:00

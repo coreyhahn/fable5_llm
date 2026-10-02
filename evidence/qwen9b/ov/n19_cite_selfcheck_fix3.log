@@ -1,0 +1,25 @@
+=== host: snoke  date: 2026-09-24T18:16:03-06:00
+=== tree: baf71a6
+=== cmd : bash -c cd evidence/qwen9b/ov && grep -o "ov_census.py:[0-9-]*" OV1_DEPENDENCY_CENSUS.md | sort -u | while read c; do r=${c#ov_census.py:}; a=${r%-*}; b=${r#*-}; echo "== $c"; sed -n "${a}p;${b}p" ov_census.py | sed "s/^/   /"; done
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+== ov_census.py:396-401
+       elif lop == 9:
+           r |= {"LAYER", f"KV{kv}"}
+== ov_census.py:723-734
+               # fix round 1: a vector too long for half of x_mem (K > 6144,
+                   buf["w"], buf["r"] = i, []
+== ov_census.py:723-771
+               # fix round 1: a vector too long for half of x_mem (K > 6144,
+                   rb["r"].append(i)
+== ov_census.py:739-745
+               # fix round 2: a vector whose writer spans both XWIN banks is
+               else:
+== ov_census.py:755-756
+               n.bank = (-1 if xspan else xsel[c],
+                         b if len(rbanks) == 1 else -1)
+== ov_census.py:985
+   def postcheck(nodes, live, start, fin, send, tau, lane_of):
+   def postcheck(nodes, live, start, fin, send, tau, lane_of):
+=== rc  : 0
+=== end : 2026-09-24T18:16:03-06:00

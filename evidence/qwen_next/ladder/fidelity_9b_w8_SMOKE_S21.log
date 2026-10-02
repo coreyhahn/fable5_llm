@@ -1,0 +1,50 @@
+host: snoke
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b (golden 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b)
+  loaded in 56.7s
+  LM head quantized (W8 rule=max|W_g|/127 g=128) e=-7 sh=11 (42.2s)
+
+=== config S=2 w8 ===
+    quantized 32 layers in 189.2s
+    emb table |q|max 241 of 32767 (24.3s)
+    config done in 737.5s
+  --- S=2 w8 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France is Paris.\nThe capital of France is Paris.\nThe capital of France'
+    fixed  argmax [2614, 314, 279, 369, 11751, 13]   top1=6/6  rank=[0, 0, 0, 0, 0, 0]  top5ovl=[2, 3, 3, 4, 1, 4]
+    block-float k histogram [dn]: {-14: 168, -13: 350, -12: 475, -11: 571, -10: 767, -9: 865, -8: 687, -7: 314, -6: 141, -5: 67, -4: 49, -3: 35, 0: 119}
+    block-float k histogram [attn]: {8: 1, 9: 17, 10: 13, 11: 2, 12: 5, 13: 5, 14: 3, 15: 2}
+    block-float saturation: m_q15 max raw 8192000, clipped 119 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x4096      |y|max=36195    clips=1/98304
+      12288x4096     |y|max=98631    clips=472/4718592
+      32x4096        |y|max=57411    clips=24/9216
+      4096x12288     |y|max=77228    clips=6/786432
+      4096x4096      |y|max=102173   clips=2/1376256
+      8192x4096      |y|max=14034    clips=0/1572864
+
+=== config S=1 w8 ===
+    quantized 32 layers in 161.6s
+    emb table |q|max 120 of 32767 (16.9s)
+    config done in 712.9s
+  --- S=1 w8 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France is Paris.\nThe capital of France is Paris.\nThe capital of France'
+    fixed  argmax [2614, 314, 279, 369, 11751, 13]   top1=6/6  rank=[0, 0, 0, 0, 0, 0]  top5ovl=[2, 3, 4, 4, 1, 4]
+    block-float k histogram [dn]: {-14: 186, -13: 343, -12: 452, -11: 570, -10: 786, -9: 874, -8: 687, -7: 312, -6: 133, -5: 69, -4: 48, -3: 34, -2: 1, 0: 113}
+    block-float k histogram [attn]: {8: 3, 9: 14, 10: 14, 11: 2, 12: 6, 13: 5, 14: 3, 15: 1}
+    block-float saturation: m_q15 max raw 8192000, clipped 113 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x4096      |y|max=31386    clips=0/98304
+      12288x4096     |y|max=91049    clips=429/4718592
+      32x4096        |y|max=59288    clips=19/9216
+      4096x12288     |y|max=29864    clips=0/786432
+      4096x4096      |y|max=41691    clips=1/1376256
+      8192x4096      |y|max=14248    clips=0/1572864
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=2 w8        6/6              0.0         0      2.83    32768     22       85
+S=1 w8        6/6              0.0         0      3.00    32767      1       93

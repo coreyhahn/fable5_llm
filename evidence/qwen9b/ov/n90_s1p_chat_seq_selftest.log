@@ -1,0 +1,44 @@
+=== host: snoke  date: 2026-09-27T08:34:14-06:00
+=== tree: e2ce068+dirty
+=== dirty:  M ref/scripts/reorder_e4.py
+=== dirty:  M sw/chat_seq.py
+=== dirty: ?? evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bmtl/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_control/
+=== dirty: ?? evidence/qwen9b/ov/s1p_formB_pins.py
+=== cmd : /home/cah/.venv/bin/python sw/chat_seq.py --selftest
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+chat_seq selftest (pure python, NO board):
+  [1] template source, frozen sha256, spec slice indices
+  [2] image assembly: agent A vs my own spec slices
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6762, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6581, in main
+    raise SystemExit(0 if selftest(args) else 1)
+                          ^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 3950, in selftest
+    tc = SC.TurnCompiler(args.template, t_max=T_MAX, pos_mode="xrf")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 533, in __init__
+    self.T = Templates(prefix, verify_sha=verify_sha)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 384, in __init__
+    self._verify()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 464, in _verify
+    need(r[R_POSADV].opcode == SF.EXT_XOP
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 412, in need
+    raise ChatSeqError("template check failed: " + msg)
+seq_chat.ChatSeqError: template check failed: rec 60492 is XOP*   XRF[4:pos] = +XRF[4:pos] +1536, expected XOP XRF[4] += 2048
+=== rc  : 1
+=== end : 2026-09-27T08:34:15-06:00

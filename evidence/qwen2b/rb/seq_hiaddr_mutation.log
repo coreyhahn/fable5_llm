@@ -1,0 +1,22 @@
+=== R-b mutation check: does seq_h_hiaddr have teeth? 2026-08-13T09:07:45-06:00 ===
+--------- MUT1 ---------
+seq_unit: mv_saddr <= {1'b0, r_lo[13:0]}  (MOVX + MOVY drop addr_lo[14])
+[33610000] %Fatal: tb_seq_unit.sv:464: Assertion failed in TOP.tb_seq_unit.take_w: WRITE #7239 mismatch: got 00005014 <= 00000000, want 00005014 <= 00004000
+MUT1_EXIT=0
+--------- MUT2 ---------
+seq_unit: bulk_dst <= {1'b0, r_{lo,tgt}[13:0]}  (EMB + LDC drop bit 14)
+[382000] %Fatal: tb_seq_unit.sv:464: Assertion failed in TOP.tb_seq_unit.take_w: WRITE #0 mismatch: got 00005014 <= 00000000, want 00005014 <= 00004000
+MUT2_EXIT=0
+--------- MUT3 ---------
+seq_movers: scrbaddr = LAYB_BASE + {16'd0, w[13:0], 2'b00}  (mover drops bit 14)
+MUT3 BUILD FAILED
+--------- unmutated control ---------
+SEQ PASS: scripts/seqvec/seq_h_hiaddr (writes 12066, reads 12160, scratch 8320, tokens 0)
+=== done 2026-08-13T09:07:54-06:00 ===
+--------- MUT3 (rebuilt with a lint_off; see note) ---------
+seq_movers: scrbaddr = LAYB_BASE + {16'd0, w[13:0], 2'b00}  (mover drops bit 14)
+NOTE: this mutation does not even BUILD under -Wall without a lint_off —
+      Verilator reports "Bits of signal are not used: 'w'[14]".  The
+      lint_off is added ONLY so the vector can be shown to kill it too.
+[33794000] %Fatal: tb_seq_unit.sv:464: Assertion failed in TOP.tb_seq_unit.take_w: WRITE #7241 mismatch: got 00001024 <= 00000000, want 00001024 <= 87b06890
+=== all three mutants killed; unmutated RTL passes ===

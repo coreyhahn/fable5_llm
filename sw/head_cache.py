@@ -42,10 +42,11 @@ The dequantised logit of row r is
 
     logit = y32[r] * 2^(e + sh - 15 + e_x - RS_F)
 
-with (e, sh) from the weight manifest, RS_F = ref/layer_fixed.RS_F = 8
-the residual-stream fraction, and e_x = the DYNQ8 exponent of the
+with (e, sh) from the weight manifest's wid entry, RS_F from the same
+manifest's `rs_f` meta key (G2a; absent means 8, which every frozen
+0.8B/2B artifact was emitted with), and e_x = the DYNQ8 exponent of the
 activation vector (layer_chan L_EOUT[3:0], 0..15, always >= 0).  For the
-committed head (e=-4, sh=5) that is the spec's `y32 * 2^(e_x - 22)`.
+committed head (e=-4, sh=5, rs_f=8) that is the spec's `y32 * 2^(e_x - 22)`.
 
 The f32 dense copy holds `w4 * m` EXACTLY (max |w4*m| = 93,646 < 2^24),
 so `Wf @ x8` differs from the integer p only by f32 accumulation
@@ -92,11 +93,32 @@ for _p in (SW_DIR, REF_DIR):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+import hwmap as HW                                             # noqa: E402
 import w4a8_ref as W4                                          # noqa: E402
-try:
-    from layer_fixed import RS_F                               # noqa: E402
-except Exception:                                              # pragma: no cover
-    RS_F = 8                       # ref/layer_fixed.py:RS_F (residual Q7.8)
+
+# G2a (spec 4.4): RS_F is MODEL-SELECTED and travels in the weights manifest,
+# so the value this file uses comes from the ARTIFACT, not from a constant.
+# `RS_F_FALLBACK` is only what a manifest without the key means — which is
+# every artifact emitted before G2a, i.e. all the frozen 0.8B/2B ones, and 8
+# is what they were emitted with.  It is the same number
+# `sw/hwmap.RS_F_DEFAULT` carries, imported rather than repeated.
+RS_F_FALLBACK = HW.RS_F_DEFAULT
+
+# ---- TWO DIFFERENT `rs_f` KEYS LIVE IN THIS TREE.  Both are documented at
+# both sites so the collision is a labelled trap rather than a surprise:
+#
+#   MANIFEST-level `rs_f`  — `<prefix>.weights.json`, a non-wid key beside
+#     `emb_row_bytes`, written by `ref/gen_layer_script.py`'s `dump_weights`
+#     and read by `sw/hwmap.split_manifest`.  It describes the WHOLE artifact.
+#   PER-IMAGE `rs_f`       — `HeadSpec.as_dict()` below, inside the head
+#     cache's own sidecar JSON.  It records which RS_F the cached f32 head was
+#     BUILT with, so a cache built under one binary point is invalidated when
+#     the artifact changes.  It is never written into a weights manifest.
+#
+# The scopes are disjoint (one is artifact metadata, one is cache-validity
+# metadata) and the names are kept the same deliberately: they hold the same
+# quantity, and renaming one would make the sidecar key stop matching the
+# manifest key it is derived from.
 
 HEAD_WID = 186                     # the tied LM head in model_v2_s1
 BUILDER_VERSION = 1                # bump when the f32 layout changes
@@ -244,8 +266,9 @@ def cache_dir(explicit=None, log=None):
 class HeadSpec(object):
     """One weight-manifest entry, with the v2 row geometry resolved."""
 
-    def __init__(self, wid, m, wdir):
+    def __init__(self, wid, m, wdir, rs_f=RS_F_FALLBACK):
         self.wid = int(wid)
+        self.rs_f = int(rs_f)      # from the manifest meta (G2a), not global
         self.file = m["file"]
         self.path = os.path.join(wdir, m["file"])
         self.nrows = int(m["nrows"])
@@ -255,6 +278,16 @@ class HeadSpec(object):
         self.e = int(m["e"])
         self.ng = int(m["ng"])
         self.g = int(m.get("g", 128))
+        # V5: an 8-bit image has a different row law (row_beats8) and its
+        # bytes are whole int8 codes, not nibbles.  This file is the W4
+        # host-side head (verification-only tooling), so it REFUSES a W8
+        # manifest by name — without this the stride check below would
+        # still catch it, but as an arithmetic mismatch nobody could read.
+        if bool(m.get("w8", False)):
+            raise HeadCacheError(
+                f"wid {self.wid}: manifest says w8 (V5 8-bit weights); "
+                f"sw/head_cache.py has no W8 path — it unpacks W4 nibbles "
+                f"(ref/w4a8_ref.unpack_w4) and would decode garbage")
         self.wb, self.sb = W4.row_beats(self.k, self.g)
         if (self.wb + self.sb) * 64 != self.stride:
             raise HeadCacheError(
@@ -267,8 +300,12 @@ class HeadSpec(object):
         return self.nrows * self.stride
 
     def logit_exp(self, e_x):
-        """log2 of the scale that turns y32 into a real logit (S4)."""
-        return self.e + self.sh - 15 + int(e_x) - RS_F
+        """log2 of the scale that turns y32 into a real logit (S4).
+
+        THE definition of the head dequant exponent.  `e` and `sh` come from
+        the manifest wid entry and `rs_f` from the manifest meta, so nothing
+        here is pinned to a geometry."""
+        return self.e + self.sh - 15 + int(e_x) - self.rs_f
 
     def logit_scale(self, e_x):
         return float(2.0 ** self.logit_exp(e_x))
@@ -277,18 +314,22 @@ class HeadSpec(object):
         return {"wid": self.wid, "file": self.file, "nrows": self.nrows,
                 "k": self.k, "stride": self.stride, "sh": self.sh,
                 "e": self.e, "ng": self.ng, "g": self.g,
-                "rs_f": RS_F, "logit_exp_at_ex0": self.logit_exp(0)}
+                "rs_f": self.rs_f, "logit_exp_at_ex0": self.logit_exp(0)}
 
 
 def load_spec(prefix, wid=HEAD_WID):
-    """(HeadSpec, manifest) for <prefix>.weights.json entry `wid`."""
+    """(HeadSpec, manifest) for <prefix>.weights.json entry `wid`.
+
+    G2a: the meta half is no longer discarded — `rs_f` lives there and the
+    head dequant exponent is computed from it.  `man` is still the WID-ONLY
+    map, so the `str(wid) not in man` guard below cannot mistake a meta key
+    for an image."""
     manf = prefix + ".weights.json"
-    with open(manf) as f:
-        man = json.load(f)
+    man, meta = HW.load_weights_manifest(prefix)
     if str(wid) not in man:
         raise HeadCacheError(f"{manf} has no wid {wid} (the LM head)")
     return HeadSpec(wid, man[str(wid)], os.path.dirname(os.path.abspath(prefix))
-                    or "."), man
+                    or ".", rs_f=meta["rs_f"]), man
 
 
 class HostHead(object):
@@ -504,7 +545,7 @@ class HostHead(object):
         rescores THOSE rows, and the ranking that comes back is the exact
         one.  Ordering is (y32 descending, row index ascending) — the same
         first-wins rule the on-chip AMAX uses for equal values
-        (ref/gen_layer_script.py:479-482 "strictly-greater update -> first
+        (ref/gen_layer_script.py:608-611 "strictly-greater update -> first
         max wins").
         """
         k = int(k)
@@ -578,17 +619,30 @@ def _selftest(prefix=None, log=print):
 
     log("head_cache selftest (no board, no head image needed for [1]-[3]):")
     # ---- 1. dequant algebra ----
-    class _S(object):
-        e, sh = -4, 5
-
-        def logit_exp(self, e_x):
-            return self.e + self.sh - 15 + int(e_x) - RS_F
-    s = _S()
-    check("S4: logit exponent is e_x - 22 for the committed head",
-          [s.logit_exp(x) for x in (0, 5, 15)] == [-22, -17, -7],
+    # G2a: this used to re-implement `logit_exp` in a throwaway class, so it
+    # checked a COPY of the formula rather than the one that ships.  It now
+    # drives the real `HeadSpec.logit_exp` through a synthetic manifest entry,
+    # and the expected values are DERIVED from (e, sh, rs_f) rather than
+    # written out — the -22 stays as a named cross-check of the committed
+    # head, not as the definition.
+    _m = {"file": "x", "nrows": 1, "k": 128, "stride": 128,
+          "sh": 5, "e": -4, "ng": 1}
+    s = HeadSpec(0, _m, ".", rs_f=RS_F_FALLBACK)
+    want = [s.e + s.sh - 15 + x - s.rs_f for x in (0, 5, 15)]
+    check("S4: logit_exp is e + sh - 15 + e_x - rs_f",
+          [s.logit_exp(x) for x in (0, 5, 15)] == want,
           str([s.logit_exp(x) for x in (0, 5, 15)]))
-    check("RS_F is the residual-stream fraction from ref/layer_fixed",
-          RS_F == 8, str(RS_F))
+    check("S4: the committed head (e=-4, sh=5, rs_f=8) gives e_x - 22",
+          want == [-22, -17, -7], str(want))
+    check("a manifest with no rs_f key means 8 (every pre-G2a artifact)",
+          RS_F_FALLBACK == 8 and HW.split_manifest({})[1]["rs_f"] == 8,
+          str(RS_F_FALLBACK))
+    check("a manifest that CARRIES rs_f overrides the default",
+          HW.split_manifest({"rs_f": 7})[1]["rs_f"] == 7
+          and HeadSpec(0, _m, ".", rs_f=7).logit_exp(0) == -21,
+          str(HeadSpec(0, _m, ".", rs_f=7).logit_exp(0)))
+    check("rs_f is META, never a wid: split_manifest keeps it out of the map",
+          HW.split_manifest({"0": _m, "rs_f": 7})[0] == {"0": _m})
     # ---- 2. cache dir is local ----
     cd = cache_dir(log=lambda *a: None)
     check("cache dir is on a LOCAL filesystem",
@@ -630,8 +684,9 @@ def _selftest(prefix=None, log=print):
         check("argmax agrees with the exact scan",
               h.argmax(x8) == (int(order[0]), int(want[order[0]])))
         lg = h.logits(v, 5)
-        check("logits are y32 * 2^(e+sh-15+e_x-RS_F)",
-              np.allclose(lg, v.astype(np.float64) * 2.0 ** (-4 + 5 - 15 + 5 - 8)))
+        check("logits are y32 * 2^(e+sh-15+e_x-rs_f)",
+              np.allclose(lg, v.astype(np.float64)
+                          * 2.0 ** (spec.e + spec.sh - 15 + 5 - spec.rs_f)))
         # cache round trip
         p = h.cache_path(td)
         h.save_cache(p)
@@ -654,11 +709,42 @@ def _selftest(prefix=None, log=print):
     # ---- 4. the real head, if it is there ----
     if prefix and os.path.exists(prefix + ".weights.json"):
         spec, _ = load_spec(prefix)
-        check("the committed head is 248320x1024 e=-4 sh=5 g=128",
-              (spec.nrows, spec.k, spec.e, spec.sh, spec.g)
-              == (248320, 1024, -4, 5, 128), str(spec.as_dict()))
-        check("the committed head dequants with 2^(e_x-22)",
-              spec.logit_exp(0) == -22, str(spec.logit_exp(0)))
+        # G2a: `k` is the hidden size and moves with the model, so the tuple
+        # is DERIVED from the artifact's own manifest rather than pinned at
+        # the 0.8B (248320, 1024) shape.  What is still checked exactly is
+        # what a manifest cannot self-certify: that the image on disk has the
+        # rows and the row width the head record claims, and that the dequant
+        # exponent follows the same algebra section 1 proved.
+        emb = prefix + ".emb.bin"
+        # G2a review N5: the first cut replaced the pinned tuple with
+        # `nrows > 0 and k > 0 and g in (64,128)`, which is a TAUTOLOGY for
+        # any manifest this code can load -- it removed a pin instead of
+        # re-basing one.  What must move with geometry is the SHAPE
+        # (nrows x k); what must NOT is the weight FORMAT (e, sh, g), which
+        # is a property of the quantizer and identical at every geometry this
+        # project has.  So the format stays PINNED and the shape is checked
+        # against the artifact's own embedding table below.
+        check(f"the head FORMAT is still e=-4 sh=5 g=128 (pinned: these do "
+              f"not move with geometry) — got e={spec.e} sh={spec.sh} "
+              f"g={spec.g} rs_f={spec.rs_f}",
+              (spec.e, spec.sh, spec.g) == (-4, 5, 128),
+              str(spec.as_dict()))
+        check(f"the head SHAPE {spec.nrows}x{spec.k} has the pinned vocab "
+              f"248320 (every released geometry) and a power-of-two H",
+              spec.nrows == 248320 and spec.k > 0
+              and (spec.k & (spec.k - 1)) == 0,
+              f"{spec.nrows}x{spec.k}")
+        if os.path.exists(emb):
+            # the embedding table is vocab x H int16 and the head is
+            # vocab x H W4, so the two must agree on BOTH dimensions --
+            # the cross-check the pinned tuple used to stand in for.
+            check("the head shape matches the embedding table on disk",
+                  os.path.getsize(emb) == spec.nrows * spec.k * 2,
+                  f"{os.path.getsize(emb)} B vs "
+                  f"{spec.nrows}*{spec.k}*2 = {spec.nrows * spec.k * 2}")
+        check("the head dequants with 2^(e_x + e + sh - 15 - rs_f)",
+              spec.logit_exp(0) == spec.e + spec.sh - 15 - spec.rs_f,
+              str(spec.logit_exp(0)))
         if os.path.exists(spec.path):
             h = HostHead(spec, log=lambda *a: None)
             h.open_image()

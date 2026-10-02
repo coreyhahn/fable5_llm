@@ -1,0 +1,93 @@
+=== host: snoke  date: 2026-09-24T20:06:59-06:00
+=== tree: 0110ca5+dirty
+=== dirty: ?? evidence/qwen9b/ov/n24_gate_shipped_s1_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n25_gate_shipped_s2_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n26_gate_shipped_s3_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n27_gate_shipped_s4_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n28_reorder_selftest_RED.log
+=== dirty: ?? evidence/qwen9b/ov/n29_reorder_selftest_GREEN.log
+=== dirty: ?? evidence/qwen9b/ov/n30_reorder_selftest_GREEN.log
+=== dirty: ?? ref/scripts/reorder_e4.py
+=== cmd : bash evidence/qwen9b/bm/run_bm1.sh tok9b_s1 bm --expect evidence/qwen9b/bm/bm1_expect_tok9b_s1.txt --cycles-ref 3893746
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_bm1/tb_seq_chip_9b_bm1
+=== built    2026-09-24T20:06:53-06:00
+=== stem     tok9b_s1   mode: bm
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/tok9b_s1.log
+=== expect   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/bm1_expect_tok9b_s1.txt (sha256 44050659413776f2…)
+=== cycles-ref 3893746
+evidence/qwen9b/bm/run_bm1.sh: line 146: 1047780 Aborted                 (core dumped) "$BIN" +seq=$ROOT/tb/scripts/w9/$STEM.e4 +base=$ROOT/tb/scripts/w9/$STEM +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $([ "$MODE" != control ] && echo +bm) ${EXPECT:+ +bm_expect=$EXPECT} > "$LOGDIR/$STEM.log" 2>&1
+=== wall     178s   rc=134
+--- verdict lines
+    tb_seq_chip: BM1 counters ON, 14 expected values from /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/bm1_expect_tok9b_s1.txt
+    tb_seq_chip: launch 0 [-] rec_off 0, 2108 records, 2 tokens, 36864 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4 launch 0 [-]: 2108 records, 3893746 cycles (1847.13 cyc/rec, 15.575 ms @250MHz, PERF_CYC 3893739)
+    [15575712000] %Fatal: tb_seq_chip.sv:1395: Assertion failed in TOP.tb_seq_chip.bm_readout: tb_seq_chip: BM1 counter check FAILED
+    %Error: /home/cah/r2d2/code/fpga/fable5_llm/tb/tb_seq_chip.sv:1395: Verilog $stop
+    NO PASS LINE — last 15 lines:
+      BM1 L0 EXP_BM_MV2 rtl 3735929054 census 1575640 MISMATCH
+      BM1 L0 EXP_BM_MV3 rtl 3735929054 census 1575650 MISMATCH
+      BM1 L0 EXP_BM_FENCE rtl 3735929054 census 1577338 MISMATCH
+      BM1 L0 EXP_BM_MOVX rtl 3735929054 census 671840 MISMATCH
+      BM1 L0 EXP_BM_MOVY rtl 3735929054 census 322552 MISMATCH
+      BM1 L0 EXP_BM_MVWORK rtl 3735929054 census 998894 MISMATCH
+      BM1 L0 EXP_BM_IMOVER rtl 3735929054 census 2577208 MISMATCH
+      BM1 L0 EXP_BM_STEPS rtl 3735929054 census 2 MISMATCH
+      BM1 L0 EXP_L_LCYC rtl 1224874 census 1224874       OK
+      BM1 L0 EXP_BM_MVANY rtl 3735929054 census 1579486 MISMATCH
+      BM1 L0 EXP_CENSUS_I2 rtl 1312 census 1312       OK
+      BM1 L0 FAIL: 28 check(s) differ
+      [15575712000] %Fatal: tb_seq_chip.sv:1395: Assertion failed in TOP.tb_seq_chip.bm_readout: tb_seq_chip: BM1 counter check FAILED
+      %Error: /home/cah/r2d2/code/fpga/fable5_llm/tb/tb_seq_chip.sv:1395: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CYCLES DIFFER FROM THE REFERENCE: measured , want 3893746
+           the instrument is PERTURBING the DUT — stop and report
+    no SEQ_TIMELINE block, as required (no +timeline)
+--- BM1 block (39 lines)
+    tb_seq_chip: BM1 counters ON, 14 expected values from /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/bm1_expect_tok9b_s1.txt
+    BM1 L0 BEGIN  (0x100..0x134 read after HALT; ref = the testbench's negedge sampler)
+    BM1 L0 BM_IDENT rtl 3735929054 const 4205949697 MISMATCH
+    BM1 L0 PERF_CYC rtl 3893739 ref 3893739       OK
+    BM1 L0 BM_MVANY rtl 3735929054 ref 1579486 MISMATCH
+    BM1 L0 BM_MV0 rtl 3735929054 ref 1575648 MISMATCH
+    BM1 L0 BM_MV1 rtl 3735929054 ref 1575645 MISMATCH
+    BM1 L0 BM_MV2 rtl 3735929054 ref 1575640 MISMATCH
+    BM1 L0 BM_MV3 rtl 3735929054 ref 1575650 MISMATCH
+    BM1 L0 BM_FENCE rtl 3735929054 ref 1577338 MISMATCH
+    BM1 L0 BM_MVWORK rtl 3735929054 ref 998894 MISMATCH
+    BM1 L0 BM_MVWORK_ANY rtl 3735929054 ref 3536 MISMATCH
+    BM1 L0 BM_IMOVER rtl 3735929054 ref 2577208 MISMATCH
+    BM1 L0 BM_STEPS rtl 3735929054 ref 2 MISMATCH
+    BM1 L0 RSVD_12C rtl 3735929054 const 0 MISMATCH
+    BM1 L0 BM_MOVX rtl 3735929054 ref 671840 MISMATCH
+    BM1 L0 BM_MOVY rtl 3735929054 ref 322552 MISMATCH
+    BM1 L0 RSVD_1FC rtl 3735929054 const 0 MISMATCH
+    BM1 L0 OUTSIDE_200 rtl 3735929054 const 3735929054       OK
+    BM1 L0 INFO   MVGO work (MVWORK-MOVX-MOVY) -3735929054  ref MOVER 2576232  ref I2 1312  ref FENCE&ANY&!STR 60  ref WORK&ANY&STR 2284  L_LCYC 1224874
+    BM1 L0 ID_FENCE+WORK rtl 7471858108 MOVER 2576232 MISMATCH
+    BM1 L0 ID_WORK>=W_ANY rtl 1 want 1       OK
+    BM1 L0 ID_MAX<=ANY<=S rtl 1 want 1       OK
+    BM1 L0 ID_MOVX+MOVY<=W rtl 0 want 1 MISMATCH
+    BM1 L0 ID_I2=C7-WS+FN rtl 1312 ref 1312       OK
+    BM1 L0 EXP_PERF_CYC rtl 3893739 census 3893739       OK
+    BM1 L0 EXP_BM_MV0 rtl 3735929054 census 1575648 MISMATCH
+    BM1 L0 EXP_BM_MV1 rtl 3735929054 census 1575645 MISMATCH
+    BM1 L0 EXP_BM_MV2 rtl 3735929054 census 1575640 MISMATCH
+    BM1 L0 EXP_BM_MV3 rtl 3735929054 census 1575650 MISMATCH
+    BM1 L0 EXP_BM_FENCE rtl 3735929054 census 1577338 MISMATCH
+    BM1 L0 EXP_BM_MOVX rtl 3735929054 census 671840 MISMATCH
+    BM1 L0 EXP_BM_MOVY rtl 3735929054 census 322552 MISMATCH
+    BM1 L0 EXP_BM_MVWORK rtl 3735929054 census 998894 MISMATCH
+    BM1 L0 EXP_BM_IMOVER rtl 3735929054 census 2577208 MISMATCH
+    BM1 L0 EXP_BM_STEPS rtl 3735929054 census 2 MISMATCH
+    BM1 L0 EXP_L_LCYC rtl 1224874 census 1224874       OK
+    BM1 L0 EXP_BM_MVANY rtl 3735929054 census 1579486 MISMATCH
+    BM1 L0 EXP_CENSUS_I2 rtl 1312 census 1312       OK
+    BM1 L0 FAIL: 28 check(s) differ
+    BM1 COUNTERS: FAIL (no 'BM1 L0 PASS', or a MISMATCH line)
+--- wall 178s
+BM1_RUN tok9b_s1 bm: FAIL
+=== rc  : 1
+=== end : 2026-09-24T20:09:58-06:00

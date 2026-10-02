@@ -1,0 +1,100 @@
+=== host: snoke  date: 2026-09-15T16:32:10-06:00
+=== tree: 4916d39+dirty
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/feas2/board_split.py
+=== venv: 3.12.3 numpy 2.4.6
+
+==============================================================================
+PER-BOARD, PER-CHANNEL FOOTPRINT — every model x map x split
+==============================================================================
+cols: the four channels' PACKED MiB, then the worst against the
+      as-built 1280 MiB window and the runtime 3840 MiB one.
+      The last column is CHANNEL 0's weight room under a per-channel
+      runtime EMB_BASE: 4096 - 256 (W_BASE) - (the embedding table).
+      A NEGATIVE ceiling means the table alone does not fit the
+      channel beside W_BASE, before one weight byte is placed.
+
+### 27B  all:w4g128   (emb table padded 3880 MiB, EMBLOG2 14)
+  PIPE cut@32, head on B                     A    1518.5   1518.5   1518.5   1518.5  | tot  5.932 GiB  worst  1518.5 MiB  1280:FAIL  3840:PASS  | ch0 weights  1518.5 MiB of the   -40.0 MiB left under the 3880 MiB table: FAIL
+  PIPE cut@32, head on B                     B    1681.2   1677.3   1676.0   1676.0  | tot  6.553 GiB  worst  1681.2 MiB  1280:FAIL  3840:PASS
+  PIPE cut@32, head on A                     A    1681.2   1677.3   1676.0   1676.0  | tot  6.553 GiB  worst  1681.2 MiB  1280:FAIL  3840:PASS  | ch0 weights  1681.2 MiB of the   -40.0 MiB left under the 3880 MiB table: FAIL
+  PIPE cut@32, head on A                     B    1518.5   1518.5   1518.5   1518.5  | tot  5.932 GiB  worst  1518.5 MiB  1280:FAIL  3840:PASS
+  TENSOR-PAR (half the rows each)            A    1599.9   1597.9   1597.2   1597.2  | tot  6.242 GiB  worst  1599.9 MiB  1280:FAIL  3840:PASS  | ch0 weights  1599.9 MiB of the   -40.0 MiB left under the 3880 MiB table: FAIL
+  TENSOR-PAR (half the rows each)            B    1599.9   1597.9   1597.2   1597.2  | tot  6.242 GiB  worst  1599.9 MiB  1280:FAIL  3840:PASS
+
+### 27B  all:w8g128   (emb table padded 3880 MiB, EMBLOG2 14)
+  PIPE cut@32, head on B                     A    2970.0   2970.0   2970.0   2970.0  | tot 11.602 GiB  worst  2970.0 MiB  1280:FAIL  3840:PASS  | ch0 weights  2970.0 MiB of the   -40.0 MiB left under the 3880 MiB table: FAIL
+  PIPE cut@32, head on B                     B    3287.8   3280.1   3277.5   3277.5  | tot 12.815 GiB  worst  3287.8 MiB  1280:FAIL  3840:PASS
+  PIPE cut@32, head on A                     A    3287.8   3280.1   3277.5   3277.5  | tot 12.815 GiB  worst  3287.8 MiB  1280:FAIL  3840:PASS  | ch0 weights  3287.8 MiB of the   -40.0 MiB left under the 3880 MiB table: FAIL
+  PIPE cut@32, head on A                     B    2970.0   2970.0   2970.0   2970.0  | tot 11.602 GiB  worst  2970.0 MiB  1280:FAIL  3840:PASS
+  TENSOR-PAR (half the rows each)            A    3128.9   3125.0   3123.8   3123.8  | tot 12.208 GiB  worst  3128.9 MiB  1280:FAIL  3840:PASS  | ch0 weights  3128.9 MiB of the   -40.0 MiB left under the 3880 MiB table: FAIL
+  TENSOR-PAR (half the rows each)            B    3128.9   3125.0   3123.8   3123.8  | tot 12.208 GiB  worst  3128.9 MiB  1280:FAIL  3840:PASS
+
+### 35B-A3B  all:w4g128   (emb table padded 970 MiB, EMBLOG2 12)
+  PIPE cut@20, head on B                     A    2251.8   2251.8   2251.8   2251.8  | tot  8.796 GiB  worst  2251.8 MiB  1280:FAIL  3840:PASS  | ch0 weights  2251.8 MiB of the  2870.0 MiB left under the 970 MiB table: PASS
+  PIPE cut@20, head on B                     B    2317.6   2316.0   2315.5   2315.5  | tot  9.048 GiB  worst  2317.6 MiB  1280:FAIL  3840:PASS
+  PIPE cut@20, head on A                     A    2317.6   2316.0   2315.5   2315.5  | tot  9.048 GiB  worst  2317.6 MiB  1280:FAIL  3840:PASS  | ch0 weights  2317.6 MiB of the  2870.0 MiB left under the 970 MiB table: PASS
+  PIPE cut@20, head on A                     B    2251.8   2251.8   2251.8   2251.8  | tot  8.796 GiB  worst  2251.8 MiB  1280:FAIL  3840:PASS
+  EXPERT-PAR, mixers replicated, head on B   A    2343.5   2343.5   2343.5   2343.5  | tot  9.154 GiB  worst  2343.5 MiB  1280:FAIL  3840:PASS  | ch0 weights  2343.5 MiB of the  2870.0 MiB left under the 970 MiB table: PASS
+  EXPERT-PAR, mixers replicated, head on B   B    2409.4   2407.8   2407.3   2407.3  | tot  9.406 GiB  worst  2409.4 MiB  1280:FAIL  3840:PASS
+
+### 35B-A3B  all:w8g128   (emb table padded 970 MiB, EMBLOG2 12)
+  PIPE cut@20, head on B                     A    4255.7   4255.7   4255.7   4255.7  | tot 16.624 GiB  worst  4255.7 MiB  1280:FAIL  3840:FAIL  | ch0 weights  4255.7 MiB of the  2870.0 MiB left under the 970 MiB table: FAIL
+  PIPE cut@20, head on B                     B    4383.6   4380.5   4379.5   4379.5  | tot 17.112 GiB  worst  4383.6 MiB  1280:FAIL  3840:FAIL
+  PIPE cut@20, head on A                     A    4383.6   4380.5   4379.5   4379.5  | tot 17.112 GiB  worst  4383.6 MiB  1280:FAIL  3840:FAIL  | ch0 weights  4383.6 MiB of the  2870.0 MiB left under the 970 MiB table: FAIL
+  PIPE cut@20, head on A                     B    4255.7   4255.7   4255.7   4255.7  | tot 16.624 GiB  worst  4255.7 MiB  1280:FAIL  3840:FAIL
+  EXPERT-PAR, mixers replicated, head on B   A    4431.5   4431.5   4431.5   4431.5  | tot 17.310 GiB  worst  4431.5 MiB  1280:FAIL  3840:FAIL  | ch0 weights  4431.5 MiB of the  2870.0 MiB left under the 970 MiB table: FAIL
+  EXPERT-PAR, mixers replicated, head on B   B    4559.4   4556.3   4555.2   4555.2  | tot 17.799 GiB  worst  4559.4 MiB  1280:FAIL  3840:FAIL
+
+==============================================================================
+THE 27B's EMBEDDING ROW — the one number that decides ONE board vs TWO
+==============================================================================
+  27B W4 g128 weight pack             12.485 GiB
+  embedding, NATURAL row 10240 B      2.368 GiB -> total  14.853 GiB of 16.000  (92.8 %)  FITS
+  embedding, PADDED  row 16384 B     3.789 GiB -> total  16.274 GiB of 16.000  (101.7 %)  OVER
+  the padding costs 1455 MiB and the overflow is 281 MiB — so the 27B's one-board verdict turns entirely on EMBLOG2.
+  NOTE the padded row needs EMBLOG2 = 14, one MORE than the 13 the
+  shipped 9B uses (NEXT_SESSION.md 1).
+
+==============================================================================
+THE LOADER — GiB to push into a host-less board B, and how long
+==============================================================================
+Board B has POWER ONLY: no PCIe, no XDMA, no BAR.  Everything below
+crosses the QSFP28 link once per model load (E: rates assumed, see
+the RATES table; no link has been built or measured).
+
+assumed payload rates (GB/s, 1 GB = 1e9 B):
+   Aurora 64B/66B x4 (ideal payload)              12.500
+   Aurora 64B/66B x4 @ 90 % of that               11.250
+   100GbE CMAC x4, 9000 B jumbo UDP               12.406
+   100GbE CMAC x4, 1500 B MTU UDP                 11.945
+   Aurora 64B/66B x1 lane                          3.125
+   10GbE SFP+ (snoke's 82599), 1500 B UDP          1.158
+
+model     map        split                               B-side GiB     Aurora     Aurora     100GbE     100GbE     Aurora      10GbE
+27B       all:w4g128 PIPE cut@32, head on B                   6.553       0.6s       0.6s       0.6s       0.6s       2.3s       6.1s
+27B       all:w4g128 TENSOR-PAR (half the rows)               6.242       0.5s       0.6s       0.5s       0.6s       2.1s       5.8s
+35B-A3B   all:w4g128 PIPE cut@20, head on B                   9.048       0.8s       0.9s       0.8s       0.8s       3.1s       8.4s
+35B-A3B   all:w4g128 EXPERT-PAR, mixers replicated + head       9.406       0.8s       0.9s       0.8s       0.8s       3.2s       8.7s
+
+  Plus the SEQ stream, the const blob and the initial state region,
+  which are small beside the weights but must cross the same link:
+  the shipped 9B's stream is 158,536 records at 0x9000000 and its
+  const blob is 8,940,032 B (NEXT_SESSION.md 1).
+
+==============================================================================
+THE STATE REGION per board — DN / KV / conv at the new geometries
+==============================================================================
+The shipped law (docs/superpowers/specs/2026-09-04-qwen35-9b-state-spill-design.md 2):
+  DN   n_DN layers x LNVH heads x 128 rows x 256 B, stride 32 KiB per head
+  KV   n_GQA x NKV x {K,V}, stride 2 MiB per block (1 MiB data + exps)
+  CV   n_DN layers x 128 KiB
+  9B       T=  512  region DN    24.00 + KV   128.00 + CV   3.00 =    155.00 MiB   traffic/token    70.00 MiB
+  9B       T= 4096  region DN    24.00 + KV   128.00 + CV   3.00 =    155.00 MiB   traffic/token   182.00 MiB
+  27B      T=  512  region DN    72.00 + KV   256.00 + CV   6.00 =    334.00 MiB   traffic/token   188.00 MiB
+  27B      T= 4096  region DN    72.00 + KV   256.00 + CV   6.00 =    334.00 MiB   traffic/token   412.00 MiB
+  35B-A3B  T=  512  region DN    30.00 + KV    80.00 + CV   3.75 =    113.75 MiB   traffic/token    77.50 MiB
+  35B-A3B  T= 4096  region DN    30.00 + KV    80.00 + CV   3.75 =    113.75 MiB   traffic/token   147.50 MiB
+  (the 9B T=512 traffic row must read 70.06 MiB — RD9_GATE 10.3 —
+   and the T=4096 row 182.50 MiB.)
+=== rc  : 0
+=== end : 2026-09-15T16:32:10-06:00

@@ -1,0 +1,53 @@
+=== host: snoke  date: 2026-08-24T23:44:06-06:00
+=== tree: 85d05d6+dirty
+=== cmd : make -C /home/cah/r2d2/code/fpga/fable5_llm/sw tok_meter4 TAG=build035 EVID=../evidence/qwen2b/rd
+=== venv: 3.12.3 numpy 2.4.6
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/sw'
+.venv/bin/python tok_meter.py --script ../tb/scripts/model_s1.txt --runs 1 --four-chan \
+  --out ../evidence/qwen2b/rd/tokmeter_4chan_build035.json
+MAGIC=fab1e001 VERSION=54443b9f CALIB=f
+model_s1.txt: 187 weight images, 417546240 bytes packed 0x10000000..0x28e34000; mode=4chan chans=[0, 1, 2, 3]
+upload: 926.0 MB in 81.1s
+
+=== run 0  mode=4chan  verify=full  model_s1.txt ===
+  seg  tok_in    V  runs      C       MB   t_mv ms    GB/s   t_lc ms    dev ms  dev tok/s   wall s  wall tok/s  B=man  err
+--------------------------------------------------------------------------------------------------------------------------
+ init       -    0     0    360      0.0     0.000    0.00     5.900     5.900     169.50     0.73       1.375     OK    0
+token     760  187   808   3395    417.4     5.906   70.68    15.348    21.254      47.05     5.41       0.185     OK    0
+token    6511  187   808   3395    417.4     5.904   70.70    15.356    21.260      47.04     5.43       0.184     OK    0
+token     314  187   808   3395    417.4     5.905   70.70    15.364    21.269      47.02     5.44       0.184     OK    0
+token    9338  187   808   3395    417.4     5.905   70.69    15.372    21.277      47.00     5.47       0.183     OK    0
+token     220  187   808   3395    417.4     5.902   70.73    15.380    21.281      46.99     5.46       0.183     OK    0
+token     561  187   808   3395    417.4     5.904   70.70    15.387    21.292      46.97     5.45       0.184     OK    0
+--------------------------------------------------------------------------------------------------------------------------
+TOTAL 6 tokens: t_matvec=35.43 ms t_layer=92.21 ms  device=127.63 ms
+  DEVICE tok/s = 47.01   (matvec 27.8% / layer_chan 72.2%)
+  WALL   tok/s = 0.184   (32.6s of token replay, 33.4s incl. init)
+  streamed 417435648 B/token, 70.70 GB/s aggregate DDR read; beats*64 vs manifest: EXACT MATCH (2504613888 vs 2504613888)
+  layer_chan busy by opcode (per token):
+       ALU  1893 cmds    6.578 ms  42.8%
+      DNST   288 cmds    3.408 ms  22.2%
+      CONV    18 cmds    2.213 ms  14.4%
+        VN   973 cmds    1.601 ms  10.4%
+       VNW    79 cmds    0.667 ms   4.3%
+      ATTN    48 cmds    0.377 ms   2.5%
+      ROPE    60 cmds    0.246 ms   1.6%
+      KVAP    12 cmds    0.222 ms   1.4%
+      GATE    18 cmds    0.047 ms   0.3%
+     ROPET     6 cmds    0.009 ms   0.1%
+  matvec engine by image shape (whole run):
+     248320x1024 x6     384 runs    858.2 MB    12.02 ms  71.38 GB/s
+       3584x1024 x288  1152 runs    594.5 MB     8.41 ms  70.68 GB/s
+       6144x1024 x108   432 runs    382.2 MB     5.39 ms  70.86 GB/s
+       1024x3584 x144   576 runs    273.7 MB     3.89 ms  70.37 GB/s
+       1024x2048 x144   576 runs    160.4 MB     2.27 ms  70.54 GB/s
+       2048x1024 x108   432 runs    127.4 MB     1.82 ms  70.03 GB/s
+       4096x1024 x36    144 runs     84.9 MB     1.20 ms  70.55 GB/s
+        512x1024 x72    288 runs     21.2 MB     0.33 ms  64.84 GB/s
+         16x1024 x216   864 runs      2.0 MB     0.08 ms  23.95 GB/s
+
+TOK_METER: PASS
+report -> ../evidence/qwen2b/rd/tokmeter_4chan_build035.json
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/sw'
+=== rc  : 0
+=== end : 2026-08-24T23:46:02-06:00

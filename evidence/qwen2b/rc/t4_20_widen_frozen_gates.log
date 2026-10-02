@@ -1,0 +1,217 @@
+=== host: snoke  date: 2026-08-22T14:48:29-06:00
+=== tree: 0455999+dirty
+=== cmd : bash evidence/qwen2b/rc/t4_widen_gates.sh
+=== venv: 3.12.3 numpy 2.4.6
+
+################ tb_vec_alu
+seq vectors: seed=1 -> vecseq/s1  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=2 -> vecseq/s2  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=3 -> vecseq/s3  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=4 -> vecseq/s4  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+obj_dir_tb_alu/tb_alu --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1
+  R-c long-length: ADD 6144/6144 exact; DYNQ8 e=8 over 6144 vs e=0 over 2048 (the scan reaches past the 12-bit truncation point)
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:534: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 2 +vecdir=vectors/s2 +seqdir=vecseq/s2
+  R-c long-length: ADD 6144/6144 exact; DYNQ8 e=8 over 6144 vs e=0 over 2048 (the scan reaches past the 12-bit truncation point)
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:534: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 3 +vecdir=vectors/s3 +seqdir=vecseq/s3
+  R-c long-length: ADD 6144/6144 exact; DYNQ8 e=8 over 6144 vs e=0 over 2048 (the scan reaches past the 12-bit truncation point)
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:534: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 4 +vecdir=vectors/s4 +seqdir=vecseq/s4
+  R-c long-length: ADD 6144/6144 exact; DYNQ8 e=8 over 6144 vs e=0 over 2048 (the scan reaches past the 12-bit truncation point)
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:534: Verilog $finish
+-- RUNG4 S5: the >2^18 element chain (am_g wrap) on one seed --
+obj_dir_tb_alu/tb_alu --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1 +amaxlong
+  R-c long-length: ADD 6144/6144 exact; DYNQ8 e=8 over 6144 vs e=0 over 2048 (the scan reaches past the 12-bit truncation point)
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 533 AMAX32 commands, 268273 elements, 268273 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:534: Verilog $finish
+GATE tb_vec_alu OK
+
+################ tb_vecnorm
+seq vectors: seed=1 -> vecseq/s1  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=2 -> vecseq/s2  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=3 -> vecseq/s3  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=4 -> vecseq/s4  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+obj_dir_tb_vecnorm/tb_vecnorm --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+case 6: rmsnorm N=2048 (nlog2=11, 2048 weights)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+  N=2048: l2norm + rmsnorm bit-exact (cfg_nlog2 = 11)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:270: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 2 +vecdir=vectors/s2 +seqdir=vecseq/s2
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+case 6: rmsnorm N=2048 (nlog2=11, 2048 weights)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+  N=2048: l2norm + rmsnorm bit-exact (cfg_nlog2 = 11)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:270: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 3 +vecdir=vectors/s3 +seqdir=vecseq/s3
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+case 6: rmsnorm N=2048 (nlog2=11, 2048 weights)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+  N=2048: l2norm + rmsnorm bit-exact (cfg_nlog2 = 11)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:270: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 4 +vecdir=vectors/s4 +seqdir=vecseq/s4
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+case 6: rmsnorm N=2048 (nlog2=11, 2048 weights)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+  N=2048: l2norm + rmsnorm bit-exact (cfg_nlog2 = 11)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:270: Verilog $finish
+-- self-test: vecnorm_unit's cfg_nlog2 >= 12 envelope guard MUST trip --
+Aborted (core dumped)
+TB_VECNORM OK: 4 seeds (rmsnorm 1024, l2norm 128, EPS-NORM, N=2048 nlog2=11 x2) + envelope self-test
+GATE tb_vecnorm OK
+
+################ tb_ru2_diff
+  tb_vecalu_diff.sv
+  ops:  0:54 1:61 2:60 3:48 4:41 5:58 6:72 7:60 8:86 9:61 10:119 12:81
+  class: disjoint=551 inplace1=123 narrow2to1=98 pair-inplace=29 | len_max=2048
+  overlap census: legacy raw collisions=152 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1603021 new=204001 (speedup x100 = 785)
+TB_VECALU_DIFF PASS: 801 commands bit-exact (seed 1, read-first)
+- tb_vecalu_diff.sv:697: Verilog $finish
+  ops:  0:53 1:69 2:53 3:51 4:45 5:52 6:55 7:58 8:81 9:67 10:158 12:58
+  class: disjoint=543 inplace1=136 narrow2to1=82 pair-inplace=39 | len_max=2048
+  overlap census: legacy raw collisions=175 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1523259 new=204604 (speedup x100 = 744)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 2, read-first)
+- tb_vecalu_diff.sv:697: Verilog $finish
+  ops:  0:70 1:68 2:47 3:49 4:46 5:47 6:56 7:60 8:87 9:73 10:118 12:79
+  class: disjoint=547 inplace1=127 narrow2to1=91 pair-inplace=35 | len_max=2048
+  overlap census: legacy raw collisions=162 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1672130 new=222633 (speedup x100 = 751)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 3, read-first)
+- tb_vecalu_diff.sv:697: Verilog $finish
+  ops:  0:58 1:70 2:68 3:52 4:54 5:52 6:58 7:65 8:84 9:64 10:112 12:63
+  class: disjoint=538 inplace1=153 narrow2to1=79 pair-inplace=30 | len_max=2048
+  overlap census: legacy raw collisions=183 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1530245 new=190029 (speedup x100 = 805)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 4, read-first)
+- tb_vecalu_diff.sv:697: Verilog $finish
+-- strict: overlap invariant fatal + write-first scratch + cfg-latch --
+obj_dir_tb_vecalu_diff/tb_vecalu_diff +seed=1 +coll_fatal +wfirst +cfgscramble
+  ops:  0:60 1:71 2:58 3:45 4:53 5:59 6:55 7:71 8:86 9:57 10:122 12:65
+  class: disjoint=533 inplace1=156 narrow2to1=84 pair-inplace=29 | len_max=2048
+  overlap census: legacy raw collisions=185 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1632295 new=199869 (speedup x100 = 816)
+TB_VECALU_DIFF PASS: 802 commands bit-exact (seed 1, write-first+coll_fatal+cfgscramble)
+- tb_vecalu_diff.sv:697: Verilog $finish
+obj_dir_tb_vecalu_diff/tb_vecalu_diff +seed=3 +coll_fatal +wfirst +cfgscramble
+  ops:  0:61 1:73 2:43 3:50 4:55 5:53 6:63 7:43 8:87 9:65 10:133 12:74
+  class: disjoint=545 inplace1=128 narrow2to1=94 pair-inplace=33 | len_max=2048
+  overlap census: legacy raw collisions=161 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=1568660 new=195186 (speedup x100 = 803)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 3, write-first+coll_fatal+cfgscramble)
+- tb_vecalu_diff.sv:697: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECALU_DIFF OK: 4 seeds + 2 strict + 4 comparator self-tests
+  legacy/vecnorm_legacy.sv tb_vecnorm_diff.sv
+  modes: 0:36 1:34 2:50 | eps vectors=21 (k -14..17) | all-zero blocks=20 | n_max=1024
+  busy cycles: legacy=223831 new=63849 (speedup x100 = 350)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 1, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:37 1:33 2:50 | eps vectors=28 (k -14..17) | all-zero blocks=18 | n_max=1024
+  busy cycles: legacy=270118 new=74056 (speedup x100 = 364)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 2, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:40 1:32 2:48 | eps vectors=27 (k -14..17) | all-zero blocks=16 | n_max=1024
+  busy cycles: legacy=313974 new=88649 (speedup x100 = 354)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 3, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:37 1:38 2:45 | eps vectors=27 (k -14..17) | all-zero blocks=19 | n_max=1024
+  busy cycles: legacy=250467 new=74642 (speedup x100 = 335)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 4, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECNORM_DIFF OK: 4 seeds + 3 comparator self-tests
+GATE tb_ru2_diff OK
+
+################ tb_layer_chan
+obj_dir_tb_layer/tb_layer +script=scripts/layer_s1.txt
+TB_LAYER_CHAN PASS: 707 cmds, 76941 checks bit-exact (scripts/layer_s1.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_layer/tb_layer +script=scripts/layer_s2.txt
+TB_LAYER_CHAN PASS: 707 cmds, 76941 checks bit-exact (scripts/layer_s2.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_layer/tb_layer +script=scripts/layer_s3.txt
+TB_LAYER_CHAN PASS: 707 cmds, 76941 checks bit-exact (scripts/layer_s3.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_layer/tb_layer +script=scripts/layer_s4.txt
+TB_LAYER_CHAN PASS: 707 cmds, 76941 checks bit-exact (scripts/layer_s4.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+GATE tb_layer_chan OK
+
+################ tb_token
+obj_dir_tb_layer/tb_layer +script=scripts/token_s1.txt +emb=scripts/token_s1.emb.bin
+emb table: 16777216 bytes (8192 rows of 1024) from scripts/token_s1.emb.bin
+TB_LAYER_CHAN PASS: 728 cmds, 80022 checks bit-exact (scripts/token_s1.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_layer/tb_layer +script=scripts/token_s2.txt +emb=scripts/token_s2.emb.bin
+emb table: 16777216 bytes (8192 rows of 1024) from scripts/token_s2.emb.bin
+TB_LAYER_CHAN PASS: 728 cmds, 80022 checks bit-exact (scripts/token_s2.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_layer/tb_layer +script=scripts/token_s3.txt +emb=scripts/token_s3.emb.bin
+emb table: 16777216 bytes (8192 rows of 1024) from scripts/token_s3.emb.bin
+TB_LAYER_CHAN PASS: 728 cmds, 80022 checks bit-exact (scripts/token_s3.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_layer/tb_layer +script=scripts/token_s4.txt +emb=scripts/token_s4.emb.bin
+emb table: 16777216 bytes (8192 rows of 1024) from scripts/token_s4.emb.bin
+TB_LAYER_CHAN PASS: 728 cmds, 80022 checks bit-exact (scripts/token_s4.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+GATE tb_token OK
+
+################ tb_seq_layer
+seq layer script: seed=1 -> scripts/seqlayer_s1.txt  k_t=-8 k_clamp0=0 k_a=23 k_b=5; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 16384..32767, 1296 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=2 -> scripts/seqlayer_s2.txt  k_t=-9 k_clamp0=0 k_a=8 k_b=7; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 16384..32767, 1296 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=3 -> scripts/seqlayer_s3.txt  k_t=-11 k_clamp0=0 k_a=8 k_b=4; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 16384..32767, 1296 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=4 -> scripts/seqlayer_s4.txt  k_t=-9 k_clamp0=0 k_a=24 k_b=5; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 16384..32767, 1296 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+obj_dir_tb_seqlayer/tb_seqlayer +script=scripts/seqlayer_s1.txt
+TB_LAYER_CHAN PASS: 19 cmds, 3696 checks bit-exact (scripts/seqlayer_s1.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_seqlayer/tb_seqlayer +script=scripts/seqlayer_s2.txt
+TB_LAYER_CHAN PASS: 19 cmds, 3696 checks bit-exact (scripts/seqlayer_s2.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_seqlayer/tb_seqlayer +script=scripts/seqlayer_s3.txt
+TB_LAYER_CHAN PASS: 19 cmds, 3696 checks bit-exact (scripts/seqlayer_s3.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+obj_dir_tb_seqlayer/tb_seqlayer +script=scripts/seqlayer_s4.txt
+TB_LAYER_CHAN PASS: 19 cmds, 3696 checks bit-exact (scripts/seqlayer_s4.txt)
+- tb_layer_chan.sv:273: Verilog $finish
+GATE tb_seq_layer OK
+
+widen-gate summary rc=0
+=== rc  : 0
+=== end : 2026-08-22T14:56:42-06:00

@@ -8,15 +8,38 @@
 // SmartConnect (burst_smc, S2) on its own 64 KiB-stride address map (S4):
 //
 //     mvchan_c   (c+1) << 16    READ  0x0000-0x3FFF  RES row r at byte 4r
-//                               WRITE 0x4000-0x4FFF  XWIN word w at byte 4w
-//     layer_0        5 << 16    R/W   scratch word w at byte 4w, w<16384
+//                               WRITE 0x4000-0x6FFF  XWIN word w at byte 4w
+//     layer_0        8 << 16    R/W   scratch word w at byte 4w, w<65536
+//
+// R-b moved the layer window from 5<<16 to 6<<16 and doubled it to 128 KiB
+// (32768 words).  G3.1 doubles it AGAIN, to 256 KiB (65536 words), and
+// moves it 6<<16 -> 8<<16 for the same reason R-b moved it: an AXI segment
+// must be RANGE-ALIGNED, and 0x60000 is not a 256 KiB-aligned address —
+// 0x80000 is.  layer_0 now covers 0x80000-0xBFFFF and the decode hole after
+// the four 64 KiB mvchan windows grows to 0x50000-0x7FFFF.  Mirrored in
+// rtl/seq_unit.sv LAYB_BASE, synth/scripts/create_project.tcl's
+// seq_axib_map AND its per-slave range expectation (which `exit 1`s on any
+// range it does not expect), tb/tb_burst_fabric.sv LAYBASE, and
+// docs/SEQ_ISA.md B12.3.
 //
 // What still goes out on AXI-Lite (bit-identical to the shipped design, so
 // every host-driven ladder keeps passing):
 //   * MOVX  SPTR + XPTR setup writes, and the closing STATUS read
 //   * MVGO  WBASE/BEATS/SHAPE + doorbell, and the whole poll path (S9)
 //   * MOVY  RES_PTR + SPTR setup writes
-//   * FENCE the poll path
+//   * FENCE the poll path.  SR3 (docs/SEQ_ISA.md v2.3 B17.1): cmd_fmask
+//     selects WHICH pending channels a FENCE drains — bit c = chan_pend[c],
+//     0 = all four (latched as 4'hF).  F_SCAN still walks channels 0..3 one
+//     per cycle, so a mask-0 FENCE takes exactly the pre-SR3 cycles; an
+//     unmasked pending channel is left pending (no interlock — the model
+//     gate and the pass's assert refuse such streams, not this RTL).
+//   SR12 (docs/SEQ_ISA.md v2.3 B17.2, R2): MOVX's XPTR write stays 0 (the
+//     burst carries the x word in its address, cmd_xword = the XWIN start
+//     word added to the burst base); MOVY's RES_PTR write carries the RES
+//     start row (cmd_row), which also starts the RES burst.  SHAPE is still
+//     written whole — its bank bits 29/30 are the mvchan's to decode.  Still
+//     no interlock: a MOVX/MOVY into the OTHER bank of a pending channel is
+//     legal and one into its running range is refused by the model gate.
 // What moved to m_axib: the MOVX scratch->XWIN stream, the MOVY RES->scratch
 // stream, and (through the ext_* client port below) seq_unit's LDC/EMB
 // DDR->scratch stream.
@@ -59,7 +82,7 @@ module seq_movers #(
     // m_axib burst map (RUNG3 S4)
     parameter logic [31:0] MVB_BASE   = 32'h0001_0000,
     parameter logic [31:0] MVB_STRIDE = 32'h0001_0000,
-    parameter logic [31:0] LAYB_BASE  = 32'h0005_0000
+    parameter logic [31:0] LAYB_BASE  = 32'h0008_0000
 ) (
     input  wire         clk,
     input  wire         rstn,
@@ -69,7 +92,7 @@ module seq_movers #(
     output logic        cmd_ready,      // idle
     input  wire  [1:0]  cmd_op,         // MOP_*
     input  wire  [1:0]  cmd_chan,
-    input  wire [13:0]  cmd_saddr,      // MOVX src / MOVY dst scratch word
+    input  wire [15:0]  cmd_saddr,      // MOVX src / MOVY dst scratch word
     input  wire [23:0]  cmd_len,        // MOVX words, MOVY rows
     input  wire         cmd_movy_i16,   // MOVY: 1 = int16, 0 = int32 pairs
     input  wire signed [31:0] cmd_shift,// MOVY dequant shift (resolved)
@@ -77,6 +100,9 @@ module seq_movers #(
     input  wire [39:0]  cmd_wbase,      // MVGO weight base
     input  wire [23:0]  cmd_beats,      // MVGO 64 B beats
     input  wire         cmd_nowait,     // MVGO: return before engine done
+    input  wire  [3:0]  cmd_fmask,      // FENCE channel mask, 0 = all (SEQ_ISA B17.1)
+    input  wire [11:0]  cmd_xword,      // MOVX XWIN start word (SEQ_ISA B17.2, SR12)
+    input  wire [11:0]  cmd_row,  input wire cmd_bcast,  // MOVY RES start row (SEQ_ISA B17.2, SR12); cmd_bcast: MOVX broadcast (B17.3, R3-8)
 
     output logic        done,           // 1-cycle retire
     output logic        err,            // 1-cycle, with err_code
@@ -139,7 +165,7 @@ module seq_movers #(
     input  wire   [1:0] m_axib_rresp,
     input  wire         m_axib_rlast,
     input  wire         m_axib_rvalid,
-    output logic        m_axib_rready
+    output logic        m_axib_rready,  output logic [3:0] xpush_valid, output logic [47:0] xpush_idx, output logic [127:0] xpush_data, input wire [3:0] xpush_room, input wire [3:0] xpush_busy  // R3-8 x-push bus (aclk), the R3 block at the end
 );
 
     // ------------------------------------------------------------------
@@ -162,12 +188,15 @@ module seq_movers #(
 
     // burst-window offsets inside a mvchan (S5)
     localparam logic [31:0] MVB_RES  = 32'h0000_0000;   // 4096 rows  x 4 B
-    localparam logic [31:0] MVB_XWIN = 32'h0000_4000;   // 1024 words x 4 B
+    localparam logic [31:0] MVB_XWIN = 32'h0000_4000;   // 3072 words x 4 B
 
     // window sizes, in 32-bit words (sim-only bounds checks, S(interface))
     localparam int RES_WORDS   = 4096;
-    localparam int XWIN_WORDS  = 1024;
-    localparam int SCR_WORDS   = 16384;
+    localparam int XWIN_WORDS  = 3072;   // K <= 12288 (matvec_engine MAX_NG 96).
+                                         // THE SECOND COPY: rtl/matvec_chan.sv
+                                         // declares its own and the two must
+                                         // move together (spec 4.5 W5).
+    localparam int SCR_WORDS   = 65536;   // G3.1, spec 4.3 S4
 
     // error codes (also listed in seq_unit's header + docs/SEQ_ISA notes)
     localparam logic [7:0] E_AXI      = 8'h12;   // m_axib RRESP/BRESP != OK
@@ -195,15 +224,15 @@ module seq_movers #(
         mvbaddr = MVB_BASE + (MVB_STRIDE * {30'd0, c}) + off;
     endfunction
 
-    function automatic logic [31:0] scrbaddr(input logic [13:0] w);
-        scrbaddr = LAYB_BASE + {16'd0, w, 2'b00};
+    function automatic logic [31:0] scrbaddr(input logic [15:0] w);
+        scrbaddr = LAYB_BASE + {14'd0, w, 2'b00};
     endfunction
 
     // ------------------------------------------------------------------
     // latched command
     // ------------------------------------------------------------------
     logic  [1:0] chan_q;
-    logic [13:0] saddr_q;
+    logic [15:0] saddr_q;
     logic [23:0] len_q;
     logic        i16_q, nowait_q;
     logic signed [31:0] shift_q;
@@ -215,11 +244,17 @@ module seq_movers #(
     // MOVY at row 0 — exactly what the RES_PTR=0 write it still issues means
     // — but the datapath below is already row-addressed, so an overlapped
     // (partial-drain) MOVY only has to load this register differently.
+    // SR12 (SEQ_ISA v2.3 B17.2): it does — res_row_q loads the record's
+    // target[15:4] (cmd_row), and the RES_PTR write carries the same row.
     logic [11:0] res_row_q;
+    // SR12 (B17.2): the MOVX XWIN start word, added to the XWIN burst base
+    // (the shim takes the word from the address, rtl/matvec_chan.sv).
+    logic [11:0] xword_q;  logic bcast_q, xp_fire, xp_done;  wire cmd_is_bc = cmd_bcast && (cmd_op == MOP_MOVX);  // R3-8 (B17.3), the R3 block
 
     // per-channel "engine started by a no-wait MVGO, not yet drained"
     logic [3:0]  chan_pend;
     logic [1:0]  fence_chan;
+    logic [3:0]  fmask_q;           // SR3: the FENCE's channel mask, 0 -> F
     logic        poll_is_fence;
 
     // ------------------------------------------------------------------
@@ -537,7 +572,7 @@ module seq_movers #(
     assign yf_push = br_fire
                      && (((st == X_RUN) && ((pack_idx == 2'd3) || x_last_rsp))
                          || (st == Y_RUN));
-    assign yf_pop  = ((st == X_RUN) && bw_fire) || launch;
+    assign yf_pop  = ((st == X_RUN) && (bw_fire || xp_fire)) || launch;   // R3-8: a broadcast pops on a push
 
     // S8: plain RREADY backpressure replaces the outstanding-count throttle.
     // Outside the streaming states R is accepted and dropped so a watchdog
@@ -575,7 +610,9 @@ module seq_movers #(
             chan_q <= '0; saddr_q <= '0; len_q <= '0;
             i16_q <= 1'b0; nowait_q <= 1'b0; shift_q <= '0;
             shape_q <= '0; wbase_q <= '0; beats_q <= '0; res_row_q <= '0;
+            xword_q <= '0; bcast_q <= 1'b0;
             chan_pend <= '0; fence_chan <= '0; poll_is_fence <= 1'b0;
+            fmask_q <= '0;
             cfg_step <= '0; rd_got <= '0;
             tmo <= '0; guard_cnt <= '0;
             pack_acc <= '0; pack_idx <= '0;
@@ -597,12 +634,14 @@ module seq_movers #(
             case (st)
             // --------------------------------------------------------
             S_IDLE: if (cmd_valid) begin
-                chan_q <= cmd_chan; saddr_q <= cmd_saddr;
+                chan_q <= cmd_is_bc ? 2'd0 : cmd_chan; saddr_q <= cmd_saddr;   // R3-8: a broadcast walks STATUS from channel 0
                 len_q <= cmd_len; i16_q <= cmd_movy_i16;
                 shift_q <= cmd_shift; shape_q <= cmd_shape;
                 wbase_q <= cmd_wbase; beats_q <= cmd_beats;
                 nowait_q <= cmd_nowait;
-                res_row_q <= 12'd0;              // S12: v1 always drains row 0
+                fmask_q <= (cmd_fmask == 4'd0) ? 4'hF : cmd_fmask;
+                res_row_q <= cmd_row;            // SR12: B17.2 RES start row
+                xword_q   <= cmd_xword; bcast_q <= cmd_is_bc;   // SR12: B17.2 XWIN start word; R3-8: B17.3 broadcast
                 rd_got <= '0;
                 pack_acc <= '0; pack_idx <= '0;
                 y_half <= 1'b0; y_val_valid <= 1'b0;
@@ -621,7 +660,7 @@ module seq_movers #(
             // ========================================================
             // MOVX: scratch[saddr .. +len) int8 -> engine chan XWIN
             // ========================================================
-            X_SPTR: if (wr_fire) st <= X_XPTR;
+            X_SPTR: if (wr_fire) st <= bcast_q ? X_DRAIN : X_XPTR;   // R3-8: a broadcast skips the XPTR write (B17.3)
             X_XPTR: if (wr_fire) st <= X_DRAIN;
             // XPTR must LAND before the XWIN burst pushes start: the two
             // leave seq_unit on DIFFERENT master ports (AXI-Lite vs m_axib)
@@ -631,16 +670,18 @@ module seq_movers #(
                 br_start  <= 1'b1;
                 br_saddr  <= scrbaddr(saddr_q);
                 br_sbeats <= len_q;
-                bw_start  <= 1'b1;
-                bw_saddr  <= mvbaddr(chan_q, MVB_XWIN);
+                bw_start  <= !bcast_q;           // R3-8: a broadcast's words go out on the x-push bus
+                bw_saddr  <= mvbaddr(chan_q, MVB_XWIN + {18'd0, xword_q, 2'b00});
                 bw_sbeats <= x_wwords;
 `ifndef SYNTHESIS
-                if ((32'({8'd0, len_q}) + 32'({18'd0, saddr_q})) > 32'(SCR_WORDS))
+                if ((32'({8'd0, len_q}) + 32'({16'd0, saddr_q})) > 32'(SCR_WORDS))
                     $error("seq_movers MOVX: scratch read window overflow (saddr %0d + len %0d)",
                            saddr_q, len_q);
-                if (32'({8'd0, x_wwords}) > 32'(XWIN_WORDS))
-                    $error("seq_movers MOVX: XWIN window overflow (%0d words)",
-                           x_wwords);
+                // SR12 (B17.2): the window starts at the XWIN start word
+                if ((32'({8'd0, x_wwords}) + 32'({20'd0, xword_q}))
+                        > 32'(XWIN_WORDS))
+                    $error("seq_movers MOVX: XWIN window overflow (start word %0d + %0d words)",
+                           xword_q, x_wwords);
 `endif
                 st  <= X_RUN;
             end
@@ -663,7 +704,7 @@ module seq_movers #(
 
             // every XWIN push must be COMMITTED before STATUS is read for
             // xfifo_ovfl: drain the burst write engine (all B collected).
-            X_END: if (wr_idle && bw_idle) begin
+            X_END: if (wr_idle && bw_idle && xp_done) begin   // R3-8: + the push leg's commit (XP_RT, busy)
                 tmo <= '0;
                 st  <= X_STAT;
             end
@@ -671,7 +712,7 @@ module seq_movers #(
             X_STATW: if (rd_rsp_valid) begin
                 if (rd_rsp_data[3]) begin         // xfifo_ovfl
                     err <= 1'b1; err_code <= E_XFIFO_OVF; st <= S_IDLE;
-                end else st <= S_DONE;
+                end else if (bcast_q && (chan_q != 2'd3)) begin chan_q <= chan_q + 2'd1; st <= X_STAT; end else st <= S_DONE;   // R3-8: STATUS of all four
             end
 
             // ========================================================
@@ -746,7 +787,7 @@ module seq_movers #(
                 if ((32'({8'd0, len_q}) + 32'({20'd0, res_row_q})) > 32'(RES_WORDS))
                     $error("seq_movers MOVY: RES window overflow (row %0d + len %0d)",
                            res_row_q, len_q);
-                if ((32'({8'd0, y_wwords}) + 32'({18'd0, saddr_q})) > 32'(SCR_WORDS))
+                if ((32'({8'd0, y_wwords}) + 32'({16'd0, saddr_q})) > 32'(SCR_WORDS))
                     $error("seq_movers MOVY: scratch write window overflow (saddr %0d + %0d)",
                            saddr_q, y_wwords);
 `endif
@@ -795,13 +836,14 @@ module seq_movers #(
             Y_END: if (wr_idle && bw_idle) st <= S_DONE;
 
             // ========================================================
-            // FENCE: drain every channel a no-wait MVGO left running
+            // FENCE: drain every channel a no-wait MVGO left running that
+            // the FENCE's mask names (SR3, B17.1; mask 0 = all four)
             // ========================================================
             // FENCE also drains the AXI-Lite write pipe: a run of CSRWRs
             // is fire-and-forget, and "drain all movers/engines" must mean
             // the CSR side too.
             F_SCAN: if (wr_idle) begin
-                if (chan_pend[fence_chan]) begin
+                if (chan_pend[fence_chan] && fmask_q[fence_chan]) begin
                     chan_q        <= fence_chan;
                     poll_is_fence <= 1'b1;
                     tmo           <= '0;
@@ -858,7 +900,7 @@ module seq_movers #(
         rd_addr  = 32'd0;
         case (st)
             X_SPTR: begin wr_valid = 1'b1; wr_addr = laddr(L_SPTR);
-                          wr_data  = {18'd0, saddr_q}; end
+                          wr_data  = {16'd0, saddr_q}; end
             X_XPTR: begin wr_valid = 1'b1; wr_addr = mvaddr(chan_q, MV_XPTR);
                           wr_data  = 32'd0; end
             X_STAT: begin rd_valid = 1'b1;
@@ -874,7 +916,7 @@ module seq_movers #(
                             wr_addr  = mvaddr(chan_q, MV_RESPTR);
                             wr_data  = {20'd0, res_row_q}; end
             Y_SPTR: begin wr_valid = 1'b1; wr_addr = laddr(L_SPTR);
-                          wr_data  = {18'd0, saddr_q}; end
+                          wr_data  = {16'd0, saddr_q}; end
             default: ;
         endcase
     end
@@ -892,6 +934,99 @@ module seq_movers #(
     // streams left the AXI-Lite read channel
     wire [27:0] unused_rsp_hi   = rd_rsp_data[31:4];
     /* verilator lint_on UNUSEDSIGNAL */
+
+
+    // ==================================================================
+    // R3-8 (docs/SEQ_ISA.md v2.3 B17.3; spec §1.3 (a)): THE MOVX BROADCAST
+    // over the direct x-push bus.  Appended below every cited line (zero
+    // drift); the FSM reaches it through one-line edits: the latch
+    // (bcast_q, chan_q from 0) in S_IDLE, X_SPTR -> X_DRAIN (no XPTR
+    // write), X_DRAIN's bw_start, yf_pop, X_END's xp_done and X_STATW's walk
+    // over the four STATUS registers.
+    //
+    // A broadcast MOVX (cmd_bcast with MOP_MOVX; seq_unit sets it for
+    // flags[7:4] = 0xF) runs the unicast MOVX states with three differences:
+    //   1. NO XPTR write (X_SPTR goes straight to X_DRAIN): the push carries
+    //      its word index, and B17.3 leaves all four XPTRs unchanged;
+    //   2. the XWIN words go out on the PUSH BUS, not the m_axib burst: the
+    //      same packed x_word the unicast pushes into the elastic buffer
+    //      (yf), popped here by xp_fire instead of by a W beat; its index is
+    //      the start word + the word count (xp_widx).  A word is pushed to
+    //      all four ports in the SAME cycle, and only when all four room
+    //      inputs are high (LOCKSTEP) — a channel without room stalls the
+    //      other three, the elastic buffer fills and RREADY stalls the one
+    //      scratch read (which is untouched: one read, four writes);
+    //   3. the retire waits (xp_done): XP_RT cycles after the last push
+    //      leaves the output flop, THEN all four busy inputs must be low (a
+    //      busy sampled earlier can be a stale low while the last word is
+    //      still in the output flop, the BD net or the channel's input
+    //      register), and then STATUS of ALL FOUR channels is read (X_STAT /
+    //      X_STATW from channel 0: any xfifo_ovfl faults E_XFIFO_OVF — the
+    //      unicast's error surface, x4).
+    // The sim-only XWIN window $error in X_DRAIN covers the broadcast (it
+    // tests xword_q + x_wwords, whatever carries the words).
+    //
+    // Per channel c: xpush_valid[c], xpush_idx[12c +: 12], xpush_data[32c
+    // +: 32] from FLOPS (xp_v_q / xp_i_q / xp_d_q, one copy per channel,
+    // KEEP so synthesis cannot merge them: each is the start of a
+    // point-to-point net to its own mvchan, mvchan_0's across SLR1 -> SLR0),
+    // and xpush_room[c] / xpush_busy[c] through ONE input flop each
+    // (xp_room_q / xp_busy_q: mvchan_0's two return nets cross SLR0 ->
+    // SLR1 and end here).  The register stages are the ONE parameter set
+    // rtl/matvec_chan.sv also declares (its R3 block derives XP_INFLIGHT
+    // from the same two numbers; the chip TB checks them equal):
+    //   XP_FWD_STAGES = 2   this output flop, matvec_chan's input register
+    //   XP_RET_STAGES = 2   matvec_chan's room/busy flop, this input flop
+    //   XP_RT = XP_FWD_STAGES + XP_RET_STAGES = 4
+    // XP_RT counts from the cycle after the last word sat in the output flop;
+    // the busy input read then describes the channel two cycles earlier,
+    // which is after the last word reached its input register, so busy low
+    // => every pushed word is in its XWIN FIFO (the burst leg's commit
+    // contract, rtl/matvec_chan.sv's header, restated for the push leg).
+    // BM1: a broadcast is one mover job with mv_op 0; nothing here changes
+    // the counters (B17.3 COUNTERS).
+    // ==================================================================
+    localparam int XP_FWD_STAGES = 2;
+    localparam int XP_RET_STAGES = 2;
+    localparam int XP_RT         = XP_FWD_STAGES + XP_RET_STAGES;
+
+    (* keep = "true" *) logic [3:0]  xp_room_q, xp_busy_q;   // input flops
+    (* keep = "true" *) logic [3:0]  xp_v_q;                 // output flops
+    (* keep = "true" *) logic [11:0] xp_i_q [4];
+    (* keep = "true" *) logic [31:0] xp_d_q [4];
+    logic [11:0] xp_widx;
+    logic  [2:0] xp_rt;
+
+    assign xp_fire = (st == X_RUN) && bcast_q && (yf_cnt != 6'd0)
+                     && (&xp_room_q);
+    assign xp_done = !bcast_q
+                     || ((xp_v_q == 4'd0) && (xp_rt == 3'd0) && (xp_busy_q == 4'd0));
+
+    always_ff @(posedge clk) begin
+        if (!rstn) begin
+            xp_room_q <= 4'd0; xp_busy_q <= 4'd0; xp_v_q <= 4'd0;
+            xp_widx <= '0; xp_rt <= '0;
+        end else begin
+            xp_room_q <= xpush_room;
+            xp_busy_q <= xpush_busy;
+            xp_v_q    <= {4{xp_fire}};
+            if (st == X_DRAIN)  xp_widx <= xword_q;
+            else if (xp_fire)   xp_widx <= xp_widx + 12'd1;
+            if (xp_v_q != 4'd0) xp_rt <= 3'(XP_RT);
+            else if (xp_rt != 3'd0) xp_rt <= xp_rt - 3'd1;
+        end
+    end
+
+    for (genvar c = 0; c < 4; c++) begin : g_xp
+        always_ff @(posedge clk)
+            if (xp_fire) begin
+                xp_i_q[c] <= xp_widx;
+                xp_d_q[c] <= yf_dout;
+            end
+        assign xpush_idx[12*c +: 12]  = xp_i_q[c];
+        assign xpush_data[32*c +: 32] = xp_d_q[c];
+    end
+    assign xpush_valid = xp_v_q;
 
 endmodule
 

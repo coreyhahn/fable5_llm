@@ -1,0 +1,75 @@
+=== host: snoke
+=== date: 2026-09-07T00:12:11-06:00
+=== tree: 1dd2889
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/o3/o3_cite_drift.py --base a553f18 --doc-base a553f18 --edited rtl/layer_chan.sv,rtl/fx_silu.sv,rtl/conv4_silu.sv,rtl/attn_core.sv,rtl/dn_step.sv --check
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+o3 citation-drift gate  [check]
+  code base  a553f18
+  doc base   a553f18
+  files      5 edited files
+  citations  485 distinct (file, line) pairs
+  unmoved    458
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  DRIFTED    rtl/attn_core.sv:173 -> :175   'logic [3:0]  shamt_q;          // 15-ve-8, registered (range [6,15])'
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:211 -> :213   "pv_p[d] <= 26'(33'(p_t_r[d/64]) * 33'(signed'(kv_data[d*8 +: 8])));"
+             cited by evidence/qwen9b/g2/D_TOL.md, ref/layer_fixed.py
+  DRIFTED    rtl/attn_core.sv:213 -> :215   "pv_abs[d] <= 26'((pv_p[d] < 0) ? unsigned'(27'(-pv_p[d]))"
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:218 -> :220   ":  18'(pv_c[d] >> shamt_r[d/64][1:0]);"
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:222 -> :224   "acc[d] <= 40'(acc[d] + 40'(pv_s[d]));"
+             cited by evidence/qwen9b/g2/D_TOL.md, ref/layer_fixed.py
+  DRIFTED    rtl/attn_core.sv:247 -> :272   "rc_start <= 1'b0;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/attn_core.sv:255 -> :280   'T <= cfg_t;'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/attn_core.sv:432 -> :457   've_q <= kv_exp;'
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:436 -> :461   "shamt_q <= 4'(8'sd15 - ve_q - 8'sd8);   // in [6,15]"
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:437 -> :462   "vadd_q <= 15'(16'd1 << (4'(8'sd15 - ve_q - 8'sd8) - 4'd1));"
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/dn_step.sv:191 -> :193   'if (clr_r[v/32]) begin'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, synth/exp_uram/rtl/layer_chan.sv
+  DRIFTED    rtl/dn_step.sv:196 -> :198   "kvm_acc[v] <= 40'(kvm_acc[v] + 40'(kw_p[v]));"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:205 -> :226   'st <= IDLE;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g1/RUNG_INT8_STATE.md, evidence/qwen_next/place_exp/PLACE_EXP.md, ref/layer_fixed.py
+  DRIFTED    rtl/dn_step.sv:225 -> :246   'P1_PRE: begin'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:226 -> :247   "if (pre_i == PRE_W'((PRE_N > 0) ? PRE_N - 1 : 0))"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:227 -> :248   'st <= P1_RD;'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:229 -> :250   'end'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:230 -> :251   '// ---------------- pass 1 ----------------'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:234 -> :255   "s_rdaddr <= row[6:0] + 1'b1;"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:240 -> :261   'P1_KM: begin               // kw_p + s_wrdata latch'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g1/RUNG_INT8_STATE.md
+  DRIFTED    rtl/dn_step.sv:241 -> :262   's_wraddr <= row[6:0];'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/place_exp/PLACE_EXP.md
+  DRIFTED    rtl/dn_step.sv:269 -> :290   "s_rdaddr <= row[6:0] + 1'b1;"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:270 -> :291   'st <= (P2_WAIT != 0) ? P2_WT : P2_M;'
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  DRIFTED    rtl/dn_step.sv:272 -> :293   'P2_WT:  st <= P2_M;        // option (i): the wait state'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/dn_step.sv:276 -> :297   's_wraddr <= row[6:0];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/place_exp/PLACE_EXP.md
+  UNRESOLVED rtl/layer_chan.sv:503 (the cited line was rewritten or deleted)   'logic signed [15:0] smem_a [65536];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED rtl/layer_chan.sv:504 (the cited line was rewritten or deleted)   'logic signed [15:0] smem_b [65536];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+O3_CITE_DRIFT CHECK FAIL (25 drifted, 2 unresolved, 0 missing, 0 half-mapped)
+=== rc: 1
+=== end: 2026-09-07T00:12:14-06:00

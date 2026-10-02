@@ -1,0 +1,121 @@
+=== host: snoke  date: 2026-09-29T03:10:31-06:00
+=== tree: 764760b+dirty
+=== dirty:  M sw/hwmap.py
+=== dirty:  M sw/seq_run.py
+=== cmd : /home/cah/.venv/bin/python -u evidence/qwen9b/sr/sr13b_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+SR13b host TDD — FABLE5_MODEL=9b FABLE5_RS_F=None
+=== seq_run: an r2 stream on mock SEQ windows
+  [setup] PASS the R1+R2 SEQ_CAPS word is 0xFAB1CA03  -- 0xfab1ca03
+    r2 fixture: first banked record 3 (MOVX word 1536, MVGO XBANK|RBANK, MOVY row 2048)
+    (a) r2 on 0xFAB1CA03: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [a] PASS the r2 stream LOADS on the 0xFAB1CA03 mock  -- tripped upload
+  [a] PASS ... SEQ_CAPS read before the upload  -- ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+    (b) r2 on 0xFAB1CA01: outcome 'exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2h/rp.e at capabilities [\'R1\']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capa'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xe3c2ff1e)
+      | exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2h/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=
+  [b] PASS REFUSED on the 0xFAB1CA01 (R1-only) mock before any DMA  -- exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2h/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=
+  [b] PASS ... by the validator: names R2 and rec 3  -- exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2h/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=
+  [b] PASS ... device-keyed (SEQ_CAPS was read)  -- ['dev', 'seq_caps_read', 'seq_caps_read']
+    (c) r2 on 0xDEADC0DE: outcome "exit 'REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2h/rp.e at capabilities {}: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capabili"; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xc973c18a)
+      | exit 'REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2h/rp.e at capabilities {}: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=0x06
+  [c] PASS REFUSED on the 0xDEADC0DE mock before any DMA  -- exit 'REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2h/rp.e at capabilities {}: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=0x06
+  [c] PASS ... device-keyed (SEQ_CAPS was read)  -- ['dev', 'seq_caps_read', 'seq_caps_read']
+    (d) caps [R1] on 0xFAB1CA01: outcome 'exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2r1/rp.e at capabilities [\'R1\']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs cap'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xe3c2ff1e)
+      | exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2r1/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt
+  [d] PASS mislabelled manifest (caps [R1]) still REFUSED on 0xFAB1CA01 before any DMA, naming R2  -- exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2r1/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt
+  [d] PASS ... and (caps [R1]) still LOADS on 0xFAB1CA03  -- tripped upload
+    (d) seq_isa 2.2 on 0xFAB1CA01: outcome 'exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2i22/rp.e at capabilities [\'R1\']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs ca'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xe3c2ff1e)
+      | exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2i22/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tg
+  [d] PASS mislabelled manifest (seq_isa 2.2) still REFUSED on 0xFAB1CA01 before any DMA, naming R2  -- exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2i22/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tg
+  [d] PASS ... and (seq_isa 2.2) still LOADS on 0xFAB1CA03  -- tripped upload
+    (e) no claim on 0xFAB1CA01: outcome 'exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2n/rp.e at capabilities [\'R1\']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capa'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xe3c2ff1e)
+      | exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2n/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=
+  [e] PASS no capability claim: REFUSED on 0xFAB1CA01 before any DMA  -- exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2n/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=
+  [e] PASS no capability claim: LOADS on 0xFAB1CA03  -- tripped upload
+  [f] PASS --dry-run --caps R1 REFUSES the r2 stream  -- exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/r2h/rp.e at capabilities ['R1']: rec 3: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x00 tgt=
+  [f] PASS --dry-run --caps R1,R2 validates + relocates, uploads nothing, never reads SEQ_CAPS  -- exit 0 ['dev']
+=== keyless manifests (the addendum)
+    (K1) keyless isa=2 at build_035: outcome 'exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/k2/rp.e at capabilities {}: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key ('; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      |   SHAPE layout     isa=1  (the device's VERSION 0x54443b9f)
+      | exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/k2/rp.e at capabilities {}: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded i
+  [K1] PASS a keyless isa=2 artifact named as build_035 is REFUSED before any DMA, naming the missing shape_isa key  -- exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/k2/rp.e at capabilities {}: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded in), required on a board run: the device 
+    (K2) frozen W8 at build_035: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 187 images match the stream's MVGO plan; 3464 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [K2] PASS the frozen 2B W8 artifact (isa=1, keyless) at build_035 still LOADS  -- tripped upload
+    (K3) keyless at build_041: outcome 'exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/k2/rp.e at capabilities {}: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key ('; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xc973c18a)
+      | exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/k2/rp.e at capabilities {}: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded i
+  [K3] PASS a keyless artifact at build_041 (isa=2) is REFUSED before any DMA, naming the missing shape_isa key  -- exit "REFUSING before any DMA: /tmp/sr13b_fx_l_dubokv/k2/rp.e at capabilities {}: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded in), required on a board run: the device 
+  [K4] PASS a 9B artifact (declared shape_isa 2) LOADS at build_041  -- tripped upload
+  [K4] PASS a 9B artifact (declared shape_isa 2) LOADS at build_044_r1_incr  -- tripped upload
+  [K4] PASS a 9B artifact (declared shape_isa 2) LOADS at the R2 mock  -- tripped upload
+    (K5) keyless template at device isa=1: ChatSeqError: REFUSED before any upload: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded in), required on a board run: the device d
+  [K5] PASS chat_seq admit_caps REFUSES a keyless non-frozen template at device isa=1, naming the key, before its first validation  -- ChatSeqError: REFUSED before any upload: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded in), required on a board run: the device d
+    (K5) keyless template at device isa=2: ChatSeqError: REFUSED before any upload: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded in), required on a board run: the device d
+  [K5] PASS chat_seq admit_caps REFUSES a keyless non-frozen template at device isa=2, naming the key, before its first validation  -- ChatSeqError: REFUSED before any upload: /tmp/sr13b_fx_l_dubokv/k2/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded in), required on a board run: the device d
+    (K5) frozen W8 at isa=1: reached load_template
+  [K5] PASS ... the frozen W8 template (keyless) at isa=1 passes the key check (reaches load_template)  -- reached load_template
+=== serve: BoardBackend._args() still pins seq_rtl r0
+  [h2] PASS serve's namespace pins seq_rtl = 'r0'  -- 'r0'
+=== chat_seq --seq-rtl r2: main() on mock SEQ windows (FABLE5_MODEL=9b)
+  [setup] PASS chat_seq imported at FABLE5_MODEL=9b  -- 9b
+    g: outcome 'exit 4' (9 s); events ["load_template(caps=frozenset({'R1', 'R2'}))", "independent_step_images(caps=frozenset({'R1', 'R2'}))", 'B6-stub', 'dev', 'seq_caps_read', 'seq_caps_read', "load_template(caps=frozenset({'R1'}))", "independent_step_images(caps=frozenset({'R1'}))"]
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9099bc0
+      |   board      MAGIC=0xfab1e001 VERSION=0xe3c2ff1e CALIB=0xf SEQ=READY
+      |   shape      SHAPE layout isa=2 (the device's VERSION 0xe3c2ff1e)
+      | *** REFUSED before any upload: image lite (--seq-rtl r2) at capabilities ['R1'] (the device's SEQ_CAPS 0xfab1ca01): rec 17: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl
+  [g] PASS `chat_seq --seq-rtl r2` on the 0xFAB1CA01 mock REFUSES (exit 4) at open_board, before any upload  -- exit 4
+  [g] PASS ... device-keyed (SEQ_CAPS read) and naming R2
+    h: outcome 'exit 4' (9 s); events ["load_template(caps=frozenset({'R1', 'R2'}))", "independent_step_images(caps=frozenset({'R1', 'R2'}))", 'B6-stub', 'dev', 'seq_caps_read', 'seq_caps_read', 'load_template(caps=frozenset())', 'independent_step_images(caps=frozenset())']
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9099bc0
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+      |   shape      SHAPE layout isa=2 (the device's VERSION 0xc973c18a)
+      | *** REFUSED before any upload: image lite (--seq-rtl r2) at capabilities {} (the device's SEQ_CAPS 0xdeadc0de): rec 17: MOVX target is reserved (must be 0; the XWIN start word needs capability R2, B17.2)  [op=0x03 fl=0x0
+  [h] PASS `chat_seq --seq-rtl r2` on the 0xDEADC0DE mock REFUSES (exit 4) at open_board, before any upload, SEQ_CAPS read  -- exit 4
+    i: outcome 'tripped bring_up' (9 s); events ["load_template(caps=frozenset({'R1', 'R2'}))", "independent_step_images(caps=frozenset({'R1', 'R2'}))", 'B6-stub', 'dev', 'seq_caps_read', 'seq_caps_read', "load_template(caps=frozenset({'R1', 'R2'}))", "independent_step_images(caps=frozenset({'R1', 'R2'}))", 'bring_up']
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9099bc0
+      |   board      MAGIC=0xfab1e001 VERSION=0x2b2b2b2b CALIB=0xf SEQ=READY
+      |   shape      SHAPE layout isa=2 (the device's VERSION 0x2b2b2b2b)
+      |   caps       ['R1', 'R2'] from the device's SEQ_CAPS 0xfab1ca03; template, slices and the 3 images (--seq-rtl r2) validated at it (1.0 s)
+  [i] PASS `chat_seq --seq-rtl r2` LOADS on the 0xFAB1CA03 mock (reaches bring_up, the first upload)  -- tripped bring_up
+  [i] PASS the device's caps {R1, R2} reach load_template and independent_step_images after open_board read them  -- ['seq_caps_read', ('load_template', frozenset({'R1', 'R2'})), ('independent_step_images', frozenset({'R1', 'R2'})), 'bring_up']
+      bank fields per image {'lite': 1728, 'full': 1916}; refused at {R1} {'lite': True, 'full': True}; at {} {'lite': True, 'full': True}; session caps frozenset({'R1', 'R2'})
+  [i] PASS the lite/full images carry bank fields and are REFUSED at {R1} and at {}
+  [i] PASS its lite/full images equal the r2 pins (REORDER_B_R2_IMAGES)
+  [i] PASS the session's validation caps are the device's {R1, R2}
+  [i] PASS no manifest is involved: chat images carry none (the session never read a caps claim)
+    jA: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder A -- run --seq-rtl r0 for the shipped RTL level
+  [j] PASS refused before the board: ['--seq-rtl', 'r2', '--reorder', 'A'] -> exit 4 naming --seq-rtl  -- exit 4; ['*** --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder A -- run --seq-rtl r0 for the shipped RTL level']
+    joff: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level
+  [j] PASS refused before the board: ['--seq-rtl', 'r2', '--reorder', 'off'] -> exit 4 naming --seq-rtl  -- exit 4; ['*** --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level']
+    jenv: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level
+  [j] PASS refused before the board: {'FABLE5_SEQ_RTL': 'r2', 'FABLE5_REORDER': 'off'} -> exit 4 naming --seq-rtl  -- exit 4; ['*** --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level']
+  [j] PASS FABLE5_SEQ_RTL=R2 parses to r2  -- 'r2'
+      B6 SeqExec caps (r2 session): [frozenset(), frozenset(), frozenset(), frozenset({'R1', 'R2'}), frozenset({'R1', 'R2'}), frozenset({'R1', 'R2'})]; verifier: [frozenset({'R1', 'R2'})]
+  [k] PASS B6 at r2: shipped side at the empty set, reordered side at {R1, R2}  -- [frozenset(), frozenset(), frozenset(), frozenset({'R1', 'R2'}), frozenset({'R1', 'R2'}), frozenset({'R1', 'R2'})]
+  [k] PASS SeqModelVerifier at r2 runs SeqExec at {R1, R2}  -- [frozenset({'R1', 'R2'})]
+per case: (setup) 2/2  (a) 2/2  (b) 3/3  (c) 2/2  (d) 4/4  (e) 2/2  (f) 2/2  (K1) 1/1  (K2) 1/1  (K3) 1/1  (K4) 3/3  (K5) 3/3  (h2) 1/1  (g) 2/2  (h) 1/1  (i) 6/6  (j) 4/4  (k) 2/2
+SR13B_HOST_TDD: 42 passed, 0 failed (31 s) -> PASS
+=== rc  : 0
+=== end : 2026-09-29T03:11:02-06:00

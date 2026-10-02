@@ -1,0 +1,1212 @@
+=== host: snoke  date: 2026-09-28T13:06:32-06:00
+=== tree: f6190bd
+=== cmd : bash evidence/qwen9b/sr/sr11c_drift.sh model --audit
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SR11C_EXCLUDE evidence/qwen9b/o3/o3_cite_drift.py                                    standing: o3's own docstring
+SR11C_EXCLUDE evidence/qwen9b/s3/S3_CHAIN.md                                         standing: S3_CHAIN.md (history)
+SR11C_EXCLUDE evidence/qwen9b/sr/SR11a_R2_MODEL.md                                   standing: SR11a gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/SR11b_R2_PASS.md                                    standing: SR11b gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/sr11a_drift.sh                                      standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr11b_gate.sh                                       first commit a490360 is after the base 7e64d05
+SR11C_EXCLUDE evidence/qwen9b/sr/sr11c_drift.sh                                      standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr13a_cov.py                                        standing: SR13a's files
+SR11C_EXCLUDE evidence/qwen9b/sr/sr7_drift.sh                                        standing: drift wrapper
+SR11C_EXCLUDE tb/scripts/gen_chat_i1_vectors.py                                      standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/scripts/gen_seq_chip_vectors.py                                     standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/scripts/gen_seq_unit_vectors.py                                     standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/seq_stub_mvchan.sv                                                  standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/tb_matvec_chan.sv                                                   standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/tb_seq_chip.sv                                                      standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/tb_seq_unit.sv                                                      standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE total 16 document(s)
+=== NEXT_SESSION.md  (REPAIR 4, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1439 -> ref/seq_format.py:1524   doc lines 937   at-base yes
+      base ref/seq_format.py:1439  'assert self.attn is None, "T reset inside a gated-attention block"'
+      work ref/seq_format.py:1439  'def _csrwr(self, csr, val, ind=IND_NONE, xrf=0):'
+      work ref/seq_format.py:1524  'assert self.attn is None, "T reset inside a gated-attention block"'   <- proposed
+      doc:937  ...    `ref/seq_format.py:1439`'s 4-bit mask over 2 bits (#52); `evide...
+  REPAIR         ref/seq_model.py:810 -> ref/seq_model.py:973   doc lines 1131   at-base yes
+      base ref/seq_model.py:810  '# corrupt and must not be executed here either.'
+      work ref/seq_model.py:810  'else:'
+      work ref/seq_model.py:973  '# corrupt and must not be executed here either.'   <- proposed
+      doc:1131  ...    (`ref/seq_model.py:435`, `ref/seq_model.py:810`, `ref/seq_model.py:812`,...
+  REPAIR         ref/seq_model.py:812 -> ref/seq_model.py:975   doc lines 1131   at-base yes
+      base ref/seq_model.py:812  'sh = (shape >> 6) & 0x3F'
+      work ref/seq_model.py:812  'elif op == 2:'
+      work ref/seq_model.py:975  'sh = (shape >> 6) & 0x3F'   <- proposed
+      doc:1131  ...    (`ref/seq_model.py:435`, `ref/seq_model.py:810`, `ref/seq_model.py:812`,...
+  REPAIR         ref/seq_model.py:822 -> ref/seq_model.py:985   doc lines 1132   at-base yes
+      base ref/seq_model.py:822  '# sh[5:0]}.  The W8 and g64 engine modes are GONE, so there is'
+      work ref/seq_model.py:822  'elif sub == 2:'
+      work ref/seq_model.py:985  '# sh[5:0]}.  The W8 and g64 engine modes are GONE, so there is'   <- proposed
+      doc:1132  ...    `ref/seq_model.py:822`) — under `python -O` they vanish and t...
+=== docs/QWEN35_2BOARD_FEASIBILITY.md  (REPAIR 8, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1921-1923 -> ref/seq_format.py:2006-2008   doc lines 736,1774   at-base yes
+      base ref/seq_format.py:1921  'actually fail — a generator that used a LOWER wid for the first time'
+      work ref/seq_format.py:1921  'self._emit(Rec(OP_FENCE))'
+      work ref/seq_format.py:2006  'actually fail — a generator that used a LOWER wid for the first time'   <- proposed
+      base end :1923 'and move bases that emitted MVGO records already encode.  (Checking' / work end :2008 'and move bases that emitted MVGO records already encode.  (Checking'
+      doc:736  ...address is a Python integer at emit time (`ref/seq_format.py:1921-1923`), and...
+      doc:1774  ...| the emitter's compile-time weight address and its loop closure | `ref/seq_format.py:1921-1923`, `ref/seq_format.py:2216`, `ref/seq_fo...
+  REPAIR         ref/seq_format.py:2216 -> ref/seq_format.py:2301   doc lines 737,1774   at-base yes
+      base ref/seq_format.py:2216  'stride = per_step[steps[1]][0][1] - base0'
+      work ref/seq_format.py:2216  'for g0 in range(0, len(chunks), n):'
+      work ref/seq_format.py:2301  'stride = per_step[steps[1]][0][1] - base0'   <- proposed
+      doc:737  ...`ref/seq_format.py:2216` `def _try_loop(self):` closes the toke...
+      doc:1774  ...tter's compile-time weight address and its loop closure | `ref/seq_format.py:1921-1923`, `ref/seq_format.py:2216`, `ref/seq_format.py:2246`, `ref/seq_fo...
+  REPAIR         ref/seq_format.py:2246 -> ref/seq_format.py:2331   doc lines 738,1774   at-base yes
+      base ref/seq_format.py:2246  'stride = self._index_pos_loads()'
+      work ref/seq_format.py:2246  'self._cmd(11, enc_alu_a0(ALU_DYNQ16, n, 0), a1,'
+      work ref/seq_format.py:2331  'stride = self._index_pos_loads()'   <- proposed
+      doc:738  ...consecutive bodies are byte-identical — `ref/seq_format.py:2246`...
+      doc:1774  ... address and its loop closure | `ref/seq_format.py:1921-1923`, `ref/seq_format.py:2216`, `ref/seq_format.py:2246`, `ref/seq_format.py:2251` |...
+  REPAIR         ref/seq_format.py:2251 -> ref/seq_format.py:2336   doc lines 740,1774   at-base yes
+      base ref/seq_format.py:2251  'bounds = [s["rec0"] for s in self.steps] + [len(self.recs)]'
+      work ref/seq_format.py:2251  '"dn_bf hint does not match the following SCALE"'
+      work ref/seq_format.py:2336  'bounds = [s["rec0"] for s in self.steps] + [len(self.recs)]'   <- proposed
+      doc:740  ...`ref/seq_format.py:2251` `why = "step bodies differ"`. The modu...
+      doc:1774  ...ure | `ref/seq_format.py:1921-1923`, `ref/seq_format.py:2216`, `ref/seq_format.py:2246`, `ref/seq_format.py:2251` |...
+  REPAIR         ref/seq_format.py:1921-1923 -> ref/seq_format.py:2006-2008   doc lines 736,1774   at-base yes
+      base ref/seq_format.py:1921  'actually fail — a generator that used a LOWER wid for the first time'
+      work ref/seq_format.py:1921  'self._emit(Rec(OP_FENCE))'
+      work ref/seq_format.py:2006  'actually fail — a generator that used a LOWER wid for the first time'   <- proposed
+      base end :1923 'and move bases that emitted MVGO records already encode.  (Checking' / work end :2008 'and move bases that emitted MVGO records already encode.  (Checking'
+      doc:736  ...address is a Python integer at emit time (`ref/seq_format.py:1921-1923`), and...
+      doc:1774  ...| the emitter's compile-time weight address and its loop closure | `ref/seq_format.py:1921-1923`, `ref/seq_format.py:2216`, `ref/seq_fo...
+  REPAIR         ref/seq_format.py:2216 -> ref/seq_format.py:2301   doc lines 737,1774   at-base yes
+      base ref/seq_format.py:2216  'stride = per_step[steps[1]][0][1] - base0'
+      work ref/seq_format.py:2216  'for g0 in range(0, len(chunks), n):'
+      work ref/seq_format.py:2301  'stride = per_step[steps[1]][0][1] - base0'   <- proposed
+      doc:737  ...`ref/seq_format.py:2216` `def _try_loop(self):` closes the toke...
+      doc:1774  ...tter's compile-time weight address and its loop closure | `ref/seq_format.py:1921-1923`, `ref/seq_format.py:2216`, `ref/seq_format.py:2246`, `ref/seq_fo...
+  REPAIR         ref/seq_format.py:2246 -> ref/seq_format.py:2331   doc lines 738,1774   at-base yes
+      base ref/seq_format.py:2246  'stride = self._index_pos_loads()'
+      work ref/seq_format.py:2246  'self._cmd(11, enc_alu_a0(ALU_DYNQ16, n, 0), a1,'
+      work ref/seq_format.py:2331  'stride = self._index_pos_loads()'   <- proposed
+      doc:738  ...consecutive bodies are byte-identical — `ref/seq_format.py:2246`...
+      doc:1774  ... address and its loop closure | `ref/seq_format.py:1921-1923`, `ref/seq_format.py:2216`, `ref/seq_format.py:2246`, `ref/seq_format.py:2251` |...
+  REPAIR         ref/seq_format.py:2251 -> ref/seq_format.py:2336   doc lines 740,1774   at-base yes
+      base ref/seq_format.py:2251  'bounds = [s["rec0"] for s in self.steps] + [len(self.recs)]'
+      work ref/seq_format.py:2251  '"dn_bf hint does not match the following SCALE"'
+      work ref/seq_format.py:2336  'bounds = [s["rec0"] for s in self.steps] + [len(self.recs)]'   <- proposed
+      doc:740  ...`ref/seq_format.py:2251` `why = "step bodies differ"`. The modu...
+      doc:1774  ...ure | `ref/seq_format.py:1921-1923`, `ref/seq_format.py:2216`, `ref/seq_format.py:2246`, `ref/seq_format.py:2251` |...
+=== docs/QWEN35_NEXT_FEASIBILITY.md  (REPAIR 4, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1326 -> ref/seq_format.py:1411   doc lines 438,477   at-base yes
+      base ref/seq_format.py:1326  '"attn_probe": 0, "xop": 0, "mvgo_nowait": 0,'
+      work ref/seq_format.py:1326  'dyn_ka (independent of the profile, default ON) additionally restructure'
+      work ref/seq_format.py:1411  '"attn_probe": 0, "xop": 0, "mvgo_nowait": 0,'   <- proposed
+      doc:438  ...(`ref/gen_layer_script.py:709`, `ref/seq_format.py:1326`) and as a bound in...
+      doc:477  ...`rtl/layer_chan.sv:757`, `ref/gen_layer_script.py:709`, `ref/seq_format.py:1326`,...
+  REPAIR         ref/seq_format.py:1326 -> ref/seq_format.py:1411   doc lines 438,477   at-base yes
+      base ref/seq_format.py:1326  '"attn_probe": 0, "xop": 0, "mvgo_nowait": 0,'
+      work ref/seq_format.py:1326  'dyn_ka (independent of the profile, default ON) additionally restructure'
+      work ref/seq_format.py:1411  '"attn_probe": 0, "xop": 0, "mvgo_nowait": 0,'   <- proposed
+      doc:438  ...(`ref/gen_layer_script.py:709`, `ref/seq_format.py:1326`) and as a bound in...
+      doc:477  ...`rtl/layer_chan.sv:757`, `ref/gen_layer_script.py:709`, `ref/seq_format.py:1326`,...
+  REPAIR         ref/seq_model.py:497-503 -> ref/seq_model.py:642-648   doc lines 484   at-base yes
+      base ref/seq_model.py:497  'self.emb = emb'
+      work ref/seq_model.py:497  'self.vec = {}          # chan -> {start byte: nbytes}'
+      work ref/seq_model.py:642  'self.emb = emb'   <- proposed
+      base end :503 'self.xrf = [0] * XRF_N' / work end :648 'self.xrf = [0] * XRF_N'
+      doc:484  ...> hardware field. That is precisely the property `ref/seq_model.py:497-503` and...
+  REPAIR         ref/seq_format.py:1129 -> ref/seq_format.py:1214   doc lines 834   at-base yes
+      base ref/seq_format.py:1129  '#                  where the nch engines run the SAME chunk index'
+      work ref/seq_format.py:1129  'ng-UNIT count K//128 in both widths, only `stride` moves'
+      work ref/seq_format.py:1214  '#                  where the nch engines run the SAME chunk index'   <- proposed
+      doc:834  ...`ref/seq_format.py:1129` — on synthetic manifests. Two...
+=== docs/SEQ_ISA.md  (REPAIR 3, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:560-561 -> ref/seq_format.py:592-593   doc lines 694   at-base yes
+      base ref/seq_format.py:560  'if ind != IND_NONE:'
+      work ref/seq_format.py:560  "manifest's claim.  The default (empty) is every pre-round bitstream and"
+      work ref/seq_format.py:592  'if ind != IND_NONE:'   <- proposed
+      base end :561 'bad("MOVX/MVGO cannot use immediate indirection (flags[7:4] "' / work end :593 'bad("MOVX/MVGO cannot use immediate indirection (flags[7:4] "'
+      doc:694  ...  * "MOVX target reserved 0" — ref/seq_format.py:560-561 rejects it;...
+  REPAIR         ref/seq_format.py:558-559 -> ref/seq_format.py:590-591   doc lines 696   at-base yes
+      base ref/seq_format.py:558  'elif r.opcode in (OP_MOVX, OP_MVGO):'
+      work ref/seq_format.py:558  '`caps` (SEQ_ISA v2.3 B17.0) is the capability set of the DEVICE the'
+      work ref/seq_format.py:590  'elif r.opcode in (OP_MOVX, OP_MVGO):'   <- proposed
+      base end :559 '# A1: flags[7:4] is the channel here, so indirection is forbidden' / work end :591 '# A1: flags[7:4] is the channel here, so indirection is forbidden'
+      doc:696  ...  * "MVGO target[15:1] reserved 0" — ref/seq_format.py:558-559 rejects it;...
+  REPAIR         ref/seq_format.py:601 -> ref/seq_format.py:686   doc lines 717   at-base yes
+      base ref/seq_format.py:601  'if r.flags or r.target or r.imm32 or r.addr_lo or r.len_or_addr_hi:'
+      work ref/seq_format.py:601  '# SEQ_ISA v2.3 B17.2 (R2): target[11:0] = the XWIN start word,'
+      work ref/seq_format.py:686  'if r.flags or r.target or r.imm32 or r.addr_lo or r.len_or_addr_hi:'   <- proposed
+      doc:717  ...   nrec") agrees with the RTL, and ref/seq_format.py:601 now reads...
+=== docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md  (REPAIR 13, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:644-645 -> ref/seq_format.py:729-730   doc lines 74,194   at-base yes
+      base ref/seq_format.py:644  '"""'
+      work ref/seq_format.py:644  'bad(f"MVGO RBANK with nrows {nrx}: a bank holds "'
+      work ref/seq_format.py:729  '"""'   <- proposed
+      base end :645 'if isinstance(recs, (bytes, bytearray, memoryview)):' / work end :730 'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      doc:74  ...- Modify: `ref/seq_format.py:320-333` (CSR offsets), `ref/seq_format.py:644-645` (the opcode-name dict), `ref/seq_forma...
+      doc:194  ...Extend the opcode-name dict (`ref/seq_format.py:644-645`) with `13: "SLD", 14: "SST"`. The vali...
+  REPAIR         ref/seq_format.py:580-593 -> ref/seq_format.py:656-669   doc lines 74,194   at-base yes
+      base ref/seq_format.py:580  '# SHAPE_ISA_9B above.  rtl/seq_unit.sv applies it unconditionally'
+      work ref/seq_format.py:580  'bad(f"unknown indirection code {ind:#x}")'
+      work ref/seq_format.py:656  '# SHAPE_ISA_9B above.  rtl/seq_unit.sv applies it unconditionally'   <- proposed
+      base end :593 'if r.chan >= 4:' / work end :669 'if r.chan >= 4:'
+      doc:74  ...eq_format.py:320-333` (CSR offsets), `ref/seq_format.py:644-645` (the opcode-name dict), `ref/seq_format.py:580-593` (`validate_stream`, where ARG0..2 are ...
+      doc:194  ...-645`) with `13: "SLD", 14: "SST"`. The validate clause goes in **`validate_stream()`** (`ref/seq_format.py:580-593`), which tracks the ARG0..2 CSR writes ...
+  REPAIR         ref/seq_format.py:663 -> ref/seq_format.py:748   doc lines 74,210   at-base yes
+      base ref/seq_format.py:663  'continue'
+      work ref/seq_format.py:663  'f"rtl/matvec_engine.sv MAX_NG")'
+      work ref/seq_format.py:748  'continue'   <- proposed
+      doc:74  ...acked — NOT `validate()` at `ref/seq_format.py:483`, which sees one record and no ARGs), `ref/seq_format.py:663` (disasm)...
+      doc:210  ...arry no op 13/14 — say so in the comment as the MVGO clause's comment does). `disasm()` (`ref/seq_format.py:663`) prints `SLD k=DN slot=0 L=3` style te...
+  REPAIR         ref/seq_format.py:644-645 -> ref/seq_format.py:729-730   doc lines 74,194   at-base yes
+      base ref/seq_format.py:644  '"""'
+      work ref/seq_format.py:644  'bad(f"MVGO RBANK with nrows {nrx}: a bank holds "'
+      work ref/seq_format.py:729  '"""'   <- proposed
+      base end :645 'if isinstance(recs, (bytes, bytearray, memoryview)):' / work end :730 'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      doc:74  ...- Modify: `ref/seq_format.py:320-333` (CSR offsets), `ref/seq_format.py:644-645` (the opcode-name dict), `ref/seq_forma...
+      doc:194  ...Extend the opcode-name dict (`ref/seq_format.py:644-645`) with `13: "SLD", 14: "SST"`. The vali...
+  REPAIR         ref/seq_format.py:580-593 -> ref/seq_format.py:656-669   doc lines 74,194   at-base yes
+      base ref/seq_format.py:580  '# SHAPE_ISA_9B above.  rtl/seq_unit.sv applies it unconditionally'
+      work ref/seq_format.py:580  'bad(f"unknown indirection code {ind:#x}")'
+      work ref/seq_format.py:656  '# SHAPE_ISA_9B above.  rtl/seq_unit.sv applies it unconditionally'   <- proposed
+      base end :593 'if r.chan >= 4:' / work end :669 'if r.chan >= 4:'
+      doc:74  ...eq_format.py:320-333` (CSR offsets), `ref/seq_format.py:644-645` (the opcode-name dict), `ref/seq_format.py:580-593` (`validate_stream`, where ARG0..2 are ...
+      doc:194  ...-645`) with `13: "SLD", 14: "SST"`. The validate clause goes in **`validate_stream()`** (`ref/seq_format.py:580-593`), which tracks the ARG0..2 CSR writes ...
+  REPAIR         ref/seq_format.py:663 -> ref/seq_format.py:748   doc lines 74,210   at-base yes
+      base ref/seq_format.py:663  'continue'
+      work ref/seq_format.py:663  'f"rtl/matvec_engine.sv MAX_NG")'
+      work ref/seq_format.py:748  'continue'   <- proposed
+      doc:74  ...acked — NOT `validate()` at `ref/seq_format.py:483`, which sees one record and no ARGs), `ref/seq_format.py:663` (disasm)...
+      doc:210  ...arry no op 13/14 — say so in the comment as the MVGO clause's comment does). `disasm()` (`ref/seq_format.py:663`) prints `SLD k=DN slot=0 L=3` style te...
+  REPAIR         ref/seq_model.py:1069 -> ref/seq_model.py:1264   doc lines 437,509   at-base yes
+      base ref/seq_model.py:1069  'self.f = f'
+      work ref/seq_model.py:1069  'self.cp_log.append('
+      work ref/seq_model.py:1264  'self.f = f'   <- proposed
+      doc:437  ... class beside `DDRWeights` at `ref/seq_model.py:305`; SLD/SST execution in `__call__` at `ref/seq_model.py:1069`; `gate()` at `ref/seq_model.py:1077` c...
+      doc:509  ...he emitter (the two are independent implementations — that is the lockstep). `__call__` (`ref/seq_model.py:1069`) executes ops 13/14 through it; `gate(...
+  REPAIR-SUSPECT ref/seq_model.py:1077 -> ref/seq_model.py:1272   doc lines 437,509,651   at-base NO
+      base ref/seq_model.py:1077  'return False'
+      work ref/seq_model.py:1077  'self.stats["CMD"] += 1'
+      work ref/seq_model.py:1272  'return False'   <- proposed
+      doc:437  ...q_model.py:305`; SLD/SST execution in `__call__` at `ref/seq_model.py:1069`; `gate()` at `ref/seq_model.py:1077` compares the region image at the end o...
+      doc:509  ...lockstep). `__call__` (`ref/seq_model.py:1069`) executes ops 13/14 through it; `gate()` (`ref/seq_model.py:1077`) compares, at the end, every block the...
+  REPAIR         ref/seq_format.py:1288-1304 -> ref/seq_format.py:1373-1389   doc lines 437   at-base yes
+      base ref/seq_format.py:1288  '# every nch>1 stream (chans == range(nch)) and this pins that.'
+      work ref/seq_format.py:1288  'return out'
+      work ref/seq_format.py:1373  '# every nch>1 stream (chans == range(nch)) and this pins that.'   <- proposed
+      base end :1304 'self.recs = []' / work end :1389 'self.recs = []'
+      doc:437  ...`gate()` at `ref/seq_model.py:1077` compares the region image at the end of the stream), `ref/seq_format.py:1288-1304` (as of e905cd3 — S1 inserts above; re-...
+  REPAIR         ref/seq_model.py:1069 -> ref/seq_model.py:1264   doc lines 437,509   at-base yes
+      base ref/seq_model.py:1069  'self.f = f'
+      work ref/seq_model.py:1069  'self.cp_log.append('
+      work ref/seq_model.py:1264  'self.f = f'   <- proposed
+      doc:437  ... class beside `DDRWeights` at `ref/seq_model.py:305`; SLD/SST execution in `__call__` at `ref/seq_model.py:1069`; `gate()` at `ref/seq_model.py:1077` c...
+      doc:509  ...he emitter (the two are independent implementations — that is the lockstep). `__call__` (`ref/seq_model.py:1069`) executes ops 13/14 through it; `gate(...
+  REPAIR-SUSPECT ref/seq_model.py:1077 -> ref/seq_model.py:1272   doc lines 437,509,651   at-base NO
+      base ref/seq_model.py:1077  'return False'
+      work ref/seq_model.py:1077  'self.stats["CMD"] += 1'
+      work ref/seq_model.py:1272  'return False'   <- proposed
+      doc:437  ...q_model.py:305`; SLD/SST execution in `__call__` at `ref/seq_model.py:1069`; `gate()` at `ref/seq_model.py:1077` compares the region image at the end o...
+      doc:509  ...lockstep). `__call__` (`ref/seq_model.py:1069`) executes ops 13/14 through it; `gate()` (`ref/seq_model.py:1077`) compares, at the end, every block the...
+  REPAIR         ref/seq_model.py:707 -> ref/seq_model.py:861   doc lines 509   at-base yes
+      base ref/seq_model.py:707  '# implementation of the byte layouts.'
+      work ref/seq_model.py:707  'for j, sh in ((first, 0), (first + 1, 16)):'
+      work ref/seq_model.py:861  '# implementation of the byte layouts.'   <- proposed
+      doc:509  ...FORE the model executes SLD/SST → `SF.SeqValidationError: unknown layer_chan opcode 13` (`ref/seq_model.py:707`); commit the log.  <!--cites:noquote--...
+  REPAIR-SUSPECT ref/seq_model.py:1077 -> ref/seq_model.py:1272   doc lines 437,509,651   at-base NO
+      base ref/seq_model.py:1077  'return False'
+      work ref/seq_model.py:1077  'self.stats["CMD"] += 1'
+      work ref/seq_model.py:1272  'return False'   <- proposed
+      doc:437  ...q_model.py:305`; SLD/SST execution in `__call__` at `ref/seq_model.py:1069`; `gate()` at `ref/seq_model.py:1077` compares the region image at the end o...
+      doc:509  ...lockstep). `__call__` (`ref/seq_model.py:1069`) executes ops 13/14 through it; `gate()` (`ref/seq_model.py:1077`) compares, at the end, every block the...
+=== docs/superpowers/plans/2026-09-27-seq-rtl-round.md  (REPAIR 5, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:520 -> ref/seq_format.py:547   doc lines 153   at-base yes
+      base ref/seq_format.py:520  'def validate(r, nrec=None, idx=None, shape_isa=None, caps=frozenset()):'
+      work ref/seq_format.py:520  ''
+      work ref/seq_format.py:547  'def validate(r, nrec=None, idx=None, shape_isa=None, caps=frozenset()):'   <- proposed
+      doc:153  ...ed here** (defining them here and importing into hwmap would be circular); `validate()` (`ref/seq_format.py:520`) and `validate_stream()` (`ref/seq_for...
+  REPAIR         ref/seq_format.py:617 -> ref/seq_format.py:702   doc lines 153   at-base yes
+      base ref/seq_format.py:617  'if r.flags or (r.target & tmask) or r.imm32 or r.addr_lo \\'
+      work ref/seq_format.py:617  'f"{XWIN_WORDS} (B17.2, err 0x06)")'
+      work ref/seq_format.py:702  'if r.flags or (r.target & tmask) or r.imm32 or r.addr_lo \\'   <- proposed
+      doc:153  ...wmap would be circular); `validate()` (`ref/seq_format.py:520`) and `validate_stream()` (`ref/seq_format.py:617`) gain `caps=frozenset()`; the FENCE/HA...
+  REPAIR         ref/seq_format.py:603-605 -> ref/seq_format.py:688-690   doc lines 153   at-base yes
+      base ref/seq_format.py:603  'elif r.opcode == OP_JMP:'
+      work ref/seq_format.py:603  '# rule stands (target reserved 0) -- build_041/042 IGNORE MOVX'
+      work ref/seq_format.py:688  'elif r.opcode == OP_JMP:'   <- proposed
+      base end :605 'bad(f"JMP flags {r.flags:#04x} undefined (0 or {JMP_TCNT:#x})")' / work end :690 'bad(f"JMP flags {r.flags:#04x} undefined (0 or {JMP_TCNT:#x})")'
+      doc:153  ...date_stream()` (`ref/seq_format.py:617`) gain `caps=frozenset()`; the FENCE/HALT clause (`ref/seq_format.py:603-605`) splits; disasm prints `FENCE mask=0x?...
+  REPAIR         ref/seq_model.py:907-909 -> ref/seq_model.py:1100-1102   doc lines 210   at-base yes
+      base ref/seq_model.py:907  'if r.flags & JMP_TCNT:'
+      work ref/seq_model.py:907  'return'
+      work ref/seq_model.py:1100  'if r.flags & JMP_TCNT:'   <- proposed
+      base end :909 'if self.tcnt_seq:' / work end :1102 'if self.tcnt_seq:'
+      doc:210  ...- Modify: `ref/seq_model.py` — the FENCE arm (`ref/seq_model.py:907-909`) removes only the masked channels from...
+  REPAIR         ref/seq_model.py:822-823 -> ref/seq_model.py:985-986   doc lines 417   at-base yes
+      base ref/seq_model.py:822  '# sh[5:0]}.  The W8 and g64 engine modes are GONE, so there is'
+      work ref/seq_model.py:822  'elif sub == 2:'
+      work ref/seq_model.py:985  '# sh[5:0]}.  The W8 and g64 engine modes are GONE, so there is'   <- proposed
+      base end :823 '# no bit to read them out of and no combination to reject.' / work end :986 '# no bit to read them out of and no combination to reject.'
+      doc:417  ...an R2 stream cannot validate on an R1-only device); the SHAPE-spare assert in the model (`ref/seq_model.py:822-823`) admits bits 29/30 only under R2  <!--...
+=== docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md  (REPAIR 11, COLLATERAL 2)
+  REPAIR         ref/seq_format.py:1239 -> ref/seq_format.py:1324   doc lines 1454,2293   at-base yes
+      base ref/seq_format.py:1239  'path (seq_model --selftest: 200/200 blocks, 0 LSB).'
+      work ref/seq_format.py:1239  ''
+      work ref/seq_format.py:1324  'path (seq_model --selftest: 200/200 blocks, 0 LSB).'   <- proposed
+      doc:1454  ... `rtl/layer_chan.sv:757` `.cfg_len(arg0[16:4])`; mirrored `ref/gen_layer_script.py:696`, `ref/seq_format.py:1239` | 13 → **14 b** (`arg0[17:4]`, max 163...
+      doc:2293  ...at `ref/seq_format.py:1258` (ARG CSRWRs `ref/seq_format.py:1281-1283`), `ALU_LEN_MAX` at `ref/seq_format.py:1239`,...
+  REPAIR         ref/seq_model.py:484-485 -> ref/seq_model.py:629-630   doc lines 1462   at-base yes
+      base ref/seq_model.py:484  '# model looks at it.'
+      work ref/seq_model.py:484  'whatever x_mem holds): a MVGO at start byte s reads exactly the vector'
+      work ref/seq_model.py:629  '# model looks at it.'   <- proposed
+      base end :485 '#' / work end :630 '#'
+      doc:1462  ...> **four** bits of `kvhead` where the RTL reads **one**: `ref/seq_model.py:484-485`...
+  REPAIR         ref/seq_format.py:1501-1502 -> ref/seq_format.py:1586-1587   doc lines 1463   at-base yes
+      base ref/seq_format.py:1501  ''
+      work ref/seq_format.py:1501  'assert self.attn is None, "SB_* write inside a gated-attention block"'
+      work ref/seq_format.py:1586  ''   <- proposed
+      base end :1502 'def on_c(self, op, a0, a1, a2):' / work end :1587 'def on_c(self, op, a0, a1, a2):'
+      doc:1463  ...> `M.kvap(a0 & 0xF, …)` and `ref/seq_format.py:1501-1502`...
+  REPAIR         ref/seq_model.py:463-464 -> ref/seq_model.py:608-609   doc lines 2252   at-base yes
+      base ref/seq_model.py:463  '# the executor'
+      work ref/seq_model.py:463  '"""SR11a fix round 1 (M1): a MVGO or MOVY that reads x_mem / RES the'
+      work ref/seq_model.py:608  '# the executor'   <- proposed
+      base end :464 '# ======================================================================' / work end :609 '# ======================================================================'
+      doc:2252  ...| `ref/seq_model.py:463-464` | DNST bits 30/31, open-coded inside t...
+  REPAIR         ref/seq_format.py:1258 -> ref/seq_format.py:1343   doc lines 2293   at-base yes
+      base ref/seq_format.py:1258  '# nch: number of matvec_chans the emitter row-splits every matvec'
+      work ref/seq_format.py:1258  'if layout not in LAYOUTS:'
+      work ref/seq_format.py:1343  '# nch: number of matvec_chans the emitter row-splits every matvec'   <- proposed
+      doc:2293  ...emitter `_cmd` at `ref/seq_format.py:1258` (ARG CSRWRs `ref/seq_format.py:1281-12...
+  REPAIR         ref/seq_format.py:1281-1283 -> ref/seq_format.py:1366-1368   doc lines 2293   at-base yes
+      base ref/seq_format.py:1281  '# is nothing to repack across one channel.'
+      work ref/seq_format.py:1281  "LAYOUT_ILV the channel's rows are strided through the image and the"
+      work ref/seq_format.py:1366  '# is nothing to repack across one channel.'   <- proposed
+      base end :1283 'assert not (self.repack and self.nch < 2), \\' / work end :1368 'assert not (self.repack and self.nch < 2), \\'
+      doc:2293  ...emitter `_cmd` at `ref/seq_format.py:1258` (ARG CSRWRs `ref/seq_format.py:1281-1283`), `ALU_LEN_MAX` at `ref/seq_format.py:...
+  REPAIR         ref/seq_format.py:1239 -> ref/seq_format.py:1324   doc lines 1454,2293   at-base yes
+      base ref/seq_format.py:1239  'path (seq_model --selftest: 200/200 blocks, 0 LSB).'
+      work ref/seq_format.py:1239  ''
+      work ref/seq_format.py:1324  'path (seq_model --selftest: 200/200 blocks, 0 LSB).'   <- proposed
+      doc:1454  ... `rtl/layer_chan.sv:757` `.cfg_len(arg0[16:4])`; mirrored `ref/gen_layer_script.py:696`, `ref/seq_format.py:1239` | 13 → **14 b** (`arg0[17:4]`, max 163...
+      doc:2293  ...at `ref/seq_format.py:1258` (ARG CSRWRs `ref/seq_format.py:1281-1283`), `ALU_LEN_MAX` at `ref/seq_format.py:1239`,...
+  REPAIR         ref/seq_format.py:677-692 -> ref/seq_format.py:762-777   doc lines 2294   at-base yes
+      base ref/seq_format.py:677  'hmax = {SDMA_KIND_DN: 0, SDMA_KIND_KV: 7, SDMA_KIND_CV: 0}[kind]'
+      work ref/seq_format.py:677  'row0 = r.target >> 4'
+      work ref/seq_format.py:762  'hmax = {SDMA_KIND_DN: 0, SDMA_KIND_KV: 7, SDMA_KIND_CV: 0}[kind]'   <- proposed
+      base end :692 'x = int(xrf[r.xrf])' / work end :777 'x = int(xrf[r.xrf])'
+      doc:2294  ...the `disasm` decoders at `ref/seq_format.py:677-692`, the attention block at `ref/seq_forma...
+  REPAIR         ref/seq_format.py:1490-1502 -> ref/seq_format.py:1575-1587   doc lines 2294   at-base yes
+      base ref/seq_format.py:1490  'y = self.mv["y32"]'
+      work ref/seq_format.py:1490  'w = layer_word(dn_slot, kv_slot, cv_slot, kv_layer)'
+      work ref/seq_format.py:1575  'y = self.mv["y32"]'   <- proposed
+      base end :1502 'def on_c(self, op, a0, a1, a2):' / work end :1587 'def on_c(self, op, a0, a1, a2):'
+      doc:2294  ...the `disasm` decoders at `ref/seq_format.py:677-692`, the attention block at `ref/seq_format.py:1490-1502`, the DN...
+  REPAIR         ref/seq_format.py:1953-1981 -> ref/seq_format.py:2038-2066   doc lines 2295   at-base yes
+      base ref/seq_format.py:1953  'wants (and it is what `weight_pieces_at(repack=False)` returns), so'
+      work ref/seq_format.py:1953  '# ================================================================'
+      work ref/seq_format.py:2038  'wants (and it is what `weight_pieces_at(repack=False)` returns), so'   <- proposed
+      base end :1981 'return (p0 + e_x) & 0xFFFFFFFF, \\' / work end :2066 'return (p0 + e_x) & 0xFFFFFFFF, \\'
+      doc:2295  ...block-float rewriter at `ref/seq_format.py:1953-1981`. *(An earlier revision claimed one of ...
+  REPAIR         ref/seq_format.py:1570 -> ref/seq_format.py:1655   doc lines 2296   at-base yes
+      base ref/seq_format.py:1570  'dyn_ka=0 (the v1.2 emission): k_a goes out as a CONSTANT immediate'
+      work ref/seq_format.py:1570  'def on_w32(self, addr, vals32):'
+      work ref/seq_format.py:1655  'dyn_ka=0 (the v1.2 emission): k_a goes out as a CONSTANT immediate'   <- proposed
+      doc:2296  ...`ref/seq_format.py:1570` re-packs an ALU `a2` as `(new_p0 & 0x1...
+  COLLATERAL     `:432-493` -> `:432-638`   doc lines 2252   at-base yes
+      base ref/seq_model.py:432  'wid, r0, p, avail = self._lookup(wbase, chan)'
+      work ref/seq_model.py:432  'wid, r0, p, avail = self._lookup(wbase, chan)'
+      work ref/seq_model.py:432  'wid, r0, p, avail = self._lookup(wbase, chan)'   <- proposed
+      base end :493 '# `ref/seq_format.disasm` needs no such selector because it renders' / work end :638 '# `ref/seq_format.disasm` needs no such selector because it renders'
+      doc:2252  ... DNST bits 30/31, open-coded inside the reference executor `_layer_cmd` (`:424`, dispatch `:432-493`) |...
+  COLLATERAL     ref/seq_model.py:424-543 -> ref/seq_model.py:424-697   doc lines 2618   at-base NO
+      base ref/seq_model.py:424  '# the packed row maps back to the GLOBAL row the image file'
+      work ref/seq_model.py:424  '# the packed row maps back to the GLOBAL row the image file'
+      work ref/seq_model.py:424  '# the packed row maps back to the GLOBAL row the image file'   <- proposed
+      base end :543 '`LOFF_TCNT2` and every gate doc name the same two CSRs by BYTE, 0x20' / work end :697 '`LOFF_TCNT2` and every gate doc name the same two CSRs by BYTE, 0x20'
+      doc:2618  ...tes; `sw/chat_seq.py:1701-1702` cites `ref/seq_model.py:303-415` for a dispatcher now at `ref/seq_model.py:424-543`, and `ref/gen_layer_script.py:265-499`...
+=== docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md  (REPAIR 7, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:776-778 -> ref/seq_model.py:930-932   doc lines 119   at-base yes
+      base ref/seq_model.py:776  '# SV1 (OV1 review I1): the RTL pops the x FIFO into x_mem WHENEVER'
+      work ref/seq_model.py:776  'elif sp == CSR_SPACE_SEQ:'
+      work ref/seq_model.py:930  '# SV1 (OV1 review I1): the RTL pops the x FIFO into x_mem WHENEVER'   <- proposed
+      base end :778 '# for the whole stream, so a MOVX onto a channel whose no-wait' / work end :932 '# for the whole stream, so a MOVX onto a channel whose no-wait'
+      doc:119  ...is refused only by the model gate (`ref/seq_model.py:776-778`,...
+  REPAIR         ref/seq_model.py:792-794 -> ref/seq_model.py:953-955   doc lines 120   at-base yes
+      base ref/seq_model.py:792  'def _mvgo(self, r):'
+      work ref/seq_model.py:792  'Mach, which mirrors rtl/layer_chan.sv); ALU op 12 DYNQ16 and the'
+      work ref/seq_model.py:953  'def _mvgo(self, r):'   <- proposed
+      base end :794 '# matvec unconditionally (rtl/matvec_engine.sv:453-460) and the' / work end :955 '# matvec unconditionally (rtl/matvec_engine.sv:453-460) and the'
+      doc:120  ...`ref/seq_model.py:792-794`, `ref/seq_model.py:845-847`) and the r...
+  REPAIR         ref/seq_model.py:845-847 -> ref/seq_model.py:1024-1026   doc lines 120   at-base yes
+      base ref/seq_model.py:845  'else:'
+      work ref/seq_model.py:845  'GLS.dec_a1_lo(a2),'
+      work ref/seq_model.py:1024  'else:'   <- proposed
+      base end :847 '' / work end :1026 ''
+      doc:120  ...`ref/seq_model.py:792-794`, `ref/seq_model.py:845-847`) and the reorder...
+  REPAIR         ref/seq_format.py:603-604 -> ref/seq_format.py:688-689   doc lines 150   at-base yes
+      base ref/seq_format.py:603  'elif r.opcode == OP_JMP:'
+      work ref/seq_format.py:603  '# rule stands (target reserved 0) -- build_041/042 IGNORE MOVX'
+      work ref/seq_format.py:688  'elif r.opcode == OP_JMP:'   <- proposed
+      base end :604 'if r.flags not in (0, JMP_TCNT):' / work end :689 'if r.flags not in (0, JMP_TCNT):'
+      doc:150  ...all; every other field zero (err 0x06). Validator: `ref/seq_format.py:603-604`...
+  REPAIR         ref/seq_model.py:907-909 -> ref/seq_model.py:1100-1102   doc lines 163   at-base yes
+      base ref/seq_model.py:907  'if r.flags & JMP_TCNT:'
+      work ref/seq_model.py:907  'return'
+      work ref/seq_model.py:1100  'if r.flags & JMP_TCNT:'   <- proposed
+      base end :909 'if self.tcnt_seq:' / work end :1102 'if self.tcnt_seq:'
+      doc:163  ...**Reference model.** `ref/seq_model.py:907-909` today clears the whole...
+  REPAIR         ref/seq_model.py:822-823 -> ref/seq_model.py:985-986   doc lines 288,300   at-base yes
+      base ref/seq_model.py:822  '# sh[5:0]}.  The W8 and g64 engine modes are GONE, so there is'
+      work ref/seq_model.py:822  'elif sub == 2:'
+      work ref/seq_model.py:985  '# sh[5:0]}.  The W8 and g64 engine modes are GONE, so there is'   <- proposed
+      base end :823 '# no bit to read them out of and no combination to reject.' / work end :986 '# no bit to read them out of and no combination to reject.'
+      doc:288  ...The SHAPE-spare assert (`ref/seq_model.py:822-823`) admits bits 29/30 at...
+      doc:300  ...SHAPE bits 29/30 zero (the model asserts it today, `ref/seq_model.py:822-823`)...
+  REPAIR         ref/seq_model.py:822-823 -> ref/seq_model.py:985-986   doc lines 288,300   at-base yes
+      base ref/seq_model.py:822  '# sh[5:0]}.  The W8 and g64 engine modes are GONE, so there is'
+      work ref/seq_model.py:822  'elif sub == 2:'
+      work ref/seq_model.py:985  '# sh[5:0]}.  The W8 and g64 engine modes are GONE, so there is'   <- proposed
+      base end :823 '# no bit to read them out of and no combination to reject.' / work end :986 '# no bit to read them out of and no combination to reject.'
+      doc:288  ...The SHAPE-spare assert (`ref/seq_model.py:822-823`) admits bits 29/30 at...
+      doc:300  ...SHAPE bits 29/30 zero (the model asserts it today, `ref/seq_model.py:822-823`)...
+=== evidence/qwen2b/rb/seq_isa_ref_sweep.txt  (REPAIR 3, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:560-561 -> ref/seq_format.py:592-593   doc lines 64   at-base yes
+      base ref/seq_format.py:560  'if ind != IND_NONE:'
+      work ref/seq_format.py:560  "manifest's claim.  The default (empty) is every pre-round bitstream and"
+      work ref/seq_format.py:592  'if ind != IND_NONE:'   <- proposed
+      base end :561 'bad("MOVX/MVGO cannot use immediate indirection (flags[7:4] "' / work end :593 'bad("MOVX/MVGO cannot use immediate indirection (flags[7:4] "'
+      doc:64  ...SEQ_ISA:604  ref/seq_format.py:560-561          [movx-reserved] if r.opcode ==...
+  REPAIR         ref/seq_format.py:558-559 -> ref/seq_format.py:590-591   doc lines 66   at-base yes
+      base ref/seq_format.py:558  'elif r.opcode in (OP_MOVX, OP_MVGO):'
+      work ref/seq_format.py:558  '`caps` (SEQ_ISA v2.3 B17.0) is the capability set of the DEVICE the'
+      work ref/seq_format.py:590  'elif r.opcode in (OP_MOVX, OP_MVGO):'   <- proposed
+      base end :559 '# A1: flags[7:4] is the channel here, so indirection is forbidden' / work end :591 '# A1: flags[7:4] is the channel here, so indirection is forbidden'
+      doc:66  ...SEQ_ISA:606  ref/seq_format.py:558-559          [mvgo-reserved] if r.opcode ==...
+  REPAIR         ref/seq_format.py:601 -> ref/seq_format.py:686   doc lines 68   at-base yes
+      base ref/seq_format.py:601  'if r.flags or r.target or r.imm32 or r.addr_lo or r.len_or_addr_hi:'
+      work ref/seq_format.py:601  '# SEQ_ISA v2.3 B17.2 (R2): target[11:0] = the XWIN start word,'
+      work ref/seq_format.py:686  'if r.flags or r.target or r.imm32 or r.addr_lo or r.len_or_addr_hi:'   <- proposed
+      doc:68  ...SEQ_ISA:627  ref/seq_format.py:601              [jmp-bound-fix] if nrec is...
+=== evidence/qwen9b/g2/G2A_HOST.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:1150 -> ref/seq_model.py:1345   doc lines 351   at-base yes
+      base ref/seq_model.py:1150  'if os.path.exists(fin):'
+      work ref/seq_model.py:1150  '# ======================================================================'
+      work ref/seq_model.py:1345  'if os.path.exists(fin):'   <- proposed
+      doc:351  ...`ref/seq_model.py:1150`, which uses `GLS.SCRATCH`....
+=== evidence/qwen9b/g2/d_stage_check.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:1200 -> ref/seq_model.py:1395   doc lines 7   at-base yes
+      base ref/seq_model.py:1200  '# would refuse a frozen stream that is perfectly legal for the'
+      work ref/seq_model.py:1200  'assert e == (M.eout & 0xFFFFFFFF), "E record mismatch"'
+      work ref/seq_model.py:1395  '# would refuse a frozen stream that is perfectly legal for the'   <- proposed
+      doc:7  ...was the bare literal `np.zeros(16384)` where its sibling `ref/seq_model.py:1200`...
+=== evidence/qwen9b/g3/G3_1_ISA.md  (REPAIR 6, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:737-752 -> ref/seq_format.py:822-837   doc lines 800   at-base yes
+      base ref/seq_format.py:737  'LOP_NAME = {1: "VN", 2: "VNW", 3: "ROPET", 4: "ROPE", 5: "CONVW", 6: "CO'
+      work ref/seq_format.py:737  'raise SeqValidationError('
+      work ref/seq_format.py:822  'LOP_NAME = {1: "VN", 2: "VNW", 3: "ROPET", 4: "ROPE", 5: "CONVW", 6: "CO'   <- proposed
+      base end :752 'ALU_PROBE_BIT = 0x40' / work end :837 'ALU_PROBE_BIT = 0x40'
+      doc:800  ...| 8 | `ref/seq_format.py:737-752` — `disasm`'s ALU/VN decoders | spec §7...
+  REPAIR         ref/seq_format.py:753-768 -> ref/seq_format.py:838-853   doc lines 800   at-base yes
+      base ref/seq_format.py:753  'ALU_PROBE_SHIFT_MASK = 0x3F'
+      work ref/seq_format.py:753  '# the MVGO SHAPE clause above -- v2.1 streams are the only kind this'
+      work ref/seq_format.py:838  'ALU_PROBE_SHIFT_MASK = 0x3F'   <- proposed
+      base end :768 'if o == OP_CMD:' / work end :853 'if o == OP_CMD:'
+      doc:800  ...seq_format.py:737-752` — `disasm`'s ALU/VN decoders | spec §7.6 D | REPAIRED (round 2) → `ref/seq_format.py:753-768` |...
+  REPAIR         ref/seq_format.py:2072-2096 -> ref/seq_format.py:2157-2181   doc lines 801   at-base yes
+      base ref/seq_format.py:2072  'def _emit_parallel_matvec(self, active, wid, sub, fused, p0, e_x, ka,'
+      work ref/seq_format.py:2072  'self.stats["movy_rows"] += nrows'
+      work ref/seq_format.py:2157  'def _emit_parallel_matvec(self, active, wid, sub, fused, p0, e_x, ka,'   <- proposed
+      base end :2096 'self._movy_at(c, stage, rc, imm, flags)' / work end :2181 'self._movy_at(c, stage, rc, imm, flags)'
+      doc:801  ...| 9 | `ref/seq_format.py:2072-2096` — the DN block-float rewriter | spec §...
+  REPAIR         ref/seq_format.py:2109-2137 -> ref/seq_format.py:2194-2222   doc lines 801   at-base yes
+      base ref/seq_format.py:2109  'strictly serial, which is why the 248,320-row head never parallelised'
+      work ref/seq_format.py:2109  'if not amax:'
+      work ref/seq_format.py:2194  'strictly serial, which is why the 248,320-row head never parallelised'   <- proposed
+      base end :2137 'self.stats["fence"] += 1' / work end :2222 'self.stats["fence"] += 1'
+      doc:801  ..._format.py:2072-2096` — the DN block-float rewriter | spec §7.6 D | REPAIRED (round 2) → `ref/seq_format.py:2109-2137` |...
+  REPAIR         ref/seq_format.py:1326 -> ref/seq_format.py:1411   doc lines 915   at-base yes
+      base ref/seq_format.py:1326  '"attn_probe": 0, "xop": 0, "mvgo_nowait": 0,'
+      work ref/seq_format.py:1326  'dyn_ka (independent of the profile, default ON) additionally restructure'
+      work ref/seq_format.py:1411  '"attn_probe": 0, "xop": 0, "mvgo_nowait": 0,'   <- proposed
+      doc:915  ...| `ALU_LEN_MAX` (the twin) | `ref/seq_format.py:1326` 8191 | `ref/seq_format.py:1343`, 16383...
+  REPAIR         ref/seq_format.py:1343 -> ref/seq_format.py:1428   doc lines 915   at-base yes
+      base ref/seq_format.py:1343  '# STAGING WINDOWS: scratch the host W32 records used to relay matvec'
+      work ref/seq_format.py:1343  '# nch: number of matvec_chans the emitter row-splits every matvec'
+      work ref/seq_format.py:1428  '# STAGING WINDOWS: scratch the host W32 records used to relay matvec'   <- proposed
+      doc:915  ...| `ALU_LEN_MAX` (the twin) | `ref/seq_format.py:1326` 8191 | `ref/seq_format.py:1343`, 16383 |  <!--cites:noquote-->...
+=== evidence/qwen9b/g3/G3_3_MATVEC.md  (REPAIR 7, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1797 -> ref/seq_format.py:1882   doc lines 280,856   at-base yes
+      base ref/seq_format.py:1797  'self._movy(p["addr"], n, imm_p0, e_x if sub == 6 else None,'
+      work ref/seq_format.py:1797  '# in the collision check beside QR.  They are read off the buffered'
+      work ref/seq_format.py:1882  'self._movy(p["addr"], n, imm_p0, e_x if sub == 6 else None,'   <- proposed
+      doc:280  ...`ref/seq_format.py:1797`/`:1938`).  Spec §3.3 says `ref/` and `...
+      doc:856  ...| `ref/seq_format.py:1797`, `ref/seq_format.py:1938` | stream pro...
+  REPAIR         `:1938` -> `:2023`   doc lines 280   at-base yes
+      base ref/seq_format.py:1938  ''
+      work ref/seq_format.py:1938  'else:'
+      work ref/seq_format.py:2023  ''   <- proposed
+      doc:280  ...`ref/seq_format.py:1797`/`:1938`).  Spec §3.3 says `ref/` and `sw/` stil...
+  REPAIR         ref/seq_model.py:475-488 -> ref/seq_model.py:620-633   doc lines 474   at-base yes
+      base ref/seq_model.py:475  '# issued, in firing order, and compared against the .txt R records.'
+      work ref/seq_model.py:475  'return a1 <= a0 or (a0 < b1 and b0 < a1)'
+      work ref/seq_model.py:620  '# issued, in firing order, and compared against the .txt R records.'   <- proposed
+      base end :488 '# SEQ_ISA v2.0 ONLY, so a real pre-G3 `.seq` file still cannot be' / work end :633 '# SEQ_ISA v2.0 ONLY, so a real pre-G3 `.seq` file still cannot be'
+      doc:474  ...(`ref/seq_model.py:475-488`)....
+  REPAIR         ref/seq_format.py:1797 -> ref/seq_format.py:1882   doc lines 280,856   at-base yes
+      base ref/seq_format.py:1797  'self._movy(p["addr"], n, imm_p0, e_x if sub == 6 else None,'
+      work ref/seq_format.py:1797  '# in the collision check beside QR.  They are read off the buffered'
+      work ref/seq_format.py:1882  'self._movy(p["addr"], n, imm_p0, e_x if sub == 6 else None,'   <- proposed
+      doc:280  ...`ref/seq_format.py:1797`/`:1938`).  Spec §3.3 says `ref/` and `...
+      doc:856  ...| `ref/seq_format.py:1797`, `ref/seq_format.py:1938` | stream pro...
+  REPAIR         ref/seq_format.py:1938 -> ref/seq_format.py:2023   doc lines 856   at-base yes
+      base ref/seq_format.py:1938  ''
+      work ref/seq_format.py:1938  'else:'
+      work ref/seq_format.py:2023  ''   <- proposed
+      doc:856  ...| `ref/seq_format.py:1797`, `ref/seq_format.py:1938` | stream producers | already delegatin...
+  REPAIR         ref/seq_format.py:785-796 -> ref/seq_format.py:870-881   doc lines 857   at-base yes
+      base ref/seq_format.py:785  'mode = "EPSNORM"'
+      work ref/seq_format.py:785  '# ---------------------------------------------------------------- disas'
+      work ref/seq_format.py:870  'mode = "EPSNORM"'   <- proposed
+      base end :796 'txt += f" kvhead={head >> 1} kv={\'V\' if head & 1 else \'K\'}"' / work end :881 'txt += f" kvhead={head >> 1} kv={\'V\' if head & 1 else \'K\'}"'
+      doc:857  ...| `ref/seq_format.py:785-796` disasm, `ref/seq_model.py:767-795` `_m...
+  REPAIR         ref/seq_model.py:767-795 -> ref/seq_model.py:921-956   doc lines 857   at-base yes
+      base ref/seq_model.py:767  'LF.attn_o_shift(int(np.abs(prod).max()), note=False))'
+      work ref/seq_model.py:767  'elif off == SF.LOFF_DNSB:'
+      work ref/seq_model.py:921  'LF.attn_o_shift(int(np.abs(prod).max()), note=False))'   <- proposed
+      base end :795 '# MVGO path does not look at the pending bit' / work end :956 '# MVGO path does not look at the pending bit'
+      doc:857  ...| `ref/seq_format.py:785-796` disasm, `ref/seq_model.py:767-795` `_mvgo` | decoders | already versioned...
+=== evidence/qwen9b/g3/G3_4_LAYER.md  (REPAIR 15, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:537 -> ref/seq_format.py:569   doc lines 985   at-base yes
+      base ref/seq_format.py:537  'def bad(msg):'
+      work ref/seq_format.py:537  'def movx_words(nbytes):'
+      work ref/seq_format.py:569  'def bad(msg):'   <- proposed
+      doc:985  ...| `ref/seq_format.py:483`, `ref/seq_format.py:537`, `ref/seq_format.py:580` | the two val...
+  REPAIR         ref/seq_format.py:580 -> ref/seq_format.py:656   doc lines 985   at-base yes
+      base ref/seq_format.py:580  '# SHAPE_ISA_9B above.  rtl/seq_unit.sv applies it unconditionally'
+      work ref/seq_format.py:580  'bad(f"unknown indirection code {ind:#x}")'
+      work ref/seq_format.py:656  '# SHAPE_ISA_9B above.  rtl/seq_unit.sv applies it unconditionally'   <- proposed
+      doc:985  ...| `ref/seq_format.py:483`, `ref/seq_format.py:537`, `ref/seq_format.py:580` | the two validator entry points gain ...
+  REPAIR         ref/seq_format.py:1375 -> ref/seq_format.py:1460   doc lines 1009   at-base yes
+      base ref/seq_format.py:1375  'Asserted below rather than assumed — under SEQ_ISA v1.7 the whole'
+      work ref/seq_format.py:1375  '# dyn_ka: emit the ISA v1.3 attention DOUBLE PASS (op-8 probe -> k_a'
+      work ref/seq_format.py:1460  'Asserted below rather than assumed — under SEQ_ISA v1.7 the whole'   <- proposed
+      doc:1009  ...`SeqEmitter.on_treset` (`ref/seq_format.py:1375`) emits **two** CSRWRs, and...
+  REPAIR         ref/seq_format.py:688 -> ref/seq_format.py:773   doc lines 1010   at-base yes
+      base ref/seq_format.py:688  'v = r.imm_s'
+      work ref/seq_format.py:688  'elif r.opcode == OP_JMP:'
+      work ref/seq_format.py:773  'v = r.imm_s'   <- proposed
+      doc:1010  ...`_csr_name` names `L_TCNT2` at `ref/seq_format.py:688`. Proven twice: `isa_bits.py` exercises...
+  REPAIR         ref/seq_format.py:1126 -> ref/seq_format.py:1211   doc lines 1091   at-base yes
+      base ref/seq_format.py:1126  '#'
+      work ref/seq_format.py:1126  'WHEN SET, exactly as `dump_weights` emits "g" only when it is not 128,'
+      work ref/seq_format.py:1211  '#'   <- proposed
+      doc:1091  ...`ref/seq_format.py:1126` — `CHUNK_ROWS = 2048`....
+  REPAIR         ref/seq_format.py:521-522 -> ref/seq_format.py:548-549   doc lines 1167   at-base yes
+      base ref/seq_format.py:521  '"""Reject anything the ISA does not define.  Raises SeqValidationError.'
+      work ref/seq_format.py:521  '# SEQ_ISA v2.3 B17.2 (R2, the XWIN / RES bank bits; spec'
+      work ref/seq_format.py:548  '"""Reject anything the ISA does not define.  Raises SeqValidationError.'   <- proposed
+      base end :522 '' / work end :549 ''
+      doc:1167  ...ormat.py:506-509` | the same 29-line shift, on the two v1.5 reserved-field rulings | now `ref/seq_format.py:521-522` (MVGO target) and `ref/seq_format.py:5...
+  REPAIR         ref/seq_format.py:523-524 -> ref/seq_format.py:550-551   doc lines 1167,1209   at-base yes
+      base ref/seq_format.py:523  '`nrec` (stream length) enables the JMP target bound check.'
+      work ref/seq_format.py:523  "# storage is the RTL's: x_mem = 96 lines x 32 words (MVGO_MAX_NG lines, "
+      work ref/seq_format.py:550  '`nrec` (stream length) enables the JMP target bound check.'   <- proposed
+      base end :524 '`shape_isa` (G3.4) enables the MVGO SHAPE envelope check, which can' / work end :551 '`shape_isa` (G3.4) enables the MVGO SHAPE envelope check, which can'
+      doc:1167  ... the two v1.5 reserved-field rulings | now `ref/seq_format.py:521-522` (MVGO target) and `ref/seq_format.py:523-524` (MOVX target), and both were re-read a...
+      doc:1209  ...the MOVX-reject pointer in `docs/SEQ_ISA.md` from `ref/seq_format.py:523-524`...
+  REPAIR         ref/seq_format.py:982 -> ref/seq_format.py:1067   doc lines 1168   at-base yes
+      base ref/seq_format.py:982  'def __init__(self, base=SEQ_DATA_BASE):'
+      work ref/seq_format.py:982  '"""'
+      work ref/seq_format.py:1067  'def __init__(self, base=SEQ_DATA_BASE):'   <- proposed
+      doc:1168  ...| `evidence/qwen_next/feas/toks_model.py:59`, pointing into `ref/seq_format.py:982` | **not a shift at all**: the pointer ...
+  REPAIR         ref/seq_format.py:1042 -> ref/seq_format.py:1127   doc lines 1168,1500   at-base yes
+      base ref/seq_format.py:1042  'so every W4 plan — and therefore every committed .seq.json — stays'
+      work ref/seq_format.py:1042  'x = np.asarray(x16, dtype=np.int64)'
+      work ref/seq_format.py:1127  'so every W4 plan — and therefore every committed .seq.json — stays'   <- proposed
+      doc:1168  ... wrong line at `8138d66` too, and two passes tracked it faithfully | repaired by hand to `ref/seq_format.py:1042`, the `CHUNK_ROWS = 2048` line; the cit...
+      doc:1500  ... `ref/scripts/bytes_per_token.py:106` (m3) | `ref/seq_format.py:1001` for `CHUNK_ROWS` | `ref/seq_format.py:1042` | the sibling of `evidence/qwen_next/f...
+  REPAIR         ref/seq_format.py:523-524 -> ref/seq_format.py:550-551   doc lines 1167,1209   at-base yes
+      base ref/seq_format.py:523  '`nrec` (stream length) enables the JMP target bound check.'
+      work ref/seq_format.py:523  "# storage is the RTL's: x_mem = 96 lines x 32 words (MVGO_MAX_NG lines, "
+      work ref/seq_format.py:550  '`nrec` (stream length) enables the JMP target bound check.'   <- proposed
+      base end :524 '`shape_isa` (G3.4) enables the MVGO SHAPE envelope check, which can' / work end :551 '`shape_isa` (G3.4) enables the MVGO SHAPE envelope check, which can'
+      doc:1167  ... the two v1.5 reserved-field rulings | now `ref/seq_format.py:521-522` (MVGO target) and `ref/seq_format.py:523-524` (MOVX target), and both were re-read a...
+      doc:1209  ...the MOVX-reject pointer in `docs/SEQ_ISA.md` from `ref/seq_format.py:523-524`...
+  REPAIR         ref/seq_model.py:1150 -> ref/seq_model.py:1345   doc lines 1284,1320   at-base yes
+      base ref/seq_model.py:1150  'if os.path.exists(fin):'
+      work ref/seq_model.py:1150  '# ======================================================================'
+      work ref/seq_model.py:1345  'if os.path.exists(fin):'   <- proposed
+      doc:1284  ...| `ref/seq_model.py:1150` `gate()` | loads | `meta.get("shape_is...
+      doc:1320  ...| `ref/seq_model.py:1099` | `ref/seq_model.py:1150` | `SF.validate_stream(recs, shape_isa=...
+  REPAIR         ref/seq_model.py:1099 -> ref/seq_model.py:1294   doc lines 1320   at-base yes
+      base ref/seq_model.py:1099  'class _TxtCmd(object):'
+      work ref/seq_model.py:1099  'self.stats["JMP"] += 1'
+      work ref/seq_model.py:1294  'class _TxtCmd(object):'   <- proposed
+      doc:1320  ...| `ref/seq_model.py:1099` | `ref/seq_model.py:1150` | `SF.valida...
+  REPAIR         ref/seq_model.py:1150 -> ref/seq_model.py:1345   doc lines 1284,1320   at-base yes
+      base ref/seq_model.py:1150  'if os.path.exists(fin):'
+      work ref/seq_model.py:1150  '# ======================================================================'
+      work ref/seq_model.py:1345  'if os.path.exists(fin):'   <- proposed
+      doc:1284  ...| `ref/seq_model.py:1150` `gate()` | loads | `meta.get("shape_is...
+      doc:1320  ...| `ref/seq_model.py:1099` | `ref/seq_model.py:1150` | `SF.validate_stream(recs, shape_isa=...
+  REPAIR         ref/seq_format.py:1001 -> ref/seq_format.py:1086   doc lines 1500   at-base yes
+      base ref/seq_format.py:1001  'self.size += pad'
+      work ref/seq_format.py:1001  'k   = bf_shift(max|x32|, guard)       [+1 fixup, guard, 0 -> 0]'
+      work ref/seq_format.py:1086  'self.size += pad'   <- proposed
+      doc:1500  ...| `ref/scripts/bytes_per_token.py:106` (m3) | `ref/seq_format.py:1001` for `CHUNK_ROWS` | `ref/seq_format.py:...
+  REPAIR         ref/seq_format.py:1042 -> ref/seq_format.py:1127   doc lines 1168,1500   at-base yes
+      base ref/seq_format.py:1042  'so every W4 plan — and therefore every committed .seq.json — stays'
+      work ref/seq_format.py:1042  'x = np.asarray(x16, dtype=np.int64)'
+      work ref/seq_format.py:1127  'so every W4 plan — and therefore every committed .seq.json — stays'   <- proposed
+      doc:1168  ... wrong line at `8138d66` too, and two passes tracked it faithfully | repaired by hand to `ref/seq_format.py:1042`, the `CHUNK_ROWS = 2048` line; the cit...
+      doc:1500  ... `ref/scripts/bytes_per_token.py:106` (m3) | `ref/seq_format.py:1001` for `CHUNK_ROWS` | `ref/seq_format.py:1042` | the sibling of `evidence/qwen_next/f...
+=== evidence/qwen9b/g4/G4A_REPLAY.md  (REPAIR 15, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:471-611 -> ref/seq_model.py:616-765   doc lines 1505,1510,1512,1528   at-base yes
+      base ref/seq_model.py:471  'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      work ref/seq_model.py:471  'def _overlap(a0, a1, b0, b1):'
+      work ref/seq_model.py:616  'if isinstance(recs, (bytes, bytearray, memoryview)):'   <- proposed
+      base end :611 'M.mem[self.sptr] = v - 65536 if v >= 32768 else v' / work end :765 'M.mem[self.sptr] = v - 65536 if v >= 32768 else v'
+      doc:1505  ...    collateral  ref/seq_model.py:471-611 -> ref/seq_model.py:471-629...
+      doc:1510  ...`ref/seq_model.py:471-611` for a dispatcher now at ..."* and...
+  REPAIR         ref/seq_model.py:471-629 -> ref/seq_model.py:616-783   doc lines 1505   at-base yes
+      base ref/seq_model.py:471  'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      work ref/seq_model.py:471  'def _overlap(a0, a1, b0, b1):'
+      work ref/seq_model.py:616  'if isinstance(recs, (bytes, bytearray, memoryview)):'   <- proposed
+      base end :629 'raise SF.SeqValidationError(' / work end :783 'raise SF.SeqValidationError('
+      doc:1505  ...    collateral  ref/seq_model.py:471-611 -> ref/seq_model.py:471-629...
+  REPAIR         ref/seq_model.py:471-611 -> ref/seq_model.py:616-765   doc lines 1505,1510,1512,1528   at-base yes
+      base ref/seq_model.py:471  'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      work ref/seq_model.py:471  'def _overlap(a0, a1, b0, b1):'
+      work ref/seq_model.py:616  'if isinstance(recs, (bytes, bytearray, memoryview)):'   <- proposed
+      base end :611 'M.mem[self.sptr] = v - 65536 if v >= 32768 else v' / work end :765 'M.mem[self.sptr] = v - 65536 if v >= 32768 else v'
+      doc:1505  ...    collateral  ref/seq_model.py:471-611 -> ref/seq_model.py:471-629...
+      doc:1510  ...`ref/seq_model.py:471-611` for a dispatcher now at ..."* and...
+  REPAIR         ref/seq_model.py:471-611 -> ref/seq_model.py:616-765   doc lines 1505,1510,1512,1528   at-base yes
+      base ref/seq_model.py:471  'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      work ref/seq_model.py:471  'def _overlap(a0, a1, b0, b1):'
+      work ref/seq_model.py:616  'if isinstance(recs, (bytes, bytearray, memoryview)):'   <- proposed
+      base end :611 'M.mem[self.sptr] = v - 65536 if v >= 32768 else v' / work end :765 'M.mem[self.sptr] = v - 65536 if v >= 32768 else v'
+      doc:1505  ...    collateral  ref/seq_model.py:471-611 -> ref/seq_model.py:471-629...
+      doc:1510  ...`ref/seq_model.py:471-611` for a dispatcher now at ..."* and...
+  REPAIR         ref/seq_model.py:471-611 -> ref/seq_model.py:616-765   doc lines 1505,1510,1512,1528   at-base yes
+      base ref/seq_model.py:471  'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      work ref/seq_model.py:471  'def _overlap(a0, a1, b0, b1):'
+      work ref/seq_model.py:616  'if isinstance(recs, (bytes, bytearray, memoryview)):'   <- proposed
+      base end :611 'M.mem[self.sptr] = v - 65536 if v >= 32768 else v' / work end :765 'M.mem[self.sptr] = v - 65536 if v >= 32768 else v'
+      doc:1505  ...    collateral  ref/seq_model.py:471-611 -> ref/seq_model.py:471-629...
+      doc:1510  ...`ref/seq_model.py:471-611` for a dispatcher now at ..."* and...
+  REPAIR         ref/seq_model.py:602 -> ref/seq_model.py:756   doc lines 1540,1544   at-base yes
+      base ref/seq_model.py:602  'raise SF.SeqValidationError('
+      work ref/seq_model.py:602  'def items(self):'
+      work ref/seq_model.py:756  'raise SF.SeqValidationError('   <- proposed
+      doc:1540  ...| ref/seq_model.py:602 | `ref/seq_model.py:620` | the `_layer_...
+      doc:1544  ...| ref/seq_model.py:602-739 | `ref/seq_model.py:620-757` | the ...
+  REPAIR         ref/seq_model.py:620 -> ref/seq_model.py:774   doc lines 1540,1544   at-base yes
+      base ref/seq_model.py:620  'elif sp == CSR_SPACE_MV:'
+      work ref/seq_model.py:620  '# issued, in firing order, and compared against the .txt R records.'
+      work ref/seq_model.py:774  'elif sp == CSR_SPACE_MV:'   <- proposed
+      doc:1540  ...| ref/seq_model.py:602 | `ref/seq_model.py:620` | the `_layer_cmd` def |...
+      doc:1544  ...| ref/seq_model.py:602-739 | `ref/seq_model.py:620-757` | the "now at" half of the D-CITE ...
+  REPAIR         ref/seq_model.py:610-671 -> ref/seq_model.py:764-825   doc lines 1541   at-base yes
+      base ref/seq_model.py:610  'v = val & 0xFFFF'
+      work ref/seq_model.py:610  'class SeqExec(object):'
+      work ref/seq_model.py:764  'v = val & 0xFFFF'   <- proposed
+      base end :671 'raise SF.SeqValidationError(f"CONVW sub-op {sub}")' / work end :825 'raise SF.SeqValidationError(f"CONVW sub-op {sub}")'
+      doc:1541  ...| ref/seq_model.py:610-671 | `ref/seq_model.py:628-707` | the op-1...
+  REPAIR         ref/seq_model.py:628-707 -> ref/seq_model.py:782-861   doc lines 1541   at-base yes
+      base ref/seq_model.py:628  'else:'
+      work ref/seq_model.py:628  '# word.  It is a decode-time choice, not a mode: nothing else in the'
+      work ref/seq_model.py:782  'else:'   <- proposed
+      base end :707 '# implementation of the byte layouts.' / work end :861 '# implementation of the byte layouts.'
+      doc:1541  ...| ref/seq_model.py:610-671 | `ref/seq_model.py:628-707` | the op-1 VN case through the unknown...
+  REPAIR         ref/seq_model.py:641-642 -> ref/seq_model.py:795-796   doc lines 1542   at-base yes
+      base ref/seq_model.py:641  'a0, a1, a2 = self.args'
+      work ref/seq_model.py:641  'self.W = weights'
+      work ref/seq_model.py:795  'a0, a1, a2 = self.args'   <- proposed
+      base end :642 'self.issued += 1' / work end :796 'self.issued += 1'
+      doc:1542  ...| ref/seq_model.py:641-642 | `ref/seq_model.py:659-660` | the dec_...
+  REPAIR         ref/seq_model.py:659-660 -> ref/seq_model.py:813-814   doc lines 1542   at-base yes
+      base ref/seq_model.py:659  'M.vnw_(GLS.dec_a1_lo(a1), a0)'
+      work ref/seq_model.py:659  'self.max_records = max_records'
+      work ref/seq_model.py:813  'M.vnw_(GLS.dec_a1_lo(a1), a0)'   <- proposed
+      base end :660 'elif op == 3:' / work end :814 'elif op == 3:'
+      doc:1542  ...| ref/seq_model.py:641-642 | `ref/seq_model.py:659-660` | the dec_a1_lo / dec_a1_hi pair |...
+  REPAIR         ref/seq_model.py:662-663 -> ref/seq_model.py:816-817   doc lines 1543   at-base yes
+      base ref/seq_model.py:662  'elif op == 4:'
+      work ref/seq_model.py:662  '"XOP", "PROBE", "MVGO_NOWAIT")}'
+      work ref/seq_model.py:816  'elif op == 4:'   <- proposed
+      base end :663 'M.rope(GLS.dec_a1_lo(a1), GLS.dec_a1_hi(a1))' / work end :817 'M.rope(GLS.dec_a1_lo(a1), GLS.dec_a1_hi(a1))'
+      doc:1543  ...| ref/seq_model.py:662-663 | `ref/seq_model.py:680-681` | the KVAP...
+  REPAIR         ref/seq_model.py:680-681 -> ref/seq_model.py:834-835   doc lines 1543   at-base yes
+      base ref/seq_model.py:680  '# scalar pointers come from the DNSB CSR as base + head.  This'
+      work ref/seq_model.py:680  "# for an r1 stream); the default (empty) is today's rules, so a"
+      work ref/seq_model.py:834  '# scalar pointers come from the DNSB CSR as base + head.  This'   <- proposed
+      base end :681 '# is the ONE place in this file that opens a DNST ARG word; the' / work end :835 '# is the ONE place in this file that opens a DNST ARG word; the'
+      doc:1543  ...| ref/seq_model.py:662-663 | `ref/seq_model.py:680-681` | the KVAP call and its kvhead argumen...
+  REPAIR         ref/seq_model.py:602-739 -> ref/seq_model.py:756-893   doc lines 1544   at-base yes
+      base ref/seq_model.py:602  'raise SF.SeqValidationError('
+      work ref/seq_model.py:602  'def items(self):'
+      work ref/seq_model.py:756  'raise SF.SeqValidationError('   <- proposed
+      base end :739 'raise SF.SeqValidationError(' / work end :893 'raise SF.SeqValidationError('
+      doc:1544  ...| ref/seq_model.py:602-739 | `ref/seq_model.py:620-757` | the "now...
+  REPAIR         ref/seq_model.py:620-757 -> ref/seq_model.py:774-911   doc lines 1544   at-base yes
+      base ref/seq_model.py:620  'elif sp == CSR_SPACE_MV:'
+      work ref/seq_model.py:620  '# issued, in firing order, and compared against the .txt R records.'
+      work ref/seq_model.py:774  'elif sp == CSR_SPACE_MV:'   <- proposed
+      base end :757 '# so the write side is an ordinary EMUL32 by p0[5:0]; the running' / work end :911 '# so the write side is an ordinary EMUL32 by p0[5:0]; the running'
+      doc:1544  ...| ref/seq_model.py:602-739 | `ref/seq_model.py:620-757` | the "now at" half of the D-CITE row ...
+=== evidence/qwen9b/g5/G5C_RTL.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:591 -> ref/seq_model.py:745   doc lines 956   at-base yes
+      base ref/seq_model.py:591  '# B15.3, in 64 KiB units.  The model gets its region from'
+      work ref/seq_model.py:591  'return default if v is None else v'
+      work ref/seq_model.py:745  '# B15.3, in 64 KiB units.  The model gets its region from'   <- proposed
+      doc:956  ...   ATTN.  Nothing in `ref/` models cycles (`ref/seq_model.py:591`), so no...
+=== evidence/qwen9b/g6/RD9_GATE.md  (REPAIR 2, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1260 -> ref/seq_format.py:1345   doc lines 510   at-base yes
+      base ref/seq_format.py:1260  '# emitter passively mirrors the .txt W32/ALU chunk boundaries through'
+      work ref/seq_format.py:1260  'if nch <= 1 or layout == LAYOUT_CONTIG:'
+      work ref/seq_format.py:1345  '# emitter passively mirrors the .txt W32/ALU chunk boundaries through'   <- proposed
+      doc:510  ...`ref/seq_format.py:1260`'s `assert not (self.repack and self.nc...
+  REPAIR-SUSPECT ref/seq_model.py:463 -> ref/seq_model.py:608   doc lines 3043   at-base NO
+      base ref/seq_model.py:463  '# the executor'
+      work ref/seq_model.py:463  '"""SR11a fix round 1 (M1): a MVGO or MOVY that reads x_mem / RES the'
+      work ref/seq_model.py:608  '# the executor'   <- proposed
+      doc:3043  ...cause it was handed no state region. `ref/seq_model.SeqExec` takes a `region=` argument (`ref/seq_model.py:463`); `chat_seq`'s verifier never passes o...
+=== evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md  (REPAIR 14, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:620-624 -> ref/seq_model.py:774-778   doc lines 173   at-base yes
+      base ref/seq_model.py:620  'elif sp == CSR_SPACE_MV:'
+      work ref/seq_model.py:620  '# issued, in firing order, and compared against the .txt R records.'
+      work ref/seq_model.py:774  'elif sp == CSR_SPACE_MV:'   <- proposed
+      base end :624 'i = (off - SOFF_XRF0) // 4' / work end :778 'i = (off - SOFF_XRF0) // 4'
+      doc:173  ...(`ref/seq_model.py:620-624`), which mirrors the RTL. The decode is...
+  REPAIR         ref/seq_model.py:628-642 -> ref/seq_model.py:782-796   doc lines 178   at-base yes
+      base ref/seq_model.py:628  'else:'
+      work ref/seq_model.py:628  '# word.  It is a decode-time choice, not a mode: nothing else in the'
+      work ref/seq_model.py:782  'else:'   <- proposed
+      base end :642 'self.issued += 1' / work end :796 'self.issued += 1'
+      doc:178  ..., EPS-NORM | src, n words (+ XRF k if EPS) | dst, n | `ref/gen_layer_script.py:916-929`, `ref/seq_model.py:628-642` |...
+  REPAIR         ref/seq_model.py:739-752 -> ref/seq_model.py:893-906   doc lines 189   at-base yes
+      base ref/seq_model.py:739  'raise SF.SeqValidationError('
+      work ref/seq_model.py:739  '# B15.2: {cv_slot[13:12], kv_layer[10:8], kv_slot[4:3],'
+      work ref/seq_model.py:893  'raise SF.SeqValidationError('   <- proposed
+      base end :752 'self._xrf_set(XRF_K_ATTN if (p0 & 0x1) else XRF_K_DN, k)' / work end :906 'self._xrf_set(XRF_K_ATTN if (p0 & 0x1) else XRF_K_DN, k)'
+      doc:189  ...probe) | a, 2n; b, n | dst, n (+ XRF[2] if probe) | `ref/gen_layer_script.py:1418-1419`, `ref/seq_model.py:739-752` |...
+  REPAIR         ref/seq_model.py:733-738 -> ref/seq_model.py:887-892   doc lines 192   at-base yes
+      base ref/seq_model.py:733  '# bound MIRRORS THE FIELD EXACTLY: refuse a stream rather than model'
+      work ref/seq_model.py:733  'assert val == 0, "layer TCNT is write-0 (reset) only"'
+      work ref/seq_model.py:887  '# bound MIRRORS THE FIELD EXACTLY: refuse a stream rather than model'   <- proposed
+      base end :738 'if (a0 >> 4) > 0x7FFF:' / work end :892 'if (a0 >> 4) > 0x7FFF:'
+      doc:192  ...| ALU DYNQ16 | a, 2n | dst, n; XRF[1] or XRF[2] | `ref/seq_model.py:733-738` |...
+  REPAIR         ref/seq_format.py:2049-2065 -> ref/seq_format.py:2134-2150   doc lines 550   at-base yes
+      base ref/seq_format.py:2049  'for c in sorted({c for (c, _r0, _n, _o) in active}):'
+      work ref/seq_format.py:2049  'tgt = 0'
+      work ref/seq_format.py:2134  'for c in sorted({c for (c, _r0, _n, _o) in active}):'   <- proposed
+      base end :2065 'self._emit_parallel_matvec(active, wid, sub, fused, p0, e_x, ka,' / work end :2150 'self._emit_parallel_matvec(active, wid, sub, fused, p0, e_x, ka,'
+      doc:550  ...CONV first/nch and MVGO row ranges are already expressible (`docs/SEQ_ISA.md:1062-1063`, `ref/seq_format.py:2049-2065`). Head order must follow key-head avai...
+  REPAIR         ref/seq_format.py:2059-2065 -> ref/seq_format.py:2144-2150   doc lines 581   at-base yes
+      base ref/seq_format.py:2059  'b=XRF_K_ATTN, s2=XOP_NEG,'
+      work ref/seq_format.py:2059  'except the XOP that seeds XRF[5] is hoisted (emitted ONCE per matvec by'
+      work ref/seq_format.py:2144  'b=XRF_K_ATTN, s2=XOP_NEG,'   <- proposed
+      base end :2065 'self._emit_parallel_matvec(active, wid, sub, fused, p0, e_x, ka,' / work end :2150 'self._emit_parallel_matvec(active, wid, sub, fused, p0, e_x, ka,'
+      doc:581  ...   FENCE, then MOVY ×4 (`ref/seq_format.py:2059-2065`,...
+  REPAIR         ref/seq_format.py:2109-2115 -> ref/seq_format.py:2194-2200   doc lines 582   at-base yes
+      base ref/seq_format.py:2109  'strictly serial, which is why the 248,320-row head never parallelised'
+      work ref/seq_format.py:2109  'if not amax:'
+      work ref/seq_format.py:2194  'strictly serial, which is why the 248,320-row head never parallelised'   <- proposed
+      base end :2115 'group is the proven parallel pattern —' / work end :2200 'group is the proven parallel pattern —'
+      doc:582  ...   `ref/seq_format.py:2109-2115`). Instead, each FENCE moves to just be...
+  REPAIR         ref/seq_format.py:2026-2029 -> ref/seq_format.py:2111-2114   doc lines 592   at-base yes
+      base ref/seq_format.py:2026  'assert dec_alu_dst(ch["a2"]) == dst_base + ch["r0"] * off, \\'
+      work ref/seq_format.py:2026  '`base` is the ONE image base under the nch-independent pack and this'
+      work ref/seq_format.py:2111  'assert dec_alu_dst(ch["a2"]) == dst_base + ch["r0"] * off, \\'   <- proposed
+      base end :2029 'assert sub in (1, 9), (' / work end :2114 'assert sub in (1, 9), ('
+      doc:592  ...3. **MOVX elision** in the per-matvec MOVX loop (`ref/seq_format.py:2026-2029`),...
+  REPAIR         ref/seq_model.py:814-820 -> ref/seq_model.py:977-983   doc lines 602,715   at-base yes
+      base ref/seq_model.py:814  'g = 64 if (shape & HW.SHAPE_G64) else 128'
+      work ref/seq_model.py:814  'elif op == 3:'
+      work ref/seq_model.py:977  'g = 64 if (shape & HW.SHAPE_G64) else 128'   <- proposed
+      base end :820 'else:' / work end :983 'else:'
+      doc:602  ...  channel (`ref/seq_model.py:814-820`)....
+      doc:715  ...     channel (`ref/seq_model.py:814-820`)....
+  REPAIR         ref/seq_model.py:760-765 -> ref/seq_model.py:914-919   doc lines 603   at-base yes
+      base ref/seq_model.py:760  '# into XRF[2].  maxp is cleared at dispatch, so one command must'
+      work ref/seq_model.py:760  'pass          # the DMA status/cycle CSRs: host-side, no model'
+      work ref/seq_model.py:914  '# into XRF[2].  maxp is cleared at dispatch, so one command must'   <- proposed
+      base end :765 'M.alu(ALU_EMUL32, n, sh, srca, srcb, dst)' / work end :919 'M.alu(ALU_EMUL32, n, sh, srca, srcb, dst)'
+      doc:603  ...* **What it misses.** Its MOVX (`ref/seq_model.py:760-765`) and MVGO...
+  REPAIR         ref/seq_model.py:767-812 -> ref/seq_model.py:921-975   doc lines 604   at-base yes
+      base ref/seq_model.py:767  'LF.attn_o_shift(int(np.abs(prod).max()), note=False))'
+      work ref/seq_model.py:767  'elif off == SF.LOFF_DNSB:'
+      work ref/seq_model.py:921  'LF.attn_o_shift(int(np.abs(prod).max()), note=False))'   <- proposed
+      base end :812 'sh = (shape >> 6) & 0x3F' / work end :975 'sh = (shape >> 6) & 0x3F'
+      doc:604  ...  (`ref/seq_model.py:767-812`) never look at the running set, and MV...
+  REPAIR         ref/seq_model.py:794 -> ref/seq_model.py:955   doc lines 641   at-base yes
+      base ref/seq_model.py:794  '# matvec unconditionally (rtl/matvec_engine.sv:453-460) and the'
+      work ref/seq_model.py:794  'M = self.M'
+      work ref/seq_model.py:955  '# matvec unconditionally (rtl/matvec_engine.sv:453-460) and the'   <- proposed
+      doc:641  ...  (`ref/seq_model.py:794`), and seq_unit refuses a non-zero MOVY...
+  REPAIR         ref/seq_model.py:760-812 -> ref/seq_model.py:914-975   doc lines 710   at-base yes
+      base ref/seq_model.py:760  '# into XRF[2].  maxp is cleared at dispatch, so one command must'
+      work ref/seq_model.py:760  'pass          # the DMA status/cycle CSRs: host-side, no model'
+      work ref/seq_model.py:914  '# into XRF[2].  maxp is cleared at dispatch, so one command must'   <- proposed
+      base end :812 'sh = (shape >> 6) & 0x3F' / work end :975 'sh = (shape >> 6) & 0x3F'
+      doc:710  ...     MOVX/MVGO in `ref/seq_model.py:760-812` ignore the running set....
+  REPAIR         ref/seq_model.py:814-820 -> ref/seq_model.py:977-983   doc lines 602,715   at-base yes
+      base ref/seq_model.py:814  'g = 64 if (shape & HW.SHAPE_G64) else 128'
+      work ref/seq_model.py:814  'elif op == 3:'
+      work ref/seq_model.py:977  'g = 64 if (shape & HW.SHAPE_G64) else 128'   <- proposed
+      base end :820 'else:' / work end :983 'else:'
+      doc:602  ...  channel (`ref/seq_model.py:814-820`)....
+      doc:715  ...     channel (`ref/seq_model.py:814-820`)....
+=== evidence/qwen9b/ov/SV1_S1_VERIFY.md  (REPAIR 2, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:769 -> ref/seq_model.py:923   doc lines 109   at-base yes
+      base ref/seq_model.py:769  'return'
+      work ref/seq_model.py:769  'self.dnsb = val'
+      work ref/seq_model.py:923  'return'   <- proposed
+      doc:109  ...  MVGO issued to a running channel (`ref/seq_model.py:769`,...
+  REPAIR         ref/seq_model.py:836 -> ref/seq_model.py:1010   doc lines 111   at-base yes
+      base ref/seq_model.py:836  'assert beats == nrows * p["stride"] // 64, \\'
+      work ref/seq_model.py:836  '# pair halves themselves go through the canonical helpers.'
+      work ref/seq_model.py:1010  'assert beats == nrows * p["stride"] // 64, \\'   <- proposed
+      doc:111  ...  (`ref/seq_model.py:836`)....
+=== evidence/qwen9b/s1/S1_ISA.md  (REPAIR 25, COLLATERAL 2)
+  REPAIR         `:617-663` -> `:702-748`   doc lines 23   at-base yes
+      base ref/seq_format.py:617  'if r.flags or (r.target & tmask) or r.imm32 or r.addr_lo \\'
+      work ref/seq_format.py:617  'f"{XWIN_WORDS} (B17.2, err 0x06)")'
+      work ref/seq_format.py:702  'if r.flags or (r.target & tmask) or r.imm32 or r.addr_lo \\'   <- proposed
+      base end :663 'continue' / work end :748 'continue'
+      doc:23  ...| 2 | `ref/seq_format.py:335-369`, `:617-663`, `:717-721`, `:769-776`, `:684-690` | t...
+  REPAIR         `:717-721` -> `:802-806`   doc lines 23   at-base yes
+      base ref/seq_format.py:717  'if sp == CSR_SPACE_SEQ:'
+      work ref/seq_format.py:717  'return r'
+      work ref/seq_format.py:802  'if sp == CSR_SPACE_SEQ:'   <- proposed
+      base end :721 'return f"csr{cid:#06x}"' / work end :806 'return f"csr{cid:#06x}"'
+      doc:23  ...| 2 | `ref/seq_format.py:335-369`, `:617-663`, `:717-721`, `:769-776`, `:684-690` | the constants...
+  REPAIR         `:684-690` -> `:769-775`   doc lines 23   at-base yes
+      base ref/seq_format.py:684  ''
+      work ref/seq_format.py:684  'bad("EMB takes no flags (token is implicitly XRF[3])")'
+      work ref/seq_format.py:769  ''   <- proposed
+      base end :690 'if ind == IND_NONE:' / work end :775 'if ind == IND_NONE:'
+      doc:23  ...| 2 | `ref/seq_format.py:335-369`, `:617-663`, `:717-721`, `:769-776`, `:684-690` | the constants, `sdma_arg0`/`sdma_fiel...
+  REPAIR         ref/seq_format.py:617 -> ref/seq_format.py:702   doc lines 148   at-base yes
+      base ref/seq_format.py:617  'if r.flags or (r.target & tmask) or r.imm32 or r.addr_lo \\'
+      work ref/seq_format.py:617  'f"{XWIN_WORDS} (B17.2, err 0x06)")'
+      work ref/seq_format.py:702  'if r.flags or (r.target & tmask) or r.imm32 or r.addr_lo \\'   <- proposed
+      doc:148  ...The envelope clause is in **`validate_stream`** (`ref/seq_format.py:617`),...
+  REPAIR         ref/seq_format.py:520 -> ref/seq_format.py:547   doc lines 149   at-base yes
+      base ref/seq_format.py:520  'def validate(r, nrec=None, idx=None, shape_isa=None, caps=frozenset()):'
+      work ref/seq_format.py:520  ''
+      work ref/seq_format.py:547  'def validate(r, nrec=None, idx=None, shape_isa=None, caps=frozenset()):'   <- proposed
+      doc:149  ...not `validate` (`ref/seq_format.py:520`): ARG0..2 reach a layer command as...
+  REPAIR         ref/seq_format.py:636-643 -> ref/seq_format.py:721-728   doc lines 152   at-base yes
+      base ref/seq_format.py:636  '"""Validate every record; returns the count.  `allow_ext=False` rejects'
+      work ref/seq_format.py:636  'ngx = (r.imm32 >> 22) & 0x7F'
+      work ref/seq_format.py:721  '"""Validate every record; returns the count.  `allow_ext=False` rejects'   <- proposed
+      base end :643 'record at a time and has no ARGs.' / work end :728 'record at a time and has no ARGs.'
+      doc:152  ...(`ref/seq_format.py:636-643`) and applies B15.1's envelope at each ...
+  REPAIR         ref/seq_format.py:646-662 -> ref/seq_format.py:731-747   doc lines 153   at-base yes
+      base ref/seq_format.py:646  'recs = unpack_stream(recs)'
+      work ref/seq_format.py:646  "# G3.4 (spec 5.4 S9): MVGO's imm32 IS the SHAPE word, and its `ng`"
+      work ref/seq_format.py:731  'recs = unpack_stream(recs)'   <- proposed
+      base end :662 'a2 = r.imm32' / work end :747 'a2 = r.imm32'
+      doc:153  ...(`ref/seq_format.py:646-662`). The clause is **unconditional**, unl...
+  REPAIR         ref/seq_format.py:574 -> ref/seq_format.py:650   doc lines 154   at-base yes
+      base ref/seq_format.py:574  '# validator, which refuses the record with err_code E_ENV before'
+      work ref/seq_format.py:574  'bad(f"unknown opcode {r.opcode:#04x}")'
+      work ref/seq_format.py:650  '# validator, which refuses the record with err_code E_ENV before'   <- proposed
+      doc:154  ...MVGO SHAPE clause it is modelled on (`ref/seq_format.py:574`, gated on...
+  REPAIR         ref/seq_format.py:647-650 -> ref/seq_format.py:732-735   doc lines 157   at-base yes
+      base ref/seq_format.py:647  'caps = HW.seq_caps_check(caps)'
+      work ref/seq_format.py:647  '# field is the only part of it whose out-of-envelope value the'
+      work ref/seq_format.py:732  'caps = HW.seq_caps_check(caps)'   <- proposed
+      base end :650 'for idx, r in enumerate(recs):' / work end :735 'for idx, r in enumerate(recs):'
+      doc:157  ...gate on — said in the comment at `ref/seq_format.py:647-650` as the MVGO...
+  REPAIR         ref/seq_format.py:717-719 -> ref/seq_format.py:802-804   doc lines 164,471   at-base yes
+      base ref/seq_format.py:717  'if sp == CSR_SPACE_SEQ:'
+      work ref/seq_format.py:717  'return r'
+      work ref/seq_format.py:802  'if sp == CSR_SPACE_SEQ:'   <- proposed
+      base end :719 'return f"XRF[{(off - SOFF_XRF0) // 4}]"' / work end :804 'return f"XRF[{(off - SOFF_XRF0) // 4}]"'
+      doc:164  ...`LOP_NAME` gains `13: "SLD", 14: "SST"` (`ref/seq_format.py:717-719`),...
+      doc:471  ...e tool leaves the WHOLE range alone by its all-or-nothing range rule. The dict is now at `ref/seq_format.py:717-719`. |...
+  REPAIR         ref/seq_format.py:684-690 -> ref/seq_format.py:769-775   doc lines 167   at-base yes
+      base ref/seq_format.py:684  ''
+      work ref/seq_format.py:684  'bad("EMB takes no flags (token is implicitly XRF[3])")'
+      work ref/seq_format.py:769  ''   <- proposed
+      base end :690 'if ind == IND_NONE:' / work end :775 'if ind == IND_NONE:'
+      doc:167  ...plus the previously unnamed `L_DNSB` (`ref/seq_format.py:684-690`)....
+  REPAIR         ref/seq_format.py:1042 -> ref/seq_format.py:1127   doc lines 390,399   at-base yes
+      base ref/seq_format.py:1042  'so every W4 plan — and therefore every committed .seq.json — stays'
+      work ref/seq_format.py:1042  'x = np.asarray(x16, dtype=np.int64)'
+      work ref/seq_format.py:1127  'so every W4 plan — and therefore every committed .seq.json — stays'   <- proposed
+      doc:390  ...| `evidence/qwen9b/g3/G3_4_LAYER.md:1091` | `CHUNK_ROWS = 2048` | `ref/seq_format.py:1042` | `ref/seq_format.py:1126` |...
+      doc:399  ...`ref/seq_format.py:1042` and were **left alone**: they are that...
+  REPAIR         ref/seq_format.py:1126 -> ref/seq_format.py:1211   doc lines 390   at-base yes
+      base ref/seq_format.py:1126  '#'
+      work ref/seq_format.py:1126  'WHEN SET, exactly as `dump_weights` emits "g" only when it is not 128,'
+      work ref/seq_format.py:1211  '#'   <- proposed
+      doc:390  ...vidence/qwen9b/g3/G3_4_LAYER.md:1091` | `CHUNK_ROWS = 2048` | `ref/seq_format.py:1042` | `ref/seq_format.py:1126` |...
+  REPAIR         ref/seq_format.py:1291 -> ref/seq_format.py:1376   doc lines 391   at-base yes
+      base ref/seq_format.py:1291  '# in XRF[2], real pass with ARG2 indirected on XRF[2], and the'
+      work ref/seq_format.py:1291  'def chan_rows(nrows, nch, layout=LAYOUT_CONTIG, depth=CHUNK_ROWS):'
+      work ref/seq_format.py:1376  '# in XRF[2], real pass with ARG2 indirected on XRF[2], and the'   <- proposed
+      doc:391  ....md:1009-1010` | `on_treset`, `_csr_name`'s `L_TCNT2` (siblings of the same statement) | `ref/seq_format.py:1291` `ref/seq_format.py:618` | `ref/seq_for...
+  REPAIR         ref/seq_format.py:618 -> ref/seq_format.py:703   doc lines 391,468   at-base yes
+      base ref/seq_format.py:618  'or r.len_or_addr_hi:'
+      work ref/seq_format.py:618  'if r.opcode == OP_MVGO and shape_isa != HW.SHAPE_ISA_PRE_G3:'
+      work ref/seq_format.py:703  'or r.len_or_addr_hi:'   <- proposed
+      doc:391  ...et`, `_csr_name`'s `L_TCNT2` (siblings of the same statement) | `ref/seq_format.py:1291` `ref/seq_format.py:618` | `ref/seq_format.py:1375` `ref/seq_fo...
+      doc:468  ...| UNRESOLVED `ref/seq_format.py:618` | inside `validate_stream`, rewritten ...
+  REPAIR         ref/seq_format.py:1375 -> ref/seq_format.py:1460   doc lines 391   at-base yes
+      base ref/seq_format.py:1375  'Asserted below rather than assumed — under SEQ_ISA v1.7 the whole'
+      work ref/seq_format.py:1375  '# dyn_ka: emit the ISA v1.3 attention DOUBLE PASS (op-8 probe -> k_a'
+      work ref/seq_format.py:1460  'Asserted below rather than assumed — under SEQ_ISA v1.7 the whole'   <- proposed
+      doc:391  ...2` (siblings of the same statement) | `ref/seq_format.py:1291` `ref/seq_format.py:618` | `ref/seq_format.py:1375` `ref/seq_format.py:688` |...
+  REPAIR         ref/seq_format.py:688 -> ref/seq_format.py:773   doc lines 391,468   at-base yes
+      base ref/seq_format.py:688  'v = r.imm_s'
+      work ref/seq_format.py:688  'elif r.opcode == OP_JMP:'
+      work ref/seq_format.py:773  'v = r.imm_s'   <- proposed
+      doc:391  ...statement) | `ref/seq_format.py:1291` `ref/seq_format.py:618` | `ref/seq_format.py:1375` `ref/seq_format.py:688` |...
+      doc:468  ...eam`, rewritten by the envelope clause; the same document's pointer, repaired by hand to `ref/seq_format.py:688` in §6.2(b) |...
+  REPAIR         ref/seq_format.py:1042 -> ref/seq_format.py:1127   doc lines 390,399   at-base yes
+      base ref/seq_format.py:1042  'so every W4 plan — and therefore every committed .seq.json — stays'
+      work ref/seq_format.py:1042  'x = np.asarray(x16, dtype=np.int64)'
+      work ref/seq_format.py:1127  'so every W4 plan — and therefore every committed .seq.json — stays'   <- proposed
+      doc:390  ...| `evidence/qwen9b/g3/G3_4_LAYER.md:1091` | `CHUNK_ROWS = 2048` | `ref/seq_format.py:1042` | `ref/seq_format.py:1126` |...
+      doc:399  ...`ref/seq_format.py:1042` and were **left alone**: they are that...
+  REPAIR         ref/seq_format.py:644-645 -> ref/seq_format.py:729-730   doc lines 459,471,590   at-base yes
+      base ref/seq_format.py:644  '"""'
+      work ref/seq_format.py:644  'bad(f"MVGO RBANK with nrows {nrx}: a bank holds "'
+      work ref/seq_format.py:729  '"""'   <- proposed
+      base end :645 'if isinstance(recs, (bytes, bytearray, memoryview)):' / work end :730 'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      doc:459  ...range `ref/seq_format.py:644-645`, and the tool does **not** count it —...
+      doc:471  ...| **HALF-MAPPED `ref/seq_format.py:644-645`** (printed, NOT counted in the five) |...
+  REPAIR         ref/seq_format.py:618 -> ref/seq_format.py:703   doc lines 391,468   at-base yes
+      base ref/seq_format.py:618  'or r.len_or_addr_hi:'
+      work ref/seq_format.py:618  'if r.opcode == OP_MVGO and shape_isa != HW.SHAPE_ISA_PRE_G3:'
+      work ref/seq_format.py:703  'or r.len_or_addr_hi:'   <- proposed
+      doc:391  ...et`, `_csr_name`'s `L_TCNT2` (siblings of the same statement) | `ref/seq_format.py:1291` `ref/seq_format.py:618` | `ref/seq_format.py:1375` `ref/seq_fo...
+      doc:468  ...| UNRESOLVED `ref/seq_format.py:618` | inside `validate_stream`, rewritten ...
+  REPAIR         ref/seq_format.py:688 -> ref/seq_format.py:773   doc lines 391,468   at-base yes
+      base ref/seq_format.py:688  'v = r.imm_s'
+      work ref/seq_format.py:688  'elif r.opcode == OP_JMP:'
+      work ref/seq_format.py:773  'v = r.imm_s'   <- proposed
+      doc:391  ...statement) | `ref/seq_format.py:1291` `ref/seq_format.py:618` | `ref/seq_format.py:1375` `ref/seq_format.py:688` |...
+      doc:468  ...eam`, rewritten by the envelope clause; the same document's pointer, repaired by hand to `ref/seq_format.py:688` in §6.2(b) |...
+  REPAIR         ref/seq_format.py:645 -> ref/seq_format.py:730   doc lines 470   at-base yes
+      base ref/seq_format.py:645  'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      work ref/seq_format.py:645  'f"{RBANK_ROW} rows (B17.2)")'
+      work ref/seq_format.py:730  'if isinstance(recs, (bytes, bytearray, memoryview)):'   <- proposed
+      doc:470  ...| UNRESOLVED `ref/seq_format.py:645` | the `LOP_NAME` dict's last line, whi...
+  REPAIR         ref/seq_format.py:644-645 -> ref/seq_format.py:729-730   doc lines 459,471,590   at-base yes
+      base ref/seq_format.py:644  '"""'
+      work ref/seq_format.py:644  'bad(f"MVGO RBANK with nrows {nrx}: a bank holds "'
+      work ref/seq_format.py:729  '"""'   <- proposed
+      base end :645 'if isinstance(recs, (bytes, bytearray, memoryview)):' / work end :730 'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      doc:459  ...range `ref/seq_format.py:644-645`, and the tool does **not** count it —...
+      doc:471  ...| **HALF-MAPPED `ref/seq_format.py:644-645`** (printed, NOT counted in the five) |...
+  REPAIR         ref/seq_format.py:717-719 -> ref/seq_format.py:802-804   doc lines 164,471   at-base yes
+      base ref/seq_format.py:717  'if sp == CSR_SPACE_SEQ:'
+      work ref/seq_format.py:717  'return r'
+      work ref/seq_format.py:802  'if sp == CSR_SPACE_SEQ:'   <- proposed
+      base end :719 'return f"XRF[{(off - SOFF_XRF0) // 4}]"' / work end :804 'return f"XRF[{(off - SOFF_XRF0) // 4}]"'
+      doc:164  ...`LOP_NAME` gains `13: "SLD", 14: "SST"` (`ref/seq_format.py:717-719`),...
+      doc:471  ...e tool leaves the WHOLE range alone by its all-or-nothing range rule. The dict is now at `ref/seq_format.py:717-719`. |...
+  REPAIR         ref/seq_format.py:644-645 -> ref/seq_format.py:729-730   doc lines 459,471,590   at-base yes
+      base ref/seq_format.py:644  '"""'
+      work ref/seq_format.py:644  'bad(f"MVGO RBANK with nrows {nrx}: a bank holds "'
+      work ref/seq_format.py:729  '"""'   <- proposed
+      base end :645 'if isinstance(recs, (bytes, bytearray, memoryview)):' / work end :730 'if isinstance(recs, (bytes, bytearray, memoryview)):'
+      doc:459  ...range `ref/seq_format.py:644-645`, and the tool does **not** count it —...
+      doc:471  ...| **HALF-MAPPED `ref/seq_format.py:644-645`** (printed, NOT counted in the five) |...
+  COLLATERAL     `:769-776` -> `:854-861`   doc lines 23   at-base yes
+      base ref/seq_format.py:769  'lop = r.imm32 & 0xFF'
+      work ref/seq_format.py:769  ''
+      work ref/seq_format.py:854  'lop = r.imm32 & 0xFF'   <- proposed
+      base end :776 'p0 = p0 - (1 << 17) if p0 >= (1 << 16) else p0' / work end :861 'p0 = p0 - (1 << 17) if p0 >= (1 << 16) else p0'
+      doc:23  ...| 2 | `ref/seq_format.py:335-369`, `:617-663`, `:717-721`, `:769-776`, `:684-690` | the constants, `sdma_arg0...
+  COLLATERAL     ref/seq_format.py:769-776 -> ref/seq_format.py:854-861   doc lines 166   at-base yes
+      base ref/seq_format.py:769  'lop = r.imm32 & 0xFF'
+      work ref/seq_format.py:769  ''
+      work ref/seq_format.py:854  'lop = r.imm32 & 0xFF'   <- proposed
+      base end :776 'p0 = p0 - (1 << 17) if p0 >= (1 << 16) else p0' / work end :861 'p0 = p0 - (1 << 17) if p0 >= (1 << 16) else p0'
+      doc:166  ...at `ref/seq_format.py:769-776`, and `_csr_name` learns the five new C...
+=== evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md  (REPAIR 17, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1479-1497 -> ref/seq_format.py:1564-1582   doc lines 86   at-base yes
+      base ref/seq_format.py:1479  'for (i, off, _s) in self._pos_recs:'
+      work ref/seq_format.py:1479  'self.stats["cmd"] += 1'
+      work ref/seq_format.py:1564  'for (i, off, _s) in self._pos_recs:'   <- proposed
+      base end :1497 '' / work end :1582 ''
+      doc:86  ...(`ref/seq_format.py:1479-1497`) and writes the `.seq` records....
+  REPAIR         ref/seq_format.py:2049-2076 -> ref/seq_format.py:2134-2161   doc lines 94   at-base yes
+      base ref/seq_format.py:2049  'for c in sorted({c for (c, _r0, _n, _o) in active}):'
+      work ref/seq_format.py:2049  'tgt = 0'
+      work ref/seq_format.py:2134  'for c in sorted({c for (c, _r0, _n, _o) in active}):'   <- proposed
+      base end :2076 'drain.  Row writes are independent, so chunk-index order is immaterial."' / work end :2161 'drain.  Row writes are independent, so chunk-index order is immaterial."'
+      doc:94  ... the shift and the store | `ref/gen_layer_script.py:665-679` mutes the `W32`; fused path `ref/seq_format.py:2049-2076` (sub 1/9 → MOVY); `ref/seq_format.py:1...
+  REPAIR         ref/seq_format.py:1987 -> ref/seq_format.py:2072   doc lines 94   at-base yes
+      base ref/seq_format.py:1987  'self.stats["movy_rows"] += nrows'
+      work ref/seq_format.py:1987  'self._emit_matvec_4chan()'
+      work ref/seq_format.py:2072  'self.stats["movy_rows"] += nrows'   <- proposed
+      doc:94  ....py:665-679` mutes the `W32`; fused path `ref/seq_format.py:2049-2076` (sub 1/9 → MOVY); `ref/seq_format.py:1987` |...
+  REPAIR         ref/seq_format.py:2067-2076 -> ref/seq_format.py:2152-2161   doc lines 95,215   at-base yes
+      base ref/seq_format.py:2067  ''
+      work ref/seq_format.py:2067  'IND_SUB | (XRF_EX << MOVY_XRF_SHIFT) | mode_bit'
+      work ref/seq_format.py:2152  ''   <- proposed
+      base end :2076 'drain.  Row writes are independent, so chunk-index order is immaterial."' / work end :2161 'drain.  Row writes are independent, so chunk-index order is immaterial."'
+      doc:95  ...ws over 12,288 rows and 4 channels, times res_chunks of at most 2048 rows: 8 per layer | `ref/seq_format.py:2067-2076`, `ref/seq_format.py:1069-1092` |...
+      doc:215  ...unk | an elementwise op over the same element set, with only the chunk boundaries moved (`ref/seq_format.py:2067-2076`) | covered by the gate | **ESTABLISHED...
+  REPAIR         ref/seq_format.py:1069-1092 -> ref/seq_format.py:1154-1177   doc lines 95   at-base yes
+      base ref/seq_format.py:1069  'rows_of = None'
+      work ref/seq_format.py:1069  'self.chunks = []          # [(off, bytes)]'
+      work ref/seq_format.py:1154  'rows_of = None'   <- proposed
+      base end :1092 'def split_rows(nrows, nch):' / work end :1177 'def split_rows(nrows, nch):'
+      doc:95  ...els, times res_chunks of at most 2048 rows: 8 per layer | `ref/seq_format.py:2067-2076`, `ref/seq_format.py:1069-1092` |...
+  REPAIR         ref/seq_format.py:2125-2157 -> ref/seq_format.py:2210-2242   doc lines 96   at-base yes
+      base ref/seq_format.py:2125  'inside a group; that is the same MOVY/CMD interlock `_emit_parallel_'
+      work ref/seq_format.py:2125  'self._note_layout(wid, layout)'
+      work ref/seq_format.py:2210  'inside a group; that is the same MOVY/CMD interlock `_emit_parallel_'   <- proposed
+      base end :2157 '"dn_bf hint does not match the following SHIFT32"' / work end :2242 '"dn_bf hint does not match the following SHIFT32"'
+      doc:96  ...2[0] EPS-NORM** (k read from XRF[1]) | hint `ref/gen_layer_script.py:2036-2040`; rewrite `ref/seq_format.py:2125-2157` (DYNQ16 at `ref/seq_format.py:2138`, V...
+  REPAIR         ref/seq_format.py:2138 -> ref/seq_format.py:2223   doc lines 96   at-base yes
+      base ref/seq_format.py:2138  'self._emit(Rec(OP_FENCE))'
+      work ref/seq_format.py:2138  ''
+      work ref/seq_format.py:2223  'self._emit(Rec(OP_FENCE))'   <- proposed
+      doc:96  ...nt `ref/gen_layer_script.py:2036-2040`; rewrite `ref/seq_format.py:2125-2157` (DYNQ16 at `ref/seq_format.py:2138`, VN at `ref/seq_format.py:2150`) |...
+  REPAIR         ref/seq_format.py:2150 -> ref/seq_format.py:2235   doc lines 96   at-base yes
+      base ref/seq_format.py:2150  'h = self.dnbf'
+      work ref/seq_format.py:2150  'self._emit_parallel_matvec(active, wid, sub, fused, p0, e_x, ka,'
+      work ref/seq_format.py:2235  'h = self.dnbf'   <- proposed
+      doc:96  ...-2040`; rewrite `ref/seq_format.py:2125-2157` (DYNQ16 at `ref/seq_format.py:2138`, VN at `ref/seq_format.py:2150`) |...
+  REPAIR         ref/seq_format.py:1576-1736 -> ref/seq_format.py:1661-1821   doc lines 97   at-base yes
+      base ref/seq_format.py:1576  ''
+      work ref/seq_format.py:1576  'n = len(vals32)'
+      work ref/seq_format.py:1661  ''   <- proposed
+      base end :1736 '# ---- 2. the KV schedule and every attention head, IN PROGRAM ORDER,' / work end :1821 '# ---- 2. the KV schedule and every attention head, IN PROGRAM ORDER,'
+      doc:97  ...*real** `EMUL32`, each over all 16 × 256 elements | `ref/gen_layer_script.py:2146-2149`; `ref/seq_format.py:1576-1736` (probe/real at `ref/seq_format.py:1724...
+  REPAIR         ref/seq_format.py:1724-1733 -> ref/seq_format.py:1809-1818   doc lines 97   at-base yes
+      base ref/seq_format.py:1724  'live += [("KR (KVAP k)", k_lo, k_hi - k_lo),'
+      work ref/seq_format.py:1724  'q_proj gate halves and touch no layer state, so they may run before'
+      work ref/seq_format.py:1809  'live += [("KR (KVAP k)", k_lo, k_hi - k_lo),'   <- proposed
+      base end :1733 'for h, s in enumerate(sg):' / work end :1818 'for h, s in enumerate(sg):'
+      doc:97  ...ents | `ref/gen_layer_script.py:2146-2149`; `ref/seq_format.py:1576-1736` (probe/real at `ref/seq_format.py:1724-1733`) |...
+  REPAIR         ref/seq_format.py:1206-1218 -> ref/seq_format.py:1291-1303   doc lines 100   at-base yes
+      base ref/seq_format.py:1206  'def chan_rows(nrows, nch, layout=LAYOUT_CONTIG, depth=CHUNK_ROWS):'
+      work ref/seq_format.py:1206  '# A multi-channel stream implies a PLACEMENT: which rows of a packed wei'
+      work ref/seq_format.py:1291  'def chan_rows(nrows, nch, layout=LAYOUT_CONTIG, depth=CHUNK_ROWS):'   <- proposed
+      base end :1218 'assert sum(out) == nrows' / work end :1303 'assert sum(out) == nrows'
+      doc:100  ...(`ref/seq_format.py:1206-1218`), and the stream records profile epsno...
+  REPAIR         ref/seq_format.py:1126 -> ref/seq_format.py:1211   doc lines 131   at-base yes
+      base ref/seq_format.py:1126  '#'
+      work ref/seq_format.py:1126  'WHEN SET, exactly as `dump_weights` emits "g" only when it is not 128,'
+      work ref/seq_format.py:1211  '#'   <- proposed
+      doc:131  ...nch = 4 (`ref/seq_format.py:1126`)....
+  REPAIR         ref/seq_model.py:1189-1252 -> ref/seq_model.py:1384-1447   doc lines 186   at-base yes
+      base ref/seq_model.py:1189  'meta = json.load(open(prefix + ".seq.json"))'
+      work ref/seq_model.py:1189  'elif t == "R":'
+      work ref/seq_model.py:1384  'meta = json.load(open(prefix + ".seq.json"))'   <- proposed
+      base end :1252 '# scratch differences are only legitimate INSIDE the y32 staging windows' / work end :1447 '# scratch differences are only legitimate INSIDE the y32 staging windows'
+      doc:186  ...(`ref/seq_model.py:1189-1252`):...
+  REPAIR         ref/seq_format.py:1949-1961 -> ref/seq_format.py:2034-2046   doc lines 214   at-base yes
+      base ref/seq_format.py:1949  '"""MVGO on an explicit channel (channel-local WBASE=base+row*stride).'
+      work ref/seq_format.py:1949  'self._emit(Rec(OP_MOVY, flags=flags, target=self.chan,'
+      work ref/seq_format.py:2034  '"""MVGO on an explicit channel (channel-local WBASE=base+row*stride).'   <- proposed
+      base end :1961 'shape = HW.shape_word(nrows, w["sh"], w["ng"], w["g"],' / work end :2046 'shape = HW.shape_word(nrows, w["sh"], w["ng"], w["g"],'
+      doc:214  ...A.md:375-384`). The MOVY immediate is p0 + e_x read as "minus XRF[0]", and XRF[0] = e_x (`ref/seq_format.py:1949-1961`). | covered by the gate only (2.1) | *...
+  REPAIR         ref/seq_format.py:2067-2076 -> ref/seq_format.py:2152-2161   doc lines 95,215   at-base yes
+      base ref/seq_format.py:2067  ''
+      work ref/seq_format.py:2067  'IND_SUB | (XRF_EX << MOVY_XRF_SHIFT) | mode_bit'
+      work ref/seq_format.py:2152  ''   <- proposed
+      base end :2076 'drain.  Row writes are independent, so chunk-index order is immaterial."' / work end :2161 'drain.  Row writes are independent, so chunk-index order is immaterial."'
+      doc:95  ...ws over 12,288 rows and 4 channels, times res_chunks of at most 2048 rows: 8 per layer | `ref/seq_format.py:2067-2076`, `ref/seq_format.py:1069-1092` |...
+      doc:215  ...unk | an elementwise op over the same element set, with only the chunk boundaries moved (`ref/seq_format.py:2067-2076`) | covered by the gate | **ESTABLISHED...
+  REPAIR         ref/seq_format.py:1576-1622 -> ref/seq_format.py:1661-1707   doc lines 218   at-base yes
+      base ref/seq_format.py:1576  ''
+      work ref/seq_format.py:1576  'n = len(vals32)'
+      work ref/seq_format.py:1661  ''   <- proposed
+      base end :1622 '' / work end :1707 ''
+      doc:218  ... k_a definition; the real pass is the same op 8 with that shift (`rtl/vec_alu.sv:50-53`, `ref/seq_format.py:1576-1622`) | **48 of 48 blocks per seed: the hos...
+  REPAIR         ref/seq_model.py:1269-1296 -> ref/seq_model.py:1464-1491   doc lines 226   at-base yes
+      base ref/seq_model.py:1269  '#                  the SMEM golden worth having.'
+      work ref/seq_model.py:1269  'while self.i >= len(self.buf):'
+      work ref/seq_model.py:1464  '#                  the SMEM golden worth having.'   <- proposed
+      base end :1296 'print("  STATE    no state plan in the manifest (pre-v2.1 "' / work end :1491 'print("  STATE    no state plan in the manifest (pre-v2.1 "'
+      doc:226  ...   selftest draws uniform random int32 blocks (`ref/seq_model.py:1269-1296`)....
+=== evidence/qwen9b/sr/SR2_ISA.md  (REPAIR 6, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:520 -> ref/seq_format.py:547   doc lines 52   at-base yes
+      base ref/seq_format.py:520  'def validate(r, nrec=None, idx=None, shape_isa=None, caps=frozenset()):'
+      work ref/seq_format.py:520  ''
+      work ref/seq_format.py:547  'def validate(r, nrec=None, idx=None, shape_isa=None, caps=frozenset()):'   <- proposed
+      doc:52  ...* `validate(r, nrec=None, idx=None, shape_isa=None, caps=frozenset())` (`ref/seq_format.py:520`)...
+  REPAIR         ref/seq_format.py:635 -> ref/seq_format.py:720   doc lines 53   at-base yes
+      base ref/seq_format.py:635  'def validate_stream(recs, allow_ext=True, shape_isa=None, caps=frozenset'
+      work ref/seq_format.py:635  'if sp & 0x1:'
+      work ref/seq_format.py:720  'def validate_stream(recs, allow_ext=True, shape_isa=None, caps=frozenset'   <- proposed
+      doc:53  ...  and `validate_stream(recs, allow_ext=True, shape_isa=None, caps=frozenset())` (`ref/seq_format.py:635`);...
+  REPAIR         ref/seq_format.py:536 -> ref/seq_format.py:568   doc lines 54   at-base yes
+      base ref/seq_format.py:536  'caps = HW.seq_caps_check(caps)'
+      work ref/seq_format.py:536  ''
+      work ref/seq_format.py:568  'caps = HW.seq_caps_check(caps)'   <- proposed
+      doc:54  ...  both normalise `caps` through `HW.seq_caps_check` (`ref/seq_format.py:536`, `ref/seq_format.py:647`),...
+  REPAIR         ref/seq_format.py:647 -> ref/seq_format.py:732   doc lines 54   at-base yes
+      base ref/seq_format.py:647  'caps = HW.seq_caps_check(caps)'
+      work ref/seq_format.py:647  '# field is the only part of it whose out-of-envelope value the'
+      work ref/seq_format.py:732  'caps = HW.seq_caps_check(caps)'   <- proposed
+      doc:54  ...  both normalise `caps` through `HW.seq_caps_check` (`ref/seq_format.py:536`, `ref/seq_format.py:647`),...
+  REPAIR         ref/seq_format.py:611-623 -> ref/seq_format.py:696-708   doc lines 56   at-base yes
+      base ref/seq_format.py:611  'elif r.opcode == OP_FENCE:'
+      work ref/seq_format.py:611  'if r.target & ~MOVX_WORD_MASK:'
+      work ref/seq_format.py:696  'elif r.opcode == OP_FENCE:'   <- proposed
+      base end :623 'bad("HALT takes no operands")' / work end :708 'bad("HALT takes no operands")'
+      doc:56  ...* The FENCE/HALT clause is split (`ref/seq_format.py:611-623`): without "R1" the...
+  REPAIR         ref/seq_format.py:827-829 -> ref/seq_format.py:912-914   doc lines 59   at-base yes
+      base ref/seq_format.py:827  'if o == OP_FENCE and r.target:'
+      work ref/seq_format.py:827  'ALU_NAME = {0: "DYNQ8", 1: "SHIFT32", 2: "SCALE", 3: "EMUL", 4: "ADD",'
+      work ref/seq_format.py:912  'if o == OP_FENCE and r.target:'   <- proposed
+      base end :829 'return f"{pre}{name} mask={r.target:#x}"' / work end :914 'return f"{pre}{name} mask={r.target:#x}"'
+      doc:59  ...* `disasm` prints the mask for a non-zero target (`ref/seq_format.py:827-829`) —...
+=== evidence/qwen9b/sr/SR4_R1_MODEL.md  (REPAIR 9, COLLATERAL 2)
+  REPAIR         ref/seq_model.py:528 -> ref/seq_model.py:682   doc lines 28   at-base yes
+      base ref/seq_model.py:528  'self.caps = HW.seq_caps_check(caps)'
+      work ref/seq_model.py:528  'return default if v is None else v'
+      work ref/seq_model.py:682  'self.caps = HW.seq_caps_check(caps)'   <- proposed
+      doc:28  ...  with `hwmap.seq_caps_check` (`ref/seq_model.py:528`). Every record...
+  REPAIR         ref/seq_model.py:783 -> ref/seq_model.py:944   doc lines 36   at-base yes
+      base ref/seq_model.py:783  'raise RunningChannelError('
+      work ref/seq_model.py:783  'raise SF.SeqValidationError('
+      work ref/seq_model.py:944  'raise RunningChannelError('   <- proposed
+      doc:36  ...  `RunningChannelError` explicitly (`ref/seq_model.py:783`,...
+  REPAIR         ref/seq_model.py:799 -> ref/seq_model.py:961   doc lines 37   at-base yes
+      base ref/seq_model.py:799  'raise RunningChannelError('
+      work ref/seq_model.py:799  'n = 1 << ((a0 >> 2) & 0xF)'
+      work ref/seq_model.py:961  'raise RunningChannelError('   <- proposed
+      doc:37  ...  `ref/seq_model.py:799`, `ref/seq_model.py:852`), so they surv...
+  REPAIR         ref/seq_model.py:852 -> ref/seq_model.py:1035   doc lines 37   at-base yes
+      base ref/seq_model.py:852  'raise RunningChannelError('
+      work ref/seq_model.py:852  'M.attn(a0 & 0xF, GLS.dec_a1_lo(a1), GLS.dec_a1_hi(a1))'
+      work ref/seq_model.py:1035  'raise RunningChannelError('   <- proposed
+      doc:37  ...  `ref/seq_model.py:799`, `ref/seq_model.py:852`), so they survive `python -O`....
+  REPAIR         ref/seq_model.py:1240 -> ref/seq_model.py:1435   doc lines 39   at-base yes
+      base ref/seq_model.py:1240  'region=reg_seq, caps=caps).run(max_steps=50 * len(recs))'
+      work ref/seq_model.py:1240  'elif t == "A":'
+      work ref/seq_model.py:1435  'region=reg_seq, caps=caps).run(max_steps=50 * len(recs))'   <- proposed
+      doc:39  ...  `validate_stream` and to `SeqExec` (`ref/seq_model.py:1240`). The CLI takes...
+  REPAIR         ref/seq_model.py:1835 -> ref/seq_model.py:2096   doc lines 40   at-base yes
+      base ref/seq_model.py:1835  '"the .seq prefix; defaults to --gate")'
+      work ref/seq_model.py:1835  'len_or_addr_hi=((nrows << 8)'
+      work ref/seq_model.py:2096  '"the .seq prefix; defaults to --gate")'   <- proposed
+      doc:40  ...  `--caps R1` (`ref/seq_model.py:1835`), and the gate prints the set it ran...
+  REPAIR         ref/seq_model.py:1667 -> ref/seq_model.py:1887   doc lines 43   at-base yes
+      base ref/seq_model.py:1667  '"r1_movx_mask_skipped": ([movx(0), mvgo(0), movx(1), mvgo(1),'
+      work ref/seq_model.py:1667  'nch, g, depth = 2, 128, 4        # 4-row chunks: a small image still'
+      work ref/seq_model.py:1887  '"r1_movx_mask_skipped": ([movx(0), mvgo(0), movx(1), mvgo(1),'   <- proposed
+      doc:43  ...  (`ref/seq_model.py:1667`). One legal masked order, plus MOVX, M...
+  REPAIR         ref/seq_model.py:1684 -> ref/seq_model.py:1920   doc lines 252   at-base yes
+      base ref/seq_model.py:1684  'except RunningChannelError as e:'
+      work ref/seq_model.py:1684  'legacy = SF.plan_weights_from_wids(wids)'
+      work ref/seq_model.py:1920  'except RunningChannelError as e:'   <- proposed
+      doc:252  ...  on `RunningChannelError` (`ref/seq_model.py:1684`). Any other exception is...
+  REPAIR         ref/seq_model.py:1689 -> ref/seq_model.py:1925   doc lines 253   at-base yes
+      base ref/seq_model.py:1689  'got[name] = "error"'
+      work ref/seq_model.py:1689  '"ilv_wids": [0]}}'
+      work ref/seq_model.py:1925  'got[name] = "error"'   <- proposed
+      doc:253  ...  recorded as "error" and fails the selftest (`ref/seq_model.py:1689`), so a...
+  COLLATERAL     ref/seq_model.py:615 -> ref/seq_model.py:769   doc lines 27   at-base NO
+      base ref/seq_model.py:615  'self.dnsb = val'
+      work ref/seq_model.py:615  'region=None, caps=frozenset()):'
+      work ref/seq_model.py:769  'self.dnsb = val'   <- proposed
+      doc:27  ...* SeqExec gains `caps=frozenset()` (`ref/seq_model.py:615`), normalised...
+  COLLATERAL     ref/seq_model.py:1369 -> ref/seq_model.py:1564   doc lines 38   at-base NO
+      base ref/seq_model.py:1369  '* the same image addressed with a W4 SHAPE word must NOT execute'
+      work ref/seq_model.py:1369  'def gate(prefix, use_files=True, verbose=True, base=None, caps=frozenset'
+      work ref/seq_model.py:1564  '* the same image addressed with a W4 SHAPE word must NOT execute'   <- proposed
+      doc:38  ...* **The gate.** gate gains `caps=frozenset()` (`ref/seq_model.py:1369`) and passes the set to...
+=== evidence/qwen9b/sr/SR_ISABITS.md  (REPAIR 2, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1439-1445 -> ref/seq_format.py:1524-1530   doc lines 27,106   at-base yes
+      base ref/seq_format.py:1439  'assert self.attn is None, "T reset inside a gated-attention block"'
+      work ref/seq_format.py:1439  'def _csrwr(self, csr, val, ind=IND_NONE, xrf=0):'
+      work ref/seq_format.py:1524  'assert self.attn is None, "T reset inside a gated-attention block"'   <- proposed
+      base end :1445 'self._csrwr(CSR_L_LAYER, keep)' / work end :1530 'self._csrwr(CSR_L_LAYER, keep)'
+      doc:27  ...(`ref/seq_format.py:1439-1445`), so the old two-record spy raised Att...
+      doc:106  ...  `ref/seq_format.py:1439-1445`....
+  REPAIR         ref/seq_format.py:1439-1445 -> ref/seq_format.py:1524-1530   doc lines 27,106   at-base yes
+      base ref/seq_format.py:1439  'assert self.attn is None, "T reset inside a gated-attention block"'
+      work ref/seq_format.py:1439  'def _csrwr(self, csr, val, ind=IND_NONE, xrf=0):'
+      work ref/seq_format.py:1524  'assert self.attn is None, "T reset inside a gated-attention block"'   <- proposed
+      base end :1445 'self._csrwr(CSR_L_LAYER, keep)' / work end :1530 'self._csrwr(CSR_L_LAYER, keep)'
+      doc:27  ...(`ref/seq_format.py:1439-1445`), so the old two-record spy raised Att...
+      doc:106  ...  `ref/seq_format.py:1439-1445`....
+=== evidence/qwen_next/defect_a/CORRECTIONS.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:1102-1108 -> ref/seq_model.py:1297-1303   doc lines 73   at-base yes
+      base ref/seq_model.py:1102  'def __init__(self, M, region=None):'
+      work ref/seq_model.py:1102  'if self.tcnt_seq:'
+      work ref/seq_model.py:1297  'def __init__(self, M, region=None):'   <- proposed
+      base end :1108 'self.x.dnsb = None' / work end :1303 'self.x.dnsb = None'
+      doc:73  ...**Closed by**: the manifest is now **required** (as `ref/seq_model.py:1102-1108`...
+=== evidence/qwen_next/feas/toks_model.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1126 -> ref/seq_format.py:1211   doc lines 59   at-base yes
+      base ref/seq_format.py:1126  '#'
+      work ref/seq_format.py:1126  'WHEN SET, exactly as `dump_weights` emits "g" only when it is not 128,'
+      work ref/seq_format.py:1211  '#'   <- proposed
+      doc:59  ...CHUNK_ROWS = 2048     # ref/seq_format.py:1126 (the definition, not res_chunks)...
+=== ref/scripts/bytes_per_token.py  (REPAIR 4, COLLATERAL 0)
+  REPAIR         ref/seq_format.py:1028-1096 -> ref/seq_format.py:1113-1181   doc lines 41,231   at-base yes
+      base ref/seq_format.py:1028  'return list(zip(np.nonzero(d == 1)[0].tolist(),'
+      work ref/seq_format.py:1028  's     = 1 / sqrt(mean + eps)'
+      work ref/seq_format.py:1113  'return list(zip(np.nonzero(d == 1)[0].tolist(),'   <- proposed
+      base end :1096 'caller.  Returns [(row0, count)] * nch."""' / work end :1181 'caller.  Returns [(row0, count)] * nch."""'
+      doc:41  ...     `ref/seq_format.py:1028-1096`;...
+      doc:231  ...# the 4-channel row split (ref/seq_format.py:1028-1096, re-implemented)...
+  REPAIR         ref/seq_format.py:1126 -> ref/seq_format.py:1211   doc lines 106   at-base yes
+      base ref/seq_format.py:1126  '#'
+      work ref/seq_format.py:1126  'WHEN SET, exactly as `dump_weights` emits "g" only when it is not 128,'
+      work ref/seq_format.py:1211  '#'   <- proposed
+      doc:106  ...CHUNK_ROWS = 2048                       # ref/seq_format.py:1126 (the...
+  REPAIR         ref/seq_format.py:2014 -> ref/seq_format.py:2099   doc lines 145   at-base yes
+      base ref/seq_format.py:2014  'raise AssertionError(f"unsupported dequant ALU op {sub} (4-chan)")'
+      work ref/seq_format.py:2014  'self.wplan = plan_weights_from_wids('
+      work ref/seq_format.py:2099  'raise AssertionError(f"unsupported dequant ALU op {sub} (4-chan)")'   <- proposed
+      doc:145  ...    (`ref/seq_format.py:2014`, `layout = LAYOUT_ILV if amax`)....
+  REPAIR         ref/seq_format.py:1028-1096 -> ref/seq_format.py:1113-1181   doc lines 41,231   at-base yes
+      base ref/seq_format.py:1028  'return list(zip(np.nonzero(d == 1)[0].tolist(),'
+      work ref/seq_format.py:1028  's     = 1 / sqrt(mean + eps)'
+      work ref/seq_format.py:1113  'return list(zip(np.nonzero(d == 1)[0].tolist(),'   <- proposed
+      base end :1096 'caller.  Returns [(row0, count)] * nch."""' / work end :1181 'caller.  Returns [(row0, count)] * nch."""'
+      doc:41  ...     `ref/seq_format.py:1028-1096`;...
+      doc:231  ...# the 4-channel row split (ref/seq_format.py:1028-1096, re-implemented)...
+=== ref/seq_chat.py  (REPAIR 2, COLLATERAL 0)
+  REPAIR         ref/seq_model.py:1102-1108 -> ref/seq_model.py:1297-1303   doc lines 1041   at-base yes
+      base ref/seq_model.py:1102  'def __init__(self, M, region=None):'
+      work ref/seq_model.py:1102  'if self.tcnt_seq:'
+      work ref/seq_model.py:1297  'def __init__(self, M, region=None):'   <- proposed
+      base end :1108 'self.x.dnsb = None' / work end :1303 'self.x.dnsb = None'
+      doc:1041  ...    * `ref/seq_model.py:1102-1108` is a SECOND, independent reader of the...
+  REPAIR         ref/seq_model.py:1106 -> ref/seq_model.py:1301   doc lines 1062   at-base yes
+      base ref/seq_model.py:1106  'self.x.issued = 0'
+      work ref/seq_model.py:1106  'elif o == OP_FENCE:'
+      work ref/seq_model.py:1301  'self.x.issued = 0'   <- proposed
+      doc:1062  ...            f"(ref/seq_model.py:1106 requires the same file)")...
+=== sw/chat_seq.py  (REPAIR 0, COLLATERAL 1)
+  COLLATERAL     ref/seq_model.py:456-595 -> ref/seq_model.py:456-749   doc lines 2243   at-base yes
+      base ref/seq_model.py:456  '"""SV1 fix round 1: a MOVX / MVGO / MOVY on a channel whose no-wait'
+      work ref/seq_model.py:456  '"""SV1 fix round 1: a MOVX / MVGO / MOVY on a channel whose no-wait'
+      work ref/seq_model.py:456  '"""SV1 fix round 1: a MOVX / MVGO / MOVY on a channel whose no-wait'   <- proposed
+      base end :595 '# forbids, and it would otherwise read the right bytes here' / work end :749 '# forbids, and it would otherwise read the right bytes here'
+      doc:2243  ...    (The old docstring cited `ref/seq_model.py:456-595` and...
+  EXCLUDED evidence/qwen9b/o3/o3_cite_drift.py
+  EXCLUDED evidence/qwen9b/s3/S3_CHAIN.md
+  EXCLUDED tb/scripts/gen_chat_i1_vectors.py
+--- UNRESOLVED (cited base line rewritten/deleted; o3 leaves these):
+  ref/seq_format.py:509 "# `sw/chat_seq.py`'s artifact checks therefore pass nothing and get the"  cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  ref/seq_model.py:510 'self.res = {}'  cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  ref/seq_model.py:784 'f"MOVX writes mv{r.chan} XWIN while a NO-WAIT MVGO is still "'  cited by evidence/qwen9b/ov/SV1_S1_VERIFY.md
+  ref/seq_model.py:785 '"running on it — the stream needs a FENCE first")'  cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  ref/seq_model.py:833 'assert x8 is not None, f"MVGO on mv{r.chan} before any MOVX"'  cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  ref/seq_model.py:873 'SF.validate(r, nrec=n, idx=pc, caps=self.caps)'  cited by evidence/qwen9b/sr/SR4_R1_MODEL.md
+  ref/seq_model.py:927 'self.running -= {c for c in range(4) if (fmask >> c) & 1}'  cited by evidence/qwen9b/sr/SR4_R1_MODEL.md
+--- HALF-MAPPED:
+  ref/seq_format.py:506-509  cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  ref/seq_model.py:504-510  cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  ref/seq_model.py:769-785  cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  ref/seq_model.py:923-927  cited by evidence/qwen9b/sr/SR4_R1_MODEL.md
+--- MISSING (past the base EOF / absent):
+SR11C_AUDIT REPAIR 189 (of which SUSPECT 4)  COLLATERAL 7
+=== rc  : 0
+=== end : 2026-09-28T13:06:38-06:00

@@ -1,0 +1,221 @@
+=== 101 — Task 14-A, review round 1, fix I-3: WHERE THE +2 DSP IS
+===
+=== WHAT THIS FILE IS.  A COPY, not a run.  Nothing was synthesised, placed
+=== or simulated to produce it.  It holds the "Utilization by Hierarchy"
+=== sections of two report_utilization -hierarchical reports that the OOC
+=== harness (evidence/qwen9b/g4/run_g4b_ooc.sh -> synth/scripts/ooc_9b.tcl)
+=== writes into its out dir as reports/util_synth_hier.rpt.  synth/out_* is
+=== gitignored, so the section that carries the attribution is copied here
+=== verbatim and committed.
+===
+=== WHY IT IS TWO REPORTS AND NOT THE OBVIOUS PAIR.  The HEAD report is the
+=== one this round produced (088, tree 1dd2889, synth/out_ooc9b_t14a_layer).
+=== The BASE control 090 ran out of the detached worktree
+=== /home/cah/r2d2/code/fpga/fable5_t14a_base (G5C_RTL.md section 10.6), and
+=== that worktree — and with it synth/out_ooc9b_t14a_base — was REMOVED when
+=== the round closed, so its hierarchical report no longer exists.  The
+=== comparand used here is S5's OOC run of the SAME harness
+=== (synth/out_ooc9b_s5fix_layer, evidence/qwen9b/s5/091_ooc_counts_g4b.log,
+=== tree 5cb1899), which is admissible for exactly one reason: every
+=== aggregate counter it reports is byte-identical to the BASE control's.
+===
+===   counter        S5 091            BASE control 090   equal?
+===   OOC9B_URAM     182               182                yes
+===   OOC9B_BRAM     RAMB36=77 RAMB18=8 tiles=81.0  (same) yes
+===   OOC9B_DSP      1838              1838               yes
+===   OOC9B_LUT      114106 (logic 109610, memory 4496)   yes
+===   OOC9B_FF       59836             59836              yes
+===   OOC9B_CARRY8   7844              7844               yes
+===
+=== That is a match on the top row of the table below, not a proof that every
+=== inner row would have matched; the report is a DIFFERENT TREE (5cb1899,
+=== not BASE a553f18).  The independent check that the attribution is right is
+=== the DSP-inference tally at the foot of this file, which comes from the two
+=== COMMITTED logs of the actual BASE and HEAD runs.
+===
+=== THE ANSWER, in one line: the +2 is attn_core +3 and dn_step -1.  fx_silu
+=== does not move.
+===
+=== ------------------------------------------------------------------------
+=== A. BASE-equivalent comparand: synth/out_ooc9b_s5fix_layer/reports/util_synth_hier.rpt
+=== ------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date         : Sat Sep  5 17:19:00 2026
+| Host         : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command      : report_utilization -hierarchical -file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_s5fix_layer/reports/util_synth_hier.rpt
+| Design       : layer_chan
+| Device       : xcvu9p-fsgd2104-2L-e
+| Speed File   : -2L
+| Design State : Synthesized
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++----------------+---------------------------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+|    Instance    |              Module             | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | URAM | DSP Blocks |
++----------------+---------------------------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+| layer_chan     |                           (top) |     114106 |     109610 |    4456 |   40 | 59836 |     77 |      8 |  182 |       1838 |
+|   (layer_chan) |                           (top) |       6024 |       6008 |      16 |    0 | 12807 |     66 |      0 |  182 |          0 |
+|   u_alu        |                         vec_alu |       5015 |       5015 |       0 |    0 |  1423 |      0 |      1 |    0 |          7 |
+|   u_attn       |                       attn_core |      40976 |      40976 |       0 |    0 | 28809 |      7 |      3 |    0 |        526 |
+|     (u_attn)   |                       attn_core |      40515 |      40515 |       0 |    0 | 28642 |      7 |      2 |    0 |        522 |
+|     u_recip    |                        fx_recip |        461 |        461 |       0 |    0 |   167 |      0 |      1 |    0 |          4 |
+|   u_axib       |                 layer_axib_shim |        287 |        271 |      16 |    0 |   255 |      0 |      0 |    0 |          0 |
+|     (u_axib)   |                 layer_axib_shim |        135 |        119 |      16 |    0 |   109 |      0 |      0 |    0 |          0 |
+|     u_ar       |                 layer_axib_skid |         59 |         59 |       0 |    0 |    54 |      0 |      0 |    0 |          0 |
+|     u_aw       |               layer_axib_skid_0 |         61 |         61 |       0 |    0 |    54 |      0 |      0 |    0 |          0 |
+|     u_w        | layer_axib_skid__parameterized0 |         34 |         34 |       0 |    0 |    38 |      0 |      0 |    0 |          0 |
+|   u_conv       |                      conv4_silu |        307 |        306 |       0 |    1 |    76 |      0 |      1 |    0 |          7 |
+|     (u_conv)   |                      conv4_silu |        129 |        129 |       0 |    0 |    21 |      0 |      0 |    0 |          4 |
+|     u_silu     |                         fx_silu |        178 |        177 |       0 |    1 |    55 |      0 |      1 |    0 |          3 |
+|   u_dma        |                       state_dma |      15020 |      10918 |    4096 |    6 |  5072 |      0 |      0 |    0 |          0 |
+|   u_dn         |                         dn_step |      41585 |      41505 |      80 |    0 |  6759 |      0 |      0 |    0 |       1280 |
+|   u_gate       |                       gate_unit |       1010 |        962 |      48 |    0 |  1338 |      0 |      2 |    0 |          7 |
+|   u_rope       |                       rope_unit |        597 |        397 |     200 |    0 |    42 |      0 |      0 |    0 |          2 |
+|   u_topk       |                    layer_topk32 |        545 |        545 |       0 |    0 |  1695 |      0 |      0 |    0 |          0 |
+|   u_vn         |                    vecnorm_unit |       2740 |       2707 |       0 |   33 |  1560 |      4 |      1 |    0 |          9 |
+|     (u_vn)     |                    vecnorm_unit |       2071 |       2038 |       0 |   33 |  1375 |      4 |      0 |    0 |          5 |
+|     u_rsqrt    |                        fx_rsqrt |        670 |        670 |       0 |    0 |   185 |      0 |      1 |    0 |          4 |
++----------------+---------------------------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+
+
+=== ------------------------------------------------------------------------
+=== B. HEAD, this round: synth/out_ooc9b_t14a_layer/reports/util_synth_hier.rpt
+===    (088, tree 1dd2889)
+=== ------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date         : Mon Sep  7 00:20:39 2026
+| Host         : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command      : report_utilization -hierarchical -file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_t14a_layer/reports/util_synth_hier.rpt
+| Design       : layer_chan
+| Device       : xcvu9p-fsgd2104-2L-e
+| Speed File   : -2L
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++----------------+---------------------------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+|    Instance    |              Module             | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | URAM | DSP Blocks |
++----------------+---------------------------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+| layer_chan     |                           (top) |     113216 |     108720 |    4456 |   40 | 61437 |     79 |      8 |  182 |       1840 |
+|   (layer_chan) |                           (top) |       4862 |       4846 |      16 |    0 | 12781 |     68 |      0 |  182 |          0 |
+|   u_alu        |                         vec_alu |       4961 |       4961 |       0 |    0 |  1427 |      0 |      1 |    0 |          7 |
+|   u_attn       |                       attn_core |      40977 |      40977 |       0 |    0 | 29752 |      7 |      3 |    0 |        529 |
+|     (u_attn)   |                       attn_core |      40515 |      40515 |       0 |    0 | 29585 |      7 |      2 |    0 |        525 |
+|     u_recip    |                        fx_recip |        462 |        462 |       0 |    0 |   167 |      0 |      1 |    0 |          4 |
+|   u_axib       |                 layer_axib_shim |        266 |        250 |      16 |    0 |   255 |      0 |      0 |    0 |          0 |
+|     (u_axib)   |                 layer_axib_shim |        130 |        114 |      16 |    0 |   109 |      0 |      0 |    0 |          0 |
+|     u_ar       |                 layer_axib_skid |         51 |         51 |       0 |    0 |    54 |      0 |      0 |    0 |          0 |
+|     u_aw       |               layer_axib_skid_0 |         53 |         53 |       0 |    0 |    54 |      0 |      0 |    0 |          0 |
+|     u_w        | layer_axib_skid__parameterized0 |         34 |         34 |       0 |    0 |    38 |      0 |      0 |    0 |          0 |
+|   u_conv       |                      conv4_silu |        307 |        306 |       0 |    1 |   113 |      0 |      1 |    0 |          7 |
+|     (u_conv)   |                      conv4_silu |        127 |        127 |       0 |    0 |    21 |      0 |      0 |    0 |          4 |
+|     u_silu     |                         fx_silu |        180 |        179 |       0 |    1 |    92 |      0 |      1 |    0 |          3 |
+|   u_dma        |                       state_dma |      15261 |      11159 |    4096 |    6 |  5070 |      0 |      0 |    0 |          0 |
+|   u_dn         |                         dn_step |      41640 |      41560 |      80 |    0 |  7404 |      0 |      0 |    0 |       1279 |
+|   u_gate       |                       gate_unit |       1041 |        993 |      48 |    0 |  1338 |      0 |      2 |    0 |          7 |
+|   u_rope       |                       rope_unit |        479 |        279 |     200 |    0 |    42 |      0 |      0 |    0 |          2 |
+|   u_topk       |                    layer_topk32 |        556 |        556 |       0 |    0 |  1695 |      0 |      0 |    0 |          0 |
+|   u_vn         |                    vecnorm_unit |       2866 |       2833 |       0 |   33 |  1560 |      4 |      1 |    0 |          9 |
+|     (u_vn)     |                    vecnorm_unit |       2200 |       2167 |       0 |   33 |  1375 |      4 |      0 |    0 |          5 |
+|     u_rsqrt    |                        fx_rsqrt |        668 |        668 |       0 |    0 |   185 |      0 |      1 |    0 |          4 |
++----------------+---------------------------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+
+
+=== ------------------------------------------------------------------------
+=== C. The DSP column, differenced.  ONLY TWO INSTANCES MOVE.
+=== ------------------------------------------------------------------------
+===
+===   instance / module          A (1838)   B (1840)   delta
+===   layer_chan (top)             1838       1840       +2
+===     u_attn   / attn_core        526        529       +3
+===       (u_attn) proper           522        525       +3
+===       u_recip / fx_recip          4          4        0
+===     u_dn     / dn_step         1280       1279       -1
+===     u_conv   / conv4_silu         7          7        0
+===       (u_conv) proper             4          4        0
+===       u_silu / fx_silu            3          3        0    <-- STAGE C
+===     u_alu, u_gate, u_rope, u_vn, u_topk, u_axib, u_dma: identical
+===
+=== Every other row of the two tables is equal in the DSP column.  Stage C —
+=== the fx_silu split, the one change that touches a multiplier's neighbourhood
+=== — costs ZERO DSPs.  The delta is in D1's module.
+===
+=== ------------------------------------------------------------------------
+=== D. The same answer from the two COMMITTED logs, on the actual BASE and
+===    HEAD trees.  Vivado's "DSP Report: Generating DSP <name>" lines, tallied
+===    (array indices folded to [i]).  This is the reviewer's derivation
+===    (task-14A-review-round1.md I-3) reproduced here.
+===
+===    READ THE COLUMNS AS PER-NAME COUNTS, NOT AS A COLUMN TO ADD UP.
+===    (Clause added 2026-09-10: "tallied" read as exhaustive and it is not.)
+===    A row that names several sites on one line -- g_lane[i].{pv_p,prod},
+===    g_lane[i].{p2_p,o_acc,kvm_acc,dm_p,dec_p}, mul_p00 / mul_p0_reg, and
+===    mul1_p00 / mul1_p0_reg / m1p00 / m2p00 / acc10 -- prints the count of
+===    EACH of those names, not the group's sum.  And ELEVEN further names
+===    are omitted from the table altogether because they are identical
+===    single-site DSPs on both sides, 1 and 1: spx2, e16g2, e16q2, acc1_reg,
+===    ss_acc0, pa_reg, pb_reg, i2_pp_reg, mul2_p_reg, mul2_p0_reg, p0_reg[i].
+===    So adding the printed 090 column gives 1048, NOT 1843.  Expanding the
+===    grouped rows to one line per name and adding the eleven back gives
+===    exactly 1843 and 1848 -- the two greps below -- over 33 distinct
+===    names.  The +5 delta is unaffected: every omitted name is 0.
+=== ------------------------------------------------------------------------
+===
+===   grep -c 'DSP Report: Generating DSP' evidence/qwen9b/g5/090_t14a_ooc_BASE_control.log  ->  1843
+===   grep -c 'DSP Report: Generating DSP' evidence/qwen9b/g5/088_t14a_ooc_layer.log         ->  1848
+===
+===   inference site                       090 (BASE a553f18)  088 (HEAD 1dd2889)
+===   g_ps4[i].psum4_reg[i]                          2                  6     +4
+===   p_4_out                                        8                 10     +2
+===   p_1_out                                      384                383     -1
+===   u_silu/sig23   (BASE only)                     1                  -
+===   u_silu/t2a1    (HEAD only)                     -                  1
+===   u_silu/m3_reg                                  1                  1      0
+===   u_silu/m4_reg                                  1                  1      0
+===   g_lane[i].{pv_p,prod}_reg[i]                 256                256      0
+===   g_lane[i].{p2_p,o_acc,kvm_acc,dm_p,dec_p}    128                128      0
+===   p_0_out                                      257                257      0
+===   mul_p00 / mul_p0_reg                           8                  8      0
+===   mul1_p00 / mul1_p0_reg / m1p00 / m2p00 / acc10 2                  2      0
+===   TOTAL GENERATED                             1843               1848     +5
+===
+===   -> 1848 generated, 1840 surviving: +5 inferred, +3 absorbed, net +2.
+===
+=== g_ps4 is rtl/attn_core.sv:227-231 — the 64 sums-of-4 in the psum adder
+=== tree, i.e. stage D1's own module.  The sites named at HEAD are
+=== i = 0, 4, 17, 32, 34, 50 against i = 0, 7 at BASE.  fx_silu holds THREE
+=== DSPs on each side (section B's table: u_silu = 3 both ways) and the set of
+=== names is the same but for one: the interpolation multiply is
+=== 090:10233 'DSP Report: Generating DSP u_silu/sig23, operation Mode is:
+=== A*B''.' at BASE and 088:10325 'DSP Report: Generating DSP u_silu/t2a1,
+=== operation Mode is: A*B''.' at HEAD — the SAME DSP under the name of the
+=== register the split created; u_silu/m3_reg and u_silu/m4_reg are present
+=== and unchanged on both sides.  Stage C renamed a DSP; it did not add one.
+===
+=== CONCLUSION.  The +2 DSP is Vivado RE-INFERRING EXISTING 4-INPUT ADDERS in
+=== attn_core's psum4 tree into DSP48E2 slices, plus one adder leaving
+=== dn_step's.  It is not a new multiplier and no RTL asked for it: the round
+=== added no arithmetic operator anywhere — D1 and D2 add mux levels and
+=== registers, C moves a clock edge.  It is the design note's risk 3 ("if
+=== Vivado's DSP re-inference wobbles"), fired at +2 of 6,840 on the device
+=== and 2 of SLR1's 440 spare.

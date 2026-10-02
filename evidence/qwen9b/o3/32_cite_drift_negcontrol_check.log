@@ -1,0 +1,239 @@
+=== host: darthplagueis
+=== date: 2026-09-01T19:22:01-06:00
+=== tree: a77a819+dirty
+=== cmd:  sw/.venv/bin/python -u evidence/qwen9b/o3/o3_cite_drift.py --check --negative-control
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+o3 citation-drift gate  [check]
+  sw/ base   dc8f492
+  doc base   dc8f492
+  files      12 edited sw/ files
+  citations  109 distinct (file, line) pairs
+  unmoved    0
+  MODE       NEGATIVE CONTROL
+  DRIFTED    sw/chat_seq.py:26 -> :27   '+0x24  CSRWR TCNT_SEQ <= 1                  layer_chan — spec hazard)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:35 -> :36   "pos 85 and seq_unit TRUNCATES a larger write SILENTLY (agent A's finding;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:80 -> :81   'calls pcie_helper.sh.  It only opens /dev/xdma0_{user,h2c_0,c2h_0}.'
+             cited by docs/USAGE.md
+  DRIFTED    sw/chat_seq.py:93 -> :94   'deliberate deviation from sw/seq_run.py:seq_start_and_poll(), which'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt, rtl/seq_unit.sv
+  DRIFTED    sw/chat_seq.py:101 -> :102   'chat_seq_model:    ; $(PY) -u chat_seq.py --model-only --prefill lite'
+             cited by evidence/qwen9b/g2/G2A_HOST.md
+  DRIFTED    sw/chat_seq.py:166 -> :167   'if GEOM_IS_DERIVED else dict(_GEOM_08B))'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:172 -> :173   '# scratch-footprint decoder would report the GATE tile at HALF its true size'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, ref/seq_chat.py
+  DRIFTED    sw/chat_seq.py:173 -> :174   '# and selftest [17]\'s "the LM head never overwrites x8" proof would be about'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, ref/seq_chat.py
+  DRIFTED    sw/chat_seq.py:203 -> :204   'REC_TCNT = 45751                  # CSRWR TCNT_SEQ <= n'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    sw/chat_seq.py:214 -> :215   '# against the frozen bitstreams -- it is 6 and nothing moves.  Under'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2A_HOST.md
+  DRIFTED    sw/chat_seq.py:215 -> :216   '# FABLE5_MODEL=9b against a 0.8B artifact it is 8 and `derive_geometry`'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g2/G2A_HOST.md
+  DRIFTED    sw/chat_seq.py:220 -> :221   'POS_BLOCK = (SC.POS_COPY_BYTES if SC is not None'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:221 -> :222   'else 2 * 2 * _GEOM_08B["ROT"])    # 256 B = 128 int16 words'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/chat_seq.py:236 -> :237   'WITNESS_BYTES = 4096              # residency probe block (spec decision 9)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/chat_seq.py:274 -> :281   "STG_WORD, STG_LEN = 0x1000, 0x1000   # the head's y32 staging window"
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/chat_seq.py:275 -> :282   ''
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/chat_seq.py:282 -> :289   '# never be set and the change is inert, which is what'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/chat_seq.py:310 -> :317   '"""The head dequant exponent at e_x = 0, for a given residual point."""'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/chat_seq.py:315 -> :322   ''
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/chat_seq.py:425 -> :403   '"CONST_BYTES": SC.CONST_BYTES if SC else None,'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    sw/chat_seq.py:446 -> :424   'if check_sha and got != sha:'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    sw/chat_seq.py:551 -> :529   'head matvec (found from the head'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:566 -> :544   'need(recs[n - 1].opcode == SF.OP_HALT, "the last record is not HALT")'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:669 -> :647   'need(len(nw) == 1, f"the position LDCs read {sorted(nw)} words, not one size")'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:671 -> :649   'la = sorted(((int(r.len_or_addr_hi) << 32) | int(r.addr_lo)) for r in lrec)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1073 -> :1054   '"patch_bytes": npatch, "patch_writes": len(list(writes))}'
+             cited by docs/ARCHITECTURE.md
+  DRIFTED    sw/chat_seq.py:1094 -> :1075   '#'
+             cited by docs/ARCHITECTURE.md
+  DRIFTED    sw/chat_seq.py:1099 -> :1080   '#   * A SAMPLED step will be the SAME full launch plus an on-chip TOP-K'
+             cited by docs/USAGE.md
+  DRIFTED    sw/chat_seq.py:1100 -> :1081   '#     CAPTURE UNIT: k = 32 {int32 value, 18-bit index} pairs, readable'
+             cited by docs/ARCHITECTURE.md
+  DRIFTED    sw/chat_seq.py:1453 -> :1434   'self.available = bool(self.entries)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1478 -> :1459   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1481 -> :1462   'd.update({"steps": len(self.entries), "consumed": self.i,'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1482 -> :1463   '"provenance": self.meta})'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1489 -> :1470   'Not a decode path (2026-08-11 ruling).  Two legitimate users:'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1493 -> :1474   '* the board-free gate, where ref/seq_model.py supplies the hidden'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1504 -> :1485   'self.head = head'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1506 -> :1487   'self.k = int(k)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1516 -> :1497   'x8, e_x = self.x8src(ctx)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1519 -> :1500   'return v, np.asarray(i, dtype=np.int64), int(e_x)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1520 -> :1501   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1521 -> :1502   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1522 -> :1503   '# ----------------------------------------------------------------------'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1524 -> :1505   '# ----------------------------------------------------------------------'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1526 -> :1507   '"""(x8 int8[n], e_x) out of the layer_chan scratchpad, after the halt.'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1529 -> :1510   'stream, not assumed):'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1530 -> :1511   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:1565 -> :1546   'bad = int((hi != want).sum())'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:2101 -> :2082   '"""One forward step at position self.T.  Returns (token|None, rep).'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:2112 -> :2093   'kind = "lite" if lite else "full"'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/chat_seq.py:2237 -> :2218   'got_exp0 = self.head.spec.logit_exp(0)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/chat_seq.py:2307 -> :2288   '"""Longest tail of the conversation that still fits after a reset."""'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:3072 -> :3053   'if a == HW.S_OUT_FIFO and self._busy:'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:3146 -> :3127   'for r in recs[REC_BODY_LITE[0]:REC_BODY_LITE[1]]))'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:3388 -> :3369   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:3717 -> :3714   '# -- G1b: the system-prompt form (T5) --------------------------'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/chat_seq.py:3848 -> :3845   'HEAD_LOGIT_EXP0 == HEAD_E + HEAD_SH - 15 - HEAD_RS_F and'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/chat_seq.py:4053 -> :4050   'rf.reset()'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:4283 -> :4280   'and HEAD_LOGIT_EXP0 == HEAD_E + HEAD_SH - 15 + 0 - HEAD_RS_F)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/chat_seq.py:4284 -> :4281   'check("the head exponent MOVES with the manifest\'s rs_f (spec 4.4)",'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:4285 -> :4282   'head_logit_exp0(7) == HEAD_LOGIT_EXP0 + 1'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/chat_seq.py:4286 -> :4283   'and HW.split_manifest({"rs_f": 7})[1]["rs_f"] == 7,'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/chat_seq.py:4288 -> :4285   'check("head_cache is documented as verification-only",'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/chat_seq.py:4791 -> :4788   '#   cfgd = dict(LQ.load_config()); allowed = Qwen3_5TextConfig().to_dict()'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/chat_seq.py:5043 -> :5040   'else:'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/cycle_census.py:1 -> :2   '"""cycle_census.py — where does a 150 ms decode step actually go?'
+             cited by evidence/qwen2b/ra/MOVER_NORM.md
+  DRIFTED    sw/cycle_census.py:20 -> :22   'import chat_seq as CS'
+             cited by evidence/qwen2b/ra/MOVER_NORM.md
+  DRIFTED    sw/infer.py:227 -> :229   'self.wr(mb + R_XPTR, 0)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/infer.py:389 -> :391   '# sw/chat_seq.py owns the one wrapper builder and the one stop-id set.'
+             cited by evidence/qwen2b/q2/v4/GPTQ.md
+  DRIFTED    sw/infer.py:664 -> :666   'slots = slot_plan(types)'
+             cited by evidence/qwen2b/q2/v4/GPTQ.md
+  DRIFTED    sw/infer.py:677 -> :679   'self.ln_f_q12 = np.round((1.0 + np.asarray(md["ln_f"], dtype=np.float64))'
+             cited by evidence/qwen2b/q2/v4/GPTQ.md
+  DRIFTED    sw/infer.py:678 -> :680   '* (1 << 12)).astype(I64)'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2A_HOST.md
+  DRIFTED    sw/infer.py:679 -> :681   'assert int((np.abs(self.ln_f_q12) > 32767).sum()) == 0'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2A_HOST.md
+  DRIFTED    sw/infer.py:689 -> :691   'self.qw_head = quant_linear_big(head_f, g=a.w4_group)'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    sw/infer.py:696 -> :698   '* np.float64(a.res_scale) * (1 << RS_F)),'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/infer.py:701 -> :703   'self.log(f"    LM head {self.qw_head[\'w4\'].shape} e={self.qw_head[\'e\']} "'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/infer.py:749 -> :751   'if lt == "full_attention":'
+             cited by ref/gen_layer_script.py
+  DRIFTED    sw/infer.py:781 -> :783   '#         self-check degenerates to a tautology and the'
+             cited by NEXT_SESSION.md, docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/defect_a/defect_b_probe.py
+  DRIFTED    sw/infer.py:782 -> :784   '#         readback comparisons above carry the proof.'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/defect_a/defect_b_probe.py
+  DRIFTED    sw/infer.py:783 -> :785   'gold = (LF.layer_decode_fx(x, qw, cache, pos) if self.verify'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/defect_a/defect_b_probe.py
+  DRIFTED    sw/infer.py:785 -> :787   'if lt == "full_attention":'
+             cited by NEXT_SESSION.md, docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/defect_a/defect_b_probe.py
+  DRIFTED    sw/infer.py:797 -> :799   '# online step() path — `M.embed(tok, X0, LR.H)` twelve lines up and'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/infer.py:800 -> :802   '# lines above it ran silently on half the residual, and because'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/infer.py:802 -> :804   '# they corrupted even the words they did write — measured on an'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/layer_test.py:105 -> :119   'wr(mb + R_XPTR, 0)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/mover_bench.py:12 -> :13   'ext_csrwr   CSRWR to a layer CSR (adds one AXIL write)'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    sw/mover_bench.py:19 -> :20   'Usage (snoke): .venv/bin/python mover_bench.py --out ../evidence/rung3/mover_b'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    sw/seq_run.py:39 -> :40   'layer IDENT / all four matvec IDENTs read back exactly.'
+             cited by docs/USAGE.md
+  DRIFTED    sw/seq_run.py:69 -> :71   'S_CTRL, S_STATUS, S_BASE_LO, S_BASE_HI, S_LEN, S_PC, S_OUT_FIFO,'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:608 -> :610   'man[str(wid)]["w8"] = True'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:633 -> :635   'chunk_rows, repack=True):'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/seq_run.py:1228 -> :1230   'if s.get("layout") == SF.LAYOUT_ILV})'
+             cited by evidence/qwen2b/rc/RC_GATE.md, evidence/qwen2b/rc/t4_wall8_probe.py, tb/tb_seq_chip.sv
+  DRIFTED    sw/seq_run.py:1258 -> :1260   'rep["wbase_of"] = {str(k): _hexb(v) for k, v in sorted(wbase_of.items())}'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:1265 -> :1267   ''
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:1266 -> :1268   '`row_bytes` comes from the artifact manifest (2*H).  The write is'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:2123 -> :2125   'str(k): dict(art.manifest[str(k)],'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:2124 -> :2126   'base=[v[0], v[1] + 64, v[2], v[3]])'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:2128 -> :2130   '# ---- 6. disasm window ----'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:2199 -> :2201   'check("--zero-scratch issues SPTR + one SWIN write per word",'
+             cited by sw/hwmap.py
+  DRIFTED    sw/seq_run.py:2260 -> :2262   '"m": np.zeros((4096, 2), dtype=np.int8),'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:2266 -> :2268   'e.M, e.nch, e.repack = m, 4, True'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:2276 -> :2278   'eo = _place(_mk_em(), (0, 1, 2))'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:2281 -> :2283   '_raises(lambda: _place(_mk_em(), (0, 2, 1)), AssertionError))'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/seq_run.py:2511 -> :2526   'chk = dev.layer_read_scratch(0, SCRATCH_WORDS_BUILT)'
+             cited by sw/hwmap.py
+  DRIFTED    sw/tok_meter.py:41 -> :42   '62,080 rows per channel = 15 chunks of 4096 + 1 of 640 on every channel'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/tok_meter.py:43 -> :44   'counts, so they hold at every geometry this project has -- the vocabulary is'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/tok_meter.py:248 -> :262   'man, wmeta = HW.load_weights_manifest(prefix)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/tok_meter.py:329 -> :343   ''
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    sw/tok_meter.py:487 -> :501   'acc["errors"] += 1'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    sw/tok_meter.py:488 -> :502   'print(f"FAIL E: got {got} want {want}")'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+O3_CITE_DRIFT CHECK NEGATIVE CONTROL: CAUGHT (109 reported)
+=== rc: 0
+=== end: 2026-09-01T19:22:02-06:00

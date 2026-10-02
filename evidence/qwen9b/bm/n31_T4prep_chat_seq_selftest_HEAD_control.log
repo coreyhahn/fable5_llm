@@ -1,0 +1,10 @@
+=== host: snoke  date: 2026-09-24T23:50:50-06:00
+=== tree: eeb2d43+dirty
+=== dirty:  M sw/seq_run.py
+=== cmd : bash -c D=$(mktemp -d /tmp/t4p_head.XXXX); git archive HEAD sw ref | tar -x -C $D; ln -s $PWD/tb $D/tb; ln -s $PWD/evidence $D/evidence; echo control: sw+ref from HEAD $(git rev-parse --short HEAD) extracted to $D, i.e. WITHOUT the T4prep seq_run.py edit; cd $D && /home/cah/.venv/bin/python sw/chat_seq.py --selftest | grep -E "FAIL|passed,"; rc=${PIPESTATUS[0]}; rm -rf $D; exit $rc
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+control: sw+ref from HEAD eeb2d43 extracted to /tmp/t4p_head.K9i5, i.e. WITHOUT the T4prep seq_run.py edit
+    FAIL a region image that does not span the plan is REFUSED, not silently truncated: 
+  chat_seq selftest: 407 passed, 1 failed
+=== rc  : 1
+=== end : 2026-09-24T23:51:20-06:00

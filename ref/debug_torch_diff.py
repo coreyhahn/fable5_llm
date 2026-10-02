@@ -11,12 +11,27 @@ import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import layer_ref as LR
+from model_select import CONFIG_JSON, TAG
+
+# G2a GENERALIZED WHAT THIS USED TO REFUSE.  Until 2026-08-31 this file
+# raised SystemExit at import whenever LNH != LNKH (Track L review, finding
+# D7), because the QKV reshape below assumed one value head per key head:
+# LKD = LNKH*LDK, so at 4B/9B (LNH 32, LNKH 16) `conv_n[:LKD].reshape(LNH,
+# LDK)` put 2048 values into a 4096-element view and raised a bare numpy
+# ValueError halfway through a comparison run.
+#
+# The reshape now follows the checkpoint's own algebra -- q/k are reshaped by
+# the KEY head count and repeated VREP times, exactly `ref/layer_ref.py:223-225`
+# -- so the assertion below states the algebra rather than refusing it.
+assert LR.LNH % LR.LNKH == 0 and LR.VREP == LR.LNH // LR.LNKH, (
+    f"FABLE5_MODEL={TAG}: linear_num_value_heads={LR.LNH} is not a whole "
+    f"multiple of linear_num_key_heads={LR.LNKH}; the packed QKV block "
+    f"[q:{LR.LKD}][k:{LR.LKD}][v:{LR.LVD}] cannot be sliced per value head.")
 
 from transformers.models.qwen3_5 import Qwen3_5TextConfig, Qwen3_5TextModel
 
 torch.manual_seed(7)
-cfgd = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                   "qwen3_5_0.8b_config.json")))["text_config"]
+cfgd = json.load(open(CONFIG_JSON))["text_config"]
 cfgd = dict(cfgd)
 cfgd.update(num_hidden_layers=2,
             layer_types=["linear_attention", "full_attention"],
@@ -95,8 +110,12 @@ win = np.concatenate([np.zeros((LR.CONV_DIM, LR.CONV_K - 1), dtype=np.float32),
 conv_n = LR.silu(np.sum(win * w["conv_w"], axis=1))
 cmp("conv+silu", conv_out.reshape(-1), conv_n)
 
-q_n = conv_n[:LR.LKD].reshape(LR.LNH, LR.LDK)
-k_n = conv_n[LR.LKD:2 * LR.LKD].reshape(LR.LNH, LR.LDK)
+# VREP: q/k are packed per KEY head and each feeds VREP value heads
+# (ref/layer_ref.py:220-225).  At 0.8B/2B VREP == 1 and np.repeat is the
+# identity, so this is byte-identical to the reshape it replaces.
+q_n = np.repeat(conv_n[:LR.LKD].reshape(LR.LNKH, LR.LDK), LR.VREP, axis=0)
+k_n = np.repeat(conv_n[LR.LKD:2 * LR.LKD].reshape(LR.LNKH, LR.LDK),
+                LR.VREP, axis=0)
 v_n = conv_n[2 * LR.LKD:].reshape(LR.LNH, LR.LDV)
 beta_n = LR.sigmoid(b_n)
 g_n = -np.exp(w["A_log"]) * LR.softplus(a_n + w["dt_bias"])

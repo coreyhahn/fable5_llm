@@ -1,0 +1,52 @@
+=== Track L regen gates, re-run 2026-08-26 after the review round ===
+=== host snoke  2026-08-26T05:09:49-06:00
+=== tree 6d5dd82  (WITH the new ref/ guards applied, uncommitted)
+=== porcelain at run time:
+===    M ref/debug_torch_diff.py
+===    M ref/gen_layer_script.py
+===    M ref/load_qwen35.py
+===    M ref/perplexity_eval.py
+===    M ref/scripts/bytes_per_token.py
+
+### WHY Track L runs these: the review asked for them as this track s
+### own evidence.  They are the repo s existing regen gates, and they
+### are the regression test for the geometry guards added to
+### ref/gen_layer_script.py -- if those guards were not inert at 2B,
+### t4_bytes_unmoved would emit different bytes and FAIL.
+
+########## evidence/qwen2b/rc/t4_bytes_unmoved.sh ##########
+gold: tb/scripts/w5/lay2b_w8_s1.* (emitted BEFORE the widening, 2026-08-22T12:48)
+layer script: seed=1 ntok=2 wq=w8 cmds=520 hostwords=231136 weights=15 -> /tmp/tmp.fpCsuMxFb6/lay.txt
+SEQ: 2307 records (36912 B) + 75648 B const blob -> /tmp/tmp.fpCsuMxFb6/lay.e.seq  [profile=epsnorm loop_steps=0]
+  IDENTICAL  .txt  (2439841 B)
+  IDENTICAL  .e.seq  (36912 B)
+  IDENTICAL  .e.seq.json  (6666 B)
+  IDENTICAL  .e.seqdata.bin  (75648 B)
+  IDENTICAL  .weights.json  (image filenames normalised)
+  weight images: 15 compared, 0 differ
+
+BYTES_UNMOVED PASS — the widening changed no emitted byte;
+RC_GATE section 2's artifact shas stand, no regeneration needed.
+rc=0
+
+########## evidence/qwen2b/rd/rd_golden_shas.sh ##########
+--- the .chip goldens this gate compared against ---
+-rw-rw-r-- 1 cah cah 100667 Aug 11 19:34 tb/scripts/w4/model_v2_s1.e4.chip
+-rw-rw-r-- 1 cah cah 100667 Aug  9 09:27 tb/scripts/w4/model_v2_s1.e.chip
+-rw-rw-r-- 1 cah cah 229702 Aug 22 17:31 tb/scripts/w5/model_w8_2b_s1.e.chip
+
+15c39f54f75adcc3252d9fbfc35a91b3a8cda79fcb13a5a20fd0fa9711dd3fed  tb/scripts/w5/model_w8_2b_s1.e.chip
+e5436b72e93c3ada85653060ca0ddf571a7b4f0a3a3d8504ab2db78bace2cdf3  tb/scripts/w4/model_v2_s1.e4.chip
+7207d57bae31a7f99358f4d1b443d629ce42e610aaa046a9988ef5246189c1ec  tb/scripts/w4/model_v2_s1.e.chip
+
+--- MEM lines each one asserts (= the scratch half of the check count) ---
+  model_w8_2b_s1.e.chip                    MEM  16384   NREC 68503  PC 68502  EMBLOG2 12
+  model_v2_s1.e4.chip                      MEM   7168   NREC 68119  PC 68118  EMBLOG2 
+  model_v2_s1.e.chip                       MEM   7168   NREC 60495  PC 60494  EMBLOG2 
+
+NOTE the 2B golden's mtime postdates the artifact set: R-c regenerated
+it when wall 8 (the TB's missing EMBLOG2 write) was fixed — its own
+EMBLOG2 line above is that fix, and RC_GATE.md gate 40 is the run that
+accepted it.  The .seq/.seqdata/.emb/187-image shas are unchanged and
+are in hw_18_2b_artifact_shas.log.
+rc=0

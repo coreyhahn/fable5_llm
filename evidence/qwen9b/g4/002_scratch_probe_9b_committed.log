@@ -1,0 +1,142 @@
+=== host: snoke
+=== date: 2026-09-02T21:47:33-06:00
+=== tree: 0cf5f9c
+=== cmd:  nice -n 5 /home/cah/.venv/bin/python -u .probe_map_g4a.py 9b
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=7
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+[9b seed=1] H=4096 FFN=12288  measured peak: DN(+MLP)=50208 ATTN(+MLP)=50208 conv-preamble=21536
+[9b seed=2] H=4096 FFN=12288  measured peak: DN(+MLP)=50208 ATTN(+MLP)=50208 conv-preamble=50208
+[9b seed=3] H=4096 FFN=12288  measured peak: DN(+MLP)=50208 ATTN(+MLP)=50208 conv-preamble=50208
+[9b seed=4] H=4096 FFN=12288  measured peak: DN(+MLP)=50208 ATTN(+MLP)=50208 conv-preamble=50208
+[9b] MEASURED PEAK=50208  DERIVED PEAK=50208  SCRATCH=65536  headroom=15328
+[9b] OK: measured <= derived <= 65536
+[9b] import-time invariants: PEAK=50208 scratch_map() max end=50208 SCRATCH=65536 SCRATCH_MAX=65536 ISA_SADDR_MAX=65536
+=== rc: 0
+=== end: 2026-09-02T21:59:30-06:00
+
+# --------- appendix: the scratch driver (verbatim, for reproduction) ---------
+# Lifted from evidence/qwen2b/ra/scratch_probe.log:27+ (the 0.8B/2B run's own
+# appendix) with the three adaptations its docstring names.  Appended to this
+# log after the run, exactly as the 2B log carries its driver: the file itself
+# is a scratch file and is not committed.
+#!/usr/bin/env python3
+"""Empirical scratch-extent probe (throwaway; not committed).
+
+LIFTED VERBATIM from the appendix of evidence/qwen2b/ra/scratch_probe.log
+(Track R task R-a, 2026-08-12), with exactly THREE adaptations, each named
+here because the whole point of the appendix is reproducibility:
+
+  1. `M.kc[0] / M.vc[0]` are reset to `_KVH` empty lists instead of the
+     literal `[[], []]` the 0.8B/2B appendix carries.  `_KVH` is 4 at
+     4B/9B (gen_layer_script.py:309) and was 2 when the appendix was
+     written; the literal would NARROW the cache and the attn body would
+     IndexError on kv head 2.  The value is read from the module, so this
+     line is now geometry-derived rather than frozen.
+  2. The final ceiling assert reads `G.SCRATCH_MAX` (65,536, spec 4.3 S4)
+     instead of the literal 32,768 the appendix carries.  32,768 was the
+     15-bit ISA's scratch ADDRESS ceiling; G3.1 (Task 7) split the array
+     depth (`SCRATCH_MAX`) from what an ARG word carries
+     (`ISA_SADDR_MAX`), and 50,208 > 32,768 is the entire reason this task
+     exists.  The measured<=derived assert is UNCHANGED.
+  3. The banner prints SCRATCH_MAX so a reader sees which ceiling was
+     applied.
+
+Wraps Mach.mem in an ndarray subclass that records the high-water mark of
+every slice read/written, then runs the real DN + ATTN token bodies.
+Reports the measured peak against the derived PEAK/SCRATCH.
+"""
+import sys
+import numpy as np
+
+sys.path.insert(0, "/home/cah/r2d2/code/fpga/fable5_llm/ref")
+import gen_layer_script as G          # noqa: E402
+import layer_ref as LR                # noqa: E402
+import layer_fixed as LF              # noqa: E402
+
+HI = {"w": 0, "r": 0}
+
+
+def _stop(k, n):
+    if isinstance(k, slice):
+        return n if k.stop is None else min(int(k.stop), n)
+    if isinstance(k, (int, np.integer)):
+        return int(k) + 1
+    return 0
+
+
+class Tracked(np.ndarray):
+    def __setitem__(self, k, v):
+        HI["w"] = max(HI["w"], _stop(k, self.shape[0]))
+        return super().__setitem__(k, v)
+
+    def __getitem__(self, k):
+        HI["r"] = max(HI["r"], _stop(k, self.shape[0]))
+        return super().__getitem__(k)
+
+
+def run(seed, ntok, tag):
+    rng = np.random.default_rng(seed)
+    with open("/dev/null", "w") as f:
+        M = G.Mach(f)
+        M.mem = np.zeros(G.SCRATCH, dtype=G.I64).view(Tracked)
+
+        wf = LR.init_layer_weights(rng, "linear_attention")
+        qw = LF.quant_layer(wf)
+        cache = LF.new_cache_fx("linear_attention")
+        x = np.round(rng.normal(0, 1, LR.H) * (1 << G.RS_F)).astype(G.I64)
+        qd = qw["dn"]
+        for c in range(0, LR.CONV_DIM, 2048):
+            M.W(G.STG, qd["conv_w"][c:c + 2048].reshape(-1))
+            M.convw(c, 2048, G.STG)
+        M.convz(0, LR.CONV_DIM)
+        for h in range(LR.LNH):
+            M.dnz(h)
+        pre = dict(HI)
+        HI["w"] = HI["r"] = 0            # exclude the conv-weight preamble
+        M.W(G.X0, x)
+        for t in range(ntok):
+            gold = LF.layer_decode_fx(x, qw, cache, t)
+            G.dn_token(M, qd, qw["ln1"], qw["ln2"], qw["mlp"], gold)
+            x = gold
+        dn = dict(HI)
+        HI["w"] = HI["r"] = 0
+
+        wf = LR.init_layer_weights(rng, "full_attention")
+        qw = LF.quant_layer(wf)
+        cache = LF.new_cache_fx("full_attention")
+        x = np.round(rng.normal(0, 1, LR.H) * (1 << G.RS_F)).astype(G.I64)
+        M.Treset()
+        M.kc[0] = [[] for _ in range(G._KVH)]
+        M.vc[0] = [[] for _ in range(G._KVH)]
+        M.W(G.X0, x)
+        for t in range(ntok):
+            gold = LF.layer_decode_fx(x, qw, cache, t)
+            G.attn_token(M, qw["attn"], qw["ln1"], qw["ln2"], qw["mlp"],
+                         t, gold)
+            x = gold
+        at = dict(HI)
+    print(f"[{tag} seed={seed}] H={G.H} FFN={G.FFN}  measured peak: "
+          f"DN(+MLP)={max(dn.values())} ATTN(+MLP)={max(at.values())} "
+          f"conv-preamble={max(pre.values())}", flush=True)
+    return max(max(dn.values()), max(at.values()))
+
+
+if __name__ == "__main__":
+    tag = sys.argv[1]
+    peak = max(run(s, 3, tag) for s in (1, 2, 3, 4))
+    print(f"[{tag}] MEASURED PEAK={peak}  DERIVED PEAK={G.PEAK}  "
+          f"SCRATCH={G.SCRATCH}  headroom={G.SCRATCH - peak}")
+    assert peak <= G.PEAK, f"measured {peak} EXCEEDS derived PEAK {G.PEAK}"
+    assert G.PEAK <= G.SCRATCH_MAX, \
+        f"derived PEAK {G.PEAK} exceeds the {G.SCRATCH_MAX}-word budget"
+    print(f"[{tag}] OK: measured <= derived <= {G.SCRATCH_MAX}")
+    print(f"[{tag}] import-time invariants: PEAK={G.PEAK} "
+          f"scratch_map() max end="
+          f"{max(b + s for b, s, _ in G.scratch_map().values())} "
+          f"SCRATCH={G.SCRATCH} SCRATCH_MAX={G.SCRATCH_MAX} "
+          f"ISA_SADDR_MAX={G.ISA_SADDR_MAX}")

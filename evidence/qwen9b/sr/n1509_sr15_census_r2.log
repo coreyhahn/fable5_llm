@@ -1,0 +1,50 @@
+=== host: snoke  date: 2026-09-29T06:10:08-06:00
+=== tree: 37235f7
+=== cmd : bash -c /home/cah/.venv/bin/python evidence/qwen9b/sr/sr8_ident.py --expect 266e3ae7 --want-caps R1,R2 || exit 9; exec env FABLE5_MODEL=9b FABLE5_SEQ_EXPECT_VERSION=266e3ae7 /home/cah/.venv/bin/python evidence/qwen9b/sr/sr8_census.py --stream --prefix tb/scripts/w9/model_9b_s1_reordB_r2.e4 --base tb/scripts/w9/model_9b_s1 --fresh-state --json evidence/qwen9b/sr/n1509_sr15_census_r2.json
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+--- expect VERSION 0x266e3ae7, caps {R1,R2}
+  MAGIC        0xfab1e001  want 0xfab1e001  OK
+  VERSION      0x266e3ae7  want 0x266e3ae7  OK
+  CALIB        0x0000000f  want 0x0000000f  OK
+  LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+  SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+  TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+  BM_IDENT     0xfab1b301  want 0xfab1b301  OK
+  SEQ_CAPS     0xfab1ca03  decoded {R1,R2}  want {R1,R2}  OK
+  CAPS_WORD    0xfab1ca03  want 0xfab1ca03  OK
+IDENT: PASS
+  identity gate: expecting VERSION 0x266e3ae7 (build_045_r2_incr (R2 XWIN/RES banks + R1 + BM1 counters; admitted only when named)), NOT the shipped 0xc973c18a -- named by --expect-version or FABLE5_SEQ_EXPECT_VERSION
+--- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf  SEQ=READY
+--- validated at the device's caps ['R1', 'R2'] (SEQ_CAPS 0xfab1ca03), SHAPE isa=2; stream sha256 117ed8b061d56625
+--- tb/scripts/w9/model_9b_s1_reordB_r2.e4: 160724 records, 6 tokens
+  weights   SKIPPED (--skip-weights: assumed resident)
+  seqdata   563712 B -> 0xc000000  [readback OK]
+  stream    2571584 B (160724 records) -> 0x9000000  [readback OK]
+  state     CSRs only (--skip-weights): SB_* <- 0x38000/0x38180/0x38980
+  stream/blob re-uploaded and verified (3.0 MiB)
+--- fresh state: 155 MiB -> 0x380000000 (chan 3), sha256 3a716409081f0c54
+--- lanes cleared: 0 0
+  EMBLOG2    13 (8192 B embedding rows)
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+--- run: err_code=0x00 tokens [2614, 314, 279, 369, 11751, 13]
+  S_PERF_CYC 165609898 = 662.440 ms = 110.4066 ms/token
+  L_LCYC 62685615 (37.85 %)  L_SDMA_CYC 8192417 (4.95 %)
+  mvany          91702723  (55.37 %)
+  mv0            86647476  (52.32 %)
+  mv1            85926028  (51.88 %)
+  mv2            85828422  (51.83 %)
+  mv3            86479436  (52.22 %)
+  fence          54294272  (32.78 %)
+  mvwork         37587058  (22.70 %)
+  mvwork_any     15664021  (9.46 %)
+  imover         91936842  (55.51 %)
+  steps          6  (0.00 %)
+  movx           19527655  (11.79 %)
+  movy           17341664  (10.47 %)
+  loop edge 0: pc->120552 cyc 110379358
+  loop edge 1: pc->120552 cyc 137993368 delta 27614010 = 110.456 ms
+  TOKENS IDENTICAL to the .seq.json
+SR8_CENSUS_STREAM: PASS
+=== rc  : 0
+=== end : 2026-09-29T06:10:12-06:00

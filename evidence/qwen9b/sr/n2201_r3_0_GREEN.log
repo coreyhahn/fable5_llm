@@ -1,0 +1,885 @@
+=== host: snoke  date: 2026-09-29T19:24:30-06:00
+=== tree: ef778b7+dirty
+=== dirty:  M evidence/qwen9b/g6/g6_state.py
+=== cmd : bash evidence/qwen9b/sr/r3_tool_tdd.sh n2201
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+scratch: /tmp/r3_tool_tdd.i7ipHP   fake project: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201   base (before R3-0): c5f255d
+scratch bit /tmp/r3_tool_tdd.i7ipHP/scratch.bit sha256 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7 (wrong: 738fb4e77c79b642681cdc16f16c8372a15115d307841d7fdd4654912799b608)
+== harness: the stubs resolve first under the case PATH
+  [H] PASS command -v sudo -> /tmp/r3_tool_tdd.i7ipHP/bin/sudo
+  [H] PASS command -v vivado -> /tmp/r3_tool_tdd.i7ipHP/bin/vivado
+  [H] PASS command -v ss -> /tmp/r3_tool_tdd.i7ipHP/bin/ss
+== (a) wrong sha256, no client -> exit 5, nothing removed
+  $ program_fpga.sh --expect-sha256 738fb4e77c79b642681cdc16f16c8372a15115d307841d7fdd4654912799b608 /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] expect-sha256: 738fb4e77c79b642681cdc16f16c8372a15115d307841d7fdd4654912799b608
+    | FATAL: sha256 mismatch — /tmp/r3_tool_tdd.i7ipHP/scratch.bit is 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7, the ruled file is 738fb4e77c79b642681cdc16f16c8372a15115d307841d7fdd4654912799b608.  Nothing removed, nothing programmed.
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=5  tripwire calls: 0  ss calls: 0
+  [a] PASS exit 5  (rc 5)
+  [a] PASS FATAL: sha256 mismatch printed
+  [a] PASS no [1/3] remove printed
+  [a] PASS tripwires (sudo, vivado) untouched
+  [a] PASS the real board lock never opened
+  [a] PASS sw/pcie_helper.sh never exec'd
+  [a] PASS the scratch lock was taken (checks inside the hold)
+== (a') option values bind; malformed values refused
+  $ program_fpga.sh --expect-sha256 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7 --check-only /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] expect-sha256: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] sha256 OK: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] no client attached to hw_server (port 3121)
+    | CHECK_ONLY: sha256 OK, no attached client
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=0  tripwire calls: 0  ss calls: 1
+  [a'] PASS space form + --check-only: exit 0  (rc 0)
+  [a'] PASS space form: the hex bound to --expect-sha256 (printed)
+  [a'] PASS space form: the path bound to the bitfile (printed)
+  [a'] PASS tripwires (sudo, vivado) untouched
+  [a'] PASS the real board lock never opened
+  [a'] PASS sw/pcie_helper.sh never exec'd
+  [a'] PASS the scratch lock was taken (checks inside the hold)
+  $ program_fpga.sh --expect-sha256=627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7 --check-only /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] expect-sha256: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] sha256 OK: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] no client attached to hw_server (port 3121)
+    | CHECK_ONLY: sha256 OK, no attached client
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=0  tripwire calls: 0  ss calls: 1
+  [a'] PASS = form + --check-only: exit 0  (rc 0)
+  [a'] PASS = form: the hex bound to --expect-sha256 (printed)
+  [a'] PASS = form: the path bound to the bitfile (printed)
+  [a'] PASS tripwires (sudo, vivado) untouched
+  [a'] PASS the real board lock never opened
+  [a'] PASS sw/pcie_helper.sh never exec'd
+  [a'] PASS the scratch lock was taken (checks inside the hold)
+  $ program_fpga.sh --expect-sha256 627EA3D66B68A531570BCB05E05B7261904004C2F6730C6ECC3543801688A5F7 --check-only /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] expect-sha256: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] sha256 OK: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] no client attached to hw_server (port 3121)
+    | CHECK_ONLY: sha256 OK, no attached client
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=0  tripwire calls: 0  ss calls: 1
+  [a'] PASS upper-case hex accepted (normalised), exit 0  (rc 0)
+  $ program_fpga.sh --expect-sha256 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | FATAL: --expect-sha256 '627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f' is not a full sha256 (64 hex digits)
+    rc=2  tripwire calls: 0  ss calls: 0
+  [a'] PASS 63-digit value refused, exit 2  (rc 2)
+  [a'] PASS 63-digit: the refusal names 64 hex digits
+  [a'] PASS 63-digit: tripwires untouched
+  $ program_fpga.sh /tmp/r3_tool_tdd.i7ipHP/scratch.bit --expect-sha256
+    | FATAL: --expect-sha256 needs a value (64 hex digits)
+    | usage: program_fpga.sh [--jtag-only] [--no-lock] [--expect-sha256 <64 hex>] [--check-only] <bitfile>
+    rc=2  tripwire calls: 0  ss calls: 0
+  [a'] PASS missing value refused, exit 2  (rc 2)
+  [a'] PASS missing value: tripwires untouched
+  $ program_fpga.sh --expect-sha256 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7 /tmp/r3_tool_tdd.i7ipHP/scratch.bit /tmp/r3_tool_tdd.i7ipHP/other.bit
+    | FATAL: one bitfile only, got 2: /tmp/r3_tool_tdd.i7ipHP/scratch.bit /tmp/r3_tool_tdd.i7ipHP/other.bit
+    | usage: program_fpga.sh [--jtag-only] [--no-lock] [--expect-sha256 <64 hex>] [--check-only] <bitfile>
+    rc=2  tripwire calls: 0  ss calls: 0
+  [a'] PASS two positionals refused, exit 2  (rc 2)
+  [a'] PASS two positionals: tripwires untouched
+  $ program_fpga.sh --expect-sha256 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7 --check-only /tmp/r3_tool_tdd.i7ipHP/absent.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/absent.bit
+    | === [0/3] expect-sha256: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | FATAL: sha256 mismatch — /tmp/r3_tool_tdd.i7ipHP/absent.bit is UNREADABLE, the ruled file is 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7.  Nothing removed, nothing programmed.
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh absent.bit)
+    |   board lock released (program_fpga.sh absent.bit)
+    rc=5  tripwire calls: 0  ss calls: 0
+  [a'] PASS absent bit file with a sha: exit 5  (rc 5)
+  [a'] PASS absent bit file: tripwires untouched
+== (b) right sha256, an ESTABLISHED :3121 client -> exit 6
+  $ program_fpga.sh --expect-sha256 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7 /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] expect-sha256: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] sha256 OK: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    |     0      0      127.0.0.1:3121     127.0.0.1:51234 users:(("vivado",pid=4242,fd=17))
+    | FATAL: a client is attached to hw_server (port 3121) — another hw_manager / xsdb session is connected.  Close it first.  Nothing removed, nothing programmed.
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=6  tripwire calls: 0  ss calls: 1
+  [b] PASS exit 6  (rc 6)
+  [b] PASS FATAL: a client is attached to hw_server
+  [b] PASS the client line is shown
+  [b] PASS tripwires (sudo, vivado) untouched
+  [b] PASS the real board lock never opened
+  [b] PASS sw/pcie_helper.sh never exec'd
+  [b] PASS the scratch lock was taken (checks inside the hold)
+== (b') wrong sha256 AND a client -> exit 5 (the sha check runs first)
+  $ program_fpga.sh --expect-sha256 738fb4e77c79b642681cdc16f16c8372a15115d307841d7fdd4654912799b608 /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] expect-sha256: 738fb4e77c79b642681cdc16f16c8372a15115d307841d7fdd4654912799b608
+    | FATAL: sha256 mismatch — /tmp/r3_tool_tdd.i7ipHP/scratch.bit is 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7, the ruled file is 738fb4e77c79b642681cdc16f16c8372a15115d307841d7fdd4654912799b608.  Nothing removed, nothing programmed.
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=5  tripwire calls: 0  ss calls: 0
+  [b'] PASS exit 5  (rc 5)
+  [b'] PASS ss never called (the sha refusal came first)
+  [b'] PASS tripwires (sudo, vivado) untouched
+  [b'] PASS the real board lock never opened
+  [b'] PASS sw/pcie_helper.sh never exec'd
+  [b'] PASS the scratch lock was taken (checks inside the hold)
+== (b'') no sha flag, a client -> exit 6 (on for every caller)
+  $ program_fpga.sh /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    |     0      0      127.0.0.1:3121     127.0.0.1:51234 users:(("vivado",pid=4242,fd=17))
+    | FATAL: a client is attached to hw_server (port 3121) — another hw_manager / xsdb session is connected.  Close it first.  Nothing removed, nothing programmed.
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=6  tripwire calls: 0  ss calls: 1
+  [b''] PASS exit 6  (rc 6)
+  [b''] PASS tripwires (sudo, vivado) untouched
+  [b''] PASS the real board lock never opened
+  [b''] PASS sw/pcie_helper.sh never exec'd
+  [b''] PASS the scratch lock was taken (checks inside the hold)
+== (c) right sha256, no client, --check-only -> CHECK_ONLY
+  $ program_fpga.sh --expect-sha256 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7 --check-only /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] expect-sha256: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] sha256 OK: 627ea3d66b68a531570bcb05e05b7261904004c2f6730c6ecc3543801688a5f7
+    | === [0/3] no client attached to hw_server (port 3121)
+    | CHECK_ONLY: sha256 OK, no attached client
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=0  tripwire calls: 0  ss calls: 1
+  [c] PASS exit 0  (rc 0)
+  [c] PASS CHECK_ONLY: sha256 OK, no attached client
+  [c] PASS the client check ran (ss called)
+  [c] PASS order: sha256 check before the client check  (lines 3 < 4)
+  [c] PASS tripwires (sudo, vivado) untouched
+  [c] PASS the real board lock never opened
+  [c] PASS sw/pcie_helper.sh never exec'd
+  [c] PASS the scratch lock was taken (checks inside the hold)
+== (n0) CONTROL, no flag: program_fpga.sh <bit> reaches [1/3] remove as before
+  $ program_fpga.sh /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] bitfile: /tmp/r3_tool_tdd.i7ipHP/scratch.bit
+    | === [0/3] no client attached to hw_server (port 3121)
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.i7ipHP/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=97  tripwire calls: 2  ss calls: 1
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [n0] PASS [1/3] remove printed
+  [n0] PASS stub sudo got '-n <repo>/sw/pcie_helper.sh remove' first
+  [n0] PASS then 'rescan' (the EXIT trap)
+  [n0] PASS exactly those two stub calls (vivado never reached)
+  [n0] PASS sw/pcie_helper.sh never exec'd
+  [n0] PASS the real board lock never opened
+== (c')/(d) Vivado on the one-flop fake project (4 runs in parallel)
+  root old_noflag: launch_build.sh 62fe4c5aefa2f122  build.tcl c4f8435ba28098f1  postimpl_sanity.tcl absent
+  root new_noflag: launch_build.sh eade4e6e793dd830  build.tcl ddd704ebea34e294  postimpl_sanity.tcl ac36a900d9241dc4
+  root new_synthonly: launch_build.sh eade4e6e793dd830  build.tcl ddd704ebea34e294  postimpl_sanity.tcl ac36a900d9241dc4
+  root new_badvalue: launch_build.sh eade4e6e793dd830  build.tcl ddd704ebea34e294  postimpl_sanity.tcl ac36a900d9241dc4
+  start: 2026-09-29T19:24:35-06:00
+  end:   2026-09-29T19:35:45-06:00
+  --- old_noflag (rc 0): launcher output
+    | === create_project (306046ec) ===
+    | # puts "R3_PROBE: one-flop project at $OutDir/proj/stage1.xpr (version $Ver)"
+    | R3_PROBE: one-flop project at /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/old_noflag/synth/out_probe/proj/stage1.xpr (version 306046ec)
+    | # puts "CREATE_PROJECT_OK"
+    | CREATE_PROJECT_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:24:59 2026...
+    | === build ===
+    | # puts "BITSTREAM: $bit"
+    | BITSTREAM: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/old_noflag/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | # puts "BUILD_OK"
+    | BUILD_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:35:33 2026...
+    | === DONE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/old_noflag/synth/out_probe ===
+  --- new_noflag (rc 0): launcher output
+    | === create_project (f2b4e321) ===
+    | # puts "R3_PROBE: one-flop project at $OutDir/proj/stage1.xpr (version $Ver)"
+    | R3_PROBE: one-flop project at /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/new_noflag/synth/out_probe/proj/stage1.xpr (version f2b4e321)
+    | # puts "CREATE_PROJECT_OK"
+    | CREATE_PROJECT_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:24:59 2026...
+    | === build ===
+    | # puts "BITSTREAM: $bit"
+    | BITSTREAM: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/new_noflag/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | # puts "BUILD_OK"
+    | BUILD_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:35:27 2026...
+    | === DONE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/new_noflag/synth/out_probe ===
+  --- new_synthonly (rc 0): launcher output
+    | === create_project (1c5a1903) ===
+    | # puts "R3_PROBE: one-flop project at $OutDir/proj/stage1.xpr (version $Ver)"
+    | R3_PROBE: one-flop project at /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/new_synthonly/synth/out_probe/proj/stage1.xpr (version 1c5a1903)
+    | # puts "CREATE_PROJECT_OK"
+    | CREATE_PROJECT_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:24:59 2026...
+    | === build ===
+    | #     close_project
+    | #     exit 0
+    | # }
+    | SYNTH_OK: synth_1 100% (synth_only: impl_1 NOT launched, no bitstream) checkpoint: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/new_synthonly/synth/out_probe/proj/stage1.runs/synth_1/r3_probe_top.dcp
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:26:54 2026...
+    | === SYNTH DONE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/roots/new_synthonly/synth/out_probe ===
+  --- new_badvalue (rc 2): launcher output
+    | FATAL: SYNTH_ONLY='yes' — 1 (synth only) or 0 / unset (the full build)
+  --- direct build.tcl synth_only (rc 0)
+  build.tcl printed lines, c5f255d (old_noflag):
+    | CLOCK_GATE_OK: 250MHz clocks: probe_clk
+    | TIMING: WNS=-1.217 WHS=0.354
+    | BITSTREAM: <ROOT>/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | BUILD_OK
+  build.tcl printed lines, this tree (new_noflag):
+    | CLOCK_GATE_OK: 250MHz clocks: probe_clk
+    | TIMING: WNS=-1.217 WHS=0.354
+    | BITSTREAM: <ROOT>/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | BUILD_OK
+== (c') the factored sanity block
+  [c'] PASS synth/scripts/postimpl_sanity.tcl exists
+  [c'] PASS c5f255d no-flag launch: exit 0, === DONE
+  [c'] PASS this tree's no-flag launch: exit 0, === DONE
+  [c'] PASS build.tcl printed lines + order IDENTICAL to c5f255d's (4 lines)
+  [c'] PASS CLOCK_GATE_OK names the 4 ns probe_clk
+  [c'] PASS RECORDED: no PCIE4 / GTYE4 cell in the one-flop project -> both lists print empty, old and new
+  [c'] PASS the launcher's build.log IDENTICAL (paths, hash, exit time normalised)
+  [c'] PASS check_timing_noclock.rpt body IDENTICAL (header box dropped)
+    rpt| Table of Contents
+    rpt| -----------------
+    rpt| 1. checking no_clock (0)
+    rpt| 
+    rpt| 1. checking no_clock (0)
+    rpt| ------------------------
+    rpt|  There are 0 register/latch pins with no clock.
+    rpt| 
+    rpt| 
+  [c'] PASS no-flag launcher passed build.tcl the one word <out_dir> (no synth_only)
+  RECORDED (not a check): the '# ' command-trace lines that differ, c5f255d vs this tree:
+  (Vivado's '# Xxx: ' session-header lines — pid, CPU clock, host — excluded)
+    trace| 6a7,14
+    trace| > # set SynthOnly 0
+    trace| > # if {[llength $argv] > 1} {
+    trace| > #     if {[llength $argv] == 2 && [lindex $argv 1] eq "synth_only"} {
+    trace| > #         set SynthOnly 1
+    trace| > #     } else {
+    trace| > #         puts "FATAL: unknown arguments after <out_dir>: [lrange $argv 1 end] (only `synth_only`)"; exit 1
+    trace| > #     }
+    trace| > # }
+    trace| 12a21
+    trace| > # must {source -notrace [file join [file dirname [file normalize [info script]]] postimpl_sanity.tcl]}
+    trace| 20a30,35
+    trace| > # if {$SynthOnly} {
+    trace| > #     set sdcp [glob -nocomplain [get_property DIRECTORY [get_runs synth_1]]/*.dcp]
+    trace| > #     puts "SYNTH_OK: synth_1 100% (synth_only: impl_1 NOT launched, no bitstream) checkpoint: $sdcp"
+    trace| > #     close_project
+    trace| > #     exit 0
+    trace| > # }
+    trace| 27,39c42
+    trace| < # set clk4 [get_clocks -quiet -filter {PERIOD < 4.05 && PERIOD > 3.95}]
+    trace| < # if {[llength $clk4] == 0} {
+    trace| < #     puts "FATAL: no 4ns (250MHz) clock found — XDMA clock tree unconstrained"
+    trace| < #     exit 1
+    trace| < # }
+    trace| < # puts "CLOCK_GATE_OK: 250MHz clocks: $clk4"
+    trace| < # check_timing -override_defaults no_clock -file $OutDir/reports/check_timing_noclock.rpt
+    trace| < # set fh [open $OutDir/reports/check_timing_noclock.rpt r]
+    trace| < # set ct [read $fh]
+    trace| < # close $fh
+    trace| < # if {[regexp {There are (\d+) register/latch pins with no clock} $ct -> n] && $n > 0} {
+    trace| < #     puts "WARNING: $n register/latch pins with no clock (see check_timing_noclock.rpt)"
+    trace| < # }
+    trace| ---
+    trace| > # postimpl_clock_gate $OutDir/reports
+    trace| 48,52c51
+    trace| < # set pcie_cells [get_cells -hier -filter {REF_NAME =~ PCIE4*}]
+    trace| < # foreach c $pcie_cells { puts "PCIE_LOC: $c -> [get_property LOC $c]" }
+    trace| < # foreach c [get_cells -hier -filter {REF_NAME =~ GTYE4_CHANNEL*}] {
+    trace| < #     puts "GT_LOC: [get_property LOC $c]"
+    trace| < # }
+    trace| ---
+    trace| > # postimpl_loc_print
+    ro| CLOCK_GATE_OK: 250MHz clocks: probe_clk
+    ro| RO_DONE
+  [c'] PASS the procs READ-ONLY on the routed checkpoint print the build's CLOCK_GATE_OK line
+  [c'] PASS the read-only no-clock report body equals the build's
+== (d) the synth-only launch on the one-flop fake project
+  [d] PASS direct build.tcl synth_only: vivado exit 0
+    | SYNTH_OK: synth_1 100% (synth_only: impl_1 NOT launched, no bitstream) checkpoint: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/proj/stage1.runs/synth_1/r3_probe_top.dcp
+  [d] PASS SYNTH_OK printed (anchored)
+  [d] PASS synth_1 ended (.vivado.end.rst)
+  [d] PASS synth_1 checkpoint written (/home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/proj/stage1.runs/synth_1/r3_probe_top.dcp)
+  [d] PASS no impl_1/.vivado.begin.rst (impl_1 never started)
+  [d] PASS no bitstream under the project  (0 .bit)
+    | Q_SYNTH1_PROGRESS=100%
+    | Q_SYNTH1_STATUS=synth_design Complete!
+    | Q_IMPL1_STATUS=Not started
+  [d] PASS synth_1 PROGRESS 100% (read back, read-only open)
+  [d] PASS impl_1 not started (read back)
+    | PROJ_IDLE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/proj
+  [d] PASS proj_busy.sh: PROJ_IDLE  (rc 0)
+    | PROJ_IDLE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2201/proj
+    | CHECK_ONLY: arguments and source OK, nothing launched
+  [d] PASS LAUNCH_INCR_CHECK_ONLY=1 launch_incr.sh accepts the synth-only project  (rc 0)
+  [d] PASS launch_incr check made no out dir
+  [d] PASS SYNTH_ONLY=1 launch_build.sh: exit 0  (rc 0)
+  [d] PASS SYNTH_ONLY=1: '=== SYNTH DONE: <out> ===' printed
+  [d] PASS SYNTH_ONLY=1: build.log records SYNTH DONE
+  [d] PASS SYNTH_ONLY=1: no '=== DONE' line
+  [d] PASS SYNTH_ONLY=1: build.tcl got '<out_dir> synth_only'
+  [d] PASS SYNTH_ONLY=1: SYNTH_OK in build_run.log
+  [d] PASS SYNTH_ONLY=1: no bitstream, impl_1 never begun
+  [d] PASS SYNTH_ONLY=yes refused by name  (rc 2)
+  [d] PASS SYNTH_ONLY=yes: refused before the out dir / create_project
+== (e) evidence/qwen9b/sr/r3_preflight.sh, board-free
+  scratch clone /tmp/r3_tool_tdd.i7ipHP/clone at a62f324
+  $ [clean] r3_preflight.sh --root /tmp/r3_tool_tdd.i7ipHP/clone ... 
+    | --- [0] root /tmp/r3_tool_tdd.i7ipHP/clone; probes (DEFAULT = sr15's command, OVERRIDE = set by the caller)
+    |   PF_PY           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/python3
+    |   PF_IDENT        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ident_041
+    |   PF_LOCK_STATUS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lock
+    |   PF_HWSERVER     OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/hwserver
+    |   PF_PROCS        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/procs
+    |   PF_SS           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ss_none
+    |   PF_LSPCI        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lspci
+    |   PF_XDMA_LS      OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/nodes_ls
+    |   PF_LSMOD        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lsmod
+    |   PF_BOARD_USERS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/users
+    | --- [1] board lock
+    | board lock /scratch/fake.lock
+    |   state        not held
+    | --- [2] hw_server, and every vivado / hw_server / xsdb / hw_manager process
+    | 4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   all matching processes:
+    |     4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   established TCP connections to hw_server port 3121 (an attached hw_manager client):
+    |     none
+    | --- [3] uptime / last boot
+    |  19:37:15 up 2 days, 12:28,  5 users,  load average: 3.89, 5.43, 8.89
+    | boot: 2026-09-27 07:08
+    |   (no --boot given: printed only)
+    | --- [4] PCI ID at 82:00.0 (want 10ee:9038; 1e24:1525 = factory image), xdma nodes, module
+    | 82:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+    | crw-rw-rw- 1 root root 511, 0 Sep 29 07:08 FAKE_xdma0_user
+    | crw-rw-rw- 1 root root 511, 1 Sep 29 07:08 FAKE_xdma0_h2c_0
+    | crw-rw-rw- 1 root root 511, 2 Sep 29 07:08 FAKE_xdma0_c2h_0
+    | xdma                  110592  0
+    | --- [5] what is on the board (raw reads, no DMA) — MUST be VERSION c973c18a (build_041 unless named)
+    |   MAGIC        0xfab1e001
+    |   VERSION      0xc973c18a  want 0xc973c18a  OK
+    |   CALIB        0xf
+    |   CAPS_WORD    0xdeadc0de  want 0xdeadc0de  OK
+    | IDENT: PASS
+    | --- [6] the bitstreams this session may program (size, FULL sha256), and the twins it must NOT
+    | -rw-rw-r-- 1 cah cah 4096 2026-09-29 19:37:12.053669493 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/r3.bit
+    |   size 4096 sha256 8e40b7d995d14976747707af0fe70c39bfa8b20dcf695bcc39270a1a7363304a
+    | -rw-rw-r-- 1 cah cah 4000 2026-09-29 19:37:12.058669480 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/b41.bit
+    |   size 4000 sha256 3c33d1ecea7e345b9212ebe8ce417fcec915812ef065e71a15fc898118892c29
+    |   TWIN (never programmed) /tmp/r3_tool_tdd.i7ipHP/fk/twin.bit sha256 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    |   the twin differs from the ruled file: OK
+    | --- [7] stream pins (FULL sha256)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/s1.e4.seq fa3220cf0c7126e85efa5eeb8ace557cbc562bdcfad8ab258f9a61934be3f108
+    | --- [7b] streams vs their manifests (.seq sha256 == .seq.json stream_sha256, FULL)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/m.e4.seq 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012 manifest 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012
+    | --- [8] chat image pins in sw/chat_seq.py (FULL sha256), and pin-log lines
+    |   REORDER_B_R2_IMAGES has c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45
+    |   evidence/qwen9b/sr/n1351_sr13b_r2_pins.log: 'PIN r2 lite c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45 39314'
+    | --- [9] the admission rows (sw/seq_run.py)
+    | 3699:SEQ_VERSIONS[0x266E3AE7] = (
+    | 3711:    _R2V, _R1V = 0x266E3AE7, 0xE3C2FF1E
+    | 3755:                0x266E3AE7: 0xFAB1B301}
+    | 3762:              and parse_expect_version("0x266E3AE7") == _R2V)
+    | --- [10] the interpreter (/tmp/r3_tool_tdd.i7ipHP/pf/python3)
+    | /home/cah/.venv/bin/python 3.12.3 numpy 2.4.6
+    | --- [11] git: the tree must be CLEAN (excluded: untracked evidence/qwen9b/sr/n33NN_* session logs)
+    | a62f324 test(R3-3): evidence/qwen9b/sr/r3_model_tdd.py — the model's broadcast execution, test first (C1 phantom channel 15, per-destination RunningChannelError, XPTR, caps mirror, C2 JMP back-edge, M1 pop path, no-broadcast streams vs the base a2fed67), committed before its RED run
+    |   clean
+    | --- [12] other board users
+    |   none
+    | PREFLIGHT: PASS
+    rc=0
+  [e] PASS clean clone, build_041 stub identity -> PREFLIGHT: PASS  (rc 0)
+  [e] PASS probe PF_PY printed OVERRIDE
+  [e] PASS probe PF_IDENT printed OVERRIDE
+  [e] PASS probe PF_LSPCI printed OVERRIDE
+  [e] PASS probe PF_XDMA_LS printed OVERRIDE
+  [e] PASS probe PF_LSMOD printed OVERRIDE
+  [e] PASS probe PF_SS printed OVERRIDE
+  [e] PASS probe PF_LOCK_STATUS printed OVERRIDE
+  [e] PASS probe PF_HWSERVER printed OVERRIDE
+  [e] PASS probe PF_PROCS printed OVERRIDE
+  [e] PASS probe PF_BOARD_USERS printed OVERRIDE
+  [e] PASS no default probe command in force (the [0] table printed, no DEFAULT)
+  [e] PASS tripwire python untouched
+  [e] PASS the interpreter used was the tripwire (PF_PY) — 2 call(s)
+  [e] PASS the identity came from the stub
+  [e] PASS strace: no openat of any /dev/xdma* node
+  [e] PASS strace: sr8_ident.py never opened or exec'd
+  [e] PASS strace: the real lspci / lsmod / ss / pgrep never exec'd
+  [e] PASS strace: the real board lock never opened
+  $ [sesslog] r3_preflight.sh --root /tmp/r3_tool_tdd.i7ipHP/clone ... 
+    | --- [0] root /tmp/r3_tool_tdd.i7ipHP/clone; probes (DEFAULT = sr15's command, OVERRIDE = set by the caller)
+    |   PF_PY           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/python3
+    |   PF_IDENT        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ident_041
+    |   PF_LOCK_STATUS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lock
+    |   PF_HWSERVER     OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/hwserver
+    |   PF_PROCS        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/procs
+    |   PF_SS           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ss_none
+    |   PF_LSPCI        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lspci
+    |   PF_XDMA_LS      OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/nodes_ls
+    |   PF_LSMOD        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lsmod
+    |   PF_BOARD_USERS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/users
+    | --- [1] board lock
+    | board lock /scratch/fake.lock
+    |   state        not held
+    | --- [2] hw_server, and every vivado / hw_server / xsdb / hw_manager process
+    | 4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   all matching processes:
+    |     4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   established TCP connections to hw_server port 3121 (an attached hw_manager client):
+    |     none
+    | --- [3] uptime / last boot
+    |  19:37:16 up 2 days, 12:28,  5 users,  load average: 3.89, 5.43, 8.89
+    | boot: 2026-09-27 07:08
+    |   (no --boot given: printed only)
+    | --- [4] PCI ID at 82:00.0 (want 10ee:9038; 1e24:1525 = factory image), xdma nodes, module
+    | 82:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+    | crw-rw-rw- 1 root root 511, 0 Sep 29 07:08 FAKE_xdma0_user
+    | crw-rw-rw- 1 root root 511, 1 Sep 29 07:08 FAKE_xdma0_h2c_0
+    | crw-rw-rw- 1 root root 511, 2 Sep 29 07:08 FAKE_xdma0_c2h_0
+    | xdma                  110592  0
+    | --- [5] what is on the board (raw reads, no DMA) — MUST be VERSION c973c18a (build_041 unless named)
+    |   MAGIC        0xfab1e001
+    |   VERSION      0xc973c18a  want 0xc973c18a  OK
+    |   CALIB        0xf
+    |   CAPS_WORD    0xdeadc0de  want 0xdeadc0de  OK
+    | IDENT: PASS
+    | --- [6] the bitstreams this session may program (size, FULL sha256), and the twins it must NOT
+    | -rw-rw-r-- 1 cah cah 4096 2026-09-29 19:37:12.053669493 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/r3.bit
+    |   size 4096 sha256 8e40b7d995d14976747707af0fe70c39bfa8b20dcf695bcc39270a1a7363304a
+    | -rw-rw-r-- 1 cah cah 4000 2026-09-29 19:37:12.058669480 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/b41.bit
+    |   size 4000 sha256 3c33d1ecea7e345b9212ebe8ce417fcec915812ef065e71a15fc898118892c29
+    |   TWIN (never programmed) /tmp/r3_tool_tdd.i7ipHP/fk/twin.bit sha256 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    |   the twin differs from the ruled file: OK
+    | --- [7] stream pins (FULL sha256)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/s1.e4.seq fa3220cf0c7126e85efa5eeb8ace557cbc562bdcfad8ab258f9a61934be3f108
+    | --- [7b] streams vs their manifests (.seq sha256 == .seq.json stream_sha256, FULL)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/m.e4.seq 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012 manifest 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012
+    | --- [8] chat image pins in sw/chat_seq.py (FULL sha256), and pin-log lines
+    |   REORDER_B_R2_IMAGES has c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45
+    |   evidence/qwen9b/sr/n1351_sr13b_r2_pins.log: 'PIN r2 lite c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45 39314'
+    | --- [9] the admission rows (sw/seq_run.py)
+    | 3699:SEQ_VERSIONS[0x266E3AE7] = (
+    | 3711:    _R2V, _R1V = 0x266E3AE7, 0xE3C2FF1E
+    | 3755:                0x266E3AE7: 0xFAB1B301}
+    | 3762:              and parse_expect_version("0x266E3AE7") == _R2V)
+    | --- [10] the interpreter (/tmp/r3_tool_tdd.i7ipHP/pf/python3)
+    | /home/cah/.venv/bin/python 3.12.3 numpy 2.4.6
+    | --- [11] git: the tree must be CLEAN (excluded: untracked evidence/qwen9b/sr/n33NN_* session logs)
+    | a62f324 test(R3-3): evidence/qwen9b/sr/r3_model_tdd.py — the model's broadcast execution, test first (C1 phantom channel 15, per-destination RunningChannelError, XPTR, caps mirror, C2 JMP back-edge, M1 pop path, no-broadcast streams vs the base a2fed67), committed before its RED run
+    |   clean
+    | --- [12] other board users
+    |   none
+    | PREFLIGHT: PASS
+    rc=0
+  [e] PASS an untracked session log (n33NN_) is excluded -> PASS  (rc 0)
+  $ [untracked] r3_preflight.sh --root /tmp/r3_tool_tdd.i7ipHP/clone ... 
+    | --- [0] root /tmp/r3_tool_tdd.i7ipHP/clone; probes (DEFAULT = sr15's command, OVERRIDE = set by the caller)
+    |   PF_PY           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/python3
+    |   PF_IDENT        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ident_041
+    |   PF_LOCK_STATUS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lock
+    |   PF_HWSERVER     OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/hwserver
+    |   PF_PROCS        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/procs
+    |   PF_SS           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ss_none
+    |   PF_LSPCI        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lspci
+    |   PF_XDMA_LS      OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/nodes_ls
+    |   PF_LSMOD        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lsmod
+    |   PF_BOARD_USERS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/users
+    | --- [1] board lock
+    | board lock /scratch/fake.lock
+    |   state        not held
+    | --- [2] hw_server, and every vivado / hw_server / xsdb / hw_manager process
+    | 4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   all matching processes:
+    |     4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   established TCP connections to hw_server port 3121 (an attached hw_manager client):
+    |     none
+    | --- [3] uptime / last boot
+    |  19:37:17 up 2 days, 12:28,  6 users,  load average: 3.89, 5.43, 8.89
+    | boot: 2026-09-27 07:08
+    |   (no --boot given: printed only)
+    | --- [4] PCI ID at 82:00.0 (want 10ee:9038; 1e24:1525 = factory image), xdma nodes, module
+    | 82:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+    | crw-rw-rw- 1 root root 511, 0 Sep 29 07:08 FAKE_xdma0_user
+    | crw-rw-rw- 1 root root 511, 1 Sep 29 07:08 FAKE_xdma0_h2c_0
+    | crw-rw-rw- 1 root root 511, 2 Sep 29 07:08 FAKE_xdma0_c2h_0
+    | xdma                  110592  0
+    | --- [5] what is on the board (raw reads, no DMA) — MUST be VERSION c973c18a (build_041 unless named)
+    |   MAGIC        0xfab1e001
+    |   VERSION      0xc973c18a  want 0xc973c18a  OK
+    |   CALIB        0xf
+    |   CAPS_WORD    0xdeadc0de  want 0xdeadc0de  OK
+    | IDENT: PASS
+    | --- [6] the bitstreams this session may program (size, FULL sha256), and the twins it must NOT
+    | -rw-rw-r-- 1 cah cah 4096 2026-09-29 19:37:12.053669493 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/r3.bit
+    |   size 4096 sha256 8e40b7d995d14976747707af0fe70c39bfa8b20dcf695bcc39270a1a7363304a
+    | -rw-rw-r-- 1 cah cah 4000 2026-09-29 19:37:12.058669480 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/b41.bit
+    |   size 4000 sha256 3c33d1ecea7e345b9212ebe8ce417fcec915812ef065e71a15fc898118892c29
+    |   TWIN (never programmed) /tmp/r3_tool_tdd.i7ipHP/fk/twin.bit sha256 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    |   the twin differs from the ruled file: OK
+    | --- [7] stream pins (FULL sha256)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/s1.e4.seq fa3220cf0c7126e85efa5eeb8ace557cbc562bdcfad8ab258f9a61934be3f108
+    | --- [7b] streams vs their manifests (.seq sha256 == .seq.json stream_sha256, FULL)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/m.e4.seq 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012 manifest 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012
+    | --- [8] chat image pins in sw/chat_seq.py (FULL sha256), and pin-log lines
+    |   REORDER_B_R2_IMAGES has c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45
+    |   evidence/qwen9b/sr/n1351_sr13b_r2_pins.log: 'PIN r2 lite c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45 39314'
+    | --- [9] the admission rows (sw/seq_run.py)
+    | 3699:SEQ_VERSIONS[0x266E3AE7] = (
+    | 3711:    _R2V, _R1V = 0x266E3AE7, 0xE3C2FF1E
+    | 3755:                0x266E3AE7: 0xFAB1B301}
+    | 3762:              and parse_expect_version("0x266E3AE7") == _R2V)
+    | --- [10] the interpreter (/tmp/r3_tool_tdd.i7ipHP/pf/python3)
+    | /home/cah/.venv/bin/python 3.12.3 numpy 2.4.6
+    | --- [11] git: the tree must be CLEAN (excluded: untracked evidence/qwen9b/sr/n33NN_* session logs)
+    | a62f324 test(R3-3): evidence/qwen9b/sr/r3_model_tdd.py — the model's broadcast execution, test first (C1 phantom channel 15, per-destination RunningChannelError, XPTR, caps mirror, C2 JMP back-edge, M1 pop path, no-broadcast streams vs the base a2fed67), committed before its RED run
+    |     ?? evidence/qwen9b/sr/stray_untracked.txt
+    |   FAIL: the tree /tmp/r3_tool_tdd.i7ipHP/clone is dirty (1 entries)
+    | --- [12] other board users
+    |   none
+    | PREFLIGHT: FAIL
+    rc=1
+  [e] PASS another untracked file -> FAIL, named  (rc 1)
+  $ [dirty] r3_preflight.sh --root /tmp/r3_tool_tdd.i7ipHP/clone ... 
+    | --- [0] root /tmp/r3_tool_tdd.i7ipHP/clone; probes (DEFAULT = sr15's command, OVERRIDE = set by the caller)
+    |   PF_PY           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/python3
+    |   PF_IDENT        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ident_041
+    |   PF_LOCK_STATUS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lock
+    |   PF_HWSERVER     OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/hwserver
+    |   PF_PROCS        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/procs
+    |   PF_SS           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ss_none
+    |   PF_LSPCI        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lspci
+    |   PF_XDMA_LS      OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/nodes_ls
+    |   PF_LSMOD        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lsmod
+    |   PF_BOARD_USERS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/users
+    | --- [1] board lock
+    | board lock /scratch/fake.lock
+    |   state        not held
+    | --- [2] hw_server, and every vivado / hw_server / xsdb / hw_manager process
+    | 4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   all matching processes:
+    |     4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   established TCP connections to hw_server port 3121 (an attached hw_manager client):
+    |     none
+    | --- [3] uptime / last boot
+    |  19:37:17 up 2 days, 12:28,  5 users,  load average: 3.89, 5.43, 8.89
+    | boot: 2026-09-27 07:08
+    |   (no --boot given: printed only)
+    | --- [4] PCI ID at 82:00.0 (want 10ee:9038; 1e24:1525 = factory image), xdma nodes, module
+    | 82:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+    | crw-rw-rw- 1 root root 511, 0 Sep 29 07:08 FAKE_xdma0_user
+    | crw-rw-rw- 1 root root 511, 1 Sep 29 07:08 FAKE_xdma0_h2c_0
+    | crw-rw-rw- 1 root root 511, 2 Sep 29 07:08 FAKE_xdma0_c2h_0
+    | xdma                  110592  0
+    | --- [5] what is on the board (raw reads, no DMA) — MUST be VERSION c973c18a (build_041 unless named)
+    |   MAGIC        0xfab1e001
+    |   VERSION      0xc973c18a  want 0xc973c18a  OK
+    |   CALIB        0xf
+    |   CAPS_WORD    0xdeadc0de  want 0xdeadc0de  OK
+    | IDENT: PASS
+    | --- [6] the bitstreams this session may program (size, FULL sha256), and the twins it must NOT
+    | -rw-rw-r-- 1 cah cah 4096 2026-09-29 19:37:12.053669493 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/r3.bit
+    |   size 4096 sha256 8e40b7d995d14976747707af0fe70c39bfa8b20dcf695bcc39270a1a7363304a
+    | -rw-rw-r-- 1 cah cah 4000 2026-09-29 19:37:12.058669480 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/b41.bit
+    |   size 4000 sha256 3c33d1ecea7e345b9212ebe8ce417fcec915812ef065e71a15fc898118892c29
+    |   TWIN (never programmed) /tmp/r3_tool_tdd.i7ipHP/fk/twin.bit sha256 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    |   the twin differs from the ruled file: OK
+    | --- [7] stream pins (FULL sha256)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/s1.e4.seq fa3220cf0c7126e85efa5eeb8ace557cbc562bdcfad8ab258f9a61934be3f108
+    | --- [7b] streams vs their manifests (.seq sha256 == .seq.json stream_sha256, FULL)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/m.e4.seq 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012 manifest 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012
+    | --- [8] chat image pins in sw/chat_seq.py (FULL sha256), and pin-log lines
+    |   REORDER_B_R2_IMAGES has c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45
+    |   evidence/qwen9b/sr/n1351_sr13b_r2_pins.log: 'PIN r2 lite c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45 39314'
+    | --- [9] the admission rows (sw/seq_run.py)
+    | 3699:SEQ_VERSIONS[0x266E3AE7] = (
+    | 3711:    _R2V, _R1V = 0x266E3AE7, 0xE3C2FF1E
+    | 3755:                0x266E3AE7: 0xFAB1B301}
+    | 3762:              and parse_expect_version("0x266E3AE7") == _R2V)
+    | --- [10] the interpreter (/tmp/r3_tool_tdd.i7ipHP/pf/python3)
+    | /home/cah/.venv/bin/python 3.12.3 numpy 2.4.6
+    | --- [11] git: the tree must be CLEAN (excluded: untracked evidence/qwen9b/sr/n33NN_* session logs)
+    | a62f324 test(R3-3): evidence/qwen9b/sr/r3_model_tdd.py — the model's broadcast execution, test first (C1 phantom channel 15, per-destination RunningChannelError, XPTR, caps mirror, C2 JMP back-edge, M1 pop path, no-broadcast streams vs the base a2fed67), committed before its RED run
+    |      M docs/USAGE.md
+    |   FAIL: the tree /tmp/r3_tool_tdd.i7ipHP/clone is dirty (1 entries)
+    | --- [12] other board users
+    |   none
+    | PREFLIGHT: FAIL
+    rc=1
+  [e] PASS one modified tracked file -> PREFLIGHT: FAIL  (rc 1)
+  [e] PASS the FAIL names the tree and the file
+  $ [identr2] r3_preflight.sh --root /tmp/r3_tool_tdd.i7ipHP/clone ... 
+    | --- [0] root /tmp/r3_tool_tdd.i7ipHP/clone; probes (DEFAULT = sr15's command, OVERRIDE = set by the caller)
+    |   PF_PY           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/python3
+    |   PF_IDENT        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ident_r2
+    |   PF_LOCK_STATUS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lock
+    |   PF_HWSERVER     OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/hwserver
+    |   PF_PROCS        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/procs
+    |   PF_SS           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ss_none
+    |   PF_LSPCI        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lspci
+    |   PF_XDMA_LS      OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/nodes_ls
+    |   PF_LSMOD        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lsmod
+    |   PF_BOARD_USERS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/users
+    | --- [1] board lock
+    | board lock /scratch/fake.lock
+    |   state        not held
+    | --- [2] hw_server, and every vivado / hw_server / xsdb / hw_manager process
+    | 4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   all matching processes:
+    |     4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   established TCP connections to hw_server port 3121 (an attached hw_manager client):
+    |     none
+    | --- [3] uptime / last boot
+    |  19:37:18 up 2 days, 12:28,  5 users,  load average: 3.89, 5.43, 8.89
+    | boot: 2026-09-27 07:08
+    |   (no --boot given: printed only)
+    | --- [4] PCI ID at 82:00.0 (want 10ee:9038; 1e24:1525 = factory image), xdma nodes, module
+    | 82:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+    | crw-rw-rw- 1 root root 511, 0 Sep 29 07:08 FAKE_xdma0_user
+    | crw-rw-rw- 1 root root 511, 1 Sep 29 07:08 FAKE_xdma0_h2c_0
+    | crw-rw-rw- 1 root root 511, 2 Sep 29 07:08 FAKE_xdma0_c2h_0
+    | xdma                  110592  0
+    | --- [5] what is on the board (raw reads, no DMA) — MUST be VERSION c973c18a (build_041 unless named)
+    |   VERSION      0x266e3ae7  want 0xc973c18a  MISMATCH
+    | IDENT: FAIL
+    |   FAIL: the board does NOT read the expected identity c973c18a (STOP, hand back)
+    | --- [6] the bitstreams this session may program (size, FULL sha256), and the twins it must NOT
+    | -rw-rw-r-- 1 cah cah 4096 2026-09-29 19:37:12.053669493 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/r3.bit
+    |   size 4096 sha256 8e40b7d995d14976747707af0fe70c39bfa8b20dcf695bcc39270a1a7363304a
+    | -rw-rw-r-- 1 cah cah 4000 2026-09-29 19:37:12.058669480 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/b41.bit
+    |   size 4000 sha256 3c33d1ecea7e345b9212ebe8ce417fcec915812ef065e71a15fc898118892c29
+    |   TWIN (never programmed) /tmp/r3_tool_tdd.i7ipHP/fk/twin.bit sha256 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    |   the twin differs from the ruled file: OK
+    | --- [7] stream pins (FULL sha256)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/s1.e4.seq fa3220cf0c7126e85efa5eeb8ace557cbc562bdcfad8ab258f9a61934be3f108
+    | --- [7b] streams vs their manifests (.seq sha256 == .seq.json stream_sha256, FULL)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/m.e4.seq 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012 manifest 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012
+    | --- [8] chat image pins in sw/chat_seq.py (FULL sha256), and pin-log lines
+    |   REORDER_B_R2_IMAGES has c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45
+    |   evidence/qwen9b/sr/n1351_sr13b_r2_pins.log: 'PIN r2 lite c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45 39314'
+    | --- [9] the admission rows (sw/seq_run.py)
+    | 3699:SEQ_VERSIONS[0x266E3AE7] = (
+    | 3711:    _R2V, _R1V = 0x266E3AE7, 0xE3C2FF1E
+    | 3755:                0x266E3AE7: 0xFAB1B301}
+    | 3762:              and parse_expect_version("0x266E3AE7") == _R2V)
+    | --- [10] the interpreter (/tmp/r3_tool_tdd.i7ipHP/pf/python3)
+    | /home/cah/.venv/bin/python 3.12.3 numpy 2.4.6
+    | --- [11] git: the tree must be CLEAN (excluded: untracked evidence/qwen9b/sr/n33NN_* session logs)
+    | a62f324 test(R3-3): evidence/qwen9b/sr/r3_model_tdd.py — the model's broadcast execution, test first (C1 phantom channel 15, per-destination RunningChannelError, XPTR, caps mirror, C2 JMP back-edge, M1 pop path, no-broadcast streams vs the base a2fed67), committed before its RED run
+    |   clean
+    | --- [12] other board users
+    |   none
+    | PREFLIGHT: FAIL
+    rc=1
+  [e] PASS a stub identity that is not build_041 -> FAIL  (rc 1)
+  $ [client] r3_preflight.sh --root /tmp/r3_tool_tdd.i7ipHP/clone ... 
+    | --- [0] root /tmp/r3_tool_tdd.i7ipHP/clone; probes (DEFAULT = sr15's command, OVERRIDE = set by the caller)
+    |   PF_PY           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/python3
+    |   PF_IDENT        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ident_041
+    |   PF_LOCK_STATUS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lock
+    |   PF_HWSERVER     OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/hwserver
+    |   PF_PROCS        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/procs
+    |   PF_SS           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ss_client
+    |   PF_LSPCI        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lspci
+    |   PF_XDMA_LS      OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/nodes_ls
+    |   PF_LSMOD        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lsmod
+    |   PF_BOARD_USERS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/users
+    | --- [1] board lock
+    | board lock /scratch/fake.lock
+    |   state        not held
+    | --- [2] hw_server, and every vivado / hw_server / xsdb / hw_manager process
+    | 4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   all matching processes:
+    |     4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   established TCP connections to hw_server port 3121 (an attached hw_manager client):
+    |     0 0 127.0.0.1:3121 127.0.0.1:51234 users:(("vivado",pid=4242,fd=17))
+    |   FAIL: a client is attached to hw_server (port 3121)
+    | --- [3] uptime / last boot
+    |  19:37:19 up 2 days, 12:28,  5 users,  load average: 3.89, 5.43, 8.89
+    | boot: 2026-09-27 07:08
+    |   (no --boot given: printed only)
+    | --- [4] PCI ID at 82:00.0 (want 10ee:9038; 1e24:1525 = factory image), xdma nodes, module
+    | 82:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+    | crw-rw-rw- 1 root root 511, 0 Sep 29 07:08 FAKE_xdma0_user
+    | crw-rw-rw- 1 root root 511, 1 Sep 29 07:08 FAKE_xdma0_h2c_0
+    | crw-rw-rw- 1 root root 511, 2 Sep 29 07:08 FAKE_xdma0_c2h_0
+    | xdma                  110592  0
+    | --- [5] what is on the board (raw reads, no DMA) — MUST be VERSION c973c18a (build_041 unless named)
+    |   MAGIC        0xfab1e001
+    |   VERSION      0xc973c18a  want 0xc973c18a  OK
+    |   CALIB        0xf
+    |   CAPS_WORD    0xdeadc0de  want 0xdeadc0de  OK
+    | IDENT: PASS
+    | --- [6] the bitstreams this session may program (size, FULL sha256), and the twins it must NOT
+    | -rw-rw-r-- 1 cah cah 4096 2026-09-29 19:37:12.053669493 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/r3.bit
+    |   size 4096 sha256 8e40b7d995d14976747707af0fe70c39bfa8b20dcf695bcc39270a1a7363304a
+    | -rw-rw-r-- 1 cah cah 4000 2026-09-29 19:37:12.058669480 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/b41.bit
+    |   size 4000 sha256 3c33d1ecea7e345b9212ebe8ce417fcec915812ef065e71a15fc898118892c29
+    |   TWIN (never programmed) /tmp/r3_tool_tdd.i7ipHP/fk/twin.bit sha256 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    |   the twin differs from the ruled file: OK
+    | --- [7] stream pins (FULL sha256)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/s1.e4.seq fa3220cf0c7126e85efa5eeb8ace557cbc562bdcfad8ab258f9a61934be3f108
+    | --- [7b] streams vs their manifests (.seq sha256 == .seq.json stream_sha256, FULL)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/m.e4.seq 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012 manifest 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012
+    | --- [8] chat image pins in sw/chat_seq.py (FULL sha256), and pin-log lines
+    |   REORDER_B_R2_IMAGES has c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45
+    |   evidence/qwen9b/sr/n1351_sr13b_r2_pins.log: 'PIN r2 lite c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45 39314'
+    | --- [9] the admission rows (sw/seq_run.py)
+    | 3699:SEQ_VERSIONS[0x266E3AE7] = (
+    | 3711:    _R2V, _R1V = 0x266E3AE7, 0xE3C2FF1E
+    | 3755:                0x266E3AE7: 0xFAB1B301}
+    | 3762:              and parse_expect_version("0x266E3AE7") == _R2V)
+    | --- [10] the interpreter (/tmp/r3_tool_tdd.i7ipHP/pf/python3)
+    | /home/cah/.venv/bin/python 3.12.3 numpy 2.4.6
+    | --- [11] git: the tree must be CLEAN (excluded: untracked evidence/qwen9b/sr/n33NN_* session logs)
+    | a62f324 test(R3-3): evidence/qwen9b/sr/r3_model_tdd.py — the model's broadcast execution, test first (C1 phantom channel 15, per-destination RunningChannelError, XPTR, caps mirror, C2 JMP back-edge, M1 pop path, no-broadcast streams vs the base a2fed67), committed before its RED run
+    |   clean
+    | --- [12] other board users
+    |   none
+    | PREFLIGHT: FAIL
+    rc=1
+  [e] PASS a stub :3121 client -> FAIL  (rc 1)
+  $ [wrongsha] r3_preflight.sh --root /tmp/r3_tool_tdd.i7ipHP/clone ... --bit-sha256 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    | --- [0] root /tmp/r3_tool_tdd.i7ipHP/clone; probes (DEFAULT = sr15's command, OVERRIDE = set by the caller)
+    |   PF_PY           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/python3
+    |   PF_IDENT        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ident_041
+    |   PF_LOCK_STATUS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lock
+    |   PF_HWSERVER     OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/hwserver
+    |   PF_PROCS        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/procs
+    |   PF_SS           OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/ss_none
+    |   PF_LSPCI        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lspci
+    |   PF_XDMA_LS      OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/nodes_ls
+    |   PF_LSMOD        OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/lsmod
+    |   PF_BOARD_USERS  OVERRIDE /tmp/r3_tool_tdd.i7ipHP/pf/users
+    | --- [1] board lock
+    | board lock /scratch/fake.lock
+    |   state        not held
+    | --- [2] hw_server, and every vivado / hw_server / xsdb / hw_manager process
+    | 4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   all matching processes:
+    |     4242 /opt/fake/bin/hw_server -s TCP::3121
+    |   established TCP connections to hw_server port 3121 (an attached hw_manager client):
+    |     none
+    | --- [3] uptime / last boot
+    |  19:37:20 up 2 days, 12:28,  5 users,  load average: 3.89, 5.43, 8.89
+    | boot: 2026-09-27 07:08
+    |   (no --boot given: printed only)
+    | --- [4] PCI ID at 82:00.0 (want 10ee:9038; 1e24:1525 = factory image), xdma nodes, module
+    | 82:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+    | crw-rw-rw- 1 root root 511, 0 Sep 29 07:08 FAKE_xdma0_user
+    | crw-rw-rw- 1 root root 511, 1 Sep 29 07:08 FAKE_xdma0_h2c_0
+    | crw-rw-rw- 1 root root 511, 2 Sep 29 07:08 FAKE_xdma0_c2h_0
+    | xdma                  110592  0
+    | --- [5] what is on the board (raw reads, no DMA) — MUST be VERSION c973c18a (build_041 unless named)
+    |   MAGIC        0xfab1e001
+    |   VERSION      0xc973c18a  want 0xc973c18a  OK
+    |   CALIB        0xf
+    |   CAPS_WORD    0xdeadc0de  want 0xdeadc0de  OK
+    | IDENT: PASS
+    | --- [6] the bitstreams this session may program (size, FULL sha256), and the twins it must NOT
+    | -rw-rw-r-- 1 cah cah 4096 2026-09-29 19:37:12.053669493 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/r3.bit
+    |   size 4096 sha256 8e40b7d995d14976747707af0fe70c39bfa8b20dcf695bcc39270a1a7363304a
+    |   FAIL: /tmp/r3_tool_tdd.i7ipHP/fk/r3.bit sha256 != 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    | -rw-rw-r-- 1 cah cah 4000 2026-09-29 19:37:12.058669480 -0600 /tmp/r3_tool_tdd.i7ipHP/fk/b41.bit
+    |   size 4000 sha256 3c33d1ecea7e345b9212ebe8ce417fcec915812ef065e71a15fc898118892c29
+    |   TWIN (never programmed) /tmp/r3_tool_tdd.i7ipHP/fk/twin.bit sha256 7f7bdba6005732075e6a16bcfca5c86fdd8961b257f545bccd1f4cff2658be88
+    |   FAIL: twin /tmp/r3_tool_tdd.i7ipHP/fk/twin.bit hash unexpected (or equal to the ruled file)
+    | --- [7] stream pins (FULL sha256)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/s1.e4.seq fa3220cf0c7126e85efa5eeb8ace557cbc562bdcfad8ab258f9a61934be3f108
+    | --- [7b] streams vs their manifests (.seq sha256 == .seq.json stream_sha256, FULL)
+    |   /tmp/r3_tool_tdd.i7ipHP/fk/m.e4.seq 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012 manifest 8c76ebc8005dc8d59da72a5cb095593956f92640c57b3100cf3c188b96a1f012
+    | --- [8] chat image pins in sw/chat_seq.py (FULL sha256), and pin-log lines
+    |   REORDER_B_R2_IMAGES has c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45
+    |   evidence/qwen9b/sr/n1351_sr13b_r2_pins.log: 'PIN r2 lite c78312bb293a5c2a16f94a76bfabcba56ce34937457b10b69b12b4bd02ff6d45 39314'
+    | --- [9] the admission rows (sw/seq_run.py)
+    | 3699:SEQ_VERSIONS[0x266E3AE7] = (
+    | 3711:    _R2V, _R1V = 0x266E3AE7, 0xE3C2FF1E
+    | 3755:                0x266E3AE7: 0xFAB1B301}
+    | 3762:              and parse_expect_version("0x266E3AE7") == _R2V)
+    | --- [10] the interpreter (/tmp/r3_tool_tdd.i7ipHP/pf/python3)
+    | /home/cah/.venv/bin/python 3.12.3 numpy 2.4.6
+    | --- [11] git: the tree must be CLEAN (excluded: untracked evidence/qwen9b/sr/n33NN_* session logs)
+    | a62f324 test(R3-3): evidence/qwen9b/sr/r3_model_tdd.py — the model's broadcast execution, test first (C1 phantom channel 15, per-destination RunningChannelError, XPTR, caps mirror, C2 JMP back-edge, M1 pop path, no-broadcast streams vs the base a2fed67), committed before its RED run
+    |   clean
+    | --- [12] other board users
+    |   none
+    | PREFLIGHT: FAIL
+    rc=1
+  [e] PASS the ruled bit's sha256 differs from the argument -> FAIL  (rc 1)
+  $ [shortsha] r3_preflight.sh --root /tmp/r3_tool_tdd.i7ipHP/clone ... --bit-sha256 8e40b7d995d14976
+    | r3_preflight: --bit-sha256 '8e40b7d995d14976' is not a FULL sha256 (64 lower-case hex)
+    rc=2
+  [e] PASS a short (not FULL 64-hex) sha argument refused, exit 2  (rc 2)
+  [e] PASS tripwire python untouched across every (e) case
+== (f) evidence/qwen9b/g6/g6_state.py against a mock Dev (r3_g6state_tdd.py)
+    | r3_g6state_tdd: g6_state.py's VERSION check, mock Dev, scratch lock /tmp/r3_g6state_tdd.byeaxbwh/board.lock (one child process per case)
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf
+    |       | *** REFUSING the state-region DMA (exit 4): board VERSION 0x266e3ae7 != expected 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)); name the resident bitstream with FABLE5_SEQ_EXPECT_VERSION=<hash> (NEXT_SESSION.md §9 (f) rule 6).  Nothing written or read.
+    |       board 0x266e3ae7  FABLE5_SEQ_EXPECT_VERSION=None  --write-initial  ->  rc 4  events ['dev']
+    |   [f1] PASS board 0x266E3AE7, variable unset: refused with exit 4 by g6_state's VERSION check  (rc 4)
+    |   [f1] PASS board 0x266E3AE7, variable unset: DMA tripwire untouched  (events ['dev'])
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf
+    |       | --- state region  DN 0x0  KV 0x10  CV 0x20  END 0x40  (0 MiB on DDR channel 0)
+    |       |   image     /tmp/r3_g6state_tdd.i9qxa9_f/fake.state.bin 64 B, sha256 00000000000000000000000000000000 == manifest state['sha256'] [OK]
+    |       board 0x266e3ae7  FABLE5_SEQ_EXPECT_VERSION='266e3ae7'  --write-initial  ->  rc 'TRIPPED:dma_write_chan'  events ['dev', 'dma_write_chan']
+    |   [f2] PASS board 0x266E3AE7, variable 266e3ae7: proceeds to the (mock) write  (rc 'TRIPPED:dma_write_chan')
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+    |       | --- state region  DN 0x0  KV 0x10  CV 0x20  END 0x40  (0 MiB on DDR channel 0)
+    |       |   image     /tmp/r3_g6state_tdd.qx51lryr/fake.state.bin 64 B, sha256 00000000000000000000000000000000 == manifest state['sha256'] [OK]
+    |       board 0xc973c18a  FABLE5_SEQ_EXPECT_VERSION=None  --write-initial  ->  rc 'TRIPPED:dma_write_chan'  events ['dev', 'dma_write_chan']
+    |   [f3] PASS board 0xC973C18A, variable unset: proceeds to the (mock) write  (rc 'TRIPPED:dma_write_chan')
+    |       | *** REFUSING the state-region DMA (exit 4): expect-version 0xdeadbeef is not a known sequencer bitstream (known: 0x266e3ae7 build_045_r2_incr (R2 XWIN/RES banks + R1 + BM1 counters; admitted only when named), 0x54443b9f build_035_fp2a_exc_po (frozen 2B W8, isa=1 SHAPE; admitted only when named), 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default), 0xe3c2ff1e build_044_r1_incr (R1 FENCE mask + BM1 counters; admitted only when named)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess
+    |       board 0xc973c18a  FABLE5_SEQ_EXPECT_VERSION='deadbeef'  --write-initial  ->  rc 4  events []
+    |   [f4] PASS variable naming a VERSION outside SEQ_VERSIONS: refused with exit 4 by g6_state  (rc 4)
+    |   [f4] PASS outside SEQ_VERSIONS: DMA tripwire untouched  (events [])
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf
+    |       | *** REFUSING the state-region DMA (exit 4): board VERSION 0x266e3ae7 != expected 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)); name the resident bitstream with FABLE5_SEQ_EXPECT_VERSION=<hash> (NEXT_SESSION.md §9 (f) rule 6).  Nothing written or read.
+    |       board 0x266e3ae7  FABLE5_SEQ_EXPECT_VERSION='c973c18a'  --write-initial  ->  rc 4  events ['dev']
+    |   [f5] PASS board 0x266E3AE7, variable c973c18a: refused with exit 4 by g6_state  (rc 4)
+    |   [f5] PASS board != named VERSION: DMA tripwire untouched  (events ['dev'])
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf
+    |       | *** REFUSING the state-region DMA (exit 4): board VERSION 0x266e3ae7 != expected 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)); name the resident bitstream with FABLE5_SEQ_EXPECT_VERSION=<hash> (NEXT_SESSION.md §9 (f) rule 6).  Nothing written or read.
+    |       board 0x266e3ae7  FABLE5_SEQ_EXPECT_VERSION=None  --readback  ->  rc 4  events ['dev']
+    |   [f6] PASS --readback on board 0x266E3AE7, variable unset: refused with exit 4 by g6_state  (rc 4)
+    |   [f6] PASS --readback refused: dma_read_chan untouched  (events ['dev'])
+    |   [f0] PASS no xdma device node was ever opened (any case)  ([])
+    | r3_g6state_tdd: 11 passed, 0 failed
+  [f] PASS f1 board 0x266E3AE7, variable unset: refused with exit 4 by g6_state's VERSION check  (rc 4)
+  [f] PASS f1 board 0x266E3AE7, variable unset: DMA tripwire untouched  (events ['dev'])
+  [f] PASS f2 board 0x266E3AE7, variable 266e3ae7: proceeds to the (mock) write  (rc 'TRIPPED:dma_write_chan')
+  [f] PASS f3 board 0xC973C18A, variable unset: proceeds to the (mock) write  (rc 'TRIPPED:dma_write_chan')
+  [f] PASS f4 variable naming a VERSION outside SEQ_VERSIONS: refused with exit 4 by g6_state  (rc 4)
+  [f] PASS f4 outside SEQ_VERSIONS: DMA tripwire untouched  (events [])
+  [f] PASS f5 board 0x266E3AE7, variable c973c18a: refused with exit 4 by g6_state  (rc 4)
+  [f] PASS f5 board != named VERSION: DMA tripwire untouched  (events ['dev'])
+  [f] PASS f6 --readback on board 0x266E3AE7, variable unset: refused with exit 4 by g6_state  (rc 4)
+  [f] PASS f6 --readback refused: dma_read_chan untouched  (events ['dev'])
+  [f] PASS f0 no xdma device node was ever opened (any case)  ([])
+  [f] PASS r3_g6state_tdd.py ran and reported
+== summary (per case: passed / failed)
+  (H) 3 passed / 0 failed
+  (a) 7 passed / 0 failed
+  (a') 24 passed / 0 failed
+  (b) 7 passed / 0 failed
+  (b') 6 passed / 0 failed
+  (b'') 5 passed / 0 failed
+  (c) 8 passed / 0 failed
+  (n0) 6 passed / 0 failed
+  (c') 11 passed / 0 failed
+  (d) 20 passed / 0 failed
+  (e) 28 passed / 0 failed
+  (f) 12 passed / 0 failed
+r3_tool_tdd: 137 passed, 0 failed
+=== rc  : 0
+=== end : 2026-09-29T19:37:22-06:00

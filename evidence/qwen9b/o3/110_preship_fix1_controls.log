@@ -1,0 +1,496 @@
+=== host: darthplagueis
+=== date: 2026-09-10T05:58:43-06:00
+=== tree: 3d05289+dirty
+=== cmd:  bash /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/297477f1-b332-4f12-8141-aed7689cf8e7/scratchpad/controls.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+### python3 evidence/qwen9b/o3/o3_cite_drift.py --range-control
+o3 citation-drift gate  [range negative control]
+  both endpoints live                  '`sw/chat_seq.py:10-30`'     -> '`sw/chat_seq.py:20-40`'     ok
+  the END was deleted                  '`sw/chat_seq.py:10-30`'     -> '`sw/chat_seq.py:10-30`'     ok
+  the START was deleted                '`sw/chat_seq.py:10-30`'     -> '`sw/chat_seq.py:10-30`'     ok
+  a bare continuation, END deleted     'see `sw/chat_seq.py` at `:10-30`' -> 'see `sw/chat_seq.py` at `:10-30`' ok
+  the END is PAST the base file's end  '`sw/chat_seq.py:10-99`'     -> '`sw/chat_seq.py:10-99`'     ok
+  the START is PAST the base file's end '`sw/chat_seq.py:99-30`'     -> '`sw/chat_seq.py:99-30`'     ok
+  a SINGLE line past the base file's end '`sw/chat_seq.py:99`'        -> '`sw/chat_seq.py:99`'        ok
+O3_RANGE_CONTROL: PASS — a half-mapped range is never rewritten (0 problem(s))
+rc=0
+
+### python3 evidence/qwen9b/o3/o3_cite_drift.py --base 5f9afe8 --edited docs/QWEN35_NEXT_FEASIBILITY.md,docs/SEQ_ISA.md,evidence/qwen9b/g3/isa_bits.py,evidence/qwen9b/s3/S3_CHAIN.md,evidence/qwen9b/s5/S5_STRUCT.md --negative-control
+o3 citation-drift gate  [check]
+  code base  5f9afe8
+  doc base   5f9afe8
+  files      5 edited files
+  citations  71 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 1 (one endpoint unresolved — NEVER rewritten)
+  MODE       NEGATIVE CONTROL
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:255 -> :256   '0.8B/2B emit `<think>\\n\\n</think>\\n\\n` unless asked for thinking; 4B/9B emit'
+             cited by evidence/qwen9b/g6/RD9_GATE.md, evidence/qwen9b/g6/g6_template_9b.py
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:259 -> :260   'answer by default.'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:289 -> :301   '| 17 | host-model geometry rot | 0.8B literals | **FAIL** | **FAIL** | M, shar'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:340 -> :352   '> ("chunking destroys the domination condition"). The earlier numbers carried'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:341 -> :353   '> only the first term and over-stated the headroom. Corrected (`f03`), with'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:427 -> :439   '`ref/seq_model.py`. FFN 9216 and 12288 both exceed it,'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:466 -> :478   "`ref/seq_model.py:504-510`, `docs/SEQ_ISA.md:544`, the scanner's own home tabl"
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:753 -> :765   '> rests on them (§0: nothing is deleted or struck).  The exemption marker is'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:779 -> :791   '| `sw/head_cache.py:669` | `== (248320, 1024, -4, 5, 128)` | selftest fails at'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:881 -> :893   ''
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    docs/SEQ_ISA.md:1 -> :2   '# (v2.0 — AS-BUILT CONTRACT, 2026-09-01 — stands unchanged below; B15 at the b'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:2 -> :3   '# = the v1.5 FROZEN TEXT (unchanged, below) + AS-BUILT ADDENDA (bottom).'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:50 -> :51   'change at all. See B13.  **(G3.4 moved the RESET to 13 = 8192 B, the 9B'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    docs/SEQ_ISA.md:58 -> :59   '# SEQ ISA v1.5 — FROZEN CONTRACT (re-frozen 2026-08-09 after wave-3E)'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:203 -> :204   ''
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:235 -> :236   'ref/seq_format.SEQ_CSR_BASE assume. Every register here is host-writable'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:304 -> :305   '1<<23) and hwmap.seq_status() decode exactly this.'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:328 -> :329   '* READ IS THE POP, and the pop now happens ONLY IF THE READ ACTUALLY'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:342 -> :343   'are the frozen ones. "err" gives the err_code raised by the one-cycle'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    docs/SEQ_ISA.md:370 -> :371   'int8 ELEMENT count. XWIN words pushed = ceil(len/4)'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    docs/SEQ_ISA.md:488 -> :489   'the same table with the same text.'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:521 -> :522   "0x38 XRFI   RW {29'b0, idx[2:0]}"
+             cited by evidence/qwen9b/g5/G5C_RTL.md
+  DRIFTED    docs/SEQ_ISA.md:544 -> :545   '(rtl/vec_alu.sv `cfg_len`; layer_chan.sv wires `.cfg_len(arg0[16:4])`).'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    docs/SEQ_ISA.md:563 -> :564   'Both emitters (`gen_layer_script.Mach.alu` and `seq_format.SeqEmitter._cmd`,'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    docs/SEQ_ISA.md:565 -> :566   'count, and `ref/seq_model.py:_alu` refuses to replay a stream carrying one'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    docs/SEQ_ISA.md:568 -> :569   ''
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    docs/SEQ_ISA.md:693 -> :694   'rtl/seq_unit.sv:757-765 does not look at MOVX target at all.'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:694 -> :695   '* "MVGO target[15:1] reserved 0" — ref/seq_format.py:558-559 rejects it;'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    docs/SEQ_ISA.md:695 -> :696   'the RTL uses only target[0] (NO-WAIT) and ignores the rest.'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:712 -> :713   '`r_imm >= seq_len`, while the emitter validator used to fault only on'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    docs/SEQ_ISA.md:716 -> :717   '`r.imm32 >= nrec` with a comment pointing back at this item. (The fix'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:792 -> :805   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    docs/SEQ_ISA.md:798 -> :811   '| VNW     | src              | ARG1[28]       |                             |'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    docs/SEQ_ISA.md:814 -> :827   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    docs/SEQ_ISA.md:816 -> :829   'bits EXACTLY full, with no spare anywhere in it. That is why its two'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    docs/SEQ_ISA.md:825 -> :838   ''
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    docs/SEQ_ISA.md:834 -> :847   '| MOVY   | scratch dst          | addr_lo[14]  |                          |'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    docs/SEQ_ISA.md:836 -> :849   '| LDC    | scratch dst          | target[14]   | target is u16, 2 spare   |'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    docs/SEQ_ISA.md:947 -> :960   '---------------------------------------------------------------------'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    docs/SEQ_ISA.md:1005 -> :1018   '---------------------------------------------------------------------'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1245 -> :1258   ''
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1249 -> :1262   '### B15.1 Two new layer commands'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1250 -> :1263   ''
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1252 -> :1265   'op 14 SST   the same fields'
+             cited by evidence/qwen9b/s4/S4_REPLAY.md
+  DRIFTED    docs/SEQ_ISA.md:1258 -> :1271   'arg1/arg2 must be 0 (refused otherwise, E_DMA_RANGE) — reserved for a row rang'
+             cited by evidence/qwen9b/s4/S4_REPLAY.md
+  DRIFTED    docs/SEQ_ISA.md:1267 -> :1280   '+ TCNT exponent bytes (rounded up to 64 B), TCNT read when the'
+             cited by evidence/qwen9b/s2/S2_RTL.md
+  DRIFTED    docs/SEQ_ISA.md:1270 -> :1283   'therefore reach that SST, which is what the schedule needs.'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1271 -> :1284   'A KV SLD with TCNT = 0 moves nothing, warms the slot and sets its tag.'
+             cited by evidence/qwen9b/s1/S1_ISA.md, evidence/qwen9b/s2/S2_RTL.md
+  DRIFTED    docs/SEQ_ISA.md:1279 -> :1292   'append counters through the tag of the slot kv_slot names, and refuse (E_DMA_R'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1280 -> :1293   "when the command's own kvhead field differs from the tag's."
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1289 -> :1302   'STATUS (0x04) bit 0 is busy_any = busy_cmp | busy_dma; the CMD accept gate is '
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1290 -> :1303   'alone; cmd_cnt increments when an SLD/SST is ENQUEUED; LCYC counts busy_cmp cy'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1301 -> :1314   '0x13 E_DMA_COLD   a compute command names a slot with no completed load (or DN'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1302 -> :1315   "since the slot's last SST, or since reset"
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1303 -> :1316   "Every refusal, including E_DMA_*, advances cmd_cnt (the layer's standing"
+             cited by evidence/qwen9b/s2/S2_RTL.md
+  DRIFTED    docs/SEQ_ISA.md:1307 -> :1320   ''
+             cited by evidence/qwen9b/s2/S2_RTL.md
+  DRIFTED    docs/SEQ_ISA.md:1310 -> :1323   'flight. F1: a compute command whose slot has an SLD queued or in flight waits.'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:223 -> :224   'start = 0'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/s1/S1_ISA.md, evidence/qwen9b/s1/sdma_bits.py
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:237 -> :238   'with open(RTL) as f:'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:284 -> :285   'if which not in PERTURBATIONS:'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:530 -> :534   'vnw_top = min(GLS.Mach.VNW_ISA_MAX,'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:531 -> :535   'getattr(GLS.Mach, "VNW_HW_MAX", GLS.Mach.VNW_ISA_MAX))'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:533 -> :537   'for name, lop, emit in ('
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:715 -> :719   'f"(all {4} kvhead counters must be zeroed)")'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:723 -> :727   '# `MAX_NG` is stated in four places and the RTL cannot consume another'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:786 -> :790   "# sw/chat_seq.py's artifact checks validate exactly those."
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:791 -> :795   'out.write(f"MVGO ng: 0 and {rtl_ng + 1} REFUSED at isa=2, 1 and "'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    evidence/qwen9b/g3/isa_bits.py:933 -> :937   'bad = []'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    evidence/qwen9b/s3/S3_CHAIN.md:201 -> :202   "prefetches the DN layers emit plus 8 × (6 + 8) — exactly A1.5(c)'s split."
+             cited by evidence/qwen9b/s4/S4_REPLAY.md
+  DRIFTED    evidence/qwen9b/s3/S3_CHAIN.md:707 -> :723   '| `evidence/qwen_next/feas/resource_budget.py:215` | `rtl/layer_chan.sv:1534` '
+             cited by evidence/qwen9b/s4/S4_REPLAY.md
+  UNRESOLVED evidence/qwen9b/g3/isa_bits.py:527 (the cited line was rewritten or deleted)   '# Consequence, stated rather than hidden: ARG0[12] is not exercised'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  HALF-MAPPED evidence/qwen9b/g3/isa_bits.py:527-530 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :527 '# Consequence, stated rather than hidden: ARG0[12] is not ex' -> GONE
+             :530 'vnw_top = min(GLS.Mach.VNW_ISA_MAX,' -> 534
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+O3_CITE_DRIFT CHECK NEGATIVE CONTROL: CAUGHT (72 reported)
+rc=0
+
+### python3 evidence/qwen9b/o3/o3_cite_drift.py --base 5f9afe8 --edited docs/QWEN35_NEXT_FEASIBILITY.md,docs/SEQ_ISA.md,evidence/qwen9b/g3/isa_bits.py,evidence/qwen9b/s3/S3_CHAIN.md,evidence/qwen9b/s5/S5_STRUCT.md --negative-control --verify
+o3 citation-drift gate  [verify]
+  code base  5f9afe8
+  doc base   5f9afe8
+  files      5 edited files
+  citations  71 distinct (file, line) pairs
+  unmoved    27
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  MODE       NEGATIVE CONTROL
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:289 -> :307  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:340 -> :358  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:341 -> :359  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:427 -> :445  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:466 -> :484  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:753 -> :771  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:779 -> :797  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:881 -> :899  content does not match the base line
+  ! docs/SEQ_ISA.md:792 -> :811  content does not match the base line
+  ! docs/SEQ_ISA.md:798 -> :817  content does not match the base line
+  ! docs/SEQ_ISA.md:814 -> :833  content does not match the base line
+  ! docs/SEQ_ISA.md:816 -> :835  content does not match the base line
+  ! docs/SEQ_ISA.md:825 -> :844  content does not match the base line
+  ! docs/SEQ_ISA.md:834 -> :853  content does not match the base line
+  ! docs/SEQ_ISA.md:836 -> :855  content does not match the base line
+  ! docs/SEQ_ISA.md:947 -> :966  content does not match the base line
+  ! docs/SEQ_ISA.md:1005 -> :1024  content does not match the base line
+  ! docs/SEQ_ISA.md:1245 -> :1264  content does not match the base line
+  ! docs/SEQ_ISA.md:1249 -> :1268  content does not match the base line
+  ! docs/SEQ_ISA.md:1250 -> :1269  content does not match the base line
+  ! docs/SEQ_ISA.md:1252 -> :1271  content does not match the base line
+  ! docs/SEQ_ISA.md:1258 -> :1277  content does not match the base line
+  ! docs/SEQ_ISA.md:1267 -> :1286  content does not match the base line
+  ! docs/SEQ_ISA.md:1270 -> :1289  content does not match the base line
+  ! docs/SEQ_ISA.md:1271 -> :1290  content does not match the base line
+  ! docs/SEQ_ISA.md:1279 -> :1298  content does not match the base line
+  ! docs/SEQ_ISA.md:1280 -> :1299  content does not match the base line
+  ! docs/SEQ_ISA.md:1289 -> :1308  content does not match the base line
+  ! docs/SEQ_ISA.md:1290 -> :1309  content does not match the base line
+  ! docs/SEQ_ISA.md:1301 -> :1320  content does not match the base line
+  ! docs/SEQ_ISA.md:1302 -> :1321  content does not match the base line
+  ! docs/SEQ_ISA.md:1303 -> :1322  content does not match the base line
+  ! docs/SEQ_ISA.md:1307 -> :1326  content does not match the base line
+  ! docs/SEQ_ISA.md:1310 -> :1329  content does not match the base line
+  ! evidence/qwen9b/g3/isa_bits.py:531 -> :541  content does not match the base line
+  ! evidence/qwen9b/g3/isa_bits.py:533 -> :543  content does not match the base line
+  ! evidence/qwen9b/g3/isa_bits.py:715 -> :725  content does not match the base line
+  ! evidence/qwen9b/g3/isa_bits.py:723 -> :733  content does not match the base line
+  ! evidence/qwen9b/g3/isa_bits.py:786 -> :796  content does not match the base line
+  ! evidence/qwen9b/g3/isa_bits.py:791 -> :801  content does not match the base line
+O3_CITE_DRIFT VERIFY NEGATIVE CONTROL: CAUGHT (42 complaints)
+rc=0
+
+### python3 evidence/qwen9b/o3/o3_cite_drift.py --base 5f9afe8 --edited docs/QWEN35_NEXT_FEASIBILITY.md,docs/SEQ_ISA.md,evidence/qwen9b/g3/isa_bits.py,evidence/qwen9b/s3/S3_CHAIN.md,evidence/qwen9b/s5/S5_STRUCT.md --exclude-control --exclude evidence/qwen9b/s5/S5_STRUCT.md
+o3 citation-drift gate  [exclude negative control]
+  code base  5f9afe8
+  doc base   5f9afe8
+  candidates 11 document(s) this pass would rewrite
+  evidence/qwen9b/s5/S5_STRUCT.md                      not a document this pass would rewrite — not controllable here
+  docs/QWEN35_NEXT_FEASIBILITY.md without --exclude    IN THE PLAN (as it must be)
+  docs/QWEN35_NEXT_FEASIBILITY.md with --exclude       NOT IN THE PLAN → byte-identical (apply_fix writes the plan and nothing else)
+  other documents still in the pass                    10
+  a path that names no citer                           changes nothing (11 document(s) still planned)
+O3_EXCLUDE_CONTROL: PASS — an excluded document is byte-identical, the rest of the pass still runs, and a typo excludes nothing (0 problem(s))
+rc=0
+
+### python3 evidence/qwen9b/o3/o3_cite_drift.py --base 5f9afe8 --doc-cites --negative-control
+o3 citation-drift gate  [doc-cites]
+  doc base   5f9afe8
+  targets    25 document(s) whose line count moved since 5f9afe8
+               docs/QWEN35_NEXT_FEASIBILITY.md                            1699 -> 1710 lines
+               docs/SEQ_ISA.md                                            1318 -> 1330 lines
+               docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md   3074 -> 3081 lines
+               docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md 2743 -> 2789 lines
+               evidence/qwen2b/rc/RC_GATE.md                              1110 -> 1121 lines
+               evidence/qwen9b/g1/RUNG_INT8_STATE.md                      1204 -> 1223 lines
+               evidence/qwen9b/g2/D_TOL.md                                635 -> 660 lines
+               evidence/qwen9b/g2/FINAL_BYTELOCK.md                       624 -> 644 lines
+               evidence/qwen9b/g2/G2A_HOST.md                             835 -> 846 lines
+               evidence/qwen9b/g2/G2C_CHAIN.md                            1467 -> 1488 lines
+               evidence/qwen9b/g3/G3_1_ISA.md                             977 -> 1007 lines
+               evidence/qwen9b/g3/G3_2_VECNORM.md                         778 -> 794 lines
+               evidence/qwen9b/g3/G3_3_MATVEC.md                          923 -> 946 lines
+               evidence/qwen9b/g3/G3_4_LAYER.md                           1547 -> 1568 lines
+               evidence/qwen9b/g4/G4A_REPLAY.md                           1566 -> 1578 lines
+               evidence/qwen9b/g4/G4B_STRUCT.md                           1462 -> 1524 lines
+               evidence/qwen9b/g5/101_t14a_ooc_hier_dsp.txt               208 -> 222 lines
+               evidence/qwen9b/g5/G5A_FLOORPLAN.md                        1041 -> 1061 lines
+               evidence/qwen9b/g5/G5C_RTL.md                              1148 -> 1166 lines
+               evidence/qwen9b/s1/S1_ISA.md                               621 -> 645 lines
+               evidence/qwen9b/s2/S2_RTL.md                               596 -> 609 lines
+               evidence/qwen9b/s3/S3_CHAIN.md                             1248 -> 1291 lines
+               evidence/qwen9b/s5/S5_STRUCT.md                            1687 -> 1707 lines
+               evidence/qwen_next/ladder/CHECKPOINT_VERIFY.md             253 -> 269 lines
+               evidence/qwen_next/ladder/LADDER.md                        623 -> 652 lines
+  citations  190 line number(s) cited into them at 5f9afe8
+  unmoved    79
+  MODE       NEGATIVE CONTROL
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:323 cites docs/SEQ_ISA.md:816 -> should be 828
+  DRIFTED    docs/QWEN35_NEXT_FEASIBILITY.md:323 cites docs/SEQ_ISA.md:825 -> should be 837
+  DRIFTED    docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:928 cites docs/QWEN35_NEXT_FEASIBILITY.md:779 -> should be 790
+  DRIFTED    docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md:40 cites docs/SEQ_ISA.md:947 -> should be 959
+  DRIFTED    docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md:40 cites docs/SEQ_ISA.md:1005 -> should be 1017
+  DRIFTED    docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md:73 cites docs/SEQ_ISA.md:1005 -> should be 1017
+  DRIFTED    docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md:88 cites docs/SEQ_ISA.md:1005 -> should be 1017
+  DRIFTED    docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md:88 cites docs/SEQ_ISA.md:947 -> should be 959
+  DRIFTED    docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md:88 cites docs/SEQ_ISA.md:1005 -> should be 1017
+  DRIFTED    docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md:555 cites evidence/qwen9b/g4/G4B_STRUCT.md:901 -> should be 913
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1045 cites docs/QWEN35_NEXT_FEASIBILITY.md:340 -> should be 351
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1045 cites docs/QWEN35_NEXT_FEASIBILITY.md:341 -> should be 352
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2118 cites docs/QWEN35_NEXT_FEASIBILITY.md:779 -> should be 790
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2125 cites docs/QWEN35_NEXT_FEASIBILITY.md:779 -> should be 790
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2250 cites docs/SEQ_ISA.md:792 -> should be 804
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2251 cites docs/SEQ_ISA.md:798 -> should be 810
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2251 cites docs/SEQ_ISA.md:814 -> should be 826
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2255 cites docs/SEQ_ISA.md:834 -> should be 846
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2255 cites docs/SEQ_ISA.md:836 -> should be 848
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2255 cites docs/SEQ_ISA.md:816 -> should be 828
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2255 cites docs/SEQ_ISA.md:825 -> should be 837
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2328 cites evidence/qwen_next/ladder/LADDER.md:615 -> should be 618
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2554 cites evidence/qwen_next/ladder/LADDER.md:401 -> should be 404
+  DRIFTED    docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2561 cites docs/QWEN35_NEXT_FEASIBILITY.md:779 -> should be 790
+  DRIFTED    evidence/qwen2b/rc/RC_GATE.md:1098 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2042 -> should be 2077
+  DRIFTED    evidence/qwen2b/rc/RC_GATE.md:1098 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2050 -> should be 2085
+  DRIFTED    evidence/qwen2b/rd/RD_GATE.md:641 cites evidence/qwen_next/ladder/LADDER.md:615 -> should be 618
+  DRIFTED    evidence/qwen2b/rd/RD_GATE.md:689 cites evidence/qwen_next/ladder/LADDER.md:615 -> should be 618
+  DRIFTED    evidence/qwen2b/rd/RD_GATE.md:721 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2042 -> should be 2077
+  DRIFTED    evidence/qwen2b/rd/RD_GATE.md:721 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2050 -> should be 2085
+  DRIFTED    evidence/qwen9b/g2/D_TOL.md:590 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1779 -> should be 1814
+  DRIFTED    evidence/qwen9b/g2/D_TOL.md:600 cites evidence/qwen_next/ladder/LADDER.md:401 -> should be 404
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:9 cites docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:896 -> should be 903
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:9 cites docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:941 -> should be 948
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:10 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2038 -> should be 2073
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:10 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2060 -> should be 2095
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:93 cites evidence/qwen_next/ladder/LADDER.md:615 -> should be 618
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:260 cites evidence/qwen_next/ladder/LADDER.md:615 -> should be 618
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:344 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2042 -> should be 2077
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:344 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2050 -> should be 2085
+  DRIFTED    evidence/qwen9b/g2/FINAL_BYTELOCK.md:504 cites evidence/qwen2b/rc/RC_GATE.md:1030 -> should be 1031
+  DRIFTED    evidence/qwen9b/g2/G2C_CHAIN.md:5 cites docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:945 -> should be 952
+  DRIFTED    evidence/qwen9b/g2/G2C_CHAIN.md:513 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1678 -> should be 1713
+  DRIFTED    evidence/qwen9b/g2/G2C_CHAIN.md:514 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1678 -> should be 1713
+  DRIFTED    evidence/qwen9b/g2/G2C_CHAIN.md:514 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1679 -> should be 1714
+  DRIFTED    evidence/qwen9b/g2/G2C_CHAIN.md:516 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1688 -> should be 1723
+  DRIFTED    evidence/qwen9b/g2/final_bytelock_pin.sh:9 cites evidence/qwen_next/ladder/LADDER.md:615 -> should be 618
+  DRIFTED    evidence/qwen9b/g2/spec_cites_selftest_regression.sh:46 cites evidence/qwen9b/g1/RUNG_INT8_STATE.md:823 -> should be None
+  DRIFTED    evidence/qwen9b/g2/spec_cites_selftest_regression.sh:51 cites evidence/qwen9b/g2/FINAL_BYTELOCK.md:0 -> should be None
+  DRIFTED    evidence/qwen9b/g2/spec_cites_selftest_regression.sh:52 cites evidence/qwen9b/g2/G2A_HOST.md:0 -> should be None
+  DRIFTED    evidence/qwen9b/g2/spec_cites_selftest_regression.sh:53 cites evidence/qwen9b/g2/D_TOL.md:3 -> should be None
+  DRIFTED    evidence/qwen9b/g2/spec_cites_selftest_regression.sh:55 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:0 -> should be None
+  DRIFTED    evidence/qwen9b/g2/spec_cites_selftest_regression.sh:56 cites docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:0 -> should be None
+  DRIFTED    evidence/qwen9b/g3/G3_2_VECNORM.md:356 cites evidence/qwen9b/g3/G3_1_ISA.md:777 -> should be 804
+  DRIFTED    evidence/qwen9b/g3/G3_2_VECNORM.md:563 cites evidence/qwen9b/g3/G3_1_ISA.md:777 -> should be 804
+  DRIFTED    evidence/qwen9b/g3/G3_2_VECNORM.md:583 cites docs/QWEN35_NEXT_FEASIBILITY.md:427 -> should be 438
+  DRIFTED    evidence/qwen9b/g3/G3_2_VECNORM.md:601 cites docs/QWEN35_NEXT_FEASIBILITY.md:427 -> should be 438
+  DRIFTED    evidence/qwen9b/g3/G3_2_VECNORM.md:601 cites docs/QWEN35_NEXT_FEASIBILITY.md:466 -> should be 477
+  DRIFTED    evidence/qwen9b/g3/G3_3_MATVEC.md:673 cites docs/QWEN35_NEXT_FEASIBILITY.md:753 -> should be 764
+  DRIFTED    evidence/qwen9b/g3/G3_3_MATVEC.md:673 cites docs/QWEN35_NEXT_FEASIBILITY.md:779 -> should be 790
+  DRIFTED    evidence/qwen9b/g3/G3_4_LAYER.md:865 cites evidence/qwen9b/g1/RUNG_INT8_STATE.md:823 -> should be None
+  DRIFTED    evidence/qwen9b/g3/G3_4_LAYER.md:1468 cites evidence/qwen9b/g3/G3_2_VECNORM.md:610 -> should be 620
+  DRIFTED    evidence/qwen9b/g4/G4A_REPLAY.md:1440 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2055 -> should be 2090
+  DRIFTED    evidence/qwen9b/g4/G4A_REPLAY.md:1441 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2560 -> should be 2606
+  DRIFTED    evidence/qwen9b/g4/G4A_REPLAY.md:1441 cites docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:1463 -> should be 1470
+  DRIFTED    evidence/qwen9b/g4/G4A_REPLAY.md:1441 cites docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:1464 -> should be 1471
+  DRIFTED    evidence/qwen9b/g6/RD9_GATE.md:1601 cites evidence/qwen9b/g4/G4B_STRUCT.md:631 -> should be 642
+  DRIFTED    evidence/qwen9b/g6/RD9_GATE.md:2192 cites evidence/qwen9b/g3/G3_3_MATVEC.md:892 -> should be 915
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:22 cites docs/SEQ_ISA.md:1245 -> should be 1257
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:22 cites docs/SEQ_ISA.md:1310 -> should be 1322
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:22 cites docs/SEQ_ISA.md:1005 -> should be 1017
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:34 cites docs/SEQ_ISA.md:1245 -> should be 1257
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:34 cites docs/SEQ_ISA.md:1249 -> should be 1261
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:35 cites docs/SEQ_ISA.md:1250 -> should be 1262
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:35 cites docs/SEQ_ISA.md:1270 -> should be 1282
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:36 cites docs/SEQ_ISA.md:1271 -> should be 1283
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:36 cites docs/SEQ_ISA.md:1279 -> should be 1291
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:37 cites docs/SEQ_ISA.md:1280 -> should be 1292
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:37 cites docs/SEQ_ISA.md:1289 -> should be 1301
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:38 cites docs/SEQ_ISA.md:1290 -> should be 1302
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:38 cites docs/SEQ_ISA.md:1301 -> should be 1313
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:39 cites docs/SEQ_ISA.md:1302 -> should be 1314
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:39 cites docs/SEQ_ISA.md:1310 -> should be 1322
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:376 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:224 -> should be 239
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:377 cites docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2000 -> should be 2035
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:378 cites evidence/qwen9b/g2/G2C_CHAIN.md:1388 -> should be 1407
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:379 cites evidence/qwen9b/g3/G3_4_LAYER.md:1060 -> should be 1078
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:380 cites evidence/qwen9b/g3/G3_4_LAYER.md:978 -> should be 996
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:380 cites evidence/qwen9b/g3/G3_4_LAYER.md:979 -> should be 997
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:387 cites evidence/qwen9b/g3/G3_4_LAYER.md:1137 -> should be 1155
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:536 cites evidence/qwen9b/g2/G2C_CHAIN.md:1343 -> should be None
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:537 cites evidence/qwen9b/g2/G2C_CHAIN.md:1352 -> should be None
+  DRIFTED    evidence/qwen9b/s1/S1_ISA.md:543 cites evidence/qwen9b/g2/G2C_CHAIN.md:1388 -> should be 1407
+  DRIFTED    evidence/qwen9b/s2/S2_RTL.md:569 cites docs/SEQ_ISA.md:1267 -> should be 1279
+  DRIFTED    evidence/qwen9b/s2/S2_RTL.md:569 cites docs/SEQ_ISA.md:1271 -> should be 1283
+  DRIFTED    evidence/qwen9b/s2/S2_RTL.md:574 cites docs/SEQ_ISA.md:1303 -> should be 1315
+  DRIFTED    evidence/qwen9b/s2/S2_RTL.md:574 cites docs/SEQ_ISA.md:1307 -> should be 1319
+  DRIFTED    evidence/qwen9b/s3/S3_CHAIN.md:706 cites evidence/qwen9b/g5/G5A_FLOORPLAN.md:994 -> should be 1014
+  DRIFTED    evidence/qwen9b/s4/S4_REPLAY.md:990 cites docs/SEQ_ISA.md:1252 -> should be 1264
+  DRIFTED    evidence/qwen9b/s4/S4_REPLAY.md:990 cites docs/SEQ_ISA.md:1258 -> should be 1270
+  DRIFTED    evidence/qwen9b/s4/S4_REPLAY.md:1068 cites docs/SEQ_ISA.md:1252 -> should be 1264
+  DRIFTED    evidence/qwen9b/s4/S4_REPLAY.md:1068 cites docs/SEQ_ISA.md:1258 -> should be 1270
+  DRIFTED    evidence/qwen9b/s4/S4_REPLAY.md:1258 cites docs/SEQ_ISA.md:1252 -> should be 1264
+  DRIFTED    evidence/qwen9b/s4/S4_REPLAY.md:1258 cites docs/SEQ_ISA.md:1258 -> should be 1270
+  DRIFTED    evidence/qwen9b/s4/S4_REPLAY.md:1363 cites evidence/qwen9b/s3/S3_CHAIN.md:707 -> should be 722
+  DRIFTED    evidence/qwen9b/s5/S5_STRUCT.md:901 cites evidence/qwen9b/g5/G5A_FLOORPLAN.md:357 -> should be 358
+  DRIFTED    evidence/qwen9b/s5/S5_STRUCT.md:901 cites evidence/qwen9b/g5/G5A_FLOORPLAN.md:363 -> should be 364
+  DRIFTED    evidence/qwen9b/s5/S5_STRUCT.md:1007 cites evidence/qwen9b/g5/G5A_FLOORPLAN.md:316 -> should be 317
+  DRIFTED    evidence/qwen_next/feas/scratch_peak.py:209 cites docs/SEQ_ISA.md:816 -> should be 828
+  DRIFTED    evidence/qwen_next/feas/scratch_peak.py:209 cites docs/SEQ_ISA.md:825 -> should be 837
+  DRIFTED    evidence/qwen_next/spec_cites.py:229 cites evidence/qwen_next/ladder/LADDER.md:615 -> should be 618
+O3_DOC_CITES CHECK NEGATIVE CONTROL: CAUGHT (111 reported)
+rc=0
+
+### python3 evidence/qwen9b/o3/o3_cite_drift.py --base 5f9afe8 --doc-cites --verify --negative-control
+o3 citation-drift gate  [doc-cites verify]
+  doc base   5f9afe8
+  targets    25 document(s) whose line count moved since 5f9afe8
+               docs/QWEN35_NEXT_FEASIBILITY.md                            1699 -> 1710 lines
+               docs/SEQ_ISA.md                                            1318 -> 1330 lines
+               docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md   3074 -> 3081 lines
+               docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md 2743 -> 2789 lines
+               evidence/qwen2b/rc/RC_GATE.md                              1110 -> 1121 lines
+               evidence/qwen9b/g1/RUNG_INT8_STATE.md                      1204 -> 1223 lines
+               evidence/qwen9b/g2/D_TOL.md                                635 -> 660 lines
+               evidence/qwen9b/g2/FINAL_BYTELOCK.md                       624 -> 644 lines
+               evidence/qwen9b/g2/G2A_HOST.md                             835 -> 846 lines
+               evidence/qwen9b/g2/G2C_CHAIN.md                            1467 -> 1488 lines
+               evidence/qwen9b/g3/G3_1_ISA.md                             977 -> 1007 lines
+               evidence/qwen9b/g3/G3_2_VECNORM.md                         778 -> 794 lines
+               evidence/qwen9b/g3/G3_3_MATVEC.md                          923 -> 946 lines
+               evidence/qwen9b/g3/G3_4_LAYER.md                           1547 -> 1568 lines
+               evidence/qwen9b/g4/G4A_REPLAY.md                           1566 -> 1578 lines
+               evidence/qwen9b/g4/G4B_STRUCT.md                           1462 -> 1524 lines
+               evidence/qwen9b/g5/101_t14a_ooc_hier_dsp.txt               208 -> 222 lines
+               evidence/qwen9b/g5/G5A_FLOORPLAN.md                        1041 -> 1061 lines
+               evidence/qwen9b/g5/G5C_RTL.md                              1148 -> 1166 lines
+               evidence/qwen9b/s1/S1_ISA.md                               621 -> 645 lines
+               evidence/qwen9b/s2/S2_RTL.md                               596 -> 609 lines
+               evidence/qwen9b/s3/S3_CHAIN.md                             1248 -> 1291 lines
+               evidence/qwen9b/s5/S5_STRUCT.md                            1687 -> 1707 lines
+               evidence/qwen_next/ladder/CHECKPOINT_VERIFY.md             253 -> 269 lines
+               evidence/qwen_next/ladder/LADDER.md                        623 -> 652 lines
+  citations  190 line number(s) cited into them at 5f9afe8
+  unmoved    79
+  MODE       NEGATIVE CONTROL
+  ! docs/SEQ_ISA.md:816 -> :835  content does not match the base line
+  ! docs/SEQ_ISA.md:825 -> :844  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:779 -> :797  content does not match the base line
+  ! docs/SEQ_ISA.md:947 -> :966  content does not match the base line
+  ! docs/SEQ_ISA.md:1005 -> :1024  content does not match the base line
+  ! docs/SEQ_ISA.md:1005 -> :1024  content does not match the base line
+  ! docs/SEQ_ISA.md:1005 -> :1024  content does not match the base line
+  ! docs/SEQ_ISA.md:947 -> :966  content does not match the base line
+  ! docs/SEQ_ISA.md:1005 -> :1024  content does not match the base line
+  ! evidence/qwen9b/g4/G4B_STRUCT.md:901 -> :920  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:340 -> :358  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:341 -> :359  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:779 -> :797  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:779 -> :797  content does not match the base line
+  ! docs/SEQ_ISA.md:792 -> :811  content does not match the base line
+  ! docs/SEQ_ISA.md:798 -> :817  content does not match the base line
+  ! docs/SEQ_ISA.md:814 -> :833  content does not match the base line
+  ! docs/SEQ_ISA.md:834 -> :853  content does not match the base line
+  ! docs/SEQ_ISA.md:836 -> :855  content does not match the base line
+  ! docs/SEQ_ISA.md:816 -> :835  content does not match the base line
+  ! docs/SEQ_ISA.md:825 -> :844  content does not match the base line
+  ! evidence/qwen_next/ladder/LADDER.md:615 -> :625  content does not match the base line
+  ! evidence/qwen_next/ladder/LADDER.md:401 -> :411  content does not match the base line
+  ! docs/QWEN35_NEXT_FEASIBILITY.md:779 -> :797  content does not match the base line
+  ! docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2042 -> :2084  content does not match the base line
+  ! docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2050 -> :2092  content does not match the base line
+  ! evidence/qwen_next/ladder/LADDER.md:615 -> :625  content does not match the base line
+  ! evidence/qwen_next/ladder/LADDER.md:615 -> :625  content does not match the base line
+  ! docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2042 -> :2084  content does not match the base line
+  ! docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2050 -> :2092  content does not match the base line
+  ! evidence/qwen9b/g2/D_TOL.md does not cite docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1821
+  ! evidence/qwen_next/ladder/LADDER.md:401 -> :411  content does not match the base line
+  ! docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:896 -> :910  content does not match the base line
+  ! docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md:941 -> :955  content does not match the base line
+  ! docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2038 -> :2080  content does not match the base line
+  ! docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2060 -> :2102  content does not match the base line
+  ! evidence/qwen_next/ladder/LADDER.md:615 -> :625  content does not match the base line
+  ! evidence/qwen_next/ladder/LADDER.md:615 -> :625  content does not match the base line
+  ! docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2042 -> :2084  content does not match the base line
+  ! docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:2050 -> :2092  content does not match the base line
+O3_DOC_CITES VERIFY NEGATIVE CONTROL: CAUGHT (111 complaints)
+rc=0
+
+### evidence/qwen9b/g2/spec_cites_selftest_regression.sh
+=== 1. NORMAL MODE — the repair must not move a single count ===
+  ok        FAIL 24   quote 1    evidence/qwen2b/rc/RC_GATE.md
+  ok        FAIL 8    quote 0    evidence/qwen2b/rd/RD_GATE.md
+  ok        FAIL 0    quote 0    evidence/qwen9b/g2/FINAL_BYTELOCK.md
+  ok        FAIL 0    quote 0    evidence/qwen9b/g2/G2A_HOST.md
+  ok        FAIL 0    quote 7    evidence/qwen9b/g2/D_TOL.md
+  ok        FAIL 0    quote 7    evidence/qwen9b/g1/RUNG_INT8_STATE.md
+  ok        FAIL 0    quote 22   docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  ok        FAIL 0    quote 3    docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+
+=== 2. --selftest — six controls CAUGHT + the positive control ===
+  ok        SELFTEST: PASS  6/6 CAUGHT  2026-08-29-qwen35-9b-migration-design.md
+  ok        SELFTEST: PASS  6/6 CAUGHT  2026-08-29-qwen35-9b-migration.md
+  ok        SELFTEST: PASS  6/6 CAUGHT (synthesized)  FINAL_BYTELOCK.md
+  ok        SELFTEST: PASS  6/6 CAUGHT (synthesized)  G2A_HOST.md
+
+=== 3. COUNTER-EXPERIMENT — the fix that would have broken the checker ===
+  RC_GATE.md  real resolve(): FAIL 24   os.devnull sentinel: FAIL 1
+  ok        the sentinel SUPPRESSES 23 real failures — a checker
+            that stops failing.  This is why the repair threads a
+            directory instead of widening the candidate list.
+
+SPEC_CITES_REGRESSION PASS
+rc=0
+
+PRESHIP_FIX1_CONTROLS: PASS (6 controls + the regression harness)
+=== rc: 0
+=== end: 2026-09-10T05:59:00-06:00

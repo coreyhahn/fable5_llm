@@ -1,0 +1,195 @@
+=== host: snoke
+=== date: 2026-09-07T00:10:33-06:00
+=== tree: 1dd2889
+=== cmd:  env FABLE5_RS_F=7 FABLE5_MODEL=9b bash -c for t in tb_layer_chan tb_layershim_c tb_layer_sdma tb_layer_sdma_nofence; do
+    echo "=== $t ==="
+    make -C tb GENPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python JOBS=6 $t 2>&1 | tr -d "\000" | /usr/bin/grep -avE "^g\+\+|^Archive|^echo |^rm |^make\[|^ +--|^ +\.\./|^verilator |verilator_includer"
+    echo "=== $t rc=${PIPESTATUS[0]} ==="
+  done
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== tb_layer_chan ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+layer script: seed=1 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s1.txt
+layer script: seed=2 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s2.txt
+layer script: seed=3 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s3.txt
+layer script: seed=4 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s4.txt
+for s in 1 2 3 4; do \
+  obj_dir_tb_layer/tb_layer +script=scripts/layerv2_s$s.txt \
+    +state=scripts/layerv2_s$s || exit 1; \
+done
+  state window: 162529280 B image   scripts/layerv2_s1.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s1.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s2.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s2.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s3.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s3.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s4.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s4.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layer_chan rc=0 ===
+=== tb_layershim_c ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+[2000] %Fatal: vecnorm_unit.sv:433: Assertion failed in TOP.tb_layershim_c.dut.u_vn: vecnorm_unit: cfg_nlog2 13 unsupported (max 12, N=4096)
+%Error: ../rtl/vecnorm_unit.sv:433: Verilog $stop
+Aborting...
+Aborted (core dumped)
+make: *** [Makefile:558: tb_layershim_c] Error 1
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layershim_c rc=2 ===
+=== tb_layer_sdma ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+-- tb_layer_sdma seed 1 --
+AXI_RAM_BFM: 2540544 512-bit words, handshake seed 1
+TB_LAYER_SDMA start: vecdir=vectors/s1 seed=1 nofence=0
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+-- case 5: f1_cold (a compute command on a slot with no completed load since its last SST)
+-- case 6: f2_hold (an SST queued behind a long SLD, with a CONV holding the SST's slot)
+   F2 held the queued SST for 21283 cycles
+-- case 12: f2_release (F1 releases a stalled DNST in the same cycle the queued SST on its slot reaches the head)
+-- case 7: f2_order (SST then SLD of the same slot: every write response collected before the first read address)
+-- case 8: f2_other_slot (a transfer on one slot of a kind in flight while a compute command holds the OTHER)
+   the two lanes overlapped for 2959 cycles
+-- case 9: last_blocks (DN L23, KV L7 h3 V, CV L23 — the top of each region, against plan_state()'s end)
+-- case 10: e_base / e_range / e_layer / e_axi
+-- case 11: dnz_warms / convz_warms / busy_any
+   a full DMA queue held a record at dispatch for 19635 cycles
+TB_LAYER_SDMA PASS: 240 checks, seed 1
+- tb_layer_sdma.sv:1140: Verilog $finish
+-- tb_layer_sdma seed 2 --
+AXI_RAM_BFM: 2540544 512-bit words, handshake seed 2
+TB_LAYER_SDMA start: vecdir=vectors/s2 seed=2 nofence=0
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+-- case 5: f1_cold (a compute command on a slot with no completed load since its last SST)
+-- case 6: f2_hold (an SST queued behind a long SLD, with a CONV holding the SST's slot)
+   F2 held the queued SST for 21301 cycles
+-- case 12: f2_release (F1 releases a stalled DNST in the same cycle the queued SST on its slot reaches the head)
+-- case 7: f2_order (SST then SLD of the same slot: every write response collected before the first read address)
+-- case 8: f2_other_slot (a transfer on one slot of a kind in flight while a compute command holds the OTHER)
+   the two lanes overlapped for 2959 cycles
+-- case 9: last_blocks (DN L23, KV L7 h3 V, CV L23 — the top of each region, against plan_state()'s end)
+-- case 10: e_base / e_range / e_layer / e_axi
+-- case 11: dnz_warms / convz_warms / busy_any
+   a full DMA queue held a record at dispatch for 19589 cycles
+TB_LAYER_SDMA PASS: 240 checks, seed 2
+- tb_layer_sdma.sv:1140: Verilog $finish
+-- tb_layer_sdma seed 3 --
+AXI_RAM_BFM: 2540544 512-bit words, handshake seed 3
+TB_LAYER_SDMA start: vecdir=vectors/s3 seed=3 nofence=0
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+-- case 5: f1_cold (a compute command on a slot with no completed load since its last SST)
+-- case 6: f2_hold (an SST queued behind a long SLD, with a CONV holding the SST's slot)
+   F2 held the queued SST for 21214 cycles
+-- case 12: f2_release (F1 releases a stalled DNST in the same cycle the queued SST on its slot reaches the head)
+-- case 7: f2_order (SST then SLD of the same slot: every write response collected before the first read address)
+-- case 8: f2_other_slot (a transfer on one slot of a kind in flight while a compute command holds the OTHER)
+   the two lanes overlapped for 2959 cycles
+-- case 9: last_blocks (DN L23, KV L7 h3 V, CV L23 — the top of each region, against plan_state()'s end)
+-- case 10: e_base / e_range / e_layer / e_axi
+-- case 11: dnz_warms / convz_warms / busy_any
+   a full DMA queue held a record at dispatch for 19677 cycles
+TB_LAYER_SDMA PASS: 240 checks, seed 3
+- tb_layer_sdma.sv:1140: Verilog $finish
+-- tb_layer_sdma seed 4 --
+AXI_RAM_BFM: 2540544 512-bit words, handshake seed 4
+TB_LAYER_SDMA start: vecdir=vectors/s4 seed=4 nofence=0
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+-- case 5: f1_cold (a compute command on a slot with no completed load since its last SST)
+-- case 6: f2_hold (an SST queued behind a long SLD, with a CONV holding the SST's slot)
+   F2 held the queued SST for 21249 cycles
+-- case 12: f2_release (F1 releases a stalled DNST in the same cycle the queued SST on its slot reaches the head)
+-- case 7: f2_order (SST then SLD of the same slot: every write response collected before the first read address)
+-- case 8: f2_other_slot (a transfer on one slot of a kind in flight while a compute command holds the OTHER)
+   the two lanes overlapped for 2959 cycles
+-- case 9: last_blocks (DN L23, KV L7 h3 V, CV L23 — the top of each region, against plan_state()'s end)
+-- case 10: e_base / e_range / e_layer / e_axi
+-- case 11: dnz_warms / convz_warms / busy_any
+   a full DMA queue held a record at dispatch for 19712 cycles
+TB_LAYER_SDMA PASS: 240 checks, seed 4
+- tb_layer_sdma.sv:1140: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layer_sdma rc=0 ===
+=== tb_layer_sdma_nofence ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+  -GSDMA_NOFENCE=1 \
+-- tb_layer_sdma_nofence seed 1 (MUST FAIL) --
+AXI_RAM_BFM: 2540544 512-bit words, handshake seed 1
+TB_LAYER_SDMA start: vecdir=vectors/s1 seed=1 nofence=1
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+[1289768000] %Fatal: tb_layer_sdma.sv:307: Assertion failed in TOP.tb_layer_sdma.chk: TB_LAYER_SDMA FAIL: F1: the DNST behind an in-flight SLD matched the LOADED result on 0 of 128 outputs — with the fence bypassed it reads the pre-load slot instead (this IS the nofence RED)
+%Error: tb_layer_sdma.sv:307: Verilog $stop
+Aborting...
+Aborted (core dumped)
+OK: the F1 bypass reads stale state and FAILS at seed 1
+-- tb_layer_sdma_nofence seed 2 (MUST FAIL) --
+AXI_RAM_BFM: 2540544 512-bit words, handshake seed 2
+TB_LAYER_SDMA start: vecdir=vectors/s2 seed=2 nofence=1
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+[1289344000] %Fatal: tb_layer_sdma.sv:307: Assertion failed in TOP.tb_layer_sdma.chk: TB_LAYER_SDMA FAIL: F1: the DNST behind an in-flight SLD matched the LOADED result on 0 of 128 outputs — with the fence bypassed it reads the pre-load slot instead (this IS the nofence RED)
+%Error: tb_layer_sdma.sv:307: Verilog $stop
+Aborting...
+Aborted (core dumped)
+OK: the F1 bypass reads stale state and FAILS at seed 2
+-- tb_layer_sdma_nofence seed 3 (MUST FAIL) --
+AXI_RAM_BFM: 2540544 512-bit words, handshake seed 3
+TB_LAYER_SDMA start: vecdir=vectors/s3 seed=3 nofence=1
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+[1290404000] %Fatal: tb_layer_sdma.sv:307: Assertion failed in TOP.tb_layer_sdma.chk: TB_LAYER_SDMA FAIL: F1: the DNST behind an in-flight SLD matched the LOADED result on 0 of 128 outputs — with the fence bypassed it reads the pre-load slot instead (this IS the nofence RED)
+%Error: tb_layer_sdma.sv:307: Verilog $stop
+Aborting...
+Aborted (core dumped)
+OK: the F1 bypass reads stale state and FAILS at seed 3
+-- tb_layer_sdma_nofence seed 4 (MUST FAIL) --
+AXI_RAM_BFM: 2540544 512-bit words, handshake seed 4
+TB_LAYER_SDMA start: vecdir=vectors/s4 seed=4 nofence=1
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+[1291252000] %Fatal: tb_layer_sdma.sv:307: Assertion failed in TOP.tb_layer_sdma.chk: TB_LAYER_SDMA FAIL: F1: the DNST behind an in-flight SLD matched the LOADED result on 0 of 128 outputs — with the fence bypassed it reads the pre-load slot instead (this IS the nofence RED)
+%Error: tb_layer_sdma.sv:307: Verilog $stop
+Aborting...
+Aborted (core dumped)
+OK: the F1 bypass reads stale state and FAILS at seed 4
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layer_sdma_nofence rc=0 ===
+=== rc: 0
+=== end: 2026-09-07T00:34:39-06:00

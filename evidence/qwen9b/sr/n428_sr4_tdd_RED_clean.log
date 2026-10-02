@@ -1,0 +1,116 @@
+=== host: snoke  date: 2026-09-27T19:21:37-06:00
+=== tree: 2f5b213
+=== cmd : bash -c cd /tmp/sr4red_aaefc54 && echo === RED tree: worktree $(pwd) at $(git rev-parse HEAD) = the test at aaefc54 with ref/ sw/ ov/ identical to 1cccc51: $(git diff --quiet 1cccc51 HEAD -- ref sw evidence/qwen9b/ov && echo yes) ; echo === worktree status: $(git status --short | tr "\n" " ") ; ls -l tb/scripts/w9 evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv | cut -c30- ; /home/cah/.venv/bin/python evidence/qwen9b/sr/sr4_r1_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== RED tree: worktree /tmp/sr4red_aaefc54 at aaefc541d34ec5a0f060c32ba3a460046ce3d43f = the test at aaefc54 with ref/ sw/ ov/ identical to 1cccc51: yes
+=== worktree status: sw tb tb/scripts/w9
+7 19:21 evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv -> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+7 19:21 tb/scripts/w9 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9
+Traceback (most recent call last):
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 80, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 344, in f
+    n0, _c0, r0 = RE.reorder(recs, lambda k, lo, hi: rows, form,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: reorder() got an unexpected keyword argument 'rtl'
+Traceback (most recent call last):
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 80, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 344, in f
+    n0, _c0, r0 = RE.reorder(recs, lambda k, lo, hi: rows, form,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: reorder() got an unexpected keyword argument 'rtl'
+Traceback (most recent call last):
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 80, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 344, in f
+    n0, _c0, r0 = RE.reorder(recs, lambda k, lo, hi: rows, form,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: reorder() got an unexpected keyword argument 'rtl'
+Traceback (most recent call last):
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 80, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 344, in f
+    n0, _c0, r0 = RE.reorder(recs, lambda k, lo, hi: rows, form,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: reorder() got an unexpected keyword argument 'rtl'
+Traceback (most recent call last):
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 80, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 390, in manifest
+    new, ncps, rep = RE.reorder(recs, lambda k, lo, hi: rows, "B",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: reorder() got an unexpected keyword argument 'rtl'
+Traceback (most recent call last):
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 80, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 407, in refuse_masked_input
+    RE.reorder(recs, lambda k, lo, hi: rows, "B", cps, rtl="r1")
+TypeError: reorder() got an unexpected keyword argument 'rtl'
+Traceback (most recent call last):
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 80, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/tmp/sr4red_aaefc54/evidence/qwen9b/sr/sr4_r1_tdd.py", line 418, in bad_rtl
+    RE.reorder(recs, lambda k, lo, hi: rows, "B", cps, rtl="r2")
+TypeError: reorder() got an unexpected keyword argument 'rtl'
+=== sr4_r1_tdd.py  FABLE5_MODEL=9b FABLE5_RS_F=7
+=== the model (ref/seq_model.py), SeqExec caps= argument ABSENT -> RED fallback wrapper
+  [FAIL] (a) MVGO ch0+ch1, FENCE 0b0010, MOVX ch0 -> RunningChannelError  -- ACCEPTED (today's FENCE clears every channel)
+  [FAIL] (a) twin on ch2/ch3: FENCE 0b1000 leaves ch2 -> MOVX ch2 refused  -- ACCEPTED (today's FENCE clears every channel)
+  [FAIL] (b) ... FENCE 0b0010, MVGO ch0 -> RunningChannelError  -- ACCEPTED (today's FENCE clears every channel)
+  [FAIL] (b) ... FENCE 0b0010, MOVY ch0 -> RunningChannelError  -- ACCEPTED (today's FENCE clears every channel)
+  [FAIL] (b) ... FENCE 0b0001 (drains 0 only), MOVY ch1 -> refused  -- ACCEPTED (today's FENCE clears every channel)
+  [PASS] (c) FENCE 0b0011 then MOVX ch0 -> accepted  -- accepted; running after = []
+  [PASS] (c) FENCE 0b0010 then MOVY ch1 (the drained one) -> accepted  -- accepted; running after = []
+  [PASS] (d) mask 0 under caps {R1}: state identical to today's FENCE  -- running after [], stats FENCE 1, state diff none
+  [PASS] (d) mask 0b1111 drains exactly what mask 0 drains  -- state diff none
+  [PASS] (i) caps empty: a masked FENCE is refused by the validator  -- SeqValidationError: rec 4: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0003 imm=0x00000000 lo=0x00000000 hi=0x00000000]
+  [FAIL] (i) ref/seq_model.gate takes caps= (sr4_gate.sh passes R1)  -- gate(prefix, ..., caps=) ABSENT
+=== the pass's hazard assert (ref/scripts/reorder_e4.py)
+  [FAIL] (e) (a)'s order: FENCE 0b0010, MOVX ch0 -> HazardError  -- no HazardError
+  [FAIL] (e) FENCE 0b0010, MVGO ch0 -> HazardError  -- no HazardError
+  [FAIL] (e) FENCE 0b0010, MOVY ch0 -> HazardError  -- no HazardError
+  [FAIL] (e) FENCE 0b0010 then HALT with ch0 still pending -> HazardError  -- no HazardError
+  [PASS] (e) legal: FENCE 0b0010, MOVY ch1, FENCE 0b0001, MOVY ch0  -- no HazardError
+  [PASS] (e) legal: mask 0 still drains all four  -- no HazardError
+=== the pass at r1 (ref/scripts/reorder_e4.py --rtl r1)
+    reorder(..., rtl=) ABSENT
+  [FAIL] (f) _synthetic form A: masked fences, <= r0, masks within the pending set, R1-only valid  -- TypeError: reorder() got an unexpected keyword argument 'rtl'
+  [FAIL] (f) _synthetic form B: masked fences, <= r0, masks within the pending set, R1-only valid  -- TypeError: reorder() got an unexpected keyword argument 'rtl'
+  [FAIL] (f) synthetic2 form A: masked fences, <= r0, masks within the pending set, R1-only valid  -- TypeError: reorder() got an unexpected keyword argument 'rtl'
+  [FAIL] (f) synthetic2 form B: masked fences, <= r0, masks within the pending set, R1-only valid  -- TypeError: reorder() got an unexpected keyword argument 'rtl'
+  [FAIL] (f) write_out: r1 records seq_isa 2.3 + caps [R1]; r0 nothing new  -- TypeError: reorder() got an unexpected keyword argument 'rtl'
+  [FAIL] (f) the pass refuses an input whose FENCEs are already masked (OV1's stream_durations assumes the global drain)  -- TypeError: reorder() got an unexpected keyword argument 'rtl'
+  [FAIL] (f) --rtl r2 is refused (SR11b's)  -- TypeError: reorder() got an unexpected keyword argument 'rtl'
+=== the static cost model (ref/seq_cost.py)
+  [FAIL] (h) mask {c}: the tail is _tau(1) (nearest neighbour = size 2, 61) over the MASKED stream only  -- FENCE 0b0001 row 7249 (want 932 = ch0 end 935 + _tau(1) 61 - 64); FENCE 0b0010 row 1 (want 1)
+  [PASS] (h) mask 0: unchanged (both streams, _tau(2))  -- FENCE 0 row 7249 (want 7249)
+  [PASS] (h) sizes 1 and 3 are nearest-neighbour (documented)  -- _tau(1) 61, _tau(3) 61 (TAU {2: 61, 4: 47}; a tie takes the smaller size)
+  [FAIL] (h) seq_cost docstring records the masked group  -- docstring names the masked group and sizes 1 and 3
+=== r0: byte-identical to today's
+  [PASS] (g) _synthetic: the default IS r0, every FENCE target 0  -- forms A/B default == explicit r0: [True, True]
+  [PASS] (g) form A template (static costs) == REORDER4_BY_FORM['A'] pin  -- regenerated b6ced3f92d3fe8c3 (156616 recs), pin b6ced3f92d3fe8c3 (156616)
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /tmp/sr4red_aaefc54/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /tmp/sr4red_aaefc54/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  [PASS] (g) model_9b_s1 form B, CSV costs == SV1's shipped reordB (n32)  -- regenerated 57ec3051a0d6e68e, SV1 pin 57ec3051a0d6e68e, on disk 57ec3051a0d6e68e
+=== per case: (a) 0/2  (b) 0/3  (c) 2/2  (d) 2/2  (e) 2/6  (f) 0/7  (g) 3/3  (h) 2/4  (i) 1/2
+=== 12 passed, 19 failed; failing cases: ['a', 'b', 'e', 'f', 'h', 'i']
+SR4 R1 TDD: FAIL
+=== rc  : 1
+=== end : 2026-09-27T19:22:20-06:00

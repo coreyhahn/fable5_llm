@@ -1,0 +1,156 @@
+=== host: snoke  date: 2026-09-24T17:35:27-06:00
+=== tree: e9094fa
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/ov/ov_derive.py evidence/qwen9b/ov/n06_all_final.log
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== source log evidence/qwen9b/ov/n06_all_final.log
+  today (token 4) 32786868 cyc = 131.147 ms  [n06_all_final.log:766]
+  board today 137.121 ms = 7.293 tok/s; TB/board ratio 1.04562
+  census ceiling 55.634 ms = x2.357 -> board 17.19 tok/s; rebalanced 54.683 ms = x2.398 -> 17.49 tok/s
+
+  variant       ms(TB)   speedup  board-scaled ms  board tok/s  saving ms  % of census saving bound  [log line]
+  A:S0         126.039  x1.0405     131.790       7.588     5.108     6.8 %   [n06_all_final.log:770]
+  A:S0+rebal   125.882  x1.0418     131.625       7.597     5.266     7.0 %   [n06_all_final.log:775]
+  A:S1         117.944  x1.1119     123.326       8.109    13.203    17.5 %   [n06_all_final.log:779]
+  A:S1+rebal   117.787  x1.1134     123.161       8.119    13.361    17.7 %   [n06_all_final.log:784]
+  A:R1         110.929  x1.1823     115.989       8.621    20.219    26.8 %   [n06_all_final.log:785]
+  A:R1+rebal   110.986  x1.1817     116.050       8.617    20.161    26.7 %   [n06_all_final.log:787]
+  A:R2         108.228  x1.2118     113.166       8.837    22.920    30.4 %   [n06_all_final.log:788]
+  A:R2+rebal   108.078  x1.2134     113.009       8.849    23.069    30.6 %   [n06_all_final.log:790]
+  A:R3         100.051  x1.3108     104.616       9.559    31.096    41.2 %   [n06_all_final.log:791]
+  A:R3+rebal    99.902  x1.3128     104.460       9.573    31.246    41.4 %   [n06_all_final.log:793]
+  A:B2         104.570  x1.2542     109.341       9.146    26.577    35.2 %   [n06_all_final.log:794]
+  A:B2+rebal   104.431  x1.2558     109.196       9.158    26.716    35.4 %   [n06_all_final.log:796]
+  B:S0         122.543  x1.0702     128.134       7.804     8.605    11.4 %   [n06_all_final.log:800]
+  B:S0+rebal   122.385  x1.0716     127.969       7.814     8.762    11.6 %   [n06_all_final.log:805]
+  B:S1         114.448  x1.1459     119.670       8.356    16.699    22.1 %   [n06_all_final.log:809]
+  B:S1+rebal   114.290  x1.1475     119.505       8.368    16.857    22.3 %   [n06_all_final.log:814]
+  B:R1         108.546  x1.2082     113.498       8.811    22.601    29.9 %   [n06_all_final.log:815]
+  B:R1+rebal   108.604  x1.2076     113.559       8.806    22.544    29.9 %   [n06_all_final.log:817]
+  B:R2         104.588  x1.2539     109.359       9.144    26.560    35.2 %   [n06_all_final.log:818]
+  B:R2+rebal   104.472  x1.2553     109.238       9.154    26.675    35.3 %   [n06_all_final.log:820]
+  B:R3          96.411  x1.3603     100.810       9.920    34.736    46.0 %   [n06_all_final.log:821]
+  B:R3+rebal    96.295  x1.3619     100.689       9.932    34.852    46.2 %   [n06_all_final.log:823]
+  B:B2         100.933  x1.2994     105.538       9.475    30.215    40.0 %   [n06_all_final.log:824]
+  B:B2+rebal   100.791  x1.3012     105.389       9.489    30.357    40.2 %   [n06_all_final.log:826]
+  form A: software-only saving 13.203 ms = overlap alone 5.108 + MOVX elision on top 8.095
+  form A: S1 -> R1: +7.016 ms
+  form A: R1 -> R2: +2.701 ms
+  form A: R2 -> R3: +8.177 ms
+  form A: R2 -> B2: +3.657 ms
+  form A: rebalancing on S1: +0.158 ms
+  form A: rebalancing on R2: +0.150 ms
+  form A: rebalancing on R3: +0.150 ms
+  form B: software-only saving 16.699 ms = overlap alone 8.605 + MOVX elision on top 8.095
+  form B: S1 -> R1: +5.902 ms
+  form B: R1 -> R2: +3.958 ms
+  form B: R2 -> R3: +8.177 ms
+  form B: R2 -> B2: +3.655 ms
+  form B: rebalancing on S1: +0.158 ms
+  form B: rebalancing on R2: +0.116 ms
+  form B: rebalancing on R3: +0.116 ms
+
+  one-lane floor 76.754 ms -> board-scaled 80.256 ms (12.460 tok/s) [n06_all_final.log:831]
+  one-lane floor with elision 68.659 ms -> board-scaled 71.792 ms (13.929 tok/s)
+  dependency critical path 86.733 ms -> board-scaled 90.690 ms (11.027 tok/s); x1.5121; fraction of the census saving bound it allows 58.8 % [n06_all_final.log:832]
+
+  form A, S1: recovered stream wait by class (today FENCE window - S1 exposure), total 5.107 ms [n06_all_final.log:835-852]
+    DN   in_z        2.754 ms  ( 53.9 %)
+    DN   mlp_down    0.449 ms  (  8.8 %)
+    DN   dn_out      0.448 ms  (  8.8 %)
+    DN   mlp_up      0.398 ms  (  7.8 %)
+    GQA  k_proj      0.231 ms  (  4.5 %)
+    GQA  v_proj      0.231 ms  (  4.5 %)
+    GQA  mlp_down    0.149 ms  (  2.9 %)
+    GQA  o_proj      0.149 ms  (  2.9 %)
+    GQA  mlp_up      0.132 ms  (  2.6 %)
+    GQA  q_proj      0.067 ms  (  1.3 %)
+    DN   in_qkv      0.041 ms  (  0.8 %)
+    DN   in_a        0.029 ms  (  0.6 %)
+    DN   in_b        0.029 ms  (  0.6 %)
+    by family: attn/DN projections 3.979 ms (77.9 %), MLP 1.128 ms (22.1 %), HEAD 0.000 ms (0.0 %)
+
+  form A, R2: recovered stream wait by class (today FENCE window - R2 exposure), total 14.823 ms [n06_all_final.log:835-852]
+    DN   mlp_up      3.656 ms  ( 24.7 %)
+    HEAD lm_head     3.090 ms  ( 20.8 %)
+    DN   mlp_gate    2.866 ms  ( 19.3 %)
+    GQA  mlp_up      1.207 ms  (  8.1 %)
+    GQA  mlp_gate    0.955 ms  (  6.4 %)
+    DN   in_z        0.813 ms  (  5.5 %)
+    GQA  q_proj      0.475 ms  (  3.2 %)
+    DN   mlp_down    0.458 ms  (  3.1 %)
+    DN   dn_out      0.457 ms  (  3.1 %)
+    GQA  k_proj      0.231 ms  (  1.6 %)
+    GQA  v_proj      0.222 ms  (  1.5 %)
+    GQA  mlp_down    0.152 ms  (  1.0 %)
+    GQA  o_proj      0.152 ms  (  1.0 %)
+    DN   in_qkv      0.050 ms  (  0.3 %)
+    DN   in_a        0.029 ms  (  0.2 %)
+    DN   in_b        0.010 ms  (  0.1 %)
+    by family: MLP 9.294 ms (62.7 %), HEAD 3.090 ms (20.8 %), attn/DN projections 2.439 ms (16.5 %)
+
+  form B, S1: recovered stream wait by class (today FENCE window - S1 exposure), total 8.606 ms [n06_all_final.log:855-872]
+    DN   in_z        2.754 ms  ( 32.0 %)
+    DN   dn_out      1.965 ms  ( 22.8 %)
+    DN   mlp_down    1.690 ms  ( 19.6 %)
+    GQA  mlp_down    0.556 ms  (  6.5 %)
+    GQA  o_proj      0.549 ms  (  6.4 %)
+    DN   mlp_up      0.398 ms  (  4.6 %)
+    GQA  k_proj      0.231 ms  (  2.7 %)
+    GQA  v_proj      0.231 ms  (  2.7 %)
+    GQA  mlp_up      0.132 ms  (  1.5 %)
+    GQA  q_proj      0.037 ms  (  0.4 %)
+    DN   in_a        0.029 ms  (  0.3 %)
+    DN   in_b        0.029 ms  (  0.3 %)
+    DN   mlp_gate    0.003 ms  (  0.0 %)
+    DN   in_qkv      0.002 ms  (  0.0 %)
+    by family: attn/DN projections 5.827 ms (67.7 %), MLP 2.779 ms (32.3 %), HEAD 0.000 ms (0.0 %)
+
+  form B, R2: recovered stream wait by class (today FENCE window - R2 exposure), total 18.464 ms [n06_all_final.log:855-872]
+    DN   mlp_up      3.831 ms  ( 20.7 %)
+    HEAD lm_head     3.090 ms  ( 16.7 %)
+    DN   mlp_gate    2.711 ms  ( 14.7 %)
+    DN   dn_out      1.971 ms  ( 10.7 %)
+    DN   mlp_down    1.699 ms  (  9.2 %)
+    GQA  mlp_up      1.271 ms  (  6.9 %)
+    GQA  mlp_gate    0.908 ms  (  4.9 %)
+    DN   in_z        0.894 ms  (  4.8 %)
+    GQA  mlp_down    0.559 ms  (  3.0 %)
+    GQA  o_proj      0.557 ms  (  3.0 %)
+    GQA  q_proj      0.444 ms  (  2.4 %)
+    GQA  k_proj      0.231 ms  (  1.3 %)
+    GQA  v_proj      0.231 ms  (  1.3 %)
+    DN   in_a        0.029 ms  (  0.2 %)
+    DN   in_b        0.027 ms  (  0.1 %)
+    DN   in_qkv      0.011 ms  (  0.1 %)
+    by family: MLP 10.979 ms (59.5 %), attn/DN projections 4.395 ms (23.8 %), HEAD 3.090 ms (16.7 %)
+
+  T~511 A:S1: today 140.902 -> 127.699 ms TB; board-scaled 147.331 -> 133.525 ms = 6.787 -> 7.489 tok/s  [n06_all_final.log:875]
+  T~511 A:R2: today 140.902 -> 117.982 ms TB; board-scaled 147.331 -> 123.365 ms = 6.787 -> 8.106 tok/s  [n06_all_final.log:876]
+  T~511 B:S1: today 140.902 -> 124.203 ms TB; board-scaled 147.331 -> 129.869 ms = 6.787 -> 7.700 tok/s  [n06_all_final.log:877]
+  T~511 B:R2: today 140.902 -> 114.490 ms TB; board-scaled 147.331 -> 119.713 ms = 6.787 -> 8.353 tok/s  [n06_all_final.log:878]
+  RD9 board at T~520: 147.9 ms = 6.761 tok/s; growth 10.2 ms (RD9_GATE.md:1213-1214)
+  form A: R2 grows 9.755 ms for 9.755 ms of added ATTN work -> 100.0 % of the growth lands on the token
+  form B: R2 grows 9.902 ms for 9.755 ms of added ATTN work -> 101.5 % of the growth lands on the token
+
+  x_mem per channel 98304 bits = 12288 B; a K=4096 vector uses 32 of 96 lines (33.3 %), so two K<=6144 vectors (48 lines each) fit the EXISTING array
+  RES per channel 131072 bits = 16384 B = 3.56 BRAM36-equivalents; a 2048-row chunk uses 50 %, so two chunks fit the EXISTING array
+  a full second x_mem for K=12288 (mlp_down) would cost 98304 bits more per channel, 393216 bits over four
+=== stream /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq
+    sha256 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  manifest 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  MATCH
+=== loop body: static pc 118911..158534 (39624 records); EMB records at [39, 39663, 79286, 118911]; JMP(flags 1) at 158534 -> 118911
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (4,): tok4=39624
+
+  in_qkv: 24 layers; stream (max chan) 5.496 ms/token; lane work from its FENCE to the output projection 27.294 ms/token; per layer 0.2290 vs 1.1373 ms
+    split into 2 row sub-chunks: at most 2.748 ms/token of the stream hides behind the lane work of earlier sub-chunks (lane work available 27.294 >= 2.748: yes)
+    split into 4 row sub-chunks: at most 4.122 ms/token of the stream hides behind the lane work of earlier sub-chunks (lane work available 27.294 >= 4.122: yes)
+    split into 8 row sub-chunks: at most 4.809 ms/token of the stream hides behind the lane work of earlier sub-chunks (lane work available 27.294 >= 4.809: yes)
+
+  q_proj: 8 layers; stream (max chan) 1.832 ms/token; lane work from its FENCE to the output projection 5.188 ms/token; per layer 0.2290 vs 0.6485 ms
+    split into 2 row sub-chunks: at most 0.916 ms/token of the stream hides behind the lane work of earlier sub-chunks (lane work available 5.188 >= 0.916: yes)
+    split into 4 row sub-chunks: at most 1.374 ms/token of the stream hides behind the lane work of earlier sub-chunks (lane work available 5.188 >= 1.374: yes)
+    split into 8 row sub-chunks: at most 1.603 ms/token of the stream hides behind the lane work of earlier sub-chunks (lane work available 5.188 >= 1.603: yes)
+=== rc  : 0
+=== end : 2026-09-24T17:35:29-06:00

@@ -1,0 +1,65 @@
+=== host: snoke
+=== date: 2026-09-10T19:27:48-06:00
+=== tree: a1fe35f
+=== cmd:  /home/cah/.venv/bin/python -u evidence/qwen9b/g6/g6_longctx_lockstep.py --selfcheck --top5 5 --continue --limit 1 --dump-kv 50-55 --chat-json evidence/qwen9b/g6/133_15d_chip_k1.json --chat-log evidence/qwen9b/g6/133_15d_bisect_k1.log --out evidence/qwen9b/g6/142_15d_lockstep_smoke.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+  selfcheck  the two per-step arms and the three verdicts, rendered with dummy values:
+  step   0 lite tok=760     pos=0   ref -> no token  chip -> no token  ==   [131.2s  eta 19.3h]   
+  step 501 lite tok=13      pos=501 ref -> no token  chip -> no token  !! DIVERGENCE   [131.2s  eta  0.9h]   
+  step 502 full tok=13      pos=502 ref ->      760  chip -> 760  ==   [149.3s  eta  0.9h]   'The'
+      top3    760:18446744  3177:18446700  11:1800   #1-#2 margin 44 (0.0002% of the top logit)
+      chip's 760 is rank 1 in the reference, value 18446744, 0 below the top
+  step 525 full tok=11      pos=525 ref ->       12  chip -> 11  !! DIVERGENCE   [149.3s  eta  0.0h]   ','
+      top2    12:900  11:899   #1-#2 margin 1 (0.1111% of the top logit)
+      chip's 11 is rank 2 in the reference, value 899, 1 below the top
+             LONGCTX_LOCKSTEP: PASS 526/526
+             LONGCTX_LOCKSTEP: FAIL at step 502
+             LONGCTX_LOCKSTEP: PARTIAL 1/526 (--limit 1)
+             LONGCTX_LOCKSTEP: FAIL at step 503 (4 decode steps replayed, 1 agreed)
+  tap check  AMAX32 over [5, 9, 3, 7]: top3 [(1, 9), (3, 7), (0, 5)], margin 2, id 2 is rank 4 value 3, Mach.am_idx 1 -> OK
+  tap check  g6_kv_rows.parse_rows('500-525') = (500, 525) -> OK
+  amax tap   INSTALLED (--top5 5): GLS.Mach.alu op 10 is wrapped read-only; the reference's own arithmetic is untouched
+=== the board run being replayed: evidence/qwen9b/g6/133_15d_chip_k1.json
+  argv       --nch 4 --max-ctx 700 --ntok 4 --prompt <198 chars>
+  chip       57 launches, context 56, greedy decode
+  chip ids   [57590, 26990, 494, 264]   (4 tok)
+=== FABLE5_MODEL=9b  template=tb/scripts/w9/model_9b_s1.e4  nrec=158536  T_MAX=4096
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38858, full:39626  (1.3s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  session    built in 2.5s  (pos_mode=ldc, t_max=4096)
+  tokenizer  c202236235762e1c871ad0ccb60c8ee5ba337b9a: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  templated  53 ids (12 wrapper + 41 body); feed 53; steps 56 = 52 prefill (lite) + 4 decode (full); auto-reset False
+  verifier   built in 0.8s; region PRESENT {'dn': 15032385536, 'kv': 15057551360, 'cv': 15191769088, 'end': 15194914816}
+  preamble   replayed in 0.0s
+------------------------------------------------------------------------
+  replaying 1 of 56 steps; 52 prefill then 4 decode.  A prefill step's verdict is that BOTH sides emit no token (the lite body has no LM head); the decode steps are the token-for-token comparison.
+------------------------------------------------------------------------
+  step   0 lite tok=248045  pos=0   ref -> no token  chip -> no token  ==   [119.6s  eta  0.0h]   
+------------------------------------------------------------------------
+  replayed   1 of 56 steps in 0.03 h (119.6 s/step)
+  ref ids    []
+  chip ids   [57590, 26990, 494, 264]
+  decode     0/4 of the chip's tokens reproduced (0 decode steps replayed)
+  dump-kv    the REFERENCE region's rows 50..55, layers [0, 4, 7], through g6_kv_rows.dump()
+  region     155 MiB [0x380000000,0x389b00000)  sha256 354a3586ac410e782f503cd3530a87bb6cab262255f8d44b0550b70160b4de9f
+  DN alone   24 MiB  sha256 092fad6eeffd2afd9f36e30303a260127146502c9b38d997d86b7eed3c32cc58
+  L0  kvh0 K  addr 0x00381800000  rows 50..55: 0/6 non-zero  exp [0, 0, 0, 0, 0, 0]...
+  L0  kvh0 V  addr 0x00381a00000  rows 50..55: 0/6 non-zero  exp [0, 0, 0, 0, 0, 0]...
+  L4  kvh0 K  addr 0x00385800000  rows 50..55: 0/6 non-zero  exp [0, 0, 0, 0, 0, 0]...
+  L4  kvh0 V  addr 0x00385a00000  rows 50..55: 0/6 non-zero  exp [0, 0, 0, 0, 0, 0]...
+  L7  kvh0 K  addr 0x00388800000  rows 50..55: 0/6 non-zero  exp [0, 0, 0, 0, 0, 0]...
+  L7  kvh0 V  addr 0x00388a00000  rows 50..55: 0/6 non-zero  exp [0, 0, 0, 0, 0, 0]...
+  dump-kv -> evidence/qwen9b/g6/142_15d_lockstep_smoke_kv.json
+LONGCTX_LOCKSTEP: PARTIAL 1/56 (--limit 1)
+=== rc: 0
+=== end: 2026-09-10T19:29:54-06:00

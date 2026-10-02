@@ -1,0 +1,42 @@
+=== host: snoke  date: 2026-08-22T13:14:08-06:00
+=== tree: 999df81+dirty
+=== cmd : bash evidence/qwen2b/rc/t4_audits.sh
+=== venv: 3.12.3 numpy 2.4.6
+=== 1. t3_audit.py on the 2B W8 repacked stream
+=== tb/scripts/w5/model_w8_2b_s1.e
+    187 images, 68503 records, nch=4, repack=True, tops 0x2d0c4000/0x2cdac000/0x2cca4000/0x2cca4000
+    stream plan == host pack, 3464 MVGO WBASEs row-aligned inside a packed image on their OWN channel
+    chan 0: host spans == engine spans,   464.63 MiB
+    chan 1: host spans == engine spans,   461.54 MiB
+    chan 2: host spans == engine spans,   460.51 MiB
+    chan 3: host spans == engine spans,   460.51 MiB
+    RANGE EQUALITY: PASS  (3464 MVGOs resolved to global rows)
+    wid 186 (ILV, 122 chunks of 2048): chunk j -> chan j%4, every row once: PASS   first [(0, 0), (0, 8192), (0, 16384), (0, 24576)]
+    mutation +32 KiB base shift                         KILLED
+    mutation ILV chunks collapsed to packed row 0       KILLED
+    mutation repacked image addressed by GLOBAL row     KILLED
+
+T3 AUDIT PASS
+t3_audit rc=0
+
+=== 2. sha256 manifest of the artifact set
+-rw-rw-r-- 1 cah cah 1017118720 Aug 22 12:58 model_w8_2b_s1.emb.bin
+-rw-rw-r-- 1 cah cah    1096048 Aug 22 12:58 model_w8_2b_s1.e.seq
+-rw-rw-r-- 1 cah cah    1107712 Aug 22 12:58 model_w8_2b_s1.e.seqdata.bin
+-rw-rw-r-- 1 cah cah      88083 Aug 22 12:58 model_w8_2b_s1.e.seq.json
+-rw-rw-r-- 1 cah cah  115889476 Aug 22 12:58 model_w8_2b_s1.txt
+-rw-rw-r-- 1 cah cah      30792 Aug 22 12:58 model_w8_2b_s1.weights.json
+--- sha256 (stream + manifest + script + emb) ---
+fa8d9349cf1d0aa618ab79e0a2565dd89adbb147b665cb49b582d83c95b05bcb  model_w8_2b_s1.e.seq
+998ab2604d4ed44f396a78c292a3ddb40aaaf3244968e2f8b4b4ab58cb4cead8  model_w8_2b_s1.e.seq.json
+e8d536ee95880ff399ff25ebad13b851486ea51cb32b6dd216125b6e87f8fc28  model_w8_2b_s1.e.seqdata.bin
+f4eb9b25cb07f357127272edbdf7b4f2b1471eb4ebd137729cb0bee117c672c3  model_w8_2b_s1.weights.json
+be2180584ce3ca8a03d8edb4c36bc31b9daa5333eb6cfb5cba90084b331c1255  model_w8_2b_s1.txt
+b54db7a9fa6ba97fda253b00c7ed9a4a0afe7ba43b93b9b85c2aa3876963d3aa  model_w8_2b_s1.emb.bin
+--- 187 weight images: count, total bytes, sha256 OF THE SHA LIST ---
+187
+1936920576	total
+c9e6d0a61bfda3542890689c3c69620fa7681c8bc82f6aa4c3e57c9f749e66ef  -
+=== done: 2026-08-22T13:14:19-06:00
+=== rc  : 0
+=== end : 2026-08-22T13:14:19-06:00

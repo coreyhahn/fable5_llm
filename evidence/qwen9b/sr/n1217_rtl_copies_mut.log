@@ -1,0 +1,48 @@
+=== host: snoke  date: 2026-09-28T07:41:50-06:00
+=== tree: 9c69419+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/USAGE.md
+=== dirty:  M evidence/qwen9b/g3/isa_bits.py
+=== dirty:  M rtl/matvec_chan.sv
+=== dirty:  M rtl/matvec_engine.sv
+=== dirty:  M rtl/seq_movers.sv
+=== dirty:  M rtl/seq_unit.sv
+=== dirty:  M tb/Makefile
+=== dirty:  M tb/mvshim_b_stubs.sv
+=== dirty:  M tb/scripts/gen_seq_unit_vectors.py
+=== dirty:  M tb/seq_stub_mvchan.sv
+=== dirty:  M tb/tb_matvec.sv
+=== dirty:  M tb/tb_matvec_chan.sv
+=== dirty:  M tb/tb_seq_unit.sv
+=== dirty:  M tb/tb_streamer_engine.sv
+=== dirty: ?? evidence/qwen9b/sr/sr12_golden_same.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_mv_cycles.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_mv_each.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_rtl_copies.sh
+=== cmd : bash evidence/qwen9b/sr/sr12_rtl_copies.sh 2910d4d
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+base 2910d4d:
+  tb/scripts_scratch/sr12_base_rtl/seq_unit.sv sha256 c2b97a82e316ac7a
+  tb/scripts_scratch/sr12_base_rtl/seq_movers.sv sha256 644f9ccb10f6eb77
+  tb/scripts_scratch/sr12_base_rtl/matvec_chan.sv sha256 00e36da1184dde3d
+  tb/scripts_scratch/sr12_base_rtl/matvec_engine.sv sha256 9320047da37fcebc
+working tree (R2) and its mutant:
+  rtl/seq_unit.sv sha256 a9cd485c98d71975  mut a9cd485c98d71975
+  rtl/seq_movers.sv sha256 9a0d254555049c10  mut 88c8bd8611e8eb5c
+  rtl/matvec_chan.sv sha256 d197bd2e2d0d1633  mut d197bd2e2d0d1633
+  rtl/matvec_engine.sv sha256 39b514c12cc09407  mut a7dc0220b6db4fdd
+--- mutant diff vs the working tree (must be exactly the 5 bank lines):
+<                 res_row_q <= cmd_row;            // SR12: B17.2 RES start row
+<                 xword_q   <= cmd_xword;          // SR12: B17.2 XWIN start word
+>                 res_row_q <= cmd_row & 12'd0;            // SR12: B17.2 RES start row
+>                 xword_q   <= cmd_xword & 12'd0;          // SR12: B17.2 XWIN start word
+<                 x_line   <= cfg_xbank ? XB_LINE : 7'd0;   // SR12: B17.2
+<                 row_in   <= cfg_rbank ? RB_ROW : '0;      // SR12: B17.2
+>                 x_line   <= (cfg_xbank & 1'b0) ? XB_LINE : 7'd0;   // SR12: B17.2
+>                 row_in   <= (cfg_rbank & 1'b0) ? RB_ROW : '0;      // SR12: B17.2
+<                         x_line       <= cfg_xbank ? XB_LINE : 7'd0;   // SR12
+>                         x_line       <= (cfg_xbank & 1'b0) ? XB_LINE : 7'd0;   // SR12
+SR12 MUTANT: 5 changed lines
+=== rc  : 0
+=== end : 2026-09-28T07:41:51-06:00

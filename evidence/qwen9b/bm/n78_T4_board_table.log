@@ -1,0 +1,33 @@
+=== host: snoke  date: 2026-09-27T07:45:02-06:00
+=== tree: 967223e
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/bm/bm1_board_table.py
+=== env : FABLE5_MODEL=unset  FABLE5_SEQ_EXPECT_VERSION=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+== §1 stream census (6 tokens, per token) — fractions of PERF_CYC, %
+| run | cyc/token | ms/token | MVANY | FENCE | MVWORK | IMOVER | L_LCYC | MVc max/min |
+|---|---|---|---|---|---|---|---|---|
+| chip TB census (BM1_T1_GATE §3.2) | 32,784,469 | 131.1379 | 41.53 | 41.47 | 24.82 | 66.32 | 31.73 | 1.0042 |
+| board BM1, shipped order (n72) | 34,279,887 | 137.1195 | 42.19 | 41.96 | 24.23 | 66.21 | 30.33 | 1.0043 |
+| board BM1, S1 form A (n73) | 30,891,384 | 123.5655 | 47.06 | 40.11 | 20.28 | 60.41 | 33.66 | 1.0093 |
+tokens n72 [2614, 314, 279, 369, 11751, 13] ok=True; n73 [2614, 314, 279, 369, 11751, 13] ok=True
+board/TB per counter (n72 / TB): cyc 1.0456, mvany 1.0622, mv0 1.0579, mv1 1.0578, mv2 1.0578, mv3 1.0578, fence 1.0579, mvwork 1.0206, mvwork_any 3.0009, imover 1.0439, movx 1.0072, movy 1.0171, l_lcyc 0.9995
+MVWORK - MVWORK_ANY (n72, per token): 8,213,862
+stream S1 speed-up n72/n73: 1.1097
+weight path idle (PERF-MVANY)/PERF: TB 58.47 %, n72 57.81 %, n73 52.94 %
+
+== §2/§3 chat sessions at context 511 (per launch means)
+| run | kind | n | PERF_CYC | ms | min..max cyc | L_LCYC % | L_SDMA % | MVANY % | FENCE % | MVWORK % | IMOVER % |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 041 control | lite | 502 | 32,904,360.7 | 131.6174 | 31,589,961..34,219,878 | 34.80 | 4.38 | — | — | — | — |
+| 041 control | full | 9 | 36,927,199.9 | 147.7088 | 36,906,313..36,949,405 | 35.31 | 4.36 | — | — | — | — |
+  041 control tokens [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751]
+| BM1 shipped order | lite | 502 | 32,903,854.4 | 131.6154 | 31,589,501..34,218,915 | 34.80 | 4.38 | 38.22 | 38.01 | 23.59 | 61.61 |
+| BM1 shipped order | full | 9 | 36,927,055.2 | 147.7082 | 36,906,701..36,949,419 | 35.31 | 4.36 | 39.16 | 38.95 | 22.49 | 61.46 |
+  BM1 shipped order tokens [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751]
+| BM1 S1 form A | lite | 502 | 29,514,540.0 | 118.0582 | 28,200,547..30,829,646 | 38.79 | 4.88 | 42.87 | 35.61 | 19.38 | 55.02 |
+| BM1 S1 form A | full | 9 | 33,538,706.6 | 134.1548 | 33,518,211..33,560,123 | 38.88 | 4.80 | 43.35 | 36.94 | 18.68 | 55.64 |
+  BM1 S1 form A tokens [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751]
+lite: BM1/041 = 0.999985 (-0.0015 %); S1 speed-up (BM1 shipped / S1) = 1.1148
+full: BM1/041 = 0.999996 (-0.0004 %); S1 speed-up (BM1 shipped / S1) = 1.1010
+=== rc  : 0
+=== end : 2026-09-27T07:45:02-06:00

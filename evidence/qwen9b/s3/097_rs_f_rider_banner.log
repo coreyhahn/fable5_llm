@@ -1,0 +1,88 @@
+=== host: snoke
+=== date: 2026-09-10T05:44:44-06:00
+=== tree: a4a1f68+dirty
+=== cmd:  bash /home/cah/r2d2/code/fpga/.preship_tool_fix1_scratch/rs_f_rider_banner.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== the law and the rider, as they stand:
+    103:RS_F_BY_TAG = {"0.8b": 8, "2b": 8, "4b": 8, "9b": 7}
+    104:_RS_F_LAW = RS_F_BY_TAG[_MS.TAG]
+    105:_RS_F_ENV = os.environ.get("FABLE5_RS_F") or None
+    127:    print(f"FABLE5_RS_F_RIDER=1: RS_F={int(_RS_F_ENV)} OVERRIDES the law "
+    134:RS_F = int(_RS_F_ENV) if _RS_F_ENV is not None else _RS_F_LAW
+
+=== CASE A (RED) — a4a1f68's module, FABLE5_MODEL=9b FABLE5_RS_F=8 FABLE5_RS_F_RIDER=1
+    module loaded: /tmp/rsfr.D72NLE/layer_fixed.py
+    (that path is $TMPDIR, i.e. a4a1f68's file, not the working one)
+    stdout: RS_F 8
+    stderr: (empty)
+  PASS  A the rider fires at a4a1f68 (RS_F 8, not the law 7)
+  PASS  A ...and says NOTHING — the defect
+=== CASE A' (GREEN) — the SAME command on the working module
+    module loaded: /home/cah/r2d2/code/fpga/fable5_llm/ref/layer_fixed.py
+    stdout: RS_F 8
+    stderr: FABLE5_RS_F_RIDER=1: RS_F=8 OVERRIDES the law RS_F=7 for FABLE5_MODEL='9b' (ref/layer_fixed.py RS_F_BY_TAG) — this process is a DELIBERATE rider sweep and ANY ARTIFACT IT EMITS IS NOT THE SHIPPING OPERATING POINT (#26): at 9b rtl/conv4_silu.sv bakes RS_F=7, so such an artifact is wrong against the shipping bitstream.
+  PASS  A' same override
+  PASS  A' ONE line on stderr
+  PASS  A' it names the tag
+  PASS  A' it names the law
+  PASS  A' it names the override
+  PASS  A' nothing on stdout
+=== CASE A'' — the law path prints NOTHING (the instrument is not stuck on)
+  PASS  A'' env AGREES + rider set -> silent
+  PASS  A'' env unset -> silent
+
+=== CASE B (GREEN) — the 1-layer/2-token SMOKE emission WITH the rider
+===   W9_MODEL='FABLE5_MODEL=9b FABLE5_RS_F=8 FABLE5_RS_F_RIDER=1'
+      scripts/w9_rider/lay9b_s1.wimg3.bin: 55189504 B (52.6 MiB) @ 0x10000000
+      per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+      scripts/w9_rider/lay9b_s1.e4.chip: 4091 records, pc 4090, 0 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+      seq_model stats: {'CSRWR': 2714, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 38, 'LDC': 22, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 152}
+    make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+    MAKE_RC=0
+    FABLE5_RS_F_RIDER banner lines in the emission output: 2
+    FABLE5_RS_F_RIDER=1: RS_F=8 OVERRIDES the law RS_F=7 for FABLE5_MODEL='9b' (ref/layer_fixed.py RS_F_BY_TAG) — this process is a DELIBERATE rider sweep and ANY ARTIFACT IT EMITS IS NOT THE SHIPPING OPERATING POINT (#26): at 9b rtl/conv4_silu.sv bakes RS_F=7, so such an artifact is wrong against the shipping bitstream.
+  PASS  B the emission rc is 0
+  PASS  B the rider ANNOUNCES ITSELF on the emit path
+    vs the committed smoke set: 21 identical, 7 differing
+  PASS  B a rider artifact is NOT the shipping one (some file differs)
+
+=== CASE C (GREEN) — the SAME emission at the LAW, env unset
+===   W9_MODEL='FABLE5_MODEL=9b'
+      scripts/w9_law/lay9b_s1.e4.chip: 4091 records, pc 4090, 0 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+      seq_model stats: {'CSRWR': 2714, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 38, 'LDC': 22, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 152}
+    make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+    MAKE_RC=0
+  PASS  C the emission rc is 0
+  PASS  C NO rider line anywhere in the emission output
+    vs the committed smoke set: 28 identical, 0 differing
+  PASS  C the digests are UNCHANGED (0 differing)
+    state.bin sha256:
+      36969da490db28c48693f0b9c50dd72ca8fedb40b5a2cb33605ff41b42054854  tb/scripts/w9_law/lay9b_s1.state.bin
+  PASS  C state.bin is S3_CHAIN.md section 9.4's value
+    the two scratch emission directories are removed; tb/scripts/w9 untouched
+    ls: cannot access 'tb/scripts/w9_rider': No such file or directory
+    ls: cannot access 'tb/scripts/w9_law': No such file or directory
+
+=== LAYER_FIXED SELFTEST (0.8b and 2b), re-run on the working module
+--- FABLE5_MODEL=0.8b
+      w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+      w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+    LAYER_FIXED SELFTEST PASS
+  PASS  SELFTEST PASS at 0.8b
+  PASS  SELFTEST at 0.8b prints no rider line
+--- FABLE5_MODEL=2b
+      w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+      w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+    LAYER_FIXED SELFTEST PASS
+  PASS  SELFTEST PASS at 2b
+  PASS  SELFTEST at 2b prints no rider line
+
+RS_F_RIDER_BANNER: PASS (0 problem(s))
+=== rc: 0
+=== end: 2026-09-10T06:10:47-06:00

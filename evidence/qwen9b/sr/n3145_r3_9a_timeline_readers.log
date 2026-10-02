@@ -1,0 +1,432 @@
+=== host: snoke  date: 2026-09-30T19:49:59-06:00
+=== tree: 5952bc7
+=== cmd : bash tb/scripts_scratch/r3_9a/analyse.sh
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+----- driver text:
+#!/usr/bin/env bash
+# R3-9a resume: the timeline readers over n3142 (unheld) / n3144 (held) CSVs.
+# Scratch driver; its full text is printed into the log first.
+set -u
+cd /home/cah/r2d2/code/fpga/fable5_llm || exit 1
+R=evidence/qwen9b/sr; W9=tb/scripts/w9; PY=/home/cah/.venv/bin/python
+echo "----- driver text:"; cat "$0"; echo "----- end driver text"
+sha_of () { # $1 log, $2 stem -> the CSV sha the run logged for that stem's section
+  awk -v st="$2" '/^######## /{on=($2==st)} on && /^    CSV .* sha256 /{print $NF; exit}' "$1"; }
+F=0
+for s in 1 2 3 4; do
+  L=$(echo a b c d | cut -d" " -f$s)
+  T=$(ls $R/n3142${L}_*.log); H=$(ls $R/n3144${L}_*.log)
+  for k in bcast bcast_overlap bcast_bp bcast_ragged bcast_late; do
+    st=r3_9a_${k}_s$s; sh=$(sha_of "$T" "$st")
+    echo "######## s$s $k windows (CSV from $(basename $T))"
+    if [ "$k" = bcast_bp ]; then
+      shh=$(sha_of "$H" "$st")
+      $PY $R/r3_9a_windows.py $W9/$st.e4 $W9/$st.timeline.csv "$sh" --vs $W9/${st}_hold.timeline.csv "$shh" || F=1
+    else
+      $PY $R/r3_9a_windows.py $W9/$st.e4 $W9/$st.timeline.csv "$sh" || F=1
+    fi
+    if [ "$k" = bcast_overlap ]; then
+      echo "######## s$s $k overlap reader"
+      $PY $R/sr13a_overlap_tl.py $W9/$st.timeline.csv "$sh" $W9/$st.e4 || F=1
+    fi
+  done
+done
+[ $F = 0 ] && echo "R3_9A_TIMELINE_READERS: ALL RAN" || echo "R3_9A_TIMELINE_READERS: FAIL"
+exit $F
+----- end driver text
+######## s1 bcast windows (CSV from n3142a_r3_9a_cov_timeline_s1.log)
+  csv tb/scripts/w9/r3_9a_bcast_s1.timeline.csv sha256 88887647181b12832093c8ae0775ca973443ce0d2f25c657800079e37a7491f7 (= the run log)
+  67 timeline rows, 67 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL  1536  4096   1024     4235    4231
+    4  BCAST    ALL     0  4096   1024     4235    4231
+    5  UNICAST    2     0  4096   1024     4216    4212
+   25  BCAST    ALL     0  6144   1536     6307    6303
+   26  BCAST    ALL  1536  6144   1536     6307    6303
+   27  UNICAST    3  1536  6144   1536     6288    6284
+   45  BCAST    ALL     0  8192   2048     8379    8375
+   56  BCAST    ALL     0 12288   3072    12523   12519
+   57  UNICAST    1     0 12288   3072    12504   12500
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  4096 (1024 words): broadcast [4235, 4235] mean 4235.00, unicast [4216] mean 4216.00; broadcast - unicast = +19.00 cyc, ratio 1.00451
+    len  6144 (1536 words): broadcast [6307, 6307] mean 6307.00, unicast [6288] mean 6288.00; broadcast - unicast = +19.00 cyc, ratio 1.00302
+    len 12288 (3072 words): broadcast [12523] mean 12523.00, unicast [12504] mean 12504.00; broadcast - unicast = +19.00 cyc, ratio 1.00152
+  FENCE windows (per-channel engine busy inside):
+R3_9A_WINDOWS: DONE
+######## s1 bcast_overlap windows (CSV from n3142a_r3_9a_cov_timeline_s1.log)
+  csv tb/scripts/w9/r3_9a_bcast_overlap_s1.timeline.csv sha256 d641426ba519344fbfc61d0044147a9c3f45b04aff50cc5f78a05a544fdc6a81 (= the run log)
+  24 timeline rows, 24 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  6144   1536     6307    6303
+    8  BCAST    ALL  1536  6144   1536     6307    6303
+    9  UNICAST    0  1536  6144   1536     6288    6284
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  6144 (1536 words): broadcast [6307, 6307] mean 6307.00, unicast [6288] mean 6288.00; broadcast - unicast = +19.00 cyc, ratio 1.00302
+  FENCE windows (per-channel engine busy inside):
+    pc  10 mask 0b0000: ncyc   74178, MV0..3_BSY 74022 74055 74086 74119
+R3_9A_WINDOWS: DONE
+######## s1 bcast_overlap overlap reader
+  csv sha256 d641426ba519344fbfc61d0044147a9c3f45b04aff50cc5f78a05a544fdc6a81 (= the run log)
+  24 timeline rows, 24 records
+   pc  op    ch  target   cyc0     ncyc  MOVER  MV0_BSY MV1_BSY MV2_BSY MV3_BSY  pending  (* = MOVX/MOVY under a running stream)
+    0  LDC    -  0x0000      38     6987      0        0       0       0       0  []       
+    1  LDC    -  0x3000    7025     6966      0        0       0       0       0  []       
+    2  LDC    -  0x5000   13991     6966      0        0       0       0       0  []       
+    3  MOVX  15  0x0000   20957     6307   6303        0       0       0       0  []       
+    4  MVGO   0  0x0001   27264       32     28        7       0       0       0  []       
+    5  MVGO   1  0x0001   27296       32     28       32       6       0       0  [0]      
+    6  MVGO   2  0x0001   27328       32     28       32      32       7       0  [0, 1]   
+    7  MVGO   3  0x0001   27360       32     28       32      32      32       6  [0, 1, 2] 
+    8  MOVX  15  0x0600   27392     6307   6303     6307    6307    6307    6307  [0, 1, 2, 3] * BROADCAST engines [0, 1, 2, 3] busy for the whole window
+    9  MOVX   0  0x0600   33699     6288   6284     6288    6288    6288    6288  [0, 1, 2, 3] * engine busy for the whole window
+   10  FENCE  -  0x0000   39987    74178  74174    74022   74055   74086   74119  [0, 1, 2, 3] 
+   11  MOVY   0  0x0000  114165     2151   2147        0       0       0       0  []       
+   12  MOVY   1  0x0001  116316     2151   2147        0       0       0       0  []       
+   13  MOVY   2  0x0002  118467     2151   2147        0       0       0       0  []       
+   14  MOVY   3  0x0003  120618     2151   2147        0       0       0       0  []       
+   15  MVGO   0  0x0000  122769    21793  21789    21707       0       0       0  []       
+   16  MOVY   0  0x8000  144562      585    581        0       0       0       0  []       
+   17  MVGO   1  0x0000  145147    21793  21789        0   21707       0       0  []       
+   18  MOVY   1  0x8001  166940      585    581        0       0       0       0  []       
+   19  MVGO   2  0x0000  167525    21793  21789        0       0   21706       0  []       
+   20  MOVY   2  0x8002  189318      585    581        0       0       0       0  []       
+   21  MVGO   3  0x0000  189903    21793  21789        0       0       0   21707  []       
+   22  MOVY   3  0x8003  211696      585    581        0       0       0       0  []       
+   23  HALT   -  0x0000  212281        2      0        0       0       0       0  []       
+  2 MOVX/MOVY records issued under a running stream; 2 of them with the engine busy for every cycle of the window
+SR13A_OVERLAP_TL: OVERLAPPED
+######## s1 bcast_bp windows (CSV from n3142a_r3_9a_cov_timeline_s1.log)
+  csv tb/scripts/w9/r3_9a_bcast_bp_s1.timeline.csv sha256 cf2ae583e5a68b0833676806599322b9dd628c4220182320d3ad40acdadd2e70 (= the run log)
+  csv tb/scripts/w9/r3_9a_bcast_bp_s1_hold.timeline.csv sha256 2362098b0b5edb8fc41cb1a2a80a5605a1ee829e09d0dcc6700f5811686610d4 (= the run log)
+  13 timeline rows, 13 records
+   pc  kind     ch  word  len    words    ncyc   MOVER   ncyc(vs)   delta
+    2  UNICAST    0     0 12288   3072    12504   12500      12504      +0
+    3  BCAST    ALL     0 12288   3072    12523   12519      14165   +1642
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len 12288 (3072 words): broadcast [12523] mean 12523.00, unicast [12504] mean 12504.00; broadcast - unicast = +19.00 cyc, ratio 1.00152
+  FENCE windows (per-channel engine busy inside):
+  whole stream: 227430 vs 229072 cyc, delta +1642
+R3_9A_WINDOWS: DONE
+######## s1 bcast_ragged windows (CSV from n3142a_r3_9a_cov_timeline_s1.log)
+  csv tb/scripts/w9/r3_9a_bcast_ragged_s1.timeline.csv sha256 c6dd8d97a167316ea4e8688c6bf7a72c1fbb3a0c91fde492b32e36d0d232e76b (= the run log)
+  26 timeline rows, 26 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  4096   1024     4235    4231
+    4  BCAST    ALL  1536  4096   1024     4235    4231
+    5  BCAST    ALL  1024  1021    256     1124    1120
+    6  BCAST    ALL  1281  1019    255     1122    1118
+    7  BCAST    ALL  1300     0      0        5       1
+    8  UNICAST    1  1024  1021    256     1105    1101
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  1021 (256 words): broadcast [1124] mean 1124.00, unicast [1105] mean 1105.00; broadcast - unicast = +19.00 cyc, ratio 1.01719
+  FENCE windows (per-channel engine busy inside):
+R3_9A_WINDOWS: DONE
+######## s1 bcast_late windows (CSV from n3142a_r3_9a_cov_timeline_s1.log)
+  csv tb/scripts/w9/r3_9a_bcast_late_s1.timeline.csv sha256 e682a2bd7b51c7f48d68597dcbcea60ca7305966116a8f36441e8c8ff1405a3e (= the run log)
+  26 timeline rows, 26 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  4096   1024     4235    4231
+    4  UNICAST    3  1536  6144   1536     6288    6284
+   13  BCAST    ALL  1536  4096   1024     4235    4231
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+  FENCE windows (per-channel engine busy inside):
+    pc  12 mask 0b1000: ncyc   41792, MV0..3_BSY 0 0 0 41732
+R3_9A_WINDOWS: DONE
+######## s2 bcast windows (CSV from n3142b_r3_9a_cov_timeline_s2.log)
+  csv tb/scripts/w9/r3_9a_bcast_s2.timeline.csv sha256 da8f6f35290b8dd2538e713721b1611b053f0b0b76de8d9da7327945e2ed6e81 (= the run log)
+  67 timeline rows, 67 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL  1536  4096   1024     4235    4231
+    4  BCAST    ALL     0  4096   1024     4235    4231
+    5  UNICAST    2     0  4096   1024     4216    4212
+   25  BCAST    ALL     0  6144   1536     6307    6303
+   26  BCAST    ALL  1536  6144   1536     6307    6303
+   27  UNICAST    3  1536  6144   1536     6288    6284
+   45  BCAST    ALL     0  8192   2048     8379    8375
+   56  BCAST    ALL     0 12288   3072    12523   12519
+   57  UNICAST    1     0 12288   3072    12504   12500
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  4096 (1024 words): broadcast [4235, 4235] mean 4235.00, unicast [4216] mean 4216.00; broadcast - unicast = +19.00 cyc, ratio 1.00451
+    len  6144 (1536 words): broadcast [6307, 6307] mean 6307.00, unicast [6288] mean 6288.00; broadcast - unicast = +19.00 cyc, ratio 1.00302
+    len 12288 (3072 words): broadcast [12523] mean 12523.00, unicast [12504] mean 12504.00; broadcast - unicast = +19.00 cyc, ratio 1.00152
+  FENCE windows (per-channel engine busy inside):
+R3_9A_WINDOWS: DONE
+######## s2 bcast_overlap windows (CSV from n3142b_r3_9a_cov_timeline_s2.log)
+  csv tb/scripts/w9/r3_9a_bcast_overlap_s2.timeline.csv sha256 24157764ecf5ad926a96f931cd391c5fa99953e45a9477595419be531de4a487 (= the run log)
+  24 timeline rows, 24 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  6144   1536     6307    6303
+    8  BCAST    ALL  1536  6144   1536     6307    6303
+    9  UNICAST    0  1536  6144   1536     6288    6284
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  6144 (1536 words): broadcast [6307, 6307] mean 6307.00, unicast [6288] mean 6288.00; broadcast - unicast = +19.00 cyc, ratio 1.00302
+  FENCE windows (per-channel engine busy inside):
+    pc  10 mask 0b0000: ncyc   74178, MV0..3_BSY 74022 74055 74086 74119
+R3_9A_WINDOWS: DONE
+######## s2 bcast_overlap overlap reader
+  csv sha256 24157764ecf5ad926a96f931cd391c5fa99953e45a9477595419be531de4a487 (= the run log)
+  24 timeline rows, 24 records
+   pc  op    ch  target   cyc0     ncyc  MOVER  MV0_BSY MV1_BSY MV2_BSY MV3_BSY  pending  (* = MOVX/MOVY under a running stream)
+    0  LDC    -  0x0000      38     6987      0        0       0       0       0  []       
+    1  LDC    -  0x3000    7025     6966      0        0       0       0       0  []       
+    2  LDC    -  0x5000   13991     6966      0        0       0       0       0  []       
+    3  MOVX  15  0x0000   20957     6307   6303        0       0       0       0  []       
+    4  MVGO   0  0x0001   27264       32     28        7       0       0       0  []       
+    5  MVGO   1  0x0001   27296       32     28       32       6       0       0  [0]      
+    6  MVGO   2  0x0001   27328       32     28       32      32       7       0  [0, 1]   
+    7  MVGO   3  0x0001   27360       32     28       32      32      32       6  [0, 1, 2] 
+    8  MOVX  15  0x0600   27392     6307   6303     6307    6307    6307    6307  [0, 1, 2, 3] * BROADCAST engines [0, 1, 2, 3] busy for the whole window
+    9  MOVX   0  0x0600   33699     6288   6284     6288    6288    6288    6288  [0, 1, 2, 3] * engine busy for the whole window
+   10  FENCE  -  0x0000   39987    74178  74174    74022   74055   74086   74119  [0, 1, 2, 3] 
+   11  MOVY   0  0x0000  114165     2151   2147        0       0       0       0  []       
+   12  MOVY   1  0x0001  116316     2151   2147        0       0       0       0  []       
+   13  MOVY   2  0x0002  118467     2151   2147        0       0       0       0  []       
+   14  MOVY   3  0x0003  120618     2151   2147        0       0       0       0  []       
+   15  MVGO   0  0x0000  122769    21793  21789    21707       0       0       0  []       
+   16  MOVY   0  0x8000  144562      585    581        0       0       0       0  []       
+   17  MVGO   1  0x0000  145147    21793  21789        0   21707       0       0  []       
+   18  MOVY   1  0x8001  166940      585    581        0       0       0       0  []       
+   19  MVGO   2  0x0000  167525    21793  21789        0       0   21706       0  []       
+   20  MOVY   2  0x8002  189318      585    581        0       0       0       0  []       
+   21  MVGO   3  0x0000  189903    21793  21789        0       0       0   21707  []       
+   22  MOVY   3  0x8003  211696      585    581        0       0       0       0  []       
+   23  HALT   -  0x0000  212281        2      0        0       0       0       0  []       
+  2 MOVX/MOVY records issued under a running stream; 2 of them with the engine busy for every cycle of the window
+SR13A_OVERLAP_TL: OVERLAPPED
+######## s2 bcast_bp windows (CSV from n3142b_r3_9a_cov_timeline_s2.log)
+  csv tb/scripts/w9/r3_9a_bcast_bp_s2.timeline.csv sha256 deecc741a5a7da1e5b3791fafb7e6af9c31a0089c346f0cdde2ceba88d6ad262 (= the run log)
+  csv tb/scripts/w9/r3_9a_bcast_bp_s2_hold.timeline.csv sha256 794bc359f148c2ec03c5b7394644b1d7a1ccb2732412271afd578a0eb46218cb (= the run log)
+  13 timeline rows, 13 records
+   pc  kind     ch  word  len    words    ncyc   MOVER   ncyc(vs)   delta
+    2  UNICAST    0     0 12288   3072    12504   12500      12504      +0
+    3  BCAST    ALL     0 12288   3072    12523   12519      14165   +1642
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len 12288 (3072 words): broadcast [12523] mean 12523.00, unicast [12504] mean 12504.00; broadcast - unicast = +19.00 cyc, ratio 1.00152
+  FENCE windows (per-channel engine busy inside):
+  whole stream: 227430 vs 229072 cyc, delta +1642
+R3_9A_WINDOWS: DONE
+######## s2 bcast_ragged windows (CSV from n3142b_r3_9a_cov_timeline_s2.log)
+  csv tb/scripts/w9/r3_9a_bcast_ragged_s2.timeline.csv sha256 1b85022e1052641a9ad0f374ee521e88b3a961d342333878411d2b67e0fcfbb2 (= the run log)
+  26 timeline rows, 26 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  4096   1024     4235    4231
+    4  BCAST    ALL  1536  4096   1024     4235    4231
+    5  BCAST    ALL  1024  1021    256     1124    1120
+    6  BCAST    ALL  1281  1019    255     1122    1118
+    7  BCAST    ALL  1300     0      0        5       1
+    8  UNICAST    1  1024  1021    256     1105    1101
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  1021 (256 words): broadcast [1124] mean 1124.00, unicast [1105] mean 1105.00; broadcast - unicast = +19.00 cyc, ratio 1.01719
+  FENCE windows (per-channel engine busy inside):
+R3_9A_WINDOWS: DONE
+######## s2 bcast_late windows (CSV from n3142b_r3_9a_cov_timeline_s2.log)
+  csv tb/scripts/w9/r3_9a_bcast_late_s2.timeline.csv sha256 89d7b0f8b51cf65ba6ff04c5accf5c6c43ca006f94cd866be434b5ae68b55176 (= the run log)
+  26 timeline rows, 26 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  4096   1024     4235    4231
+    4  UNICAST    3  1536  6144   1536     6288    6284
+   13  BCAST    ALL  1536  4096   1024     4235    4231
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+  FENCE windows (per-channel engine busy inside):
+    pc  12 mask 0b1000: ncyc   41792, MV0..3_BSY 0 0 0 41732
+R3_9A_WINDOWS: DONE
+######## s3 bcast windows (CSV from n3142c_r3_9a_cov_timeline_s3.log)
+  csv tb/scripts/w9/r3_9a_bcast_s3.timeline.csv sha256 67bfeec7e06c36cbddae3e5c1175c1b72ff4a2b1df8330d43c3e77e76196757f (= the run log)
+  67 timeline rows, 67 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL  1536  4096   1024     4235    4231
+    4  BCAST    ALL     0  4096   1024     4235    4231
+    5  UNICAST    2     0  4096   1024     4216    4212
+   25  BCAST    ALL     0  6144   1536     6307    6303
+   26  BCAST    ALL  1536  6144   1536     6307    6303
+   27  UNICAST    3  1536  6144   1536     6288    6284
+   45  BCAST    ALL     0  8192   2048     8379    8375
+   56  BCAST    ALL     0 12288   3072    12523   12519
+   57  UNICAST    1     0 12288   3072    12504   12500
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  4096 (1024 words): broadcast [4235, 4235] mean 4235.00, unicast [4216] mean 4216.00; broadcast - unicast = +19.00 cyc, ratio 1.00451
+    len  6144 (1536 words): broadcast [6307, 6307] mean 6307.00, unicast [6288] mean 6288.00; broadcast - unicast = +19.00 cyc, ratio 1.00302
+    len 12288 (3072 words): broadcast [12523] mean 12523.00, unicast [12504] mean 12504.00; broadcast - unicast = +19.00 cyc, ratio 1.00152
+  FENCE windows (per-channel engine busy inside):
+R3_9A_WINDOWS: DONE
+######## s3 bcast_overlap windows (CSV from n3142c_r3_9a_cov_timeline_s3.log)
+  csv tb/scripts/w9/r3_9a_bcast_overlap_s3.timeline.csv sha256 1d2938f703ad06fed41f2a8a4c49780e36548b1860aef98522980cee3de4f8a6 (= the run log)
+  24 timeline rows, 24 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  6144   1536     6307    6303
+    8  BCAST    ALL  1536  6144   1536     6307    6303
+    9  UNICAST    0  1536  6144   1536     6288    6284
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  6144 (1536 words): broadcast [6307, 6307] mean 6307.00, unicast [6288] mean 6288.00; broadcast - unicast = +19.00 cyc, ratio 1.00302
+  FENCE windows (per-channel engine busy inside):
+    pc  10 mask 0b0000: ncyc   74178, MV0..3_BSY 74022 74055 74086 74119
+R3_9A_WINDOWS: DONE
+######## s3 bcast_overlap overlap reader
+  csv sha256 1d2938f703ad06fed41f2a8a4c49780e36548b1860aef98522980cee3de4f8a6 (= the run log)
+  24 timeline rows, 24 records
+   pc  op    ch  target   cyc0     ncyc  MOVER  MV0_BSY MV1_BSY MV2_BSY MV3_BSY  pending  (* = MOVX/MOVY under a running stream)
+    0  LDC    -  0x0000      38     6987      0        0       0       0       0  []       
+    1  LDC    -  0x3000    7025     6966      0        0       0       0       0  []       
+    2  LDC    -  0x5000   13991     6966      0        0       0       0       0  []       
+    3  MOVX  15  0x0000   20957     6307   6303        0       0       0       0  []       
+    4  MVGO   0  0x0001   27264       32     28        7       0       0       0  []       
+    5  MVGO   1  0x0001   27296       32     28       32       6       0       0  [0]      
+    6  MVGO   2  0x0001   27328       32     28       32      32       7       0  [0, 1]   
+    7  MVGO   3  0x0001   27360       32     28       32      32      32       6  [0, 1, 2] 
+    8  MOVX  15  0x0600   27392     6307   6303     6307    6307    6307    6307  [0, 1, 2, 3] * BROADCAST engines [0, 1, 2, 3] busy for the whole window
+    9  MOVX   0  0x0600   33699     6288   6284     6288    6288    6288    6288  [0, 1, 2, 3] * engine busy for the whole window
+   10  FENCE  -  0x0000   39987    74178  74174    74022   74055   74086   74119  [0, 1, 2, 3] 
+   11  MOVY   0  0x0000  114165     2151   2147        0       0       0       0  []       
+   12  MOVY   1  0x0001  116316     2151   2147        0       0       0       0  []       
+   13  MOVY   2  0x0002  118467     2151   2147        0       0       0       0  []       
+   14  MOVY   3  0x0003  120618     2151   2147        0       0       0       0  []       
+   15  MVGO   0  0x0000  122769    21793  21789    21707       0       0       0  []       
+   16  MOVY   0  0x8000  144562      585    581        0       0       0       0  []       
+   17  MVGO   1  0x0000  145147    21793  21789        0   21707       0       0  []       
+   18  MOVY   1  0x8001  166940      585    581        0       0       0       0  []       
+   19  MVGO   2  0x0000  167525    21793  21789        0       0   21706       0  []       
+   20  MOVY   2  0x8002  189318      585    581        0       0       0       0  []       
+   21  MVGO   3  0x0000  189903    21793  21789        0       0       0   21707  []       
+   22  MOVY   3  0x8003  211696      585    581        0       0       0       0  []       
+   23  HALT   -  0x0000  212281        2      0        0       0       0       0  []       
+  2 MOVX/MOVY records issued under a running stream; 2 of them with the engine busy for every cycle of the window
+SR13A_OVERLAP_TL: OVERLAPPED
+######## s3 bcast_bp windows (CSV from n3142c_r3_9a_cov_timeline_s3.log)
+  csv tb/scripts/w9/r3_9a_bcast_bp_s3.timeline.csv sha256 bad974048a692fdec866f692a0c6b1c32ec6c5c8b71ea4a3b475c43441f570a3 (= the run log)
+  csv tb/scripts/w9/r3_9a_bcast_bp_s3_hold.timeline.csv sha256 861eae19a676c6a8c37a2a5ec820e0f97a7a27fc4339c49acb615515d93a43c2 (= the run log)
+  13 timeline rows, 13 records
+   pc  kind     ch  word  len    words    ncyc   MOVER   ncyc(vs)   delta
+    2  UNICAST    0     0 12288   3072    12504   12500      12504      +0
+    3  BCAST    ALL     0 12288   3072    12523   12519      14165   +1642
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len 12288 (3072 words): broadcast [12523] mean 12523.00, unicast [12504] mean 12504.00; broadcast - unicast = +19.00 cyc, ratio 1.00152
+  FENCE windows (per-channel engine busy inside):
+  whole stream: 227430 vs 229072 cyc, delta +1642
+R3_9A_WINDOWS: DONE
+######## s3 bcast_ragged windows (CSV from n3142c_r3_9a_cov_timeline_s3.log)
+  csv tb/scripts/w9/r3_9a_bcast_ragged_s3.timeline.csv sha256 96891bc32eaa2057c47102c045b6e9bc50dbe218874092b18ecba0938fee19aa (= the run log)
+  26 timeline rows, 26 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  4096   1024     4235    4231
+    4  BCAST    ALL  1536  4096   1024     4235    4231
+    5  BCAST    ALL  1024  1021    256     1124    1120
+    6  BCAST    ALL  1281  1019    255     1122    1118
+    7  BCAST    ALL  1300     0      0        5       1
+    8  UNICAST    1  1024  1021    256     1105    1101
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  1021 (256 words): broadcast [1124] mean 1124.00, unicast [1105] mean 1105.00; broadcast - unicast = +19.00 cyc, ratio 1.01719
+  FENCE windows (per-channel engine busy inside):
+R3_9A_WINDOWS: DONE
+######## s3 bcast_late windows (CSV from n3142c_r3_9a_cov_timeline_s3.log)
+  csv tb/scripts/w9/r3_9a_bcast_late_s3.timeline.csv sha256 eda81261753e18fdf08e0fd6e2b73eed0c0ce466605ea4c7941c091b634e564b (= the run log)
+  26 timeline rows, 26 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  4096   1024     4235    4231
+    4  UNICAST    3  1536  6144   1536     6288    6284
+   13  BCAST    ALL  1536  4096   1024     4235    4231
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+  FENCE windows (per-channel engine busy inside):
+    pc  12 mask 0b1000: ncyc   41792, MV0..3_BSY 0 0 0 41732
+R3_9A_WINDOWS: DONE
+######## s4 bcast windows (CSV from n3142d_r3_9a_cov_timeline_s4.log)
+  csv tb/scripts/w9/r3_9a_bcast_s4.timeline.csv sha256 b165462e3336c31bdbeddbbbedd51219e8114c4c87a0f23ea429481099126031 (= the run log)
+  67 timeline rows, 67 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL  1536  4096   1024     4235    4231
+    4  BCAST    ALL     0  4096   1024     4235    4231
+    5  UNICAST    2     0  4096   1024     4216    4212
+   25  BCAST    ALL     0  6144   1536     6307    6303
+   26  BCAST    ALL  1536  6144   1536     6307    6303
+   27  UNICAST    3  1536  6144   1536     6288    6284
+   45  BCAST    ALL     0  8192   2048     8379    8375
+   56  BCAST    ALL     0 12288   3072    12523   12519
+   57  UNICAST    1     0 12288   3072    12504   12500
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  4096 (1024 words): broadcast [4235, 4235] mean 4235.00, unicast [4216] mean 4216.00; broadcast - unicast = +19.00 cyc, ratio 1.00451
+    len  6144 (1536 words): broadcast [6307, 6307] mean 6307.00, unicast [6288] mean 6288.00; broadcast - unicast = +19.00 cyc, ratio 1.00302
+    len 12288 (3072 words): broadcast [12523] mean 12523.00, unicast [12504] mean 12504.00; broadcast - unicast = +19.00 cyc, ratio 1.00152
+  FENCE windows (per-channel engine busy inside):
+R3_9A_WINDOWS: DONE
+######## s4 bcast_overlap windows (CSV from n3142d_r3_9a_cov_timeline_s4.log)
+  csv tb/scripts/w9/r3_9a_bcast_overlap_s4.timeline.csv sha256 e8014597849ad07582ba67427e57b893a324850e413ff0dd6c9c955ce637a9c2 (= the run log)
+  24 timeline rows, 24 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  6144   1536     6307    6303
+    8  BCAST    ALL  1536  6144   1536     6307    6303
+    9  UNICAST    0  1536  6144   1536     6288    6284
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  6144 (1536 words): broadcast [6307, 6307] mean 6307.00, unicast [6288] mean 6288.00; broadcast - unicast = +19.00 cyc, ratio 1.00302
+  FENCE windows (per-channel engine busy inside):
+    pc  10 mask 0b0000: ncyc   74178, MV0..3_BSY 74022 74055 74086 74119
+R3_9A_WINDOWS: DONE
+######## s4 bcast_overlap overlap reader
+  csv sha256 e8014597849ad07582ba67427e57b893a324850e413ff0dd6c9c955ce637a9c2 (= the run log)
+  24 timeline rows, 24 records
+   pc  op    ch  target   cyc0     ncyc  MOVER  MV0_BSY MV1_BSY MV2_BSY MV3_BSY  pending  (* = MOVX/MOVY under a running stream)
+    0  LDC    -  0x0000      38     6987      0        0       0       0       0  []       
+    1  LDC    -  0x3000    7025     6966      0        0       0       0       0  []       
+    2  LDC    -  0x5000   13991     6966      0        0       0       0       0  []       
+    3  MOVX  15  0x0000   20957     6307   6303        0       0       0       0  []       
+    4  MVGO   0  0x0001   27264       32     28        7       0       0       0  []       
+    5  MVGO   1  0x0001   27296       32     28       32       6       0       0  [0]      
+    6  MVGO   2  0x0001   27328       32     28       32      32       7       0  [0, 1]   
+    7  MVGO   3  0x0001   27360       32     28       32      32      32       6  [0, 1, 2] 
+    8  MOVX  15  0x0600   27392     6307   6303     6307    6307    6307    6307  [0, 1, 2, 3] * BROADCAST engines [0, 1, 2, 3] busy for the whole window
+    9  MOVX   0  0x0600   33699     6288   6284     6288    6288    6288    6288  [0, 1, 2, 3] * engine busy for the whole window
+   10  FENCE  -  0x0000   39987    74178  74174    74022   74055   74086   74119  [0, 1, 2, 3] 
+   11  MOVY   0  0x0000  114165     2151   2147        0       0       0       0  []       
+   12  MOVY   1  0x0001  116316     2151   2147        0       0       0       0  []       
+   13  MOVY   2  0x0002  118467     2151   2147        0       0       0       0  []       
+   14  MOVY   3  0x0003  120618     2151   2147        0       0       0       0  []       
+   15  MVGO   0  0x0000  122769    21793  21789    21707       0       0       0  []       
+   16  MOVY   0  0x8000  144562      585    581        0       0       0       0  []       
+   17  MVGO   1  0x0000  145147    21793  21789        0   21707       0       0  []       
+   18  MOVY   1  0x8001  166940      585    581        0       0       0       0  []       
+   19  MVGO   2  0x0000  167525    21793  21789        0       0   21706       0  []       
+   20  MOVY   2  0x8002  189318      585    581        0       0       0       0  []       
+   21  MVGO   3  0x0000  189903    21793  21789        0       0       0   21707  []       
+   22  MOVY   3  0x8003  211696      585    581        0       0       0       0  []       
+   23  HALT   -  0x0000  212281        2      0        0       0       0       0  []       
+  2 MOVX/MOVY records issued under a running stream; 2 of them with the engine busy for every cycle of the window
+SR13A_OVERLAP_TL: OVERLAPPED
+######## s4 bcast_bp windows (CSV from n3142d_r3_9a_cov_timeline_s4.log)
+  csv tb/scripts/w9/r3_9a_bcast_bp_s4.timeline.csv sha256 660fa0b5bb0207395bab96d1785614d97935864c7848d934456a7404dc911433 (= the run log)
+  csv tb/scripts/w9/r3_9a_bcast_bp_s4_hold.timeline.csv sha256 5a1209831d6d23e5bc35cdbb806686c4f15f033b10727eef0bc8b20372272379 (= the run log)
+  13 timeline rows, 13 records
+   pc  kind     ch  word  len    words    ncyc   MOVER   ncyc(vs)   delta
+    2  UNICAST    0     0 12288   3072    12504   12500      12504      +0
+    3  BCAST    ALL     0 12288   3072    12523   12519      14165   +1642
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len 12288 (3072 words): broadcast [12523] mean 12523.00, unicast [12504] mean 12504.00; broadcast - unicast = +19.00 cyc, ratio 1.00152
+  FENCE windows (per-channel engine busy inside):
+  whole stream: 227430 vs 229072 cyc, delta +1642
+R3_9A_WINDOWS: DONE
+######## s4 bcast_ragged windows (CSV from n3142d_r3_9a_cov_timeline_s4.log)
+  csv tb/scripts/w9/r3_9a_bcast_ragged_s4.timeline.csv sha256 64af9ef452d009149cc8557918f1a6e5183cdbfdc04953e2605a4b640e6f7c81 (= the run log)
+  26 timeline rows, 26 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  4096   1024     4235    4231
+    4  BCAST    ALL  1536  4096   1024     4235    4231
+    5  BCAST    ALL  1024  1021    256     1124    1120
+    6  BCAST    ALL  1281  1019    255     1122    1118
+    7  BCAST    ALL  1300     0      0        5       1
+    8  UNICAST    1  1024  1021    256     1105    1101
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+    len  1021 (256 words): broadcast [1124] mean 1124.00, unicast [1105] mean 1105.00; broadcast - unicast = +19.00 cyc, ratio 1.01719
+  FENCE windows (per-channel engine busy inside):
+R3_9A_WINDOWS: DONE
+######## s4 bcast_late windows (CSV from n3142d_r3_9a_cov_timeline_s4.log)
+  csv tb/scripts/w9/r3_9a_bcast_late_s4.timeline.csv sha256 0b58610c448691b48b88103df7cae4bf73e63a76a3e6e2c25725c214f6c16010 (= the run log)
+  26 timeline rows, 26 records
+   pc  kind     ch  word  len    words    ncyc   MOVER
+    3  BCAST    ALL     0  4096   1024     4235    4231
+    4  UNICAST    3  1536  6144   1536     6288    6284
+   13  BCAST    ALL  1536  4096   1024     4235    4231
+  ONE-WINDOW (per length with both a broadcast and a unicast):
+  FENCE windows (per-channel engine busy inside):
+    pc  12 mask 0b1000: ncyc   41792, MV0..3_BSY 0 0 0 41732
+R3_9A_WINDOWS: DONE
+R3_9A_TIMELINE_READERS: ALL RAN
+=== rc  : 0
+=== end : 2026-09-30T19:50:06-06:00

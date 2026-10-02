@@ -1,0 +1,54 @@
+=== RED: tb/tb_vecnorm.sv case 5 (N=2048, cfg_nlog2=11) on UNMODIFIED rtl/vecnorm_unit.sv ===
+=== git HEAD: c0ef76f  rtl/vecnorm_unit.sv: MODIFIED ===
+=== cmd: make tb_vecnorm  (host darthplagueis, Verilator 5.020) ===
+seq vectors: seed=1 -> vecseq/s1  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=2 -> vecseq/s2  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=3 -> vecseq/s3  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=4 -> vecseq/s4  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_vecnorm -o tb_vecnorm \
+  --top-module tb_vecnorm \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/vecnorm_unit.sv tb_vecnorm.sv
+obj_dir_tb_vecnorm/tb_vecnorm --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+WATCHDOG: dut.st=14 busy=1 cnt=0 n_total=0 oidx=0 ecnt=0 m_valid=0 s_ready=0
+[299020000] %Fatal: tb_vecnorm.sv:81: Assertion failed in TOP.tb_vecnorm.unnamedblk1: tb_vecnorm: n=2048 mode=2 nlog2=11 never completed after 50001 cycles (dut.st=14 busy=1 cnt=0 n_total=0 oidx=0 ecnt=0 m_valid=0 s_ready=0)
+%Error: tb_vecnorm.sv:81: Verilog $stop
+Aborting...
+make: *** [Makefile:256: tb_vecnorm] Aborted (core dumped)
+MAKE_EXIT=2
+
+=== provenance (from repo root; the 'MODIFIED' line above is a bad relative path in the echo) ===
+ M tb/scripts/gen_seq_c_vectors.py
+ M tb/tb_vecnorm.sv
+?? evidence/qwen2b/rb/
+-- rtl/ diff vs HEAD at the time of this RED run --
+(empty => NO RTL was changed for this run)
+
+=== reading of the failure ===
+dut.st=14 = O_RUN, n_total=0 (11'd1 << 11 wrapped), oidx=0, ecnt=0, busy=1.
+FILL DID terminate: cnt+1 also wraps in 11 bits, so cnt+1==n_total fires at
+cnt=2047 and the unit swallowed all 2048 elements.  The deadlock is in OUT:
+issue = (oidx != n_total) = (0 != 0) = 0 forever, so no address is ever
+presented, pv stays 0, m_valid never rises and ecnt+1==n_total never runs.
+=== RED (2): the cfg_nlog2>=12 guard self-test on UNMODIFIED rtl/vecnorm_unit.sv ===
+$ obj_dir_tb_vecnorm/tb_vecnorm +guardtest
+GUARDTEST FAIL: cfg_nlog2=12 did NOT trip the DUT guard
+- tb_vecnorm.sv:230: Verilog $finish
+[116000] %Fatal: tb_vecnorm.sv:232: Assertion failed in TOP.tb_vecnorm: need +vecdir=
+%Error: tb_vecnorm.sv:232: Verilog $stop
+Aborting...
+EXIT=134  (0 => no guard exists yet; the Makefile self-test wants NON-zero)
+
+=== RED (2) RERUN (the first attempt above hit a TB bug: $finish does not stop
+    the calling process in Verilator, so the poke fell through into the
+    +vecdir check.  Fixed with 'disable main_seq'.  RTL still UNMODIFIED.) ===
+$ obj_dir_tb_vecnorm/tb_vecnorm +guardtest
+GUARDTEST FAIL: cfg_nlog2=12 did NOT trip the DUT guard
+- tb_vecnorm.sv:230: Verilog $finish
+EXIT=0  (0 => the guard does NOT exist yet -> Makefile self-test would report the miss)
+(empty rtl/ diff => still the pre-fix RTL)

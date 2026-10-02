@@ -15,11 +15,14 @@ snoke (evidence captured).
 """
 import json
 import os
+import sys
 
 import numpy as np
 
-CFG = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                  "qwen3_5_0.8b_config.json")))["text_config"]
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from model_select import CONFIG_JSON                             # noqa: E402
+
+CFG = json.load(open(CONFIG_JSON))["text_config"]
 
 H = CFG["hidden_size"]                    # 1024
 NQ = CFG["num_attention_heads"]           # 8
@@ -29,13 +32,21 @@ ROT = int(HD * CFG["rope_parameters"]["partial_rotary_factor"])   # 64
 THETA = CFG["rope_parameters"]["rope_theta"]                      # 1e7
 FFN = CFG["intermediate_size"]            # 3584
 EPS = CFG["rms_norm_eps"]                 # 1e-6
-LNH = CFG["linear_num_value_heads"]       # 16
+LNH = CFG["linear_num_value_heads"]       # 16  (0.8B/2B) — 32 at 4B/9B
+LNKH = CFG["linear_num_key_heads"]        # 16  at every released geometry
 LDK = CFG["linear_key_head_dim"]          # 128
 LDV = CFG["linear_value_head_dim"]        # 128
-LKD = LNH * LDK                           # 2048
-LVD = LNH * LDV                           # 2048
+# KEY heads and VALUE heads are NOT the same count at 4B/9B: 16 key heads feed
+# 32 value heads (GQA-style, `repeat_interleave(LNH // LNKH)` in
+# vendor/modeling_qwen3_5.py:519-521).  `LKD` is the q/k slice width and must
+# follow the KEY head count; `LVD` follows the VALUE head count.  At 0.8B/2B
+# LNKH == LNH so both are 2048 and every existing number is unchanged.
+VREP = LNH // LNKH                        # value heads per key head (1 or 2)
+assert LNH % LNKH == 0, "value heads must be a whole multiple of key heads"
+LKD = LNKH * LDK                          # 2048 everywhere so far
+LVD = LNH * LDV                           # 2048 (0.8B/2B) — 4096 at 4B/9B
 CONV_K = CFG["linear_conv_kernel_dim"]    # 4
-CONV_DIM = 2 * LKD + LVD                  # 6144
+CONV_DIM = 2 * LKD + LVD                  # 6144 (0.8B/2B) — 8192 at 4B/9B
 
 f32 = np.float32
 
@@ -201,9 +212,17 @@ def deltanet_decode(xn, w, state):
     state["conv"] = win[:, 1:]
     qkv = silu(np.sum(win * w["conv_w"], axis=1))
 
-    q = qkv[:LKD].reshape(LNH, LDK)
-    k = qkv[LKD:2 * LKD].reshape(LNH, LDK)
+    # q/k carry LNKH KEY heads, v carries LNH VALUE heads.  When they differ
+    # (4B/9B: 16 key heads, 32 value heads) the vendor repeat_interleaves q and
+    # k so value head h reads key head h // VREP
+    # (vendor/modeling_qwen3_5.py:519-521).  VREP == 1 at 0.8B/2B, where this
+    # is `.reshape(LNH, LDK)` exactly as before.
+    q = qkv[:LKD].reshape(LNKH, LDK)
+    k = qkv[LKD:2 * LKD].reshape(LNKH, LDK)
     v = qkv[2 * LKD:].reshape(LNH, LDV)
+    if VREP > 1:
+        q = np.repeat(q, VREP, axis=0)
+        k = np.repeat(k, VREP, axis=0)
 
     beta = sigmoid(b)                                   # (LNH,)
     g = -np.exp(w["A_log"]) * softplus(a + w["dt_bias"])

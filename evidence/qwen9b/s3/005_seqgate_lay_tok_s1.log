@@ -1,0 +1,45 @@
+=== host: darthplagueis
+=== date: 2026-09-04T21:35:17-06:00
+=== tree: 75598a9+dirty
+=== cmd:  sh evidence/qwen9b/g4/run_g4a_seqgate.sh lay9b_s1 tok9b_s1
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== interpreter /home/cah/r2d2/code/fpga/fable5_llm/ref/.venv/bin/python
+--- lay9b_s1
+    --- SEQ gate: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1.e4
+      stream   4088 records, 65408 B (sha256 3a9982fb85eb509d)
+      seqdata  51136 B (sha256 bfbc0c00bfcdccf6)
+      profile  epsnorm   newops from layer_fixed (agent A)
+      opcodes  {'CSRWR': 2711, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'FENCE': 38, 'HALT': 1, 'LDC*': 22, 'XOP*': 2}
+      loop     0 steps  (fewer than two decode steps)
+      .txt     978 commands, 395200 host-relayed words, checks {'R': 46, 'E': 30, 'A': 0, 'V': 30} (1.2s)
+      .seq     890 commands issued, movers MOVX=120 MVGO=152 MOVY=152 LDC=22 EMB=0 AMAXL=0 (6.3s)
+      CHECKPT  46/46 live-state checkpoints sampled, ALL BIT-EXACT
+      SCRATCH  4096 of 65536 words differ at the end; 0 outside the declared y32 staging windows (28672 words) -> CLEAN
+      BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+      STATE    BIT-EXACT (10 block(s) stored; .txt vs .seq vs the emitter's StateImage)
+      TOKENS   IDENTICAL  []
+    SEQ GATE: PASS
+--- tok9b_s1
+    --- SEQ gate: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4
+      stream   2105 records, 33680 B (sha256 b7cdbef551b744aa)
+      seqdata  42944 B (sha256 85bea32f932720a3)
+      profile  epsnorm   newops from layer_fixed (agent A)
+      opcodes  {'CSRWR': 1392, 'CMD': 452, 'MOVX': 64, 'MOVY': 80, 'MVGO': 80, 'EMB': 1, 'AMAXL': 1, 'JMP': 1, 'FENCE': 20, 'HALT': 1, 'LDC*': 11, 'XOP*': 2}
+      loop     2 steps  (looped)  STRUCTURALLY SAFE
+      .txt     990 commands, 427968 host-relayed words, checks {'R': 48, 'E': 32, 'A': 2, 'V': 32} (1.2s)
+      .seq     902 commands issued, movers MOVX=128 MVGO=160 MOVY=160 LDC=22 EMB=2 AMAXL=2 (6.5s)
+      CHECKPT  48/48 live-state checkpoints sampled, ALL BIT-EXACT
+      SCRATCH  4095 of 65536 words differ at the end; 0 outside the declared y32 staging windows (28672 words) -> CLEAN
+      BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+      STATE    BIT-EXACT (10 block(s) stored; .txt vs .seq vs the emitter's StateImage)
+      TOKENS   IDENTICAL  [2380, 6362]
+    SEQ GATE: PASS
+G4A_SEQGATE: ALL PASS (2 artifact(s))
+=== rc: 0
+=== end: 2026-09-04T21:35:33-06:00

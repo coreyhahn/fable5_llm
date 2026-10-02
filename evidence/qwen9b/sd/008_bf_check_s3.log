@@ -1,0 +1,25 @@
+=== host: snoke
+=== date: 2026-09-24T04:33:06-06:00
+=== tree: 89cccd3
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/sd/sd1_bf_check.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s3
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== rs_f: derived=7 (tag 9b) env=unset rider=0
+=== ---
+=== replaying /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s3.txt through seq_model.TxtReplay (the gate's .txt side), .txt sha256 f4483e2e77ebe83d1f287c28db1d788fb90b43dd2e9d47890a36b9449493df12
+  56576 commands, checks {'R': 2358, 'E': 1494, 'A': 6, 'V': 1494}, tokens [313, 430, 2510, 198, 1445, 27180] (143.7s) — every R/E/A assertion held
+
+(c1) DN head SHIFT32(k_h) vs DYNQ16: 4608 heads; k equal on 4608; all 128 outputs equal on 4608
+(c2) DN head SCALE(m_q15) vs VN EPS-NORM: 4608 heads; integer scale == m_q15 on 4606 (max |dm| 1); all 128 outputs equal on 4607; differing elements 63; max |delta| 1 LSB; first differing head (index, k, m_q15, m_int, |d|) = (593, -10, 6640, 6639, 1)
+     differing heads as (step 0-based, DN layer 0..23, head, elements): [(0, 18, 17, 63)]
+(d)  gated-attention blocks: 48; host k_a == probe k_a on 48; k_a histogram {8: 1, 9: 15, 10: 15, 11: 3, 12: 5, 13: 6, 14: 1, 15: 2}
+
+  checkpoint coverage of (c): gen_layer_script's R(ON, 256) samples 2 of 32 heads per DN layer per step
+
+SD1_BF_CHECK: c1/d IDENTICAL on every instance; c2 DIFFERS on 1 of 4608 heads
+=== rc: 0
+=== end: 2026-09-24T04:35:34-06:00

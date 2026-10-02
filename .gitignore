@@ -16,13 +16,39 @@ tb/vecv2/
 tb/vecseq/
 tb/vectopk/
 tb/scripts/seqlayer_*
+# G3.1: the SEQ_ISA v2.0 layer_chan regression set (make -C tb
+# layer_v2_scripts) — ~2.4 MB of .txt + weight images per seed, all
+# reproducible from the seed alone.
+tb/scripts/layerv2_*
 tb/scripts/seqvec/
 # wave-3 full-chip SEQ gate artifacts (make -C tb seq_chip_scripts):
 # .txt + weight images + .wimg.bin + .chip, ~115 MB, all regenerable
 tb/scripts/w3/
 tb/scripts/w4/
-tb/scripts/w4/
+# R-c / V5: the 2B W8 artifact set (make -C tb w8_2b_model_script) —
+# ~1.9 GiB of per-channel images + 970 MiB embedding table + the .txt.
+# Regenerable; its sha manifest lives in evidence/qwen2b/rc/.
+tb/scripts/w5/
+# G4a: the 9B W4 g128 artifact set (make -C tb w9_9b_model_script) —
+# ~3.9 GiB of per-channel images + 1,940 MiB embedding table + the .txt,
+# and the 4-seed smoke sets beside it.  Regenerable; its sha manifest
+# lives in evidence/qwen9b/g4/G4A_REPLAY.md.
+tb/scripts/w9/
 sw/.seq.lock
 __pycache__/
 .rung1b_wip/
 ref/scripts/logs/
+# Track Q V3 activation-salience calibration (ref/calib_stats.py).
+# Regenerable in ~150 s from ref/ppl_corpus_calib.txt; its sha256 and full
+# provenance are recorded in evidence/qwen2b/q2/v3/.
+ref/calib_stats_*.npz
+# Track L (qwen-next ladder): regenerable torch golden caches for
+# ref/fidelity_check.py (rebuild with `run_fidelity.sh <tag> golden`);
+# their sha256 is recorded in evidence/qwen_next/ladder/LADDER.md.
+evidence/qwen_next/ladder/golden_bf16_*.npz
+
+# 2026-09-27 (user decision, NEXT_SESSION.md §8 item 5): the chip-TB timeline
+# CSVs are untracked by design — their sha256 sidecars are committed and the
+# static cost table (ref/seq_cost.py) replaces them on the shipping path.
+evidence/qwen9b/bn/bn_timeline_*.csv
+evidence/qwen9b/bm/bm1_timeline_*.csv

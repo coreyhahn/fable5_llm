@@ -47,13 +47,13 @@ module tb_layershim_c;
     wire  [31:0] rdata;   wire [1:0] rresp; wire rvalid; logic rready = 0;
 
     // ---- AXI4 burst window ----
-    logic [0:0]  bawid;   logic [15:0] bawaddr; logic [7:0] bawlen;
+    logic [0:0]  bawid;   logic [17:0] bawaddr; logic [7:0] bawlen;
     logic [2:0]  bawsize; logic [1:0]  bawburst;
     logic        bawvalid; wire bawready;
     logic [31:0] bwdata;  logic [3:0]  bwstrb; logic bwlast;
     logic        bwvalid; wire bwready;
     wire  [0:0]  bbid;    wire [1:0]   bbresp; wire bbvalid; logic bbready = 0;
-    logic [0:0]  barid;   logic [15:0] baraddr; logic [7:0] barlen;
+    logic [0:0]  barid;   logic [17:0] baraddr; logic [7:0] barlen;
     logic [2:0]  barsize; logic [1:0]  barburst;
     logic        barvalid; wire barready;
     wire  [0:0]  brid;    wire [31:0]  brdata; wire [1:0] brresp;
@@ -61,6 +61,19 @@ module tb_layershim_c;
 
     /* verilator lint_off UNUSEDSIGNAL */
     wire [5:0] unused_tb = {bresp, rresp, bbid, brid};
+    /* verilator lint_on UNUSEDSIGNAL */
+
+    // S2: layer_chan gained the state-DMA master (m_axis).  This TB gates
+    // the BURST WINDOW and issues no SLD/SST, so the master is tied idle —
+    // a mechanical tie-off with no behaviour change: every *READY and
+    // *VALID the DUT samples is 0.  The DMA's own gate is tb_layer_sdma.
+    /* verilator lint_off UNUSEDSIGNAL */
+    wire [33:0]  nc_mawaddr, nc_maraddr;
+    wire [7:0]   nc_mawlen, nc_marlen;
+    wire         nc_mawvalid, nc_mwlast, nc_mwvalid, nc_mbready,
+                 nc_marvalid, nc_mrready;
+    wire [511:0] nc_mwdata;
+    wire [63:0]  nc_mwstrb;
     /* verilator lint_on UNUSEDSIGNAL */
 
     layer_chan #(
@@ -92,7 +105,19 @@ module tb_layershim_c;
         .s_axib_arvalid(barvalid), .s_axib_arready(barready),
         .s_axib_rid(brid), .s_axib_rdata(brdata), .s_axib_rresp(brresp),
         .s_axib_rlast(brlast), .s_axib_rvalid(brvalid),
-        .s_axib_rready(brready)
+        .s_axib_rready(brready),
+        .m_axis_awaddr(nc_mawaddr), .m_axis_awlen(nc_mawlen),
+        .m_axis_awvalid(nc_mawvalid), .m_axis_awready(1'b0),
+        .m_axis_wdata(nc_mwdata), .m_axis_wstrb(nc_mwstrb),
+        .m_axis_wlast(nc_mwlast), .m_axis_wvalid(nc_mwvalid),
+        .m_axis_wready(1'b0),
+        .m_axis_bresp(2'b00), .m_axis_bvalid(1'b0),
+        .m_axis_bready(nc_mbready),
+        .m_axis_araddr(nc_maraddr), .m_axis_arlen(nc_marlen),
+        .m_axis_arvalid(nc_marvalid), .m_axis_arready(1'b0),
+        .m_axis_rdata(512'd0), .m_axis_rresp(2'b00),
+        .m_axis_rlast(1'b0), .m_axis_rvalid(1'b0),
+        .m_axis_rready(nc_mrready)
     );
 
     // ==================================================================
@@ -187,7 +212,7 @@ module tb_layershim_c;
         fork
             begin : aw_thread
                 @(negedge aclk);
-                bawid = 1'b0; bawaddr = 16'(wbase * 4); bawlen = 8'(n - 1);
+                bawid = 1'b0; bawaddr = 18'(wbase * 4); bawlen = 8'(n - 1);
                 bawsize = 3'd2; bawburst = 2'b01; bawvalid = 1'b1;
                 while (!bawready) @(negedge aclk);
                 @(negedge aclk);
@@ -229,7 +254,7 @@ module tb_layershim_c;
     task automatic axib_rd(input int wbase, input int n, input int gapr);
         int i;
         @(negedge aclk);
-        barid = 1'b0; baraddr = 16'(wbase * 4); barlen = 8'(n - 1);
+        barid = 1'b0; baraddr = 18'(wbase * 4); barlen = 8'(n - 1);
         barsize = 3'd2; barburst = 2'b01; barvalid = 1'b1;
         while (!barready) @(negedge aclk);
         @(negedge aclk);
@@ -276,7 +301,10 @@ module tb_layershim_c;
     int seed_arg = 1;
     int t1_words = 0, t2_words = 0, t6_words = 0;
 
-    // T3/T5 layout (disjoint regions inside the 16384-word scratchpad)
+    // T3/T5 layout (disjoint regions inside the 65536-word scratchpad)
+    // G3.1: SCR_WORDS is the ONE place the depth is written down here;
+    // every burst placement below derives from it.
+    localparam int SCR_WORDS = 65536;
     localparam int ALU_LEN  = 2048;
     localparam int A_SRCA   = 0;             //     0 .. 2047
     localparam int A_SRCB   = 2048;          //  2048 .. 4095
@@ -301,7 +329,13 @@ module tb_layershim_c;
                 3: n = 255;  4: n = 256;  5: n = 16;
                 default: n = 1 + rndm(MAXB);
             endcase
-            base = rndm(16384 - n + 1);
+            // G3.1: the window is SCR_WORDS words; case 0 pins the
+            // burst at the very TOP so the new high half is always
+            // exercised, and case 1 just under the OLD 32K top so the
+            // R-b/G3.1 boundary itself is covered.
+            base = (c == 0) ? (SCR_WORDS - n)
+                 : (c == 1) ? (32768 - n)
+                 : rndm(SCR_WORDS - n + 1);
             for (int i = 0; i < n; i++) tx_d[i] = 16'(rnd32());
             axib_wr(base, n, (c % 3 == 0) ? 0 : 4, 4'hF);
             if (last_bresp !== RESP_OK)
@@ -330,7 +364,9 @@ module tb_layershim_c;
                 0: n = 1;    1: n = 2;    2: n = 256;
                 default: n = 1 + rndm(MAXB);
             endcase
-            base = rndm(16384 - n + 1);
+            base = (c == 0) ? (SCR_WORDS - n)
+                 : (c == 1) ? (32768 - n)
+                 : rndm(SCR_WORDS - n + 1);
             for (int i = 0; i < n; i++) begin
                 tx_d[i] = 16'(rnd32());
                 t2_wrote[i] = tx_d[i];
@@ -391,9 +427,16 @@ module tb_layershim_c;
         cnt0 = int'(cs[31:16]);
 
         // kick the command:  ALU op 4 (ADD), len 1024
+        // G3.1: SEQ_ISA v2.0 pairs — ARG1 = {srcb[31:16], srca[15:0]} and
+        // ARG2 = {dst[31:16], p0[15:0]}.  These were `<< 14` / `<< 17`, a
+        // hand-coded v1.7 packing spec 7.5's family-B census did not list;
+        // under v2.0 the ALU dst decoded as 8192 = A_VICTIM and the ADD
+        // scribbled over the very region T3 checks for a blocked write, so
+        // the failure read as "the blocked write landed" — a wrong-command
+        // bug wearing a fabric bug's clothes.
         wr32(A_ARG0, 32'(ALU_LEN) << 4 | 32'd4);
-        wr32(A_ARG1, 32'(A_SRCB) << 14 | 32'(A_SRCA));
-        wr32(A_ARG2, 32'(A_DST)  << 17);
+        wr32(A_ARG1, 32'(A_SRCB) << 16 | 32'(A_SRCA));
+        wr32(A_ARG2, 32'(A_DST)  << 16);
         wr32(A_CMD,  32'd11);
         wait_busy();
 
@@ -570,8 +613,8 @@ module tb_layershim_c;
         localparam int N8 = 32;
         for (int k = 0; k < 8; k++) begin
             wr32(A_ARG0, 32'd64 << 4 | 32'd4);       // short ALU ADD
-            wr32(A_ARG1, 32'(A_SRCB) << 14 | 32'(A_SRCA));
-            wr32(A_ARG2, 32'(A_DST)  << 17);
+            wr32(A_ARG1, 32'(A_SRCB) << 16 | 32'(A_SRCA));
+            wr32(A_ARG2, 32'(A_DST)  << 16);
             wr32(A_CMD,  32'd11);
             wait_idle();                             // the DONE poll
             for (int i = 0; i < N8; i++) tx_d[i] = 16'(rnd32());

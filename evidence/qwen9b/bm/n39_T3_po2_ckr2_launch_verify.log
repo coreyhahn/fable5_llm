@@ -1,0 +1,59 @@
+=== host: snoke  date: 2026-09-25T03:26:32-06:00
+=== tree: 2db4918
+=== cmd : bash -c 
+echo "SV date: $(date -Is)"
+echo "SV fullimpl Vivado processes:"; ps -eo pid,etime,args | grep "unwrapped/lnx64.o/[v]ivado -mode batch -nojournal -log fullimpl.log" | cut -c1-60 | sed "s/^/SV   /"
+for p in $(pgrep -f "unwrapped/lnx64.o/vivado -mode batch -nojournal -log fullimpl.log"); do echo "SV   pid $p cwd $(readlink /proc/$p/cwd)"; done
+for d in synth/out_build_042_bm1_ckr2_AltSpreadLogic_high synth/out_build_042_bm1_ckr2_AltSpreadLogic_medium synth/out_build_042_bm1_ckr2_ExtraNetDelay_high synth/out_build_042_bm1_ckr2_ExtraTimingOpt; do
+  echo "SV ## $d  proj=$(du -sh $d/proj | cut -f1)  created=$(stat -c %w $d 2>/dev/null)"
+  grep -hE "^(EXTRA_XDC|FULL_IMPL_CFG|ERROR|FATAL|CRITICAL WARNING)" $d/fullimpl.log | sed "s/^/SV   /"
+  echo "SV   ERROR count: $(grep -c "^ERROR" $d/fullimpl.log)"
+  tail -2 $d/fullimpl.log | cut -c1-160 | sed "s/^/SV   tail: /"
+done
+echo "SV load: $(uptime)"
+
+=== env : FABLE5_MODEL=unset  FABLE5_SEQ_EXPECT_VERSION=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SV date: 2026-09-25T03:26:32-06:00
+SV fullimpl Vivado processes:
+SV   1347954       02:41 /home/cah/r2d2/sc2data/tools/Vivado/2024
+SV   1348086       02:10 /home/cah/r2d2/sc2data/tools/Vivado/2024
+SV   1348691       01:40 /home/cah/r2d2/sc2data/tools/Vivado/2024
+SV   1349637       01:08 /home/cah/r2d2/sc2data/tools/Vivado/2024
+SV   1352247       00:00 bash evidence/qwen9b/bm/bm_run.sh n39_T3
+SV   1352261       00:00 bash evidence/qwen9b/bm/bm_run.sh n39_T3
+SV   1352314       00:00 bash -c  echo "SV date: $(date -Is)" ech
+SV   pid 1347954 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2_AltSpreadLogic_high
+SV   pid 1348086 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2_AltSpreadLogic_medium
+SV   pid 1348691 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2_ExtraNetDelay_high
+SV   pid 1349637 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2_ExtraTimingOpt
+SV   pid 1352247 cwd /home/cah/r2d2/code/fpga/fable5_llm
+SV   pid 1352261 cwd /home/cah/r2d2/code/fpga/fable5_llm
+SV   pid 1352314 cwd /home/cah/r2d2/code/fpga/fable5_llm
+SV ## synth/out_build_042_bm1_ckr2_AltSpreadLogic_high  proj=937M  created=-
+SV   EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+SV   FULL_IMPL_CFG: place=AltSpreadLogic_high phys_opt=AggressiveExplore (post-place AND post-route enabled)
+SV   ERROR count: 0
+SV   tail: Design is defaulting to constrset: constrs_1
+SV   tail: INFO: [Device 21-403] Loading part xcvu9p-fsgd2104-2L-e
+SV ## synth/out_build_042_bm1_ckr2_AltSpreadLogic_medium  proj=937M  created=-
+SV   EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+SV   FULL_IMPL_CFG: place=AltSpreadLogic_medium phys_opt=AggressiveExplore (post-place AND post-route enabled)
+SV   ERROR count: 0
+SV   tail: Design is defaulting to constrset: constrs_1
+SV   tail: INFO: [Device 21-403] Loading part xcvu9p-fsgd2104-2L-e
+SV ## synth/out_build_042_bm1_ckr2_ExtraNetDelay_high  proj=665M  created=-
+SV   EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+SV   FULL_IMPL_CFG: place=ExtraNetDelay_high phys_opt=AggressiveExplore (post-place AND post-route enabled)
+SV   ERROR count: 0
+SV   tail:     with args -log bd_wrapper.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source bd_wrapper.tcl -notrace
+SV   tail: 
+SV ## synth/out_build_042_bm1_ckr2_ExtraTimingOpt  proj=890M  created=-
+SV   EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+SV   FULL_IMPL_CFG: place=ExtraTimingOpt phys_opt=AggressiveExplore (post-place AND post-route enabled)
+SV   ERROR count: 0
+SV   tail:     with args -log bd_wrapper.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source bd_wrapper.tcl -notrace
+SV   tail: 
+SV load:  03:26:36 up 4 days, 22:38,  9 users,  load average: 7.13, 4.86, 4.15
+=== rc  : 0
+=== end : 2026-09-25T03:26:36-06:00

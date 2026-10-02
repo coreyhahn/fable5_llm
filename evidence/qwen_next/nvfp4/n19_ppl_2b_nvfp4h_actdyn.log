@@ -1,0 +1,50 @@
+=== host: snoke  date: 2026-09-23T09:50:36-06:00
+=== tree: 7ce98e7
+=== cmd : env FABLE5_MODEL=2b /home/cah/.venv/bin/python ref/perplexity_eval.py --corpus ref/ppl_corpus_eval.txt --expect-corpus-sha256 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876 --window 512 --threads 6 --inject all:nvfp4h --act nvfp4h:dyn --json-out evidence/qwen_next/nvfp4/n19_ppl_2b_nvfp4h_actdyn.json
+=== venv: 3.12.3 numpy 2.4.6
+corpus gate PASS: sha256 starts 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876 (checked before tokenizing)
+model      FABLE5_MODEL=2b  24 layers  H=2048  vocab=248320
+checkpoint /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+           header sha256 ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d
+lm_head    tied (a separate copy of embed_tokens)
+tokenizer  /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc
+corpus     ref/ppl_corpus_eval.txt
+           sha256 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876
+           24576 tokens, window=512, batch=4
+inject     all:nvfp4h
+host       snoke
+torch 2.12.0+cpu  threads=6
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+  model built + loaded in 341.2s
+    class    quant    mats   weights   packed  (ideal)   footprint   [packed = w4a8_ref.row_stride, beat padding included]
+    qkv      nvfp4h    18 mats    62.915 M  4.500 b/w ( 4.500)      33.8 MiB
+    o_proj   nvfp4h     6 mats    25.166 M  4.500 b/w ( 4.500)      13.5 MiB
+    gate_up  nvfp4h    48 mats   603.980 M  4.500 b/w ( 4.500)     324.0 MiB
+    down     nvfp4h    24 mats   301.990 M  4.500 b/w ( 4.500)     162.0 MiB
+    dn_in    nvfp4h    72 mats   303.170 M  4.500 b/w ( 4.500)     162.6 MiB
+    dn_out   nvfp4h    18 mats    75.497 M  4.500 b/w ( 4.500)      40.5 MiB
+    lm_head  nvfp4h     1 mats   508.559 M  4.500 b/w ( 4.500)     272.8 MiB
+    dn_conv  bf16      18 mats     0.442 M 16.000 b/w (16.000)       0.8 MiB
+    emb      bf16       1 mats   508.559 M 16.000 b/w (16.000)     970.0 MiB
+    _float   bf16     115 mats     0.106 M 16.000 b/w (16.000)       0.2 MiB
+    _total   bf16     321 mats  2390.384 M  6.949 b/w ( 6.949)    1980.2 MiB
+rht        seed 0: 97 input sites rotated (block 16, one sign vector per site)
+act        nvfp4h:dyn: 97 input sites hooked (187 matvecs incl. the head)
+  window 4/48  positions=2044  running PPL=11.5854  155.2s
+  window 8/48  positions=4088  running PPL=13.1194  308.5s
+  window 12/48  positions=6132  running PPL=13.5134  472.2s
+  window 16/48  positions=8176  running PPL=13.8091  634.0s
+  window 20/48  positions=10220  running PPL=14.2439  790.0s
+  window 24/48  positions=12264  running PPL=14.5590  940.5s
+  window 28/48  positions=14308  running PPL=13.7697  1088.8s
+  window 32/48  positions=16352  running PPL=13.3208  1232.5s
+  window 36/48  positions=18396  running PPL=14.1210  1378.8s
+  window 40/48  positions=20440  running PPL=14.2820  1526.7s
+  window 44/48  positions=22484  running PPL=14.3998  1679.2s
+  window 48/48  positions=24528  running PPL=15.0741  1828.9s
+
+nll_sum 66543.993151  positions 24528  nll/pos 2.712981  eval 1828.9s (build 342.3s)
+json -> evidence/qwen_next/nvfp4/n19_ppl_2b_nvfp4h_actdyn.json
+PPL 15.074142
+=== rc  : 0
+=== end : 2026-09-23T10:26:54-06:00

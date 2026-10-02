@@ -1,0 +1,139 @@
+=== host: snoke  date: 2026-09-25T03:22:24-06:00
+=== tree: c26eba4
+=== cmd : bash -c 
+N=synth/out_build_042_bm1; S=synth/out_build_041
+echo "BR report mtimes (fresh = after launch 2026-09-24T23:16:09):"; ls -la --time-style=full-iso $N/reports/*.rpt $N/proj/stage1.runs/impl_1/*.bit $N/proj/stage1.runs/impl_1/*routed*.dcp $N/proj/stage1.runs/impl_1/*.mmi 2>&1 | awk "{print \"BR   \" \$6, \$7, \$5, \$9}"
+echo "BR build_run TIMING/CLOCK_GATE:"; grep -E "^(TIMING|CLOCK_GATE_OK|BUILD_OK)" $N/build_run.log | sed "s/^/BR   /"
+echo "===== g5d_roll_summary: build_042_bm1 ====="
+bash evidence/qwen9b/g5/g5d_roll_summary.sh $N/reports/timing_summary.rpt build_042_bm1 "base roll: launch_build.sh DEFAULT recipe, no XDC"
+echo "===== g5d_roll_summary: build_041 (shipped campaign base roll, comparand) ====="
+bash evidence/qwen9b/g5/g5d_roll_summary.sh $S/reports/timing_summary.rpt build_041 "shipped campaign base roll"
+for R in $N $S; do
+  echo "===== worst setup paths per clock (first Max Delay path of each named clock section): $R ====="
+  awk "/^From Clock:|^Clock:/ {clk=\$0} /^Slack \\(VIOLATED\\)|^Slack \\(MET\\)/ && !seen[clk]++ {sl=\$0; getline; src=\$0; getline; getline; dst=\$0; print \"WP \" clk; print \"WP   \" sl; print \"WP   \" src; print \"WP   \" dst}" $R/reports/timing_summary.rpt | grep -A3 -E "WP (Clock|From Clock): +(xdma_0_axi_aclk|mmcm_clkout0(_[123])?)$" | grep -v "^--"
+done
+echo "===== utilization (top level) new vs 041 ====="
+for k in "CLB LUTs  " "CLB Registers  " "Block RAM Tile  " "URAM  " "DSPs  "; do
+  a=$(grep -m1 "^| $k" $N/reports/utilization.rpt | awk -F"|" "{gsub(/ /,\"\",\$3); print \$3}"); b=$(grep -m1 "^| $k" $S/reports/utilization.rpt | awk -F"|" "{gsub(/ /,\"\",\$3); print \$3}")
+  echo "UT $k new=$a build_041=$b delta=$(echo "$a - $b" | bc)"
+done
+echo "===== hierarchical rows (seq_0, mvchan_*, layer_0) new vs 041: Instance | Module | Total LUTs | Logic LUTs | LUTRAMs | SRLs | FFs | RAMB36 | RAMB18 | URAM | DSP ====="
+for R in $N $S; do echo "UH $R"; grep -E "^\|   (seq_0|mvchan_[0-3]|layer_0) " $R/reports/utilization_hier.rpt | tr -s " " | sed "s/^/UH   /"; done
+
+=== env : FABLE5_MODEL=unset  FABLE5_SEQ_EXPECT_VERSION=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+BR report mtimes (fresh = after launch 2026-09-24T23:16:09):
+BR   2026-09-25 03:06:49.478212770 52376509 synth/out_build_042_bm1/proj/stage1.runs/impl_1/bd_wrapper.bit
+BR   2026-09-25 02:52:51.468013266 29673 synth/out_build_042_bm1/proj/stage1.runs/impl_1/bd_wrapper.mmi
+BR   2026-09-25 02:52:40.066523388 288772447 synth/out_build_042_bm1/proj/stage1.runs/impl_1/bd_wrapper_routed.dcp
+BR   2026-09-25 03:13:25.000750459 1173 synth/out_build_042_bm1/reports/check_timing_noclock.rpt
+BR   2026-09-25 03:17:19.169564039 438779 synth/out_build_042_bm1/reports/clock_util.rpt
+BR   2026-09-25 03:18:44.647174121 1762541 synth/out_build_042_bm1/reports/drc.rpt
+BR   2026-09-25 03:14:12.732740026 1472473 synth/out_build_042_bm1/reports/timing_summary.rpt
+BR   2026-09-25 03:15:31.949054942 4548066 synth/out_build_042_bm1/reports/utilization_hier.rpt
+BR   2026-09-25 03:14:59.365689610 21642 synth/out_build_042_bm1/reports/utilization.rpt
+BR build_run TIMING/CLOCK_GATE:
+BR   CLOCK_GATE_OK: 250MHz clocks: pipe_clk xdma_0_axi_aclk
+BR   TIMING: WNS=-0.687 WHS=0.001
+BR   BUILD_OK
+===== g5d_roll_summary: build_042_bm1 =====
+# roll: build_042_bm1
+# source: synth/out_build_042_bm1/reports/timing_summary.rpt (out dirs are gitignored)
+# mtime : 2026-09-25 03:14:12.732740026 -0600
+# base roll: launch_build.sh DEFAULT recipe, no XDC
+
+=== Design Timing Summary ===
+     -0.687    -6717.958                  36472              1321575        0.001        0.000                      0              1318439        0.000        0.000                       0                391787  
+
+=== Clock Summary (the six named clocks: name, waveform, period, frequency) ===
+  mmcm_clkout0                                                                                                                                                                                                                                                                                                                                                                                                                     {0.000 1.666}          3.332           300.120         
+  mmcm_clkout0_2                                                                                                                                                                                                                                                                                                                                                                                                                   {0.000 1.666}          3.332           300.120         
+  mmcm_clkout0_3                                                                                                                                                                                                                                                                                                                                                                                                                   {0.000 1.666}          3.332           300.120         
+  mmcm_clkout0_1                                                                                                                                                                                                                                                                                                                                                                                                                   {0.000 1.666}          3.332           300.120         
+      pipe_clk                                                                                                                                                                                                                                                                                                                                                                                                                     {0.000 2.000}          4.000           250.000         
+      xdma_0_axi_aclk                                                                                                                                                                                                                                                                                                                                                                                                              {0.000 2.000}          4.000           250.000         
+
+=== Intra Clock Table (the same six) ===
+  mmcm_clkout0                                                                                                                                                                                                                                                                                                                                                                                                                          -0.307     -255.776                   2650               173198        0.010        0.000                      0               173198        0.500        0.000                       0                 58599  
+  mmcm_clkout0_2                                                                                                                                                                                                                                                                                                                                                                                                                        -0.378     -439.885                   3372               173296        0.010        0.000                      0               173296        0.500        0.000                       0                 58631  
+  mmcm_clkout0_3                                                                                                                                                                                                                                                                                                                                                                                                                        -0.601    -1057.447                   6010               173068        0.001        0.000                      0               173068        0.500        0.000                       0                 58555  
+  mmcm_clkout0_1                                                                                                                                                                                                                                                                                                                                                                                                                        -0.345      -98.096                    881               173239        0.002        0.000                      0               173239        0.500        0.000                       0                 58620  
+      pipe_clk                                                                                                                                                                                                                                                                                                                                                                                                                           0.914        0.000                      0                 4764        0.014        0.000                      0                 4764        0.000        0.000                       0                  2246  
+      xdma_0_axi_aclk                                                                                                                                                                                                                                                                                                                                                                                                                   -0.687    -4866.754                  23559               579354        0.010        0.000                      0               579354        1.300        0.000                       0                140029  
+===== g5d_roll_summary: build_041 (shipped campaign base roll, comparand) =====
+# roll: build_041
+# source: synth/out_build_041/reports/timing_summary.rpt (out dirs are gitignored)
+# mtime : 2026-09-07 09:44:39.697576810 -0600
+# shipped campaign base roll
+
+=== Design Timing Summary ===
+     -0.859    -5879.083                  29237              1321608        0.006        0.000                      0              1318472        0.000        0.000                       0                393278  
+
+=== Clock Summary (the six named clocks: name, waveform, period, frequency) ===
+  mmcm_clkout0                                                                                                                                                                                                                                                                                                                                                                                                                     {0.000 1.666}          3.332           300.120         
+  mmcm_clkout0_2                                                                                                                                                                                                                                                                                                                                                                                                                   {0.000 1.666}          3.332           300.120         
+  mmcm_clkout0_3                                                                                                                                                                                                                                                                                                                                                                                                                   {0.000 1.666}          3.332           300.120         
+  mmcm_clkout0_1                                                                                                                                                                                                                                                                                                                                                                                                                   {0.000 1.666}          3.332           300.120         
+      pipe_clk                                                                                                                                                                                                                                                                                                                                                                                                                     {0.000 2.000}          4.000           250.000         
+      xdma_0_axi_aclk                                                                                                                                                                                                                                                                                                                                                                                                              {0.000 2.000}          4.000           250.000         
+
+=== Intra Clock Table (the same six) ===
+  mmcm_clkout0                                                                                                                                                                                                                                                                                                                                                                                                                          -0.524     -957.757                   5084               173221        0.010        0.000                      0               173221        0.500        0.000                       0                 58604  
+  mmcm_clkout0_2                                                                                                                                                                                                                                                                                                                                                                                                                        -0.310      -18.632                    233               173159        0.010        0.000                      0               173159        0.500        0.000                       0                 58552  
+  mmcm_clkout0_3                                                                                                                                                                                                                                                                                                                                                                                                                        -0.336     -221.297                   2070               173201        0.010        0.000                      0               173201        0.500        0.000                       0                 58571  
+  mmcm_clkout0_1                                                                                                                                                                                                                                                                                                                                                                                                                        -0.070       -9.377                    327               173222        0.008        0.000                      0               173222        0.500        0.000                       0                 58576  
+      pipe_clk                                                                                                                                                                                                                                                                                                                                                                                                                           1.049        0.000                      0                 4764        0.012        0.000                      0                 4764        0.000        0.000                       0                  2246  
+      xdma_0_axi_aclk                                                                                                                                                                                                                                                                                                                                                                                                                   -0.859    -4672.020                  21523               579385        0.006        0.000                      0               579385        1.300        0.000                       0                141622  
+===== worst setup paths per clock (first Max Delay path of each named clock section): synth/out_build_042_bm1 =====
+WP From Clock:  mmcm_clkout0
+WP   Slack (VIOLATED) :        -0.307ns  (required time - arrival time)
+WP     Source:                 bd_i/mvchan_0/inst/u_chan/u_streamer/f_rd_reg[7]/C
+WP     Destination:            bd_i/mvchan_0/inst/u_chan/u_engine/prod_q_reg[44][-1111111109]/CE
+WP From Clock:  mmcm_clkout0_2
+WP   Slack (VIOLATED) :        -0.378ns  (required time - arrival time)
+WP     Source:                 bd_i/mvchan_1/inst/u_chan/u_streamer/f_rd_reg[3]_replica_1/C
+WP     Destination:            <hidden>
+WP From Clock:  mmcm_clkout0_3
+WP   Slack (VIOLATED) :        -0.601ns  (required time - arrival time)
+WP     Source:                 bd_i/mvchan_2/inst/u_chan/u_streamer/f_rd_reg[5]/C
+WP     Destination:            bd_i/mvchan_2/inst/u_chan/u_engine/scales_q_reg[82][14]/D
+WP From Clock:  mmcm_clkout0_1
+WP   Slack (VIOLATED) :        -0.345ns  (required time - arrival time)
+WP     Source:                 bd_i/mvchan_3/inst/u_chan/u_engine/rr_mag_reg[9]/C
+WP     Destination:            bd_i/mvchan_3/inst/u_chan/u_engine/ofifo_reg_0_3_28_41/RAMB/I
+WP From Clock:  xdma_0_axi_aclk
+WP   Slack (VIOLATED) :        -0.687ns  (required time - arrival time)
+WP     Source:                 bd_i/layer_0/inst/u_core/u_dma/x_kind_reg[1]/C
+WP     Destination:            bd_i/layer_0/inst/u_core/u_dma/fmem_reg_0_255_314_314/DP.A/I
+===== worst setup paths per clock (first Max Delay path of each named clock section): synth/out_build_041 =====
+WP From Clock:  mmcm_clkout0
+WP   Slack (VIOLATED) :        -0.524ns  (required time - arrival time)
+WP     Source:                 bd_i/mvchan_0/inst/u_chan/u_streamer/f_rd_reg[1]_replica_5/C
+WP     Destination:            bd_i/mvchan_0/inst/u_chan/u_streamer/fifo_reg_128_191_112_118/RAMA/WE
+WP From Clock:  mmcm_clkout0_2
+WP   Slack (VIOLATED) :        -0.310ns  (required time - arrival time)
+WP     Source:                 bd_i/mvchan_1/inst/u_chan/u_engine/r_g_reg[0]_rep__11/C
+WP     Destination:            bd_i/mvchan_1/inst/u_chan/u_engine/r_row_reg[15]/CE
+WP From Clock:  mmcm_clkout0_3
+WP   Slack (VIOLATED) :        -0.336ns  (required time - arrival time)
+WP     Source:                 bd_i/mvchan_2/inst/u_chan/u_engine/g_cnt_reg[4]/C
+WP     Destination:            bd_i/mvchan_2/inst/u_chan/u_engine/xline_q0_reg[23]__26/CE
+WP From Clock:  mmcm_clkout0_1
+WP   Slack (VIOLATED) :        -0.070ns  (required time - arrival time)
+WP     Source:                 <hidden>
+WP     Destination:            <hidden>
+WP From Clock:  xdma_0_axi_aclk
+WP   Slack (VIOLATED) :        -0.859ns  (required time - arrival time)
+WP     Source:                 bd_i/layer_0/inst/u_core/u_dma/f_rp_reg[0]/C
+WP     Destination:            bd_i/layer_0/inst/u_core/u_dma/fmem_reg_0_255_50_50/DP.A/I
+===== utilization (top level) new vs 041 =====
+UT CLB LUTs   new=310085 build_041=309669 delta=416
+UT CLB Registers   new=318432 build_041=319915 delta=-1483
+UT Block RAM Tile   new=251 build_041=251 delta=0
+UT URAM   new=182 build_041=182 delta=0
+UT DSPs   new=1860 build_041=1860 delta=0
+===== hierarchical rows (seq_0, mvchan_*, layer_0) new vs 041: Instance | Module | Total LUTs | Logic LUTs | LUTRAMs | SRLs | FFs | RAMB36 | RAMB18 | URAM | DSP =====
+UH synth/out_build_042_bm1
+UH synth/out_build_041
+=== rc  : 0
+=== end : 2026-09-25T03:22:30-06:00

@@ -1,0 +1,36 @@
+=== host: snoke
+=== date: 2026-09-02T21:01:27-06:00
+=== tree: 6b1f24d
+=== cmd:  bash -c 
+R=$PWD; T=$(mktemp -d)
+echo "m6 control: the SAME script, in a sandbox where tb/scripts/w3 does not exist"
+mkdir -p $T/evidence/qwen9b/g3 $T/tb/scripts
+ln -s $R/ref $T/ref; ln -s $R/sw $T/sw
+cp $R/evidence/qwen9b/g3/g34_shape_isa_paths.py $T/evidence/qwen9b/g3/
+for f in $R/tb/scripts/*.py; do ln -s $f $T/tb/scripts/; done
+cd $T && /home/cah/.venv/bin/python evidence/qwen9b/g3/g34_shape_isa_paths.py
+rc=$?
+echo "exit code: $rc  (2 = NO_ARTIFACT; it must never be 0 here)"
+rm -rf $T
+exit $rc
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+m6 control: the SAME script, in a sandbox where tb/scripts/w3 does not exist
+G3.4 SHAPE-layout paths — who states isa, and on whose authority
+  ABSENT: tb/scripts/w3/lay_s1.e.seq (tb/scripts/w3 is a build product; run `make -C tb seq_chip_scripts` to regenerate it)
+  ABSENT: tb/scripts/w3/tok2_s1.e.seq (tb/scripts/w3 is a build product; run `make -C tb seq_chip_scripts` to regenerate it)
+  4 SITE    ref/seq_chat.py                    1 site(s) take the layout from the artifact
+  4 SITE    ref/seq_model.py                   1 site(s) take the layout from the artifact
+  4 SITE    tb/scripts/gen_seq_chip_vectors.py 1 site(s) take the layout from the artifact
+  4 SITE    tb/scripts/gen_seq_unit_vectors.py STATES isa=2 (it builds the stream in memory)
+  5 EMIT     sw/hwmap.shape_word asserts 1 <= ng <= SHAPE_MAX_NG[isa] for every word it packs
+  GAP       0 of 0 artifact metas declare shape_isa (no emitter writes it yet — Task 11)
+SHAPE_ISA_PATHS: NO_ARTIFACT — 2 of 2 frozen artifact(s) absent, so the GREEN/RED/ARMING evidence did not run (0 other problem(s))
+exit code: 2  (2 = NO_ARTIFACT; it must never be 0 here)
+=== rc: 2
+=== end: 2026-09-02T21:01:27-06:00

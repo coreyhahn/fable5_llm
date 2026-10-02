@@ -3,9 +3,13 @@
 // ONE randomized command stream is driven into TWO instances:
 //   dut_r = vec_alu_legacy   (tb/legacy/vec_alu_legacy.sv, frozen HEAD copy)
 //   dut_n = vec_alu          (rtl/vec_alu.sv, the II=1 rewrite)
-// each with its OWN 16K x 16 scratch model (two replicated read ports,
-// 1-cycle registered read, read-first write).  NOTHING here assumes equal
-// cycle counts: every observable is snapshotted at that DUT's own `done`.
+// each with its OWN scratch model (two replicated read ports, 1-cycle
+// registered read, read-first write).  The LEGACY model is 16K x 16 — its
+// address port is 14 bits; the NEW one is 64K x 16 since G3.1, purely so
+// the array index width matches the 16-bit port and simulation does not
+// truncate the address.  Only [0, 16384) is ever stimulated or compared.
+// NOTHING here assumes equal cycle counts: every observable is snapshotted
+// at that DUT's own `done`.
 //
 // Per command the harness compares
 //   (a) the FULL 16384-word scratch image
@@ -61,11 +65,28 @@ module tb_vecalu_diff;
     // ---- command buses: separate copies so +cfgscramble can prove the
     //      "cfg latched at start" contract without disturbing the legacy ----
     logic [3:0]         c_op = '0,  n_op = '0;
-    logic [11:0]        c_len = '0, n_len = '0;
+    // G3.1: the CURRENT vec_alu takes a 14-bit element count; the frozen
+    // legacy copy is 12-bit.  The stimulus is generated inside the LEGACY's
+    // range — gen_len() tops out at 3584, the longest ALU command any frozen
+    // 0.8B stream actually issues — so the extra TWO bits are always 0 and
+    // the differential claim is exactly what it should be: the widened unit
+    // is bit-identical to the pre-widening one over the whole legacy
+    // domain, production length included.  Same argument as the address
+    // widths below.  WHAT THIS TB DOES NOT COVER, restated at 16 bits
+    // because the argument has to be restated every time the width moves:
+    // it says NOTHING about lengths above 4095 or addresses above 16383 —
+    // those are tb_vec_alu's directed cases (the 12288-element run into the
+    // top half), not this differential's.
+    logic [11:0]        c_len = '0;
+    logic [13:0]        n_len = '0;
     logic signed [16:0] c_p0 = '0,  n_p0 = '0;
-    logic [13:0]        c_sa = '0,  n_sa = '0;
-    logic [13:0]        c_sb = '0,  n_sb = '0;
-    logic [13:0]        c_d  = '0,  n_d  = '0;
+    // G3.1: the CURRENT vec_alu takes 16-bit scratch addresses; the frozen
+    // legacy copy is 14-bit.  The stimulus stays inside the legacy's 16K
+    // range (MEMW), so the extra TWO bits are always 0 and the differential
+    // claim is unchanged — only the port width differs.
+    logic [13:0]        c_sa = '0;  logic [15:0] n_sa = '0;
+    logic [13:0]        c_sb = '0;  logic [15:0] n_sb = '0;
+    logic [13:0]        c_d  = '0;  logic [15:0] n_d  = '0;
 
     // ---- reference (legacy) instance ----
     logic               busy_r, done_r;
@@ -96,7 +117,7 @@ module tb_vecalu_diff;
     logic signed [6:0]  k_n;
     logic               kwe_n;
     logic [47:0]        mp_n;
-    logic [13:0]        aa_n, ba_n, wa_n;
+    logic [15:0]        aa_n, ba_n, wa_n;
     logic signed [15:0] aq_n, bq_n, wd_n;
     logic               we_n;
 
@@ -118,11 +139,18 @@ module tb_vecalu_diff;
 
     // ==================================================================
     // scratch models — one per DUT, identical contents at command start.
-    // read-first write (mirror of tb_vec_alu.sv:43-48); +wfirst flips the
+    // read-first write (mirror of tb_vec_alu.sv:117-122); +wfirst flips the
     // NEW model to write-first so a consumed collision would diverge.
     // ==================================================================
     logic signed [15:0] mem_r [MEMW];
-    logic signed [15:0] mem_n [MEMW];
+    // G3.1: the new DUT's addresses are 16 bits, and its DRAIN-time parking
+    // address (cfg_dst + len) does not wrap, so its scratch model spans the
+    // full 64K.  Only [0, MEMW) is ever stimulated or compared — the upper
+    // three quarters exist purely so a parked read is in range, and so the
+    // index width matches the port width (a narrower array truncates the
+    // 16-bit address in simulation and would hide exactly the aliasing this
+    // differential is supposed to be blind to by construction).
+    logic signed [15:0] mem_n [4 * MEMW];
     bit wfirst = 1'b0;
 
     always_ff @(posedge clk) begin
@@ -306,8 +334,8 @@ module tb_vecalu_diff;
         @(negedge clk);
         c_op = op; c_len = 12'(len); c_p0 = 17'(p0);
         c_sa = 14'(sa); c_sb = 14'(sb); c_d = 14'(d);
-        n_op = op; n_len = 12'(len); n_p0 = 17'(p0);
-        n_sa = 14'(sa); n_sb = 14'(sb); n_d = 14'(d);
+        n_op = op; n_len = 14'(len); n_p0 = 17'(p0);
+        n_sa = 16'(sa); n_sb = 16'(sb); n_d = 16'(d);
         exp_w = expw;
         clr = 1'b1;
         @(negedge clk);
@@ -316,9 +344,9 @@ module tb_vecalu_diff;
         @(negedge clk);
         start = 1'b0;
         if (cfgscramble) begin       // spec item 6: cfg latched at start
-            n_op = 4'(rndm(16)); n_len = 12'(rndm(4096));
-            n_p0 = 17'(rndm(131072)); n_sa = 14'(rndm(MEMW));
-            n_sb = 14'(rndm(MEMW));  n_d  = 14'(rndm(MEMW));
+            n_op = 4'(rndm(16)); n_len = 14'(rndm(4096));
+            n_p0 = 17'(rndm(131072)); n_sa = 16'(rndm(MEMW));
+            n_sb = 16'(rndm(MEMW));  n_d  = 16'(rndm(MEMW));
         end
 
         // ---- wait for BOTH (cycle counts are allowed to differ) ----
@@ -426,12 +454,26 @@ module tb_vecalu_diff;
     // ---- region allocator: legal overlap classes only ----
     //   cls 0 disjoint | 1 exact in-place (1:1) | 2 narrowing (2:1)
     //   cls 3 pair in-place (2:2, op 9)
-    task automatic run_case(input logic [3:0] op, input int len, input int p0,
+    task automatic run_case(input logic [3:0] op, input int len_in, input int p0,
                             input int cls, input int pat_a, input int pat_b,
                             input string tag);
-        int spA, spB, spD, total, base, sa, sb, d, expw;
+        int spA, spB, spD, total, base, sa, sb, d, expw, k, use_len, len;
         bit pr;
+        len = len_in;
         pr  = is_pair(op);
+        // R-c: gen_len() now offers 3584 — the longest ALU command any frozen
+        // 0.8B stream issues — but the region an op needs is k*len words and
+        // the FROZEN legacy copy has only a 16K map, so op 9 (k = 5: 2*len
+        // read + len + 2*len written) cannot host 3584.  Shrink to the
+        // longest this op class DOES fit rather than dropping the case: the
+        // long-length coverage is the point, and every op still gets the
+        // longest length its own geometry allows.
+        k = (pr ? 2 : 1) + 1
+            + ((cls == 0) ? ((op == 4'd9) ? 2 : ((op == 4'd10) ? 0 : 1)) : 0);
+        use_len = len;
+        if (k * use_len > MEMW) use_len = MEMW / k;
+        if (use_len < 1) $fatal(1, "region overflow %s len%0d (k=%0d)", tag, len, k);
+        len = use_len;
         spA = pr ? 2*len : len;
         spB = len;
         spD = (op == 4'd9) ? 2*len : ((op == 4'd10) ? 0 : len);
@@ -489,9 +531,16 @@ module tb_vecalu_diff;
         endcase
     endfunction
 
+    // R-c: 3584 is here because it is the LONGEST ALU command any frozen
+    // 0.8B stream issues (the MLP's FFN-wide DYNQ8), so the differential now
+    // covers the real production length rather than stopping at 2048.  It
+    // also stays inside the FROZEN legacy copy's 12-bit cfg_len, which is
+    // what keeps this a like-for-like comparison after the count widened to
+    // 13 bits: the widened unit must be bit-identical to the pre-widening
+    // one over the whole legacy domain, and 3584 is the far end of it.
     function automatic int gen_len();
         int sel;
-        sel = rndm(19);
+        sel = rndm(20);
         case (sel)
             0,1,2:    return 1;
             3,4:      return 2;
@@ -500,6 +549,7 @@ module tb_vecalu_diff;
             11,12,13: return 100;
             14,15,16: return 128;
             17:       return 1024;
+            18:       return 3584;
             default:  return 2048;
         endcase
     endfunction

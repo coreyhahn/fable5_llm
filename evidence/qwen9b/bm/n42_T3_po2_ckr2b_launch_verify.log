@@ -1,0 +1,44 @@
+=== host: snoke  date: 2026-09-25T08:53:00-06:00
+=== tree: 46bd0cc
+=== cmd : bash -c 
+echo "SV date: $(date -Is)"
+for p in $(pgrep -f "unwrapped/lnx64.o/vivado -mode batch -nojournal -log fullimpl.log"); do echo "SV   pid $p etime $(ps -o etime= -p $p) cwd $(readlink /proc/$p/cwd)"; done
+for d in synth/out_build_042_bm1_ckr2b_ExtraPostPlacementOpt synth/out_build_042_bm1_ckr2b_ExtraNetDelay_low synth/out_build_042_bm1_ckr2b_AltSpreadLogic_low synth/out_build_042_bm1_ckr2b_EarlyBlockPlacement; do
+  echo "SV ## $d proj=$(du -sh $d/proj | cut -f1)"
+  grep -hE "^(EXTRA_XDC|FULL_IMPL_CFG|ERROR|FATAL)" $d/fullimpl.log | sed "s/^/SV   /"
+  echo "SV   ERROR count: $(grep -c "^ERROR" $d/fullimpl.log)"
+done
+echo "SV load: $(uptime)"; free -g | sed -n 2p | sed "s/^/SV mem: /"
+
+=== env : FABLE5_MODEL=unset  FABLE5_SEQ_EXPECT_VERSION=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SV date: 2026-09-25T08:53:01-06:00
+SV   pid 1348086 etime    05:28:39 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2_AltSpreadLogic_medium
+SV   pid 1348691 etime    05:28:09 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2_ExtraNetDelay_high
+SV   pid 2048811 etime       02:40 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2b_ExtraPostPlacementOpt
+SV   pid 2048932 etime       02:10 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2b_ExtraNetDelay_low
+SV   pid 2049362 etime       01:40 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2b_AltSpreadLogic_low
+SV   pid 2050415 etime       01:07 cwd /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_042_bm1_ckr2b_EarlyBlockPlacement
+SV   pid 2052379 etime       00:00 cwd /home/cah/r2d2/code/fpga/fable5_llm
+SV   pid 2052393 etime       00:00 cwd /home/cah/r2d2/code/fpga/fable5_llm
+SV   pid 2052446 etime       00:00 cwd /home/cah/r2d2/code/fpga/fable5_llm
+SV ## synth/out_build_042_bm1_ckr2b_ExtraPostPlacementOpt proj=937M
+SV   EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+SV   FULL_IMPL_CFG: place=ExtraPostPlacementOpt phys_opt=AggressiveExplore (post-place AND post-route enabled)
+SV   ERROR count: 0
+SV ## synth/out_build_042_bm1_ckr2b_ExtraNetDelay_low proj=937M
+SV   EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+SV   FULL_IMPL_CFG: place=ExtraNetDelay_low phys_opt=AggressiveExplore (post-place AND post-route enabled)
+SV   ERROR count: 0
+SV ## synth/out_build_042_bm1_ckr2b_AltSpreadLogic_low proj=937M
+SV   EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+SV   FULL_IMPL_CFG: place=AltSpreadLogic_low phys_opt=AggressiveExplore (post-place AND post-route enabled)
+SV   ERROR count: 0
+SV ## synth/out_build_042_bm1_ckr2b_EarlyBlockPlacement proj=937M
+SV   EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+SV   FULL_IMPL_CFG: place=EarlyBlockPlacement phys_opt=AggressiveExplore (post-place AND post-route enabled)
+SV   ERROR count: 0
+SV load:  08:53:04 up 5 days,  4:05, 10 users,  load average: 11.02, 8.95, 8.20
+SV mem: Mem:             247          45          45           0         158         201
+=== rc  : 0
+=== end : 2026-09-25T08:53:04-06:00

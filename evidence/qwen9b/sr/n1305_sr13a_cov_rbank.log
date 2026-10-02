@@ -1,0 +1,81 @@
+=== host: snoke  date: 2026-09-28T12:25:51-06:00
+=== tree: 137ee23
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr13a_cov.py rbank tb/scripts/w9/sr13a_cov_rbank
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr13a_cov rbank -> tb/scripts/w9/sr13a_cov_rbank  seed 1302  FABLE5_MODEL=9b
+  wid 0: K 8192 ng 64 sh 8 nrows 8192 (2048/chan) stride 4224 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 12288 ng 96 sh 9 nrows 8192 (2048/chan) stride 6336 bases ['0x10840000', '0x10840000', '0x10840000', '0x10840000']
+  pack top per channel ['0x114a0000', '0x114a0000', '0x114a0000', '0x114a0000']
+  VALID at caps ['R1', 'R2'] (shape_isa 2)
+  REFUSED at caps ['R1']: rec 5: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x05 fl=0x00 tgt=0x0000 imm=0x5002000
+  REFUSED at caps []: rec 5: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x05 fl=0x00 tgt=0x0000 imm=0x5002000
+  41 records {'LDC*': 8, 'MOVX': 8, 'MVGO': 10, 'MOVY': 14, 'HALT': 1}; 18 records carry a bank field
+      0  LDC*   DDR[0x80000000] -> scratch[0x0] 8192 words
+      1  LDC*   DDR[0x80004000] -> scratch[0x3000] 8192 words
+      2  MOVX   mv0 XWIN <= scratch[0x0 .. +8192] int8
+      3  MVGO   mv0 WBASE=0x0010000000 BEATS=135168 SHAPE=0x10020008 (ng=64 nrows=2048 sh=8)
+      4  MOVX   mv0 XWIN <= scratch[0x3000 .. +8192] int8
+      5  MVGO   mv0 WBASE=0x0010000000 BEATS=135168 SHAPE=0x50020008 (ng=64 nrows=2048 sh=8)
+      6  MOVY   mv0 RES[0..2048) >> 7 -> scratch[0x6000] int16
+      7  MOVY   mv0 RES[0..2048) >> 7 -> scratch[0x6800] int16
+      8  LDC*   DDR[0x80008000] -> scratch[0x0] 12288 words
+      9  LDC*   DDR[0x8000e000] -> scratch[0x3000] 12288 words
+     10  MOVX   mv1 XWIN <= scratch[0x0 .. +12288] int8
+     11  MVGO   mv1 WBASE=0x0010840000 BEATS=202752 SHAPE=0x18020009 (ng=96 nrows=2048 sh=9)
+     12  MOVX   mv1 XWIN <= scratch[0x3000 .. +12288] int8
+     13  MVGO   mv1 WBASE=0x0010840000 BEATS=202752 SHAPE=0x58020009 (ng=96 nrows=2048 sh=9)
+     14  MOVY   mv1 RES[0..2048) >> 6 -> scratch[0x7000] int16
+     15  MOVY   mv1 RES[0..2048) >> 6 -> scratch[0x7800] int16
+     16  LDC*   DDR[0x80014000] -> scratch[0x0] 8192 words
+     17  LDC*   DDR[0x80018000] -> scratch[0x3000] 8192 words
+     18  MOVX   mv2 XWIN <= scratch[0x0 .. +8192] int8
+     19  MVGO   mv2 WBASE=0x0010000000 BEATS=135168 SHAPE=0x10020008 (ng=64 nrows=2048 sh=8)
+     20  MOVX   mv2 XWIN <= scratch[0x3000 .. +8192] int8
+     21  MVGO   mv2 WBASE=0x0010000000 BEATS=135168 SHAPE=0x50020008 (ng=64 nrows=2048 sh=8)
+     22  MOVY   mv2 RES[0..100) >> 6 -> scratch[0x8000] int16
+     23  MOVY   mv2 RES[0..96) >> 7 -> scratch[0x8064] int16
+     24  MOVY   mv2 RES[0..64) >> 0 -> scratch[0x80c4] pairs32
+     25  MOVY   mv2 RES[0..48) >> 7 -> scratch[0x8144] int16
+     26  MVGO   mv2 WBASE=0x0010210000 BEATS=33792 SHAPE=0x50008008 (ng=64 nrows=512 sh=8)
+     27  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x8174] int16
+     28  LDC*   DDR[0x8001c000] -> scratch[0x0] 12288 words
+     29  LDC*   DDR[0x80022000] -> scratch[0x3000] 12288 words
+     30  MOVX   mv3 XWIN <= scratch[0x0 .. +12288] int8
+     31  MVGO   mv3 WBASE=0x0010840000 BEATS=202752 SHAPE=0x18020009 (ng=96 nrows=2048 sh=9)
+     32  MOVX   mv3 XWIN <= scratch[0x3000 .. +12288] int8
+     33  MVGO   mv3 WBASE=0x0010840000 BEATS=202752 SHAPE=0x58020009 (ng=96 nrows=2048 sh=9)
+     34  MOVY   mv3 RES[0..100) >> 6 -> scratch[0x8374] int16
+     35  MOVY   mv3 RES[0..96) >> 6 -> scratch[0x83d8] int16
+     36  MOVY   mv3 RES[0..64) >> 0 -> scratch[0x8438] pairs32
+     37  MOVY   mv3 RES[0..48) >> 6 -> scratch[0x84b8] int16
+     38  MVGO   mv3 WBASE=0x0010b58000 BEATS=50688 SHAPE=0x58008009 (ng=96 nrows=512 sh=9)
+     39  MOVY   mv3 RES[0..512) >> 6 -> scratch[0x84e8] int16
+     40  HALT
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 8, 'MOVY': 14, 'MVGO': 10, 'LDC': 8}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+  NON-VACUITY (words a bank-BLIND RTL would get wrong, per MOVY):
+    [24576+2048]  2047 of 2048 differ  ch0 ng64 bank 0 (2048 rows)
+    [26624+2048]     0 of 2048 differ  ch0 ng64 RBANK bank 1 (2048 rows, ends at 4096)
+    [28672+2048]  2048 of 2048 differ  ch1 ng96 bank 0 (2048 rows)
+    [30720+2048]     0 of 2048 differ  ch1 ng96 RBANK bank 1 (2048 rows, ends at 4096)
+    [32768+ 100]   100 of  100 differ  ch2 ng64 RBANK rows 3000..3100
+    [32868+  96]    96 of   96 differ  ch2 ng64 RBANK rows 4000..4096
+    [32964+ 128]     0 of  128 differ  ch2 ng64 RBANK rows 2048.. pairs32
+    [33092+  48]    48 of   48 differ  ch2 ng64 bank-0 rows 1000..1048
+    [33140+ 512]     0 of  512 differ  ch2 ng64 RBANK 512-row run
+    [33652+ 100]   100 of  100 differ  ch3 ng96 RBANK rows 3000..3100
+    [33752+  96]    96 of   96 differ  ch3 ng96 RBANK rows 4000..4096
+    [33848+ 128]     0 of  128 differ  ch3 ng96 RBANK rows 2048.. pairs32
+    [33976+  48]    48 of   48 differ  ch3 ng96 bank-0 rows 1000..1048
+    [34024+ 512]     0 of  512 differ  ch3 ng96 RBANK 512-row run
+  8 of 14 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 f1d4571eb831d9f36596bb434b6f6d4e5ca5809b9fdf263929bc90e655439ac9  tb/scripts/w9/sr13a_cov_rbank.e4.seq
+  sha256 7ed0bb4cad3c56aa6c54c7f103296bc5a3b27b2d9d0475e80e6a84f9f5cd4130  tb/scripts/w9/sr13a_cov_rbank.e4.seqdata.bin
+  sha256 a5ac4b9371533dd90644387db01539788cb997b52e6dff7bcd7b2e736c9a0ebf  tb/scripts/w9/sr13a_cov_rbank.e4.seq.json
+  sha256 60060b7282db4d02c1c8e05e40d59b90d7ec2b997fc78dfac26575eea4e546d2  tb/scripts/w9/sr13a_cov_rbank.weights.json
+  sha256 ef57dbee7481cdeb5139024c1233614f827623cf07bf8b926583f65bc114c640  tb/scripts/w9/sr13a_cov_rbank_w0.bin
+  sha256 9b41154bf6e9245e70670116368abedc2d47a4aa69635f0212b401748b513150  tb/scripts/w9/sr13a_cov_rbank_w1.bin
+SR13A_COV rbank: PASS
+=== rc  : 0
+=== end : 2026-09-28T12:26:05-06:00

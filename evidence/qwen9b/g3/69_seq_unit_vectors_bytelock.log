@@ -1,0 +1,50 @@
+=== host: darthplagueis
+=== date: 2026-09-02T00:43:15-06:00
+=== tree: f2a093e
+=== cmd:  bash -c 
+set -u
+OUT=/tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/8cd3ebbb-df20-4ecc-8a18-d09b0afbf46f/scratchpad/vchk4; rm -rf $OUT; mkdir -p $OUT
+for s in 1 2 3 4; do ref/.venv/bin/python tb/scripts/gen_seq_unit_vectors.py $OUT $s || exit 1; done
+N=0; D=0
+for f in $OUT/*; do b=$(basename $f); N=$((N+1));
+  if ! cmp -s "$f" "tb/scripts/seqvec/$b"; then D=$((D+1)); echo "DIFFERS: $b"; fi; done
+echo "artifacts=$N differing=$D"
+[ $D -eq 0 ] && echo 'SEQ_UNIT_VECTORS_BYTELOCK: PASS (the round-2/3 edit to that generator is COMMENT-ONLY, so no emitted byte moved and no Verilator re-run is implied)' || { echo 'SEQ_UNIT_VECTORS_BYTELOCK: FAIL'; exit 1; }
+
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+seq_u_s1: 63 records, 864 writes, 165 reads (159 with the XRF sideband), 696 scratch words, 3 tokens
+seq_h_hiaddr: 16 records, 8320 scratch words (8192 above word 16383)
+seq_h_embrow: 7 records, 3136 scratch words at EMBLOG2=12 (4096 B rows)
+seq_m_csrwr: 2001 records, 2000 writes, 0 reads
+seq_m_cmd: 801 records, 800 writes, 0 reads
+seq_m_movx: 3 records, 5123 writes, 4096 reads
+seq_m_movy16: 4 records, 2073 writes, 2112 reads
+seq_m_movy32: 4 records, 4121 writes, 2112 reads
+seq_m_ldc: 2 records, 4097 writes, 0 reads
+seq_f_of24: 121 records, 24 tokens
+seq_f_of64: 321 records, 64 tokens
+seq_f_of80: 401 records, 80 tokens
+seq_e_op: expects err_code 0x01
+seq_e_ind: expects err_code 0x02
+seq_e_chan: expects err_code 0x05
+seq_e_jmp: expects err_code 0x08
+seq_e_xopsgn: expects err_code 0x0a
+seq_e_csrsp: expects err_code 0x07
+seq_e_rsvd: expects err_code 0x06
+seq_h_repack1: 18 records, 5 MVGOs at per-channel bases (nch=2 depth=16 ilv=[0]), 1096 scratch words
+seq_u_s2: 63 records, 841 writes, 191 reads (184 with the XRF sideband), 636 scratch words, 4 tokens
+seq_h_repack2: 39 records, 12 MVGOs at per-channel bases (nch=4 depth=16 ilv=[0, 2]), 1188 scratch words
+seq_u_s3: 63 records, 872 writes, 261 reads (255 with the XRF sideband), 648 scratch words, 3 tokens
+seq_h_repack3: 24 records, 7 MVGOs at per-channel bases (nch=3 depth=32 ilv=[0]), 1161 scratch words
+seq_u_s4: 63 records, 882 writes, 381 reads (373 with the XRF sideband), 632 scratch words, 5 tokens
+seq_h_repack4: 54 records, 17 MVGOs at per-channel bases (nch=4 depth=8 ilv=[1]), 1177 scratch words
+artifacts=182 differing=0
+SEQ_UNIT_VECTORS_BYTELOCK: PASS (the round-2/3 edit to that generator is COMMENT-ONLY, so no emitted byte moved and no Verilator re-run is implied)
+=== rc: 0
+=== end: 2026-09-02T00:43:16-06:00

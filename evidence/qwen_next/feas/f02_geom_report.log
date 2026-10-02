@@ -1,0 +1,278 @@
+=== host: snoke  date: 2026-08-25T05:57:34-06:00
+=== tree: 33dc8a3+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/geom_report.py
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+CONFIG GEOMETRY (from each checkpoint's own config.json)
+==============================================================================
+field                               0.8B          2B          4B          9B
+hidden_size                         1024        2048        2560        4096
+intermediate_size                   3584        6144        9216       12288
+num_hidden_layers                     24          24          32          32
+vocab_size                        248320      248320      248320      248320
+head_dim                             256         256         256         256
+num_attention_heads                    8           8          16          16
+num_key_value_heads                    2           2           4           4
+linear_num_key_heads                  16          16          16          16
+linear_num_value_heads                16          16          32          32
+linear_key_head_dim                  128         128         128         128
+linear_value_head_dim                128         128         128         128
+linear_conv_kernel_dim                 4           4           4           4
+full_attention_interval                4           4           4           4
+tie_word_embeddings                 True        True        True        None
+mtp_num_hidden_layers                  1           1           1           1
+max_position_embeddings           262144      262144      262144      262144
+layer_types (DN/full)               18/6        18/6        24/8        24/8
+rope partial_rotary                 0.25        0.25        0.25        0.25
+rope theta                      10000000    10000000    10000000    10000000
+
+==============================================================================
+CHECKPOINT CENSUS (from the safetensors headers — ranged reads, no weights)
+==============================================================================
+
+### Qwen/Qwen3.5-0.8B   shards=1  tensors=488  873,438,784 params  1.63 GiB on disk
+    prefix model.language_model       320 tensors     752,393,024 params     1435.1 MiB
+    prefix mtp                         15 tensors      20,452,864 params       39.0 MiB
+    prefix vision                     153 tensors     100,592,896 params      191.9 MiB
+    per-class (text tower + head + mtp):
+      emb              1 t      254,279,680 p      485.0 MiB
+      gate_up         48 t      176,160,768 p      336.0 MiB
+      dn_in           72 t      151,584,768 p      289.1 MiB
+      down            24 t       88,080,384 p      168.0 MiB
+      dn_out          18 t       37,748,736 p       72.0 MiB
+      qkv             18 t       31,457,280 p       60.0 MiB
+      mtp             15 t       20,452,864 p       39.0 MiB
+      o_proj           6 t       12,582,912 p       24.0 MiB
+      dn_conv         18 t          442,368 p        0.8 MiB
+      norm/gate      115 t           56,128 p        0.1 MiB
+
+### Qwen/Qwen3.5-2B   shards=1  tensors=632  2,274,069,824 params  4.24 GiB on disk
+    prefix model.language_model       320 tensors   1,881,825,088 params     3589.3 MiB
+    prefix mtp                         15 tensors      60,828,160 params      116.0 MiB
+    prefix vision                     297 tensors     331,416,576 params      632.1 MiB
+    per-class (text tower + head + mtp):
+      gate_up         48 t      603,979,776 p     1152.0 MiB
+      emb              1 t      508,559,360 p      970.0 MiB
+      dn_in           72 t      303,169,536 p      578.2 MiB
+      down            24 t      301,989,888 p      576.0 MiB
+      dn_out          18 t       75,497,472 p      144.0 MiB
+      qkv             18 t       62,914,560 p      120.0 MiB
+      mtp             15 t       60,828,160 p      116.0 MiB
+      o_proj           6 t       25,165,824 p       48.0 MiB
+      dn_conv         18 t          442,368 p        0.8 MiB
+      norm/gate      115 t          106,304 p        0.2 MiB
+
+### Qwen/Qwen3.5-4B   shards=2  tensors=738  4,659,865,088 params  8.68 GiB on disk
+    prefix model.language_model       426 tensors   4,205,751,296 params     8021.8 MiB
+    prefix mtp                         15 tensors     120,599,552 params      230.0 MiB
+    prefix vision                     297 tensors     333,514,240 params      636.1 MiB
+    per-class (text tower + head + mtp):
+      gate_up         64 t    1,509,949,440 p     2880.0 MiB
+      dn_in           96 t      758,906,880 p     1447.5 MiB
+      down            32 t      754,974,720 p     1440.0 MiB
+      emb              1 t      635,699,200 p     1212.5 MiB
+      dn_out          24 t      251,658,240 p      480.0 MiB
+      qkv             24 t      209,715,200 p      400.0 MiB
+      mtp             15 t      120,599,552 p      230.0 MiB
+      o_proj           8 t       83,886,080 p      160.0 MiB
+      dn_conv         24 t          786,432 p        1.5 MiB
+      norm/gate      153 t          175,104 p        0.3 MiB
+
+### Qwen/Qwen3.5-9B   shards=4  tensors=775  9,653,104,368 params  17.98 GiB on disk
+    prefix lm_head                      1 tensors   1,017,118,720 params     1940.0 MiB
+    prefix model.language_model       426 tensors   7,936,684,544 params    15138.0 MiB
+    prefix mtp                         15 tensors     243,290,624 params      464.0 MiB
+    prefix vision                     333 tensors     456,010,480 params      869.8 MiB
+    per-class (text tower + head + mtp):
+      gate_up         64 t    3,221,225,472 p     6144.0 MiB
+      down            32 t    1,610,612,736 p     3072.0 MiB
+      dn_in           96 t    1,214,251,008 p     2316.0 MiB
+      emb              1 t    1,017,118,720 p     1940.0 MiB
+      lm_head          1 t    1,017,118,720 p     1940.0 MiB
+      dn_out          24 t      402,653,184 p      768.0 MiB
+      qkv             24 t      335,544,320 p      640.0 MiB
+      mtp             15 t      243,290,624 p      464.0 MiB
+      o_proj           8 t      134,217,728 p      256.0 MiB
+      dn_conv         24 t          786,432 p        1.5 MiB
+      norm/gate      153 t          274,944 p        0.5 MiB
+
+==============================================================================
+REPRESENTATIVE TENSOR SHAPES  (L0 = DeltaNet, L3 = full attention)
+==============================================================================
+
+### Qwen/Qwen3.5-0.8B
+    LM.embed_tokens.weight                                                 [248320, 1024]  BF16
+    LM.layers.0.input_layernorm.weight                                             [1024]  BF16
+    LM.layers.0.linear_attn.A_log                                                    [16]  F32
+    LM.layers.0.linear_attn.conv1d.weight                                    [6144, 1, 4]  BF16
+    LM.layers.0.linear_attn.dt_bias                                                  [16]  BF16
+    LM.layers.0.linear_attn.in_proj_a.weight                                   [16, 1024]  BF16
+    LM.layers.0.linear_attn.in_proj_b.weight                                   [16, 1024]  BF16
+    LM.layers.0.linear_attn.in_proj_qkv.weight                               [6144, 1024]  BF16
+    LM.layers.0.linear_attn.in_proj_z.weight                                 [2048, 1024]  BF16
+    LM.layers.0.linear_attn.norm.weight                                             [128]  F32
+    LM.layers.0.linear_attn.out_proj.weight                                  [1024, 2048]  BF16
+    LM.layers.0.mlp.down_proj.weight                                         [1024, 3584]  BF16
+    LM.layers.0.mlp.gate_proj.weight                                         [3584, 1024]  BF16
+    LM.layers.0.mlp.up_proj.weight                                           [3584, 1024]  BF16
+    LM.layers.0.post_attention_layernorm.weight                                    [1024]  BF16
+    LM.layers.3.input_layernorm.weight                                             [1024]  BF16
+    LM.layers.3.mlp.down_proj.weight                                         [1024, 3584]  BF16
+    LM.layers.3.mlp.gate_proj.weight                                         [3584, 1024]  BF16
+    LM.layers.3.mlp.up_proj.weight                                           [3584, 1024]  BF16
+    LM.layers.3.post_attention_layernorm.weight                                    [1024]  BF16
+    LM.layers.3.self_attn.k_norm.weight                                             [256]  BF16
+    LM.layers.3.self_attn.k_proj.weight                                       [512, 1024]  BF16
+    LM.layers.3.self_attn.o_proj.weight                                      [1024, 2048]  BF16
+    LM.layers.3.self_attn.q_norm.weight                                             [256]  BF16
+    LM.layers.3.self_attn.q_proj.weight                                      [4096, 1024]  BF16
+    LM.layers.3.self_attn.v_proj.weight                                       [512, 1024]  BF16
+    LM.norm.weight                                                                 [1024]  BF16
+    mtp.fc.weight                                                            [1024, 2048]  BF16
+    mtp.layers.0.input_layernorm.weight                                            [1024]  BF16
+    mtp.layers.0.mlp.down_proj.weight                                        [1024, 3584]  BF16
+    mtp.layers.0.mlp.gate_proj.weight                                        [3584, 1024]  BF16
+    mtp.layers.0.mlp.up_proj.weight                                          [3584, 1024]  BF16
+    mtp.layers.0.post_attention_layernorm.weight                                   [1024]  BF16
+    mtp.layers.0.self_attn.k_norm.weight                                            [256]  BF16
+    mtp.layers.0.self_attn.k_proj.weight                                      [512, 1024]  BF16
+    mtp.layers.0.self_attn.o_proj.weight                                     [1024, 2048]  BF16
+    mtp.layers.0.self_attn.q_norm.weight                                            [256]  BF16
+    mtp.layers.0.self_attn.q_proj.weight                                     [4096, 1024]  BF16
+    mtp.layers.0.self_attn.v_proj.weight                                      [512, 1024]  BF16
+    mtp.norm.weight                                                                [1024]  BF16
+    mtp.pre_fc_norm_embedding.weight                                               [1024]  BF16
+    mtp.pre_fc_norm_hidden.weight                                                  [1024]  BF16
+
+### Qwen/Qwen3.5-2B
+    LM.embed_tokens.weight                                                 [248320, 2048]  BF16
+    LM.layers.0.input_layernorm.weight                                             [2048]  BF16
+    LM.layers.0.linear_attn.A_log                                                    [16]  F32
+    LM.layers.0.linear_attn.conv1d.weight                                    [6144, 1, 4]  BF16
+    LM.layers.0.linear_attn.dt_bias                                                  [16]  BF16
+    LM.layers.0.linear_attn.in_proj_a.weight                                   [16, 2048]  BF16
+    LM.layers.0.linear_attn.in_proj_b.weight                                   [16, 2048]  BF16
+    LM.layers.0.linear_attn.in_proj_qkv.weight                               [6144, 2048]  BF16
+    LM.layers.0.linear_attn.in_proj_z.weight                                 [2048, 2048]  BF16
+    LM.layers.0.linear_attn.norm.weight                                             [128]  F32
+    LM.layers.0.linear_attn.out_proj.weight                                  [2048, 2048]  BF16
+    LM.layers.0.mlp.down_proj.weight                                         [2048, 6144]  BF16
+    LM.layers.0.mlp.gate_proj.weight                                         [6144, 2048]  BF16
+    LM.layers.0.mlp.up_proj.weight                                           [6144, 2048]  BF16
+    LM.layers.0.post_attention_layernorm.weight                                    [2048]  BF16
+    LM.layers.3.input_layernorm.weight                                             [2048]  BF16
+    LM.layers.3.mlp.down_proj.weight                                         [2048, 6144]  BF16
+    LM.layers.3.mlp.gate_proj.weight                                         [6144, 2048]  BF16
+    LM.layers.3.mlp.up_proj.weight                                           [6144, 2048]  BF16
+    LM.layers.3.post_attention_layernorm.weight                                    [2048]  BF16
+    LM.layers.3.self_attn.k_norm.weight                                             [256]  BF16
+    LM.layers.3.self_attn.k_proj.weight                                       [512, 2048]  BF16
+    LM.layers.3.self_attn.o_proj.weight                                      [2048, 2048]  BF16
+    LM.layers.3.self_attn.q_norm.weight                                             [256]  BF16
+    LM.layers.3.self_attn.q_proj.weight                                      [4096, 2048]  BF16
+    LM.layers.3.self_attn.v_proj.weight                                       [512, 2048]  BF16
+    LM.norm.weight                                                                 [2048]  BF16
+    mtp.fc.weight                                                            [2048, 4096]  BF16
+    mtp.layers.0.input_layernorm.weight                                            [2048]  BF16
+    mtp.layers.0.mlp.down_proj.weight                                        [2048, 6144]  BF16
+    mtp.layers.0.mlp.gate_proj.weight                                        [6144, 2048]  BF16
+    mtp.layers.0.mlp.up_proj.weight                                          [6144, 2048]  BF16
+    mtp.layers.0.post_attention_layernorm.weight                                   [2048]  BF16
+    mtp.layers.0.self_attn.k_norm.weight                                            [256]  BF16
+    mtp.layers.0.self_attn.k_proj.weight                                      [512, 2048]  BF16
+    mtp.layers.0.self_attn.o_proj.weight                                     [2048, 2048]  BF16
+    mtp.layers.0.self_attn.q_norm.weight                                            [256]  BF16
+    mtp.layers.0.self_attn.q_proj.weight                                     [4096, 2048]  BF16
+    mtp.layers.0.self_attn.v_proj.weight                                      [512, 2048]  BF16
+    mtp.norm.weight                                                                [2048]  BF16
+    mtp.pre_fc_norm_embedding.weight                                               [2048]  BF16
+    mtp.pre_fc_norm_hidden.weight                                                  [2048]  BF16
+
+### Qwen/Qwen3.5-4B
+    LM.embed_tokens.weight                                                 [248320, 2560]  BF16
+    LM.layers.0.input_layernorm.weight                                             [2560]  BF16
+    LM.layers.0.linear_attn.A_log                                                    [32]  F32
+    LM.layers.0.linear_attn.conv1d.weight                                    [8192, 1, 4]  BF16
+    LM.layers.0.linear_attn.dt_bias                                                  [32]  BF16
+    LM.layers.0.linear_attn.in_proj_a.weight                                   [32, 2560]  BF16
+    LM.layers.0.linear_attn.in_proj_b.weight                                   [32, 2560]  BF16
+    LM.layers.0.linear_attn.in_proj_qkv.weight                               [8192, 2560]  BF16
+    LM.layers.0.linear_attn.in_proj_z.weight                                 [4096, 2560]  BF16
+    LM.layers.0.linear_attn.norm.weight                                             [128]  F32
+    LM.layers.0.linear_attn.out_proj.weight                                  [2560, 4096]  BF16
+    LM.layers.0.mlp.down_proj.weight                                         [2560, 9216]  BF16
+    LM.layers.0.mlp.gate_proj.weight                                         [9216, 2560]  BF16
+    LM.layers.0.mlp.up_proj.weight                                           [9216, 2560]  BF16
+    LM.layers.0.post_attention_layernorm.weight                                    [2560]  BF16
+    LM.layers.3.input_layernorm.weight                                             [2560]  BF16
+    LM.layers.3.mlp.down_proj.weight                                         [2560, 9216]  BF16
+    LM.layers.3.mlp.gate_proj.weight                                         [9216, 2560]  BF16
+    LM.layers.3.mlp.up_proj.weight                                           [9216, 2560]  BF16
+    LM.layers.3.post_attention_layernorm.weight                                    [2560]  BF16
+    LM.layers.3.self_attn.k_norm.weight                                             [256]  BF16
+    LM.layers.3.self_attn.k_proj.weight                                      [1024, 2560]  BF16
+    LM.layers.3.self_attn.o_proj.weight                                      [2560, 4096]  BF16
+    LM.layers.3.self_attn.q_norm.weight                                             [256]  BF16
+    LM.layers.3.self_attn.q_proj.weight                                      [8192, 2560]  BF16
+    LM.layers.3.self_attn.v_proj.weight                                      [1024, 2560]  BF16
+    LM.norm.weight                                                                 [2560]  BF16
+    mtp.fc.weight                                                            [2560, 5120]  BF16
+    mtp.layers.0.input_layernorm.weight                                            [2560]  BF16
+    mtp.layers.0.mlp.down_proj.weight                                        [2560, 9216]  BF16
+    mtp.layers.0.mlp.gate_proj.weight                                        [9216, 2560]  BF16
+    mtp.layers.0.mlp.up_proj.weight                                          [9216, 2560]  BF16
+    mtp.layers.0.post_attention_layernorm.weight                                   [2560]  BF16
+    mtp.layers.0.self_attn.k_norm.weight                                            [256]  BF16
+    mtp.layers.0.self_attn.k_proj.weight                                     [1024, 2560]  BF16
+    mtp.layers.0.self_attn.o_proj.weight                                     [2560, 4096]  BF16
+    mtp.layers.0.self_attn.q_norm.weight                                            [256]  BF16
+    mtp.layers.0.self_attn.q_proj.weight                                     [8192, 2560]  BF16
+    mtp.layers.0.self_attn.v_proj.weight                                     [1024, 2560]  BF16
+    mtp.norm.weight                                                                [2560]  BF16
+    mtp.pre_fc_norm_embedding.weight                                               [2560]  BF16
+    mtp.pre_fc_norm_hidden.weight                                                  [2560]  BF16
+
+### Qwen/Qwen3.5-9B
+    lm_head.weight                                                         [248320, 4096]  BF16
+    LM.embed_tokens.weight                                                 [248320, 4096]  BF16
+    LM.layers.0.input_layernorm.weight                                             [4096]  BF16
+    LM.layers.0.linear_attn.A_log                                                    [32]  F32
+    LM.layers.0.linear_attn.conv1d.weight                                    [8192, 1, 4]  BF16
+    LM.layers.0.linear_attn.dt_bias                                                  [32]  BF16
+    LM.layers.0.linear_attn.in_proj_a.weight                                   [32, 4096]  BF16
+    LM.layers.0.linear_attn.in_proj_b.weight                                   [32, 4096]  BF16
+    LM.layers.0.linear_attn.in_proj_qkv.weight                               [8192, 4096]  BF16
+    LM.layers.0.linear_attn.in_proj_z.weight                                 [4096, 4096]  BF16
+    LM.layers.0.linear_attn.norm.weight                                             [128]  F32
+    LM.layers.0.linear_attn.out_proj.weight                                  [4096, 4096]  BF16
+    LM.layers.0.mlp.down_proj.weight                                        [4096, 12288]  BF16
+    LM.layers.0.mlp.gate_proj.weight                                        [12288, 4096]  BF16
+    LM.layers.0.mlp.up_proj.weight                                          [12288, 4096]  BF16
+    LM.layers.0.post_attention_layernorm.weight                                    [4096]  BF16
+    LM.layers.3.input_layernorm.weight                                             [4096]  BF16
+    LM.layers.3.mlp.down_proj.weight                                        [4096, 12288]  BF16
+    LM.layers.3.mlp.gate_proj.weight                                        [12288, 4096]  BF16
+    LM.layers.3.mlp.up_proj.weight                                          [12288, 4096]  BF16
+    LM.layers.3.post_attention_layernorm.weight                                    [4096]  BF16
+    LM.layers.3.self_attn.k_norm.weight                                             [256]  BF16
+    LM.layers.3.self_attn.k_proj.weight                                      [1024, 4096]  BF16
+    LM.layers.3.self_attn.o_proj.weight                                      [4096, 4096]  BF16
+    LM.layers.3.self_attn.q_norm.weight                                             [256]  BF16
+    LM.layers.3.self_attn.q_proj.weight                                      [8192, 4096]  BF16
+    LM.layers.3.self_attn.v_proj.weight                                      [1024, 4096]  BF16
+    LM.norm.weight                                                                 [4096]  BF16
+    mtp.fc.weight                                                            [4096, 8192]  BF16
+    mtp.layers.0.input_layernorm.weight                                            [4096]  BF16
+    mtp.layers.0.mlp.down_proj.weight                                       [4096, 12288]  BF16
+    mtp.layers.0.mlp.gate_proj.weight                                       [12288, 4096]  BF16
+    mtp.layers.0.mlp.up_proj.weight                                         [12288, 4096]  BF16
+    mtp.layers.0.post_attention_layernorm.weight                                   [4096]  BF16
+    mtp.layers.0.self_attn.k_norm.weight                                            [256]  BF16
+    mtp.layers.0.self_attn.k_proj.weight                                     [1024, 4096]  BF16
+    mtp.layers.0.self_attn.o_proj.weight                                     [4096, 4096]  BF16
+    mtp.layers.0.self_attn.q_norm.weight                                            [256]  BF16
+    mtp.layers.0.self_attn.q_proj.weight                                     [8192, 4096]  BF16
+    mtp.layers.0.self_attn.v_proj.weight                                     [1024, 4096]  BF16
+    mtp.norm.weight                                                                [4096]  BF16
+    mtp.pre_fc_norm_embedding.weight                                               [4096]  BF16
+    mtp.pre_fc_norm_hidden.weight                                                  [4096]  BF16

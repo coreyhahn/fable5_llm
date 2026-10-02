@@ -1,0 +1,140 @@
+=== host: snoke
+=== date: 2026-09-05T14:10:35-06:00
+=== tree: c530350
+=== cmd:  bash evidence/qwen9b/s4/census_nodrain_red.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+CENSUS_NODRAIN_RED: host snoke, script scripts/w9/lay9b_s1.txt
+
+=== arm nd8: NODRAIN=1 LAT=8
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55354 w=36976 miss=0, LAT=8 modelled
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=NODRAIN (the sequencer's rule: poll cmd_cnt only)
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0  wall=69s
+    F1_HOLD=0  F2_HOLD=17275  F2_FENCE=0  LCYC=1309741  SDMA=134963
+
+=== arm dr8: NODRAIN=0 LAT=8
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55354 w=36976 miss=0, LAT=8 modelled
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=         DRAINING (poll cmd_cnt AND busy_any low)
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0  wall=71s
+    F1_HOLD=0  F2_HOLD=0  F2_FENCE=0  LCYC=1292466  SDMA=134963
+
+=== arm nd4000: NODRAIN=1 LAT=4000
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55354 w=36976 miss=0, LAT=4000 modelled
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=NODRAIN (the sequencer's rule: poll cmd_cnt only)
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0  wall=148s
+    F1_HOLD=2041718  F2_HOLD=825566  F2_FENCE=0  LCYC=4159750  SDMA=3604419
+
+=== arm dr4000: NODRAIN=0 LAT=4000
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55354 w=36976 miss=0, LAT=4000 modelled
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=         DRAINING (poll cmd_cnt AND busy_any low)
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0  wall=155s
+    F1_HOLD=0  F2_HOLD=0  F2_FENCE=0  LCYC=1292466  SDMA=3604419
+
+=== arm f2half: NODRAIN=1 LAT=8, the RETARGET ALONE (one record)
+    the perturbed tail, VERBATIM (the changed records and all that follows):
+      C b 1008 36203420 3a20000a
+      C e 800 0 0
+      C e c01 0 0
+      C d 804 0 0
+      C d 805 0 0
+      L 00000008
+      C 9 81 79208d20 0
+      C a 1 34208020 0
+      C b 41007 5d20 3620fffc
+      C b 1008 36203420 3b20000a
+      C a 1 34208120 0
+      C b 41007 5f20 3620fffc
+      C b 1008 36203420 3c20000a
+      C a 1 34208220 0
+      C b 41007 6120 3620fffc
+      C b 1008 36203420 3d20000a
+      C a 1 34208320 0
+      C b 41007 6320 3620fffc
+      C b 1008 36203420 3e20000a
+      Q
+    FAIL cmd 751: err_op
+    FAIL cmd 752: err_op
+    FAIL cmd 755: err_op
+    FAIL cmd 758: err_op
+    FAIL cmd 761: err_op
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=55296 w=36874 miss=0, LAT=8 modelled
+    LAYER_CENSUS commands=764 checks=103827 errors=5
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=NODRAIN (the sequencer's rule: poll cmd_cnt only)
+    [8442268000] %Fatal: tb_layer_census.sv:882: Assertion failed in TOP.tb_layer_census.unnamedblk2: TB_LAYER_CENSUS FAIL: 5 errors
+    rc=134  wall=41s   — a NON-ZERO rc and refused commands are
+    EXPECTED here and are NOT a failure of this arm (see the header above)
+    F1_HOLD=0  F2_HOLD=17275  F2_FENCE=0  LCYC=853496  SDMA=134317
+
+=== arm f2fence: NODRAIN=1 LAT=8, the PERTURBED schedule (two records)
+    the perturbed tail, VERBATIM (the changed records and all that follows):
+      C b 1008 36203420 3a20000a
+      C d 1400 0 0
+      C e c01 0 0
+      C d 804 0 0
+      C d 805 0 0
+      L 00000008
+      C 9 81 79208d20 0
+      C a 1 34208020 0
+      C b 41007 5d20 3620fffc
+      C b 1008 36203420 3b20000a
+      C a 1 34208120 0
+      C b 41007 5f20 3620fffc
+      C b 1008 36203420 3c20000a
+      C a 1 34208220 0
+      C b 41007 6120 3620fffc
+      C b 1008 36203420 3d20000a
+      C a 1 34208320 0
+      C b 41007 6320 3620fffc
+      C b 1008 36203420 3e20000a
+      Q
+    FAIL cmd 761: err_op
+    LAYER_CENSUS state_region base=380000000 len=9b00000 (S record), ddr beats r=57344 w=36869 miss=0, LAT=8 modelled
+    LAYER_CENSUS commands=764 checks=103827 errors=1
+    LAYER_CENSUS steps_replayed=0 (0 = preamble only)
+    LAYER_CENSUS dispatch=NODRAIN (the sequencer's rule: poll cmd_cnt only)
+    [8483068000] %Fatal: tb_layer_census.sv:882: Assertion failed in TOP.tb_layer_census.unnamedblk2: TB_LAYER_CENSUS FAIL: 1 errors
+    rc=134  wall=45s   — a NON-ZERO rc and refused commands are
+    EXPECTED here and are NOT a failure of this arm (see the header above)
+    F1_HOLD=0  F2_HOLD=17275  F2_FENCE=1847  LCYC=863692  SDMA=146398
+
+=== the verdicts
+    ok   RED: the F1 hold counter FIRED at LAT 4000 under +nodrain (2041718 cycles)
+    ok   NEGATIVE ARM: the DRAINING mode at LAT 8 reports 0 / 0
+    ok   NEGATIVE ARM: the DRAINING mode at LAT 4000 reports 0 / 0
+    ok   IDENTITY at LAT 8: LCYC 1309741 - F1 0 - F2 17275 = 1292466 = the draining LCYC
+    ok   IDENTITY at LAT 4000: LCYC 4159750 - F1 2041718 - F2 825566 = 1292466 = the draining LCYC
+    ok   RED-F2FENCE: the SPEC'S F2 fence FIRED — 1847 cycles with the
+         DMA queue's head held by a compute command that owned its slot
+         (the other two counters on the same arm: F1 0, F2 hold 17275)
+    note the one-record arm f2half reports F2 FENCE = '0' — the
+         retarget ALONE does not arm the fence, which is why the perturbation
+         changes a second record (printed, not asserted: this 0 is a timing
+         outcome, not a structural guarantee like the draining arms')
+
+CENSUS_NODRAIN_RED: PASS — the fence-hold counters fire under
+  back-to-back dispatch at a latency the schedule cannot hide, read
+  zero when the drain makes a hold impossible, account to the CYCLE
+  for the whole difference between the two dispatch modes, every
+  measuring arm stayed bit-exact, and the SPEC'S F2 fence — which the
+  shipped schedule's double-buffering never arms — HOLDS a transfer
+  when two records of that schedule are perturbed into case 6's shape
+=== rc: 0
+=== end: 2026-09-05T14:19:33-06:00

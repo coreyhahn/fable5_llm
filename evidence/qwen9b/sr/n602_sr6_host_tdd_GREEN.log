@@ -1,0 +1,127 @@
+=== host: snoke  date: 2026-09-27T19:39:49-06:00
+=== tree: 8aff542
+=== cmd : /home/cah/.venv/bin/python -u evidence/qwen9b/sr/sr6_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+SR6 host TDD — FABLE5_MODEL=9b FABLE5_RS_F=7
+=== seq_run: the real load path (main) on mock SEQ windows
+    fixtures: r0 / r1 (12 masked FENCEs, first at record 5) / r1 manifest [] / r0 manifest [R2]; SEQ_CAPS words R1 0xfab1ca01, old 0xdeadc0de
+    (a) r1 on R1: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [a] PASS an r1 stream LOADS through seq_run.main on a 0xFAB1CA01 mock  (tripped upload)
+  [a] PASS ... and SEQ_CAPS was read before the upload  (['dev', 'seq_caps_read', 'upload'])
+    (b) r1 on old: outcome 'exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1/rp.e at capabilities {}: /tmp/sr6_fx_ptrp_req/r1/rp.e.seq.json: its manifest claims capability R1 which t'; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      | exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1/rp.e at capabilities {}: /tmp/sr6_fx_ptrp_req/r1/rp.e.seq.json: its manifest claims capability R1 which the device's set {} lacks (docs/SEQ_ISA.m
+  [b] PASS the r1 stream is REFUSED on a 0xDEADC0DE mock, before any DMA (upload tripwire untouched)  (exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1/rp.e at capabilities {}: /tmp/sr6_fx_ptrp_req/r1/rp.e.seq.json: its manifest claims capability R1 which the device's set {} lacks (docs/SEQ_ISA.md B17.0 ADMISSION: the manifest's caps must be a subset of the device's)")
+  [b] FAIL the refusal is the validator's and names the first masked FENCE (record 5)  -- md B17.0 ADMISSION: the manifest's caps must be a subset of the device's)"--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+  capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+
+  [b2] PASS the refusal is DEVICE-keyed: SEQ_CAPS was read first  (['dev', 'seq_caps_read'])
+    (c) r0 on R1: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [c] PASS a shipped-form (r0) stream loads on the R1 mock  (tripped upload)
+  [c2] PASS ... with SEQ_CAPS read (R1)  (['dev', 'seq_caps_read', 'upload'])
+    (c) r0 on old: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [c] PASS a shipped-form (r0) stream loads on the old mock  (tripped upload)
+  [c2] PASS ... with SEQ_CAPS read (old)  (['dev', 'seq_caps_read', 'upload'])
+    (d) r1 manifest [] on old: outcome "exit 'REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1e/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0"; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      | exit 'REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1e/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'
+  [d] PASS r1 with manifest caps [] still REFUSES on 0xDEADC0DE (before any DMA)  (exit 'REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1e/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]')
+    (d) r1 manifest [] on R1: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [d] PASS r1 with manifest caps [] still LOADS on 0xFAB1CA01 (the manifest is not the key)  (tripped upload)
+    (e) manifest [R2] on R1: outcome 'exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r2m/rp.e at capabilities [\'R1\']: /tmp/sr6_fx_ptrp_req/r2m/rp.e.seq.json: its manifest claims capability R2 w'; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      | exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r2m/rp.e at capabilities ['R1']: /tmp/sr6_fx_ptrp_req/r2m/rp.e.seq.json: its manifest claims capability R2 which the device's set ['R1'] lacks (docs
+  [e] PASS a manifest claiming caps [R2] on a 0xFAB1CA01 device is REFUSED before any DMA  (exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r2m/rp.e at capabilities ['R1']: /tmp/sr6_fx_ptrp_req/r2m/rp.e.seq.json: its manifest claims capability R2 which the device's set ['R1'] lacks (docs/SEQ_ISA.md B17.0 ADMISSION: the manifest's caps must be a subset of the device's)")
+  [e] PASS ... BY NAME (the message names R2)  (17.0 ADMISSION: the manifest's caps must be a subset of the device's)"--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+  capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+)
+  [l] PASS --caps defaults to the empty set; --caps R1 parses to {R1}  (None / frozenset({'R1'}))
+  [l] PASS --caps R9 (unknown) is an argparse error
+    (l) SEQ run with --caps: outcome 'exit "REFUSING before any DMA: --caps is for --dry-run only; a SEQ run validates the stream at the DEVICE\'s capability set, read from SEQ_CAPS (docs/SEQ_ISA.md '; events ['dev']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+      | exit "REFUSING before any DMA: --caps is for --dry-run only; a SEQ run validates the stream at the DEVICE's capability set, read from SEQ_CAPS (docs/SEQ_ISA.md B17.0)"
+  [l] PASS --caps on a SEQ run (not --dry-run) is refused before any DMA (a run validates at the DEVICE's caps)  (exit "REFUSING before any DMA: --caps is for --dry-run only; a SEQ run validates the stream at the DEVICE's capability set, read from SEQ_CAPS (docs/SEQ_ISA.md B17.0)")
+    (l) dry-run r1, no --caps: outcome 'exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1/rp.e at capabilities {}: /tmp/sr6_fx_ptrp_req/r1/rp.e.seq.json: its manifest claims capability R1 which t'; events ['dev']
+      |   SEQ CSRs untouched: --dry-run: the SEQ CSR window is not touched
+      |   capabilities     {}  (default (board-free: --dry-run never reads the SEQ window))
+      | exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1/rp.e at capabilities {}: /tmp/sr6_fx_ptrp_req/r1/rp.e.seq.json: its manifest claims capability R1 which the device's set {} lacks (docs/SEQ_ISA.m
+  [l] FAIL --dry-run of an r1 stream without --caps is refused (the board-free default is the EMPTY set)  -- exit "REFUSING before any DMA: /tmp/sr6_fx_ptrp_req/r1/rp.e at capabilities {}: /tmp/sr6_fx_ptrp_req/r1/rp.e.seq.json: its manifest claims capability R1 which the device's set {} lacks (docs/SEQ_ISA.md B17.0 ADMISSION: the manifest's caps must be a subset of the device's)"
+  [l] PASS ... and the dry-run never read SEQ_CAPS (the SEQ window is untouched)  (['dev'])
+    (l) dry-run r1 --caps R1: outcome 'tripped upload'; events ['dev', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [l] PASS --dry-run --caps R1 uploads the r1 stream (and still never reads SEQ_CAPS)  (tripped upload)
+  [m] PASS Dev.seq_caps(): 0xDEADC0DE -> {}, 0xFAB1CA01 -> {R1}  ({'old': frozenset(), 'R1': frozenset({'R1'})})
+  [m] PASS a closed SEQ gate refuses seq_caps() without reading 0x64
+    (m) unknown caps bit: outcome 'exit "REFUSING before any DMA: SEQ_CAPS: SEQ_CAPS 0xfab1ca08: unknown capability bit 3 (known: [\'R1\', \'R2\', \'R3\']) — docs/SEQ_ISA.md B17.0"'; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+      | exit "REFUSING before any DMA: SEQ_CAPS: SEQ_CAPS 0xfab1ca08: unknown capability bit 3 (known: ['R1', 'R2', 'R3']) — docs/SEQ_ISA.md B17.0"
+  [m] PASS an unknown SEQ_CAPS bit (0xFAB1CA08) is refused before any DMA, by bit  (exit "REFUSING before any DMA: SEQ_CAPS: SEQ_CAPS 0xfab1ca08: unknown capability bit 3 (known: ['R1', 'R2', 'R3']) — docs/SEQ_ISA.md B17.0")
+=== serve: BoardBackend._args() pins seq_rtl
+  [h] PASS serve's args namespace pins seq_rtl = 'r0' (serve runs the shipped level)  ('r0')
+=== chat_seq: main() on mock SEQ windows (FABLE5_MODEL=9b)
+  [setup] PASS chat_seq imported at FABLE5_MODEL=9b  (9b)
+    g0: outcome 'tripped bring_up' (10 s); events ['load_template(caps=frozenset())', 'independent_step_images(caps=frozenset())', 'B6-stub', 'dev', 'seq_caps_read', 'load_template(caps=frozenset())', 'independent_step_images(caps=frozenset())', 'bring_up']
+      |   crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9096140
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+      |   caps       {} from the device's SEQ_CAPS 0xdeadc0de; template, slices and the 3 images (--seq-rtl r0) validated at it (0.9 s)
+  [g0] PASS control: the default --nch 4 session (r0, form B) LOADS on the 0xDEADC0DE mock  (tripped bring_up)
+  [g0] PASS ... its form-B images still equal the S1P pins (REORDER_B_IMAGES)
+    f: outcome 'exit 4' (8 s); events ["load_template(caps=frozenset({'R1'}))", "independent_step_images(caps=frozenset({'R1'}))", 'B6-stub', 'dev', 'seq_caps_read', 'load_template(caps=frozenset())', 'independent_step_images(caps=frozenset())']
+      |   crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9099bc0
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+      | *** REFUSED before any upload: image lite (--seq-rtl r1) at capabilities {} (the device's SEQ_CAPS 0xdeadc0de): rec 38: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x0000000
+  [f] PASS `chat_seq --seq-rtl r1` on the 0xDEADC0DE mock REFUSES (exit 4) at open_board, before any upload  (exit 4)
+  [f] PASS ... device-keyed (SEQ_CAPS read) and naming the masked FENCE
+    g: outcome 'tripped bring_up' (9 s); events ["load_template(caps=frozenset({'R1'}))", "independent_step_images(caps=frozenset({'R1'}))", 'B6-stub', 'dev', 'seq_caps_read', "load_template(caps=frozenset({'R1'}))", "independent_step_images(caps=frozenset({'R1'}))", 'bring_up']
+      |   crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9099bc0
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+      |   caps       ['R1'] from the device's SEQ_CAPS 0xfab1ca01; template, slices and the 3 images (--seq-rtl r1) validated at it (1.0 s)
+  [g] PASS `chat_seq --seq-rtl r1` LOADS on the 0xFAB1CA01 mock (reaches bring_up, the first upload)  (tripped bring_up)
+  [g] PASS the device's caps {R1} reach chat_seq.load_template (the :474 validate_stream site) after open_board read them  ([('load_template', frozenset({'R1'})), ('independent_step_images', frozenset({'R1'})), 'bring_up'])
+  [g] PASS ... and chat_seq.independent_step_images (the :514 site)  ([('load_template', frozenset({'R1'})), ('independent_step_images', frozenset({'R1'})), 'bring_up'])
+      masked FENCEs per image {'preamble': 0, 'lite': 1248, 'full': 1370}; refused at the empty set {'lite': True, 'full': True}; session caps frozenset({'R1'})
+  [g] PASS the three images it loads carry masked FENCEs (lite and full) and are REFUSED at the empty set
+  [g] PASS the session's validation caps are the device's {R1}
+  [g] PASS its lite/full images equal the r1 pins
+    iA: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r1 needs --reorder B (the per-image form-B lineage, pinned in REORDER_B_R1_IMAGES); got --reorder A -- run --seq-rtl r0 for the shipped RTL level
+  [i] PASS refused before the board: ['--seq-rtl', 'r1', '--reorder', 'A'] -> exit 4  (exit 4; ['*** --seq-rtl r1 needs --reorder B (the per-image form-B lineage, pinned in REORDER_B_R1_IMAGES); got --reorder A -- run --seq-rtl r0 for the shipped RTL level'])
+    ioff: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r1 needs --reorder B (the per-image form-B lineage, pinned in REORDER_B_R1_IMAGES); got --reorder off -- run --seq-rtl r0 for the shipped RTL level
+  [i] PASS refused before the board: ['--seq-rtl', 'r1', '--reorder', 'off'] -> exit 4  (exit 4; ['*** --seq-rtl r1 needs --reorder B (the per-image form-B lineage, pinned in REORDER_B_R1_IMAGES); got --reorder off -- run --seq-rtl r0 for the shipped RTL level'])
+    ienv: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r1 needs --reorder B (the per-image form-B lineage, pinned in REORDER_B_R1_IMAGES); got --reorder off -- run --seq-rtl r0 for the shipped RTL level
+  [i] PASS refused before the board: {'FABLE5_SEQ_RTL': 'r1', 'FABLE5_REORDER': 'off'} -> exit 4  (exit 4; ['*** --seq-rtl r1 needs --reorder B (the per-image form-B lineage, pinned in REORDER_B_R1_IMAGES); got --reorder off -- run --seq-rtl r0 for the shipped RTL level'])
+    ir9: outcome 'exit 2' (0 s); events []
+  [i] PASS refused before the board: ['--seq-rtl', 'r9'] -> exit 2  (exit 2; ["chat_seq.py: error: argument --seq-rtl: invalid choice: 'r9' (choose from r0, r1)"])
+    ibad: outcome 'exit 2' (0 s); events []
+  [i] PASS refused before the board: {'FABLE5_SEQ_RTL': 'bogus'} -> exit 2  (exit 2; ["chat_seq.py: error: FABLE5_SEQ_RTL='bogus': expected unset or one of ['r0', 'r1']"])
+      B6 SeqExec caps (r1 session): [frozenset(), frozenset(), frozenset(), frozenset({'R1'}), frozenset({'R1'}), frozenset({'R1'})]; verifier: [frozenset({'R1'})]; B6 (r0 session): [frozenset(), frozenset(), frozenset(), frozenset(), frozenset(), frozenset()]
+  [k] PASS B6 at r1: shipped side at the empty set, reordered side at {R1}  ([frozenset(), frozenset(), frozenset(), frozenset({'R1'}), frozenset({'R1'}), frozenset({'R1'})])
+  [k] PASS SeqModelVerifier at r1 runs SeqExec at {R1}  ([frozenset({'R1'})])
+  [k] PASS B6 at r0 runs both sides at the empty set  ([frozenset(), frozenset(), frozenset(), frozenset(), frozenset(), frozenset()])
+per case: (a) 2/2, (b) 1/2, (b2) 1/1, (c) 2/2, (c2) 2/2, (d) 2/2, (e) 2/2, (l) 5/6, (m) 3/3, (h) 1/1, (setup) 1/1, (g0) 2/2, (f) 2/2, (g) 6/6, (i) 5/5, (k) 3/3
+SR6_HOST_TDD: 40 passed, 2 failed (35 s) -> FAIL
+=== rc  : 1
+=== end : 2026-09-27T19:40:24-06:00

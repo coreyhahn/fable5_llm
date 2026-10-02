@@ -18,6 +18,7 @@ Usage (snoke): .venv/bin/python cycle_census.py --out ../evidence/rung3/census_s
 """
 import argparse, json, sys, time
 
+import board_lock as BL
 import chat_seq as CS
 import hwmap as HW
 
@@ -48,20 +49,32 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=None)
     ap.add_argument("--prefill", default="full", choices=("lite", "full"))
+    # O3: the device was hard-coded, so this tool could not be pointed away
+    # from the board even for a dry check.  It can now.
+    ap.add_argument("--dev", default="/dev/xdma0")
+    ap.add_argument("--chan", type=int, default=0)
+    BL.add_lock_args(ap)                        # O3: --lock PATH / --no-lock
     args_c = ap.parse_args()
+
+    # O3: the shared board lock, FIRST — before the board, before bring-up.
+    try:
+        lock = BL.from_args(args_c, tool="cycle_census.py",
+                            error=CS.ChatSeqError).acquire()
+    except CS.ChatSeqError as e:
+        print("*** %s" % e)
+        raise SystemExit(4)
 
     # args namespace ChatSession reads (mirrors serve.py's adapter)
     import types
     a = types.SimpleNamespace(
-        dev="/dev/xdma0", chan=0, template=CS.TEMPLATE_PREFIX,
+        dev=args_c.dev, chan=args_c.chan, template=CS.TEMPLATE_PREFIX,
         any_template=False, t_max=CS.T_MAX, max_ctx=500, pos_mode="auto",
         prefill=args_c.prefill, ntok=8, force_upload=False,
-        timeout=30.0, preamble_timeout=30.0, lock=True, verify=False,
+        timeout=30.0, preamble_timeout=30.0, lock=args_c.lock,
+        no_lock=args_c.no_lock, verify=False,
         out=None, prompt=[], canned=False, smoke=False, selftest=False,
         model_only=False, continue_context=False, steps=0)
 
-    lock = CS.SeqLock(CS.LOCK_PATH)
-    lock.acquire()
     sess = CS.ChatSession(a, log=print)
     sess.open_board()
     sess.bring_up()

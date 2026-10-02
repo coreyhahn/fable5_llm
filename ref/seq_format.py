@@ -131,6 +131,15 @@ _SW = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sw")
 if _SW not in sys.path:
     sys.path.insert(0, _SW)
 import hwmap as HW                                        # noqa: E402
+# The 16-bit scratch address packing (G3.1 / SEQ_ISA v2.0) is defined ONCE,
+# beside the emitter that produces it — never re-derived here.  This file is
+# the LARGEST CONSUMER of those helpers (spec 7.6 D: ~35 sites that open an
+# ARG word and rebuild it) but it is NOT a fourth implementation of the
+# layout, and it must not become one.
+import gen_layer_script as _GLS                            # noqa: E402
+from gen_layer_script import (dec_a1_lo, dec_a1_hi,        # noqa: E402
+                              dec_alu_dst, dec_alu_len, dec_alu_p0,
+                              enc_a1, enc_alu_a0, enc_alu_a2)
 
 # ----------------------------------------------------------------------
 # record layout
@@ -194,7 +203,7 @@ MOVY_INT16 = 1
 MVGO_NOWAIT = 0x1
 
 # ----------------------------------------------------------------------
-# XOP (0x0C) field packing — ISA v1.1 opcode text, rtl/seq_unit.sv:549-572
+# XOP (0x0C) field packing — ISA v1.1 opcode text, rtl/seq_unit.sv:602-625
 #
 #   XRF[target[2:0]] = s1*XRF[imm32[2:0]] + s2*XRF[imm32[6:4]]
 #                      + simm18(imm32[31:14])
@@ -291,11 +300,28 @@ def csr_seq(off):
     return CSR_SPACE_SEQ | off
 
 
+# THE ISA GENERATION THIS TREE EMITS AND DECODES.  One constant, no
+# behaviour attached: it exists so a check can SAY which encoding it is
+# looking at instead of guessing.  v1 = SEQ_ISA v1.7 (R-b's 15-bit
+# bit-scatter, what build_034/build_035 run); v2 = SEQ_ISA v2.0 (G3.1's
+# clean 16+16 pairs + the DNSB CSR).  There is deliberately NO v1 path in
+# this tree — the 0.8B/2B artifacts are served from a pre-G3 checkout.
+SEQ_ISA_VERSION = 2
+
 # layer_chan register offsets, relative to hwmap.LB
 LOFF_CMD, LOFF_STAT = 0x00, 0x04
 LOFF_ARG0, LOFF_ARG1, LOFF_ARG2 = 0x08, 0x0C, 0x10
 LOFF_SPTR, LOFF_SWIN, LOFF_EOUT, LOFF_TCNT = 0x14, 0x18, 0x1C, 0x20
+# G3.4: at NKVH = 4 a kv_slot has FOUR 10-bit append counters and a
+# 32-bit CSR word holds two, so kvheads 2/3 live at their own offset
+# (rtl/layer_chan.sv CSR 0x60, sw/hwmap.py L_TCNT2).  A SEQ program
+# that resets T must write BOTH or half the counters keep a stale
+# value -- the emitter half of spec 4.6's wall-9 lockstep.
+LOFF_TCNT2 = 0x60
 LOFF_AMAXI, LOFF_AMAXV, LOFF_LAYER = 0x28, 0x2C, 0x30
+# SEQ_ISA v2.0 (G3.1): the DeltaNet scalar-pointer BASE PAIR,
+# {a_dec_base[31:16], a_beta_base[15:0]}, written once per layer body.
+LOFF_DNSB = 0x5C
 
 CSR_L_CMD = csr_layer(LOFF_CMD)
 CSR_L_ARG0, CSR_L_ARG1, CSR_L_ARG2 = (csr_layer(LOFF_ARG0),
@@ -303,6 +329,45 @@ CSR_L_ARG0, CSR_L_ARG1, CSR_L_ARG2 = (csr_layer(LOFF_ARG0),
                                       csr_layer(LOFF_ARG2))
 CSR_L_SPTR, CSR_L_SWIN = csr_layer(LOFF_SPTR), csr_layer(LOFF_SWIN)
 CSR_L_TCNT, CSR_L_LAYER = csr_layer(LOFF_TCNT), csr_layer(LOFF_LAYER)
+CSR_L_TCNT2 = csr_layer(LOFF_TCNT2)
+CSR_L_DNSB = csr_layer(LOFF_DNSB)
+
+# ---------------------------------------------------------------------
+# v2.1 (B15): layer state in DDR.  docs/SEQ_ISA.md B15 is the contract;
+# this block is its reference mirror and sw/hwmap.py is the host's.  The
+# three are tied by evidence/qwen9b/s1/sdma_bits.py, which also reads the
+# RTL half (RED until Task S2 lands it).
+LOFF_SB_DN, LOFF_SB_KV, LOFF_SB_CV, LOFF_SDMA, LOFF_SDMA_CYC = 0x64, 0x68, 0x6C, 0x70, 0x74
+CSR_L_SB_DN, CSR_L_SB_KV = csr_layer(LOFF_SB_DN), csr_layer(LOFF_SB_KV)
+CSR_L_SB_CV, CSR_L_SDMA, CSR_L_SDMA_CYC = csr_layer(LOFF_SB_CV), csr_layer(LOFF_SDMA), csr_layer(LOFF_SDMA_CYC)
+OP_L_SLD, OP_L_SST = 13, 14
+SDMA_KIND_DN, SDMA_KIND_KV, SDMA_KIND_CV = 0, 1, 2
+ERR_CODE = {0x01: "E_ENV", 0x02: "E_LAYER", 0x10: "E_DMA_BASE", 0x11: "E_DMA_RANGE",
+            0x12: "E_DMA_AXI", 0x13: "E_DMA_COLD"}
+E_ENV, E_LAYER, E_DMA_BASE, E_DMA_RANGE, E_DMA_AXI, E_DMA_COLD = 0x01, 0x02, 0x10, 0x11, 0x12, 0x13
+STATE_T_MAX = 4096
+
+
+def sdma_arg0(kind, slot, layer, head):
+    """B15.1: {kind[12:11], slot[10], layer[9:5], head[4:0]}."""
+    assert kind in (SDMA_KIND_DN, SDMA_KIND_KV, SDMA_KIND_CV), kind
+    assert slot in (0, 1), slot
+    lmax = 7 if kind == SDMA_KIND_KV else 23
+    assert 0 <= layer <= lmax, (kind, layer)
+    hmax = {SDMA_KIND_DN: 0, SDMA_KIND_KV: 7, SDMA_KIND_CV: 0}[kind]
+    assert 0 <= head <= hmax, (kind, head)
+    return (kind << 11) | (slot << 10) | (layer << 5) | head
+
+
+def sdma_fields(arg0):
+    return (arg0 >> 11) & 3, (arg0 >> 10) & 1, (arg0 >> 5) & 31, arg0 & 31
+
+
+def layer_word(dn_slot, kv_slot, cv_slot, kv_layer):
+    """B15.2: {cv_slot[13:12], kv_layer[10:8], kv_slot[4:3], dn_slot[1:0]}."""
+    assert dn_slot in (0, 1) and kv_slot in (0, 1) and cv_slot in (0, 1) and 0 <= kv_layer <= 7
+    return (cv_slot << 12) | (kv_layer << 8) | (kv_slot << 3) | dn_slot
+
 
 # sequencer block offsets
 SOFF_TCNT_SEQ = 0x20             # token counter consumed by JMP flags 0x1
@@ -339,7 +404,10 @@ SEQ_CSR_BASE = 0x6000            # placeholder; layer_chan is 0x5000
 # ----------------------------------------------------------------------
 SEQ_DATA_BASE = 0x8000_0000      # LDC constant blob   (chan 0)
 SEQ_STREAM_BASE = 0x9000_0000    # the record list itself
-EMB_ROW_BYTES = 2048             # ISA: EMB_BASE + token*2048B
+# NO EMB row-size constant lives here any more: since R-b the row stride is
+# the RUNTIME EMBLOG2 CSR (SEQ 0x60, docs/SEQ_ISA.md B13), programmed from
+# the artifact manifest's "emb_row_bytes" (2*H).  sw/hwmap.py owns both
+# (EMB_ROW_BYTES_DEFAULT = the CSR reset value, load_weights_manifest()).
 
 
 # ======================================================================
@@ -426,15 +494,78 @@ def pack_stream(recs):
     return b"".join(r.to_bytes() for r in recs)
 
 
+# G3.4 (spec 5.4 S9): the matvec engine's group-count envelope, consumed
+# from rtl/matvec_engine.sv's MAX_NG rather than re-invented.  It is the
+# same number sw/hwmap.SHAPE_MAX_NG[2] enforces on the emit side; `ref/`
+# does not import `sw/`, so the two are kept in step by
+# evidence/qwen9b/g3/isa_bits.py.
+MVGO_MAX_NG = 96
+# ...and the SHAPE LAYOUT the bound is expressed in.  `ng` lives in
+# bits [28:22] at isa=2 and in bits [5:0] at isa=1, so the envelope can
+# only be checked once the caller has SAID which layout the stream is in
+# -- exactly the discipline sw/hwmap.shape_word(isa=...) established at
+# G3.3.  A frozen build_034/build_035 artifact is a legitimate isa=1
+# stream, but SINCE SR11a (SEQ_ISA v2.3 B17.2) it validates ONLY when the
+# caller states shape_isa = hwmap.SHAPE_ISA_PRE_G3: with the layout
+# unstated, MVGO SHAPE bits 29/30 are refused (the R2 guard -- bit 29 is w8
+# on build_034/035 but XBANK on build_041+, and only the stated layout
+# tells them apart), so an isa=1 W8 stream (bit 29 = w8) is REFUSED.  The
+# board callers (`sw/seq_run.py`, `sw/chat_seq.py`) therefore state the
+# DEVICE's layout, hwmap.shape_isa_for_version(VERSION) -- every board
+# admission has since SR11a fix round 2 (evidence/qwen9b/sr/SR11a_R2_MODEL.md
+# §8), so the frozen 2B W8 board paths are admitted at isa=1.  A freshly
+# emitted v2.0 stream -- the only kind THIS tree's RTL decodes -- gets the
+# ng envelope check when SHAPE_ISA_9B is stated.  Twin of sw/hwmap.SHAPE_ISA_9B.
+SHAPE_ISA_9B = 2
+
+# SEQ_ISA v2.3 B17.2 (R2, the XWIN / RES bank bits; spec
+# docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md §1.2).  The
+# storage is the RTL's: x_mem = 96 lines x 32 words (MVGO_MAX_NG lines, one
+# ng-unit of 128 int8 per line) = 3072 words = 12288 bytes per channel, and
+# the RES BRAM = hwmap.RES_DEPTH (4096) rows.  A bank is half of each.
+XWIN_LINE_WORDS = 32
+XWIN_WORDS = MVGO_MAX_NG * XWIN_LINE_WORDS          # 3072
+XBANK_LINE = MVGO_MAX_NG // 2                        # 48
+XBANK_WORD = XBANK_LINE * XWIN_LINE_WORDS            # 1536
+RES_ROWS = HW.RES_DEPTH                              # 4096
+RBANK_ROW = RES_ROWS // 2                            # 2048
+SHAPE_XBANK = 1 << 29        # MVGO SHAPE bit 29: x from line 48
+SHAPE_RBANK = 1 << 30        # MVGO SHAPE bit 30: rows at 2048 + r
+MOVX_WORD_MASK = 0x0FFF      # MOVX target[11:0] = XWIN start word
+
+
+def movx_words(nbytes):
+    """XWIN words a MOVX of `nbytes` int8 pushes (ceil; the ragged tail is
+    zero-padded, SEQ_ISA B6 MOVX)."""
+    return (int(nbytes) + 3) // 4
+
+
 class SeqValidationError(ValueError):
     pass
 
 
-def validate(r, nrec=None, idx=None):
+def validate(r, nrec=None, idx=None, shape_isa=None, caps=frozenset()):
     """Reject anything the ISA does not define.  Raises SeqValidationError.
 
     `nrec` (stream length) enables the JMP target bound check.
+    `shape_isa` (G3.4) enables the MVGO SHAPE envelope check, which can
+    only be read once the SHAPE LAYOUT is known -- pass SHAPE_ISA_9B for a
+    stream this tree's RTL will run, and hwmap.SHAPE_ISA_PRE_G3 for a
+    frozen isa=1 artifact.  Since SR11a (B17.2) passing NOTHING for an
+    isa=1 W8 artifact REFUSES it (SHAPE bit 29 is refused without R2 unless
+    the isa=1 layout is stated); since SR11a fix round 2 the board callers
+    state the device's layout (evidence/qwen9b/sr/SR11a_R2_MODEL.md §8).
+    `caps` (SEQ_ISA v2.3 B17.0) is the capability set of the DEVICE the
+    stream is for -- sw/hwmap.seq_caps_set() of its SEQ_CAPS word, never a
+    manifest's claim.  The default (empty) is every pre-round bitstream and
+    today's rules, so every existing caller is unchanged.  "R1" admits the
+    FENCE channel mask (B17.1); "R2" admits the bank fields (B17.2: MOVX
+    target[11:0], MVGO SHAPE bits 29/30, MOVY target[15:4]) under their
+    range and bank-legality rules.  A name outside hwmap.SEQ_CAP_BITS raises
+    ValueError (a caller bug, not a stream defect).  The constants are
+    hwmap's -- this file defines none of its own.
     """
+    caps = HW.seq_caps_check(caps)
     def bad(msg):
         where = "" if idx is None else f"rec {idx}: "
         raise SeqValidationError(f"{where}{msg}  [{_disasm_raw(r)}]")
@@ -461,13 +592,75 @@ def validate(r, nrec=None, idx=None):
         if ind != IND_NONE:
             bad("MOVX/MVGO cannot use immediate indirection (flags[7:4] "
                 "is the engine channel — SEQ_ISA A1)")
-        if r.chan >= 4:
+        if r.chan >= 4 and not _movx_bcast_admitted(r, caps, bad):
             bad(f"engine channel {r.chan} >= 4")
         # v1.4: MVGO target[0] is the NO-WAIT variant; the rest is reserved.
         if r.opcode == OP_MVGO and (r.target >> 1):
             bad("MVGO target[15:1] is reserved (only target[0] NO-WAIT)")
-        if r.opcode == OP_MOVX and r.target:
-            bad("MOVX target is reserved (must be 0)")
+        if r.opcode == OP_MOVX:
+            # SEQ_ISA v2.3 B17.2 (R2): target[11:0] = the XWIN start word,
+            # admitted ONLY when the device has R2.  Without it the pre-round
+            # rule stands (target reserved 0) -- build_041/042 IGNORE MOVX
+            # target, so an R2 MOVX there would silently write word 0: R2 is
+            # NOT fail-closed and this refusal is the guard.
+            if "R2" not in caps:
+                if r.target:
+                    bad("MOVX target is reserved (must be 0; the XWIN start "
+                        "word needs capability R2, B17.2)")
+            else:
+                if r.target & ~MOVX_WORD_MASK:
+                    bad("MOVX target[15:12] is reserved (must be 0, B17.2)")
+                w0 = r.target & MOVX_WORD_MASK
+                nw = movx_words(r.len_or_addr_hi & 0xFFFFFF)
+                if w0 >= XWIN_WORDS or w0 + nw > XWIN_WORDS:
+                    bad(f"MOVX XWIN range: start word {w0} + {nw} words > "
+                        f"{XWIN_WORDS} (B17.2, err 0x06)")
+        if r.opcode == OP_MVGO and shape_isa != HW.SHAPE_ISA_PRE_G3:
+            # SEQ_ISA v2.3 B17.2 (R2): SHAPE bit 29 = XBANK, bit 30 = RBANK,
+            # bit 31 spare.  build_041/042 DROP bits 31:29
+            # (rtl/matvec_chan.sv SHAPE write), so an XBANK MVGO there
+            # computes on the wrong x without faulting -- refused unless the
+            # device has R2.  Applied whenever the caller has NOT stated the
+            # frozen isa=1 layout (where bit 29 is w8).  Since SR11a fix round
+            # 2, sw/seq_run.py and sw/chat_seq.py state the DEVICE's layout at
+            # every board admission (evidence/qwen9b/sr/SR11a_R2_MODEL.md §8):
+            # isa=2 on build_041+, where this guard binds; isa=1 on the frozen
+            # build_035, where an isa=1 W8 stream (bit 29 = w8) is admitted.
+            sp = r.imm32 >> 29
+            if sp & 0x4:
+                bad("MVGO SHAPE bit 31 is spare (must be 0)")
+            if sp and "R2" not in caps:
+                bad("MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 "
+                    "(B17.2); without it they are spare, must be 0")
+            if sp & 0x1:
+                ngx = (r.imm32 >> 22) & 0x7F
+                if ngx > XBANK_LINE:
+                    bad(f"MVGO XBANK with ng {ngx} (K = {128 * ngx}): a bank "
+                        f"holds {XBANK_LINE} lines, K <= "
+                        f"{128 * XBANK_LINE} (B17.2)")
+            if sp & 0x2:
+                nrx = (r.imm32 >> 6) & 0xFFFF
+                if nrx > RBANK_ROW:
+                    bad(f"MVGO RBANK with nrows {nrx}: a bank holds "
+                        f"{RBANK_ROW} rows (B17.2)")
+        # G3.4 (spec 5.4 S9): MVGO's imm32 IS the SHAPE word, and its `ng`
+        # field is the only part of it whose out-of-envelope value the
+        # ENGINE cannot report -- rtl/matvec_engine.sv's own 1..MAX_NG
+        # guard is `ifndef SYNTHESIS.  The RTL twin is seq_unit's
+        # validator, which refuses the record with err_code E_ENV before
+        # the doorbell; this clause is the reference half of that pair and
+        # the two MUST agree, which is what makes the RTL refusal safe to
+        # add at all.  Layout: SEQ_ISA v2.0 / G3.3
+        # {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}.
+        # ONLY when the caller has stated the v2.0 layout -- see
+        # SHAPE_ISA_9B above.  rtl/seq_unit.sv applies it unconditionally
+        # because that RTL decodes v2.0 and nothing else.
+        if r.opcode == OP_MVGO and shape_isa == SHAPE_ISA_9B:
+            ng = (r.imm32 >> 22) & 0x7F
+            if not (1 <= ng <= MVGO_MAX_NG):
+                bad(f"MVGO SHAPE ng {ng} outside the engine envelope "
+                    f"1..{MVGO_MAX_NG} (imm32={r.imm32:#010x}); "
+                    f"rtl/matvec_engine.sv MAX_NG")
     elif r.opcode == OP_MOVY:
         if ind not in IND_MODES:
             bad(f"unknown indirection code {ind:#x}")
@@ -475,8 +668,17 @@ def validate(r, nrec=None, idx=None):
             bad("XRF index set with no indirection mode")
         if r.chan >= 4:
             bad(f"engine channel {r.chan} >= 4")
-        if r.target >> 4:
-            bad("MOVY target[15:4] is reserved (must be 0)")
+        if "R2" not in caps:
+            if r.target >> 4:
+                bad("MOVY target[15:4] is reserved (must be 0; the RES "
+                    "start row needs capability R2, B17.2)")
+        else:
+            # SEQ_ISA v2.3 B17.2 (R2): target[15:4] = the RES start row
+            row0 = r.target >> 4
+            nr = r.len_or_addr_hi & 0xFFFFFF
+            if row0 + nr > RES_ROWS:
+                bad(f"MOVY RES range: start row {row0} + {nr} rows > "
+                    f"{RES_ROWS} (B17.2, err 0x06)")
     elif r.opcode == OP_EMB:
         if r.flags:
             bad("EMB takes no flags (token is implicitly XRF[3])")
@@ -491,9 +693,19 @@ def validate(r, nrec=None, idx=None):
         # to pass this validator and die on chip (SEQ_ISA v1.6 B11-1)
         if nrec is not None and r.imm32 >= nrec:
             bad(f"JMP target {r.imm32} outside a {nrec}-record stream")
-    elif r.opcode in (OP_FENCE, OP_HALT):
+    elif r.opcode == OP_FENCE:
+        # SEQ_ISA v2.3 B17.1 (R1): target[3:0] is the channel mask (0 = all
+        # four, today's meaning) -- admitted ONLY when the device has R1.
+        # Without R1 the pre-round all-zero rule stands, as build_041/042's
+        # RTL enforces it (err 0x06).
+        tmask = 0xFFF0 if "R1" in caps else 0xFFFF
+        if r.flags or (r.target & tmask) or r.imm32 or r.addr_lo \
+                or r.len_or_addr_hi:
+            bad("FENCE takes no operands" if "R1" not in caps else
+                "FENCE takes only target[3:0] (the channel mask, B17.1)")
+    elif r.opcode == OP_HALT:
         if r.flags or r.target or r.imm32 or r.addr_lo or r.len_or_addr_hi:
-            bad(f"{OP_NAME[r.opcode]} takes no operands")
+            bad("HALT takes no operands")
     elif r.opcode == EXT_XOP:
         if r.flags:
             bad("XOP takes no flags")
@@ -505,19 +717,55 @@ def validate(r, nrec=None, idx=None):
     return r
 
 
-def validate_stream(recs, allow_ext=True):
+def validate_stream(recs, allow_ext=True, shape_isa=None, caps=frozenset()):
     """Validate every record; returns the count.  `allow_ext=False` rejects
-    the PROPOSED opcodes so a pure-ISA-v1 stream can be certified."""
+    the PROPOSED opcodes so a pure-ISA-v1 stream can be certified.
+    `shape_isa` and `caps` (the DEVICE's capability set, SEQ_ISA v2.3
+    B17.0) are passed through to validate() -- see there.
+
+    This is also where a LAYER COMMAND's ARG envelope is checked, because
+    ARG0..2 arrive as CSRWR records AHEAD of the CMD -- validate() sees one
+    record at a time and has no ARGs.
+    """
     if isinstance(recs, (bytes, bytearray, memoryview)):
         recs = unpack_stream(recs)
+    caps = HW.seq_caps_check(caps)
     n = len(recs)
-    for i, r in enumerate(recs):
+    a0 = a1 = a2 = 0
+    for idx, r in enumerate(recs):
         if not allow_ext and r.opcode in EXT_OPS:
             raise SeqValidationError(
-                f"rec {i}: {OP_NAME[r.opcode]} is a PROPOSED opcode, not "
+                f"rec {idx}: {OP_NAME[r.opcode]} is a PROPOSED opcode, not "
                 f"SEQ ISA v1")
-        validate(r, nrec=n, idx=i)
-    return n
+        validate(r, nrec=n, idx=idx, shape_isa=shape_isa, caps=caps)
+        if r.opcode == OP_CSRWR:
+            if r.target == CSR_L_ARG0:
+                a0 = r.imm32
+            elif r.target == CSR_L_ARG1:
+                a1 = r.imm32
+            elif r.target == CSR_L_ARG2:
+                a2 = r.imm32
+            continue
+        if r.opcode != OP_CMD:
+            continue
+        op = r.imm32 & 0xFF
+        # v2.1 (B15.1): the SLD/SST field envelope.  UNCONDITIONAL, unlike
+        # the MVGO SHAPE clause above -- v2.1 streams are the only kind this
+        # tree's RTL decodes, and the frozen isa=1 artifacts carry no op
+        # 13/14 at all, so there is no generation to gate on.
+        if op in (OP_L_SLD, OP_L_SST):
+            kind, _slot, layer, head = sdma_fields(a0)
+            name = "SLD" if op == OP_L_SLD else "SST"
+            if kind == 3:
+                raise SeqValidationError(f"rec {idx}: {name} kind 3 is reserved (B15.1)")
+            lmax = 7 if kind == SDMA_KIND_KV else 23
+            hmax = {SDMA_KIND_DN: 0, SDMA_KIND_KV: 7, SDMA_KIND_CV: 0}[kind]
+            if layer > lmax or head > hmax:
+                raise SeqValidationError(
+                    f"rec {idx}: {name} layer {layer}/head {head} outside kind {kind}'s range (B15.1)")
+            if a1 != 0 or a2 != 0:
+                raise SeqValidationError(f"rec {idx}: {name} arg1/arg2 must be 0 (B15.1 reserved)")
+    return _bcast_running(recs, n, shape_isa, caps)
 
 
 def resolve_imm(r, xrf):
@@ -541,7 +789,11 @@ def _csr_name(cid):
     if sp == CSR_SPACE_LAYER:
         return {0x00: "L_CMD", 0x08: "L_ARG0", 0x0C: "L_ARG1",
                 0x10: "L_ARG2", 0x14: "L_SPTR", 0x18: "L_SWIN",
-                0x20: "L_TCNT", 0x30: "L_LAYER"}.get(off, f"L+{off:#04x}")
+                0x20: "L_TCNT", 0x30: "L_LAYER",
+                0x5C: "L_DNSB", 0x60: "L_TCNT2",
+                0x64: "L_SB_DN", 0x68: "L_SB_KV", 0x6C: "L_SB_CV",
+                0x70: "L_SDMA", 0x74: "L_SDMA_CYC",
+                }.get(off, f"L+{off:#04x}")
     if sp == CSR_SPACE_MV:
         c = (cid >> 8) & 0xF
         return {0x08: "WBASE_LO", 0x0C: "WBASE_HI", 0x10: "WBEATS",
@@ -568,7 +820,10 @@ def _disasm_raw(r):
 
 # layer_chan opcode names (hwmap) + vec_alu sub-op names, for CMD disasm
 LOP_NAME = {1: "VN", 2: "VNW", 3: "ROPET", 4: "ROPE", 5: "CONVW", 6: "CONV",
-            7: "GATE", 8: "DNST", 9: "KVAP", 10: "ATTN", 11: "ALU", 12: "DNZ"}
+            7: "GATE", 8: "DNST", 9: "KVAP", 10: "ATTN", 11: "ALU", 12: "DNZ",
+            13: "SLD", 14: "SST"}                 # v2.1 (B15.1)
+SDMA_KIND_NAME = {SDMA_KIND_DN: "DN", SDMA_KIND_KV: "KV", SDMA_KIND_CV: "CV",
+                  3: "RSVD"}
 ALU_NAME = {0: "DYNQ8", 1: "SHIFT32", 2: "SCALE", 3: "EMUL", 4: "ADD",
             5: "SILU16", 6: "SILU32", 7: "SIGM16", 8: "EMUL32",
             9: "SHIFT32W", 10: "AMAX32", 12: "DYNQ16"}
@@ -600,13 +855,13 @@ def disasm(r, idx=None, ctx=None):
         txt = f"{pre}{name:<6} {LOP_NAME.get(lop, str(lop))}"
         if ctx is not None and lop == 11:
             a0 = ctx.get("arg0", 0)
-            sub, n = a0 & 0xF, (a0 >> 4) & 0x3FFF
+            sub, n = a0 & 0xF, dec_alu_len(a0)
             a1, a2 = ctx.get("arg1", 0), ctx.get("arg2", 0)
-            p0 = a2 & 0x1FFFF
+            p0 = dec_alu_p0(a0, a2)
             p0 = p0 - (1 << 17) if p0 >= (1 << 16) else p0
             txt += (f" {ALU_NAME.get(sub, sub)} n={n} p0={p0} "
-                    f"srca={a1 & 0x3FFF:#x} srcb={(a1 >> 14) & 0x3FFF:#x} "
-                    f"dst={(a2 >> 17) & 0x3FFF:#x}")
+                    f"srca={dec_a1_lo(a1):#x} srcb={dec_a1_hi(a1):#x} "
+                    f"dst={dec_alu_dst(a2):#x}")
         elif ctx is not None and lop == 1:
             a0, a1 = ctx.get("arg0", 0), ctx.get("arg1", 0)
             a2 = ctx.get("arg2", 0)
@@ -615,10 +870,18 @@ def disasm(r, idx=None, ctx=None):
                 mode = "EPSNORM"
             txt += (f" mode={mode} n={1 << ((a0 >> 2) & 0xF)} "
                     f"inf={(a0 >> 6) & 0xF} outf={(a0 >> 10) & 0xF} "
-                    f"src={a1 & 0x3FFF:#x} dst={(a1 >> 14) & 0x3FFF:#x}")
+                    f"src={dec_a1_lo(a1):#x} dst={dec_a1_hi(a1):#x}")
+        elif ctx is not None and lop in (OP_L_SLD, OP_L_SST):
+            # v2.1 (B15.1): "SLD k=DN slot=0 L=3", head only where it means
+            # something (DN and CV must carry 0).
+            kind, slot, layer, head = sdma_fields(ctx.get("arg0", 0))
+            txt += (f" k={SDMA_KIND_NAME.get(kind, kind)} slot={slot} "
+                    f"L={layer}")
+            if kind == SDMA_KIND_KV:
+                txt += f" kvhead={head >> 1} kv={'V' if head & 1 else 'K'}"
         return txt
     if o == OP_MOVX:
-        return (f"{pre}{name:<6} mv{r.chan} XWIN <= scratch[{r.addr_lo:#x} "
+        return (f"{pre}{name:<6} {_movx_dst(r)} XWIN <= scratch[{r.addr_lo:#x} "
                 f".. +{r.len_or_addr_hi}] int8")
     if o == OP_MOVY:
         mode = "int16" if r.movy_mode == MOVY_INT16 else "pairs32"
@@ -628,14 +891,17 @@ def disasm(r, idx=None, ctx=None):
         beats = r.len_or_addr_hi >> 8
         wb = ((r.len_or_addr_hi & 0xFF) << 32) | r.addr_lo
         sh = r.imm32
+        # G3.3 SHAPE (isa=2): {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}.
+        # ONE layout, because this tree emits one -- a pre-G3 stream's
+        # isa=1 word needs a pre-G3 checkout to disassemble, exactly as its
+        # v1.7 ARG encoding does (sw/hwmap.py's R_SHAPE block).
         return (f"{pre}{name:<6} mv{r.chan} WBASE={wb:#012x} BEATS={beats} "
-                f"SHAPE={sh:#010x} (nrows={(sh >> 12) & 0x1FFF} "
-                f"sh={(sh >> 6) & 0x3F} ng={sh & 0x3F} "
-                f"g={64 if sh & HW.SHAPE_G64 else 128})"
+                f"SHAPE={sh:#010x} (ng={(sh >> 22) & 0x7F} "
+                f"nrows={(sh >> 6) & 0xFFFF} sh={sh & 0x3F})"
                 + ("  [no-wait]" if r.target & MVGO_NOWAIT else ""))
     if o == OP_EMB:
         base = (r.target << 32) | r.imm32
-        return (f"{pre}{name:<6} DDR[{base:#x} + XRF[3]*{EMB_ROW_BYTES}] -> "
+        return (f"{pre}{name:<6} DDR[{base:#x} + XRF[3]<<EMBLOG2] -> "
                 f"scratch[{r.addr_lo:#x}] {r.len_or_addr_hi} words")
     if o == OP_AMAXL:
         return f"{pre}{name:<6} AMAXI -> XRF[3], push OUT_FIFO"
@@ -643,6 +909,9 @@ def disasm(r, idx=None, ctx=None):
         return (f"{pre}{name:<6} -> {r.imm32}"
                 + ("   [dec TCNT_SEQ, jump if != 0]" if r.flags & JMP_TCNT
                    else ""))
+    if o == OP_FENCE and r.target:
+        # SEQ_ISA v2.3 B17.1: a non-zero target[3:0] is the channel mask
+        return f"{pre}{name} mask={r.target:#x}"
     if o in (OP_FENCE, OP_HALT):
         return f"{pre}{name}"
     if o == EXT_LDC:
@@ -845,25 +1114,63 @@ def _runs(mask):
                     np.nonzero(d == -1)[0].tolist()))
 
 
-def plan_weights_from_wids(wids, base=None):
-    """The sw/layer_test.py plan_weights() layout, computed from the
-    generator's live `Mach.wids` instead of from files on disk.
+def plan_weights_from_wids(wids, base=None, nch=1, repack=False,
+                           layout_of=None, chunk_rows=None):
+    """The sw/hwmap.py plan_weights() layout, computed from the generator's
+    live `Mach.wids` instead of from files on disk.  The ADDRESSES come from
+    `hwmap.plan_weights` itself (R-c: one authority) — this function only
+    turns live quantized matrices into the manifest shape it wants.
 
-    Returns {wid: {"base","nrows","k","ng","sh","g","stride","nbeats"}}.
+    Returns {wid: {"base","nrows","k","ng","sh","g","stride","nbeats"}},
+    plus `"w8": True` on an 8-bit image (V5).  The W8 key is EMITTED ONLY
+    WHEN SET, exactly as `dump_weights` emits "g" only when it is not 128,
+    so every W4 plan — and therefore every committed .seq.json — stays
+    byte-identical.  Readers use `bool(p.get("w8", False))`; `ng` is the
+    ng-UNIT count K//128 in both widths, only `stride` moves
+    (`row_stride8` = K//64 weight beats + the SAME scale beats).
+
+    REPACK (R-c, the V5 fit prerequisite).  `repack=False` is the pack every
+    frozen artifact encodes: nch-INDEPENDENT, one full-image span per wid,
+    `"base"` an int.  With `repack=True` each channel packs only the rows it
+    owns, `"base"` is a LIST of nch channel-local addresses, and `layout_of`
+    ({wid: LAYOUT_*}) says how each image was split — the row counts differ
+    between LAYOUT_CONTIG (split_rows) and LAYOUT_ILV (chunk interleave), so
+    the layout must be known before an image can be placed.
     """
-    from w4a8_ref import row_stride
-    base = HW.W_BASE if base is None else base
-    out, a = {}, base
+    from w4a8_ref import row_stride, row_stride8
+    assert base is None or base == HW.W_BASE, \
+        f"plan_weights_from_wids base {base:#x} != hwmap.W_BASE"
+    depth = CHUNK_ROWS if chunk_rows is None else int(chunk_rows)
+    lay = dict(layout_of or {})
+    man = {}
     for wid, qw in sorted(wids.values(), key=lambda t: t[0]):
-        nrows, K = qw["w4"].shape
+        w8 = "w8" in qw
+        nrows, K = qw["w8" if w8 else "w4"].shape
         g = int(qw.get("g", 128))
-        stride = row_stride(K, g)
-        sz = nrows * stride
-        out[wid] = {"base": a, "nrows": nrows, "k": K, "ng": K // 128,
+        stride = row_stride8(K, g) if w8 else row_stride(K, g)
+        man[wid] = {"nrows": int(nrows), "k": int(K), "ng": K // 128,
                     "sh": int(qw["sh"]), "g": g, "stride": stride,
-                    "nbeats": sz // 64}
-        a += (sz + HW.WID_ALIGN - 1) // HW.WID_ALIGN * HW.WID_ALIGN
-    assert a < HW.EMB_BASE, "weight images overrun EMB_BASE"
+                    "nbeats": nrows * stride // 64, "w8": w8}
+    rows_of = None
+    if repack:
+        assert nch > 1, "the per-channel repack needs nch > 1"
+
+        def rows_of(wid, nrows):
+            assert wid in lay, (
+                f"wid {wid} is placed before its layout is known — the "
+                "repack cannot size a channel's slice without it")
+            return chan_rows(nrows, nch, lay[wid], depth)
+
+    bases, _top = HW.plan_weights(man, wdir=None, nch=nch, rows_of=rows_of)
+    out = {}
+    for wid, m in sorted(man.items()):
+        b = bases[wid]
+        out[wid] = {"base": list(b) if repack else b,
+                    "nrows": m["nrows"], "k": m["k"], "ng": m["ng"],
+                    "sh": m["sh"], "g": m["g"], "stride": m["stride"],
+                    "nbeats": m["nbeats"]}
+        if m["w8"]:
+            out[wid]["w8"] = True
     return out
 
 
@@ -956,6 +1263,47 @@ def weight_pieces(nrows, nch, layout=LAYOUT_CONTIG, depth=CHUNK_ROWS):
     return ilv_chunks(nrows, nch, depth)
 
 
+def weight_pieces_at(nrows, nch, layout=LAYOUT_CONTIG, depth=CHUNK_ROWS,
+                     repack=False):
+    """[(chan_index, r0, nrows_piece, row_off)] — `weight_pieces` plus the
+    row index of each piece INSIDE THAT CHANNEL's copy of the image (R-c).
+
+    `row_off` is what the channel-local address is built from:
+    `chan_base + row_off * stride`.
+
+      * repack=False (every artifact frozen before R-c): each channel
+        reserves the WHOLE image, so a piece sits at its GLOBAL row —
+        `row_off == r0`, and this is exactly `weight_pieces` with the third
+        field repeated.  Nothing moves.
+      * repack=True: a channel packs only the rows it owns, back to back in
+        ASCENDING piece order, so `row_off` is the running per-channel row
+        count.  Under LAYOUT_CONTIG that is `r0 - split_rows()[i][0]`; under
+        LAYOUT_ILV the channel's rows are strided through the image and the
+        packed order is the interleave order.
+    """
+    out, seen = [], [0] * max(1, nch)
+    for (i, r0, n) in weight_pieces(nrows, nch, layout, depth):
+        out.append((i, r0, n, seen[i] if repack else r0))
+        seen[i] += n
+    return out
+
+
+def chan_rows(nrows, nch, layout=LAYOUT_CONTIG, depth=CHUNK_ROWS):
+    """[rows channel i holds] under `layout` — `hwmap.plan_weights`' rows_of.
+
+    Sums to nrows by construction (weight_pieces partitions the image), and
+    it is LAYOUT DEPENDENT: at nrows=248,320 / nch=4 the contiguous split
+    gives 62,080 rows to every channel while the 2048-row interleave gives
+    63,488 / 61,952 / 61,440 / 61,440 — which is why an image cannot be
+    placed by the repack before its layout is pinned.
+    """
+    out = [0] * nch
+    for (i, _r0, n) in weight_pieces(nrows, nch, layout, depth):
+        out[i] += n
+    assert sum(out) == nrows
+    return out
+
+
 class SeqEmitter(object):
     """Opt-in observer of gen_layer_script.Mach.  Emits the SEQ stream.
 
@@ -985,7 +1333,7 @@ class SeqEmitter(object):
     PROFILES = ("xlat", "epsnorm")
 
     def __init__(self, mach, prefix, profile="xlat", chan=0, loop=True,
-                 dyn_ka=True, nowait_mvgo=False, nch=1):
+                 dyn_ka=True, nowait_mvgo=False, nch=1, repack=False):
         assert profile in self.PROFILES, f"unknown SEQ profile {profile!r}"
         self.M = mach
         self.prefix = prefix
@@ -1002,7 +1350,28 @@ class SeqEmitter(object):
         # c*CH_STRIDE) — the host upload places each channel's row-quarter at
         # the same channel-local address, so seq_0/m_axi sees its channel at 0.
         self.nch = max(1, int(nch))
+        # the last LAYER word the program selected, so `on_treset` can put
+        # it back after its eight-layer sweep (SEQ_ISA v2.1 A1.3)
+        self.layer_word_q = 0
         self.chans = list(range(self.nch)) if self.nch > 1 else [self.chan]
+        # repack (R-c, SEQ_REPACK=1): PER-CHANNEL weight packing.  OFF by
+        # default, and that default is the frozen behaviour — with it off the
+        # pack is nch-independent (every channel reserves the whole image,
+        # MVGO WBASE = base + GLOBAL row * stride), which is what every
+        # artifact frozen before R-c encodes at nch=1 AND at nch=4.  With it
+        # on, each channel packs only the rows it owns, so its cursor
+        # advances by a quarter of the bytes and the V5 W8 pack (1.85 GiB
+        # whole, ~465 MiB on the busiest channel) fits the 1,280 MiB window
+        # — see evidence/qwen2b/q2/v4_v5/V4_V5.md §5.  It needs nch>1: there
+        # is nothing to repack across one channel.
+        self.repack = bool(repack)
+        assert not (self.repack and self.nch < 2), \
+            "SEQ_REPACK needs SEQ_NCH>1 (a 1-chan pack has no channels to " \
+            "repack across)"
+        # The repack indexes per-channel bases by the emitter's channel INDEX,
+        # and _mvgo_at is handed the DDR channel number; they coincide for
+        # every nch>1 stream (chans == range(nch)) and this pins that.
+        assert not self.repack or self.chans == list(range(self.nch))
         # dyn_ka: emit the ISA v1.3 attention DOUBLE PASS (op-8 probe -> k_a
         # in XRF[2], real pass with ARG2 indirected on XRF[2], and the
         # o_proj requant shift folded by XOP into XRF[5]) instead of baking
@@ -1060,7 +1429,7 @@ class SeqEmitter(object):
         # y32.  The SEQ stream removes that relay, so these words legitimately
         # hold different leftovers at the end of the run; the gate requires
         # every final-state difference to lie INSIDE this set.
-        self.staging = np.zeros(16384, dtype=bool)
+        self.staging = np.zeros(_GLS.SCRATCH, dtype=bool)
 
     # ------------------------------------------------------------ helpers
     def _emit(self, r):
@@ -1072,11 +1441,38 @@ class SeqEmitter(object):
         return self._emit(Rec(OP_CSRWR, flags=ind | (xrf << XRF_SHIFT),
                               target=csr, imm32=val))
 
+    # rtl/vec_alu.sv `cfg_len` = ARG0[17:4], 14 bits (G3.1; 13 at R-c).
+    # This emitter SYNTHESIZES ALU commands of its own — the attention
+    # EMUL32 probe pair, the fused matvec dequant, the AMAX32 chunks,
+    # DYNQ16 — none of which pass through `gen_layer_script.Mach.alu`, so
+    # its assert does not cover them.  The check therefore lives at the ONE
+    # choke point every layer command goes through, which also re-covers
+    # the pass-through path.
+    ALU_LEN_MAX = (1 << 14) - 1
+
     def _cmd(self, lop, a0, a1, a2, a2_ind=IND_NONE, a2_xrf=0):
         """Emit ARG0..2 + CMD.  `a2_ind`/`a2_xrf` put the ARG2 write under
-        XRF indirection — the ALU cfg_p0 lives in ARG2[16:0], so this is how
-        a DATA-DEPENDENT shift (the attention k_a) reaches a command without
-        appearing as a literal in the record stream."""
+        XRF indirection — the ALU cfg_p0's low 16 bits live in ARG2[15:0]
+        (SEQ_ISA v2.0), so this is how a DATA-DEPENDENT shift (the attention
+        k_a) reaches a command without appearing as a literal in the record
+        stream.  An indirected ARG2 can therefore only carry a p0 whose bit
+        16 is 0: the runtime add lands in ARG2 and CANNOT reach ARG0[18].
+        Asserted below rather than assumed — under SEQ_ISA v1.7 the whole
+        17-bit p0 lived in ARG2 and the question could not arise."""
+        if lop == 11:
+            n = dec_alu_len(a0)
+            assert a2_ind == IND_NONE or ((a0 >> 18) & 1) == 0, (
+                f"ALU ARG0={a0:#x} sets p0[16] (ARG0[18]) on a command whose "
+                f"ARG2 is XRF-indirected.  SEQ_ISA v2.0 splits cfg_p0 across "
+                f"ARG0[18] and ARG2[15:0]; the runtime add reaches only ARG2, "
+                f"so the emitted p0[16] would survive into a shift the host "
+                f"never intended.")
+            assert 1 <= n <= self.ALU_LEN_MAX, (
+                f"ALU record count {n} does not fit ARG0[17:4] (max "
+                f"{self.ALU_LEN_MAX}); rtl/vec_alu.sv cfg_len is 14 bits. "
+                f"ARG0={a0:#x}, sub-op {a0 & 0xF}. A record the RTL decodes "
+                "differently is silent corruption — every python model would "
+                "agree with this emitter and only the hardware would differ.")
         self._csrwr(CSR_L_ARG0, a0)
         self._csrwr(CSR_L_ARG1, a1)
         self._csrwr(CSR_L_ARG2, a2, ind=a2_ind, xrf=a2_xrf)
@@ -1084,11 +1480,60 @@ class SeqEmitter(object):
         return self._emit(Rec(OP_CMD, target=CSR_L_CMD, imm32=lop))
 
     # ------------------------------------------------------------ hooks
-    def on_layer(self, dn_slot, kv_slot):
-        self._csrwr(CSR_L_LAYER, (kv_slot << 8) | dn_slot)
+    def on_layer(self, dn_slot, kv_slot, cv_slot=0, kv_layer=0):
+        """SEQ_ISA v2.1 B15.2: the LAYER CSR carries CACHE SLOTS and the
+        attention layer whose TCNT/TCNT2 pair the host addresses.
+
+        While a gated-attention block is open the write is BUFFERED with
+        the commands: `_emit_attn_block` replays the block in an order the
+        LAYER writes have to travel with (spec 6.2 puts one per kvhead)."""
+        w = layer_word(dn_slot, kv_slot, cv_slot, kv_layer)
+        self.layer_word_q = w
+        if self.attn is not None:
+            self.attn["buf"].append(("layer", w))
+            return
+        self._csrwr(CSR_L_LAYER, w)
+
+    def on_sbase(self, sb_dn, sb_kv, sb_cv):
+        """SEQ_ISA v2.1 B15.3: the three state-region base CSRs, in 64 KiB
+        units.  The program writes them so a replay is self-contained; the
+        host writes the same values from the manifest (spec 7.2)."""
+        assert self.attn is None, "SB_* write inside a gated-attention block"
+        self._csrwr(CSR_L_SB_DN, int(sb_dn))
+        self._csrwr(CSR_L_SB_KV, int(sb_kv))
+        self._csrwr(CSR_L_SB_CV, int(sb_cv))
 
     def on_treset(self):
-        self._csrwr(CSR_L_TCNT, 0)
+        """Zero EVERY KV append counter -- all eight attention layers.
+
+        G3.4: TWO CSRWRs per layer, because at NKVH = 4 the four counters do
+        not fit one 32-bit word (rtl/layer_chan.sv's TCNT at 0x20 carries
+        kvheads 0/1 and TCNT2 at 0x60 carries 2/3).  Writing only TCNT
+        would leave kvheads 2 and 3 holding whatever the previous sequence
+        left there, and the reference model -- which zeroes all four --
+        would not diverge until attention read a cache that was longer than
+        it should be.  That is the silent divergence spec 4.6 wall 9 is
+        about, so the two writes move together with the banking.
+
+        S3 (spec A1.3): `tcnt_bank` is indexed by ATTENTION LAYER now, and
+        the CSR pair addresses the layer LAYER.kv_layer names -- so a
+        session reset is EIGHT LAYER writes and SIXTEEN counter writes, and
+        this one hook emits all of them.  The LAYER CSR is restored to what
+        the program had selected, because the next command reads it.
+        """
+        assert self.attn is None, "T reset inside a gated-attention block"
+        keep = self.layer_word_q
+        for a in range(_GLS._KV_LAYERS):
+            self._csrwr(CSR_L_LAYER, layer_word(0, 0, 0, a))
+            self._csrwr(CSR_L_TCNT, 0)
+            self._csrwr(CSR_L_TCNT2, 0)
+        self._csrwr(CSR_L_LAYER, keep)
+
+    def on_dnsb(self, a_beta_base, a_dec_base):
+        """SEQ_ISA v2.0: one CSRWR per layer BODY carrying the DeltaNet
+        scalar-pointer base pair the DNST decode adds `head` to."""
+        self._csrwr(CSR_L_DNSB,
+                    ((a_dec_base & 0xFFFF) << 16) | (a_beta_base & 0xFFFF))
 
     def on_w(self, addr, vals):
         """A host W record -> LDC from the constant blob (A9).
@@ -1142,9 +1587,11 @@ class SeqEmitter(object):
     def on_c(self, op, a0, a1, a2):
         """Every layer_chan command.  Fuses the matvec dequant into MOVY."""
         if self.attn is not None:
-            self.attn["cmds"].append((op, a0, a1, a2))
-            if len(self.attn["cmds"]) == self.attn["n_expect"]:
-                self._emit_attn_block()
+            self.attn["buf"].append(("cmd", op, a0, a1, a2))
+            if op == 11 and (a0 & 0xF) == ALU_EMUL32:
+                self.attn["n_em"] += 1
+                if self.attn["n_em"] == self.attn["nq"]:
+                    self._emit_attn_block()
             return
         if self.pend is not None:
             if self.nch > 1:
@@ -1160,8 +1607,12 @@ class SeqEmitter(object):
     def on_matvec(self, wid, qw, x8_addr, n_in, y32):
         # wids are assigned in first-use order and the DDR pack only ever
         # APPENDS, so extending the plan as matrices appear gives exactly the
-        # layout sw/layer_test.py:plan_weights() computes from the manifest.
-        if self.wplan is None or len(self.wplan) != len(self.M.wids):
+        # layout sw/hwmap.py:plan_weights() computes from the manifest.
+        # (Under the repack an image cannot be placed until its LAYOUT is
+        # pinned, so `_replan` does it at emission time instead — see
+        # `_emit_matvec_4chan`.)
+        if not self.repack and (self.wplan is None
+                                or len(self.wplan) != len(self.M.wids)):
             self.wplan = plan_weights_from_wids(self.M.wids)
         self.mv = {"wid": wid, "y32": np.asarray(y32, dtype=np.int64),
                    "consumed": 0, "e_x": int(self.M.eout)}
@@ -1221,8 +1672,13 @@ class SeqEmitter(object):
         if self.dyn_ka:
             assert nq, "dyn_ka needs the head count from attn_token"
             assert self.attn is None, "nested gated-attention blocks"
-            self.attn = {"k_a": int(k_a), "nq": int(nq), "cmds": [],
-                         "n_expect": 3 * int(nq)}
+            # S3: the block is no longer 3*nq ATTN/SIGM16/EMUL32 triples.
+            # Spec 6.2 interleaves the KV schedule -- a LAYER write, an
+            # SLD/SST pair and a KVAP per kvhead -- among them, so the
+            # buffer is MIXED and the block closes on the nq-th EMUL32
+            # rather than on a record count.
+            self.attn = {"k_a": int(k_a), "nq": int(nq), "buf": [],
+                         "n_em": 0}
 
     # ------------------------------------------------- attention double pass
     def _emit_attn_block(self):
@@ -1257,31 +1713,57 @@ class SeqEmitter(object):
         to GATED, which the real pass immediately overwrites.  Both reused
         regions are rewritten by the mlp_block that always follows in the
         same layer, so the restructure needs NO extra scratch and adds NO
-        final-state difference (i.e. no new staging window)."""
+        final-state difference (i.e. no new staging window).
+
+        S3 (SEQ_ISA v2.1, spec 6.2).  The .txt schedule now INTERLEAVES the
+        KV state schedule with the heads -- per kvhead, an SLD pair for the
+        next kvhead, a LAYER write selecting this one's cache slot, a KVAP,
+        the kvhead's four query heads, and an SST pair.  Those records are
+        replayed HERE, in their original relative order, around the ATTNs
+        they belong to; only the SIGM16s are hoisted out (they read the
+        q_proj gate halves and touch no layer state, so they may run before
+        any of it) and only the EMUL32s are replaced (by the probe/real
+        pair).  ATTN dsts are rewritten to the contiguous AO32ALL slots as
+        before; nothing else moves, so the KVAP/ATTN ordering the fences
+        and the tags depend on is exactly the .txt program's."""
         import gen_layer_script as _GLS
         blk = self.attn
         self.attn = None
-        cmds, nq = blk["cmds"], blk["nq"]
-        heads = [cmds[3 * h:3 * h + 3] for h in range(nq)]
+        buf, nq = blk["buf"], blk["nq"]
 
         def _alu_fields(c):
             op, a0, a1, a2 = c
-            p0 = a2 & 0x1FFFF
-            return {"op": op, "sub": a0 & 0xF, "n": (a0 >> 4) & 0x3FFF,
-                    "srca": a1 & 0x3FFF, "srcb": (a1 >> 14) & 0x3FFF,
+            p0 = dec_alu_p0(a0, a2)
+            return {"op": op, "sub": a0 & 0xF, "n": dec_alu_len(a0),
+                    "srca": dec_a1_lo(a1), "srcb": dec_a1_hi(a1),
                     "p0": p0 - (1 << 17) if p0 >= (1 << 16) else p0,
-                    "dst": (a2 >> 17) & 0x3FFF}
+                    "dst": dec_alu_dst(a2)}
 
-        at, sg, em = [], [], []
-        for (c_at, c_sg, c_em) in heads:
-            assert c_at[0] == 10, "attention block: expected ATTN first"
-            at.append({"kvh": c_at[1] & 0xF, "src": c_at[2] & 0x3FFF,
-                       "dst": (c_at[2] >> 14) & 0x3FFF})
-            s, e = _alu_fields(c_sg), _alu_fields(c_em)
-            assert s["op"] == 11 and s["sub"] == 7, "expected ALU SIGM16"
-            assert e["op"] == 11 and e["sub"] == ALU_EMUL32, "expected EMUL32"
-            sg.append(s)
-            em.append(e)
+        at, sg, em, tail, kvsrc = [], [], [], [], []
+        for item in buf:
+            if item[0] == "layer":
+                tail.append(item)
+                continue
+            c = item[1:]
+            if c[0] == 11 and (c[1] & 0xF) == 7:
+                sg.append(_alu_fields(c))
+            elif c[0] == 11 and (c[1] & 0xF) == ALU_EMUL32:
+                em.append(_alu_fields(c))
+            else:
+                if c[0] == 10:
+                    at.append({"kvh": c[1] & 0xF, "src": dec_a1_lo(c[2]),
+                               "dst": dec_a1_hi(c[2])})
+                    tail.append(("attn", len(at) - 1))
+                else:
+                    assert c[0] in (9, 13, 14), (
+                        f"unexpected op {c[0]} inside a gated-attention "
+                        f"block (spec 6.2 allows KVAP / SLD / SST there)")
+                    if c[0] == 9:                     # KVAP: its two sources
+                        kvsrc.append((dec_a1_lo(c[2]), dec_a1_hi(c[2])))
+                    tail.append(("cmd",) + c)
+        assert len(at) == nq and len(sg) == nq and len(em) == nq, (
+            f"gated-attention block: {len(at)} ATTN / {len(sg)} SIGM16 / "
+            f"{len(em)} EMUL32, expected {nq} of each")
         hd = em[0]["n"]
         assert all(x["n"] == hd for x in em) and all(x["n"] == hd for x in sg)
         assert all(e["srca"] == a["dst"] for e, a in zip(em, at)), \
@@ -1309,29 +1791,52 @@ class SeqEmitter(object):
 
         def _hit(a0, n0, b0, n1):
             return (n0 > 0) and (n1 > 0) and (a0 < b0 + n1) and (b0 < a0 + n0)
-        for (nm, b0, n1) in (("X0", 0, _GLS.XN), ("QR", qr_lo, qr_n),
-                             ("GATED", gated, nq * hd),
-                             ("STG", _GLS.STG, 16384 - _GLS.STG)):
+        # S3 fix round 1, M1.  Spec 6.2 puts the KVAPs INSIDE this block, so
+        # the two regions they read -- the roped K heads (`KR`) and the
+        # v_proj output (`V16`) -- are LIVE across the reordering and belong
+        # in the collision check beside QR.  They are read off the buffered
+        # KVAP commands rather than named, so the check follows attn_token
+        # rather than restating it.  (Before this, only QR/X0/GATED/STG were
+        # checked, and AO32ALL lands on the q_proj region which is adjacent
+        # to K16/V16 in the same staging block.)
+        live = [("X0", 0, _GLS.XN), ("QR", qr_lo, qr_n),
+                ("GATED", gated, nq * hd)]
+        if kvsrc:
+            k_lo = min(k for k, _v in kvsrc)
+            k_hi = max(k for k, _v in kvsrc) + hd
+            v_lo = min(v for _k, v in kvsrc)
+            v_hi = max(v for _k, v in kvsrc) + hd
+            live += [("KR (KVAP k)", k_lo, k_hi - k_lo),
+                     ("V16 (KVAP v)", v_lo, v_hi - v_lo)]
+        for (nm, b0, n1) in live + [("STG", _GLS.STG,
+                                     _GLS.SCRATCH - _GLS.STG)]:
             assert not _hit(og_all, og_n, b0, n1), f"OGALL collides with {nm}"
-        for (nm, b0, n1) in (("X0", 0, _GLS.XN), ("QR", qr_lo, qr_n),
-                             ("GATED", gated, nq * hd),
-                             ("OGALL", og_all, og_n)):
+        for (nm, b0, n1) in live + [("OGALL", og_all, og_n)]:
             assert not _hit(ao_all, ao_n, b0, n1), f"AO32ALL collides with {nm}"
 
         # ---- 1. every output gate (this frees the q_proj region) ----------
         for h, s in enumerate(sg):
-            self._cmd(11, 7 | (hd << 4), s["srca"],
-                      (s["p0"] & 0x1FFFF) | ((og_all + h * hd) << 17))
-        # ---- 2. every attention head, into contiguous int32 pairs ---------
-        for h, a in enumerate(at):
-            self._cmd(10, a["kvh"],
-                      a["src"] | ((ao_all + h * 2 * hd) << 14), 0)
+            self._cmd(11, enc_alu_a0(7, hd, s["p0"]), enc_a1(s["srca"]),
+                      enc_alu_a2(s["p0"], og_all + h * hd))
+        # ---- 2. the KV schedule and every attention head, IN PROGRAM ORDER,
+        #         with the ATTN outputs landing in contiguous int32 pairs ----
+        for item in tail:
+            if item[0] == "attn":
+                a = at[item[1]]
+                self._cmd(10, a["kvh"],
+                          enc_a1(a["src"], ao_all + item[1] * 2 * hd), 0)
+            elif item[0] == "layer":
+                self._csrwr(CSR_L_LAYER, item[1])
+            else:
+                self._cmd(item[1], item[2], item[3], item[4])
         # ---- 3. PROBE pass: k_a -> XRF[2] (its output is thrown away) -----
-        self._cmd(11, ALU_EMUL32 | ((nq * hd) << 4), ao_all | (og_all << 14),
-                  ALU_PROBE_BIT | (gated << 17))
+        self._cmd(11, enc_alu_a0(ALU_EMUL32, nq * hd, ALU_PROBE_BIT),
+                  enc_a1(ao_all, og_all),
+                  enc_alu_a2(ALU_PROBE_BIT, gated))
         # ---- 4. REAL pass: cfg_p0 = 0 + XRF[2] ----------------------------
-        self._cmd(11, ALU_EMUL32 | ((nq * hd) << 4), ao_all | (og_all << 14),
-                  gated << 17, a2_ind=IND_ADD, a2_xrf=XRF_K_ATTN)
+        self._cmd(11, enc_alu_a0(ALU_EMUL32, nq * hd, 0),
+                  enc_a1(ao_all, og_all),
+                  enc_alu_a2(0, gated), a2_ind=IND_ADD, a2_xrf=XRF_K_ATTN)
         self.stats["attn_probe"] += 1
         self.attn_blocks += 1
         # the o_proj requant shift that follows must now undo a RUNTIME k_a
@@ -1349,11 +1854,11 @@ class SeqEmitter(object):
         p = self.pend
         self.pend = None
         assert op == 11, f"W32 consumed by layer op {op}, expected ALU"
-        sub, n = a0 & 0xF, (a0 >> 4) & 0x3FFF
-        srca = a1 & 0x3FFF
-        p0 = a2 & 0x1FFFF
+        sub, n = a0 & 0xF, dec_alu_len(a0)
+        srca = dec_a1_lo(a1)
+        p0 = dec_alu_p0(a0, a2)
         p0 = p0 - (1 << 17) if p0 >= (1 << 16) else p0
-        dst = (a2 >> 17) & 0x3FFF
+        dst = dec_alu_dst(a2)
         assert srca == p["addr"] and n == p["n"], (
             f"ALU op {sub} reads {srca:#x}/{n}, W32 staged "
             f"{p['addr']:#x}/{p['n']}")
@@ -1377,7 +1882,10 @@ class SeqEmitter(object):
             self._movy(p["addr"], n, imm_p0, e_x if sub == 6 else None,
                        MOVY_PAIRS32)
             new_p0 = 0 if sub == 6 else p0
-            self._cmd(11, a0, a1, (new_p0 & 0x1FFFF) | (dst << 17))
+            # SEQ_ISA v2.0: p0 is split across ARG0[18] and ARG2[15:0], so
+            # the ARG0 word is re-packed with the new p0 rather than reused.
+            self._cmd(11, enc_alu_a0(sub, n, new_p0), a1,
+                      enc_alu_a2(new_p0, dst))
         else:
             raise AssertionError(f"unsupported dequant ALU op {sub}")
         self.mv["consumed"] = p["r0"] + n
@@ -1391,7 +1899,11 @@ class SeqEmitter(object):
         beats = nrows * w["stride"] // 64
         assert beats < (1 << 24), "MVGO beats field overflow (A7)"
         assert nrows <= HW.RES_DEPTH, "MVGO chunk exceeds RES_DEPTH (A6)"
-        shape = HW.shape_word(nrows, w["sh"], w["ng"], w["g"])
+        # isa defaults to this tree's layout; a W8 or g64 plan is REFUSED
+        # here rather than silently packed, because the engine modes are
+        # gone (G3.3 / spec 5.1 S5, 5.2 S6).
+        shape = HW.shape_word(nrows, w["sh"], w["ng"], w["g"],
+                              w8=bool(w.get("w8", False)))
         self.stats["mvgo"] += 1
         tgt = 0
         if self.nowait_mvgo:
@@ -1462,8 +1974,8 @@ class SeqEmitter(object):
         p = self.pend
         self.pend = None
         assert op == 11, f"W32 consumed by layer op {op}, expected ALU"
-        sub, n = a0 & 0xF, (a0 >> 4) & 0x3FFF
-        srca = a1 & 0x3FFF
+        sub, n = a0 & 0xF, dec_alu_len(a0)
+        srca = dec_a1_lo(a1)
         assert srca == p["addr"] and n == p["n"], (
             f"ALU op {sub} reads {srca:#x}/{n}, W32 staged "
             f"{p['addr']:#x}/{p['n']}")
@@ -1481,14 +1993,58 @@ class SeqEmitter(object):
             f"weight image {wid} is addressed as {prev!r} by one matvec and "
             f"{layout!r} by another — one image, one placement")
 
-    def _mvgo_at(self, chan, wid, r0, nrows, nowait):
-        """MVGO on an explicit channel (channel-local WBASE=base+r0*stride)."""
+    def _replan(self):
+        """Re-place every image whose layout is already pinned (repack only).
+
+        `_note_layout` runs before the first MVGO of an image, and wids are
+        assigned in first-use order, so the set of pinned images grows in wid
+        order and re-placing them all is stable: an image's base never moves
+        once it has one.  The host reproduces this by walking the manifest in
+        the same order with `meta["weight_layout"]`.
+
+        THAT STABILITY IS THE ASSUMPTION, so it is checked HERE, where it can
+        actually fail — a generator that used a LOWER wid for the first time
+        after a higher one would insert an image into the middle of the pack
+        and move bases that emitted MVGO records already encode.  (Checking
+        it only at finish, against a plan recomputed the same way, would be
+        tautological: this function rebuilds the whole plan every time.)
+        """
+        known = {k: v for k, v in self.M.wids.items() if v[0] in self.wlayout}
+        prev = self.wplan or {}
+        self.wplan = plan_weights_from_wids(
+            known, nch=self.nch, repack=True, layout_of=self.wlayout,
+            chunk_rows=self.CHUNK_ROWS)
+        moved = [w for w, p in prev.items()
+                 if w in self.wplan and self.wplan[w]["base"] != p["base"]]
+        assert not moved, (
+            f"placing a new weight image MOVED already-placed image(s) "
+            f"{moved[:8]} — their MVGO records already encode the old "
+            f"addresses (wids must be first USED in ascending order)")
+
+    def _wbase(self, wid, ci, row_off):
+        """The channel-local WBASE of a piece: `base + row * stride`, where
+        `base` is the ONE image base under the nch-independent pack and this
+        channel's own base under the repack, and `row` is correspondingly the
+        GLOBAL row or the packed per-channel row (`weight_pieces_at`)."""
         w = self.wplan[wid]
-        wbase = w["base"] + r0 * w["stride"]
+        base = w["base"][ci] if self.repack else w["base"]
+        return base + row_off * w["stride"]
+
+    def _mvgo_at(self, chan, wid, r0, nrows, nowait, row_off=None):
+        """MVGO on an explicit channel (channel-local WBASE=base+row*stride).
+
+        `row_off` is the row index inside the channel's copy of the image; it
+        defaults to the GLOBAL row r0, which is what the nch-independent pack
+        wants (and it is what `weight_pieces_at(repack=False)` returns), so
+        the frozen 4-chan stream is untouched.
+        """
+        w = self.wplan[wid]
+        wbase = self._wbase(wid, chan, r0 if row_off is None else row_off)
         beats = nrows * w["stride"] // 64
         assert beats < (1 << 24), "MVGO beats field overflow (A7)"
         assert nrows <= HW.RES_DEPTH, "MVGO chunk exceeds RES_DEPTH (A6)"
-        shape = HW.shape_word(nrows, w["sh"], w["ng"], w["g"])
+        shape = HW.shape_word(nrows, w["sh"], w["ng"], w["g"],
+                              w8=bool(w.get("w8", False)))
         self.stats["mvgo"] += 1
         tgt = 0
         if nowait:
@@ -1528,31 +2084,31 @@ class SeqEmitter(object):
         ka = self.ka_pending
 
         # ---- recipe (uniform across the .txt chunks — asserted) ----------
-        def _p0s(a2):
-            p = a2 & 0x1FFFF
+        def _p0s(c):
+            p = dec_alu_p0(c["a0"], c["a2"])
             return p - (1 << 17) if p >= (1 << 16) else p
         c0 = chunks[0]
         sub = c0["a0"] & 0xF
-        srcb = (c0["a1"] >> 14) & 0x3FFF
+        srcb = dec_a1_hi(c0["a1"])
         stage = c0["addr"]
-        p0 = _p0s(c0["a2"])
+        p0 = _p0s(c0)
         fused = sub in (1, 9)               # MOVY does shift+store to dst
         staged = sub in (6, 10)             # MOVY->STG, ALU op keeps its job
         amax = (sub == 10)                  # AMAX32: running-index scan
         if not (fused or staged):
             raise AssertionError(f"unsupported dequant ALU op {sub} (4-chan)")
         off = 2 if sub == 9 else 1          # dst stride: pairs32 fused = 2/row
-        dst_base = 0 if amax else (((c0["a2"] >> 17) & 0x3FFF) - c0["r0"] * off)
+        dst_base = 0 if amax else (dec_alu_dst(c0["a2"]) - c0["r0"] * off)
         for ch in chunks:
             assert (ch["a0"] & 0xF) == sub, "non-uniform dequant sub (4-chan)"
             # The stage only matters for sub 6/10 (MOVY->STG->ALU); fused sub
             # 1/9 write straight to dst and never read the stage, so its .txt
             # W32 may legitimately hop staging buffers (mlp `up`: GP then GP+4096).
             if staged:
-                assert (ch["a1"] & 0x3FFF) == stage, "non-uniform stage (4-chan)"
+                assert dec_a1_lo(ch["a1"]) == stage, "non-uniform stage (4-chan)"
             if not amax:
-                assert _p0s(ch["a2"]) == p0, "non-uniform dequant p0 (4-chan)"
-                assert ((ch["a2"] >> 17) & 0x3FFF) == dst_base + ch["r0"] * off, \
+                assert _p0s(ch) == p0, "non-uniform dequant p0 (4-chan)"
+                assert dec_alu_dst(ch["a2"]) == dst_base + ch["r0"] * off, \
                     "non-contiguous dequant dst (4-chan)"
         if ka is not None:
             assert sub in (1, 9), (
@@ -1564,14 +2120,18 @@ class SeqEmitter(object):
         # else keeps rung 1b's contiguous quarters.  `pieces` is the placement
         # the host must reproduce, so it is recorded per weight image.
         layout = LAYOUT_ILV if amax else LAYOUT_CONTIG
-        pieces = weight_pieces(nrows, self.nch, layout, self.CHUNK_ROWS)
+        pieces = weight_pieces_at(nrows, self.nch, layout, self.CHUNK_ROWS,
+                                  repack=self.repack)
         self._note_layout(wid, layout)
-        active = [(self.chans[i], r0, n) for (i, r0, n) in pieces]
+        if self.repack:
+            # the image's layout is pinned now, so it can be placed
+            self._replan()
+        active = [(self.chans[i], r0, n, off) for (i, r0, n, off) in pieces]
 
         # ---- MOVX the same x8 into every active engine's XWIN ------------
         # One MOVX per DISTINCT channel, in ascending channel order (the
         # interleave hands a channel several chunks; its XWIN is loaded once).
-        for c in sorted({c for (c, _r0, _n) in active}):
+        for c in sorted({c for (c, _r0, _n, _o) in active}):
             self.stats["movx"] += 1
             self._emit(Rec(OP_MOVX, flags=(c << CHAN_SHIFT),
                            addr_lo=mv["x8_addr"], len_or_addr_hi=mv["n_in"]))
@@ -1601,14 +2161,17 @@ class SeqEmitter(object):
         drain.  Row writes are independent, so chunk-index order is immaterial."""
         mode = MOVY_INT16 if sub == 1 else MOVY_PAIRS32
         ka_active = ka is not None
-        cl = [(c, res_chunks(r0, n, self.CHUNK_ROWS)) for (c, r0, n) in active]
-        for j in range(max(len(x) for _, x in cl)):
-            aj = [(c, x[j]) for c, x in cl if j < len(x)]
-            for c, (cr0, rc) in aj:
-                self._mvgo_at(c, wid, cr0, rc, nowait=True)
+        # `off - r0` rebases a sub-chunk's GLOBAL row onto the channel's own
+        # packed rows (0 under the nch-independent pack, where off == r0).
+        cl = [(c, off - r0, res_chunks(r0, n, self.CHUNK_ROWS))
+              for (c, r0, n, off) in active]
+        for j in range(max(len(x) for _, _d, x in cl)):
+            aj = [(c, d, x[j]) for c, d, x in cl if j < len(x)]
+            for c, d, (cr0, rc) in aj:
+                self._mvgo_at(c, wid, cr0, rc, nowait=True, row_off=cr0 + d)
             self.stats["fence"] += 1
             self._emit(Rec(OP_FENCE))
-            for c, (cr0, rc) in aj:
+            for c, _d, (cr0, rc) in aj:
                 if fused:
                     imm, flags = self._movy_fields(p0, e_x, mode, ka_active)
                     self._movy_at(c, dst_base + off * cr0, rc, imm, flags)
@@ -1616,8 +2179,9 @@ class SeqEmitter(object):
                 else:                          # sub 6 SILU32: MOVY->STG, ALU
                     imm, flags = self._movy_fields(p0, e_x, MOVY_PAIRS32, False)
                     self._movy_at(c, stage, rc, imm, flags)
-                    self._cmd(11, sub | (rc << 4), stage | (srcb << 14),
-                              (0 & 0x1FFFF) | ((dst_base + cr0) << 17))
+                    self._cmd(11, enc_alu_a0(sub, rc, 0),
+                              enc_a1(stage, srcb),
+                              enc_alu_a2(0, dst_base + cr0))
 
     def _emit_amax_matvec(self, chunks, wid, stage):
         """AMAX32 (sub 10) — RUNG 4 S4, the 4-chan LM head.
@@ -1651,34 +2215,36 @@ class SeqEmitter(object):
         n = self.nch
         for g0 in range(0, len(chunks), n):
             grp = chunks[g0:g0 + n]
-            assert len({c for (c, _r0, _rc) in grp}) == len(grp), \
+            assert len({c for (c, _r0, _rc, _o) in grp}) == len(grp), \
                 "S4 interleave put two chunks of one group on one channel"
-            for (c, cr0, rc) in grp:
-                self._mvgo_at(c, wid, cr0, rc, nowait=True)
+            for (c, cr0, rc, off) in grp:
+                self._mvgo_at(c, wid, cr0, rc, nowait=True, row_off=off)
             self.stats["fence"] += 1
             self._emit(Rec(OP_FENCE))
-            for (c, cr0, rc) in grp:          # ASCENDING global chunk order
+            for (c, cr0, rc, _off) in grp:    # ASCENDING global chunk order
                 # raw y32 pairs32 -> STG (no shift, no indirection)
                 self._movy_at(c, stage, rc, 0, 0)
                 # AMAX32 over the staged pairs; fresh resets the running scan
-                self._cmd(11, 10 | (rc << 4), stage,
-                          (1 if first else 0) & 0x1FFFF)
+                fresh = 1 if first else 0
+                self._cmd(11, enc_alu_a0(10, rc, fresh), enc_a1(stage),
+                          enc_alu_a2(fresh, 0))
                 first = False
 
     def _dn_block_float(self, a0, a1, a2):
         """dn_token's op1(k_h) + op2(m_q15) pair -> DYNQ16 [+ EPS-NORM]."""
         h = self.dnbf
-        sub, n = a0 & 0xF, (a0 >> 4) & 0x3FFF
-        p0 = a2 & 0x1FFFF
+        sub, n = a0 & 0xF, dec_alu_len(a0)
+        p0 = dec_alu_p0(a0, a2)
         p0 = p0 - (1 << 17) if p0 >= (1 << 16) else p0
-        dst = (a2 >> 17) & 0x3FFF
+        dst = dec_alu_dst(a2)
         if h["stage"] == 0:
             assert sub == 1 and n == h["n"] and p0 == h["k"], \
                 "dn_bf hint does not match the following SHIFT32"
             # vec_alu op 12 DYNQ16: cfg_p0[0] = XRF dest (0 -> XRF[1]),
             # cfg_p0[1] = clamp k at 0 (off for DeltaNet).
             self.stats["dynq16"] += 1
-            self._cmd(11, ALU_DYNQ16 | (n << 4), a1, (0 & 0x1FFFF) | (dst << 17))
+            self._cmd(11, enc_alu_a0(ALU_DYNQ16, n, 0), a1,
+                      enc_alu_a2(0, dst))
             h["stage"] = 1
             return True
         assert sub == 2 and p0 == h["m"], \
@@ -1687,11 +2253,11 @@ class SeqEmitter(object):
             # VN mode 2 + ARG2[0]=1 EPS-NORM, k from XRF[1] (A4/A5)
             import layer_fixed as _LF
             nlog2 = int(n).bit_length() - 1
-            src = a1 & 0x3FFF
+            src = dec_a1_lo(a1)
             self.stats["epsnorm"] += 1
             self._cmd(1, VN_EPSNORM_MODE | (nlog2 << 2) | (_LF.S_F << 6)
                       | (_LF.DN_NORM_F << 10),
-                      src | (dst << 14),
+                      enc_a1(src, dst),
                       VN_ARG2_EPS | (XRF_K_DN << VN_ARG2_XRF_SHIFT))
         else:
             self._cmd(11, a0, a1, a2)
@@ -1821,7 +2387,15 @@ class SeqEmitter(object):
         nloop, why = self._try_loop()      # BEFORE the HALT: it is not a step
         self._emit(Rec(OP_HALT))
         recs = self.recs
-        validate_stream(recs)
+        # G4a: the emitter is a BUILDER, and a builder states the SHAPE
+        # LAYOUT it built in.  This class emits SEQ_ISA v2.0 and nothing
+        # else, so the MVGO `ng` envelope is checkable here -- the same
+        # lockstep `tb/scripts/gen_seq_unit_vectors.py` is in.  It cannot
+        # fire in practice (`_mvgo` packs through `shape_word`, whose own
+        # assert refuses an out-of-envelope `ng` before a record exists),
+        # which is exactly why it belongs: a second, independent reading of
+        # the same bound over the finished stream.
+        validate_stream(recs, shape_isa=SHAPE_ISA_9B)
         stream = pack_stream(recs)
         with open(self.prefix + ".seq", "wb") as f:
             f.write(stream)
@@ -1879,6 +2453,20 @@ class SeqEmitter(object):
                                  if any(r.opcode == o for r in recs)},
             "notes": self.notes,
         }
+        if _GLS.MS.TAG not in _GLS.BYTELOCKED_TAGS:
+            # G4a: the SHAPE LAYOUT this stream is encoded in, so a LOADER
+            # can arm the MVGO `ng` envelope without knowing which emitter
+            # built the file (`ref/seq_model.gate()`, `ref/seq_chat`'s
+            # Templates and `tb/scripts/gen_seq_chip_vectors.py` all read
+            # `meta.get("shape_isa")`; absent = not stated = check OFF).
+            #
+            # Gated on the tag for the SAME reason `rs_f` is
+            # (`ref/gen_model_script.py`'s `dump_weights` call, spec A2.5):
+            # `evidence/qwen2b/rc/t3_locks.sh` lock B `cmp`s the whole 0.8B
+            # `.e4.seq.json`, so an unconditional key would move bytes that
+            # gate pins.  `gen_layer_script.BYTELOCKED_TAGS` is the one place
+            # the list lives.
+            meta["shape_isa"] = SHAPE_ISA_9B
         if self.nch > 1:
             # rung 4 S4: the host must place each weight image the way this
             # stream's MVGO WBASEs read it.  Added ONLY for nch>1 so a 1-chan
@@ -1891,6 +2479,13 @@ class SeqEmitter(object):
                 "ilv_wids": sorted(k for k, v in self.wlayout.items()
                                    if v == LAYOUT_ILV),
             }
+        if self.repack:
+            # R-c: PER-CHANNEL pack.  Added ONLY when it is on, so every
+            # .seq.json emitted without it stays byte-identical; a reader
+            # takes ABSENT as false, and `weights[wid]["base"]` is then an
+            # int (one span every channel shares) instead of the nch-long
+            # list this mode emits.
+            meta["weight_repack"] = True
         with open(self.prefix + ".seq.json", "w") as f:
             json.dump(meta, f, indent=1)
         return meta
@@ -1914,7 +2509,8 @@ def maybe_attach(mach, sink):
                     loop=os.environ.get("SEQ_LOOP", "1") != "0",
                     dyn_ka=os.environ.get("SEQ_DYNKA", "1") != "0",
                     nowait_mvgo=os.environ.get("SEQ_NOWAIT", "0") != "0",
-                    nch=int(os.environ.get("SEQ_NCH", "1")))
+                    nch=int(os.environ.get("SEQ_NCH", "1")),
+                    repack=os.environ.get("SEQ_REPACK", "0") != "0")
     import atexit
     atexit.register(_finalize, mach)
     return em
@@ -1924,20 +2520,141 @@ def _finalize(mach):
     em = getattr(mach, "seq", None)
     if em is None or em.finished:
         return
+    # Recompute the WHOLE pack from the final wids and require the plan the
+    # MVGOs were actually built from to agree with it, image for image.
+    #
+    # WHAT THIS CATCHES, AND WHAT IT DOES NOT (R-c review I2).  Under the
+    # repack `_replan` rebuilds the plan on every placement, so this
+    # comparison cannot see a base that MOVED mid-run: `_replan`'s own assert
+    # is what catches that, and it lives where the movement is observable.
+    # What this catches is the plan WIDENING at the end — a wid in
+    # `mach.wids` that never got an MVGO (so never a layout, so never a place
+    # in the pack) appears here and shifts every image after it.  Both are
+    # FATAL, not notes: a stream whose records encode addresses the published
+    # plan disagrees with must not be written at all.
     try:
-        final = plan_weights_from_wids(mach.wids)
-        assert em.wplan is None or all(final[k] == v
-                                       for k, v in em.wplan.items()), \
-            "incremental weight plan diverged from the final packing"
-        em.wplan = final
+        final = plan_weights_from_wids(
+            mach.wids, nch=em.nch, repack=em.repack,
+            layout_of=em.wlayout if em.repack else None,
+            chunk_rows=em.CHUNK_ROWS)
     except Exception as e:                                # pragma: no cover
+        if em.repack:
+            # A repack plan that cannot even be COMPUTED means the emitted
+            # WBASEs have no published counterpart, and the host would plan a
+            # pack of its own and upload the weights somewhere else.
+            raise RuntimeError(
+                f"the per-channel weight plan could not be computed ({e}) — "
+                "no .seq is written; the stream's MVGO addresses would have "
+                "no plan for the host to reproduce") from e
         em.notes.append(f"weight plan failed: {e}")
+    else:
+        bad = [k for k, v in (em.wplan or {}).items() if final.get(k) != v]
+        if bad:                                           # pragma: no cover
+            raise RuntimeError(
+                "the incremental weight plan diverged from the final "
+                f"packing on wid(s) {bad[:8]} — no .seq is written, because "
+                "the MVGO records already encode the OLD addresses")
+        em.wplan = final
     meta = em.finish()
     if meta:
         print(f"SEQ: {meta['nrec']} records ({meta['stream_bytes']} B) + "
               f"{meta['seqdata_bytes']} B const blob -> {em.prefix}.seq  "
               f"[profile={meta['profile']} loop_steps={meta['loop_steps']}]",
               file=sys.stderr)
+
+
+# ======================================================================
+# SEQ_ISA B17.3 (R3): the MOVX BROADCAST -- Task R3-2 of the R3 campaign
+# (docs/superpowers/plans/2026-09-29-r3-broadcast.md).  Everything R3 adds to
+# this file lives HERE, after every line other documents cite, so no citation
+# moves (the SR14 §7 zero-drift rule): validate(), validate_stream() and
+# disasm() each reach it through ONE rewritten line.  Names resolve at call
+# time, so defining them after their callers is ordinary Python.
+# ======================================================================
+MOVX_BCAST = 0xF        # MOVX flags[7:4] = 0xF: broadcast to channels 0..3
+# A broadcast is admitted only when the DEVICE has all three round
+# capabilities.  Names only -- the bits and the SEQ_CAPS word are hwmap's
+# (SEQ_CAP_BITS, the ONE definition), checked here by hwmap.seq_caps_check.
+MOVX_BCAST_CAPS = HW.seq_caps_check({"R1", "R2", "R3"})
+
+
+def _movx_bcast_admitted(r, caps, bad):
+    """validate()'s channel clause for flags[7:4] >= 4 (called only there).
+
+    True for a MOVX broadcast (flags[7:4] = MOVX_BCAST) when MOVX_BCAST_CAPS
+    <= caps: validate() then goes on to B17.2's window rule on the ONE start
+    word (target[15:12] = 0; start + ceil(len/4) words <= 3072), exactly as
+    for a unicast MOVX, since R2 is in caps.  A broadcast at a caps set
+    lacking any of the three is refused through `bad` NAMING every missing
+    capability: every pre-R3 bitstream faults it err 0x05, and an r3 stream
+    also carries B17.2 bank fields, which are NOT fail-closed on an R1/R2
+    device, so the refusal must happen here, before upload.  Anything else
+    (MOVX 4..14, any MVGO >= 4, MVGO 0xF included) returns False and keeps
+    today's "engine channel N >= 4" (err 0x05).  Indirection on a broadcast
+    was already refused above (flags[3:0], A1)."""
+    if r.opcode != OP_MOVX or r.chan != MOVX_BCAST:
+        return False
+    miss = sorted(MOVX_BCAST_CAPS - caps)
+    if miss:
+        bad(f"MOVX channel field {r.chan:#x} is the BROADCAST (B17.3): it "
+            f"needs capabilities {', '.join(sorted(MOVX_BCAST_CAPS))}; the "
+            f"device's caps {{{', '.join(sorted(caps))}}} lack "
+            f"{', '.join(miss)}")
+    return True
+
+
+def _bcast_running(recs, n, shape_isa, caps):
+    """validate_stream()'s last step: B17.3's running rule PER DESTINATION.
+
+    A broadcast MOVX is refused when its word range overlaps ANY channel's
+    pending x range -- a NO-WAIT MVGO not yet drained by a waiting MVGO on
+    that channel or by a FENCE covering it (mask 0 = all four; a non-zero
+    mask was admitted only under R1).  Mirrors seq_model.SeqExec: the
+    pending range is x words [1536*XBANK, 1536*XBANK + 32*max(ng, 1)), and
+    an EMPTY broadcast counts as overlapping (seq_model._overlap).  Called
+    after every record passed validate(), so it only ever sees an admitted
+    broadcast; below {R1,R2,R3} none can exist and it returns at once, so
+    no pre-R3 stream's verdict moves.  The unicast running rule stays the
+    model gate's (RunningChannelError); validate() itself stays stateless,
+    as B17.3 says.  The walk is in RECORD order: a hazard carried round a
+    JMP back-edge is the model gate's to catch.  Returns n."""
+    if not MOVX_BCAST_CAPS <= caps:
+        return n
+    pend = {}
+    for idx, r in enumerate(recs):
+        if r.opcode == OP_MVGO:
+            if r.target & MVGO_NOWAIT:
+                if shape_isa == HW.SHAPE_ISA_PRE_G3:
+                    ng, xb = r.imm32 & 0x3F, 0
+                else:
+                    ng, xb = (r.imm32 >> 22) & 0x7F, (r.imm32 >> 29) & 1
+                w0 = XBANK_WORD * xb
+                pend[r.chan] = (w0, w0 + XWIN_LINE_WORDS * max(ng, 1))
+            else:
+                pend.pop(r.chan, None)
+        elif r.opcode == OP_FENCE:
+            fm = r.target & 0xF
+            for c in [c for c in pend if fm == 0 or (fm >> c) & 1]:
+                del pend[c]
+        elif r.opcode == OP_MOVX and r.chan == MOVX_BCAST:
+            w0 = r.target & MOVX_WORD_MASK
+            w1 = w0 + movx_words(r.len_or_addr_hi & 0xFFFFFF)
+            for c in sorted(pend):
+                p0, p1 = pend[c]
+                if w1 <= w0 or (w0 < p1 and p0 < w1):
+                    raise SeqValidationError(
+                        f"rec {idx}: broadcast MOVX writes XWIN words [{w0}, "
+                        f"{w1}) on every channel while a NO-WAIT MVGO on "
+                        f"mv{c} still reads words [{p0}, {p1}) -- every "
+                        f"destination's bank must be free; the stream needs "
+                        f"a FENCE covering mv{c} first (B17.3, B17.2 running "
+                        f"ranges)  [{_disasm_raw(r)}]")
+    return n
+
+
+def _movx_dst(r):
+    """disasm()'s MOVX destination: "mv<c>", or "chan=ALL" for a broadcast."""
+    return "chan=ALL" if r.chan == MOVX_BCAST else f"mv{r.chan}"
 
 
 # ======================================================================

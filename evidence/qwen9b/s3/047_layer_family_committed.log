@@ -1,0 +1,159 @@
+=== host: darthplagueis
+=== date: 2026-09-04T23:56:30-06:00
+=== tree: 9810041
+=== cmd:  ssh snoke cd /home/cah/r2d2/code/fpga/fable5_llm/tb && FABLE5_MODEL=9b FABLE5_RS_F=7 make tb_layer_chan tb_layer_env LAYERV2_SEEDS='1 2 3 4' GENPY=/home/cah/.venv/bin/python
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+layer script: seed=1 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s1.txt
+layer script: seed=2 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s2.txt
+layer script: seed=3 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s3.txt
+layer script: seed=4 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s4.txt
+verilator --binary --timing -j 4 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  --Mdir obj_dir_tb_layer -o tb_layer \
+  --top-module tb_layer_chan \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv seq_mem_file.sv tb_layer_chan.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layer'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_layer_chan__pch.h -o Vtb_layer_chan__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_layer_chan__pch.h -o Vtb_layer_chan__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan.o Vtb_layer_chan.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h3eda1a8d__1.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__1.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__2.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__3.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__3.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__4.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan__main.o Vtb_layer_chan__main.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan__ConstPool_0.o Vtb_layer_chan__ConstPool_0.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan___024root__Slow.o Vtb_layer_chan___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0__Slow.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0__Slow.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan__Syms.o Vtb_layer_chan__Syms.cpp
+echo "" > Vtb_layer_chan__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_layer_chan__ALL.a Vtb_layer_chan.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__1.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__1.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__2.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__3.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__4.o Vtb_layer_chan__main.o Vtb_layer_chan__ConstPool_0.o Vtb_layer_chan___024root__Slow.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0__Slow.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0__Slow.o Vtb_layer_chan__Syms.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_layer_chan__ALL.a    -pthread -lpthread -latomic   -o tb_layer
+rm Vtb_layer_chan__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layer'
+for s in 1 2 3 4; do \
+  obj_dir_tb_layer/tb_layer +script=scripts/layerv2_s$s.txt \
+    +state=scripts/layerv2_s$s || exit 1; \
+done
+  state window: 162529280 B image   scripts/layerv2_s1.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s1.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s2.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s2.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s3.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s3.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s4.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s4.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+verilator --binary --timing -j 4 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  --Mdir obj_dir_tb_layerenv -o tb_layerenv \
+  --top-module tb_layer_chan \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv seq_mem_file.sv tb_layer_chan.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layerenv'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_layer_chan__pch.h -o Vtb_layer_chan__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_layer_chan__pch.h -o Vtb_layer_chan__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan.o Vtb_layer_chan.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h3eda1a8d__1.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__1.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__2.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__3.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__3.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__4.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.fast -c -o Vtb_layer_chan__main.o Vtb_layer_chan__main.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan__ConstPool_0.o Vtb_layer_chan__ConstPool_0.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan___024root__Slow.o Vtb_layer_chan___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0__Slow.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0__Slow.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_layer_chan__pch.h.slow -c -o Vtb_layer_chan__Syms.o Vtb_layer_chan__Syms.cpp
+echo "" > Vtb_layer_chan__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_layer_chan__ALL.a Vtb_layer_chan.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__1.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__1.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__2.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__3.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__4.o Vtb_layer_chan__main.o Vtb_layer_chan__ConstPool_0.o Vtb_layer_chan___024root__Slow.o Vtb_layer_chan___024root__DepSet_h3eda1a8d__0__Slow.o Vtb_layer_chan___024root__DepSet_h5d1b4e19__0__Slow.o Vtb_layer_chan__Syms.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_layer_chan__ALL.a    -pthread -lpthread -latomic   -o tb_layerenv
+rm Vtb_layer_chan__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layerenv'
+  state window: no +state= — the window stays closed
+  ENV REFUSED (err_op=1) as required: VN nlog2 13 > 12
+  ENV REFUSED (err_op=1) as required: VNW len 4097 > 4096
+  ENV REFUSED (err_op=1) as required: VNW len 0 refused
+  ENV REFUSED (err_op=1) as required: CONV 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVZ 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVZ nch 0 refused (the retired wrap escape)
+  ENV REFUSED (err_op=1) as required: CONVW sel 0 (weight load) is RETIRED
+  ENV REFUSED (err_op=1) as required: CONVW sel 1 (state load) is RETIRED
+  ENV REFUSED (err_op=1) as required: DNZ at dn_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: DNST at dn_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: ATTN at kv_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: CONV at cv_slot 2 (E_LAYER)
+TB_LAYER_ENV PASS: every envelope check fired
+- tb_layer_chan.sv:423: Verilog $finish
+  state window: no +state= — the window stays closed
+  ENV REFUSED (err_op=1) as required: VN nlog2 13 > 12
+  ENV REFUSED (err_op=1) as required: VNW len 4097 > 4096
+  ENV REFUSED (err_op=1) as required: VNW len 0 refused
+  ENV REFUSED (err_op=1) as required: CONV 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVZ 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVZ nch 0 refused (the retired wrap escape)
+  ENV REFUSED (err_op=1) as required: CONVW sel 0 (weight load) is RETIRED
+  ENV REFUSED (err_op=1) as required: CONVW sel 1 (state load) is RETIRED
+  ENV REFUSED (err_op=1) as required: DNZ at dn_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: DNST at dn_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: ATTN at kv_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: CONV at cv_slot 2 (E_LAYER)
+TB_LAYER_ENV PASS: every envelope check fired
+- tb_layer_chan.sv:423: Verilog $finish
+  state window: no +state= — the window stays closed
+  ENV REFUSED (err_op=1) as required: VN nlog2 13 > 12
+  ENV REFUSED (err_op=1) as required: VNW len 4097 > 4096
+  ENV REFUSED (err_op=1) as required: VNW len 0 refused
+  ENV REFUSED (err_op=1) as required: CONV 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVZ 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVZ nch 0 refused (the retired wrap escape)
+  ENV REFUSED (err_op=1) as required: CONVW sel 0 (weight load) is RETIRED
+  ENV REFUSED (err_op=1) as required: CONVW sel 1 (state load) is RETIRED
+  ENV REFUSED (err_op=1) as required: DNZ at dn_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: DNST at dn_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: ATTN at kv_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: CONV at cv_slot 2 (E_LAYER)
+TB_LAYER_ENV PASS: every envelope check fired
+- tb_layer_chan.sv:423: Verilog $finish
+  state window: no +state= — the window stays closed
+  ENV REFUSED (err_op=1) as required: VN nlog2 13 > 12
+  ENV REFUSED (err_op=1) as required: VNW len 4097 > 4096
+  ENV REFUSED (err_op=1) as required: VNW len 0 refused
+  ENV REFUSED (err_op=1) as required: CONV 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVZ 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVZ nch 0 refused (the retired wrap escape)
+  ENV REFUSED (err_op=1) as required: CONVW sel 0 (weight load) is RETIRED
+  ENV REFUSED (err_op=1) as required: CONVW sel 1 (state load) is RETIRED
+  ENV REFUSED (err_op=1) as required: DNZ at dn_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: DNST at dn_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: ATTN at kv_slot 2 (E_LAYER)
+  ENV REFUSED (err_op=1) as required: CONV at cv_slot 2 (E_LAYER)
+TB_LAYER_ENV PASS: every envelope check fired
+- tb_layer_chan.sv:423: Verilog $finish
+=== rc: 0
+=== end: 2026-09-05T00:16:54-06:00

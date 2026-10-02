@@ -1,0 +1,49 @@
+=== host: darthplagueis
+=== date: 2026-09-05T00:01:08-06:00
+=== tree: 9810041
+=== cmd:  ssh snoke sh /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/s3/opcode_delta.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+opcode_delta: host=snoke  MODELPY=/home/cah/.venv/bin/python
+  pre-S3 generator copy: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/refold_s3  (07eea51)
+  S3 script:             /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/layerv2_s1.txt
+layer script: seed=1 ntok=3 wq=w4 cmds=1438 hostwords=621472 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts_scratch/opdelta/pre_s1.txt
+
+=== pre-S3 (07eea51), cmds=1438
+     32 c
+     48 a
+    894 b
+    264 1
+     18 2
+      3 3
+     60 4
+      5 5
+      3 6
+      3 7
+     96 8
+     12 9
+=== S3, cmds=1465
+     30 e
+     34 d
+     48 a
+    894 b
+    264 1
+     18 2
+      3 3
+     60 4
+      3 6
+      3 7
+     96 8
+     12 9
+
+op 5 = CONVW/CONVZ, 12 (c) = DNZ, 13 (d) = SLD, 14 (e) = SST
+RETIRED: 37 (op5 CONVW/CONVZ + op12 DNZ)   ADDED: 64 (SLD + SST)
+1438 - 37 + 64 = 1465   measured S3 = 1465
+OPCODE_DELTA: PASS (1438 -> 1465 accounted for exactly)
+=== rc: 0
+=== end: 2026-09-05T00:04:15-06:00

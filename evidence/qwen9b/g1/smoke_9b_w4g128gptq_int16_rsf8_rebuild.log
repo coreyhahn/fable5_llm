@@ -1,0 +1,57 @@
+=== host: snoke
+=== date: 2026-08-30T08:17:58-06:00
+=== tree: 70325e8+dirty
+=== cmd:  /home/cah/.local/bin/uv run --no-project --with torch --with transformers --with numpy python -u ref/fidelity_check.py --wire-group 128 --prompts 1 --ntok 3 --no-freerun --res-scale 1 --cache /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/ladder/golden_bf16_9b.npz --wq-cache /var/tmp/fable5_wq --wq-cache-verify 2 --json-out /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/smoke_9b_w4g128gptq_int16_rsf8_rebuild.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=6 MKL_NUM_THREADS=6
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=int16 FABLE5_RS_F=8
+===       FABLE5_CALIB_STATS=ref/calib_stats_9b_h.npz FABLE5_CALIB_MODE=gptq
+=== ---
+quantizer sources sha256 04a4c9c6be1f1131cc4841ee0c0fb6992a865a207cd0fbdc2f7a0064aa306b5a  (FABLE5_DN_STATE=int16 RS_F=8)
+host: snoke
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b (golden 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b)
+  loaded in 30.8s
+  CALIBRATED quantizer active, mode=gptq (V3 salience / V4 h2 / V4 gptq)
+    FABLE5_CALIB_STATS = ref/calib_stats_9b_h.npz
+    sha256 36689b5990c80e1208060b7864841a9387e19ea27e27ec09f0bfd4dd081dd7d4
+    model_tag=9b corpus=ref/ppl_corpus_calib.txt tokens=32768 tensors=249
+    wq-cache MISS  LM head: no wq_head_9b_c42409e7ede43fd2.pkl
+  LM head quantized (W4 mse=True g=128) e=-3 sh=7 (1167.1s)
+    wq-cache SAVE  LM head: wq_head_9b_c42409e7ede43fd2.pkl (0.96 GiB, 0.8s)
+
+=== config S=1 mse gptq ===
+    wq-cache MISS  layers: no wq_layers_9b_a38fc65e99d86157.pkl
+    quantized 32 layers in 9428.7s
+    wq-cache SAVE  layers: wq_layers_9b_a38fc65e99d86157.pkl (6.55 GiB, 6.0s)
+    emb table |q|max 120 of 32767 (16.2s)
+    config done in 10093.8s
+  --- S=1 mse gptq ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France is Paris.\nThe capital of France is Paris.\nThe capital of France'
+    fixed  argmax [2614, 314, 279, 369, 11751, 13]   top1=6/6  rank=[0, 0, 0, 0, 0, 0]  top5ovl=[2, 3, 3, 3, 2, 4]
+    block-float k histogram [dn]: {-14: 160, -13: 346, -12: 485, -11: 566, -10: 756, -9: 884, -8: 689, -7: 303, -6: 137, -5: 69, -4: 49, -3: 34, -2: 1, 0: 129}
+    block-float k histogram [attn]: {8: 1, 9: 16, 10: 15, 11: 1, 12: 8, 13: 3, 14: 3, 15: 1}
+    block-float saturation: m_q15 max raw 8192000, clipped 129 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x4096      |y|max=31139    clips=0/98304
+      12288x4096     |y|max=86002    clips=414/4718592
+      32x4096        |y|max=60283    clips=13/9216
+      4096x12288     |y|max=28365    clips=0/786432
+      4096x4096      |y|max=40024    clips=1/1376256
+      8192x4096      |y|max=14191    clips=0/1572864
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config                          top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat   S8 sat   |S|max
+S=1 mse gptq              6/6              0.0         0      2.83    32767      1       93        0    57702
+
+state container [S=1 mse gptq]: FABLE5_DN_STATE=int16 (law=int16 k=0), RS_F=8; 75497472 state writes, |S|max 57702 LSB = 7.0437 at Q2.13, int16 rail 93, container rail 0
+weight quantization: 1 pass(es) this process, 0 cache hit(s), 2 miss(es)
+
+-> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g1/smoke_9b_w4g128gptq_int16_rsf8_rebuild.json
+=== rc: 0
+=== end: 2026-08-30T11:27:40-06:00

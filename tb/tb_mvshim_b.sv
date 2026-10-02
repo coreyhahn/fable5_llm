@@ -16,7 +16,9 @@
 //       interlock that covers READ_LATENCY_B = 2)
 //   T5/T6 XWIN burst pushes land in the engine's x port identically to
 //       AXI-Lite XWIN pushes - same index, same data, bit for bit - and
-//       leave XPTR untouched
+//       leave XPTR untouched.  NX = 3072 words: the FULL x window (K =
+//       12288), so the 12-bit index and the 0x4000-0x6FFF aperture are both
+//       swept end to end.
 //   T7  partial burst write at a non-zero word offset touches exactly the
 //       addressed words
 //   T8  SLVERR + window behaviour on both channels, with full beat counts
@@ -38,7 +40,7 @@ module tb_mvshim_b;
     import mvshim_b_pkg::fillpat;
 
     localparam int NROW = 4096;
-    localparam int NX   = 1024;
+    localparam int NX   = 3072;          // XWIN words (K <= 12288)
 
     // ------------------------------------------------------------------
     // clocks / reset
@@ -111,7 +113,11 @@ module tb_mvshim_b;
         .s_axib_arvalid(b_arvalid), .s_axib_arready(b_arready),
         .s_axib_rid(b_rid), .s_axib_rdata(b_rdata), .s_axib_rresp(b_rresp),
         .s_axib_rlast(b_rlast), .s_axib_rvalid(b_rvalid), .s_axib_rready(b_rready),
-
+        // BM1 (SEQ_ISA B16): the engine-busy output is not observed here
+        /* verilator lint_off PINCONNECTEMPTY */
+        .mv_busy_bm(), .xpush_room(), .xpush_busy(),   // R3-8: the x-push leg is idle here (tb_matvec_chan +push covers it)
+        /* verilator lint_on PINCONNECTEMPTY */
+        .xpush_valid(1'b0), .xpush_idx(12'd0), .xpush_data(32'd0),   // R3-8
         .ui_clk, .ui_rstn,
         .m_axi_araddr(m_araddr), .m_axi_arlen(m_arlen), .m_axi_arsize(m_arsize),
         .m_axi_arburst(m_arburst), .m_axi_arvalid(m_arvalid), .m_axi_arready(1'b0),
@@ -416,9 +422,14 @@ module tb_mvshim_b;
         // ---------------- T1: shipped AXI-Lite regs unchanged ----------
         rd32(12'h034, tmp);
         chk32(tmp, 32'hFAB1C4A2, "T1 IDENT");
-        wr32(12'h014, 32'h1FAB_C123);                       // SHAPE
+        // SHAPE implements [28:0] after G3.3: bit 29 (w8) went with the
+        // engine mode, bit 28 (g64) went with its mode AND was immediately
+        // taken back by ng as its seventh bit, so [31:29] are the three
+        // spare bits and read back 0.  The test value sets every bit so the
+        // round-trip covers the whole field AND the spares.
+        wr32(12'h014, 32'hFFAB_C123);                       // SHAPE
         rd32(12'h014, tmp);
-        chk32(tmp, 32'h1FAB_C123 & 32'h1FFF_FFFF, "T1 SHAPE round-trip");
+        chk32(tmp, 32'hFFAB_C123 & 32'h1FFF_FFFF, "T1 SHAPE round-trip");
         wr32(12'h028, 32'h0000_02A5);                       // XPTR
         rd32(12'h028, tmp);
         chk32(tmp, 32'h0000_02A5, "T1 XPTR round-trip");
@@ -507,7 +518,8 @@ module tb_mvshim_b;
         for (int k = 0; k < NX; k++) xw[k] = $urandom;
         push_xwin_axil(NX);
         rd32(12'h028, tmp);
-        chk32(tmp, 32'd0, "T5 XPTR after 1024 XWIN writes (10-bit wrap)");
+        chk32(tmp, 32'(NX),
+              $sformatf("T5 XPTR after %0d XWIN writes (12-bit counter, no wrap)", NX));
         rd32(12'h004, tmp);
         check(tmp[3] == 1'b0, "T5 xfifo_ovfl must stay clear");
         burst_res_read(0, NX, 1'b0, xback_a);
@@ -580,13 +592,38 @@ module tb_mvshim_b;
         chk32({30'b0, rsp}, 32'd2, "T8 write@0x0000 must be SLVERR");
         axib_wr(16'h8000, 4, 1'b0, rsp);
         chk32({30'b0, rsp}, 32'd2, "T8 write@0x8000 must be SLVERR");
-        axib_wr(16'h5000, 4, 1'b0, rsp);
-        chk32({30'b0, rsp}, 32'd2, "T8 write@0x5000 must be SLVERR");
+        // 0x4000-0x6FFF IS the XWIN window now (3072 words, G3.3); 0x7000
+        // is the first word past it, so that boundary is where SLVERR must
+        // resume.
+        axib_wr(16'h7000, 4, 1'b0, rsp);
+        chk32({30'b0, rsp}, 32'd2, "T8 write@0x7000 (first word past XWIN) must be SLVERR");
+        axib_wr(16'h7800, 4, 1'b0, rsp);
+        chk32({30'b0, rsp}, 32'd2, "T8 write@0x7800 must be SLVERR");
         wait_x_drain(8);
         axib_rd(16'h0000, 8, 1'b0);
         for (int k = 0; k < 8; k++)
             chk32(burst_buf[k], res_exp[k],
                   $sformatf("T8 row %0d unchanged by rejected writes", k));
+        // The OTHER half of the moved boundary: 0x5800 and 0x6000 were the
+        // first two rejected addresses under the 6 KiB window and are now
+        // INSIDE it, and 0x6FF0 is its last four words.  A boundary test
+        // that only ever moves outward proves nothing about the bits that
+        // moved, so all three must now be ACCEPTED and must land.
+        for (int c = 0; c < 3; c++) begin
+            int a16, w0;
+            a16 = (c == 0) ? 16'h5800 : (c == 1) ? 16'h6000 : 16'h6FF0;
+            w0  = (a16 - 16'h4000) / 4;
+            for (int k = 0; k < 4; k++) wr_buf[k] = $urandom;
+            axib_wr(16'(a16), 4, 1'b0, rsp);
+            chk32({30'b0, rsp}, 32'd0,
+                  $sformatf("T8 write@%h (inside the 12 KiB XWIN) must be OK", a16));
+            wait_x_drain(4);
+            for (int k = 0; k < 4; k++) res_exp[w0 + k] = wr_buf[k];
+            axib_rd(16'(4 * w0), 4, 1'b0);
+            for (int k = 0; k < 4; k++)
+                chk32(burst_buf[k], res_exp[w0 + k],
+                      $sformatf("T8 XWIN word %0d (addr %h) landed", w0 + k, a16));
+        end
         // a good write still works right after
         for (int k = 0; k < 4; k++) wr_buf[k] = $urandom;
         axib_wr(16'h4000 + 16'(4 * 900), 4, 1'b0, rsp);

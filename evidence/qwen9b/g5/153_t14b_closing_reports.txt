@@ -1,0 +1,151 @@
+# THE CLOSING ROLL of Task 14-B: ckr2_AltSpreadLogic_high (the clock-root arm)
+#   dir    : synth/out_build_041_ckr2_AltSpreadLogic_high  (gitignored)
+#   dcp    : proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+#   recipe : full (place -directive AltSpreadLogic_high, post-place AND post-route
+#            phys_opt AggressiveExplore) + implementation-only
+#            synth/constraints/fable5_clockroot_9b.xdc; PBLOCK_COUNT: 0
+#   TIMING : WNS=0.000 WHS=0.001 ; WHS_GATE: OK whs=0.001
+#   reports read fresh:
+#     timing_summary.rpt  mtime 2026-09-07 20:55:17.446999407 -0600
+#     utilization.rpt     mtime 2026-09-07 20:56:07.386215407 -0600
+
+=== report_utilization sections 1, 3 and 4: device totals ===
+------------
+
++----------------------------+--------+-------+------------+-----------+-------+
+|          Site Type         |  Used  | Fixed | Prohibited | Available | Util% |
++----------------------------+--------+-------+------------+-----------+-------+
+| CLB LUTs                   | 309164 |     0 |          0 |   1182240 | 26.15 |
+|   LUT as Logic             | 259261 |     0 |          0 |   1182240 | 21.93 |
+|   LUT as Memory            |  49903 |     0 |          0 |    591840 |  8.43 |
+|     LUT as Distributed RAM |  43780 |     0 |            |           |       |
+|     LUT as Shift Register  |   6123 |     0 |            |           |       |
+| CLB Registers              | 319172 |     0 |          0 |   2364480 | 13.50 |
+|   Register as Flip Flop    | 319168 |     0 |          0 |   2364480 | 13.50 |
+|   Register as Latch        |      0 |     0 |          0 |   2364480 |  0.00 |
+|   Register as AND/OR       |      4 |     0 |          0 |   2364480 | <0.01 |
+| CARRY8                     |  11722 |     0 |          0 |    147780 |  7.93 |
+| F7 Muxes                   |  11195 |     0 |          0 |    591120 |  1.89 |
+| F8 Muxes                   |   3156 |     0 |          0 |    295560 |  1.07 |
+| F9 Muxes                   |      0 |     0 |          0 |    147780 |  0.00 |
++----------------------------+--------+-------+------------+-----------+-------+
+* Warning! LUT value is adjusted to account for LUT combining.
+
+
+1.1 Summary of Registers by Type
+--------------------------------
+
++--------+--------------+-------------+--------------+
+-----------
+
++-------------------+------+-------+------------+-----------+-------+
+|     Site Type     | Used | Fixed | Prohibited | Available | Util% |
++-------------------+------+-------+------------+-----------+-------+
+| Block RAM Tile    |  251 |     0 |          0 |      2160 | 11.62 |
+|   RAMB36/FIFO*    |  245 |     0 |          0 |      2160 | 11.34 |
+|     RAMB36E2 only |  245 |       |            |           |       |
+|   RAMB18          |   12 |     0 |          0 |      4320 |  0.28 |
+|     RAMB18E2 only |   12 |       |            |           |       |
+| URAM              |  182 |     0 |          0 |       960 | 18.96 |
++-------------------+------+-------+------------+-----------+-------+
+* Note: Each Block RAM Tile only has one FIFO logic available and therefore can accommodate only one FIFO36E2 or one FIFO18E2. However, if a FIFO18E2 occupies a Block RAM Tile, that tile can still accommodate a RAMB18E2
+
+
+4. ARITHMETIC
+-------------
+
++----------------+------+-------+------------+-----------+-------+
+|    Site Type   | Used | Fixed | Prohibited | Available | Util% |
++----------------+------+-------+------------+-----------+-------+
+| DSPs           | 1860 |     0 |          0 |      6840 | 27.19 |
+|   DSP48E2 only | 1860 |       |            |           |       |
++----------------+------+-------+------------+-----------+-------+
+
+
+5. I/O
+
+=== report_utilization section 14: SLR CLB Logic and Dedicated Block Utilization ===
+14. SLR CLB Logic and Dedicated Block Utilization
+-------------------------------------------------
+
++----------------------------+--------+--------+-------+--------+--------+--------+
+|          Site Type         |  SLR0  |  SLR1  |  SLR2 | SLR0 % | SLR1 % | SLR2 % |
++----------------------------+--------+--------+-------+--------+--------+--------+
+| CLB                        |  30442 |  32560 |  3600 |  61.80 |  66.10 |   7.31 |
+|   CLBL                     |  14573 |  15988 |  1817 |  59.24 |  64.99 |   7.39 |
+|   CLBM                     |  15869 |  16572 |  1783 |  64.35 |  67.20 |   7.23 |
+| CLB LUTs                   | 152548 | 141159 | 15457 |  38.71 |  35.82 |   3.92 |
+|   LUT as Logic             | 138037 | 107803 | 13421 |  35.03 |  27.36 |   3.41 |
+|     using O5 output only   |   3448 |   3366 |   324 |   0.87 |   0.85 |   0.08 |
+|     using O6 output only   | 102029 |  66721 |  7893 |  25.89 |  16.93 |   2.00 |
+|     using O5 and O6        |  32560 |  37716 |  5204 |   8.26 |   9.57 |   1.32 |
+|   LUT as Memory            |  14511 |  33356 |  2036 |   7.36 |  16.91 |   1.03 |
+|     LUT as Distributed RAM |  12192 |  30116 |  1472 |   6.18 |  15.27 |   0.75 |
+|       using O6 output only |   9286 |  15110 |     0 |   4.71 |   7.66 |   0.00 |
+|       using O5 and O6      |   2906 |  15006 |  1472 |   1.47 |   7.61 |   0.75 |
+|     LUT as Shift Register  |   2319 |   3240 |   564 |   1.18 |   1.64 |   0.29 |
+|       using O6 output only |   2268 |   3170 |   529 |   1.15 |   1.61 |   0.27 |
+|       using O5 and O6      |     51 |     70 |    35 |   0.03 |   0.04 |   0.02 |
+| CLB Registers              | 115762 | 181754 | 21656 |  14.69 |  23.06 |   2.75 |
+| CARRY8                     |   8668 |   2998 |    56 |  17.60 |   6.09 |   0.11 |
+| F7 Muxes                   |   6185 |   4571 |   439 |   3.14 |   2.32 |   0.22 |
+| F8 Muxes                   |   1626 |   1530 |     0 |   1.65 |   1.55 |   0.00 |
+| F9 Muxes                   |      0 |      0 |     0 |   0.00 |   0.00 |   0.00 |
+| Block RAM Tile             |  112.5 |    113 |  25.5 |  15.63 |  15.69 |   3.54 |
+|   RAMB36/FIFO              |    108 |    112 |    25 |  15.00 |  15.56 |   3.47 |
+|   RAMB18                   |      9 |      2 |     1 |   0.63 |   0.14 |   0.07 |
+| URAM                       |    182 |      0 |     0 |  56.88 |   0.00 |   0.00 |
+| DSPs                       |   1845 |     12 |     3 |  80.92 |   0.53 |   0.13 |
+| Unique Control Sets        |   2801 |   5335 |   717 |   2.84 |   5.42 |   0.73 |
++----------------------------+--------+--------+-------+--------+--------+--------+
+* Note: Available Control Sets based on CLB Registers / 8
+
+
+
+=== report_utilization section 12/13: SLR Connectivity (SLL usage) ===
+12. SLR Connectivity
+--------------------
+
++----------------------------------+------+-------+-----------+-------+
+|                                  | Used | Fixed | Available | Util% |
++----------------------------------+------+-------+-----------+-------+
+| SLR2 <-> SLR1                    | 1358 |       |     17280 |  7.86 |
+|   SLR1 -> SLR2                   |  763 |       |           |  4.42 |
+|     Using TX_REG only            |    0 |     0 |           |       |
+|     Using RX_REG only            |    0 |     0 |           |       |
+|     Using Both TX_REG and RX_REG |    0 |     0 |           |       |
+|   SLR2 -> SLR1                   |  595 |       |           |  3.44 |
+|     Using TX_REG only            |    2 |     0 |           |       |
+|     Using RX_REG only            |    0 |     0 |           |       |
+|     Using Both TX_REG and RX_REG |    0 |     0 |           |       |
+| SLR1 <-> SLR0                    | 2945 |       |     17280 | 17.04 |
+|   SLR0 -> SLR1                   | 1407 |       |           |  8.14 |
+|     Using TX_REG only            |    0 |     0 |           |       |
+|     Using RX_REG only            |    0 |     0 |           |       |
+|     Using Both TX_REG and RX_REG |    0 |     0 |           |       |
+|   SLR1 -> SLR0                   | 1538 |       |           |  8.90 |
+|     Using TX_REG only            |    0 |     0 |           |       |
+|     Using RX_REG only            |    0 |     0 |           |       |
+|     Using Both TX_REG and RX_REG |    0 |     0 |           |       |
++----------------------------------+------+-------+-----------+-------+
+| Total SLLs Used                  | 4303 |       |           |       |
++----------------------------------+------+-------+-----------+-------+
+
+
+13. SLR Connectivity Matrix
+---------------------------
+
++-----------+------+------+------+
+| FROM \ TO | SLR2 | SLR1 | SLR0 |
++-----------+------+------+------+
+| SLR2      |    0 |  595 |    0 |
+| SLR1      |  763 |    0 | 1538 |
+| SLR0      |    0 | 1407 |    0 |
++-----------+------+------+------+
+
+
+
+=== SHIPPING ARTIFACT (stat) ===
+synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper.bit  53074589 bytes  2026-09-07 20:46:01.495503604 -0600
+synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp  288126447 bytes  2026-09-07 20:34:57.875355826 -0600
+VERSION (netlist commit sha, baked into the VERSION CSR by launch_build.sh/create_project.tcl): c973c18a

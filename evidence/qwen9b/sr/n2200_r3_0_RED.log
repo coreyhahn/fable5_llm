@@ -1,0 +1,456 @@
+=== host: snoke  date: 2026-09-29T19:09:35-06:00
+=== tree: 3368d06+dirty
+=== dirty: ?? evidence/qwen9b/sr/R3_2_VALIDATOR.md
+=== cmd : bash evidence/qwen9b/sr/r3_tool_tdd.sh n2200
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+scratch: /tmp/r3_tool_tdd.3yUoBy   fake project: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200   base (before R3-0): c5f255d
+scratch bit /tmp/r3_tool_tdd.3yUoBy/scratch.bit sha256 c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae306 (wrong: d93898fe5d55bfaf8c9b9171e5e3ec2e53dcdfc17f2246751f97bf35824bf417)
+== harness: the stubs resolve first under the case PATH
+  [H] PASS command -v sudo -> /tmp/r3_tool_tdd.3yUoBy/bin/sudo
+  [H] PASS command -v vivado -> /tmp/r3_tool_tdd.3yUoBy/bin/vivado
+  [H] PASS command -v ss -> /tmp/r3_tool_tdd.3yUoBy/bin/ss
+== (a) wrong sha256, no client -> exit 5, nothing removed
+  $ program_fpga.sh --expect-sha256 d93898fe5d55bfaf8c9b9171e5e3ec2e53dcdfc17f2246751f97bf35824bf417 /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [a] FAIL exit 5  -- rc 97
+  [a] FAIL FATAL: sha256 mismatch printed
+  [a] FAIL no [1/3] remove printed
+  [a] FAIL tripwires (sudo, vivado) untouched
+  [a] PASS the real board lock never opened
+  [a] PASS sw/pcie_helper.sh never exec'd
+  [a] PASS the scratch lock was taken (checks inside the hold)
+== (a') option values bind; malformed values refused
+  $ program_fpga.sh --expect-sha256 c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae306 --check-only /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [a'] FAIL space form + --check-only: exit 0  -- rc 97
+  [a'] FAIL space form: the hex bound to --expect-sha256 (printed)
+  [a'] FAIL space form: the path bound to the bitfile (printed)
+  [a'] FAIL tripwires (sudo, vivado) untouched
+  [a'] PASS the real board lock never opened
+  [a'] PASS sw/pcie_helper.sh never exec'd
+  [a'] PASS the scratch lock was taken (checks inside the hold)
+  $ program_fpga.sh --expect-sha256=c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae306 --check-only /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | basename: unrecognized option '--expect-sha256=c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae306'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [a'] FAIL = form + --check-only: exit 0  -- rc 97
+  [a'] FAIL = form: the hex bound to --expect-sha256 (printed)
+  [a'] FAIL = form: the path bound to the bitfile (printed)
+  [a'] FAIL tripwires (sudo, vivado) untouched
+  [a'] PASS the real board lock never opened
+  [a'] PASS sw/pcie_helper.sh never exec'd
+  [a'] PASS the scratch lock was taken (checks inside the hold)
+  $ program_fpga.sh --expect-sha256 C82787ED4C44AE9E7B8A8060D4D2DB1D42CBCEB06E1135640E86AE24713AE306 --check-only /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [a'] FAIL upper-case hex accepted (normalised), exit 0  -- rc 97
+  $ program_fpga.sh --expect-sha256 c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae30 /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [a'] FAIL 63-digit value refused, exit 2  -- rc 97
+  [a'] FAIL 63-digit: the refusal names 64 hex digits
+  [a'] FAIL 63-digit: tripwires untouched
+  $ program_fpga.sh /tmp/r3_tool_tdd.3yUoBy/scratch.bit --expect-sha256
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [a'] FAIL missing value refused, exit 2  -- rc 97
+  [a'] FAIL missing value: tripwires untouched
+  $ program_fpga.sh --expect-sha256 c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae306 /tmp/r3_tool_tdd.3yUoBy/scratch.bit /tmp/r3_tool_tdd.3yUoBy/other.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [a'] FAIL two positionals refused, exit 2  -- rc 97
+  [a'] FAIL two positionals: tripwires untouched
+  $ program_fpga.sh --expect-sha256 c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae306 --check-only /tmp/r3_tool_tdd.3yUoBy/absent.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [a'] FAIL absent bit file with a sha: exit 5  -- rc 97
+  [a'] FAIL absent bit file: tripwires untouched
+== (b) right sha256, an ESTABLISHED :3121 client -> exit 6
+  $ program_fpga.sh --expect-sha256 c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae306 /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [b] FAIL exit 6  -- rc 97
+  [b] FAIL FATAL: a client is attached to hw_server
+  [b] FAIL the client line is shown
+  [b] FAIL tripwires (sudo, vivado) untouched
+  [b] PASS the real board lock never opened
+  [b] PASS sw/pcie_helper.sh never exec'd
+  [b] PASS the scratch lock was taken (checks inside the hold)
+== (b') wrong sha256 AND a client -> exit 5 (the sha check runs first)
+  $ program_fpga.sh --expect-sha256 d93898fe5d55bfaf8c9b9171e5e3ec2e53dcdfc17f2246751f97bf35824bf417 /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [b'] FAIL exit 5  -- rc 97
+  [b'] PASS ss never called (the sha refusal came first)
+  [b'] FAIL tripwires (sudo, vivado) untouched
+  [b'] PASS the real board lock never opened
+  [b'] PASS sw/pcie_helper.sh never exec'd
+  [b'] PASS the scratch lock was taken (checks inside the hold)
+== (b'') no sha flag, a client -> exit 6 (on for every caller)
+  $ program_fpga.sh /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [b''] FAIL exit 6  -- rc 97
+  [b''] FAIL tripwires (sudo, vivado) untouched
+  [b''] PASS the real board lock never opened
+  [b''] PASS sw/pcie_helper.sh never exec'd
+  [b''] PASS the scratch lock was taken (checks inside the hold)
+== (c) right sha256, no client, --check-only -> CHECK_ONLY
+  $ program_fpga.sh --expect-sha256 c82787ed4c44ae9e7b8a8060d4d2db1d42cbceb06e1135640e86ae24713ae306 --check-only /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | basename: unrecognized option '--expect-sha256'
+    | Try 'basename --help' for more information.
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh )
+    |   board lock released (program_fpga.sh )
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [c] FAIL exit 0  -- rc 97
+  [c] FAIL CHECK_ONLY: sha256 OK, no attached client
+  [c] FAIL the client check ran (ss called)
+  [c] FAIL order: sha256 check before the client check  -- lines ? < ?
+  [c] FAIL tripwires (sudo, vivado) untouched
+  [c] PASS the real board lock never opened
+  [c] PASS sw/pcie_helper.sh never exec'd
+  [c] PASS the scratch lock was taken (checks inside the hold)
+== (n0) CONTROL, no flag: program_fpga.sh <bit> reaches [1/3] remove as before
+  $ program_fpga.sh /tmp/r3_tool_tdd.3yUoBy/scratch.bit
+    | === [1/3] remove the endpoint from the PCI tree (host-hang safety)
+    | === [3/3] rescan the PCI tree (exit code so far: 97)
+    | FATAL: rescan FAILED — the endpoint is OFF THE BUS.  Run: sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+    |   board lock HELD: /tmp/r3_tool_tdd.3yUoBy/board.lock (program_fpga.sh scratch.bit)
+    |   board lock released (program_fpga.sh scratch.bit)
+    rc=97  tripwire calls: 2  ss calls: 0
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh remove
+    trip: TRIP sudo -n /home/cah/r2d2/code/fpga/fable5_llm/sw/pcie_helper.sh rescan
+  [n0] PASS [1/3] remove printed
+  [n0] PASS stub sudo got '-n <repo>/sw/pcie_helper.sh remove' first
+  [n0] PASS then 'rescan' (the EXIT trap)
+  [n0] PASS exactly those two stub calls (vivado never reached)
+  [n0] PASS sw/pcie_helper.sh never exec'd
+  [n0] PASS the real board lock never opened
+== (c')/(d) Vivado on the one-flop fake project (4 runs in parallel)
+  root old_noflag: launch_build.sh 62fe4c5aefa2f122  build.tcl c4f8435ba28098f1  postimpl_sanity.tcl absent
+  root new_noflag: launch_build.sh 62fe4c5aefa2f122  build.tcl c4f8435ba28098f1  postimpl_sanity.tcl absent
+  root new_synthonly: launch_build.sh 62fe4c5aefa2f122  build.tcl c4f8435ba28098f1  postimpl_sanity.tcl absent
+  root new_badvalue: launch_build.sh 62fe4c5aefa2f122  build.tcl c4f8435ba28098f1  postimpl_sanity.tcl absent
+  start: 2026-09-29T19:09:41-06:00
+  end:   2026-09-29T19:21:48-06:00
+  --- old_noflag (rc 0): launcher output
+    | === create_project (4d30f050) ===
+    | # puts "R3_PROBE: one-flop project at $OutDir/proj/stage1.xpr (version $Ver)"
+    | R3_PROBE: one-flop project at /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/old_noflag/synth/out_probe/proj/stage1.xpr (version 4d30f050)
+    | # puts "CREATE_PROJECT_OK"
+    | CREATE_PROJECT_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:10:06 2026...
+    | === build ===
+    | # puts "BITSTREAM: $bit"
+    | BITSTREAM: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/old_noflag/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | # puts "BUILD_OK"
+    | BUILD_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:21:26 2026...
+    | === DONE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/old_noflag/synth/out_probe ===
+  --- new_noflag (rc 0): launcher output
+    | === create_project (5d709a25) ===
+    | # puts "R3_PROBE: one-flop project at $OutDir/proj/stage1.xpr (version $Ver)"
+    | R3_PROBE: one-flop project at /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/new_noflag/synth/out_probe/proj/stage1.xpr (version 5d709a25)
+    | # puts "CREATE_PROJECT_OK"
+    | CREATE_PROJECT_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:10:06 2026...
+    | === build ===
+    | # puts "BITSTREAM: $bit"
+    | BITSTREAM: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/new_noflag/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | # puts "BUILD_OK"
+    | BUILD_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:21:23 2026...
+    | === DONE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/new_noflag/synth/out_probe ===
+  --- new_synthonly (rc 0): launcher output
+    | === create_project (664235f4) ===
+    | # puts "R3_PROBE: one-flop project at $OutDir/proj/stage1.xpr (version $Ver)"
+    | R3_PROBE: one-flop project at /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/new_synthonly/synth/out_probe/proj/stage1.xpr (version 664235f4)
+    | # puts "CREATE_PROJECT_OK"
+    | CREATE_PROJECT_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:10:06 2026...
+    | === build ===
+    | # puts "BITSTREAM: $bit"
+    | BITSTREAM: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/new_synthonly/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | # puts "BUILD_OK"
+    | BUILD_OK
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:21:30 2026...
+    | === DONE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/new_synthonly/synth/out_probe ===
+  --- new_badvalue (rc 1): launcher output
+    | === create_project (6f261a61) ===
+    | source /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/roots/new_badvalue/synth/scripts/create_project.tcl
+    | # puts "STUB_CREATE_REACHED"
+    | STUB_CREATE_REACHED
+    | # exit 1
+    | INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 19:09:52 2026...
+  --- direct build.tcl synth_only (rc 0)
+  build.tcl printed lines, c5f255d (old_noflag):
+    | CLOCK_GATE_OK: 250MHz clocks: probe_clk
+    | TIMING: WNS=-1.217 WHS=0.354
+    | BITSTREAM: <ROOT>/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | BUILD_OK
+  build.tcl printed lines, this tree (new_noflag):
+    | CLOCK_GATE_OK: 250MHz clocks: probe_clk
+    | TIMING: WNS=-1.217 WHS=0.354
+    | BITSTREAM: <ROOT>/synth/out_probe/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | BUILD_OK
+== (c') the factored sanity block
+  [c'] FAIL synth/scripts/postimpl_sanity.tcl exists
+  [c'] PASS c5f255d no-flag launch: exit 0, === DONE
+  [c'] PASS this tree's no-flag launch: exit 0, === DONE
+  [c'] PASS build.tcl printed lines + order IDENTICAL to c5f255d's (4 lines)
+  [c'] PASS CLOCK_GATE_OK names the 4 ns probe_clk
+  [c'] PASS RECORDED: no PCIE4 / GTYE4 cell in the one-flop project -> both lists print empty, old and new
+  [c'] PASS the launcher's build.log IDENTICAL (paths, hash, exit time normalised)
+  [c'] PASS check_timing_noclock.rpt body IDENTICAL (header box dropped)
+    rpt| Table of Contents
+    rpt| -----------------
+    rpt| 1. checking no_clock (0)
+    rpt| 
+    rpt| 1. checking no_clock (0)
+    rpt| ------------------------
+    rpt|  There are 0 register/latch pins with no clock.
+    rpt| 
+    rpt| 
+  [c'] PASS no-flag launcher passed build.tcl the one word <out_dir> (no synth_only)
+  RECORDED (not a check): the '# ' command-trace lines that differ, c5f255d vs this tree:
+  (Vivado's '# Xxx: ' session-header lines — pid, CPU clock, host — excluded)
+  [c'] FAIL the procs READ-ONLY on the routed checkpoint (postimpl_sanity.tcl or routed dcp absent)
+  [c'] FAIL the read-only no-clock report equals the build's
+== (d) the synth-only launch on the one-flop fake project
+  [d] PASS direct build.tcl synth_only: vivado exit 0
+    | CLOCK_GATE_OK: 250MHz clocks: probe_clk
+    | TIMING: WNS=-1.217 WHS=0.354
+    | BITSTREAM: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/proj/stage1.runs/impl_1/r3_probe_top.bit
+    | BUILD_OK
+  [d] FAIL SYNTH_OK printed (anchored)
+  [d] PASS synth_1 ended (.vivado.end.rst)
+  [d] PASS synth_1 checkpoint written (/home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/proj/stage1.runs/synth_1/r3_probe_top.dcp)
+  [d] FAIL no impl_1/.vivado.begin.rst (impl_1 never started)
+  [d] FAIL no bitstream under the project  -- 1 .bit
+    | Q_SYNTH1_PROGRESS=100%
+    | Q_SYNTH1_STATUS=synth_design Complete!
+    | Q_IMPL1_STATUS=write_bitstream Complete!
+  [d] PASS synth_1 PROGRESS 100% (read back, read-only open)
+  [d] FAIL impl_1 not started (read back)
+    | PROJ_IDLE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/proj
+  [d] PASS proj_busy.sh: PROJ_IDLE  (rc 0)
+    | PROJ_IDLE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_r3_synthonly_probe_n2200/proj
+    | CHECK_ONLY: arguments and source OK, nothing launched
+  [d] PASS LAUNCH_INCR_CHECK_ONLY=1 launch_incr.sh accepts the synth-only project  (rc 0)
+  [d] PASS launch_incr check made no out dir
+  [d] PASS SYNTH_ONLY=1 launch_build.sh: exit 0  (rc 0)
+  [d] FAIL SYNTH_ONLY=1: '=== SYNTH DONE: <out> ===' printed
+  [d] FAIL SYNTH_ONLY=1: build.log records SYNTH DONE
+  [d] FAIL SYNTH_ONLY=1: no '=== DONE' line
+  [d] FAIL SYNTH_ONLY=1: build.tcl got '<out_dir> synth_only'
+  [d] FAIL SYNTH_ONLY=1: SYNTH_OK in build_run.log
+  [d] FAIL SYNTH_ONLY=1: no bitstream, impl_1 never begun
+  [d] FAIL SYNTH_ONLY=yes refused by name  -- rc 1
+  [d] FAIL SYNTH_ONLY=yes: refused before the out dir / create_project
+== (e) evidence/qwen9b/sr/r3_preflight.sh, board-free
+  scratch clone /tmp/r3_tool_tdd.3yUoBy/clone at a2fed67
+  $ [clean] r3_preflight.sh --root /tmp/r3_tool_tdd.3yUoBy/clone ... 
+    | bash: evidence/qwen9b/sr/r3_preflight.sh: No such file or directory
+    rc=127
+  [e] FAIL clean clone, build_041 stub identity -> PREFLIGHT: PASS  -- rc 127
+  [e] FAIL probe PF_PY printed OVERRIDE
+  [e] FAIL probe PF_IDENT printed OVERRIDE
+  [e] FAIL probe PF_LSPCI printed OVERRIDE
+  [e] FAIL probe PF_XDMA_LS printed OVERRIDE
+  [e] FAIL probe PF_LSMOD printed OVERRIDE
+  [e] FAIL probe PF_SS printed OVERRIDE
+  [e] FAIL probe PF_LOCK_STATUS printed OVERRIDE
+  [e] FAIL probe PF_HWSERVER printed OVERRIDE
+  [e] FAIL probe PF_PROCS printed OVERRIDE
+  [e] FAIL probe PF_BOARD_USERS printed OVERRIDE
+  [e] FAIL no default probe command in force (the [0] table printed, no DEFAULT)
+  [e] PASS tripwire python untouched
+  [e] FAIL the interpreter used was the tripwire (PF_PY) — 0 call(s)
+  [e] FAIL the identity came from the stub
+  [e] FAIL strace: no openat of any /dev/xdma* node
+  [e] FAIL strace: sr8_ident.py never opened or exec'd
+  [e] FAIL strace: the real lspci / lsmod / ss / pgrep never exec'd
+  [e] FAIL strace: the real board lock never opened
+  $ [sesslog] r3_preflight.sh --root /tmp/r3_tool_tdd.3yUoBy/clone ... 
+    | bash: evidence/qwen9b/sr/r3_preflight.sh: No such file or directory
+    rc=127
+  [e] FAIL an untracked session log (n33NN_) is excluded -> PASS  -- rc 127
+  $ [untracked] r3_preflight.sh --root /tmp/r3_tool_tdd.3yUoBy/clone ... 
+    | bash: evidence/qwen9b/sr/r3_preflight.sh: No such file or directory
+    rc=127
+  [e] FAIL another untracked file -> FAIL, named  -- rc 127
+  $ [dirty] r3_preflight.sh --root /tmp/r3_tool_tdd.3yUoBy/clone ... 
+    | bash: evidence/qwen9b/sr/r3_preflight.sh: No such file or directory
+    rc=127
+  [e] FAIL one modified tracked file -> PREFLIGHT: FAIL  -- rc 127
+  [e] FAIL the FAIL names the tree and the file
+  $ [identr2] r3_preflight.sh --root /tmp/r3_tool_tdd.3yUoBy/clone ... 
+    | bash: evidence/qwen9b/sr/r3_preflight.sh: No such file or directory
+    rc=127
+  [e] FAIL a stub identity that is not build_041 -> FAIL  -- rc 127
+  $ [client] r3_preflight.sh --root /tmp/r3_tool_tdd.3yUoBy/clone ... 
+    | bash: evidence/qwen9b/sr/r3_preflight.sh: No such file or directory
+    rc=127
+  [e] FAIL a stub :3121 client -> FAIL  -- rc 127
+  $ [wrongsha] r3_preflight.sh --root /tmp/r3_tool_tdd.3yUoBy/clone ... --bit-sha256 f7d1413f22048710179be33c2a5d466311f0b32b4527c597611710f3fdadd806
+    | bash: evidence/qwen9b/sr/r3_preflight.sh: No such file or directory
+    rc=127
+  [e] FAIL the ruled bit's sha256 differs from the argument -> FAIL  -- rc 127
+  $ [shortsha] r3_preflight.sh --root /tmp/r3_tool_tdd.3yUoBy/clone ... --bit-sha256 a18664fddbd0da70
+    | bash: evidence/qwen9b/sr/r3_preflight.sh: No such file or directory
+    rc=127
+  [e] FAIL a short (not FULL 64-hex) sha argument refused, exit 2  -- rc 127
+  [e] PASS tripwire python untouched across every (e) case
+== (f) evidence/qwen9b/g6/g6_state.py against a mock Dev (r3_g6state_tdd.py)
+    | r3_g6state_tdd: g6_state.py's VERSION check, mock Dev, scratch lock /tmp/r3_g6state_tdd.0lz9zeu5/board.lock (one child process per case)
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf
+    |       | --- state region  DN 0x0  KV 0x10  CV 0x20  END 0x40  (0 MiB on DDR channel 0)
+    |       |   image     /tmp/r3_g6state_tdd.21lyodzr/fake.state.bin 64 B, sha256 00000000000000000000000000000000 == manifest state['sha256'] [OK]
+    |       board 0x266e3ae7  FABLE5_SEQ_EXPECT_VERSION=None  --write-initial  ->  rc 'TRIPPED:dma_write_chan'  events ['dev', 'dma_write_chan']
+    |   [f1] FAIL board 0x266E3AE7, variable unset: refused with exit 4 by g6_state's VERSION check  (rc 'TRIPPED:dma_write_chan')
+    |   [f1] FAIL board 0x266E3AE7, variable unset: DMA tripwire untouched  (events ['dev', 'dma_write_chan'])
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf
+    |       | --- state region  DN 0x0  KV 0x10  CV 0x20  END 0x40  (0 MiB on DDR channel 0)
+    |       |   image     /tmp/r3_g6state_tdd.exqkmbee/fake.state.bin 64 B, sha256 00000000000000000000000000000000 == manifest state['sha256'] [OK]
+    |       board 0x266e3ae7  FABLE5_SEQ_EXPECT_VERSION='266e3ae7'  --write-initial  ->  rc 'TRIPPED:dma_write_chan'  events ['dev', 'dma_write_chan']
+    |   [f2] PASS board 0x266E3AE7, variable 266e3ae7: proceeds to the (mock) write  (rc 'TRIPPED:dma_write_chan')
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+    |       | --- state region  DN 0x0  KV 0x10  CV 0x20  END 0x40  (0 MiB on DDR channel 0)
+    |       |   image     /tmp/r3_g6state_tdd.mzv9huh3/fake.state.bin 64 B, sha256 00000000000000000000000000000000 == manifest state['sha256'] [OK]
+    |       board 0xc973c18a  FABLE5_SEQ_EXPECT_VERSION=None  --write-initial  ->  rc 'TRIPPED:dma_write_chan'  events ['dev', 'dma_write_chan']
+    |   [f3] PASS board 0xC973C18A, variable unset: proceeds to the (mock) write  (rc 'TRIPPED:dma_write_chan')
+    |       board 0xc973c18a  FABLE5_SEQ_EXPECT_VERSION='deadbeef'  --write-initial  ->  rc 'EXC:ValueError: expect-version 0xdeadbeef is not a known sequencer bitstream (known: 0x266e3ae7 build_045_r2_incr (R2 XWIN/RES banks + R1 + BM1 counters; admitted only when named), 0x54443b9f build_035_fp2a_exc_po (frozen 2B W8, isa=1 SHAPE; admitted only when named), 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default), 0xe3c2ff1e build_044_r1_incr (R1 FENCE mask + BM1 counters; admitted only when named)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess'  events []
+    |   [f4] FAIL variable naming a VERSION outside SEQ_VERSIONS: refused with exit 4 by g6_state  (rc 'EXC:ValueError: expect-version 0xdeadbeef is not a known sequencer bitstream (known: 0x266e3ae7 build_045_r2_incr (R2 XWIN/RES banks + R1 + BM1 counters; admitted only when named), 0x54443b9f build_035_fp2a_exc_po (frozen 2B W8, isa=1 SHAPE; admitted only when named), 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default), 0xe3c2ff1e build_044_r1_incr (R1 FENCE mask + BM1 counters; admitted only when named)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess')
+    |   [f4] PASS outside SEQ_VERSIONS: DMA tripwire untouched  (events [])
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf
+    |       | --- state region  DN 0x0  KV 0x10  CV 0x20  END 0x40  (0 MiB on DDR channel 0)
+    |       |   image     /tmp/r3_g6state_tdd.xnp8ht61/fake.state.bin 64 B, sha256 00000000000000000000000000000000 == manifest state['sha256'] [OK]
+    |       board 0x266e3ae7  FABLE5_SEQ_EXPECT_VERSION='c973c18a'  --write-initial  ->  rc 'TRIPPED:dma_write_chan'  events ['dev', 'dma_write_chan']
+    |   [f5] FAIL board 0x266E3AE7, variable c973c18a: refused with exit 4 by g6_state  (rc 'TRIPPED:dma_write_chan')
+    |   [f5] FAIL board != named VERSION: DMA tripwire untouched  (events ['dev', 'dma_write_chan'])
+    |       | --- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf
+    |       | --- state region  DN 0x0  KV 0x10  CV 0x20  END 0x40  (0 MiB on DDR channel 0)
+    |       board 0x266e3ae7  FABLE5_SEQ_EXPECT_VERSION=None  --readback  ->  rc 'TRIPPED:dma_read_chan'  events ['dev', 'dma_read_chan']
+    |   [f6] FAIL --readback on board 0x266E3AE7, variable unset: refused with exit 4 by g6_state  (rc 'TRIPPED:dma_read_chan')
+    |   [f6] FAIL --readback refused: dma_read_chan untouched  (events ['dev', 'dma_read_chan'])
+    |   [f0] PASS no xdma device node was ever opened (any case)  ([])
+    | r3_g6state_tdd: 4 passed, 7 failed
+  [f] FAIL f1 board 0x266E3AE7, variable unset: refused with exit 4 by g6_state's VERSION check  (rc 'TRIPPED:dma_write_chan')
+  [f] FAIL f1 board 0x266E3AE7, variable unset: DMA tripwire untouched  (events ['dev', 'dma_write_chan'])
+  [f] PASS f2 board 0x266E3AE7, variable 266e3ae7: proceeds to the (mock) write  (rc 'TRIPPED:dma_write_chan')
+  [f] PASS f3 board 0xC973C18A, variable unset: proceeds to the (mock) write  (rc 'TRIPPED:dma_write_chan')
+  [f] FAIL f4 variable naming a VERSION outside SEQ_VERSIONS: refused with exit 4 by g6_state  (rc 'EXC:ValueError: expect-version 0xdeadbeef is not a known sequencer bitstream (known: 0x266e3ae7 build_045_r2_incr (R2 XWIN/RES banks + R1 + BM1 counters; admitted only when named), 0x54443b9f build_035_fp2a_exc_po (frozen 2B W8, isa=1 SHAPE; admitted only when named), 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default), 0xe3c2ff1e build_044_r1_incr (R1 FENCE mask + BM1 counters; admitted only when named)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess')
+  [f] PASS f4 outside SEQ_VERSIONS: DMA tripwire untouched  (events [])
+  [f] FAIL f5 board 0x266E3AE7, variable c973c18a: refused with exit 4 by g6_state  (rc 'TRIPPED:dma_write_chan')
+  [f] FAIL f5 board != named VERSION: DMA tripwire untouched  (events ['dev', 'dma_write_chan'])
+  [f] FAIL f6 --readback on board 0x266E3AE7, variable unset: refused with exit 4 by g6_state  (rc 'TRIPPED:dma_read_chan')
+  [f] FAIL f6 --readback refused: dma_read_chan untouched  (events ['dev', 'dma_read_chan'])
+  [f] PASS f0 no xdma device node was ever opened (any case)  ([])
+  [f] PASS r3_g6state_tdd.py ran and reported
+== summary (per case: passed / failed)
+  (H) 3 passed / 0 failed
+  (a) 3 passed / 4 failed
+  (a') 6 passed / 18 failed
+  (b) 3 passed / 4 failed
+  (b') 4 passed / 2 failed
+  (b'') 3 passed / 2 failed
+  (c) 3 passed / 5 failed
+  (n0) 6 passed / 0 failed
+  (c') 8 passed / 3 failed
+  (d) 8 passed / 12 failed
+  (e) 2 passed / 26 failed
+  (f) 5 passed / 7 failed
+r3_tool_tdd: 54 passed, 83 failed
+=== rc  : 1
+=== end : 2026-09-29T19:22:16-06:00

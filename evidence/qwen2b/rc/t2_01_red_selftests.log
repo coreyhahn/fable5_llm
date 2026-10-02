@@ -1,0 +1,24 @@
+# T2 RED — the selftests written BEFORE the implementation (2026-08-22)
+# host: darthplagueis (argparse only) + snoke (numeric)
+
+$ ref/.venv/bin/python <HEAD:ref/fidelity_check.py> --w8 --res-scale 4
+fidelity_check_HEAD.py: error: unrecognized arguments: --w8
+
+$ (on snoke) ref: layer_fixed.py + seq_model.py --selftest, tests present, implementation absent
+--- RED layer_fixed
+    # W4 sections print above is a byte-identical prefix of this log) ----
+          ^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/layer_fixed.py", line 1618, in _w8_invariance
+    for g in (G, 64):
+            ^^^^^^^^^^
+NameError: name 'quant_linear_w8' is not defined. Did you mean: 'quant_linear_mse'?
+rc=0
+--- RED seq_model
+    w4, m = unpack_ddr_rows(img.tobytes(), nrows, K, g)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/w4a8_ref.py", line 439, in unpack_ddr_rows
+    assert a.size == nrows * stride, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: image is 5440B, expected 17*192=3264
+
+[exited with code 0]

@@ -1,0 +1,62 @@
+=== host: darthplagueis
+=== date: 2026-09-10T05:39:22-06:00
+=== tree: a4a1f68+dirty
+=== cmd:  bash /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/297477f1-b332-4f12-8141-aed7689cf8e7/scratchpad/quoteforms_red.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== checker under test: b9e0851:evidence/qwen_next/spec_cites.py
+===   a547f6c37ea07b252c469c63ad819b39ec8dacb5dc2e97ef9d749ddbde7c8bad  /tmp/scred.roQ6EF/evidence/qwen_next/spec_cites.py
+===   a547f6c37ea07b252c469c63ad819b39ec8dacb5dc2e97ef9d749ddbde7c8bad  - (git show)
+=== PROSE_MARK at b9e0851 (the defect: it contains a pipe):
+===   305:PROSE_MARK = ("|", "§", "**", "—", "…", "->", "→")
+===   498:            if any(k in t for k in PROSE_MARK):
+===   644:            if len(t) < MIN_QUOTE or any(k in t for k in PROSE_MARK):
+=== quote_forms at b9e0851:
+===   0 definition(s)
+=== mirror root: /tmp/scred.roQ6EF (rtl/ ref/ sw/ tb/ docs/ synth/ are symlinks to the repo)
+=== ---
+=== quoted source line, rtl/vec_alu.sv:168:
+        wire op_pr2  = (op_q == 4'd1) || (op_q == 4'd6) || (op_q == 4'd9)
+=== honest cell:
+    checked: 1 exist, 1 range, 0 quote  |  pending 0  |  retired 0  |  noquote 0  |  FAIL 0
+    SPEC CITES: PASS
+=== perturbed cell (4'd1 -> 4'd7):
+    checked: 1 exist, 1 range, 0 quote  |  pending 0  |  retired 0  |  noquote 0  |  FAIL 0
+    SPEC CITES: PASS
+=== honest cell, pipes ESCAPED as markdown requires:
+    cell text: | the op_pr2 predicate | `rtl/vec_alu.sv:168` | `    wire op_pr2  = (op_q == 4'd1) \|\| (op_q == 4'd6) \|\| (op_q == 4'd9)` |
+    checked: 1 exist, 1 range, 0 quote  |  pending 0  |  retired 0  |  noquote 0  |  FAIL 0
+    SPEC CITES: PASS
+=== perturbed cell, pipes ESCAPED:
+    checked: 1 exist, 1 range, 0 quote  |  pending 0  |  retired 0  |  noquote 0  |  FAIL 0
+    SPEC CITES: PASS
+  FAIL  A the table-cell quotation is QUOTE-checked
+        expected: 1
+        actual:   0
+  PASS  B the honest document PASSES
+  FAIL  C the perturbed cell FAILs with QUOTE
+        expected: 1
+        actual:   0
+  FAIL  D the ESCAPED honest cell is QUOTE-checked
+        expected: 1
+        actual:   0
+  PASS  D the ESCAPED honest cell PASSES (quote_forms unescapes it)
+  FAIL  D the ESCAPED PERTURBED cell still FAILs with QUOTE
+        expected: 1
+        actual:   0
+
+SPEC_CITES_TABLECELL FIXTURE: FAIL (4 check(s))
+=== fixture rc 1  (RED: 4 of the 6 checks FAIL at b9e0851.  PROSE_MARK's
+===   pipe exempts the whole span, so NO quote check is performed on any
+===   of the four cells -- A and D-checked read 0 quote, and C's perturbed
+===   cell is not caught.  The two that 'pass' pass VACUOUSLY: they ask
+===   whether an HONEST document passes, and at b9e0851 a document with a
+===   WRONG cell passes too.  That is precisely why the fixture counts
+===   QUOTE CHECKS PERFORMED and not only FAIL counts.)
+=== rc: 0
+=== end: 2026-09-10T05:39:22-06:00

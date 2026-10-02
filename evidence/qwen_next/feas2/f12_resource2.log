@@ -1,0 +1,30 @@
+=== host: snoke  date: 2026-09-15T16:40:40-06:00
+=== tree: d47a0d0+dirty
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/feas2/resource2.py
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+VALIDATION — the shipped 9B cache array, from the declarations
+==============================================================================
+  DN  2 slots x  4096 rows x 2048 b =   58 URAM288
+  KV  2 slots x  8192 rows x 2048 b =  116 URAM288
+  CV  2 slots x  8192 rows x  112 b =    8 URAM288
+  total 182  want 182  OK
+
+==============================================================================
+THE CACHE ARRAY at each geometry, of 960 URAM288 (320/SLR)
+==============================================================================
+model       DN rows    DN  KV rows    KV  CV rows    CV  total   % 960  one SLR?   vs 9B
+9B             4096    58     8192   116     8192     8    182    19.0       YES      +0
+27B            6144   116     8192   116    10240    12    244    25.4       YES     +62
+35B-A3B        4096    58     8192   116     8192     8    182    19.0       YES      +0
+
+  Every row assumes the slot COUNT stays at 2 per kind (rtl/layer_chan.sv:382 N_SLOT = 2) and T_MAX stays 4096
+  (rtl/layer_chan.sv:385 KV_AW = 13).  The DN growth at 27B is a
+  SECOND RANK, not a wider row: 6,144 rows do not fit 4,096, and the
+  2,048 unused rows of the second rank cannot be reclaimed because a
+  URAM288's aspect ratio is fixed.
+
+  For comparison the PRE-SPILL 9B array was 928 of 960 (docs/QWEN35_NEXT_FEASIBILITY.md 7.1), which is the design the
+  state-spill amendment replaced; none of these rows is near that.
+=== rc  : 0
+=== end : 2026-09-15T16:40:40-06:00

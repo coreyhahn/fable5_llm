@@ -1,0 +1,81 @@
+=== host: snoke  date: 2026-09-29T04:47:36-06:00
+=== tree: 3e95d2e
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr8_board_table.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+== A. RD9 §7 lockstep on R1 (n805): model_9b_s1..s4, shipped order
+| seed | tokens | G4A §4.1a | verdict | err_code | .chip golden | device ms | SEQ_CAPS |
+|---|---|---|---|---|---|---|---|
+| s1 | [2614, 314, 279, 369, 11751, 13] | [2614, 314, 279, 369, 11751, 13] | IDENTICAL | 0x00 | 36886 checks, ALL MATCH | 822.853 | 0xfab1ca01 |
+| s2 | [279, 264, 854, 11, 303, 264] | [279, 264, 854, 11, 303, 264] | IDENTICAL | 0x00 | 36886 checks, ALL MATCH | 822.856 | 0xfab1ca01 |
+| s3 | [313, 430, 2510, 198, 1445, 27180] | [313, 430, 2510, 198, 1445, 27180] | IDENTICAL | 0x00 | 36886 checks, ALL MATCH | 822.861 | 0xfab1ca01 |
+| s4 | [11, 0, 271, 803, 369, 498] | [11, 0, 271, 803, 369, 498] | IDENTICAL | 0x00 | 36886 checks, ALL MATCH | 822.844 | 0xfab1ca01 |
+s1 on R1, shipped order, per token: 34,285,536 cyc = 137.1421 ms; mvany 42.18 %, fence 41.96 %, mvwork 24.22 %, imover 66.20 %
+n72 (T, build_042_bm1, shipped order, bm1_census): 34,279,887 cyc/token = 137.1195 ms; mvany 42.19 %, fence 41.96 %, mvwork 24.23 %, imover 66.21 %; R1-bitstream/n72 cyc = 1.000165
+
+== B. chat511 sessions (context 511, --ntok 9), per-launch means
+| run | what | kind | n | PERF_CYC | ms | tok/s | min..max cyc | L_LCYC % | L_SDMA % | MVANY % | FENCE % | MVWORK % | IMOVER % |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| n68 | T build_041 shipped order | lite | 502 | 32,904,360.7 | 131.6174 | 7.598 | 31,589,961..34,219,878 | 34.80 | 4.38 | — | — | — | — |
+| n68 | T build_041 shipped order | full | 9 | 36,927,199.9 | 147.7088 | 6.770 | 36,906,313..36,949,405 | 35.31 | 4.36 | — | — | — | — |
+| n95 | T build_041 form B | lite | 502 | 28,773,349.3 | 115.0934 | 8.689 | 27,443,116..30,103,409 | 39.90 | 5.26 | — | — | — | — |
+| n95 | T build_041 form B | full | 9 | 32,811,355.0 | 131.2454 | 7.619 | 32,790,813..32,833,903 | 39.83 | 5.20 | — | — | — | — |
+| n802 | E build_041 form B (control) | lite | 502 | 28,773,299.0 | 115.0932 | 8.689 | 27,442,908..30,103,692 | 39.90 | 5.26 | — | — | — | — |
+| n802 | E build_041 form B (control) | full | 9 | 32,811,377.7 | 131.2455 | 7.619 | 32,791,083..32,833,623 | 39.84 | 5.20 | — | — | — | — |
+| n806 | E R1 bitstream, r0 form B | lite | 502 | 28,773,846.5 | 115.0954 | 8.688 | 27,444,191..30,103,987 | 39.90 | 5.26 | 44.19 | 33.85 | 19.88 | 53.75 |
+| n806 | E R1 bitstream, r0 form B | full | 9 | 32,811,844.3 | 131.2474 | 7.619 | 32,790,375..32,834,069 | 39.83 | 5.20 | 44.54 | 35.45 | 19.09 | 54.57 |
+| n807 | E R1 bitstream, r1 | lite | 502 | 28,017,635.3 | 112.0705 | 8.923 | 26,562,355..29,459,270 | 41.56 | 5.65 | 50.69 | 31.46 | 20.42 | 51.91 |
+| n807 | E R1 bitstream, r1 | full | 9 | 31,528,722.1 | 126.1149 | 7.929 | 31,506,969..31,553,791 | 42.37 | 5.67 | 51.61 | 31.90 | 19.87 | 51.80 |
+  n68 ids [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751] rc 0 env {'FABLE5_MODEL': '9b', 'FABLE5_SEQ_EXPECT_VERSION': None} -> IDENTICAL vs REF
+  n95 ids [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751] rc 0 env {'FABLE5_MODEL': '9b', 'FABLE5_SEQ_EXPECT_VERSION': None} -> IDENTICAL vs REF
+  n802 ids [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751] rc 0 env {'FABLE5_MODEL': '9b', 'FABLE5_SEQ_EXPECT_VERSION': None} -> IDENTICAL vs REF
+  n806 ids [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751] rc 0 env {'FABLE5_MODEL': '9b', 'FABLE5_SEQ_EXPECT_VERSION': 'e3c2ff1e'} -> IDENTICAL vs REF
+  n807 ids [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751] rc 0 env {'FABLE5_MODEL': '9b', 'FABLE5_SEQ_EXPECT_VERSION': 'e3c2ff1e'} -> IDENTICAL vs REF
+  n806 lite: MOVX 3,237,632 MOVY 2,373,882 cyc per launch
+  n806 full: MOVX 3,254,631 MOVY 2,890,412 cyc per launch
+  n807 lite: MOVX 3,237,575 MOVY 2,373,876 cyc per launch
+  n807 full: MOVX 3,254,570 MOVY 2,890,402 cyc per launch
+
+== C. paired by position (same image, same pos) — mean, sd, range, |mean|/SE
+  n802 vs n95 (day repeat, build_041 form B) lite n=502: delta mean -0.0002 % sd 0.0024 % range -0.0076..+0.0093 % |mean|/SE 1.6; speed-up n95/n802 mean x1.0000 sd 0.0000 range x0.9999..x1.0001; means ratio x1.0000
+  n802 vs n95 (day repeat, build_041 form B) full n=9: delta mean +0.0001 % sd 0.0018 % range -0.0032..+0.0038 % |mean|/SE 0.1; speed-up n95/n802 mean x1.0000 sd 0.0000 range x1.0000..x1.0000; means ratio x1.0000
+  n806 vs n802 (bitstream alone: R1 bitstream vs build_041, both r0 form B) lite n=502: delta mean +0.0019 % sd 0.0023 % range -0.0063..+0.0078 % |mean|/SE 18.5; speed-up n802/n806 mean x1.0000 sd 0.0000 range x0.9999..x1.0001; means ratio x1.0000
+  n806 vs n802 (bitstream alone: R1 bitstream vs build_041, both r0 form B) full n=9: delta mean +0.0014 % sd 0.0017 % range -0.0022..+0.0043 % |mean|/SE 2.5; speed-up n802/n806 mean x1.0000 sd 0.0000 range x1.0000..x1.0000; means ratio x1.0000
+  n807 vs n806 (R1 vs S1-B, SAME bitstream) lite n=502: delta mean -2.6363 % sd 0.3069 % range -3.2132..-2.1416 % |mean|/SE 192.4; speed-up n806/n807 mean x1.0271 sd 0.0032 range x1.0219..x1.0332; means ratio x1.0270
+  n807 vs n806 (R1 vs S1-B, SAME bitstream) full n=9: delta mean -3.9105 % sd 0.0055 % range -3.9160..-3.8992 % |mean|/SE 2142.2; speed-up n806/n807 mean x1.0407 sd 0.0001 range x1.0406..x1.0408; means ratio x1.0407
+  n807 vs n802 (R1 vs build_041 form B) lite n=502: delta mean -2.6344 % sd 0.3068 % range -3.2087..-2.1407 % |mean|/SE 192.4; speed-up n802/n807 mean x1.0271 sd 0.0032 range x1.0219..x1.0332; means ratio x1.0270
+  n807 vs n802 (R1 vs build_041 form B) full n=9: delta mean -3.9092 % sd 0.0057 % range -3.9160..-3.8979 % |mean|/SE 2051.2; speed-up n802/n807 mean x1.0407 sd 0.0001 range x1.0406..x1.0408; means ratio x1.0407
+  n807 vs n68 (R1 vs build_041 shipped order) lite n=502: delta mean -14.8646 % sd 0.5772 % range -15.9152..-13.9118 % |mean|/SE 577.0; speed-up n68/n807 mean x1.1747 sd 0.0080 range x1.1616..x1.1893; means ratio x1.1744
+  n807 vs n68 (R1 vs build_041 shipped order) full n=9: delta mean -14.6192 % sd 0.0094 % range -14.6299..-14.6027 % |mean|/SE 4653.4; speed-up n68/n807 mean x1.1712 sd 0.0001 range x1.1710..x1.1714; means ratio x1.1712
+
+== D. the predictions (n815, committed before any R1 run) against n807
+  lite P1: predicted 109.1968 ms, measured 112.0705 ms (8.923 tok/s vs 9.158), +2.632 % -> MISSED
+  lite P2: predicted 111.4490 ms, measured 112.0705 ms (8.923 tok/s vs 8.973), +0.558 % -> HELD LOOSELY
+  lite P3: predicted 111.7953 ms, measured 112.0705 ms (8.923 tok/s vs 8.945), +0.246 % -> HELD
+  full P1: predicted 124.5213 ms, measured 126.1149 ms (7.929 tok/s vs 8.031), +1.280 % -> HELD LOOSELY
+  full P2: predicted 124.6159 ms, measured 126.1149 ms (7.929 tok/s vs 8.025), +1.203 % -> HELD LOOSELY
+  full P3: predicted 125.4614 ms, measured 126.1149 ms (7.929 tok/s vs 7.971), +0.521 % -> HELD LOOSELY
+  control n802 lite: vs n95 115.0934 ms: 115.0932 ms -0.0002 % -> HELD
+  control n802 full: vs n95 131.2454 ms: 131.2455 ms +0.0001 % -> HELD
+  control n806 lite: vs n95 115.0934 ms: 115.0954 ms +0.0017 % -> HELD
+  control n806 full: vs n95 131.2454 ms: 131.2474 ms +0.0015 % -> HELD
+  lite: R1 absolute saving vs n806 3.0248 ms, vs n802 3.0227 ms per launch
+  full: R1 absolute saving vs n806 5.1325 ms, vs n802 5.1306 ms per launch
+
+== E. the 6-token stream census (model_9b_s1 form B), per token
+| run | what | cyc/token | ms/token | tok/s | MVANY % | FENCE (C5) % | MVWORK % | IMOVER % | L_LCYC % | tokens |
+|---|---|---|---|---|---|---|---|---|---|---|
+| n72 | T build_042_bm1 shipped order | 34,279,887 | 137.1195 | 7.293 | 42.19 | 41.96 | 24.23 | 66.21 | 30.33 | IDENTICAL [2614, 314, 279, 369, 11751, 13] |
+| n809 | E R1 bitstream, r0 form B | 30,133,844 | 120.5354 | 8.296 | 48.40 | 38.50 | 20.79 | 59.32 | 34.61 | IDENTICAL [2614, 314, 279, 369, 11751, 13] |
+| n808 | E R1 bitstream, r1 | 28,595,967 | 114.3839 | 8.742 | 56.44 | 35.12 | 21.91 | 57.06 | 36.53 | IDENTICAL [2614, 314, 279, 369, 11751, 13] |
+stream r1 vs its r0-B control (same bitstream): x1.0538 (chip TB x1.0538, n570:21); r1 vs n72 shipped order: x1.1988 (chip TB x1.2070)
+stream r1 tok/s 8.742 vs the model's 8.811 (spec §3.1): measured/model 0.9922 (-0.778 % -> HELD LOOSELY on ms/token)
+C5 FENCE-wait share: n72 41.96 % (shipped) -> n809 38.50 % (S1-B) -> n808 35.12 % (R1); FENCE cycles per token 14,384,442 -> 11,602,319 -> 10,042,383
+
+== F. the restore sanity (n812, build_041, variable unset)
+  ids [760, 6511, 314, 9338, 369, 2972, 57590, 159034, 271, 2064, 369, 279, 3046, 579, 1379, 91188, 3177, 321, 264, 3478, 3521, 3990, 364, 16519] rc 0 env {'FABLE5_MODEL': '9b', 'FABLE5_SEQ_EXPECT_VERSION': None} -> IDENTICAL vs n77's 24 ids
+
+TOKENS on every run: IDENTICAL
+SR8_BOARD_TABLE: DONE
+=== rc  : 0
+=== end : 2026-09-29T04:47:36-06:00

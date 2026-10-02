@@ -1,0 +1,136 @@
+=== host: snoke
+=== date: 2026-09-09T20:01:50-06:00
+=== tree: aa55828
+=== cmd:  bash evidence/qwen9b/g6/g6_pack_rung.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] re-establish the pack, per-piece verified, and run
+--- SEQ stream: tb/scripts/w9/model_9b_s1.e4
+  artifacts base   tb/scripts/w9/model_9b_s1
+  stream           158536 records, 2536576 B (sha256 9760899df53b3b42) VALIDATED
+  seqdata          563712 B (sha256 4a7784f2f2c47e07)
+  profile          epsnorm  dyn_ka=True  loop 3 steps (structurally safe)
+  opcodes          {'CSRWR': 106244, 'CMD': 35286, 'MOVX': 3984, 'MOVY': 5480, 'MVGO': 5480, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'FENCE': 1372, 'HALT': 1, 'LDC*': 644, 'XOP*': 36}
+  expected tokens  [2614, 314, 279, 369, 11751, 13]
+  mode             4-CHANNEL row-split (weights over DDR chans [0, 1, 2, 3], fetch on chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=4)
+  stream    0x9000000 .. 0x926b480  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc089a00  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 249 images, chans [0, 1, 2, 3])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 644 LDC records (32 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 4 EMB records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+  weight plan: 249 images match the stream's MVGO plan; 5480 MVGO WBASEs row-aligned inside them
+--- upload
+  weights   249 images, 3902 MiB -> 0x10000000..0x4d290000/0x4cf78000/0x4ce70000/0x4ce70000 (row-split over chans [0, 1, 2, 3], wid [248] chunk-INTERLEAVED (rung 4 S4))  [readback OK]
+  embedding 1940 MiB -> 0x60000000  [readback OK]
+  seqdata   563712 B -> 0xc000000  [readback OK]
+  stream    2536576 B (158536 records) -> 0x9000000  [readback OK]
+  state DN  24 MiB zeroed -> 0x380000000 (chan 3)  [8 witnesses zero]
+  state CV  24 conv image(s) -> 0x389800000  [readback OK]
+  5845 MiB written, 5845 MiB read back and compared, 45.5s
+--- run
+  scratch   65536 words zeroed via SPTR/SWIN and read back: 0 non-zero (0.2s)
+  EMBLOG2    13 (8192 B embedding rows)
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+  SEQ_BASE=0x9000000 LEN=158536 ENTRY=0 -> START
+    pc 1319/158536  (0.0s)
+    pc 4165/158536  (0.0s)
+    pc 9087/158536  (0.0s)
+    pc 12567/158536  (0.0s)
+    pc 17318/158536  (0.1s)
+    pc 20819/158536  (0.1s)
+    pc 25581/158536  (0.1s)
+    pc 29084/158536  (0.1s)
+    pc 33362/158536  (0.1s)
+    pc 37984/158536  (0.1s)
+    pc 41064/158536  (0.1s)
+    pc 45855/158536  (0.2s)
+    pc 49348/158536  (0.2s)
+    pc 53610/158536  (0.2s)
+    pc 58367/158536  (0.2s)
+    pc 61860/158536  (0.2s)
+    pc 66622/158536  (0.2s)
+    pc 70115/158536  (0.2s)
+    pc 74270/158536  (0.2s)
+    pc 77876/158536  (0.3s)
+    pc 81962/158536  (0.3s)
+    pc 86880/158536  (0.3s)
+    pc 90372/158536  (0.3s)
+    pc 95131/158536  (0.3s)
+    pc 98634/158536  (0.3s)
+    pc 102899/158536  (0.3s)
+    pc 107557/158536  (0.4s)
+    pc 111141/158536  (0.4s)
+    pc 115136/158536  (0.4s)
+    pc 118873/158536  (0.4s)
+    pc 123154/158536  (0.4s)
+    pc 127905/158536  (0.4s)
+    pc 131398/158536  (0.4s)
+    pc 136160/158536  (0.5s)
+    pc 139653/158536  (0.5s)
+    pc 143900/158536  (0.5s)
+    pc 147913/158536  (0.5s)
+    pc 152180/158536  (0.5s)
+    pc 155667/158536  (0.5s)
+    pc 119397/158536  (0.5s)
+    pc 123145/158536  (0.6s)
+    pc 127897/158536  (0.6s)
+    pc 131389/158536  (0.6s)
+    pc 136039/158536  (0.6s)
+    pc 139628/158536  (0.6s)
+    pc 143420/158536  (0.6s)
+    pc 147891/158536  (0.6s)
+    pc 152159/158536  (0.7s)
+    pc 155664/158536  (0.7s)
+    pc 118989/158536  (0.7s)
+    pc 123113/158536  (0.7s)
+    pc 127875/158536  (0.7s)
+    pc 131360/158536  (0.7s)
+    pc 135551/158536  (0.7s)
+    pc 139615/158536  (0.7s)
+    pc 144537/158536  (0.8s)
+    pc 147787/158536  (0.8s)
+    pc 152045/158536  (0.8s)
+    pc 155766/158536  (0.8s)
+  halted at pc=158535/158536 in 0.824s wall / 822.803 ms device
+  STATUS=0x00010004 err=False err_code=0x00 (no error)
+  perf: {'cyc': 205700642, 'rec': 237784, 'axil_wr': 287517, 'axil_rd': 9955539, 'fetch_starved_cyc': 96, 'xrf_ovf': False}
+  tokens: [2614, 314, 279, 369, 11751, 13]
+  TOKENS   IDENTICAL to the .seq.json (6 tokens)
+--- post-halt state vs tb/scripts/w9/model_9b_s1.e4.chip
+  golden    36886 state checks, ALL MATCH
+SEQ RUN: PASS
+report -> evidence/qwen9b/g6/016_seq_s1.json
+
+########## [2] the WHOLE-PACK audit — clean
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+  WHOLE-PACK AUDIT  1139 pieces (1114 weight + 24 conv + 1 emb), 5845 MiB read back in 82.2 s (71 MiB/s)
+  pack sha256 want  602b008c70fd8aec89bb1174d78fc0ac272ccbc9ebdf8e7fd514d1fef99ea599
+  pack sha256 got   3e0f5d91c46f126176bc3874ddc3f54676c1c0084984155ec2c6720659619156
+  PACK DIFFERS   24 piece(s) MISS of 1139
+    ! conv conv[L0] chan=3 addr=0x89800000 131072 B: want 1e1f9ca7aff092c3 got 8aacbb41e1b94f93
+    ! conv conv[L1] chan=3 addr=0x89820000 131072 B: want 6e2571379324335d got a03fb349b257a6cf
+    ! conv conv[L2] chan=3 addr=0x89840000 131072 B: want 0025196bbb88af52 got 4a54ef4b4de7d48c
+    ! conv conv[L3] chan=3 addr=0x89860000 131072 B: want 603b406fa00e6dc0 got d33bd2a314fe8f8a
+    ! conv conv[L4] chan=3 addr=0x89880000 131072 B: want 921b90b27a63e69f got eb2ef2e74c74bce6
+    ! conv conv[L5] chan=3 addr=0x898a0000 131072 B: want 0828e9ad75f6fa4b got d9c1ddb78c6fa613
+    ! conv conv[L6] chan=3 addr=0x898c0000 131072 B: want ce27aa0dbb83a668 got b2320000e90f6320
+    ! conv conv[L7] chan=3 addr=0x898e0000 131072 B: want 21c594e9dd33becc got 71d5e7e44e7bfdd6
+    ! conv conv[L8] chan=3 addr=0x89900000 131072 B: want 8cb58fe03ae814f4 got 44c81373c779c5e9
+    ! conv conv[L9] chan=3 addr=0x89920000 131072 B: want 705697e9b648db63 got d626c4021b9eaa1e
+    ! conv conv[L10] chan=3 addr=0x89940000 131072 B: want 4a837bf9b91c11f5 got 3bd82554c2f217e2
+    ! conv conv[L11] chan=3 addr=0x89960000 131072 B: want b796ba182769909a got 3b11771c0163e3fd
+    ! conv conv[L12] chan=3 addr=0x89980000 131072 B: want b512b228c31abe9c got 6f9e475c203e79ed
+    ! conv conv[L13] chan=3 addr=0x899a0000 131072 B: want 755d82312c393d16 got 988e4e126642b431
+    ! conv conv[L14] chan=3 addr=0x899c0000 131072 B: want 07de837e4044d8b2 got 2684c2eabf082623
+    ! conv conv[L15] chan=3 addr=0x899e0000 131072 B: want 59cf070834c83244 got 96d9c30ea337d78c
+  json -> evidence/qwen9b/g6/016_audit_clean.json
+G6_RESIDENCY: PACK DIFFERS
+=== rc: 1
+=== end: 2026-09-09T20:04:01-06:00

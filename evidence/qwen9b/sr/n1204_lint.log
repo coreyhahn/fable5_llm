@@ -1,0 +1,51 @@
+=== host: snoke  date: 2026-09-28T07:31:49-06:00
+=== tree: 9c69419+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/USAGE.md
+=== dirty:  M evidence/qwen9b/g3/isa_bits.py
+=== dirty:  M rtl/matvec_chan.sv
+=== dirty:  M rtl/matvec_engine.sv
+=== dirty:  M rtl/seq_movers.sv
+=== dirty:  M rtl/seq_unit.sv
+=== dirty:  M tb/Makefile
+=== dirty:  M tb/mvshim_b_stubs.sv
+=== dirty:  M tb/scripts/gen_seq_unit_vectors.py
+=== dirty:  M tb/seq_stub_mvchan.sv
+=== dirty:  M tb/tb_matvec.sv
+=== dirty:  M tb/tb_matvec_chan.sv
+=== dirty:  M tb/tb_seq_unit.sv
+=== dirty:  M tb/tb_streamer_engine.sv
+=== dirty: ?? evidence/qwen9b/sr/sr12_golden_same.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_mv_each.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_rtl_copies.sh
+=== cmd : bash -c cd tb && for t in lint_seq_unit lint_matvec lint_mvshim_b lint_seq_chip_9b; do echo "##### make $t"; make --no-print-directory $t; echo "##### $t rc $?"; done 2>&1; echo; echo "%Warning count: $(grep -c %Warning evidence/qwen9b/sr/n1204_lint.log 2>/dev/null)"
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+##### make lint_seq_unit
+verilator --lint-only -Wall --timing ../rtl/seq_unit.sv ../rtl/seq_movers.sv --top-module seq_unit
+verilator --lint-only -Wall --timing seq_fabric_model.sv
+verilator --lint-only -Wall --timing seq_burst_fabric.sv
+verilator --lint-only -Wall --timing seq_ddr_model.sv
+verilator --lint-only -Wall --timing seq_stub_layer.sv
+verilator --lint-only -Wall --timing seq_stub_mvchan.sv
+##### lint_seq_unit rc 0
+##### make lint_matvec
+verilator --lint-only -Wall --timing ../rtl/matvec_engine.sv
+##### lint_matvec rc 0
+##### make lint_mvshim_b
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module matvec_chan \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module matvec_chan_ipi \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv \
+  ../rtl/matvec_chan_ipi.v
+LINT_MVSHIM_B OK: -Wall clean (matvec_chan + matvec_chan_ipi)
+##### lint_mvshim_b rc 0
+##### make lint_seq_chip_9b
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  -GNMV=4 -GWIMGPC=1 \
+  --top-module tb_seq_chip ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv seq_fabric_model.sv seq_burst_fabric.sv seq_mem_file.sv tb_seq_chip.sv
+##### lint_seq_chip_9b rc 0
+
+%Warning count: 
+=== rc  : 0
+=== end : 2026-09-28T07:31:55-06:00

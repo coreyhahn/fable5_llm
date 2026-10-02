@@ -1,0 +1,79 @@
+=== host: snoke  date: 2026-08-24T23:36:11-06:00
+=== tree: b3dd123+dirty
+=== cmd : /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py --verify --ntok 8 --prompt What is the capital of France? --out evidence/qwen2b/rd/chat_seq_verify_build035.json
+=== venv: 3.12.3 numpy 2.4.6
+--- session bring-up
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+  board      MAGIC=0xfab1e001 VERSION=0x54443b9f CALIB=0xf SEQ=READY
+  EMBLOG2    11 (2048 B embedding rows)
+  residency  195 witness blocks (187 weight + 8 emb, 780 KiB) in 6 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  upload     const blob + 3 images: 2216 KiB readback-verified in 0.0s
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  verify     building the ref/seq_model lockstep (~6 s of host time per step; the board idles meanwhile)
+  sampling   greedy (--temp 0): the chip's argmax, bit-exact  |  source chip-topk: ready  |  capture k=32
+--- preamble
+  preamble   8.7 ms device / 10.4 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 14010 rec | full 14744 rec
+  patch      pos_mode='ldc': 72 B in 7 write(s) per launch
+  prefill    lite  |  --ntok 8  |  --max-ctx 500 of KV depth 512
+  template   ON: 5*messages+7 wrapper ids, closed-empty think block, incremental with carry
+  decode     greedy (--temp 0): the chip's argmax, bit-exact  |  the LM head + argmax run ON-CHIP every step
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+
+prompt> What is the capital of France?
+    [verify] step 0 lite: None == seq_model (12s host)
+  prefill 1/18 (34 ms/step, lite)       [verify] step 1 lite: None == seq_model (12s host)
+  prefill 2/18 (34 ms/step, lite)       [verify] step 2 lite: None == seq_model (12s host)
+  prefill 3/18 (34 ms/step, lite)       [verify] step 3 lite: None == seq_model (12s host)
+  prefill 4/18 (34 ms/step, lite)       [verify] step 4 lite: None == seq_model (12s host)
+  prefill 5/18 (34 ms/step, lite)       [verify] step 5 lite: None == seq_model (12s host)
+  prefill 6/18 (34 ms/step, lite)       [verify] step 6 lite: None == seq_model (12s host)
+  prefill 7/18 (34 ms/step, lite)       [verify] step 7 lite: None == seq_model (12s host)
+  prefill 8/18 (34 ms/step, lite)       [verify] step 8 lite: None == seq_model (12s host)
+  prefill 9/18 (34 ms/step, lite)       [verify] step 9 lite: None == seq_model (12s host)
+  prefill 10/18 (34 ms/step, lite)       [verify] step 10 lite: None == seq_model (12s host)
+  prefill 11/18 (34 ms/step, lite)       [verify] step 11 lite: None == seq_model (12s host)
+  prefill 12/18 (34 ms/step, lite)       [verify] step 12 lite: None == seq_model (12s host)
+  prefill 13/18 (34 ms/step, lite)       [verify] step 13 lite: None == seq_model (12s host)
+  prefill 14/18 (34 ms/step, lite)       [verify] step 14 lite: None == seq_model (12s host)
+  prefill 15/18 (34 ms/step, lite)       [verify] step 15 lite: None == seq_model (12s host)
+  prefill 16/18 (34 ms/step, lite)       [verify] step 16 lite: None == seq_model (12s host)
+  prefill 17/18 (34 ms/step, lite)       [verify] step 17 lite: None == seq_model (12s host)
+  prefill 18/18 (34 ms/step, lite)       [verify] step 18 full: 760 == seq_model (15s host)
+                                              The    [verify] step 19 full: 6511 == seq_model (15s host)
+ capital    [verify] step 20 full: 314 == seq_model (15s host)
+ of    [verify] step 21 full: 9338 == seq_model (15s host)
+ France    [verify] step 22 full: 369 == seq_model (16s host)
+ is    [verify] step 23 full: 2972 == seq_model (16s host)
+ **    [verify] step 24 full: 57590 == seq_model (16s host)
+Paris    [verify] step 25 full: 159034 == seq_model (16s host)
+**.
+  --> 'The capital of France is **Paris**.'
+  ids [760, 6511, 314, 9338, 369, 2972, 57590, 159034]   8 tok in 338.13s
+  prefill 18 lite x 33.9 ms | decode 8 full x 45.2 ms | 0.02 tok/s wall | 0% of wall was device | context 26/500 (5%)
+  template   turn 1: +12 wrapper ids (7 body) | session 12 wrapper of 26 context steps (46%)
+             T7 budget: 12 fed + 0 generated <|im_end|> = 5*1+7 = 12 for the equivalent 1-message HF rendering
+
+  launches     27 (1 preamble / 18 lite / 8 full)
+  preamble     device ms  mean 8.7  min 8.7  max 8.7  (n=1)
+  lite         device ms  mean 33.9  min 33.8  max 33.9  (n=18)
+  full         device ms  mean 45.2  min 45.1  max 45.2  (n=8)
+  lite/full    75.0% of a decode step (spec risk 8: measured, not assumed)
+  context      26 of 500 forward steps (KV bank depth 512)
+  stream       nch=1
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  template     ON: 12 wrapper ids over 1 turn(s) = 46% of the context; T7 says 5*1+7 = 12
+  sampling     OFF — greedy, 100% on-chip, bit-exact (the default)
+  MMIO         884 reads / 379 writes
+report -> evidence/qwen2b/rd/chat_seq_verify_build035.json
+=== rc  : 0
+=== end : 2026-08-24T23:41:53-06:00

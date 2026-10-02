@@ -1,0 +1,57 @@
+=== host: snoke
+=== date: 2026-08-31T07:23:22-06:00
+=== tree: 78cea11+dirty
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/g2/damage_defect_b_red.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+sw/infer.py sha256 before: 5dca715e06838a1f758aa0ead4ea572db1a5b1c135012917c3c77024fea509cb
+
+=== RED: the four literals are back in sw/infer.py ===
+damage_defect_b: FABLE5_MODEL=2b  H=2048  RS_F=8
+[1] the fix is in — no hard 1024 argument on the online step() path
+  PASS sw/infer.py has a step() method to inspect
+  FAIL no call inside step() passes a literal 1024: [('vnw_', 1024, 797), ('vn', 1024, 798), ('alu', 1024, 799), ('matvec', 1024, 802)]
+  PASS the AMAX32 staging chunk 2048 is still a literal (it is an ISA limit, not H)
+[2] the damage is detectable — the three SILENT lines, measured
+    DYNQ8 exponent  true 3  damaged 3
+    leading 1024 words changed: 1006/1024 = 98.2 %
+    max |diff| over the leading half: 28
+  PASS the damaged width changes the DYNQ8 exponent OR most of the leading half — silently, with no exception raised
+  PASS the damaged width leaves the TAIL of the residual untouched — that is the half a reader would never look at
+[3] the fourth line still raises — matvec_y32 refuses n_in=1024
+  PASS CONTROL: matvec_y32 accepts an H-wide activation against an H-wide head
+    raised: ValueError: cannot reshape array of size 1024 into shape (1,16,128)
+  PASS matvec_y32 refuses a 1024-wide activation against an H-wide head, and NOT with a TypeError about the call itself
+damage_defect_b: 6 passed, 1 failed
+RED rc = 1
+
+sw/infer.py sha256 after restore: 5dca715e06838a1f758aa0ead4ea572db1a5b1c135012917c3c77024fea509cb
+restore verified: byte-identical
+
+=== GREEN: the fix is back ===
+damage_defect_b: FABLE5_MODEL=2b  H=2048  RS_F=8
+[1] the fix is in — no hard 1024 argument on the online step() path
+  PASS sw/infer.py has a step() method to inspect
+  PASS no call inside step() passes a literal 1024
+  PASS the AMAX32 staging chunk 2048 is still a literal (it is an ISA limit, not H)
+[2] the damage is detectable — the three SILENT lines, measured
+    DYNQ8 exponent  true 3  damaged 3
+    leading 1024 words changed: 1006/1024 = 98.2 %
+    max |diff| over the leading half: 28
+  PASS the damaged width changes the DYNQ8 exponent OR most of the leading half — silently, with no exception raised
+  PASS the damaged width leaves the TAIL of the residual untouched — that is the half a reader would never look at
+[3] the fourth line still raises — matvec_y32 refuses n_in=1024
+  PASS CONTROL: matvec_y32 accepts an H-wide activation against an H-wide head
+    raised: ValueError: cannot reshape array of size 1024 into shape (1,16,128)
+  PASS matvec_y32 refuses a 1024-wide activation against an H-wide head, and NOT with a TypeError about the call itself
+damage_defect_b: 7 passed, 0 failed
+GREEN rc = 0
+
+RED->GREEN PASS — the regression fails on damaged code and passes on fixed code
+=== rc: 0
+=== end: 2026-08-31T07:23:23-06:00

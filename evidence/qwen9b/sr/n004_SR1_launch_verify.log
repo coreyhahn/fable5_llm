@@ -1,0 +1,48 @@
+=== host: snoke  date: 2026-09-27T17:03:53-06:00
+=== tree: cceb282
+=== cmd : bash -c 
+O=synth/out_build_043_incr_probe
+echo LV vivado pids:; pgrep -af vivado | grep -v mcp | cut -c1-200
+for p in $(pgrep -f "unwrapped/lnx64.o/vivado"); do echo LV cwd $p: $(readlink /proc/$p/cwd); done
+echo LV incrimpl lines:; grep -E "^(INCR_REF|INCR_PROP|EXTRA_XDC|FULL_IMPL_CFG)" $O/incrimpl.log
+echo LV runme Command lines + incremental INFO:; grep -nE "^Command:|12-9151|^ERROR|^CRITICAL" $O/proj/stage1.runs/impl_1/runme.log
+ls -la --time-style=full-iso $O/proj/stage1.runs/impl_1/runme.log $O/proj/stage1.runs/impl_1/bd_wrapper_opt.dcp
+echo LV ERROR count runme: $(grep -c ^ERROR $O/proj/stage1.runs/impl_1/runme.log)
+uptime
+
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+LV vivado pids:
+139151 /bin/bash /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/vivado -mode batch -nojournal -log incrimpl.log -source /home/cah/r2d2/code/fpga/fable5_llm/synth/scripts/incr_impl.tcl -tclargs /home/c
+139170 /bin/bash /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/loader -exec vivado -mode batch -nojournal -log incrimpl.log -source /home/cah/r2d2/code/fpga/fable5_llm/synth/scripts/incr_impl.tcl -tc
+139219 /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/unwrapped/lnx64.o/vivado -mode batch -nojournal -log incrimpl.log -source /home/cah/r2d2/code/fpga/fable5_llm/synth/scripts/incr_impl.tcl -tclargs
+140546 /bin/sh ./ISEWrap.sh runme.log vivado -log bd_wrapper.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source bd_wrapper.tcl -notrace
+140547 /bin/bash /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/vivado -log bd_wrapper.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source bd_wrapper.tcl -notrace
+140569 /bin/bash /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/loader -exec vivado -log bd_wrapper.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source bd_wrapper.tcl -notrace
+140618 /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/unwrapped/lnx64.o/vivado -log bd_wrapper.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source bd_wrapper.tcl -notrace
+LV cwd 139219: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_043_incr_probe
+LV cwd 140618: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_043_incr_probe/proj/stage1.runs/impl_1
+LV cwd 155736: /home/cah/r2d2/code/fpga/fable5_llm
+LV cwd 155737: /home/cah/r2d2/code/fpga/fable5_llm
+LV cwd 155753: /home/cah/r2d2/code/fpga/fable5_llm
+LV cwd 155806: /home/cah/r2d2/code/fpga/fable5_llm
+LV incrimpl lines:
+INCR_REF: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp size=288126447 mtime=2026-09-07T20:34:57
+EXTRA_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc (implementation-only)
+INCR_PROP: AUTO_INCREMENTAL_CHECKPOINT = '0'
+INCR_PROP: INCREMENTAL_CHECKPOINT = '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp'
+INCR_PROP: INCREMENTAL_CHECKPOINT.DIRECTIVE = 'TimingClosure'
+INCR_PROP: STEPS.PLACE_DESIGN.TCL.PRE = '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_043_incr_probe/incr_hook_preplace.tcl'
+FULL_IMPL_CFG: place=AltSpreadLogic_high phys_opt=AggressiveExplore (post-place AND post-route enabled) incremental=TimingClosure
+LV runme Command lines + incremental INFO:
+28:Command: link_design -top bd_wrapper -part xcvu9p-fsgd2104-2L-e
+460:Command: opt_design
+679:Command: report_drc -file bd_wrapper_drc_opted.rpt -pb bd_wrapper_drc_opted.pb -rpx bd_wrapper_drc_opted.rpx
+703:Command: read_checkpoint -directive TimingClosure -incremental /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+704:INFO: [Vivado 12-9151] Incremental flow is being run with directive 'TimingClosure'. This will override place_design, post-place phys_opt_design and route_design directives.
+-rw-rw-r-- 1 cah cah 157884156 2026-09-27 17:02:59.999521040 -0600 synth/out_build_043_incr_probe/proj/stage1.runs/impl_1/bd_wrapper_opt.dcp
+-rw-rw-r-- 1 cah cah    111268 2026-09-27 17:03:45.462513388 -0600 synth/out_build_043_incr_probe/proj/stage1.runs/impl_1/runme.log
+LV ERROR count runme: 0
+ 17:03:54 up  9:55,  8 users,  load average: 4.66, 5.43, 4.73
+=== rc  : 0
+=== end : 2026-09-27T17:03:54-06:00

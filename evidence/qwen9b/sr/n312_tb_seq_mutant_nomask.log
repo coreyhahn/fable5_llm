@@ -1,0 +1,65 @@
+=== host: snoke  date: 2026-09-27T17:41:27-06:00
+=== tree: 3ae0ff9+dirty
+=== dirty:  M rtl/seq_movers.sv
+=== dirty:  M rtl/seq_unit.sv
+=== dirty:  M tb/Makefile
+=== dirty:  M tb/scripts/gen_seq_unit_vectors.py
+=== dirty:  M tb/tb_seq_unit.sv
+=== dirty: ?? evidence/qwen9b/sr/sr3_golden_same.sh
+=== dirty: ?? evidence/qwen9b/sr/sr3_tb_each.sh
+=== cmd : bash evidence/qwen9b/sr/sr3_tb_each.sh obj_dir_seq_unit_sr3_mut scripts_scratch/seqvec_sr3_mut scripts_scratch/sr3_mut_rtl
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SR3 lists: seeds [1 2 3 4] errs [op ind chan jmp xopsgn csrsp rsvd env0 env97 fmrsvd fmimm haltmask] micro [csrwr cmd movx movy16 movy32 ldc] directed [hiaddr embrow repack1 repack2 repack3 repack4 fmask fmask2 fmask3 fmask4]
+mkdir -p scripts_scratch/seqvec_sr3_mut
+for s in 1 2 3 4; do \
+  /home/cah/.venv/bin/python scripts/gen_seq_unit_vectors.py scripts_scratch/seqvec_sr3_mut $s || exit 1; done
+seq_u_s1: 63 records, 921 writes, 303 reads (296 with the XRF sideband), 680 scratch words, 4 tokens
+seq_h_hiaddr: 16 records, 8320 scratch words (8192 above word 16383)
+seq_h_embrow: 7 records, 3136 scratch words at EMBLOG2=12 (4096 B rows)
+seq_m_csrwr: 2001 records, 2000 writes, 0 reads
+seq_m_cmd: 801 records, 800 writes, 0 reads
+seq_m_movx: 3 records, 5123 writes, 4096 reads
+seq_m_movy16: 4 records, 2073 writes, 2112 reads
+seq_m_movy32: 4 records, 4121 writes, 2112 reads
+seq_m_ldc: 2 records, 4097 writes, 0 reads
+seq_f_of24: 121 records, 24 tokens
+seq_f_of64: 321 records, 64 tokens
+seq_f_of80: 401 records, 80 tokens
+seq_e_op: expects err_code 0x01
+seq_e_ind: expects err_code 0x02
+seq_e_chan: expects err_code 0x05
+seq_e_jmp: expects err_code 0x08
+seq_e_xopsgn: expects err_code 0x0a
+seq_e_csrsp: expects err_code 0x07
+seq_e_rsvd: expects err_code 0x06
+seq_e_env0: expects err_code 0x0d
+seq_e_env97: expects err_code 0x0d
+seq_e_fmrsvd: expects err_code 0x06
+seq_e_fmimm: expects err_code 0x06
+seq_e_haltmask: expects err_code 0x06
+seq_h_fmask: 26 records, 6 FENCEs, perm [0, 1, 2, 3], poll sets 7:2 9:5 14:8 18:0 21:4 23:2
+seq_h_repack1: 18 records, 5 MVGOs at per-channel bases (nch=2 depth=16 ilv=[0]), 1096 scratch words
+seq_u_s2: 63 records, 906 writes, 253 reads (245 with the XRF sideband), 660 scratch words, 5 tokens
+seq_h_fmask2: 26 records, 6 FENCEs, perm [3, 2, 1, 0], poll sets 7:4 9:a 14:1 18:0 21:2 23:4
+seq_h_repack2: 39 records, 12 MVGOs at per-channel bases (nch=4 depth=16 ilv=[0, 2]), 1188 scratch words
+seq_u_s3: 63 records, 878 writes, 213 reads (205 with the XRF sideband), 628 scratch words, 5 tokens
+seq_h_fmask3: 26 records, 6 FENCEs, perm [2, 3, 0, 1], poll sets 7:8 9:5 14:2 18:0 21:1 23:8
+seq_h_repack3: 24 records, 7 MVGOs at per-channel bases (nch=3 depth=32 ilv=[0]), 1161 scratch words
+seq_u_s4: 63 records, 836 writes, 245 reads (239 with the XRF sideband), 636 scratch words, 3 tokens
+seq_h_fmask4: 26 records, 6 FENCEs, perm [1, 0, 3, 2], poll sets 7:1 9:a 14:4 18:0 21:8 23:1
+seq_h_repack4: 54 records, 17 MVGOs at per-channel bases (nch=4 depth=8 ilv=[1]), 1177 scratch words
+SR3 RTL: scripts_scratch/sr3_mut_rtl/seq_unit.sv sha256 c2b97a82e316ac7a, scripts_scratch/sr3_mut_rtl/seq_movers.sv sha256 3744fb5cbc3d7303
+verilator --binary --timing -j 16 -Wall \
+  --Mdir obj_dir_seq_unit_sr3_mut -o tb_seq \
+  --top-module tb_seq_unit scripts_scratch/sr3_mut_rtl/seq_unit.sv scripts_scratch/sr3_mut_rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+%Warning-UNUSEDSIGNAL: scripts_scratch/sr3_mut_rtl/seq_movers.sv:243:18: Signal is not used: 'fmask_q'
+                                                                       : ... note: In instance 'tb_seq_unit.dut.u_mov'
+  243 |     logic [3:0]  fmask_q;            
+      |                  ^~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.020
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+make: *** [Makefile:897: tb_seq_build] Error 1
+=== rc  : 1
+=== end : 2026-09-27T17:41:32-06:00

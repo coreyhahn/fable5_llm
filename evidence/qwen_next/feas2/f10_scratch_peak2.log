@@ -1,0 +1,61 @@
+=== host: snoke  date: 2026-09-15T16:37:49-06:00
+=== tree: 8ceb53d+dirty
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/feas2/scratch_peak2.py
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+VALIDATION 1 — the frozen 0.8B map (ref/gen_layer_script.py:244-251)
+==============================================================================
+  A16            3104  want     3104  OK
+  B16            3072  want     3072  OK
+  BIG            8192  want     8192  OK
+  DO32           3552  want     3552  OK
+  GD             3136  want     3136  OK
+  KN             3424  want     3424  OK
+  NH             3936  want     3936  OK
+  OH             3808  want     3808  OK
+  PEAK_ATTN     15872  want    15872  OK
+  PEAK_DN       16384  want    16384  OK
+  PEAK_MLP      14848  want    14848  OK
+  QN             3168  want     3168  OK
+  QNS            3296  want     3296  OK
+  SCA            3072  want     3072  OK
+  SCA_SZ          992  want      992  OK
+  SCRATCH       16384  want    16384  OK
+  STG            4096  want     4096  OK
+  STG_SZ         4096  want     4096  OK
+  X0                0  want        0  OK
+  X8             2048  want     2048  OK
+  XN             1024  want     1024  OK
+
+==============================================================================
+VALIDATION 2 — the 9B peaks the committed study derived (its 2.2)
+==============================================================================
+  PEAK_DN       33824  want    33824  OK
+  PEAK_ATTN     37920  want    37920  OK
+  PEAK_MLP      50208  want    50208  OK
+
+==============================================================================
+THE PEAKS, against the CURRENT array of 65,536 words
+==============================================================================
+model                 SCA_SZ     STG     BIG  PEAK_DN  PEAK_ATTN  PEAK_MLP     PEAK    spare  verdict
+0.8B                     992    4096    8192    16384      15872     14848    16384    49152     PASS
+2B                       992    7168   13312    21504      23552     25600    25600    39936     PASS
+9B                      1056   13344   21536    33824      37920     50208    50208    15328     PASS
+27B                     1136   16496   26736    43120      48240     68720    68720    -3184     FAIL
+35B-A3B/1expert         1056    7200   15392    27680      29216     14368    29216    36320     PASS
+35B-A3B/9experts        1056    7200   15392    27680      29216     22560    29216    36320     PASS
+
+==============================================================================
+THE 27B's MITIGATION — chunking the gate/up pair, as the 4B/9B
+study priced it (its 2.2: the DOWN stage takes over as the peak)
+==============================================================================
+ chunks   gate/up      down  PEAK_MLP     PEAK    spare
+      1     68720     60528     68720    68720    -3184
+      2     42608     43120     43120    48240    17296
+      3     33905     37318     37318    48240    17296
+      4     29552     34416     34416    48240    17296
+
+  Note PEAK_ATTN does NOT move with chunking: at 27B it is 48,240 words, and that is the floor any MLP
+  chunking can reach.  The DN body's floor is 43,120.
+=== rc  : 0
+=== end : 2026-09-15T16:37:49-06:00

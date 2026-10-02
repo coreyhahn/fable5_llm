@@ -1,0 +1,75 @@
+=== host: snoke
+=== date: 2026-08-30T08:16:38-06:00
+=== tree: 70325e8+dirty
+=== cmd:  /home/cah/.local/bin/uv run --no-project --with torch --with transformers --with numpy python /home/cah/r2d2/code/fpga/fable5_llm/ref/layer_fixed.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=3 MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=0.8b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+  dn_state int16 : identity in range on 2048 elements, and int16's OWN rail beyond it OK
+  dn_state int8:5 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.8: ceiling 0.4961, resolution 0.0039]
+  dn_state int8:6 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.7: ceiling 0.9922, resolution 0.0078]
+  dn_state int8:7 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.6: ceiling 1.9844, resolution 0.0156]
+  dn_state int8:8 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.5: ceiling 3.9688, resolution 0.0312]
+  dn_state int8:9 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.4: ceiling 7.9375, resolution 0.0625]
+  dn_state int8:10 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.3: ceiling 15.8750, resolution 0.1250]
+  dn_state gran  : int8h == int8e on a uniform state; a 2^6 loud row leaves a quiet row 128 distinct codes under int8e but only 4 under int8h OK
+  dn_state int8h : rail counters fire at |S|max 32700 and stay silent at 32639 OK
+  dn_state int8e : rail counters fire at |S|max 32700 and stay silent at 32639 OK
+  dn_state int8e : idempotent + a 2^3 row rescale moves only the exponent + a quiet row keeps e=0 OK
+  DYNQ16 soak: 48 live DN head outputs + 366 synthetic blocks, k in [-14,17], 145 fixup / 88 left-shift / 2 zero blocks, min filled |y|max=16384 (>=16384)  OK
+  EPS-NORM soak (per magnitude decade: scale rel err, max |out| LSB delta, float-clip count)
+    2^-10  scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-9   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-8   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-7   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-6   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-5   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-4   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-3   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-2   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-1   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^0    scale_rel=6.04e-05  out_dlsb=1  m_ref_clipped=0
+    2^1    scale_rel=1.31e-04  out_dlsb=1  m_ref_clipped=0
+    2^2    scale_rel=1.37e-04  out_dlsb=1  m_ref_clipped=0
+    2^3    scale_rel=1.17e-04  out_dlsb=1  m_ref_clipped=0
+    2^4    scale_rel=1.15e-04  out_dlsb=1  m_ref_clipped=0
+    2^5    scale_rel=1.28e-04  out_dlsb=1  m_ref_clipped=0
+    2^6    scale_rel=1.27e-04  out_dlsb=1  m_ref_clipped=0
+    2^7    scale_rel=1.26e-04  out_dlsb=1  m_ref_clipped=0
+    2^8    scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^9    scale_rel=1.33e-04  out_dlsb=1  m_ref_clipped=0
+  worst scale rel err 1.37e-04 at (decade,k,m_ref,m_int)=(2, 2, 7299, 7298); worst out delta 1 LSB
+  gated-norm output (script_norm_fx, incl. norm_w op-3): 192/200 heads bit-identical, max |delta| 2 LSB
+  scale ceiling on any NON-ZERO block: 46341 < 65535 -> the cfg_p0/16-bit clamp is inert there
+  RTL envelope over 1200 vectors: p_in=33..33 (6b port), k in [-10,9], v_max=27977537961 (<2^35, 48b port), out shift 15..17, scale_max=16552 (clamped 0x at 65535)
+  eps addend E(k): k=-14 -> 2305843789824, k=-4 -> 2199024, k=0 -> 8590, k=4 -> 34, k=8 -> 0 (EPS_M=1099512 at 2^-40)
+  salience: None == arg-absent == ones(K) (bit-identical, g=128 and 64) OK
+  salience: FABLE5_CALIB_STATS unset -> every lookup is None (quant_layer inert) OK
+  salience: plumb ON re-scales 8/8 DeltaNet+MLP matrices (0 shifted the shared exponent), wire format (shape/dtype/sh/g/keys) unchanged OK
+  gptq: hess=None == arg-absent (bit-identical, g=128 and 64) OK
+  gptq: FABLE5_CALIB_STATS unset -> no Hessian lookup (quant_layer inert) OK
+  gptq: DIAGONAL Hessian == mode=h2 on 8/8 matrices (bit-identical: no off-diagonal, no feedback) OK
+  gptq: correlated Hessian moves nibbles on 8/8 matrices, 0/8 changed a group scale, wire format (shape/dtype/sh/g/keys) unchanged OK
+  rmsnorm1p              rel=1.340e-03  bound=2e-02  OK
+  rope                   rel=1.735e-03  bound=1e-02  OK
+  l2norm                 rel=4.860e-04  bound=1e-02  OK
+  attn softmax+pv        rel=2.666e-02  bound=8e-02  OK
+  deltanet step out      rel=2.553e-02  bound=5e-02  OK
+  deltanet step S        rel=3.631e-04  bound=2e-02  OK
+  soak linear_attention   g=128  32 steps: rms=7.90 sat=0 OK
+  soak linear_attention   g=64   32 steps: rms=7.51 sat=0 OK
+  soak full_attention     g=128  32 steps: rms=10.91 sat=0 OK
+  soak full_attention     g=64   32 steps: rms=10.82 sat=0 OK
+  w8: quant_linear_w8 == quantize_weights8 (rowchunk-identical), matvec_fx -> matvec_y32_w8 bit-exact on 4 seeds x 3 shapes x g128/g64; weight error beats the MSE W4 rule by >= 14.6x OK
+  w8: soak linear_attention   16 steps: rms=4.26 sat=0 OK
+  w8: soak full_attention     16 steps: rms=5.96 sat=0 OK
+  w8: quant_layer(w8=True) -> a W8 image behind all 15/15 matvecs of both layer types, every non-matvec tensor bit-identical to the W4 layer's OK
+  w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+  w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+LAYER_FIXED SELFTEST PASS
+=== rc: 0
+=== end: 2026-08-30T08:19:38-06:00

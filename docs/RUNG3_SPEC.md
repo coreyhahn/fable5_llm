@@ -26,12 +26,17 @@ S1  Bus width 32 bit. Every endpoint is 1 word/cycle (scratch 16b port,
 S2  New BD IP: burst_smc = smartconnect:1.0, NUM_SI=1 NUM_MI=5
     NUM_CLKS=1, clk = xdma_0/axi_aclk (NO clock conversion, NO CDC).
     Plus 5 axi_register_slice on the MIs (house convention,
-    create_project.tcl:230-244 pattern). MI order mvchan_0..3, layer_0.
+    create_project.tcl:249-263 pattern). MI order mvchan_0..3, layer_0.
 S3  New master port seq_0/m_axib (AXI4, 32b data / 32b addr,
     READ_WRITE), owned by seq_movers. The existing 128b READ_ONLY m_axi
     (address space 100% full) is untouched.
 S4  Private address space, 64 KiB stride: mvchan_c at (c+1)<<16,
     layer_0 at 5<<16.
+    SUPERSEDED 2026-08-13 by track R task R-b: the layer scratchpad is
+    32768 words, so layer_0's window is 128 KiB and MOVED to 6<<16 (an AXI
+    segment must be range-aligned; 5<<16 is not).  5<<16 is now a decode
+    hole.  This file is a frozen historical spec — docs/SEQ_ISA.md B12.3
+    is the current truth.
 S5  mvchan burst window: READ 0x0000-0x3FFF = RES row r at byte 4r,
     r=0..4095 (addrb muxed with res_ptr; shim honours READ_LATENCY_B=2;
     RES_GAP retired on this path). WRITE 0x4000-0x4FFF = XWIN word w at

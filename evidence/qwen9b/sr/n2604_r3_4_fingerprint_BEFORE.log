@@ -1,0 +1,25 @@
+=== host: snoke  date: 2026-09-29T19:35:00-06:00
+=== tree: 68f7fd8
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/r3_4_cost.py --fingerprint
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== tree ref/seq_cost.py sha256 d76b7c86c34037d8d451a501fa8e6c9203a295192d9ad69ade575bc05cc36c29
+TABLE 32 constants sha256 96d299d0da17b74e84af984ddb93b7b1dfee742d5c61bcd094489938183b19e5
+FP model_9b_s1: stream 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  nrec 158536  segs 5  win 131115310  S 216685480  MOVX 3984 / 21041536  refused 0  rows sha256 6575b1165d0617bdb1f976185a658e722f4a2925d5b38cf6918b08fcf09d7aee
+FP model_9b_s1_reordA: stream b6ced3f92d3fe8c3fbb1bd02a3eda3b561478e4733ffd40a25ce1bd862ab319d  nrec 156616  segs 5  win 117910638  S 216685480  MOVX 2064 / 12946816  refused 0  rows sha256 f9728d14f73e0c72ae17997832956c16eeb304a1f0e0b4b909a97893c81003cb
+FP model_9b_s1_reordB: stream 57ec3051a0d6e68ee689859bc020b44001bcce6323b8d5c78415055853bee4da  nrec 156616  segs 5  win 114437320  S 216685480  MOVX 2064 / 12946816  refused 0  rows sha256 c9a986167e505994f24eff9bcd05ce075de2b0f7987d3e4cd48707903bb169ab
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_4_cost.py", line 319, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_4_cost.py", line 311, in main
+    fingerprint(a.base)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_4_cost.py", line 202, in fingerprint
+    pe, segs, _halt = RE.segments(recs)
+                      ^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/scripts/reorder_e4.py", line 174, in segments
+    need(recs[j].flags & SF.JMP_TCNT and recs[j].imm32 == embs[-1]
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/scripts/reorder_e4.py", line 151, in need
+    raise ReorderError(msg)
+reorder_e4.ReorderError: the JMP must close the last segment
+=== rc  : 1
+=== end : 2026-09-29T19:35:04-06:00

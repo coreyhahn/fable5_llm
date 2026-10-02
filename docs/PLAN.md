@@ -12,7 +12,7 @@
 > | where throughput stands and what the next lever is | `docs/SPEEDUP_LADDER.md` |
 > | the frozen contract for a rung before it is built | `docs/RUNG*_SPEC.md`, `docs/SAMPLING_SPEC.md`, `docs/CHAT_SEQ_SPEC.md`, `docs/INSTRUCT_SPEC.md` |
 > | what a rung actually delivered, with evidence | `evidence/<stage-or-rung>/*_GATE.md` |
-> | the as-built ISA + CSR maps | `docs/SEQ_ISA.md` (v1.6 as-built) |
+> | the as-built ISA + CSR maps | `docs/SEQ_ISA.md` (v1.7 as-built) |
 > | current state + next action on a cold resume | `NEXT_SESSION.md` (older entries: `docs/HISTORY.md`) |
 > | the project contract itself | `CHARTER.md` |
 >

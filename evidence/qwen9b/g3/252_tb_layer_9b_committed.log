@@ -1,0 +1,56 @@
+=== host: snoke
+=== date: 2026-09-02T06:21:29-06:00
+=== tree: bbda679
+=== cmd:  env FABLE5_RS_F=7 FABLE5_MODEL=9b bash -c for t in tb_layer_chan tb_seq_layer; do
+    echo "=== $t ==="
+    make -C tb GENPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python $t 2>&1 | tr -d "\000" | /usr/bin/grep -avE "^g\+\+|^Archive|^echo |^rm |^make\[|^ +--|^ +\.\./|^verilator |verilator_includer"
+    echo "=== $t rc=${PIPESTATUS[0]} ==="
+  done
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== tb_layer_chan ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+layer script: seed=1 ntok=3 wq=w4 cmds=1438 hostwords=621472 weights=15 -> ../tb/scripts/layerv2_s1.txt
+layer script: seed=2 ntok=3 wq=w4 cmds=1438 hostwords=621472 weights=15 -> ../tb/scripts/layerv2_s2.txt
+layer script: seed=3 ntok=3 wq=w4 cmds=1438 hostwords=621472 weights=15 -> ../tb/scripts/layerv2_s3.txt
+layer script: seed=4 ntok=3 wq=w4 cmds=1438 hostwords=621472 weights=15 -> ../tb/scripts/layerv2_s4.txt
+for s in 1 2 3 4; do \
+  obj_dir_tb_layer/tb_layer +script=scripts/layerv2_s$s.txt || exit 1; \
+done
+TB_LAYER_CHAN PASS: 1438 cmds, 261357 checks bit-exact (scripts/layerv2_s1.txt)
+- tb_layer_chan.sv:619: Verilog $finish
+TB_LAYER_CHAN PASS: 1438 cmds, 261357 checks bit-exact (scripts/layerv2_s2.txt)
+- tb_layer_chan.sv:619: Verilog $finish
+TB_LAYER_CHAN PASS: 1438 cmds, 261357 checks bit-exact (scripts/layerv2_s3.txt)
+- tb_layer_chan.sv:619: Verilog $finish
+TB_LAYER_CHAN PASS: 1438 cmds, 261357 checks bit-exact (scripts/layerv2_s4.txt)
+- tb_layer_chan.sv:619: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layer_chan rc=0 ===
+=== tb_seq_layer ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+seq layer script: seed=1 -> scripts/seqlayer_s1.txt  k_t=-8 k_clamp0=0 k_a=23 k_b=5; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 57344..65535, 2848 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=2 -> scripts/seqlayer_s2.txt  k_t=-9 k_clamp0=0 k_a=8 k_b=7; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 57344..65535, 2848 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=3 -> scripts/seqlayer_s3.txt  k_t=-11 k_clamp0=0 k_a=8 k_b=4; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 57344..65535, 2848 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=4 -> scripts/seqlayer_s4.txt  k_t=-9 k_clamp0=0 k_a=24 k_b=5; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 57344..65535, 2848 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+obj_dir_tb_seqlayer/tb_seqlayer +script=scripts/seqlayer_s1.txt
+TB_LAYER_CHAN PASS: 19 cmds, 5280 checks bit-exact (scripts/seqlayer_s1.txt)
+- tb_layer_chan.sv:619: Verilog $finish
+obj_dir_tb_seqlayer/tb_seqlayer +script=scripts/seqlayer_s2.txt
+TB_LAYER_CHAN PASS: 19 cmds, 5280 checks bit-exact (scripts/seqlayer_s2.txt)
+- tb_layer_chan.sv:619: Verilog $finish
+obj_dir_tb_seqlayer/tb_seqlayer +script=scripts/seqlayer_s3.txt
+TB_LAYER_CHAN PASS: 19 cmds, 5280 checks bit-exact (scripts/seqlayer_s3.txt)
+- tb_layer_chan.sv:619: Verilog $finish
+obj_dir_tb_seqlayer/tb_seqlayer +script=scripts/seqlayer_s4.txt
+TB_LAYER_CHAN PASS: 19 cmds, 5280 checks bit-exact (scripts/seqlayer_s4.txt)
+- tb_layer_chan.sv:619: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_seq_layer rc=0 ===
+=== rc: 0
+=== end: 2026-09-02T06:46:58-06:00

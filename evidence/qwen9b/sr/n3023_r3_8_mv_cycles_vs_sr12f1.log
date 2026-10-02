@@ -1,0 +1,12 @@
+=== host: snoke  date: 2026-09-29T20:49:55-06:00
+=== tree: 690196f
+=== cmd : bash -c A=evidence/qwen9b/sr/n1249_tb_matvec_chan_GREEN.log; B=evidence/qwen9b/sr/n3020_r3_8_tb_matvec_chan_GREEN.log; echo "perf lines: SR12 fix 1 $(grep -c ^perf: $A), R3-8 $(grep -c ^perf: $B)"; echo "-- the 36 pre-R3 runs (4 frozen + 12 9B + 20 SR12 bank), in order, perf cycles:"; diff <(grep ^perf: $A) <(grep ^perf: $B | head -36) && echo "PRE-R3 36/36 IDENTICAL (perf beats and cycles, in order)"; echo "-- PASS lines of the same 36:"; diff <(grep "^TB_MATVEC_CHAN PASS" $A) <(grep "^TB_MATVEC_CHAN PASS" $B | head -36) && echo "PASS LINES 36/36 IDENTICAL"
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+perf lines: SR12 fix 1 36, R3-8 52
+-- the 36 pre-R3 runs (4 frozen + 12 9B + 20 SR12 bank), in order, perf cycles:
+PRE-R3 36/36 IDENTICAL (perf beats and cycles, in order)
+-- PASS lines of the same 36:
+PASS LINES 36/36 IDENTICAL
+=== rc  : 0
+=== end : 2026-09-29T20:49:55-06:00

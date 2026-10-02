@@ -1,0 +1,110 @@
+=== Qwen3.5-9B checkpoint verification (FABLE5_MODEL=9b) ===
+
+## 1. shards
+  [0] model.safetensors-00001-of-00004.safetensors
+      5,276,436,216 bytes (5032.0 MiB)
+      header sha256 9bcf722bdd0eee137b7f0e225f4bfb50683b9b33c42de0d560498ce92a8c63b0
+  [1] model.safetensors-00002-of-00004.safetensors
+      5,335,161,512 bytes (5088.0 MiB)
+      header sha256 6fb55b1326b7e6b47a38ce4723552eada6c80d09e58eda1d46f25cb8d3e06658
+  [2] model.safetensors-00003-of-00004.safetensors
+      5,368,717,440 bytes (5120.0 MiB)
+      header sha256 fd6ddcdceb46ce1b198534560343050523cbf70d15e9435d7716b693d4a67bab
+  [3] model.safetensors-00004-of-00004.safetensors
+      3,325,995,712 bytes (3171.9 MiB)
+      header sha256 245c737a43e483e0a9e743be9c75a366d56bec2ea238086dda8b5c2bc224571a
+  snapshot /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a
+  total 19,306,310,880 bytes = 17.980 GiB
+  COMBINED header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b   (sha256 of the per-shard digests, newline-joined, in shard order)
+  OK       shard count                                  got=4
+
+## 2. whole-file parameter census by top-level prefix
+  model.language_model.     426 tensors    7,936,684,544 params
+  model.visual.             333 tensors      456,010,480 params
+  mtp.                       15 tensors      243,290,624 params
+  lm_head.                    1 tensors    1,017,118,720 params
+  TOTAL                     775 tensors    9,653,104,368 params
+  OK       text tensors                                 got=426
+  OK       text params                                  got=7936684544
+  OK       mtp tensors                                  got=15
+  OK       mtp params                                   got=243290624
+  OK       vision tensors                               got=333
+  OK       vision params                                got=456010480
+  OK       top-level lm_head tensors                    got=1
+  OK       top-level lm_head params                     got=1017118720
+  OK       nothing outside the four prefixes            got=0
+
+## 3. text_config geometry
+  OK       hidden_size                                  got=4096
+  OK       intermediate_size                            got=12288
+  OK       num_hidden_layers                            got=32
+  OK       vocab_size                                   got=248320
+  OK       head_dim                                     got=256
+  OK       num_attention_heads                          got=16
+  OK       num_key_value_heads                          got=4
+  OK       linear_num_key_heads                         got=16
+  OK       linear_num_value_heads                       got=32
+  OK       linear_key_head_dim                          got=128
+  OK       linear_value_head_dim                        got=128
+  OK       linear_conv_kernel_dim                       got=4
+  OK       layer_types linear_attention                 got=24
+  OK       layer_types full_attention                   got=8
+  OK       len(layer_types)                             got=32
+  derived layer_ref constants:
+  OK       LR.H                                         got=4096
+  OK       LR.LNH (value heads)                         got=32
+  OK       LR.LNKH (key heads)                          got=16
+  OK       LR.LKD (= LNKH*LDK)                          got=2048
+  OK       LR.LVD (= LNH*LDV)                           got=4096
+  OK       LR.CONV_DIM (= 2*LKD + LVD)                  got=8192
+
+## 4. per-tensor shapes vs §1.1 (layer 0 = DeltaNet, first full_attention layer)
+  OK       L0.dn.A_log                                  got=(32,)
+  OK       L0.dn.conv_w                                 got=(8192, 4)
+  OK       L0.dn.dt_bias                                got=(32,)
+  OK       L0.dn.in_a                                   got=(32, 4096)
+  OK       L0.dn.in_b                                   got=(32, 4096)
+  OK       L0.dn.in_qkv                                 got=(8192, 4096)
+  OK       L0.dn.in_z                                   got=(4096, 4096)
+  OK       L0.dn.norm_w                                 got=(128,)
+  OK       L0.dn.out                                    got=(4096, 4096)
+  OK       L3.attn.k_norm                               got=(256,)
+  OK       L3.attn.k_proj                               got=(1024, 4096)
+  OK       L3.attn.o_proj                               got=(4096, 4096)
+  OK       L3.attn.q_norm                               got=(256,)
+  OK       L3.attn.q_proj                               got=(8192, 4096)
+  OK       L3.attn.v_proj                               got=(1024, 4096)
+  OK       L0.mlp.gate                                  got=(12288, 4096)
+  OK       L0.mlp.down                                  got=(4096, 12288)
+  OK       L3.mlp.gate                                  got=(12288, 4096)
+  OK       L3.mlp.down                                  got=(4096, 12288)
+  8192 = 2*(16*128) + 32*128 — 16 KEY heads, 32 VALUE heads:
+  OK       2*LKD + LVD == in_qkv rows                   got=8192
+
+## 5. LM head: tie ground truth (study §1.2)
+  config.json  top-level tie_word_embeddings = False
+  text_config  tie_word_embeddings           = '<ABSENT>'
+  checkpoint carries lm_head tensor          = 'lm_head.weight'
+  OK       tied (tensor ground truth)                   got=False
+  OK       embed_tokens shape                           got=(248320, 4096)
+  OK       lm_head shape                                got=(248320, 4096)
+  OK       lm_head is a DISTINCT matrix (not a copy of emb) got=False
+  emb     rms=0.013466  |max|=0.4707
+  lm_head rms=0.015476  |max|=0.3555
+  raw-byte sha256:
+    emb      d87d444a38822588c6c1ed07dec4404ccd8d526f57d58565cbbbf60acc758afe
+    lm_head  6d6ff4dbf261f833246d32e7c6088f87f4ab40ddb58516d90c931aa6ae61d5e7
+
+## 6. committed config JSON == the snapshot's config.json
+  OK       ref/qwen3_5_9b_config.json byte-identical to the hub file got=True
+  d0883072e01861ed0b2d47be3c16c36a8e81c224c7ffaa310c6558fb3f932b05  qwen3_5_9b_config.json
+
+## 7. tokenizer identity vs 0.8B/2B (study §1.4)
+  tokenizer.json         IDENTICAL 9b=5f9e4d4901a92b99…  2b=5f9e4d4901a92b99…
+  vocab.json             IDENTICAL 9b=ce99b4cb2983d118…  2b=ce99b4cb2983d118…
+  merges.txt             IDENTICAL 9b=a9d356d7bdf1ef49…  2b=a9d356d7bdf1ef49…
+  chat_template.jinja    DIFFERS   9b=a4aee8afcf2e0711…  2b=273d8e0e683b8850…
+  tokenizer_config.json  DIFFERS   9b=316230d6a809701f…  2b=49e2b6e395f959f0…
+  (§1.4 predicts: tokenizer.json / vocab.json / merges.txt IDENTICAL; chat_template.jinja and tokenizer_config.json DIFFER)
+
+CHECKPOINT_VERIFY PASS (9b): every shape, count and parameter total the feasibility study §1 predicts is confirmed

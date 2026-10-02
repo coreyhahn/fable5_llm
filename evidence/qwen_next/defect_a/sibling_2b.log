@@ -1,0 +1,32 @@
+FABLE5_MODEL=2b   H=2048   residual at X0=0x0, XN=0x800, X8=0x1000
+
+1) vnw_/vn/alu at n=1024 on an H=2048 residual: no exception.
+   RMSNorm's denominator is a mean over the words it is TOLD about, so how
+   badly the leading half is corrupted depends on how the residual's energy
+   is split between the halves.  Two samples, because the first revision of
+   this probe reported only the flat one and understated the damage
+   (correction, 2026-08-25 — see CORRECTIONS.md):
+   (a) i.i.d. uniform, both halves alike:
+     half-energy  lo 53,101   hi 52,562
+     DYNQ8 exponent   n=H -> 0   n=1024 -> 0   (same)
+     x8[:1024] vs the n=H answer: max|diff| 1, mean|diff| 0.1, 120/1024 words changed (11.7 %)
+     x8[1024:] left at 0 (the second half is never written)
+   (b) uneven halves (hi 6x lo, the realistic case):
+     half-energy  lo 52,467   hi 1,833,036
+     DYNQ8 exponent   n=H -> 1   n=1024 -> 0   (SHIFTED)
+     x8[:1024] vs the n=H answer: max|diff| 99, mean|diff| 48.6, 1020/1024 words changed (99.6 %)
+     x8[1024:] left at 0 (the second half is never written)
+
+2) M.matvec(head, X8, n_in) on the H-wide head:
+   n_in=1024 -> ValueError: cannot reshape array of size 1024 into shape (1,16,128)
+   n_in=H=2048 -> y32 (64,), matches an independent matvec_y32 over the whole residual: True
+
+3) verdict: the pre-fix n=1024 form is SILENTLY WRONG for three lines
+   — the RMSNorm denominator is a mean over 1024 of 2048 words, so even the
+   words it does write differ from the truth, and the DYNQ8 exponent can
+   shift with them — and only THEN is it loud, at the matvec.  How large
+   the silent error is depends on the residual: near-zero when the halves
+   carry equal energy, large when they do not.  The post-fix LR.H form is
+   exact.
+
+SIBLING PROBE: PASS

@@ -1,0 +1,71 @@
+=== host: snoke  date: 2026-09-24T23:00:58-06:00
+=== tree: 3f06ce4+dirty
+=== dirty: ?? evidence/qwen9b/ov/n53_chip_s1_reordB_control.log
+=== dirty: ?? evidence/qwen9b/ov/n54_chip_s2_reordB_control.log
+=== dirty: ?? evidence/qwen9b/ov/n55_chip_s3_reordB_control.log
+=== dirty: ?? evidence/qwen9b/ov/n56_chip_s4_reordB_control.log
+=== dirty: ?? evidence/qwen9b/ov/n57_chip_s1_reordB_timeline.log
+=== dirty: ?? evidence/qwen9b/ov/n62_chip_s1_reordA_control.log
+=== dirty: ?? evidence/qwen9b/ov/n63_chip_s2_reordA_control.log
+=== dirty: ?? evidence/qwen9b/ov/n64_chip_s3_reordA_control.log
+=== dirty: ?? evidence/qwen9b/ov/n65_chip_s4_reordA_control.log
+=== dirty: ?? evidence/qwen9b/ov/seedlogs_sv1/
+=== cmd : bash evidence/qwen9b/bm/bm1_g1_compare.sh
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== A1: SEQ_TIMELINE block, census 003 vs G1 (line for line)
+    lines: census 1055   G1 1055
+    SEQ_TIMELINE BLOCK IDENTICAL (1055 lines)
+=== A2: the CSV, census vs G1
+    census csv sha256 (whole)  a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78
+    committed census sha256    a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78
+    G1 csv sha256 (whole)      17468a598ed9d9ed6c9ffbc73dec40807ef9685d230a93d497e942664d492b3b  20081099 B
+    census line 1: # SEQ_TIMELINE v1  csv=/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    G1     line 1: # SEQ_TIMELINE v1  csv=/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+    below line 1: census 204622da216bc49a5e990899c5ee878bab24b3c53613cf8f6626864fd1a192d5
+                  G1     204622da216bc49a5e990899c5ee878bab24b3c53613cf8f6626864fd1a192d5
+    CSV BODY IDENTICAL (every record row and signature row)
+=== C: exact recount of the unions over the G1 run's OWN CSV
+    census log   evidence/qwen9b/bm/seedlogs_model_9b_s1_bmtl/model_9b_s1.log
+    segments     7 (meta ntok=7), bcyc=196706812
+    mvop totals  MOVX 31540704  MVGO 230688  MOVY 17050656  FENCE 81582408
+    class 2 MOVER total 130404456 ; FENCE+MVWORK 130404456  (identity D: must be equal)
+    csv          evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+    csv sha256   17468a598ed9d9ed6c9ffbc73dec40807ef9685d230a93d497e942664d492b3b
+    csv S rows   7 segments, 196706812 cycles in all (bcyc 196706812)
+    MVANY        81689902  (segment 0: 0; tokens 1..6 mean 13614983.7)
+    CENSUS_I2    70360  (tokens 1..6 mean 11726.7)
+    --- expect file /tmp/tmp.npM080t03p
+      PERF_CYC      196706812   # meta bcyc
+      BM_MV0         81492987   # sum class t 8 (MV0_BSY)
+      BM_MV1         81235575   # sum class t 9 (MV1_BSY)
+      BM_MV2         81149421   # sum class t 10 (MV2_BSY)
+      BM_MV3         81149554   # sum class t 11 (MV3_BSY)
+      BM_FENCE       81582408   # sum mvop t 3
+      BM_MOVX        31540704   # sum mvop t 0
+      BM_MOVY        17050656   # sum mvop t 2
+      BM_MVWORK      48822048   # sum mvop t 0+1+2
+      BM_IMOVER     130453404   # sum ist t 17 (I_MOVER)
+      BM_STEPS              6   # sum opcyc t 6 count (OP_EMB)
+      L_LCYC         62414792   # sum class t 0 (L_CMP)
+      BM_MVANY       81689902   # csv: sum S rows with mask & 0x0F00
+      CENSUS_I2         70360   # csv: sum S rows MOVER & !STR & BSY (013 I-2)
+    BM_MVANY  RTL register 81689902  = G1-CSV/G1-block recount 81689902  OK
+    CENSUS_I2  TB sampler 70360  = G1-CSV/G1-block recount 70360  OK
+    BM_MV0  RTL register 81492987  = G1-CSV/G1-block recount 81492987  OK
+    BM_MV1  RTL register 81235575  = G1-CSV/G1-block recount 81235575  OK
+    BM_MV2  RTL register 81149421  = G1-CSV/G1-block recount 81149421  OK
+    BM_MV3  RTL register 81149554  = G1-CSV/G1-block recount 81149554  OK
+    BM_FENCE  RTL register 81582408  = G1-CSV/G1-block recount 81582408  OK
+    BM_MOVX  RTL register 31540704  = G1-CSV/G1-block recount 31540704  OK
+    BM_MOVY  RTL register 17050656  = G1-CSV/G1-block recount 17050656  OK
+    BM_MVWORK  RTL register 48822048  = G1-CSV/G1-block recount 48822048  OK
+    BM_IMOVER  RTL register 130453404  = G1-CSV/G1-block recount 130453404  OK
+    BM_STEPS  RTL register 6  = G1-CSV/G1-block recount 6  OK
+    PERF_CYC  RTL register 196706812  = G1-CSV/G1-block recount 196706812  OK
+=== the binary
+    tb/obj_dir_seq_chip_bm1/tb_seq_chip_9b_bm1
+    built  2026-09-24T20:15:59-06:00
+    sha256 72d7494eacc532e6cab67e3a4412250c64f2a34b182aa63eb8065b2a15d4d654
+BM1_G1_COMPARE: PASS
+=== rc  : 0
+=== end : 2026-09-24T23:00:59-06:00

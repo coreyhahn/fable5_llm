@@ -24,6 +24,9 @@ from datetime import datetime, timezone
 
 import numpy as np
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import board_lock as BL                                         # noqa: E402
+
 CH_BASE = [0x0_0000_0000, 0x1_0000_0000, 0x2_0000_0000, 0x3_0000_0000]
 CH_SIZE = 4 << 30          # 4 GiB per channel
 CHUNK = 64 << 20           # 64 MiB DMA chunks
@@ -62,8 +65,20 @@ def main():
     ap.add_argument("--size", type=int, default=CH_SIZE, help="bytes per channel")
     ap.add_argument("--quick", action="store_true", help="64 MiB per channel")
     ap.add_argument("--evidence", default=None, help="evidence output dir")
+    BL.add_lock_args(ap)                        # O3: --lock / --no-lock
     args = ap.parse_args()
     size = (64 << 20) if args.quick else args.size
+
+    # O3 (user ruling 2026-08-29): THE shared board lock, taken FIRST.
+    # This tool OVERWRITES ALL 16 GiB of DDR, so running it under a live
+    # session destroys that session's weights, embedding table and KV
+    # state.  It is the most destructive tool in sw/ and it took no lock
+    # at all until now.
+    try:
+        _lock = BL.from_args(args, tool="ddr_test.py").acquire()
+    except BL.BoardLockError as e:
+        print("*** %s" % e)
+        raise SystemExit(4)
 
     user_fd = os.open(f"{args.dev}_user", os.O_RDWR)
     h2c_fd = os.open(f"{args.dev}_h2c_0", os.O_WRONLY)

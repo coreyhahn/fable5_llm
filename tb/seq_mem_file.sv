@@ -30,6 +30,26 @@
 //
 // Protocol assumptions are $fatal-checked: INCR only, ARSIZE must match
 // DATA_W, no burst may cross a 4 KB boundary.
+//
+// S3 (SEQ_ISA v2.1) ADDS A WRITE PATH, over ONE window.  The file-backed
+// weight and embedding images stay READ-ONLY; when `WR` is set the module
+// also carries an AXI4 write channel over the DDR STATE REGION
+// [win_base, win_base + win_len), whose initial contents come from the file
+// named by the `AS`/`SS` plusarg pair (`<prefix>.state.bin`, written by
+// ref/gen_layer_script's dump_state) and whose WRITTEN beats live in an
+// associative array on top of it -- a copy-on-write overlay, so the model
+// costs what the run actually stores, not the 155 MiB the region spans.
+// Reads inside the window come from the overlay when it holds the beat and
+// from the file otherwise; reads and writes OUTSIDE it $fatal, because a
+// state transfer that leaves its region is the failure this model exists to
+// catch (spec 8.3).  `win_base`/`win_len` are PORTS, not parameters: the
+// region's address belongs to the artifact, and the testbench reads it from
+// the `.chip` golden or from the script's own S record.
+//
+// `win_fnv(addr, len)` is the golden's transport: FNV-1a 64 over the window
+// bytes, computed here exactly as tb/scripts/gen_seq_chip_vectors.py
+// computes it in Python.  The hash is the transport; byte equality is the
+// check.
 
 `timescale 1ns/1ps
 `default_nettype none
@@ -51,7 +71,11 @@ module seq_mem_file #(
     parameter string  A3 = "", parameter string S3 = "",
     parameter longint B3 = 0,  parameter bit    O3 = 1'b0,
     // fallback plusarg used when <Ai> is not on the command line
-    parameter string  AFB = "seq"
+    parameter string  AFB = "seq",
+    // S3: the writable state window.  WR=0 ties the write channel idle and
+    // leaves this module exactly what it was.
+    parameter bit     WR = 1'b0,
+    parameter string  AS = "base", parameter string SS = ".state.bin"
 ) (
     input  wire                aclk,
     input  wire                aresetn,
@@ -69,8 +93,28 @@ module seq_mem_file #(
     output logic               rvalid,
     input  wire                rready,
 
+    // ---- S3: the AXI4 write channel over the state window (WR=1) ----
+    input  wire [ADDR_W-1:0]   win_base,
+    input  wire [ADDR_W-1:0]   win_len,
+
+    input  wire [ADDR_W-1:0]   awaddr,
+    input  wire [7:0]          awlen,
+    input  wire                awvalid,
+    output logic               awready,
+
+    input  wire [DATA_W-1:0]   wdata,
+    input  wire [DATA_W/8-1:0] wstrb,
+    input  wire                wlast,
+    input  wire                wvalid,
+    output logic               wready,
+
+    output logic [1:0]         bresp,
+    output logic               bvalid,
+    input  wire                bready,
+
     output logic [63:0]        n_beats,
-    output logic [63:0]        n_miss      // beats served from NO region
+    output logic [63:0]        n_miss,     // beats served from NO region
+    output logic [63:0]        n_wbeats    // write beats accepted
 );
 
     localparam int BYTES = DATA_W / 8;
@@ -135,14 +179,88 @@ module seq_mem_file #(
         end
     endtask
 
+    // ------------------------------------------------------------------
+    // S3: the writable state window (WR=1 only)
+    // ------------------------------------------------------------------
+    int                 w_fd = 0;            // <prefix>.state.bin
+    longint             w_fsz = 0;
+    logic [DATA_W-1:0]  wram [longint];      // copy-on-write overlay, by beat
+    byte unsigned       wb [BYTES];
+
     initial begin
+        string pre;
         add_param_region(A0, S0, B0, O0);
         add_param_region(A1, S1, B1, O1);
         add_param_region(A2, S2, B2, O2);
         add_param_region(A3, S3, B3, O3);
+        // The image is OPTIONAL: a testbench that issues no SLD/SST (the
+        // directed +envtest mode) leaves the window closed, and `win_len`
+        // stays 0 so every access still $fatals if one ever arrives.
+        if (WR && $value$plusargs({AS, "=%s"}, pre)) begin
+            w_fd = $fopen({pre, SS}, "rb");
+            if (w_fd == 0)
+                $fatal(1, "seq_mem_file: cannot open the state image '%s'",
+                       {pre, SS});
+            void'($fseek(w_fd, 0, 2));
+            w_fsz = longint'($ftell(w_fd));
+            $display("  state window: %0d B image   %s", w_fsz, {pre, SS});
+        end else if (WR) begin
+            $display("  state window: no +%s= — the window stays closed",
+                     AS);
+        end
     end
 
+    function automatic bit in_win(input longint a);
+        in_win = WR && (win_len != '0)
+                 && (a >= longint'(win_base))
+                 && (a < longint'(win_base) + longint'(win_len));
+    endfunction
+
+    // the window beat at `a`: the overlay if it holds it, else the image
+    // file, else zeros (a region the image does not reach is zero).
+    function automatic logic [DATA_W-1:0] win_rd(input longint a);
+        longint idx, off;
+        int r;
+        idx = a >> LSB;
+        if (wram.exists(idx)) return wram[idx];
+        win_rd = '0;
+        off = a - longint'(win_base);
+        if ((w_fd != 0) && (off >= 0) && (off < w_fsz)) begin
+            r = $fseek(w_fd, int'(off), 0);
+            r = $fread(wb, w_fd);
+            for (int k = 0; k < BYTES; k++)
+                win_rd[8 * k +: 8] = (k < r) ? wb[k] : 8'h00;
+        end
+    endfunction
+
+    function automatic byte unsigned win_byte(input longint a);
+        logic [DATA_W-1:0] beat;
+        beat = win_rd(a & ~longint'(BYTES - 1));
+        win_byte = beat[8 * int'(a & longint'(BYTES - 1)) +: 8];
+    endfunction
+
+    // FNV-1a 64 over [a, a+n) of the window.  The SAME arithmetic
+    // tb/scripts/gen_seq_chip_vectors.py runs in Python; the hash is the
+    // transport, byte equality is the check (spec 8.3).
+    function automatic logic [63:0] win_fnv(input longint a, input longint n);
+        logic [DATA_W-1:0] beat;
+        longint i;
+        win_fnv = 64'hcbf2_9ce4_8422_2325;
+        beat = '0;
+        for (i = 0; i < n; i++) begin
+            if (((a + i) & longint'(BYTES - 1)) == 0 || i == 0)
+                beat = win_rd((a + i) & ~longint'(BYTES - 1));
+            win_fnv = win_fnv ^ 64'(beat[8 * int'((a + i)
+                                                  & longint'(BYTES - 1)) +: 8]);
+            win_fnv = win_fnv * 64'h0000_0100_0000_01b3;
+        end
+    endfunction
+
     function automatic bit mapped(input longint a);
+        // S3: the writable window counts as mapped -- it is served from the
+        // overlay or from the state image, never from "no region", and
+        // otherwise every state read would land on `n_miss`.
+        if (in_win(a)) return 1'b1;
         mapped = 1'b0;
         for (int i = 0; i < NREG; i++)
             if ((i < n_reg) && (a >= f_base[i]) && (a < f_base[i] + f_size[i]))
@@ -152,6 +270,7 @@ module seq_mem_file #(
     function automatic logic [DATA_W-1:0] mem_rd(input longint a);
         int r;
         mem_rd = '0;
+        if (in_win(a)) return win_rd(a);
         for (int i = 0; i < NREG; i++) begin
             if ((i < n_reg) && (a >= f_base[i])
                 && (a < f_base[i] + f_size[i])) begin
@@ -245,6 +364,96 @@ module seq_mem_file #(
                 pf_data  <= mem_rd(nxt_addr);
                 pf_valid <= 1'b1;
             end
+        end
+    end
+    /* verilator lint_on BLKSEQ */
+
+    // ==================================================================
+    // S3: the AXI4 write channel over the state window
+    // ==================================================================
+    // AW is queued QD deep and W data follows AW order (a single-ID master
+    // must), so one burst is consumed at a time and B is answered per burst.
+    // Every address is checked against the window: a store that leaves the
+    // region is a $fatal, not a silent write somewhere else.
+    longint         aq_addr [QD];
+    logic [7:0]     aq_len  [QD];
+    logic [QW-1:0]  aq_wp, aq_rp;
+    logic [QCW-1:0] aq_cnt;
+    logic           w_act;
+    longint         w_addr;
+    logic [8:0]     w_left;
+    logic [QCW-1:0] b_cnt;
+
+    assign awready = WR && aresetn && (aq_cnt != QCW'(QD));
+    assign wready  = WR && aresetn && w_act;
+    assign bvalid  = WR && aresetn && (b_cnt != '0);
+    assign bresp   = 2'b00;
+
+    /* verilator lint_off BLKSEQ */
+    longint w_beat_a;
+    longint w_beat_i;
+    logic [DATA_W-1:0] w_old;
+
+    always_ff @(posedge aclk) begin
+        if (!aresetn) begin
+            aq_wp <= '0; aq_rp <= '0; aq_cnt <= '0;
+            w_act <= 1'b0; w_addr <= '0; w_left <= '0; b_cnt <= '0;
+            n_wbeats <= '0;
+        end else if (WR) begin
+            logic push, pop, bpush, bpop;
+            push  = awvalid && awready;
+            pop   = 1'b0;
+            bpush = 1'b0;
+            bpop  = bvalid && bready;
+
+            if (push) begin
+                if (!in_win(longint'(awaddr))
+                    || !in_win(longint'(awaddr)
+                               + (longint'({24'd0, awlen}) + 1) * BYTES - 1))
+                    $fatal(1, "seq_mem_file: WRITE outside the state window: awaddr=%h awlen=%0d, window [%h, %h)",
+                           awaddr, awlen, win_base,
+                           longint'(win_base) + longint'(win_len));
+                aq_addr[aq_wp] <= longint'(awaddr);
+                aq_len[aq_wp]  <= awlen;
+                aq_wp          <= aq_wp + 1'b1;
+            end
+
+            if (!w_act && (aq_cnt != '0)) begin
+                w_act  <= 1'b1;
+                w_addr <= aq_addr[aq_rp];
+                w_left <= {1'b0, aq_len[aq_rp]} + 9'd1;
+                aq_rp  <= aq_rp + 1'b1;
+                pop    = 1'b1;
+            end else if (w_act && wvalid && wready) begin
+                w_beat_a = w_addr & ~longint'(BYTES - 1);
+                w_beat_i = w_beat_a >> LSB;
+                w_old    = win_rd(w_beat_a);
+                for (int k = 0; k < BYTES; k++)
+                    if (wstrb[k]) w_old[8 * k +: 8] = wdata[8 * k +: 8];
+                wram[w_beat_i] = w_old;
+                n_wbeats <= n_wbeats + 64'd1;
+                w_addr <= w_addr + BYTES;
+                w_left <= w_left - 9'd1;
+                if (w_left == 9'd1) begin
+                    if (!wlast)
+                        $fatal(1, "seq_mem_file: WLAST missing at the last beat of a burst");
+                    w_act <= 1'b0;
+                    bpush = 1'b1;
+                end else if (wlast) begin
+                    $fatal(1, "seq_mem_file: WLAST %0d beats early", w_left - 9'd1);
+                end
+            end
+
+            case ({push, pop})
+                2'b10:   aq_cnt <= aq_cnt + QCW'(1);
+                2'b01:   aq_cnt <= aq_cnt - QCW'(1);
+                default: ;
+            endcase
+            case ({bpush, bpop})
+                2'b10:   b_cnt <= b_cnt + QCW'(1);
+                2'b01:   b_cnt <= b_cnt - QCW'(1);
+                default: ;
+            endcase
         end
     end
     /* verilator lint_on BLKSEQ */

@@ -1,0 +1,57 @@
+=== host: snoke
+=== date: 2026-09-09T20:22:01-06:00
+=== tree: 8962544+dirty
+=== cmd:  /home/cah/.venv/bin/python -c 
+import sys, os
+sys.path.insert(0,'sw'); sys.path.insert(0,'ref')
+import seq_run as SR, hwmap as HW
+art = SR.Artifacts('tb/scripts/w9/model_9b_s1.e4')
+plan = SR.plan_ddr(art.meta, len(art.stream), len(art.blob), chan=0)
+wb,_ = SR.plan_weights_for(art.manifest, art.wdir, art.meta)
+sp = SR.plan_weight_split(art.manifest, wb, plan['nch'], plan['weight_chans'], art.meta)
+by = {}
+rows = {}
+for s in sp:
+    by[s['chan']] = by.get(s['chan'],0) + s['byte_len']
+    rows[s['chan']] = rows.get(s['chan'],0) + s['nrows_piece']
+print('per-channel WEIGHT load, from plan_weight_split (D, static):')
+tot = sum(by.values())
+for c in sorted(by):
+    print('  chan %d  %10d B  %8.2f MiB  %8d rows  %6.3f%%' % (c, by[c], by[c]/2**20, rows[c], 100.0*by[c]/tot))
+print('  total   %10d B = %.2f MiB over %d pieces' % (tot, tot/2**20, len(sp)))
+print('  spread  max/min bytes = %.6f' % (max(by.values())/min(by.values())))
+print()
+print('DDR traffic per token, sw/tok_meter.state_bytes_per_token (D):')
+import tok_meter as TM
+for T in (512, 1024, 2048, 4096):
+    b = TM.state_bytes_per_token(T)
+    print('  T=%5d  %12d B = %8.2f MiB' % (T, b, b/2**20))
+print()
+st = art.state
+print('the state region (S, from the manifest):')
+print('  DN  %#013x .. %#013x  %8.2f MiB  (%d layers x %d B)' % (st['dn'], st['kv'], (st['kv']-st['dn'])/2**20, (st['kv']-st['dn'])//HW.STATE_DN_LAYER, HW.STATE_DN_LAYER))
+print('  KV  %#013x .. %#013x  %8.2f MiB' % (st['kv'], st['cv'], (st['cv']-st['kv'])/2**20))
+print('  CV  %#013x .. %#013x  %8.2f MiB  (24 x %d B)' % (st['cv'], st['end'], (st['end']-st['cv'])/2**20, HW.STATE_CV_STRIDE))
+print('  ALL on DDR channel %d (bits [33:32] of the 34-bit base)' % (st['dn']>>32))
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+TypeError: unsupported operand type(s) for /: 'dict' and 'int'
+per-channel WEIGHT load, from plan_weight_split (D, static):
+  chan 0  1025925120 B    978.40 MiB    420224 rows  25.073%
+  chan 1  1022681088 B    975.30 MiB    418688 rows  24.993%
+  chan 2  1021599744 B    974.27 MiB    418176 rows  24.967%
+  chan 3  1021599744 B    974.27 MiB    418176 rows  24.967%
+  total   4091805696 B = 3902.25 MiB over 1114 pieces
+  spread  max/min bytes = 1.004234
+
+DDR traffic per token, sw/tok_meter.state_bytes_per_token (D):
+=== rc: 1
+=== end: 2026-09-09T20:22:02-06:00

@@ -1,0 +1,21 @@
+=== host: snoke  date: 2026-09-28T06:16:03-06:00
+=== tree: e3c2ff1
+=== cmd : /home/cah/.venv/bin/python -c 
+w_mod, w_meas, nw = 9971687, 9958030, 389   # n570:81
+rec = 23                                     # n570:80 (min = max = 23)
+gross = w_meas - w_mod
+net = gross - nw * rec
+print(f"waiting FENCEs {nw}: measured - model {gross:+d} cyc (n570:81), of which record cost {nw} x {rec} = {nw*rec}")
+print(f"tail over-pricing NET of the record cost: {net:+d} cyc per body = {net/nw:+.2f} cyc per waiting FENCE")
+print(f"zero-wait FENCEs 981 x 23 = {981*23} (n570:80); FENCE class net {981*23 + gross:+d} (n570:68: +8906)")
+dn = -0.0381e-3 * 250e6
+print(f"DN dn_out (n570:83, -0.0381 ms, 4-decimal rounded) = {dn:+.0f} cyc over 96 FENCEs")
+
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+waiting FENCEs 389: measured - model -13657 cyc (n570:81), of which record cost 389 x 23 = 8947
+tail over-pricing NET of the record cost: -22604 cyc per body = -58.11 cyc per waiting FENCE
+zero-wait FENCEs 981 x 23 = 22563 (n570:80); FENCE class net +8906 (n570:68: +8906)
+DN dn_out (n570:83, -0.0381 ms, 4-decimal rounded) = -9525 cyc over 96 FENCEs
+=== rc  : 0
+=== end : 2026-09-28T06:16:03-06:00

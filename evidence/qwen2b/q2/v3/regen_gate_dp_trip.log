@@ -1,0 +1,29 @@
+regen_gate: 2026-08-13T16:44:09-06:00  host=darthplagueis
+  MODELPY = /home/cah/anaconda3/envs/base313/bin/python3
+  python  = 3.13.9 torch 2.6.0+cu124
+  tree    = 617d16c3284a0df1f71b35ef3423366720397ae7 +dirty
+  gold    = a69864d25b6b129a4d6c74b3c78dfcbedf1edce219d32cc05d05bc54f444aaf1
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+  24 layers, H=1024, vocab=248320
+  res_scale=8 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production) w4_group=128
+  quantized 24 layers (18 DN / 6 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 25856 of 32767, 0 out of range
+  LM head (248320, 1024) e=-4 sh=5; emb table |q|max 472 of 32767
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/gen_model_script.py", line 605, in <module>
+    main()
+    ~~~~^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/gen_model_script.py", line 509, in main
+    y32, _ = M.matvec(qw_head, X8, H, rowchunk=ROWCHUNK)
+             ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/gen_layer_script.py", line 730, in matvec
+    matvec_y32(qw["w4"][r0:r1], qw["m"][r0:r1], qw["sh"], x8,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               g=g),
+               ^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/w4a8_ref.py", line 161, in matvec_y32
+    assert np.abs(acc).max() < (1 << 31)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+SEQ: 15532 records (248512 B) + 999680 B const blob -> /tmp/tmp.3ZMBd5TKMg/model_v2_s1.e.seq  [profile=epsnorm loop_steps=0]

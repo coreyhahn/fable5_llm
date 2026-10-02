@@ -1,0 +1,90 @@
+=== host: darthplagueis
+=== date: 2026-09-10T05:17:31-06:00
+=== tree: 724c2be
+=== cmd:  python3 evidence/qwen9b/g5/g5_superlatives.py --negative-control
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+G5SUP_VARIANTS: 11  (1'a 1'b 2' 2'cr 2'alt 3' 4'a 4'b 5' 5'cr 6')
+
+G5SUP_TABLE column                                    best        runner-up
+G5SUP_COL WNS                                                  2'cr   -0.554    5'     -0.663
+G5SUP_COL TNS                                                  2'cr   -230.377  6'     -1416.658
+G5SUP_COL failing endpoints                                    2'cr   2057.0    6'     5436.0
+G5SUP_COL DN write fan-out, absolute                           6'     0.092     2'cr   -0.001
+G5SUP_COL DN write fan-out gain vs own same-directive baseline 2'alt  1.487     6'     1.233
+G5SUP_COL KV write fan-out                                     5'cr   0.37      5'     0.315
+G5SUP_COL conv BRAM write                                      1'b    -0.328    5'     -0.454
+G5SUP_COL attn DSP lanes                                       2'cr   -0.297    2'     -0.565
+G5SUP_COL SLR crossings (SLLs)                                 1'b    5967.0    1'a    6290.0
+
+G5SUP_CONTROL: planted 'best WNS' on 1'b, which is the WORST (-1.82)
+G5SUP_SCOPED G5A_FLOORPLAN.md:494  **And the chosen variant costs the fewest SLR crossings of any CONSTRAINED variant** (`superlative-check: scoped` — the 
+    full ranking of SLR crossings (SLLs): 1'b 5967.0  1'a 6290.0  2'cr 11029.0  4'a 11136.0  6' 11548.0  2' 13621.0  2'alt 14016.0  4'b 16756.0  5'cr 20738.0  5' 20802.0  3' 22634.0
+G5SUP_SCOPED G5A_FLOORPLAN.md:494  *(Ranking completed 2026-09-10: the sentence quoted four of the ten other variants and omitted the runner-up.)*
+G5SUP_QUOTED G5A_FLOORPLAN.md:724  **Round 1 chose 2' and claimed it was "best of the seven on WNS, TNS and failing endpoints simultaneously".
+G5SUP_QUOTED G5A_FLOORPLAN.md:724  The correct round-1 statement would have been "best on WNS and TNS".
+G5SUP_QUOTED G5A_FLOORPLAN.md:724  On the enlarged set 2'cr is best on all three, and the claim is now true as written.
+G5SUP_CHECKED: 6 superlative sentence(s) machine-checked
+G5SUP_FAIL G5A_FLOORPLAN.md:1063
+    NEGATIVE CONTROL: 1'b has the best WNS of the eleven.
+    column WNS: the extremum is 2'cr (-0.554), the sentence names 1'b
+G5SUP_QUOTED_TOTAL: 3 sentence(s) restating a superseded claim
+G5SUP_SCOPED_TOTAL: 2 sentence(s) true over a stated subset, printed beside the full ranking
+G5SUP_UNCHECKED: 49 sentence(s) the script cannot attribute
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:3  THE CRITICAL EXPERIMENT.** Track P measured the binding path — the DN write-control fan-out, one logic level with ~96 % route, WNS
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:21  * a **failure here is DEFINITIVE** — the in-context problem is strictly harder; * a **success here is NECESSARY BUT NOT SUFFICIENT
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:31  Every number here carries that uncertainty, and it matters most where two numbers are close.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:49  **"Stated before", not "pre-registered":** there is no committed artefact that carries these thresholds ahead of the runs — they w
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:64  **If the three-SLR floorplan closes only WITH a `layer_0` pblock, that is O4** and the task stops back to the user.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:71  `synth/exp_uram/scripts/exp_ooc.tcl:424` selects the endpoint set as **every pin of every DN URAM288 cell**, so the column is the 
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:80  **What rescues the reading is a stronger fact, not a weaker one.** `evidence/qwen9b/g5/g5_v2cr_dn_write_fanout_paths.rpt` reports 
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:100  **Neither B nor C pblocked the `layer_0` instance as a whole — both constrained cells INSIDE it.** So the 2B lesson bears on *ever
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:153  The **+256 distributed RAM** is exactly the `attn_core` `sc_mem` inference wobble Task 12 put on record (`a51bc8e:rtl/attn_core.sv
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:184  **Those counts are PRE-`opt_design`** — `exp_ooc.tcl` reads the XDC and checks the pblocks between `synth_design` and `opt_design`
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:218  **All ELEVEN PLACED.** URAM288 is **928** in every run, DN non-URAM cells **0**, and the array spans **three SLRs in every run** —
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:224  Worst-path decomposition, per variant (the whole reading of this experiment turns on `one logic level, ~96 % route`):
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:282  Every DN pblock in the first seven runs is SLR-WIDE — including 3''s twenty-four, which share only three SLR-wide ranges, so the o
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:282  2'cr is the range-only refinement: banks + `g_lmux` into the SLR's URAM clock-region columns X1..X4, and the LAST fan-out stage in
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:303  2'alt leads because its baseline is 1'b's −1.820, the worst of the eleven, so it has the most to recover.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:324  **3' also settles the §3.8 question it was built for.** Per-bank fan-out was *worse* unconstrained (Track P, −1.956) and the hypot
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:324  3' is still the worst variant on TNS (−6,636.8) and on failing endpoints (23,217) — though not on WNS, where 1'b's −1.820 is worse
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:367  2''s WNS is −0.831 against 1'a's −1.141: the SLR-wide floorplan bought only **0.310 ns of WNS**, *inside* the sampled directive sp
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:372  For the baseline, the 200 worst setup paths in the design are **100 % DN write fan-out**.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:372  For 2', the DN write fan-out is not in the 200 worst at all:
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:404  2''s worst path is `kv_layer_r_reg[0]/C -> g_kv[2].mem_reg_uram_22/BWE_B[3]` — **one logic level, route 4.243 of 4.412 ns (96.2 %)
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:404  167 of the 200 worst paths in 2' are that family; the other 33 are `u_attn`'s DSP lanes fed from a **KV URAM read** that crosses `
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:421  **What round 1 claimed.** "The KV cache is 8 banks × 29 = 232 URAM288, and a DN group is also 232.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:426  **Why it was wrong.** The arithmetic is only binding **if the DN array is split evenly, 8 banks per SLR** — which every round-1 va
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:426  An **11 / 3 / 10** bank split is 319 / 87+232 / 290 URAM288, so the SLR carrying only 3 DN banks has **233 free — one more than th
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:453  **Reason (b) still stands, and it is now the only one.** `a51bc8e:rtl/layer_chan.sv:712-724` drives `kv_we`, `kv_wa_f`, `kv_wrow` 
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:453  5' works by pinning the *source* registers into the same SLR as the banks — which is available only because the whole array fits i
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:485  5' and 5'cr share the most URAM-tight partition, 99.69 % of two SLRs — which is what the 11 / 3 / 10 split costs.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:510  `synth/exp_uram/scripts/family_census.tcl` on each run's own `post_place.dcp`: the worst setup path into each named family, and th
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:587  **4'a — DN array -> 3 SLRs (banks only), Default**
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:647  **6' is where the pattern stops**: pin the conv banks too and the conv family does NOT move (−0.554 → −0.548), while `u_attn`'s DS
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:675  The condition is "the three-SLR floorplan closes only WITH a `layer_0` pblock".
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:712  Its WNS lead is narrower: 1.20× over 5''s −0.663.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:748  Round 1's "only RTL can fix this" was wrong on its arithmetic half, and the `KV_PIPE` that round 1 recommended is **not** needed t
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:803  The group return pays for it — `DN_GRP_RETURN` goes from −0.304 in 2'cr to −0.720 in 5'cr and owns **195 of the 200 worst paths**.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:840  **The pblock did exactly what it was asked to do.** The conv banks went from split to co-located — `FIN_CONV_BRAM_BY_SLR: SLR1=384
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:855  **The cost landed on `u_attn`.** Forcing 624 conv BRAM cells into SLR1 takes that SLR's block RAM from 62.5 % to **87.2 %**; `u_at
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:855  (Per-SLR DSP moved only 1,504 → 1,475, so this is a change in where the critical PATH runs rather than a wholesale eviction of the
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:862  The conv banks are block RAM at 87 % of an SLR's supply, they share that SLR with the compute that reads them, and their worst pat
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  **Most of this document's superlatives are NOT machine-checked, and the checker says so out loud.** `evidence/qwen9b/g5/027_superl
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  **The in-context form of these XDC files.** Only the OOC addressing form has ever been read by Vivado.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  **Any functional claim.** This is synthesis and placement only.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  **Narrower `layer_0` pblocks.** At 928 of 960 URAM288 a `layer_0` pblock must contain all four URAM CLOCKREGION columns (X1..X4) a
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  "A `layer_0` pblock costs X" is established for that shape only — and, by the same arithmetic, no other shape is available.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  Only the DN_BPG = 8 baseline was re-measured here.
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  And 3' is NOT a per-bank *placement* test: its twenty-four pblocks share only three SLR-wide ranges, so the only per-bank thing ab
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  **The KV bank-mux read path.** `at_kvdata_reg` matches nothing in any of the eleven placed netlists, under three different pattern
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:883  The register is absorbed somewhere in synth/opt and the KV read path is therefore reported only through the `ATTN_DSP` family, nev
+G5SUP_UNCHECKED G5A_FLOORPLAN.md:1010  **A note on the runs' own tooling, because it changes what a re-run produces.** The FIRST SEVEN placements used `exp_ooc.tcl` as c
+G5SUP_CONTROL: CAUGHT — the checker is live
+=== rc: 0
+=== end: 2026-09-10T05:17:31-06:00

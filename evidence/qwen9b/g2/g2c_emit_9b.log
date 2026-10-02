@@ -1,0 +1,115 @@
+=== host: snoke
+=== date: 2026-08-31T11:45:56-06:00
+=== tree: b242370+dirty
+=== cmd:  bash evidence/qwen9b/g2/run_g2c_emit.sh g2c
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== G2c emit attempt: FABLE5_MODEL=9b, W4 g128 + GPTQ, res_scale=1, RS_F=8
+===   artifacts would land in /var/tmp/g2c_emit_Nw8T4G
+
+--- Step 2: the two inherited caches, VERIFIED not rebuilt ---
+  sha256 OK       evidence/qwen_next/ladder/golden_bf16_9b.npz  4fd0616bae5086b8e449901740355a9f192b33ae1c9d18eafc160c0987408fd3
+  sha256 OK       ref/calib_stats_9b_h.npz  36689b5990c80e1208060b7864841a9387e19ea27e27ec09f0bfd4dd081dd7d4
+  both match their committed records (LADDER.md and calib_9b.log);
+  Step 2 is discharged by verification — no 40 min pass, no 3.03 h rebuild.
+
+--- the guard suite at this geometry, BEFORE the emit ---
+isa_guards_check: FABLE5_MODEL=9b  H=4096  LNH=32  NKV=4  RS_F=8
+  ceilings: SCRATCH_MAX=65536 ISA_SADDR_MAX=32768 DNST_HEAD_MAX=31 ARG0_HEAD_BITS=4 KVH_MAX=3 ARG0_KVH_BITS=1 VNW_MAX=4096 VNW_ISA_MAX=2048
+[1] ISA_SADDR_MAX — the ARG pair packing, on all four packers
+  PASS RED  enc_a1(lo=ISA) — refused, naming '15-bit ISA range'
+  PASS RED  enc_a1(hi=ISA) — refused, naming '15-bit ISA range'
+  PASS RED  enc_alu_a2(dst=ISA) — refused, naming '15-bit ISA range'
+  PASS RED  enc_isa_saddr(ISA) — refused, naming '15-bit ISA range'
+  PASS GRN  enc_a1(ISA-1, ISA-1) — in-range accepted
+  PASS GRN  enc_alu_a2(dst=ISA-1) — in-range accepted
+  PASS RED  enc_saddr(SCRATCH_MAX) — refused, naming 'scratchpad'
+  PASS GRN  enc_saddr(SCRATCH_MAX-1) — in-range accepted
+  PASS the pair packing round-trips over the whole legal range
+[2] VNW_ISA_MAX — ARG0[10:0], where 4096 & 0x7FF == 0 means 2048
+  PASS RED  vnw_(4096) — refused, naming 'ARG0[10:0]'
+  PASS GRN  vnw_(2048) — in-range accepted
+  PASS RED  vnw_(VNW_MAX+1) — refused, naming 'outside'
+  PASS the wrap this guard prevents is real: 4096 & 0x7FF == 0, and 0 encodes 2048
+[3] ARG0_HEAD_BITS — DNST and DNZ share layer_chan's dn_head[3:0]
+  PASS RED  dnst(head=16) — refused, naming 'ARG0[3:0]'
+  PASS GRN  dnst(head=15) — in-range accepted
+  PASS RED  dnz(head=16) — refused, naming 'ARG0[3:0]'
+  PASS GRN  dnz(head=15) — in-range accepted
+  PASS RED  dnz(head=32) — refused, naming 'outside'
+  PASS DNST_HEAD_MAX is the GEOMETRY bound and is >= the field bound
+[4] ARG0_KVH_BITS — KVAP and ATTN share layer_chan's kvhead[0]
+  PASS RED  kvap(kvh=2) — refused, naming 'ARG0[0:0]'
+  PASS RED  attn(kvh=2) — refused, naming 'ARG0[0:0]'
+  PASS GRN  kvap(kvh=1) — in-range accepted
+  PASS RED  kvap(kvh=4) — refused, naming 'outside'
+[4b] CONV_FIELD_MAX — the 13-bit CONV channel field (review N10)
+  PASS RED  convz(0, 8192) — refused, naming '13-bit field'
+  PASS GRN  convz(0, 8191) — in-range accepted
+      CONV_DIM=8192 vs field max 8191: a whole-block convz REFUSES (Task 10 widens the field)
+  PASS RED  convz(0, CONV_DIM) at this geometry — refused, naming '13-bit field'
+[5] B5 — the banked KV cache is _KVH wide, including after Treset
+  PASS kc/vc/T are _KVH=4 wide at construction
+  PASS Treset + main()'s explicit reset keep the full width
+  PASS kv head 3 is addressable in the model
+[6] B6 — the RS_F emit/consume tie
+  PASS ref's RS_F_MANIFEST_DEFAULT and sw/hwmap's RS_F_DEFAULT agree
+  PASS a manifest with no key reads back as exactly that default
+  PASS GRN  withholding rs_f is legal when the value IS the default — in-range accepted
+  PASS GRN  passing rs_f explicitly is always legal — in-range accepted
+      (the RED for this guard needs FABLE5_RS_F != 8 — see the companion run in the log)
+isa_guards_check: 33 passed, 0 failed
+  (guard suite rc=0)
+
+--- Step 3: ref/gen_model_script.py at 9B ---
+Installed 53 packages in 337ms
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b
+  32 layers, H=4096, vocab=248320
+  res_scale=1 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production) wq=w4 w4_group=128
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/gen_model_script.py", line 731, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/gen_model_script.py", line 490, in main
+    qw = LF.quant_layer(wf, res_scale=res_scale, g=w4_group, layer_idx=i,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/layer_fixed.py", line 1568, in quant_layer
+    "mlp": quant_mlp(wf["mlp"], res_scale, tighten_e, mse_scale, g,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/layer_fixed.py", line 1515, in quant_mlp
+    _calib_for("mlp", k, layer_idx), w8)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/layer_fixed.py", line 874, in _calib_for
+    _hess_for(sub, wkey, layer_idx))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/layer_fixed.py", line 864, in _hess_for
+    return calib_hess(calib_stats.tensor_key(sub, wkey, layer_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/layer_fixed.py", line 835, in calib_hess
+    _HESS_STORE = calib_stats.HessStore(CALIB_STATS)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/calib_stats.py", line 193, in __init__
+    self._z = np.load(path, allow_pickle=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/.cache/uv/archive-v0/Tazp13EEWSN2hc16bHy4g/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 454, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'ref/calib_stats_9b_h.npz'
+
+--- what the run left behind ---
+total 8
+drwx------  2 cah  cah  4096 Aug 31 11:45 .
+drwxrwxrwt 15 root root 4096 Aug 31 11:45 ..
+  weight images written: 0
+  weights manifest:      0
+  emb table:             0
+
+G2C_EMIT REFUSED rc=1 — expected: the SEQ_ISA v1.7 ARG fields cannot
+  encode a 9B layer body, and dump_weights runs only after the body.
+=== rc: 1
+=== end: 2026-08-31T11:47:59-06:00

@@ -1,0 +1,9 @@
+### DAMAGED reader (pre-fix literals) at FABLE5_MODEL=2b (H=2048)
+--- seq_chat emb-geometry selftest: H=2048, row 4096 B, synthetic vocab 40 (real 248,320)
+    [ok] real vocab 248,320 x H=2048: the pre-fix reshape is LEGAL (496,640 x 1024 == 508,559,360) — silent, not loud, and 2x too many rows
+    [FAIL] emb_row_bytes reads 4096 B out of the manifest
+    [FAIL] load_emb -> shape (80, 1024), vocab 80 (want (40, 2048), 40)
+    [FAIL] every emb[t] is token t's WHOLE row (40 wrong)
+    [ok] H=2048: the pre-fix literals SILENTLY give 80 rows, each the flat 1024 words at k*1024 — token (k*1024)//2048's row, 0 of them straddling two tokens — no exception anywhere (0 rows off that model)
+EMB GEOMETRY SELFTEST: FAIL  (H=2048)
+### damaged reader FAILED the regression; expected FAIL at FABLE5_MODEL=2b  ->  as documented

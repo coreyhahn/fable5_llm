@@ -1,0 +1,48 @@
+# WHO OWNS THE DSPs — reconciling 1,840 (the layer) with 1,845 (SLR0) and 1,860 (the device)
+#
+# Review round 1, m3.  G5D_TIMING.md section 2.2 reports the LAYER IP's own post-synthesis
+# DSP48E2 count as 1,840; section 4.2 reports SLR0's DSPs as 1,845 and the device total as
+# 1,860, and nothing reconciled the three.  A reader could conclude the layer grew by five
+# between synthesis and placement.  It did not: 1,845 is a PER-DIE count over EVERY owner,
+# and 1,840 is one instance's count.  The five are other people's DSPs that landed in SLR0.
+#
+# Source (gitignored out dir), read fresh:
+#   synth/out_build_041_ckr2_AltSpreadLogic_high/reports/utilization_hier.rpt
+#     mtime 2026-09-07 20:56:40   report_utilization -hierarchical, Design State: Physopt postRoute
+#   synth/out_build_041_ckr2_AltSpreadLogic_high/reports/utilization.rpt
+#     mtime 2026-09-07 20:56:07
+
+=== DSP Blocks and URAM per top-level instance, THE SHIPPING ROLL (ckr2_AltSpreadLogic_high) ===
+
+# columns as the report names them: 'DSP Blocks' and 'URAM' from '1. Utilization by Hierarchy'
+# instance                     line   DSP Blocks   URAM
+  bd_i/ddr4_0                     4351          3      0
+  bd_i/ddr4_1                     5450          3      0
+  bd_i/ddr4_2                     6549          3      0
+  bd_i/ddr4_3                     7648          3      0
+  bd_i/layer_0                    8787       1840    182
+  bd_i/mvchan_0                   8812          2      0
+  bd_i/mvchan_1                   8840          2      0
+  bd_i/mvchan_2                   8868          2      0
+  bd_i/mvchan_3                   8896          2      0
+  bd_i/seq_0                      8927          0      0
+  bd_i/xdma_0                    13014          0      0
+  TOTAL                                     1860    182   <- sum of the rows above
+
+=== READING ===
+
+# 1,840 + 4x3 (the four DDR4 MIG cores) + 4x2 (the four matvec channels) = 1,860, which is
+#   the device total report_utilization prints (153_t14b_closing_reports.txt: DSPs 1860).
+# SLR0 holds 1,845 (153_t14b_closing_reports.txt's per-SLR table), and 1,845 - 1,840 = 5 =
+#   mvchan_0's 2 + ddr4_0's 3.  Both are named by the committed SLR census of this same roll:
+#     144_t14b_slrcensus_ckr2.log:166  INST bd_i/ddr4_0   SLR0=36027(100%) SLR1=0 SLR2=0
+#     144_t14b_slrcensus_ckr2.log:170  INST bd_i/mvchan_0 SLR0=28839(100%) SLR1=2 SLR2=0
+#   and they are the ONLY two non-layer DSP owners in SLR0, so the decomposition is forced:
+#   1,840 + 2 + 3 = 1,845 with no other candidate.  (144_t14b_slrcensus_ckr2.log:229 also
+#   shows ddr4_0's own anchor clock regions as {X2Y1 X2Y2 X2Y3} -- the MIG is pinned to IO
+#   banks and cannot move.)
+# SLR1's 12 = mvchan_1/2/3's 6 + ddr4_1 and ddr4_2's 6; SLR2's 3 = ddr4_3's
+#   (144_t14b_slrcensus_ckr2.log:167,168,169), and 1,845 + 12 + 3 = 1,860 closes the account.
+# THE LAYER DID NOT GROW.  Its DSP count is 1,840 at synthesis (106_build_041_layer_util_synth.rpt)
+#   and 1,840 on the routed shipping netlist, the row above.
+# URAM is the same story with nothing to reconcile: all 182 are the layer's, on both counts.

@@ -1,0 +1,72 @@
+=== host: snoke  date: 2026-09-28T11:44:42-06:00
+=== tree: 0cf3f1f+dirty
+=== dirty:  M NEXT_SESSION.md
+=== cmd : env FABLE5_MODEL=9b /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11b_model_correction.py --verify
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr11b_model_correction.py  FABLE5_MODEL=9b
+=== R1 timeline /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r1.timeline.csv
+    sha256 1f586cbfb3f2fcd2ce6b2c472c0ee09859718697ffceb1d868e642fbba38361f  committed 1f586cbfb3f2fcd2ce6b2c472c0ee09859718697ffceb1d868e642fbba38361f  MATCH
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  model: body 118911..158534; replay of the emitted r1 order 27136513 (SR4's prediction 27136513: REPRODUCED)
+  emitted body == the r1 stream's body 120552..160722 (sha 4e11a2ae6872970e MATCH): 40171/40171 records identical
+    token 4: 0 body pcs absent []; of them FENCE/stream-window pcs: 0
+    token 5: 0 body pcs absent []; of them FENCE/stream-window pcs: 0
+    token 6: 5 body pcs absent [(120552, 'LDC*'), (120553, 'CSRWR'), (120554, 'CSRWR'), (120555, 'CSRWR'), (120556, 'CMD')]; of them FENCE/stream-window pcs: 0
+    body FENCEs 1370; tokens read [4, 5, 6]: [40171, 40171, 40167] rows
+
+=== MODEL CORRECTION, s1 token-4 body window (measured 27163998 = n570:39's 27163998: MATCH)
+  constants: FENCE_REC 23; TAIL1 {('DN', 'dn_out'): 18, ('DN', 'in_a'): 18, ('DN', 'in_qkv'): 22, ('DN', 'in_z'): 27, ('DN', 'mlp_down'): 74, ('DN', 'mlp_gate'): 25, ('DN', 'mlp_up'): 26, ('GQA', 'mlp_down'): 75, ('GQA', 'mlp_gate'): 25, ('GQA', 'mlp_up'): 26, ('GQA', 'o_proj'): 19, ('GQA', 'q_proj'): 26, ('HEAD', 'lm_head'): 23}; TAIL1_DEFAULT 28; CMD_RESID_FRAC 0.001802672
+  the inherited CMD residual, measured per command (token 4): 25 commands, total +19308: SLD +17212, KVAP +2080, SST +16
+  BEFORE (SR4's convention, n570:61): 27136513 cyc, model - measured -27485 = -0.101 %
+  AFTER, residual PLACED in lane time: 27164369 cyc (lane 27164369, CMD residual +19308), model - measured +371 = +0.001 %  -> WITHIN +-0.5 %
+    FENCE class (cycles): model BEFORE | model AFTER | measured | AFTER - measured
+      all FENCEs (1370)   9971687 |   9980235 |   9980593 | -358
+      zero-wait in the corrected model: 982 FENCEs, 22586 vs measured 22586 (+0)
+      by drained class (n | BEFORE | AFTER | measured | BEFORE - meas | AFTER - meas):
+        DN   dn_out       96 |    195632 |    186043 |    186108 |    +9524 |      -65
+        DN   mlp_gate    192 |   1552117 |   1555140 |   1555134 |    -3017 |       +6
+        DN   mlp_down     96 |   1637999 |   1639810 |   1640207 |    -2208 |     -397
+        DN   in_b         96 |       505 |      2451 |      2208 |    -1703 |     +243
+        DN   in_a         96 |      4876 |      6580 |      6576 |    -1700 |       +4
+        DN   in_z         96 |    465031 |    466747 |    466724 |    -1693 |      +23
+        DN   in_qkv       96 |   1372150 |   1373837 |   1373838 |    -1688 |       -1
+        DN   mlp_up      192 |   1575466 |   1576906 |   1576896 |    -1430 |      +10
+        GQA  mlp_gate     64 |    517563 |    518560 |    518560 |     -997 |       +0
+        GQA  mlp_down     32 |    547853 |    548456 |    548608 |     -755 |     -152
+        GQA  k_proj       32 |         0 |       736 |       736 |     -736 |       +0
+        GQA  v_proj       32 |         0 |       736 |       736 |     -736 |       +0
+        GQA  q_proj       32 |    347143 |    347737 |    347784 |     -641 |      -47
+        GQA  o_proj       32 |     90298 |     90800 |     90800 |     -502 |       +0
+        GQA  mlp_up       64 |    525176 |    525634 |    525632 |     -456 |       +2
+        HEAD lm_head     122 |   1139878 |   1140062 |   1140046 |     -168 |      +16
+  AFTER, residual ADDITIVE (the r2 form): 27175723 cyc (lane 27156415, CMD residual +19308), model - measured +11725 = +0.043 %  -> WITHIN +-0.5 %
+    FENCE class (cycles): model BEFORE | model AFTER | measured | AFTER - measured
+      all FENCEs (1370)   9971687 |   9991589 |   9980593 | +10996
+      zero-wait in the corrected model: 981 FENCEs, 22563 vs measured 22563 (+0)
+      by drained class (n | BEFORE | AFTER | measured | BEFORE - meas | AFTER - meas):
+        DN   dn_out       96 |    195632 |    197381 |    186108 |    +9524 |   +11273
+        DN   mlp_gate    192 |   1552117 |   1555140 |   1555134 |    -3017 |       +6
+        DN   mlp_down     96 |   1637999 |   1639810 |   1640207 |    -2208 |     -397
+        DN   in_b         96 |       505 |      2451 |      2208 |    -1703 |     +243
+        DN   in_a         96 |      4876 |      6580 |      6576 |    -1700 |       +4
+        DN   in_z         96 |    465031 |    466747 |    466724 |    -1693 |      +23
+        DN   in_qkv       96 |   1372150 |   1373837 |   1373838 |    -1688 |       -1
+        DN   mlp_up      192 |   1575466 |   1576906 |   1576896 |    -1430 |      +10
+        GQA  mlp_gate     64 |    517563 |    518560 |    518560 |     -997 |       +0
+        GQA  mlp_down     32 |    547853 |    548456 |    548608 |     -755 |     -152
+        GQA  k_proj       32 |         0 |       736 |       736 |     -736 |       +0
+        GQA  v_proj       32 |         0 |       736 |       736 |     -736 |       +0
+        GQA  q_proj       32 |    347143 |    347737 |    347784 |     -641 |      -47
+        GQA  o_proj       32 |     90298 |     90816 |     90800 |     -502 |      +16
+        GQA  mlp_up       64 |    525176 |    525634 |    525632 |     -456 |       +2
+        HEAD lm_head     122 |   1139878 |   1140062 |   1140046 |     -168 |      +16
+  every non-FENCE, non-CMD window is the old model's (BN1's CSV): LDC/MVGO/EMB -729 (n570:69-71) is left
+SR11B_MODEL_CORRECTION VERIFY: PASS
+=== rc  : 0
+=== end : 2026-09-28T11:44:48-06:00

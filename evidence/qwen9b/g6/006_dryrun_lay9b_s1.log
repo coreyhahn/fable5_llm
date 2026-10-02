@@ -1,0 +1,39 @@
+=== host: snoke
+=== date: 2026-09-09T19:34:43-06:00
+=== tree: b5cb735
+=== cmd:  /home/cah/.venv/bin/python sw/seq_run.py --prefix tb/scripts/w9/lay9b_s1.e4 --dry-run --out evidence/qwen9b/g6/006_dryrun_lay9b_s1.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- SEQ stream: tb/scripts/w9/lay9b_s1.e4
+  artifacts base   tb/scripts/w9/lay9b_s1
+  stream           4091 records, 65456 B (sha256 b6ba7d8dcbadd11d) VALIDATED
+  seqdata          51136 B (sha256 bfbc0c00bfcdccf6)
+  profile          epsnorm  dyn_ka=True  loop 0 steps (fewer than two decode steps)
+  opcodes          {'CSRWR': 2714, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'FENCE': 38, 'HALT': 1, 'LDC*': 22, 'XOP*': 2}
+  expected tokens  []
+  mode             4-CHANNEL row-split (weights over DDR chans [0, 1, 2, 3], fetch on chan 0)  [auto-detected from meta nch]
+--- DDR plan (fetch channel 0, host offset 0x0, nch=4)
+  stream    0x9000000 .. 0x900ffb0  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc00c7c0  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 15 images, chans [0, 1, 2, 3])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 22 LDC records (0 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 0 EMB records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+  SEQ CSRs untouched: --dry-run: the SEQ CSR window is not touched
+  weight plan: 15 images match the stream's MVGO plan; 152 MVGO WBASEs row-aligned inside them
+--- upload
+  weights   15 images, 211 MiB -> 0x10000000..0x134a2000/0x134a2000/0x134a2000/0x134a2000 (row-split over chans [0, 1, 2, 3])  [readback OK]
+  seqdata   51136 B -> 0xc000000  [readback OK]
+  stream    65456 B (4091 records) -> 0x9000000  [readback OK]
+  state DN  24 MiB zeroed -> 0x380000000 (chan 3)  [8 witnesses zero]
+  state CV  1 conv image(s) -> 0x389800000  [readback OK]
+  211 MiB written, 211 MiB read back and compared, 22.2s
+--- DRY RUN COMPLETE: DDR images uploaded and readback-verified; the SEQ CSR window was never accessed.
+report -> evidence/qwen9b/g6/006_dryrun_lay9b_s1.json
+=== rc: 0
+=== end: 2026-09-09T19:35:05-06:00

@@ -1,0 +1,53 @@
+=== host: darthplagueis
+=== date: 2026-09-04T00:20:09-06:00
+=== tree: 8bd7ee7
+=== cmd:  bash /tmp/g5_drift2.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== files this fix round edited outside evidence/qwen9b/g5/ ===
+  synth/constraints/fable5_floorplan_9b_combo.xdc
+  synth/constraints/fable5_floorplan_9b_dnbank.xdc
+  synth/constraints/fable5_floorplan_9b_dngrp.xdc
+  synth/constraints/fable5_floorplan_9b_dngrpcr.xdc
+  synth/constraints/fable5_floorplan_9b_dnslr.xdc
+  synth/constraints/fable5_floorplan_9b_kvslr.xdc
+  synth/constraints/fable5_floorplan_9b_layer0.xdc
+  synth/exp_uram/scripts/collect_evidence.sh
+  synth/exp_uram/scripts/exp_ooc.tcl
+  synth/exp_uram/scripts/family_census.tcl
+  synth/exp_uram/scripts/finish_reports.tcl
+  synth/exp_uram/scripts/launch_exp.sh
+
+=== --plan, base 221326c (FIX_BASE), gate doc --exclude'd ===
+o3 citation-drift gate  [plan — dry run, nothing is written]
+  code base  221326c
+  files      5 edited file(s)
+  EXCLUDED   evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  TOTAL      REPAIR 0  COLLATERAL 0
+O3_FIX_PLAN: SAFE — every rewrite repairs a citation --verify reports stale
+
+=== --verify at the same base ===
+o3 citation-drift gate  [verify]
+  code base  221326c
+  doc base   221326c
+  files      5 edited files
+  citations  4 distinct (file, line) pairs
+  unmoved    1
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  relocated  3 citation(s) checked against the base content and the citing documents
+  excluded   evidence/qwen9b/g5/G5A_FLOORPLAN.md
+O3_CITE_DRIFT VERIFY PASS (0 problem(s))
+
+=== the four citations minor 7 shifted, re-derived BY HAND and checked here ===
+  OK      exp_ooc.tcl:57  contains 'set Rtl'
+  OK      exp_ooc.tcl:131  contains 'EXP_RTL_SRC'
+  OK      exp_ooc.tcl:211  contains 'Floorplan sanity'
+  OK      exp_ooc.tcl:371  contains 'set wrdst'
+  OK      fable5_floorplan_9b_dngrp.xdc:78 is the g_lmux-bearing add_cells line
+=== rc: 0
+=== end: 2026-09-04T00:20:11-06:00

@@ -1,7 +1,27 @@
 // tb_dn_step: dn_step vs layer_fixed deltanet-step golden vectors,
 // bit-exact (output stream AND final state memory contents).
+//
+// G3.4 (spec 4.1 W1'(a)): the state memory's READ LATENCY is a build
+// parameter here, because layer_chan's 24-bank DN array pipelines its SLR
+// crossings and presents 2 + 2*DN_PIPE = 6 instead of 2.  The TB models
+// exactly that -- an RLAT-deep register chain on the read return, with the
+// write applied immediately, which reproduces the real array's read/write
+// ORDER (both legs traverse the same DN_PIPE stages there, so the order at
+// the array is the order at the port).
+//
+//   RLAT=2 P2W=0   the unpipelined control: the four shipped vector cases
+//                  must stay BIT-IDENTICAL through the issue-point move.
+//   RLAT=6 P2W=1   WHAT SHIPS -- option (i), the pass-2 wait state.
+//   RLAT=6 P2W=0   option (ii), two reads outstanding.  NOT SHIPPED;
+//                  built and run only to price the decision.
+//
+// It also reports DN_CYCLES: start -> done, the per-head cycle cost that
+// Step 1's decision section is measured in (label T).
 `timescale 1ns/1ps
-module tb_dn_step;
+module tb_dn_step #(
+    parameter int RLAT = 2,
+    parameter int P2W  = 0
+);
     logic clk = 0;
     /* verilator lint_off BLKSEQ */
     always #2 clk = ~clk;
@@ -16,24 +36,40 @@ module tb_dn_step;
     logic [6:0] vec_addr = 0;
     logic signed [20:0] vec_data = 0;
     logic [6:0] s_rdaddr, s_wraddr;
-    logic [2047:0] s_rddata, s_wrdata;
+    wire  [2047:0] s_rddata;
+    logic [2047:0] s_wrdata;
     logic s_wren;
     logic m_valid, m_ready = 0;
     logic signed [31:0] m_data;
     logic [6:0] m_idx;
 
-    dn_step dut (.clk, .rstn, .start, .busy, .done, .cfg_decay, .cfg_beta,
+    dn_step #(.RLAT(RLAT), .P2_WAIT(P2W)) dut (
+                 .clk, .rstn, .start, .busy, .done, .cfg_decay, .cfg_beta,
                  .vec_we, .vec_sel, .vec_addr, .vec_data,
                  .s_rdaddr, .s_rddata, .s_wraddr, .s_wrdata, .s_wren,
                  .m_valid, .m_ready, .m_data, .m_idx);
 
-    // state memory model: 128 x 2048b, 2-cycle read latency (URAM + OREG)
+    // state memory model: 128 x 2048b, RLAT-cycle read latency
+    // (RLAT=2 is URAM + OREG; RLAT=6 adds layer_chan's DN_PIPE=2 fan-out
+    // and return stages).  The write is applied in the same always_ff, so
+    // a read issued in the same cycle as a write returns the OLD row --
+    // the same order the real array gives.
     logic [2047:0] smem [128];
-    logic [2047:0] s_rd_p;
+    logic [2047:0] s_rd_p [RLAT];
     always_ff @(posedge clk) begin
-        s_rd_p   <= smem[s_rdaddr];
-        s_rddata <= s_rd_p;
+        s_rd_p[0] <= smem[s_rdaddr];
+        for (int i = 1; i < RLAT; i++) s_rd_p[i] <= s_rd_p[i-1];
         if (s_wren) smem[s_wraddr] <= s_wrdata;
+    end
+    assign s_rddata = s_rd_p[RLAT-1];
+
+    // label T: cycles from the start pulse to done, per head.
+    int unsigned dn_cycles = 0;
+    logic        dn_count = 0;
+    always_ff @(posedge clk) begin
+        if (start)     dn_count <= 1'b1;
+        if (dn_count)  dn_cycles <= dn_cycles + 1;
+        if (done)      dn_count <= 1'b0;
     end
 
     logic [15:0] sin_v [16384];
@@ -124,6 +160,8 @@ module tb_dn_step;
                         $display("FAIL S[%0d][%0d]: got %h want %h",
                                  i, v, smem[i][v*16 +: 16], sout_v[i*128 + v]);
                 end
+        $display("DN_CYCLES RLAT=%0d P2W=%0d cycles_per_head=%0d",
+                 RLAT, P2W, dn_cycles);
         if (errors == 0) begin
             $display("TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact");
             $finish;

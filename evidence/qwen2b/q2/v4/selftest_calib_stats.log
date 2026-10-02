@@ -1,0 +1,15 @@
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+--- A: tensor_key round trip ---
+  names match the HF module paths; non-W4 keys rejected
+--- B: hooks cover every key the V3 quantizer asks for ---
+  16 required keys present (16 hooked in total, tokens=130)
+--- C: shapes match K, values are finite and positive ---
+  every vector is float32[K] of the matrix it belongs to
+--- D: save/load round trip (numpy-only loader) ---
+  metadata stays out of the salience dict
+--- E: V4 Hessian — sites, shapes, and the sharing claim ---
+  9 sites from 16 tensors; layers.0.mlp.down_proj matches an independent X^T X/T to 3.03e-07
+--- F: h2 IS the stored diagonal; load()/HessStore split ---
+  9 h2 vectors == the stored Hessian diagonals, load() returns salience only
+
+CALIB_STATS SELFTEST PASS

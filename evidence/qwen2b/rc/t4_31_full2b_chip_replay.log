@@ -1,0 +1,56 @@
+=== host: snoke  date: 2026-08-22T15:47:19-06:00
+=== tree: ff6de16+dirty
+=== cmd : bash -c cd tb && echo "=== step 1: .chip golden + 4 per-channel wimg for the FULL 2B W8 stream" && make seq_chip_vectors_w8 VECPY=/home/cah/.venv/bin/python 2>&1 | tail -12 && echo && echo "=== step 2: the FULL 2B W8 chip replay (68,503 records)" && date -Is && make tb_seq_chip_w8 JOBS=16 2>&1 | grep -vE "^g\+\+|^/usr/bin|^make\[|^Archive|^echo|^rm |^verilator|^  --|^  \.\./" && date -Is
+=== venv: 3.12.3 numpy 2.4.6
+=== step 1: .chip golden + 4 per-channel wimg for the FULL 2B W8 stream
+FABLE5_MODEL=2b /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py \
+  scripts/w5/model_w8_2b_s1.e --base scripts/w5/model_w8_2b_s1
+  scripts/w5/model_w8_2b_s1.wimg0.bin: 487342080 B (464.8 MiB) @ 0x10000000
+  scripts/w5/model_w8_2b_s1.wimg1.bin: 484098048 B (461.7 MiB) @ 0x10000000
+  scripts/w5/model_w8_2b_s1.wimg2.bin: 483016704 B (460.6 MiB) @ 0x10000000
+  scripts/w5/model_w8_2b_s1.wimg3.bin: 483016704 B (460.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 187 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/model_w8_2b_s1.e.chip: 68503 records, pc 68502, 6 tokens, 16384 scratch words checked (16384 staging words excluded)
+  seq_model stats: {'CSRWR': 63773, 'CMD': 21198, 'MOVX': 4488, 'MOVY': 5196, 'MVGO': 5196, 'EMB': 6, 'AMAXL': 6, 'JMP': 3, 'FENCE': 1302, 'LDC': 780, 'XOP': 42, 'PROBE': 36, 'MVGO_NOWAIT': 5196}
+
+=== step 2: the FULL 2B W8 chip replay (68,503 records)
+2026-08-22T15:49:48-06:00
+  -GNMV=4 -GWIMGPC=1 \
+obj_dir_tb_seq_chip_w8/tb_seq_chip_w8 +seq=scripts/w5/model_w8_2b_s1.e \
+  +base=scripts/w5/model_w8_2b_s1 +watchdog_ms=172800000
+  mem region 0: 1096048 B @ 000090000000   scripts/w5/model_w8_2b_s1.e.seq
+  mem region 1: 1107712 B @ 000080000000   scripts/w5/model_w8_2b_s1.e.seqdata.bin
+  mem region 2: 1017118720 B @ 000060000000   scripts/w5/model_w8_2b_s1.emb.bin
+  mem region 0: 487342080 B @ 000010000000   scripts/w5/model_w8_2b_s1.wimg0.bin
+  mem region 0: 484098048 B @ 000010000000   scripts/w5/model_w8_2b_s1.wimg1.bin
+  mem region 0: 483016704 B @ 000010000000   scripts/w5/model_w8_2b_s1.wimg2.bin
+  mem region 0: 483016704 B @ 000010000000   scripts/w5/model_w8_2b_s1.wimg3.bin
+tb_seq_chip: launch 0 [-] rec_off 0, 68503 records, 6 tokens, 16384 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+XRF[1] = 3fff8, expected 3fff9
+XRF[3] = 000dc, expected 0000d
+TOK[0] = 0000d, expected 00117
+TOK[1] = 0000d, expected 0013a
+TOK[2] = 0002c, expected 00117
+TOK[3] = 000dc, expected 00171
+TOK[4] = 0008e, expected 02de7
+TOK[5] = 000dc, expected 0000d
+AMAXI = 000dc, expected 0000d
+AMAXV = 0002cf6d, expected 00056aa3
+MEM[0000] = 0228, expected 02d8
+MEM[0001] = ffe8, expected fe92
+MEM[0002] = 06c9, expected fdf4
+MEM[0003] = fc25, expected 01cc
+MEM[0004] = 0458, expected 00ed
+MEM[0005] = 038f, expected feeb
+MEM[0006] = f864, expected 0435
+MEM[0007] = fae7, expected fd60
+MEM[0008] = fdbd, expected fcc8
+MEM[0009] = 02e1, expected ffb3
+MEM[000a] = 0008, expected 011d
+[354140192000] %Fatal: tb_seq_chip.sv:829: Assertion failed in TOP.tb_seq_chip.unnamedblk4.unnamedblk14: too many scratch mismatches
+%Error: tb_seq_chip.sv:829: Verilog $stop
+Aborting...
+make: *** [Makefile:1062: tb_seq_chip_w8] Aborted (core dumped)
+2026-08-22T16:55:30-06:00
+=== rc  : 0
+=== end : 2026-08-22T16:55:30-06:00

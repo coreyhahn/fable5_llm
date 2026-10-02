@@ -1,0 +1,80 @@
+=== provenance (every row must share the anchor's setup) ===
+  10 runs, 24528 scored positions, window 512, batch 4, corpus 6bf4f8677a3b3fff…, ckpt ccba2c1f645fe592…
+  hosts: None, snoke
+
+=== the ladder (bf16 12.346298, V2 gap 1.397933) ===
+  variant             PPL         dPPL     % of the V2 gap left   bytes/token     xV2    b/w    tok/s band
+  bf16 (anchor)      12.346298 +0.000000     0.00 %                        -      -      -      -
+  V1  w4 g128        14.176885 +1.830587   130.95 %              996,282,368  0.997  4.237  20.77-21.53
+  V2  w4 g64         13.744231 +1.397933   100.00 %              999,428,096  1.000  4.250  20.75-21.51
+  V3  g64 salience   13.391781 +1.045483    74.79 %              999,428,096  1.000  4.250  20.75-21.51
+  V4gptq g64         12.941240 +0.594941    42.56 %              999,428,096  1.000  4.250  20.75-21.51
+  V4mix top-1        13.275505 +0.929207    66.47 %            1,301,417,984  1.302  5.534  19.00-19.84
+  V4mix top-2        12.975961 +0.629663    45.04 %            1,555,697,664  1.557  6.615  17.71-18.59
+  V4mix top-3        12.720237 +0.373939    26.75 %            1,707,282,432  1.708  7.260  17.04-17.93
+  V4gptq+gate_up W8  12.736774 +0.390476    27.93 %            1,301,417,984  1.302  5.534  19.00-19.84
+  V5  w8 g128        12.360678 +0.014380     1.03 %            1,936,920,576  1.938  8.237  16.11-17.02
+
+=== rerun agreement (the study's convention for headlines) ===
+  V5: 12.360678 vs 12.360678  AGREE to 6 dp; nll_sum bit-identical: True (61676.154320 vs 61676.154320, rel 0.00e+00); separate processes on snoke/snoke
+  V4gptq+gate_up W8: 12.736774 vs 12.736774  AGREE to 6 dp; nll_sum bit-identical: False (62411.333758 vs 62411.334332, rel 9.21e-09); separate processes on snoke/snoke
+
+=== V4mix vs Task 7's prediction (SENSITIVITY.md section 5) ===
+  k  promoted                   predicted (V2-sum dPPL)   measured     error      vs V5's whole damage
+  1  gate_up                    13.274761          13.275505 +0.000744     0.1x
+  2  gate_up+lm_head            13.001903          12.975961 -0.025942     1.8x
+  3  gate_up+lm_head+dn_in      12.816223          12.720237 -0.095986     6.7x
+  Two effects with opposite signs are folded into that error.  The prediction treats a promoted class as UNDAMAGED, so W8's own residual (V5's whole-model damage is only 0.014380) pushes the measured value UP; Task 7's measured super-additivity (+0.075 PPL joint vs sum of parts) pushes it DOWN, because taking the largest classes out of the W4 set removes more than their one-at-a-time deltas.  The sign of the error says which won.
+
+=== what a PPL point costs in bytes (against V2) ===
+  V3  g64 salience   dPPL +0.352450  extra bytes             0        0.0 MB per PPL point
+  V4gptq g64         dPPL +0.802992  extra bytes             0        0.0 MB per PPL point
+  V4mix top-1        dPPL +0.468726  extra bytes   301,989,888      644.3 MB per PPL point
+  V4mix top-2        dPPL +0.768270  extra bytes   556,269,568      724.1 MB per PPL point
+  V4mix top-3        dPPL +1.023994  extra bytes   707,854,336      691.3 MB per PPL point
+  V4gptq+gate_up W8  dPPL +1.007457  extra bytes   301,989,888      299.8 MB per PPL point
+  V5  w8 g128        dPPL +1.383553  extra bytes   937,492,480      677.6 MB per PPL point
+
+=== DDR fit (weight window 1,280 MiB per channel) ===
+  V1  w4 g128        nch=1    950.2 MiB ( 74.2 %) OK   nch=4   239.1 MiB ( 18.7 %) OK
+  V2  w4 g64         nch=1    953.2 MiB ( 74.5 %) OK   nch=4   239.9 MiB ( 18.7 %) OK
+  V3  g64 salience   nch=1    953.2 MiB ( 74.5 %) OK   nch=4   239.9 MiB ( 18.7 %) OK
+  V4gptq g64         nch=1    953.2 MiB ( 74.5 %) OK   nch=4   239.9 MiB ( 18.7 %) OK
+  V4mix top-1        nch=1   1241.2 MiB ( 97.0 %) OK   nch=4   311.9 MiB ( 24.4 %) OK
+  V4mix top-2        nch=1   1483.7 MiB (115.9 %) DOES NOT FIT   nch=4   373.9 MiB ( 29.2 %) OK
+  V4mix top-3        nch=1   1628.3 MiB (127.2 %) DOES NOT FIT   nch=4   410.0 MiB ( 32.0 %) OK
+  V4gptq+gate_up W8  nch=1   1241.2 MiB ( 97.0 %) OK   nch=4   311.9 MiB ( 24.4 %) OK
+  V5  w8 g128        nch=1   1847.3 MiB (144.3 %) DOES NOT FIT   nch=4   464.8 MiB ( 36.3 %) OK
+
+=== step decomposition, 2B nch=4 (r = 1.000 .. 1.131) ===
+  variant             matvec ms        step ms          tok/s
+  V1  w4 g128        13.05 .. 14.76   46.44 .. 48.15   20.77 - 21.53
+  V2  w4 g64         13.09 .. 14.80   46.48 .. 48.20   20.75 - 21.51
+  V3  g64 salience   13.09 .. 14.80   46.48 .. 48.20   20.75 - 21.51
+  V4gptq g64         13.09 .. 14.80   46.48 .. 48.20   20.75 - 21.51
+  V4mix top-1        17.02 .. 19.25   50.41 .. 52.64   19.00 - 19.84
+  V4mix top-2        20.40 .. 23.08   53.80 .. 56.47   17.71 - 18.59
+  V4mix top-3        22.38 .. 25.31   55.77 .. 58.70   17.04 - 17.93
+  V4gptq+gate_up W8  17.02 .. 19.25   50.41 .. 52.64   19.00 - 19.84
+  V5  w8 g128        25.37 .. 28.69   58.76 .. 62.08   16.11 - 17.02
+
+=== the throughput penalty, and how sensitive it is ===
+  Only the matvec bucket moves with precision.  The penalty is therefore bounded by
+  how big that bucket is, which the layer bucket (17.4 ms, the feasibility study's
+  figure and NOT verified by MOVER_NORM) dominates.  Worst case = layer 0.
+  V4mix top-1        tok/s vs V2: layer=17.4 ms ->   -8.4 %   layer= 0.0 ms ->  -12.6 %
+  V4mix top-2        tok/s vs V2: layer=17.4 ms ->  -14.7 %   layer= 0.0 ms ->  -21.2 %
+  V4mix top-3        tok/s vs V2: layer=17.4 ms ->  -17.9 %   layer= 0.0 ms ->  -25.4 %
+  V4gptq+gate_up W8  tok/s vs V2: layer=17.4 ms ->   -8.4 %   layer= 0.0 ms ->  -12.6 %
+  V5  w8 g128        tok/s vs V2: layer=17.4 ms ->  -22.4 %   layer= 0.0 ms ->  -31.1 %
+
+=== cost of the runs ===
+  V1  w4 g128        build   332.7 s  eval   263.7 s  host None threads None torch 2.6.0+cu124
+  V2  w4 g64         build   682.8 s  eval   429.1 s  host None threads None torch 2.6.0+cu124
+  V3  g64 salience   build   839.4 s  eval   150.7 s  host snoke threads 24 torch 2.12.0+cpu
+  V4gptq g64         build  1948.8 s  eval   256.1 s  host snoke threads 10 torch 2.12.0+cpu
+  V4mix top-1        build   615.6 s  eval   364.6 s  host snoke threads 8 torch 2.12.0+cpu
+  V4mix top-2        build   401.8 s  eval   460.8 s  host snoke threads 8 torch 2.12.0+cpu
+  V4mix top-3        build   280.1 s  eval   482.5 s  host snoke threads 8 torch 2.12.0+cpu
+  V4gptq+gate_up W8  build  1634.2 s  eval   303.5 s  host snoke threads 8 torch 2.12.0+cpu
+  V5  w8 g128        build   114.6 s  eval   462.6 s  host snoke threads 8 torch 2.12.0+cpu

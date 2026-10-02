@@ -16,14 +16,16 @@
 // -----
 //  * Decode (S4, 64 KiB stride): target = addr[18:16] - 1, so
 //        0x0001_0000 -> MI0 = mvchan_0      0x0004_0000 -> MI3 = mvchan_3
-//        0x0002_0000 -> MI1 = mvchan_1      0x0005_0000 -> MI4 = layer_0
+//        0x0002_0000 -> MI1 = mvchan_1      0x0008_0000 -> MI4 = layer_0
+//        (G3.1: MI4 is 256 KiB — slots 8..11 — so 0x0005_0000-0x0007_FFFF
+//         is a hole; it was 128 KiB at slots 6/7 under R-b)
 //        0x0003_0000 -> MI2 = mvchan_2
-//    Everything else (slot 0, slot > NSLV, or any bit set above [18]) is a
+//    Everything else (slot 0, slot > NSLV, or any bit set above [19]) is a
 //    DECODE HOLE and is answered by an INTERNAL error responder with
 //    DECERR — the request never reaches a slave.  This is what SmartConnect
 //    does with a hole, and it is how the out-of-window DECERR gate is
 //    driven.  Only addr[MAW-1:0] is forwarded to the slave (MI ports are
-//    MAW = 16 bits wide = the 64 KiB window), exactly as an IPI MI port
+//    MAW = 18 bits wide, the widest window), exactly as an IPI MI port
 //    connected to a 64 KiB slave sees.
 //  * Latency: LAT cycles each way, per channel, on AW/W/AR (request) and
 //    B/R (response).  LAT is the PARAMETER default; a run can override it
@@ -67,7 +69,7 @@ module seq_burst_fabric #(
     parameter int LAT    = 4,      // default added latency each way
     parameter int LATMAX = 16,     // depth of the delay lines (+blat cap)
     parameter int NSLV   = 5,      // 4 mvchan + 1 layer (S2/S4)
-    parameter int MAW    = 16,     // MI address width = 64 KiB window
+    parameter int MAW    = 18,     // MI address width; MI4 = 256 KiB (G3.1)
     parameter int IDW    = 1,      // AXI ID width (contract: 1)
     parameter int MAXOUT = 8,      // outstanding bursts per direction
     parameter int WFD    = 512,    // W-beat FIFO depth
@@ -194,14 +196,30 @@ module seq_burst_fabric #(
     logic            aw_hole, ar_hole;
     logic [SIDW-1:0] aw_tgt,  ar_tgt;
 
+    // G3.1: the LAST MI (layer_0) is a 256 KiB window based at 8<<16, so
+    // it owns 64 KiB slots 8..11 and slots 5..7 are a decode hole.  An AXI
+    // segment must be RANGE-ALIGNED and 0x60000 is not 256 KiB-aligned,
+    // which is why the window moved rather than just growing in place —
+    // the same reason R-b moved it from 5<<16 to 6<<16.
+    logic aw_lay, ar_lay;
     assign aw_slot = s_awaddr[18:16];
     assign ar_slot = s_araddr[18:16];
-    assign aw_hole = (s_awaddr[31:19] != 13'd0) || (aw_slot == 3'd0)
-                     || (aw_slot > 3'(NSLV));
-    assign ar_hole = (s_araddr[31:19] != 13'd0) || (ar_slot == 3'd0)
-                     || (ar_slot > 3'(NSLV));
-    assign aw_tgt  = aw_hole ? SIDW'(ERRT) : SIDW'({1'b0, aw_slot} - 4'd1);
-    assign ar_tgt  = ar_hole ? SIDW'(ERRT) : SIDW'({1'b0, ar_slot} - 4'd1);
+    assign aw_lay  = (s_awaddr[19:18] == 2'd2);   // slots 8..11
+    assign ar_lay  = (s_araddr[19:18] == 2'd2);
+    assign aw_hole = (s_awaddr[31:20] != 12'd0)
+                     || (!aw_lay && ((s_awaddr[19] != 1'b0)
+                                     || (aw_slot == 3'd0)
+                                     || (aw_slot >= 3'(NSLV))));
+    assign ar_hole = (s_araddr[31:20] != 12'd0)
+                     || (!ar_lay && ((s_araddr[19] != 1'b0)
+                                     || (ar_slot == 3'd0)
+                                     || (ar_slot >= 3'(NSLV))));
+    assign aw_tgt  = aw_hole ? SIDW'(ERRT)
+                     : (aw_lay ? SIDW'(NSLV - 1)
+                               : SIDW'({1'b0, aw_slot} - 4'd1));
+    assign ar_tgt  = ar_hole ? SIDW'(ERRT)
+                     : (ar_lay ? SIDW'(NSLV - 1)
+                               : SIDW'({1'b0, ar_slot} - 4'd1));
 
     // ---------------------------------------------------------------------
     // upstream accept / ordering

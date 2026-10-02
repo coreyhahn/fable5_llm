@@ -1,0 +1,68 @@
+=== host: snoke
+=== date: 2026-09-07T00:56:57-06:00
+=== tree: 96ae645
+=== cmd:  bash -c 
+W=/home/cah/r2d2/code/fpga/fable5_t14a_base
+R=/home/cah/r2d2/code/fpga/fable5_llm
+echo "=== THE CONTROL.  079 showed 7 of 8 explicit +verilator+seed+ values fail"
+echo "=== IDENTICALLY on BASE and HEAD, so the discriminator is the random-init"
+echo "=== stream, not the RTL.  This isolates it completely: the SAME binaries,"
+echo "=== the SAME four +seed= values, with the uninitialised state forced to"
+echo "=== ZEROS (+verilator+rand+reset+0) and to ONES (+verilator+rand+reset+1)"
+echo "=== instead of random.  If both trees pass at 0 and 1, nothing about the"
+echo "=== DESIGN differs; only which random values land where."
+for tree in BASE HEAD; do
+  if [ $tree = BASE ]; then D=$W/tb; SHA=a553f18; else D=$R/tb; SHA=1dd2889; fi
+  cd $D
+  for rr in 0 1; do
+    for s in 1 2 3 4; do
+      if ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr \
+           > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1; then
+        echo "$tree $SHA  rand+reset+$rr  +seed=$s  PASS  $(grep -m1 TB_LAYERSHIM_C /tmp/t14a_rr_${tree}_${rr}_${s}.out | cut -c1-70)"
+      else
+        echo "$tree $SHA  rand+reset+$rr  +seed=$s  FAIL  $(grep -m1 -E "%Fatal" /tmp/t14a_rr_${tree}_${rr}_${s}.out | cut -c1-110)"
+      fi
+    done
+  done
+done
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== THE CONTROL.  079 showed 7 of 8 explicit +verilator+seed+ values fail
+=== IDENTICALLY on BASE and HEAD, so the discriminator is the random-init
+=== stream, not the RTL.  This isolates it completely: the SAME binaries,
+=== the SAME four +seed= values, with the uninitialised state forced to
+=== ZEROS (+verilator+rand+reset+0) and to ONES (+verilator+rand+reset+1)
+=== instead of random.  If both trees pass at 0 and 1, nothing about the
+=== DESIGN differs; only which random values land where.
+BASE a553f18  rand+reset+0  +seed=1  PASS  TB_LAYERSHIM_C PASS (seed 1): T1 1428 w, T2 954 w, T3 ALU 2048 + 256 S
+BASE a553f18  rand+reset+0  +seed=2  PASS  TB_LAYERSHIM_C PASS (seed 2): T1 1037 w, T2 922 w, T3 ALU 2048 + 256 S
+BASE a553f18  rand+reset+0  +seed=3  PASS  TB_LAYERSHIM_C PASS (seed 3): T1 1123 w, T2 840 w, T3 ALU 2048 + 256 S
+BASE a553f18  rand+reset+0  +seed=4  PASS  TB_LAYERSHIM_C PASS (seed 4): T1 1378 w, T2 708 w, T3 ALU 2048 + 256 S
+bash: line 15: 2786996 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1
+BASE a553f18  rand+reset+1  +seed=1  FAIL  [2000] %Fatal: vec_alu.sv:770: Assertion failed in TOP.tb_layershim_c.dut.u_alu: vec_alu: w/a scratch port col
+bash: line 15: 2787057 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1
+BASE a553f18  rand+reset+1  +seed=2  FAIL  [2000] %Fatal: vec_alu.sv:770: Assertion failed in TOP.tb_layershim_c.dut.u_alu: vec_alu: w/a scratch port col
+bash: line 15: 2787115 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1
+BASE a553f18  rand+reset+1  +seed=3  FAIL  [2000] %Fatal: vec_alu.sv:770: Assertion failed in TOP.tb_layershim_c.dut.u_alu: vec_alu: w/a scratch port col
+bash: line 15: 2787171 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1
+BASE a553f18  rand+reset+1  +seed=4  FAIL  [2000] %Fatal: vec_alu.sv:770: Assertion failed in TOP.tb_layershim_c.dut.u_alu: vec_alu: w/a scratch port col
+HEAD 1dd2889  rand+reset+0  +seed=1  PASS  TB_LAYERSHIM_C PASS (seed 1): T1 1428 w, T2 954 w, T3 ALU 2048 + 256 S
+HEAD 1dd2889  rand+reset+0  +seed=2  PASS  TB_LAYERSHIM_C PASS (seed 2): T1 1037 w, T2 922 w, T3 ALU 2048 + 256 S
+HEAD 1dd2889  rand+reset+0  +seed=3  PASS  TB_LAYERSHIM_C PASS (seed 3): T1 1123 w, T2 840 w, T3 ALU 2048 + 256 S
+HEAD 1dd2889  rand+reset+0  +seed=4  PASS  TB_LAYERSHIM_C PASS (seed 4): T1 1378 w, T2 708 w, T3 ALU 2048 + 256 S
+bash: line 15: 2787435 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1
+HEAD 1dd2889  rand+reset+1  +seed=1  FAIL  [2000] %Fatal: vec_alu.sv:770: Assertion failed in TOP.tb_layershim_c.dut.u_alu: vec_alu: w/a scratch port col
+bash: line 15: 2787493 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1
+HEAD 1dd2889  rand+reset+1  +seed=2  FAIL  [2000] %Fatal: vec_alu.sv:770: Assertion failed in TOP.tb_layershim_c.dut.u_alu: vec_alu: w/a scratch port col
+bash: line 15: 2787549 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1
+HEAD 1dd2889  rand+reset+1  +seed=3  FAIL  [2000] %Fatal: vec_alu.sv:770: Assertion failed in TOP.tb_layershim_c.dut.u_alu: vec_alu: w/a scratch port col
+bash: line 15: 2787605 Aborted                 (core dumped) ./obj_dir_tb_layershim_c/tb_layershim_c +seed=$s +verilator+rand+reset+$rr > /tmp/t14a_rr_${tree}_${rr}_${s}.out 2>&1
+HEAD 1dd2889  rand+reset+1  +seed=4  FAIL  [2000] %Fatal: vec_alu.sv:770: Assertion failed in TOP.tb_layershim_c.dut.u_alu: vec_alu: w/a scratch port col
+=== rc: 0
+=== end: 2026-09-07T00:57:13-06:00

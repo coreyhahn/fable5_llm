@@ -1,0 +1,48 @@
+=== host: snoke  date: 2026-09-27T17:03:12-06:00
+=== tree: cceb282
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr2_isa_tdd.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+SR2 ISA TDD — B17.0 SEQ_CAPS, B17.1 FENCE mask, hwmap constants, seq_format caps=
+  (a) PASS  FENCE target=0x5 admitted at caps={R1}  -- admitted
+  (b) PASS  FENCE target=0x5 refused at the default caps (today's rule)  -- refused: FENCE takes no operands
+  (b) PASS  FENCE target=0x5 refused at caps=frozenset()  -- refused: FENCE takes no operands
+  (c) PASS  FENCE target=0x10 refused at the default caps  -- refused: FENCE takes no operands
+  (c) PASS  FENCE target=0x10 refused at caps=frozenset()  -- refused: FENCE takes no operands
+  (c) PASS  FENCE target=0x10 refused at caps={R1}  -- refused: FENCE takes only target[3:0] (the channel mask, B17.1)
+  (d) PASS  HALT target=1 refused at the default caps  -- refused: HALT takes no operands
+  (d) PASS  HALT target=1 refused at caps=frozenset()  -- refused: HALT takes no operands
+  (d) PASS  HALT target=1 refused at caps={R1}  -- refused: HALT takes no operands
+  (e) PASS  FENCE imm32=1 refused at the default caps  -- refused: FENCE takes no operands
+  (e) PASS  FENCE imm32=1 refused at caps=frozenset()  -- refused: FENCE takes no operands
+  (e) PASS  FENCE imm32=1 refused at caps={R1}  -- refused: FENCE takes only target[3:0] (the channel mask, B17.1)
+  (e) PASS  FENCE flags=1 refused at caps={R1}  -- refused: FENCE takes only target[3:0] (the channel mask, B17.1)
+  (e) PASS  FENCE addr_lo=1 refused at caps={R1}  -- refused: FENCE takes only target[3:0] (the channel mask, B17.1)
+  (e) PASS  FENCE len_or_addr_hi=1 refused at caps={R1}  -- refused: FENCE takes only target[3:0] (the channel mask, B17.1)
+  (e) PASS  FENCE target=0x8000 refused at caps={R1}  -- refused: FENCE takes only target[3:0] (the channel mask, B17.1)
+  (e) PASS  FENCE target=0 (mask 0 = all) admitted at caps={R1}  -- admitted
+  (e) PASS  FENCE target=0 admitted at the default caps  -- admitted
+  (f) PASS  validate(caps={R9}) raises ValueError naming R9  -- ValueError: unknown SEQ capability R9 (known: ['R1', 'R2', 'R3']) — docs/SEQ_ISA.md B17.0
+  (f) PASS  validate_stream(caps={R9}) raises ValueError naming R9  -- ValueError: unknown SEQ capability R9 (known: ['R1', 'R2', 'R3']) — docs/SEQ_ISA.md B17.0
+  (g) PASS  seq_caps_set(0xDEADC0DE / 0xFAB1CA01 / 0xFAB1CA03 / 0xFAB1CA00)  -- got [[], ['R1'], ['R1', 'R2'], []]
+  (g) PASS  seq_caps_word({R1}) == 0xFAB1CA01  -- 0xfab1ca01
+  (g) PASS  seq_caps_word(set()) == 0xFAB1CA00 and round-trips every subset
+  (g) PASS  HW.S_SEQ_CAPS - HW.SB == 0x64  -- 0x64
+  (g) PASS  SEQ_CAPS_MAGIC == 0xFAB1CA and SEQ_CAP_BITS == {R1:1, R2:2, R3:4}
+  (g) PASS  seq_caps_set(0xFAB1CA08) refuses the unknown bit by name  -- ValueError: SEQ_CAPS 0xfab1ca08: unknown capability bit 3 (known: ['R1', 'R2', 'R3']) — docs/SEQ_ISA.md B17.0
+  (g) PASS  seq_caps_word({R9}) refuses by name  -- ValueError: unknown SEQ capability R9 (known: ['R1', 'R2', 'R3']) — docs/SEQ_ISA.md B17.0
+  (h) PASS  B17.0's offset, magic and bit positions == hwmap's  -- doc (100, 16429514, {'R3': 4, 'R2': 2, 'R1': 1}, {'R1': 1, 'R2': 2, 'R3': 4}, 16429514) vs hwmap (100, 16429514, {'R1': 1, 'R2': 2, 'R3': 4}, {'R1': 1, 'R2': 2, 'R3': 4}, 16429514)
+  (i) PASS  ref/seq_format defines no SEQ_CAPS* name of its own  -- namespace [], source []
+  (j) PASS  shipped 9B template sha256 == the chat_seq pin (9760899df53b3b42...)  -- 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+  (j) PASS  every FENCE in the shipped template carries target 0 (1372 FENCEs)
+  (j) PASS  shipped template validates at the default caps (158536 records)
+  (j) PASS  shipped template validates at caps=frozenset(), same count
+  (j) PASS  shipped template validates at caps={R1}, same count
+  (j) PASS  template with FENCE rec 70 target=0x5 REFUSED at the default caps  -- refused: rec 70: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0005 imm=0x00000000 lo=0x00000000 
+  (j) PASS  template with FENCE rec 70 target=0x5 REFUSED at caps=frozenset()  -- refused: rec 70: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0005 imm=0x00000000 lo=0x00000000 
+  (j) PASS  template with FENCE rec 70 target=0x5 ADMITTED at caps={R1}
+  (j) PASS  disasm prints 'FENCE mask=0x5' for the masked FENCE and plain 'FENCE' for mask 0  -- 'FENCE mask=0x5' / 'FENCE'
+sub-checks: 38 PASS, 0 FAIL; cases FAILING: none of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
+SR2_ISA_TDD: PASS
+=== rc  : 0
+=== end : 2026-09-27T17:03:14-06:00

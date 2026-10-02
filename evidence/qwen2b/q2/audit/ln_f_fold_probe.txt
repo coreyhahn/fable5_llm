@@ -1,0 +1,16 @@
+########## FABLE5_MODEL=0.8b ##########
+model                                  : 0.8b
+model.norm                             : 1024 values
+max |w|      (zero-centered)           : 5.312500
+max |1+w|    (effective RMSNorm scale) : 6.312500
+AUDIT  Q1.14 round(w * 2^14)   |q|max  : 87040  -> 976/1024 over int16
+PROD   Q3.12 round((1+w)*2^12) |q|max  : 25856  -> 0/1024 over int16   (gen_model_script.py:404 asserts 0)
+
+########## FABLE5_MODEL=2b ##########
+model                                  : 2b
+model.norm                             : 2048 values
+max |w|      (zero-centered)           : 5.375000
+max |1+w|    (effective RMSNorm scale) : 6.375000
+AUDIT  Q1.14 round(w * 2^14)   |q|max  : 88064  -> 1890/2048 over int16
+PROD   Q3.12 round((1+w)*2^12) |q|max  : 26112  -> 0/2048 over int16   (gen_model_script.py:404 asserts 0)
+

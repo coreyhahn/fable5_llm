@@ -1,0 +1,90 @@
+=== host: snoke  date: 2026-08-25T06:19:27-06:00
+=== tree: b254009+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/tokenizer_check.py /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/tokenizer_sha.json
+=== venv: 3.12.3 numpy 2.4.6
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+==============================================================================
+FILE PRESENCE
+==============================================================================
+    file                              0.8B      2B      4B      9B
+    tokenizer.json                     yes     yes     yes     yes
+    tokenizer_config.json              yes     yes     yes     yes
+    vocab.json                         yes     yes     yes     yes
+    merges.txt                         yes     yes     yes     yes
+    chat_template.jinja                yes     yes     yes     yes
+    generation_config.json               -       -       -       -
+    special_tokens_map.json              -       -       -       -
+    preprocessor_config.json           yes     yes     yes     yes
+
+==============================================================================
+SHA256 — small files are fetched and hashed locally
+==============================================================================
+
+    tokenizer.json  ->  IDENTICAL across all four
+      Qwen3.5-0.8B   5f9e4d4901a92b99...
+      Qwen3.5-2B     5f9e4d4901a92b99...
+      Qwen3.5-4B     5f9e4d4901a92b99...
+      Qwen3.5-9B     5f9e4d4901a92b99...
+
+    tokenizer_config.json  ->  DIFFERS
+      Qwen3.5-0.8B   49e2b6e395f959f0...
+      Qwen3.5-2B     49e2b6e395f959f0...
+      Qwen3.5-4B     316230d6a809701f...
+      Qwen3.5-9B     316230d6a809701f...
+
+    vocab.json  ->  IDENTICAL across all four
+      Qwen3.5-0.8B   ce99b4cb2983d118...
+      Qwen3.5-2B     ce99b4cb2983d118...
+      Qwen3.5-4B     ce99b4cb2983d118...
+      Qwen3.5-9B     ce99b4cb2983d118...
+
+    merges.txt  ->  IDENTICAL across all four
+      Qwen3.5-0.8B   a9d356d7bdf1ef49...
+      Qwen3.5-2B     a9d356d7bdf1ef49...
+      Qwen3.5-4B     a9d356d7bdf1ef49...
+      Qwen3.5-9B     a9d356d7bdf1ef49...
+
+    chat_template.jinja  ->  DIFFERS
+      Qwen3.5-0.8B   273d8e0e683b8850...
+      Qwen3.5-2B     273d8e0e683b8850...
+      Qwen3.5-4B     a4aee8afcf2e0711...
+      Qwen3.5-9B     a4aee8afcf2e0711...
+
+    generation_config.json  ->  DIFFERS
+      Qwen3.5-0.8B   None
+      Qwen3.5-2B     None
+      Qwen3.5-4B     None
+      Qwen3.5-9B     None
+
+    special_tokens_map.json  ->  DIFFERS
+      Qwen3.5-0.8B   None
+      Qwen3.5-2B     None
+      Qwen3.5-4B     None
+      Qwen3.5-9B     None
+
+    preprocessor_config.json  ->  IDENTICAL across all four
+      Qwen3.5-0.8B   27225450ac9c6529...
+      Qwen3.5-2B     27225450ac9c6529...
+      Qwen3.5-4B     27225450ac9c6529...
+      Qwen3.5-9B     27225450ac9c6529...
+
+==============================================================================
+VERDICT
+==============================================================================
+    tokenizer.json             byte-identical across all four
+    vocab.json                 byte-identical across all four
+    merges.txt                 byte-identical across all four
+    -> TOKENIZATION is identical: the pinned PPL corpus and its 24,528 scored positions CARRY OVER unchanged
+
+    tokenizer_config.json      DIFFERS 0.8B/2B vs 4B/9B
+    chat_template.jinja        DIFFERS 0.8B/2B vs 4B/9B
+    -> the CHAT TEMPLATE is not shared with the shipped models.
+       evidence/qwen_next/feas/f11_tokenizer_diff.log has the diff:
+       it is a 6-line inversion of the enable_thinking default —
+       0.8B/2B emit the EMPTY think block unless asked, 4B/9B emit
+       an OPEN <think> unless asked not to.  The host-side id-spliced
+       template (docs/INSTRUCT_SPEC.md) must be re-derived, and the
+       ntok >= 24 guidance changes because a reasoning block now
+       precedes the answer by default.
+=== rc  : 0
+=== end : 2026-08-25T06:19:31-06:00

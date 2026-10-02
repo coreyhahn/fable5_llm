@@ -1,0 +1,173 @@
+=== host: snoke
+=== date: 2026-09-10T19:30:17-06:00
+=== tree: a1fe35f
+=== cmd:  /home/cah/.venv/bin/python -u evidence/qwen9b/g6/g6_longctx_lockstep.py --top5 5 --continue --dump-kv 111-116 --chat-json evidence/qwen9b/g6/135_15d_chip_k3.json --chat-log evidence/qwen9b/g6/135_15d_bisect_k3.log --out evidence/qwen9b/g6/144_15d_bisect_ref_N113.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=9 MKL_NUM_THREADS=9
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+  amax tap   INSTALLED (--top5 5): GLS.Mach.alu op 10 is wrapped read-only; the reference's own arithmetic is untouched
+=== the board run being replayed: evidence/qwen9b/g6/135_15d_chip_k3.json
+  argv       --nch 4 --max-ctx 700 --ntok 4 --prompt <496 chars>
+  chip       117 launches, context 116, greedy decode
+  chip ids   [760, 3177, 314, 11751]   (4 tok)
+=== FABLE5_MODEL=9b  template=tb/scripts/w9/model_9b_s1.e4  nrec=158536  T_MAX=4096
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38858, full:39626  (1.3s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  session    built in 2.5s  (pos_mode=ldc, t_max=4096)
+  tokenizer  c202236235762e1c871ad0ccb60c8ee5ba337b9a: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  templated  113 ids (12 wrapper + 101 body); feed 113; steps 116 = 112 prefill (lite) + 4 decode (full); auto-reset False
+  verifier   built in 0.8s; region PRESENT {'dn': 15032385536, 'kv': 15057551360, 'cv': 15191769088, 'end': 15194914816}
+  preamble   replayed in 0.0s
+------------------------------------------------------------------------
+  replaying 116 of 116 steps; 112 prefill then 4 decode.  A prefill step's verdict is that BOTH sides emit no token (the lite body has no LM head); the decode steps are the token-for-token comparison.
+------------------------------------------------------------------------
+  step   0 lite tok=248045  pos=0   ref -> no token  chip -> no token  ==   [118.7s  eta  3.8h]   
+  step   1 lite tok=846     pos=1   ref -> no token  chip -> no token  ==   [119.8s  eta  3.8h]   
+  step   2 lite tok=198     pos=2   ref -> no token  chip -> no token  ==   [120.4s  eta  3.8h]   
+  step   3 lite tok=8917    pos=3   ref -> no token  chip -> no token  ==   [120.7s  eta  3.7h]   
+  step   4 lite tok=5437    pos=4   ref -> no token  chip -> no token  ==   [120.6s  eta  3.7h]   
+  step   5 lite tok=1029    pos=5   ref -> no token  chip -> no token  ==   [120.6s  eta  3.7h]   
+  step   6 lite tok=279     pos=6   ref -> no token  chip -> no token  ==   [120.7s  eta  3.6h]   
+  step   7 lite tok=2614    pos=7   ref -> no token  chip -> no token  ==   [120.9s  eta  3.6h]   
+  step   8 lite tok=20438   pos=8   ref -> no token  chip -> no token  ==   [121.0s  eta  3.6h]   
+  step   9 lite tok=303     pos=9   ref -> no token  chip -> no token  ==   [121.0s  eta  3.5h]   
+  step  10 lite tok=799     pos=10  ref -> no token  chip -> no token  ==   [121.0s  eta  3.5h]   
+  step  11 lite tok=11316   pos=11  ref -> no token  chip -> no token  ==   [120.9s  eta  3.5h]   
+  step  12 lite tok=13      pos=12  ref -> no token  chip -> no token  ==   [121.0s  eta  3.4h]   
+  step  13 lite tok=561     pos=13  ref -> no token  chip -> no token  ==   [121.0s  eta  3.4h]   
+  step  14 lite tok=3177    pos=14  ref -> no token  chip -> no token  ==   [120.7s  eta  3.4h]   
+  step  15 lite tok=314     pos=15  ref -> no token  chip -> no token  ==   [120.7s  eta  3.3h]   
+  step  16 lite tok=11751   pos=16  ref -> no token  chip -> no token  ==   [120.8s  eta  3.3h]   
+  step  17 lite tok=13538   pos=17  ref -> no token  chip -> no token  ==   [120.8s  eta  3.3h]   
+  step  18 lite tok=494     pos=18  ref -> no token  chip -> no token  ==   [120.9s  eta  3.3h]   
+  step  19 lite tok=264     pos=19  ref -> no token  chip -> no token  ==   [120.9s  eta  3.2h]   
+  step  20 lite tok=16576   pos=20  ref -> no token  chip -> no token  ==   [120.9s  eta  3.2h]   
+  step  21 lite tok=383     pos=21  ref -> no token  chip -> no token  ==   [120.9s  eta  3.2h]   
+  step  22 lite tok=449     pos=22  ref -> no token  chip -> no token  ==   [121.1s  eta  3.1h]   
+  step  23 lite tok=12552   pos=23  ref -> no token  chip -> no token  ==   [121.1s  eta  3.1h]   
+  step  24 lite tok=303     pos=24  ref -> no token  chip -> no token  ==   [121.0s  eta  3.1h]   
+  step  25 lite tok=279     pos=25  ref -> no token  chip -> no token  ==   [120.8s  eta  3.0h]   
+  step  26 lite tok=181474  pos=26  ref -> no token  chip -> no token  ==   [120.8s  eta  3.0h]   
+  step  27 lite tok=11      pos=27  ref -> no token  chip -> no token  ==   [120.9s  eta  3.0h]   
+  step  28 lite tok=321     pos=28  ref -> no token  chip -> no token  ==   [120.9s  eta  2.9h]   
+  step  29 lite tok=1141    pos=29  ref -> no token  chip -> no token  ==   [120.9s  eta  2.9h]   
+  step  30 lite tok=13959   pos=30  ref -> no token  chip -> no token  ==   [120.9s  eta  2.9h]   
+  step  31 lite tok=11      pos=31  ref -> no token  chip -> no token  ==   [120.9s  eta  2.8h]   
+  step  32 lite tok=37683   pos=32  ref -> no token  chip -> no token  ==   [121.1s  eta  2.8h]   
+  step  33 lite tok=321     pos=33  ref -> no token  chip -> no token  ==   [120.7s  eta  2.8h]   
+  step  34 lite tok=11388   pos=34  ref -> no token  chip -> no token  ==   [120.5s  eta  2.7h]   
+  step  35 lite tok=998     pos=35  ref -> no token  chip -> no token  ==   [121.0s  eta  2.7h]   
+  step  36 lite tok=57571   pos=36  ref -> no token  chip -> no token  ==   [120.9s  eta  2.7h]   
+  step  37 lite tok=1599    pos=37  ref -> no token  chip -> no token  ==   [120.3s  eta  2.6h]   
+  step  38 lite tok=2942    pos=38  ref -> no token  chip -> no token  ==   [121.0s  eta  2.6h]   
+  step  39 lite tok=888     pos=39  ref -> no token  chip -> no token  ==   [121.2s  eta  2.5h]   
+  step  40 lite tok=279     pos=40  ref -> no token  chip -> no token  ==   [120.9s  eta  2.5h]   
+  step  41 lite tok=22892   pos=41  ref -> no token  chip -> no token  ==   [120.9s  eta  2.5h]   
+  step  42 lite tok=13      pos=42  ref -> no token  chip -> no token  ==   [121.1s  eta  2.4h]   
+  step  43 lite tok=561     pos=43  ref -> no token  chip -> no token  ==   [121.1s  eta  2.4h]   
+  step  44 lite tok=3177    pos=44  ref -> no token  chip -> no token  ==   [121.1s  eta  2.4h]   
+  step  45 lite tok=314     pos=45  ref -> no token  chip -> no token  ==   [121.3s  eta  2.3h]   
+  step  46 lite tok=11751   pos=46  ref -> no token  chip -> no token  ==   [120.3s  eta  2.3h]   
+  step  47 lite tok=13538   pos=47  ref -> no token  chip -> no token  ==   [120.1s  eta  2.3h]   
+  step  48 lite tok=494     pos=48  ref -> no token  chip -> no token  ==   [120.0s  eta  2.2h]   
+  step  49 lite tok=264     pos=49  ref -> no token  chip -> no token  ==   [119.9s  eta  2.2h]   
+  step  50 lite tok=16576   pos=50  ref -> no token  chip -> no token  ==   [119.9s  eta  2.2h]   
+  step  51 lite tok=383     pos=51  ref -> no token  chip -> no token  ==   [120.0s  eta  2.1h]   
+  step  52 lite tok=449     pos=52  ref -> no token  chip -> no token  ==   [120.0s  eta  2.1h]   
+  step  53 lite tok=12552   pos=53  ref -> no token  chip -> no token  ==   [120.0s  eta  2.1h]   
+  step  54 lite tok=303     pos=54  ref -> no token  chip -> no token  ==   [120.1s  eta  2.0h]   
+  step  55 lite tok=279     pos=55  ref -> no token  chip -> no token  ==   [120.9s  eta  2.0h]   
+  step  56 lite tok=181474  pos=56  ref -> no token  chip -> no token  ==   [121.4s  eta  2.0h]   
+  step  57 lite tok=11      pos=57  ref -> no token  chip -> no token  ==   [121.0s  eta  1.9h]   
+  step  58 lite tok=321     pos=58  ref -> no token  chip -> no token  ==   [121.4s  eta  1.9h]   
+  step  59 lite tok=1141    pos=59  ref -> no token  chip -> no token  ==   [121.4s  eta  1.9h]   
+  step  60 lite tok=13959   pos=60  ref -> no token  chip -> no token  ==   [121.3s  eta  1.8h]   
+  step  61 lite tok=11      pos=61  ref -> no token  chip -> no token  ==   [121.4s  eta  1.8h]   
+  step  62 lite tok=37683   pos=62  ref -> no token  chip -> no token  ==   [121.5s  eta  1.8h]   
+  step  63 lite tok=321     pos=63  ref -> no token  chip -> no token  ==   [120.8s  eta  1.7h]   
+  step  64 lite tok=11388   pos=64  ref -> no token  chip -> no token  ==   [120.9s  eta  1.7h]   
+  step  65 lite tok=998     pos=65  ref -> no token  chip -> no token  ==   [120.7s  eta  1.7h]   
+  step  66 lite tok=57571   pos=66  ref -> no token  chip -> no token  ==   [121.2s  eta  1.6h]   
+  step  67 lite tok=1599    pos=67  ref -> no token  chip -> no token  ==   [121.2s  eta  1.6h]   
+  step  68 lite tok=2942    pos=68  ref -> no token  chip -> no token  ==   [121.0s  eta  1.6h]   
+  step  69 lite tok=888     pos=69  ref -> no token  chip -> no token  ==   [120.7s  eta  1.5h]   
+  step  70 lite tok=279     pos=70  ref -> no token  chip -> no token  ==   [121.0s  eta  1.5h]   
+  step  71 lite tok=22892   pos=71  ref -> no token  chip -> no token  ==   [121.0s  eta  1.5h]   
+  step  72 lite tok=13      pos=72  ref -> no token  chip -> no token  ==   [121.0s  eta  1.4h]   
+  step  73 lite tok=561     pos=73  ref -> no token  chip -> no token  ==   [121.0s  eta  1.4h]   
+  step  74 lite tok=3177    pos=74  ref -> no token  chip -> no token  ==   [121.0s  eta  1.4h]   
+  step  75 lite tok=314     pos=75  ref -> no token  chip -> no token  ==   [121.0s  eta  1.3h]   
+  step  76 lite tok=11751   pos=76  ref -> no token  chip -> no token  ==   [121.3s  eta  1.3h]   
+  step  77 lite tok=13538   pos=77  ref -> no token  chip -> no token  ==   [121.3s  eta  1.3h]   
+  step  78 lite tok=494     pos=78  ref -> no token  chip -> no token  ==   [121.4s  eta  1.2h]   
+  step  79 lite tok=264     pos=79  ref -> no token  chip -> no token  ==   [121.3s  eta  1.2h]   
+  step  80 lite tok=16576   pos=80  ref -> no token  chip -> no token  ==   [121.4s  eta  1.2h]   
+  step  81 lite tok=383     pos=81  ref -> no token  chip -> no token  ==   [121.3s  eta  1.1h]   
+  step  82 lite tok=449     pos=82  ref -> no token  chip -> no token  ==   [121.5s  eta  1.1h]   
+  step  83 lite tok=12552   pos=83  ref -> no token  chip -> no token  ==   [121.7s  eta  1.1h]   
+  step  84 lite tok=303     pos=84  ref -> no token  chip -> no token  ==   [121.5s  eta  1.0h]   
+  step  85 lite tok=279     pos=85  ref -> no token  chip -> no token  ==   [121.3s  eta  1.0h]   
+  step  86 lite tok=181474  pos=86  ref -> no token  chip -> no token  ==   [121.4s  eta  1.0h]   
+  step  87 lite tok=11      pos=87  ref -> no token  chip -> no token  ==   [121.6s  eta  0.9h]   
+  step  88 lite tok=321     pos=88  ref -> no token  chip -> no token  ==   [121.5s  eta  0.9h]   
+  step  89 lite tok=1141    pos=89  ref -> no token  chip -> no token  ==   [121.4s  eta  0.9h]   
+  step  90 lite tok=13959   pos=90  ref -> no token  chip -> no token  ==   [121.5s  eta  0.8h]   
+  step  91 lite tok=11      pos=91  ref -> no token  chip -> no token  ==   [121.5s  eta  0.8h]   
+  step  92 lite tok=37683   pos=92  ref -> no token  chip -> no token  ==   [121.5s  eta  0.8h]   
+  step  93 lite tok=321     pos=93  ref -> no token  chip -> no token  ==   [121.5s  eta  0.7h]   
+  step  94 lite tok=11388   pos=94  ref -> no token  chip -> no token  ==   [121.6s  eta  0.7h]   
+  step  95 lite tok=998     pos=95  ref -> no token  chip -> no token  ==   [121.5s  eta  0.7h]   
+  step  96 lite tok=57571   pos=96  ref -> no token  chip -> no token  ==   [121.4s  eta  0.6h]   
+  step  97 lite tok=1599    pos=97  ref -> no token  chip -> no token  ==   [121.3s  eta  0.6h]   
+  step  98 lite tok=2942    pos=98  ref -> no token  chip -> no token  ==   [121.2s  eta  0.6h]   
+  step  99 lite tok=888     pos=99  ref -> no token  chip -> no token  ==   [121.4s  eta  0.5h]   
+  step 100 lite tok=279     pos=100 ref -> no token  chip -> no token  ==   [121.5s  eta  0.5h]   
+  step 101 lite tok=22892   pos=101 ref -> no token  chip -> no token  ==   [121.7s  eta  0.5h]   
+  step 102 lite tok=13      pos=102 ref -> no token  chip -> no token  ==   [121.8s  eta  0.4h]   
+  step 103 lite tok=220     pos=103 ref -> no token  chip -> no token  ==   [121.7s  eta  0.4h]   
+  step 104 lite tok=248046  pos=104 ref -> no token  chip -> no token  ==   [121.7s  eta  0.4h]   
+  step 105 lite tok=198     pos=105 ref -> no token  chip -> no token  ==   [121.7s  eta  0.3h]   
+  step 106 lite tok=248045  pos=106 ref -> no token  chip -> no token  ==   [121.8s  eta  0.3h]   
+  step 107 lite tok=74455   pos=107 ref -> no token  chip -> no token  ==   [121.9s  eta  0.3h]   
+  step 108 lite tok=198     pos=108 ref -> no token  chip -> no token  ==   [122.1s  eta  0.2h]   
+  step 109 lite tok=248068  pos=109 ref -> no token  chip -> no token  ==   [122.5s  eta  0.2h]   
+  step 110 lite tok=271     pos=110 ref -> no token  chip -> no token  ==   [122.3s  eta  0.2h]   
+  step 111 lite tok=248069  pos=111 ref -> no token  chip -> no token  ==   [121.8s  eta  0.1h]   
+  step 112 full tok=271     pos=112 ref ->      760  chip -> 760  ==   [137.4s  eta  0.1h]   'The'
+      top5    760:170437  57590:163020  19205:140790  1919:131158  332:130218   #1-#2 margin 7417 (4.3518% of the top logit)
+      chip's 760 is rank 1 in the reference, value 170437, 0 below the top
+  step 113 full tok=760     pos=113 ref ->     3177  chip -> 3177  ==   [137.2s  eta  0.1h]   ' city'
+      top5    3177:82189  20438:80938  3766:72325  1414:71911  3889:67521   #1-#2 margin 1251 (1.5221% of the top logit)
+      chip's 3177 is rank 1 in the reference, value 82189, 0 below the top
+  step 114 full tok=3177    pos=114 ref ->      314  chip -> 314  ==   [137.7s  eta  0.0h]   ' of'
+      top5    314:201693  13538:139538  579:138828  5820:127439  421:126508   #1-#2 margin 62155 (30.8166% of the top logit)
+      chip's 314 is rank 1 in the reference, value 201693, 0 below the top
+  step 115 full tok=314     pos=115 ref ->    11751  chip -> 11751  ==   [137.4s  eta  0.0h]   ' Paris'
+      top5    11751:203255  109705:110796  57590:109070  2972:106288  9338:100003   #1-#2 margin 92459 (45.4892% of the top logit)
+      chip's 11751 is rank 1 in the reference, value 203255, 0 below the top
+------------------------------------------------------------------------
+  replayed   116 of 116 steps in 3.92 h (121.6 s/step)
+  ref ids    [760, 3177, 314, 11751]
+  chip ids   [760, 3177, 314, 11751]
+  decode     4/4 of the chip's tokens reproduced (4 decode steps replayed)
+  dump-kv    the REFERENCE region's rows 111..116, layers [0, 4, 7], through g6_kv_rows.dump()
+  region     155 MiB [0x380000000,0x389b00000)  sha256 0a0cf5d28e72495c781da0245dc7996d1a1bb99e1e460430106facd1b010b68b
+  DN alone   24 MiB  sha256 6cd5bc6e016f139ee8feddd27bc530637bd3af2d06da4a25732da2b53d42f8f2
+  L0  kvh0 K  addr 0x00381800000  rows 111..116: 5/6 non-zero  exp [252, 252, 253, 252, 252, 0]...
+  L0  kvh0 V  addr 0x00381a00000  rows 111..116: 5/6 non-zero  exp [250, 250, 250, 251, 251, 0]...
+  L4  kvh0 K  addr 0x00385800000  rows 111..116: 5/6 non-zero  exp [252, 252, 252, 253, 252, 0]...
+  L4  kvh0 V  addr 0x00385a00000  rows 111..116: 5/6 non-zero  exp [251, 251, 251, 252, 251, 0]...
+  L7  kvh0 K  addr 0x00388800000  rows 111..116: 5/6 non-zero  exp [252, 252, 252, 252, 252, 0]...
+  L7  kvh0 V  addr 0x00388a00000  rows 111..116: 5/6 non-zero  exp [254, 254, 254, 254, 254, 0]...
+  dump-kv -> evidence/qwen9b/g6/144_15d_bisect_ref_N113_kv.json
+LONGCTX_LOCKSTEP: PASS 116/116
+=== rc: 0
+=== end: 2026-09-10T23:25:31-06:00

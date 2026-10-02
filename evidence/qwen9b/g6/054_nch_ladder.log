@@ -1,0 +1,87 @@
+=== host: snoke
+=== date: 2026-09-09T21:56:17-06:00
+=== tree: 9bcacd6
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/g6/g6_nch.py --prefix tb/scripts/w9/model_9b_s1.e4
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== [0] the board BEFORE this rung (AXI-Lite reads only, no DMA)
+  MAGIC        0xfab1e001 (OK)
+  VERSION      0xc973c18a   build_041_ckr2_AltSpreadLogic_high (Task 14-B, the 9B design)
+  SCRATCH      0x00000000
+  CALIB        0xf        (ALL FOUR CHANNELS CALIBRATED)
+  UPTIME       2182815636459 cycles = 8731.263 s @ 250 MHz  (lo 0x39f35beb hi 0x000001fc)
+  layer IDENT  0xfab1e5a0 (OK)
+  matvec0 IDENT 0xfab1c4a0 (OK)
+  matvec1 IDENT 0xfab1c4a1 (OK)
+  matvec2 IDENT 0xfab1c4a2 (OK)
+  matvec3 IDENT 0xfab1c4a3 (OK)
+  SEQ IDENT    0xfab1e5e0 (OK)
+
+=== [1] THE CONTRACT — is nch a flag, or a property of the artifact?
+  sw/seq_run.py declares a --nch option:      NO
+  sw/seq_run.py declares --four-chan:         YES
+  --four-chan's own help says:                "The mode is otherwise auto-detected from meta['nch']; this flag just asserts it."
+  => nch is a property of the ARTIFACT.  An nch=1 rung needs an nch=1 STREAM.
+
+=== [2] THE ENUMERATION — meta['nch'] for EVERY committed 9B artifact
+  nch=4  nrec=   4091  tb/scripts/w9/lay9b_s1.e4.seq.json
+  nch=4  nrec=   4091  tb/scripts/w9/lay9b_s2.e4.seq.json
+  nch=4  nrec=   4091  tb/scripts/w9/lay9b_s3.e4.seq.json
+  nch=4  nrec=   4091  tb/scripts/w9/lay9b_s4.e4.seq.json
+  nch=4  nrec= 158536  tb/scripts/w9/model_9b_s1.e4.seq.json
+  nch=4  nrec=  79289  tb/scripts/w9/model_9b_s2.e4.seq.json
+  nch=4  nrec=  79289  tb/scripts/w9/model_9b_s3.e4.seq.json
+  nch=4  nrec= 158536  tb/scripts/w9/model_9b_s4.e4.seq.json
+  nch=4  nrec=   2108  tb/scripts/w9/tok9b_s1.e4.seq.json
+  nch=4  nrec=   2108  tb/scripts/w9/tok9b_s2.e4.seq.json
+  nch=4  nrec=   2108  tb/scripts/w9/tok9b_s3.e4.seq.json
+  nch=4  nrec=   2108  tb/scripts/w9/tok9b_s4.e4.seq.json
+  nch=4  nrec=   4091  tb/scripts/w9/emit2/lay9b_s1/rep1.e4.seq.json
+  nch=4  nrec=   4091  tb/scripts/w9/emit2/lay9b_s2/rep1.e4.seq.json
+  nch=4  nrec=   4091  tb/scripts/w9/emit2/lay9b_s3/rep1.e4.seq.json
+  nch=4  nrec=   4091  tb/scripts/w9/emit2/lay9b_s4/rep1.e4.seq.json
+  nch=4  nrec= 158536  tb/scripts/w9/emit2/model_9b_s1/rep2.e4.seq.json
+  nch=4  nrec=  79289  tb/scripts/w9/emit2/model_9b_s2/rep2.e4.seq.json
+  nch=4  nrec=  79289  tb/scripts/w9/emit2/model_9b_s3/rep2.e4.seq.json
+  nch=4  nrec= 158536  tb/scripts/w9/emit2/model_9b_s4/rep2.e4.seq.json
+  nch=4  nrec=   4091  tb/scripts/w9/emit2/red/rep1.e4.seq.json
+  nch=4  nrec=   2108  tb/scripts/w9/emit2/tok9b_s1/rep1.e4.seq.json
+  nch=4  nrec=   2108  tb/scripts/w9/emit2/tok9b_s2/rep1.e4.seq.json
+  nch=4  nrec=   2108  tb/scripts/w9/emit2/tok9b_s3/rep1.e4.seq.json
+  nch=4  nrec=   2108  tb/scripts/w9/emit2/tok9b_s4/rep1.e4.seq.json
+  --- 25 9B artifact(s); at nch=1: 0
+
+  the CONTROL — the same reader on the 0.8B/2B set, where an nch=1 stream exists
+  nch=1 (key absent -> 1)  nrec=  60495  tb/scripts/w4/model_v2_s1.e.seq.json
+  nch=4  nrec=  68119  tb/scripts/w4/model_v2_s1.e4.seq.json
+
+=== [3] THE REFUSAL — the RESIDENT artifact's manifest, offered to plan_weights at nch=1
+  base            tb/scripts/w9/model_9b_s1
+  images          249  packed 4091805696 B = 3,902.2 MiB
+  window          W_BASE 0x10000000 .. EMB_BASE 0x60000000 = 1,280 MiB per channel
+  nch=1           REFUSED: AssertionError: weight images (249 wids, 4091904000 bytes packed from 0x10000000) reach chan 0 0x103e58000, past EMB_BASE 0x60000000 — move EMB_BASE or split the images across DDR channels
+  nch=4           ACCEPTED — busiest channel 978.6 MiB = 76.5 % of the window
+
+=== [4] the board AFTER this rung — nothing moved
+  MAGIC        0xfab1e001 (OK)
+  VERSION      0xc973c18a   build_041_ckr2_AltSpreadLogic_high (Task 14-B, the 9B design)
+  SCRATCH      0x00000000
+  CALIB        0xf        (ALL FOUR CHANNELS CALIBRATED)
+  UPTIME       2182878703693 cycles = 8731.515 s @ 250 MHz  (lo 0x3db5b04d hi 0x000001fc)
+  layer IDENT  0xfab1e5a0 (OK)
+  matvec0 IDENT 0xfab1c4a0 (OK)
+  matvec1 IDENT 0xfab1c4a1 (OK)
+  matvec2 IDENT 0xfab1c4a2 (OK)
+  matvec3 IDENT 0xfab1c4a3 (OK)
+  SEQ IDENT    0xfab1e5e0 (OK)
+  UPTIME advanced 0.252 s across the rung (the device was never reset)
+
+G6_NCH: nch=1 REFUSED BY THE ADDRESS MAP, nch=4 is the only pack that fits
+G6_NCH: PASS (0 problem(s))
+=== rc: 0
+=== end: 2026-09-09T21:56:18-06:00

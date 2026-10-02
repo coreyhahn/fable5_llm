@@ -1,0 +1,49 @@
+=== host: snoke
+=== date: 2026-09-09T20:12:36-06:00
+=== tree: d52bddc
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/g6/g6_census.py --prefix tb/scripts/w9/model_9b_s1.e4 --fresh-state --json evidence/qwen9b/g6/020_census.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+--- tb/scripts/w9/model_9b_s1.e4: 158536 records, 6 steps, loop 3 steps, 6 tokens
+  weights   SKIPPED (--skip-weights: assumed resident)
+  seqdata   563712 B -> 0xc000000  [readback OK]
+  stream    2536576 B (158536 records) -> 0x9000000  [readback OK]
+  state     CSRs only (--skip-weights): SB_* <- 0x38000/0x38180/0x38980
+  stream/blob re-uploaded and verified (3.0 MiB)
+--- fresh state: 155 MiB of model_9b_s1.state.bin -> 0x380000000 (chan 3), sha256 3a716409081f0c54
+--- scratch: 65536 words zeroed and read back, 0 non-zero
+--- lane counters cleared: L_LCYC=0 L_SDMA_CYC=0
+  EMBLOG2    13 (8192 B embedding rows)
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+--- run: pc=158535/158536 err_code=0x00 (no error) wall 0.823s
+  tokens        [2614, 314, 279, 369, 11751, 13]
+  S_PERF_CYC    205681492 cycles = 822.726 ms device @ 250 MHz;  S_PERF_REC 237784
+--- THE TWO LANES (SEQ_ISA v2.1 A1.4)
+  L_LCYC        62382496 cycles = 249.530 ms = 41.588 ms/token   (compute lane, busy_cmp)
+  L_SDMA_CYC    7687467 cycles = 30.750 ms = 5.125 ms/token   (DMA lane, busy_dma)
+  sum of lanes  280.280 ms of 822.726 ms device (34.1 %)
+--- per-channel matvec spread
+  matvec0      72656 cycles = 0.291 ms, 67584 beats = 4.1 MiB
+  matvec1      18098 cycles = 0.072 ms, 16896 beats = 1.0 MiB
+  matvec2      72795 cycles = 0.291 ms, 67584 beats = 4.1 MiB
+  matvec3      72653 cycles = 0.291 ms, 67584 beats = 4.1 MiB
+  spread        max/min = 4.0223 (54697 cycles = 0.219 ms)
+--- the loop edges seen on chip (backward jumps of S_PC)
+  edge 0: pc ->  118911  S_PERF_CYC    137103298
+  edge 1: pc ->  118911  S_PERF_CYC    171388634   delta 34285336 cycles = 137.141 ms
+  loop iteration (steady-state step): mean 137.141 ms over 1 interval(s), spread 34285336..34285336 cycles
+--- BOTH CONVENTIONS (RD_GATE §1)
+  gate         device/ntok = 822.726/6 = 137.1210 ms/token = 7.2928 tok/s
+  steady-state one loop iteration = 137.1413 ms/token = 7.2917 tok/s
+  the preamble it implies: 822.726 - 137.1413*6 = -0.122 ms (the 2B constant was 8.671 ms, and it was a 2B measurement)
+  TOKENS IDENTICAL to the .seq.json
+  json -> evidence/qwen9b/g6/020_census.json
+G6_CENSUS: PASS
+=== rc: 0
+=== end: 2026-09-09T20:12:39-06:00

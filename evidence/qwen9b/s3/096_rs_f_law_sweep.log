@@ -1,0 +1,52 @@
+=== host: snoke
+=== date: 2026-09-10T04:37:31-06:00
+=== tree: a8a93e6+dirty
+=== cmd:  bash /home/cah/r2d2/code/fpga/.preship_clockroot_scratch/rsf_tags.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== (b)11 follow-through: the LAW at every tag, and layer_fixed's own selftest
+
+--- 1. RS_F resolves per tag, with FABLE5_RS_F unset ---
+  ok    FABLE5_MODEL=0.8b -> RS_F 8
+  ok    FABLE5_MODEL=2b -> RS_F 8
+  ok    FABLE5_MODEL=4b -> RS_F 8
+  ok    FABLE5_MODEL=9b -> RS_F 7
+
+--- 2. an AGREEING FABLE5_RS_F is accepted at every tag ---
+  ok    FABLE5_MODEL=0.8b FABLE5_RS_F=8 -> RS_F 8
+  ok    FABLE5_MODEL=2b FABLE5_RS_F=8 -> RS_F 8
+  ok    FABLE5_MODEL=4b FABLE5_RS_F=8 -> RS_F 8
+  ok    FABLE5_MODEL=9b FABLE5_RS_F=7 -> RS_F 7
+
+--- 3. a DISAGREEING one is refused at every tag (A2.5's hazard, inverted) ---
+  ok    FABLE5_MODEL=0.8b FABLE5_RS_F=7 REFUSED (rc 1)
+  ok    FABLE5_MODEL=2b FABLE5_RS_F=7 REFUSED (rc 1)
+  ok    FABLE5_MODEL=9b FABLE5_RS_F=8 REFUSED (rc 1)
+
+--- 4. the DELIBERATE rider still works (the G1 sweep's need) ---
+  ok    9b + FABLE5_RS_F=8 + FABLE5_RS_F_RIDER=1 -> RS_F 8
+
+--- 5. ref/layer_fixed.py's own _selftest, at 0.8b and at 2b ---
+  FABLE5_MODEL=0.8b rc=0
+        w8: soak linear_attention   16 steps: rms=4.26 sat=0 OK
+        w8: soak full_attention     16 steps: rms=5.96 sat=0 OK
+        w8: quant_layer(w8=True) -> a W8 image behind all 15/15 matvecs of both layer types, every non-matvec tensor bit-identical to the W4 layer's OK
+        w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+        w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+      LAYER_FIXED SELFTEST PASS
+  FABLE5_MODEL=2b rc=0
+        w8: soak linear_attention   16 steps: rms=10.04 sat=0 OK
+        w8: soak full_attention     16 steps: rms=11.67 sat=0 OK
+        w8: quant_layer(w8=True) -> a W8 image behind all 15/15 matvecs of both layer types, every non-matvec tensor bit-identical to the W4 layer's OK
+        w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+        w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+      LAYER_FIXED SELFTEST PASS
+
+RS_F_LAW_SWEEP: PASS
+=== rc: 0
+=== end: 2026-09-10T04:51:16-06:00

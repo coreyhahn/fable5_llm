@@ -1,0 +1,107 @@
+=== host: snoke
+=== date: 2026-08-31T11:49:13-06:00
+=== tree: b242370+dirty
+=== cmd:  bash evidence/qwen2b/rd/rd_boardfree.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== version constants in the tree ===
+seq_run.py:105:EXPECTED_SEQ_VERSION = 0x54443B9F  # build_035_fp2a_exc_po (R-d: W8 engine mode,
+infer.py:95:EXPECT_VERSION = 0x54443B9F  # build_035_fp2a_exc_po (R-d: W8 engine mode)
+
+=== make seq_selftest ===
+.venv/bin/python -u seq_run.py --selftest
+seq_run selftest (pure python, no board):
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+      1987 records, 63360 B blob, 25 LDC (0 indirected), 44 MVGO, 0 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/tok2_s1.e
+      1080 records, 61568 B blob, 14 LDC (1 indirected), 26 MVGO, 3 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e
+      60495 records, 1007360 B blob, 538 LDC (24 indirected), 1592 MVGO, 6 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e4
+      68119 records, 1007360 B blob, 538 LDC (24 indirected), 3464 MVGO, 6 expected tokens
+  --- /tmp/fable5_rp_0sb5hb0c/rp.e
+      53 records, 2048 B blob, 1 LDC (0 indirected), 12 MVGO, 1 expected tokens
+  --- R-c: the emitter's placement-order guard
+  --- R-b: emb_row_bytes manifest key + EMBLOG2 CSR
+  seq_run selftest: 2758 passed, 0 failed
+=== make serve_test ===
+.venv/bin/python -u serve.py --selftest
+serve.py selftest (no board):
+  mock       deterministic fake backend: no board, no flock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template OFF (--raw)
+  chat template (T4/T5/T8) in BoardBackend/MockBackend.encode:
+  rung 4 S4: the per-request nch assertion
+  sampling request fields, refusal path and telemetry (S5)
+  mock       deterministic fake backend: no board, no flock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no flock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no flock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no flock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  chat_seq API the adapter depends on (/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py):
+    chat_seq.ChatSession                                       ok
+    chat_seq.SeqLock                                           ok
+    chat_seq.ChatSeqError                                      ok
+    chat_seq.load_tokenizer                                    ok
+    chat_seq.TEMPLATE_PREFIX                                   ok
+    chat_seq.T_MAX                                             ok
+    chat_seq.ChatTemplate                                      ok
+    chat_seq.CHAT_STOP_IDS                                     ok
+    chat_seq.TOK_IM_START                                      ok
+    chat_seq.TOK_IM_END                                        ok
+    chat_seq.TOK_THINK                                         ok
+    chat_seq.TOK_THINK_END                                     ok
+    chat_seq.HF_REF_SINGLE                                     ok
+    chat_seq.HF_REF_3MSG_INCR                                  ok
+    ChatTemplate.turn_ids(self, text, system=None, first=True, carry=None) ok
+    ChatTemplate.render(self, messages, add_generation_prompt=True) ok
+    ChatTemplate.visible(self, ids)                            ok
+    ChatSession.open_board(self)                               ok
+    ChatSession.bring_up(self)                                 ok
+    ChatSession.preamble(self)                                 ok
+    ChatSession.step(self, tok, lite)                          ok
+    ChatSession.plan_turn(self, ids, ntok)                     ok
+    ChatSession.attach_template(self, tk, log=<built-in function print>) ok
+    ChatSession.truncate_history(self, ids, ntok)              ok
+    SeqLock.acquire()                                          ok
+    SeqLock.release()                                          ok
+    args namespace covers chat_seq's args.* reads              ok
+  backend API check: PASS
+  serve selftest: 85 passed, 0 failed
+=== chat_seq --selftest ===
+chat_seq selftest (pure python, NO board):
+  [1] template source, frozen sha256, spec slice indices
+  [2] image assembly: agent A vs my own spec slices
+  [3] position blob (gate A2 in host form) + const blob
+    (posblob generated in 0.0s)
+  [4] the per-launch patch (agent A) in both position modes
+  [5] DDR plan, image placement, one-shot relocation
+  [6] context guard T+(P-1)+N < 512 and history truncation
+  [7] residency witness manifest + sha256 probe
+  [8] launch protocol against the offline seq_unit model
+  [9] turn bookkeeping: schedule, prefill-lite, EOS, --ntok, reset
+  [9b] canned schedule reconstruction (the always-seed rule)
+  [10] tokenizer (infer.py BpeTok) + stop ids
+  [11] flock(sw/.seq.lock) exclusivity
+  [12] chat template G1: HF id equality, incremental multi-turn, T7
+  [13] sampling: dequant, temperature/top-k/top-p, seeded draws
+  [14] candidate sources: chip stub, fixture, refusal path
+  [15] the full step path over a fixture + a fake board
+  [16] --verify-head against a fake head + fake scratchpad
+  [17] S7 layout: the LM head never overwrites x8 (0x800..0xBFF)
+  [18] sw/head_cache.py: exact integer path + cache discipline
+  [19] rung 4 S4: nch sessions, derived geometry, weight placement
+  [19c] rung 4 S6: OUT FIFO depth 64, 7-bit count, sticky of_ovf
+  [20] rung 4 S8: TOPK-32 STATUS decode + PTR auto-increment
+  chat_seq selftest: 351 passed, 0 failed
+SELFTEST_RCS seq=0 serve=0 chat=0
+BOARDFREE_PASS
+=== rc: 0
+=== end: 2026-08-31T11:49:46-06:00

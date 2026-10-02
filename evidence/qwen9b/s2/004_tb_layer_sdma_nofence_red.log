@@ -1,0 +1,67 @@
+=== host: snoke
+=== date: 2026-09-04T18:48:53-06:00
+=== tree: d15c52b+dirty
+=== cmd:  make -C tb tb_layer_sdma_nofence SDMA_SEEDS=1 2 3 4
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+verilator --binary --timing -j 4 -Wall \
+  -GSDMA_NOFENCE=1 \
+  --Mdir obj_dir_tb_layersdma_nf -o tb_layersdma_nf \
+  --top-module tb_layer_sdma \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv axi_ram_bfm.sv tb_layer_sdma.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layersdma_nf'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layersdma_nf'
+-- tb_layer_sdma_nofence seed 1 (MUST FAIL) --
+TB_LAYER_SDMA start: vecdir=vectors/s1 seed=1 nofence=1
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+[1263364000] %Fatal: tb_layer_sdma.sv:286: Assertion failed in TOP.tb_layer_sdma.chk: TB_LAYER_SDMA FAIL: F1: the DNST behind an in-flight SLD matched the LOADED result on 0 of 128 outputs — with the fence bypassed it reads the pre-load slot instead (this IS the nofence RED)
+%Error: tb_layer_sdma.sv:286: Verilog $stop
+Aborting...
+Aborted (core dumped)
+OK: the F1 bypass reads stale state and FAILS at seed 1
+-- tb_layer_sdma_nofence seed 2 (MUST FAIL) --
+TB_LAYER_SDMA start: vecdir=vectors/s2 seed=2 nofence=1
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+[1263364000] %Fatal: tb_layer_sdma.sv:286: Assertion failed in TOP.tb_layer_sdma.chk: TB_LAYER_SDMA FAIL: F1: the DNST behind an in-flight SLD matched the LOADED result on 0 of 128 outputs — with the fence bypassed it reads the pre-load slot instead (this IS the nofence RED)
+%Error: tb_layer_sdma.sv:286: Verilog $stop
+Aborting...
+Aborted (core dumped)
+OK: the F1 bypass reads stale state and FAILS at seed 2
+-- tb_layer_sdma_nofence seed 3 (MUST FAIL) --
+TB_LAYER_SDMA start: vecdir=vectors/s3 seed=3 nofence=1
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+[1263364000] %Fatal: tb_layer_sdma.sv:286: Assertion failed in TOP.tb_layer_sdma.chk: TB_LAYER_SDMA FAIL: F1: the DNST behind an in-flight SLD matched the LOADED result on 0 of 128 outputs — with the fence bypassed it reads the pre-load slot instead (this IS the nofence RED)
+%Error: tb_layer_sdma.sv:286: Verilog $stop
+Aborting...
+Aborted (core dumped)
+OK: the F1 bypass reads stale state and FAILS at seed 3
+-- tb_layer_sdma_nofence seed 4 (MUST FAIL) --
+TB_LAYER_SDMA start: vecdir=vectors/s4 seed=4 nofence=1
+-- case 1: dn_roundtrip (DDR -> slot -> DDR byte for byte, then the DMA and DNZ write paths compared through dn_step)
+-- case 2: kv_roundtrip at T = 0, 1, 1023, 4096 (rows AND the exponent side array)
+-- case 3: cv_roundtrip (16 B rows split across the weight and state memories, spec A1.2)
+-- case 4: f1_stall (DNST issued while its slot's SLD is in flight).  -G SDMA_NOFENCE=1 must FAIL this compare.
+[1263364000] %Fatal: tb_layer_sdma.sv:286: Assertion failed in TOP.tb_layer_sdma.chk: TB_LAYER_SDMA FAIL: F1: the DNST behind an in-flight SLD matched the LOADED result on 0 of 128 outputs — with the fence bypassed it reads the pre-load slot instead (this IS the nofence RED)
+%Error: tb_layer_sdma.sv:286: Verilog $stop
+Aborting...
+Aborted (core dumped)
+OK: the F1 bypass reads stale state and FAILS at seed 4
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc: 0
+=== end: 2026-09-04T18:49:26-06:00

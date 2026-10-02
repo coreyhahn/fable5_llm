@@ -1,0 +1,109 @@
+=== host: snoke  date: 2026-09-23T21:58:20-06:00
+=== tree: f6e119d+dirty
+=== dirty: ?? docs/NVFP4_STUDY.md
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/nvfp4/rung2_table.py
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+PROVENANCE 9B: 10 rows share corpus 6bf4f8677a3b3fff…, checkpoint 2721100f724faea5…, window 512, batch 4, 24528 positions, host snoke, device cpu float32, threads 12, model 9b
+n54 (GPTQ) json: ABSENT | queue START evidence/qwen_next/nvfp4/n48_rung2_queue.log:44 | END none | KILLED none
+  queue n54 events: START='2026-09-23T21:45:28-06:00 START n54 n54_ppl_9b_w4g64gptq_a8_cpu.log pgid 545112 running_before=0 available=231GB' END=None KILLED=None
+
+PANEL A — 9B quality (PPL = the json's ppl field) beside the modelled 9B throughput
+key | row | PPL | dPPL vs bf16 | d% | % of shipped gap left | d PPL vs shipped | 9B tok/s (D) | d tok/s vs shipped | cite
+bf16 | bf16 anchor | 8.218339 | +0.000000 | +0.00% | 0.00% | -1.341880 | n/a | n/a | evidence/qwen_next/nvfp4/n46_ppl_9b_bf16_cpu.json:155
+SHIP | W4 g128 + A8 (THE SHIPPED POINT) | 9.560220 | +1.341880 | +16.33% | 100.00% | +0.000000 | 7.293 | +0.000 (+0.00%) | evidence/qwen_next/nvfp4/n47_ppl_9b_w4g128_a8_cpu.json:331
+GPTQ | W4 g64 GPTQ + A8 | ABSENT (json not written) | — | — | — | — | 7.206 (modelled) | -0.087 (-1.19%) | evidence/qwen_next/nvfp4/n54_ppl_9b_w4g64gptq_a8_cpu.json
+NV_A8 | NVFP4 + A8 | 8.954712 | +0.736373 | +8.96% | 54.88% | -0.605507 | 7.039 | -0.254 (-3.48%) | evidence/qwen_next/nvfp4/n53_ppl_9b_nvfp4_a8_cpu.json:331
+NVH_A8 | NVFP4 + RHT + A8 (seed 0) | 8.592140 | +0.373800 | +4.55% | 27.86% | -0.968080 | 7.039 | -0.254 (-3.48%) | evidence/qwen_next/nvfp4/n52_ppl_9b_nvfp4h_a8_seed0_cpu.json:461
+NVH_A8_S1 | NVFP4 + RHT + A8 (seed 1) | 8.572686 | +0.354347 | +4.31% | 26.41% | -0.987533 | 7.039 | -0.254 (-3.48%) | evidence/qwen_next/nvfp4/n59_ppl_9b_nvfp4h_a8_seed1_cpu.json:461
+NV_DYN | full NVFP4, dynamic act scale | 8.696983 | +0.478644 | +5.82% | 35.67% | -0.863237 | 7.039 | -0.254 (-3.48%) | evidence/qwen_next/nvfp4/n51_ppl_9b_nvfp4_actdyn_cpu.json:331
+NV | NVFP4, weights only | 8.409468 | +0.191128 | +2.33% | 14.24% | -1.150752 | 7.039 | -0.254 (-3.48%) | evidence/qwen_next/nvfp4/n55_ppl_9b_nvfp4_cpu.json:163
+NVH | NVFP4 + RHT, weights only (seed 0) | 8.539954 | +0.321615 | +3.91% | 23.97% | -1.020266 | 7.039 | -0.254 (-3.48%) | evidence/qwen_next/nvfp4/n56_ppl_9b_nvfp4h_seed0_cpu.json:163
+A8 | bf16 weights + A8 | 8.708991 | +0.490651 | +5.97% | 36.56% | -0.851229 | n/a | n/a | evidence/qwen_next/nvfp4/n57_ppl_9b_bf16_a8_cpu.json:323
+ADYN | bf16 weights + NVFP4 act (dyn) | 8.441624 | +0.223285 | +2.72% | 16.64% | -1.118596 | n/a | n/a | evidence/qwen_next/nvfp4/n58_ppl_9b_bf16_actnvfp4dyn_cpu.json:323
+  RANKING 9B (best first): bf16 8.218339 < NV 8.409468 < ADYN 8.441624 < NVH 8.539954 < NVH_A8_S1 8.572686 < NVH_A8 8.592140 < NV_DYN 8.696983 < A8 8.708991 < NV_A8 8.954712 < SHIP 9.560220
+  RANKING 9B deployable rows: NVH_A8_S1 8.572686 < NVH_A8 8.592140 < NV_DYN 8.696983 < NV_A8 8.954712 < SHIP 9.560220
+
+PANEL B — 9B cost (bytes = the json's bytes_per_token_matvec; ms/tok/s = the BN streaming model, D)
+  cross-check: n47 bytes_per_token_matvec == bytes_per_token.py 9B all:w4g128 == 4,091,805,696 (evidence/qwen_next/nvfp4/n47_ppl_9b_w4g128_a8_cpu.json:176); every NVFP4 row == rung1_table.bytes_9b('nvfp4') == 4,463,789,028
+  9B w4g128   : 4,091,805,696 B/token, busiest channel 1,025,925,120 B, x1.000000, per-image stride ratios [1.0]
+  9B w4g64gptq: 4,215,799,808 B/token, busiest channel 1,057,013,760 B, x1.030303, per-image stride ratios [1.030303]; d ms +1.649 = 0.333 of NVFP4's +4.946, extra +123.994 MB/token
+  9B nvfp4    : 4,463,789,028 B/token, busiest channel 1,119,191,040 B, x1.090909, per-image stride ratios [1.090909]
+key | packed b/w (matvec) | bytes/token 9B | x shipped bytes | busiest-channel ratio | d ms/token (D) | ms/token (D) | tok/s (D) | hardware delta | cite
+bf16 | 16.0000 | 15,871,246,336 | 3.8788 | n/a | n/a | n/a | n/a | n/a (float reference) | evidence/qwen_next/nvfp4/n46_ppl_9b_bf16_cpu.json:8
+SHIP | 4.1250 | 4,091,805,696 | 1.0000 | 1.000000 | +0.000 | 137.121 | 7.293 | none (the shipped engine as built) | evidence/qwen_next/nvfp4/n47_ppl_9b_w4g128_a8_cpu.json:176
+GPTQ | (json ABSENT; modelled from bytes_per_token.py) 4.2500 | 4,215,799,808 | 1.0303 | 1.030303 | +1.649 | 138.770 | 7.206 | W4 g64 row format: a mode DELETED at G3.3, restored | evidence/qwen_next/nvfp4/n54_ppl_9b_w4g64gptq_a8_cpu.json
+NV_A8 | 4.5000 | 4,463,789,028 | 1.0909 | 1.090909 | +4.946 | 142.067 | 7.039 | new weight datapath (E2M1 + block-16 UE4M3) | evidence/qwen_next/nvfp4/n53_ppl_9b_nvfp4_a8_cpu.json:176
+NVH_A8 | 4.5000 | 4,463,789,028 | 1.0909 | 1.090909 | +4.946 | 142.067 | 7.039 | new weight datapath + activation rotation (butterfly ahead of A8) | evidence/qwen_next/nvfp4/n52_ppl_9b_nvfp4h_a8_seed0_cpu.json:306
+NVH_A8_S1 | 4.5000 | 4,463,789,028 | 1.0909 | 1.090909 | +4.946 | 142.067 | 7.039 | new weight datapath + activation rotation (butterfly ahead of A8) | evidence/qwen_next/nvfp4/n59_ppl_9b_nvfp4h_a8_seed1_cpu.json:306
+NV_DYN | 4.5000 | 4,463,789,028 | 1.0909 | 1.090909 | +4.946 | 142.067 | 7.039 | new weight + new activation datapath (no rotation) | evidence/qwen_next/nvfp4/n51_ppl_9b_nvfp4_actdyn_cpu.json:176
+NV | 4.5000 | 4,463,789,028 | 1.0909 | 1.090909 | +4.946 | 142.067 | 7.039 | n/a (float reference) | evidence/qwen_next/nvfp4/n55_ppl_9b_nvfp4_cpu.json:8
+NVH | 4.5000 | 4,463,789,028 | 1.0909 | 1.090909 | +4.946 | 142.067 | 7.039 | n/a (float reference) | evidence/qwen_next/nvfp4/n56_ppl_9b_nvfp4h_seed0_cpu.json:8
+A8 | 16.0000 | 15,871,246,336 | 3.8788 | n/a | n/a | n/a | n/a | n/a (float reference) | evidence/qwen_next/nvfp4/n57_ppl_9b_bf16_a8_cpu.json:176
+ADYN | 16.0000 | 15,871,246,336 | 3.8788 | n/a | n/a | n/a | n/a | n/a (float reference) | evidence/qwen_next/nvfp4/n58_ppl_9b_bf16_actnvfp4dyn_cpu.json:176
+
+FRONTIER — deployable rows vs the shipped point (recovered = shipped PPL - row PPL)
+key | PPL | recovered PPL | % of shipped gap closed | extra MB/token | extra ms/token | ms per PPL point recovered | % tok/s lost per 10 pts of gap closed
+SHIP | 9.560220 | 0 | 0.00% | 0.000 | +0.000 | — | —
+GPTQ | ABSENT | — | — | — | — | — | —
+NV_A8 | 8.954712 | +0.605507 | 45.12% | +371.983 | +4.946 | 8.169 | 0.772
+NVH_A8 | 8.592140 | +0.968080 | 72.14% | +371.983 | +4.946 | 5.109 | 0.483
+NVH_A8_S1 | 8.572686 | +0.987533 | 73.59% | +371.983 | +4.946 | 5.009 | 0.473
+NV_DYN | 8.696983 | +0.863237 | 64.33% | +371.983 | +4.946 | 5.730 | 0.541
+
+DECOMPOSITION 9B (dPPL vs bf16; interaction = combined - weight - act)
+  NVFP4 x A8: weight +0.191128, act +0.490651, combined +0.736373, interaction +0.054593
+  NVFP4 x NVFP4-act(dyn): weight +0.191128, act +0.223285, combined +0.478644, interaction +0.064231
+  W4 g128 x A8 (shipped): combined +1.341880, act +0.490651, weight+interaction +0.851229 (no 9B weight-only W4 g128 row: the two are not separable)
+  NVFP4+RHT x A8 (rotated): weight +0.321615, combined s0 +0.373800, s1 +0.354347; act+interaction s0 +0.052186 (bf16 + ROTATED A8 not run: not separable)
+  RHT effect (RHT row - no-RHT row, same activations):
+    weights only (seed 0): +0.130486
+    + A8: seed 0 -0.362573, seed 1 -0.382026, mean -0.372299
+    + NVFP4 act dyn: NOT RUN at 9B (no nvfp4h + nvfp4h:dyn row)
+  activation formats on bf16 weights: NVFP4-dyn - A8 = -0.267367; full NVFP4 - bf16+A8 = -0.012007; full NVFP4 - NVFP4+A8 = -0.257729
+
+2B vs 9B (2B = rung 1's committed jsons; same corpus, window, batch, host)
+quantity | 2B | 9B | agree? | 2B cites
+act damage A8 (bf16 wts) | +0.496600 | +0.490651 | yes | evidence/qwen_next/nvfp4/n21_ppl_2b_bf16_a8.json:285
+act damage NVFP4 dyn (bf16 wts) | +0.807301 | +0.223285 | yes | evidence/qwen_next/nvfp4/n22_ppl_2b_bf16_actnvfp4dyn.json:285
+NVFP4-dyn act - A8 act | +0.310700 | -0.267367 | NO (sign flips) | evidence/qwen_next/nvfp4/n22_ppl_2b_bf16_actnvfp4dyn.json:285, evidence/qwen_next/nvfp4/n21_ppl_2b_bf16_a8.json:285
+RHT effect, weights only | -0.073082 | +0.130486 | NO (sign flips) | evidence/qwen_next/nvfp4/n27_ppl_2b_nvfp4h_hd.json:157, evidence/qwen_next/nvfp4/n14_ppl_2b_nvfp4.json:157
+RHT effect, + A8 (seed 0) | -0.534363 | -0.362573 | yes | evidence/qwen_next/nvfp4/n28_ppl_2b_nvfp4h_hd_a8.json:391, evidence/qwen_next/nvfp4/n16_ppl_2b_nvfp4_a8.json:293
+full NVFP4 - bf16+A8 | +1.462609 | -0.012007 | NO (sign flips) | evidence/qwen_next/nvfp4/n18_ppl_2b_nvfp4_actdyn.json:293, evidence/qwen_next/nvfp4/n21_ppl_2b_bf16_a8.json:285
+full NVFP4 - NVFP4+A8 | +0.276999 | -0.257729 | NO (sign flips) | evidence/qwen_next/nvfp4/n18_ppl_2b_nvfp4_actdyn.json:293, evidence/qwen_next/nvfp4/n16_ppl_2b_nvfp4_a8.json:293
+NVFP4 weight damage / shipped gap | +0.456340 | +0.142433 | yes | evidence/qwen_next/nvfp4/n14_ppl_2b_nvfp4.json:157, evidence/qwen_next/nvfp4/n11_ppl_2b_w4g128_a8.json:293
+  shipped gap: 2B +2.514444 (+20.37%), 9B +1.341880 (+16.33%)
+  2B order of the common rows: A8 < ADYN < NVH < NV < NVH_A8 < NV_A8 < NV_DYN < SHIP
+  9B order of the common rows: NV < ADYN < NVH < NVH_A8 < NV_DYN < A8 < NV_A8 < SHIP
+  best deployable, 2B: GPTQ | 9B: NVH_A8_S1
+
+RHT SEED SENSITIVITY 9B (NVFP4 + RHT + A8)
+  seed 0 8.592140 (evidence/qwen_next/nvfp4/n52_ppl_9b_nvfp4h_a8_seed0_cpu.json:461, evidence/qwen_next/nvfp4/n52_ppl_9b_nvfp4h_a8_seed0_cpu.json:465)
+  seed 1 8.572686 (evidence/qwen_next/nvfp4/n59_ppl_9b_nvfp4h_a8_seed1_cpu.json:461, evidence/qwen_next/nvfp4/n59_ppl_9b_nvfp4h_a8_seed1_cpu.json:465)
+  mean 8.582413, spread 0.019453 PPL = 1.45% of the 9B shipped gap; worst seed vs NVFP4+A8 (no RHT) -0.362573, vs full NVFP4 -0.104843
+  the RHT's +A8 benefit is 18.6x the seed spread; the rotated-weights-only cost +0.130486 is 6.7x it; 2B seed spreads (3 seeds, % of the 2B gap): dynamic act scale 8.76% = 6.0x the 9B's, static act scale 5.23% = 3.6x the 9B's
+
+WALL TIMES 9B (json seconds_build + seconds_eval; queue wall)
+  bf16 n46: build 177 s + eval 706 s = 14.7 min (evidence/qwen_next/nvfp4/n46_ppl_9b_bf16_cpu.json:161) | queue END n/a (launched by the cpu pair) | the brief's 7 h estimate / this = 28.5x
+  SHIP n47: build 3055 s + eval 1611 s = 77.8 min (evidence/qwen_next/nvfp4/n47_ppl_9b_w4g128_a8_cpu.json:337) | queue END n/a (launched by the cpu pair)
+  GPTQ n54: ABSENT | queue END none
+  NV_A8 n53: build 1293 s + eval 1641 s = 48.9 min (evidence/qwen_next/nvfp4/n53_ppl_9b_nvfp4_a8_cpu.json:337) | queue END evidence/qwen_next/nvfp4/n48_rung2_queue.log:34
+  NVH_A8 n52: build 1395 s + eval 1797 s = 53.2 min (evidence/qwen_next/nvfp4/n52_ppl_9b_nvfp4h_a8_seed0_cpu.json:467) | queue END evidence/qwen_next/nvfp4/n48_rung2_queue.log:23
+  NVH_A8_S1 n59: build 1432 s + eval 1680 s = 51.9 min (evidence/qwen_next/nvfp4/n59_ppl_9b_nvfp4h_a8_seed1_cpu.json:467) | queue END evidence/qwen_next/nvfp4/n48_rung2_queue.log:43
+  NV_DYN n51: build 1293 s + eval 3547 s = 80.7 min (evidence/qwen_next/nvfp4/n51_ppl_9b_nvfp4_actdyn_cpu.json:337) | queue END evidence/qwen_next/nvfp4/n48_rung2_queue.log:28
+  NV n55: build 1288 s + eval 926 s = 36.9 min (evidence/qwen_next/nvfp4/n55_ppl_9b_nvfp4_cpu.json:169) | queue END evidence/qwen_next/nvfp4/n48_rung2_queue.log:31
+  NVH n56: build 1438 s + eval 885 s = 38.7 min (evidence/qwen_next/nvfp4/n56_ppl_9b_nvfp4h_seed0_cpu.json:169) | queue END evidence/qwen_next/nvfp4/n48_rung2_queue.log:37
+  A8 n57: build 175 s + eval 1584 s = 29.3 min (evidence/qwen_next/nvfp4/n57_ppl_9b_bf16_a8_cpu.json:329) | queue END evidence/qwen_next/nvfp4/n48_rung2_queue.log:40
+  ADYN n58: build 181 s + eval 3499 s = 61.3 min (evidence/qwen_next/nvfp4/n58_ppl_9b_bf16_actnvfp4dyn_cpu.json:329) | queue END evidence/qwen_next/nvfp4/n48_rung2_queue.log:42
+
+HOOKED SITES 9B: 249 matvecs on 129 input sites; dn_in 96/24, dn_out 24/24, down 32/32, gate_up 64/32, lm_head 1/1, o_proj 8/8, qkv 24/8; rht_n_sites 129 (evidence/qwen_next/nvfp4/n52_ppl_9b_nvfp4h_a8_seed0_cpu.json:464)
+
+HW PRICING (D, arithmetic only; nothing built)
+  9B matvec K values: [4096, 12288]
+  K=4096: shipped 32 weight + 1 scale beats, retire 32 group entries/row | NVFP4 32 weight + 4 scale beats, 256 block entries/row = 7.11 per streamed beat (the shipped retire issues 1 per cycle); scale bits/row 512 -> 2048 (x4.00)
+  K=12288: shipped 96 weight + 3 scale beats, retire 96 group entries/row | NVFP4 96 weight + 12 scale beats, 768 block entries/row = 7.11 per streamed beat (the shipped retire issues 1 per cycle); scale bits/row 1536 -> 6144 (x4.00)
+  shipped W4 x A8 (per 128-group, uint16 m): product 1024 (12 b), group sum 131072 (19 b), p bound at K=12288 8.246e+11 (41 b; p_acc is 48 b)
+  NVFP4 weight x A8: product 1536 (12 b), block-16 sum 24576 (16 b), x mantissa <= 15 (20 b), exponent-shift span 14 -> term 6.040e+09 (34 b), p bound at K=12288 4.639e+12 (44 b)
+  NVFP4 weight x NVFP4 act: product 144 (9 b), block-16 sum 2304 (13 b), x mantissa <= 225 (20 b), exponent-shift span 28 -> term 1.392e+14 (48 b), p bound at K=12288 1.069e+17 (58 b)
+  RHT butterfly: 16-point FWHT = 4 stages x 16 add/sub = 64 per 16 elements; K=4096 input: 16,384 add/sub per rotated vector; int16 in -> +4 b before the /4 shift (|x'| <= 4 max|x|, orthonormal)
+=== rc  : 0
+=== end : 2026-09-23T21:58:20-06:00

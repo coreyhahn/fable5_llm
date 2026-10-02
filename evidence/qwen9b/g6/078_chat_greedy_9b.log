@@ -1,0 +1,70 @@
+=== host: snoke
+=== date: 2026-09-09T23:07:16-06:00
+=== tree: 09ed6d7
+=== cmd:  /home/cah/.venv/bin/python -u sw/chat_seq.py --nch 4 --prompt What is the capital of France? --ntok 24 --out evidence/qwen9b/g6/078_chat_greedy.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- session bring-up
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38858, full:39626  (1.3s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+  EMBLOG2    13 (8192 B embedding rows)
+  residency  1122 witness blocks (1114 weight + 0 conv + 8 emb, 4488 KiB) in 35 ms -> 0 MISS
+  upload     SKIPPED: every weight/emb witness block is already resident
+  state DN  24 MiB zeroed -> 0x380000000 (chan 3)  [8 witnesses zero]
+  state CV  24 conv image(s) -> 0x389800000  [readback OK]
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+  residency  24 witness blocks (0 weight + 24 conv + 0 emb, 96 KiB) in 1 ms -> 0 MISS
+  state CV   24 conv witness(es) match the region just written (NOT part of the weight pack's probe — §14.1)
+  upload     const blob + 3 images: 9957 KiB readback-verified in 0.0s
+  tokenizer  c202236235762e1c871ad0ccb60c8ee5ba337b9a: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  sampling   greedy (--temp 0): the chip's argmax, bit-exact  |  source chip-topk: ready  |  capture k=32
+--- preamble
+  state DN  24 MiB zeroed in 5 ms (session reset)  [8 witnesses zero]
+  state CV  24 conv image(s) restored to 0x389800000 in 15 ms  [readback OK]
+  preamble   0.0 ms device / 2.1 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 39 rec | lite 38858 rec | full 39626 rec
+  patch      pos_mode='ldc': 80 B in 9 write(s) per launch
+  prefill    lite  |  --ntok 24  |  --max-ctx 500 of KV depth 4096
+  template   ON: 5*messages+7 wrapper ids, closed-empty think block, incremental with carry
+  decode     greedy (--temp 0): the chip's argmax, bit-exact  |  the LM head + argmax run ON-CHIP every step
+  posture    never programs the FPGA, never touches flash, never sudo
+  board lock /home/cah/r2d2/code/fpga/.fable5_board.lock  held for this process's lifetime
+  O3         every in-repo tool that programs or DMAs the board takes this one shared lock, across checkouts and hosts (docs/USAGE.md §5)
+------------------------------------------------------------------------
+
+prompt> What is the capital of France?
+  prefill 1/18 (126 ms/step, lite)     prefill 2/18 (126 ms/step, lite)     prefill 3/18 (126 ms/step, lite)     prefill 4/18 (126 ms/step, lite)     prefill 5/18 (126 ms/step, lite)     prefill 6/18 (126 ms/step, lite)     prefill 7/18 (126 ms/step, lite)     prefill 8/18 (127 ms/step, lite)     prefill 9/18 (127 ms/step, lite)     prefill 10/18 (127 ms/step, lite)     prefill 11/18 (127 ms/step, lite)     prefill 12/18 (127 ms/step, lite)     prefill 13/18 (127 ms/step, lite)     prefill 14/18 (127 ms/step, lite)     prefill 15/18 (127 ms/step, lite)     prefill 16/18 (127 ms/step, lite)     prefill 17/18 (127 ms/step, lite)     prefill 18/18 (127 ms/step, lite)                                                 The capital of France is **Paris**.
+
+It is the country's most populous city and a major global center for finance
+  --> "The capital of France is **Paris**.\n\nIt is the country's most populous city and a major global center for finance"
+  ids [760, 6511, 314, 9338, 369, 2972, 57590, 159034, 271, 2064, 369, 279, 3046, 579, 1379, 91188, 3177, 321, 264, 3478, 3521, 3990, 364, 16519]   24 tok in 5.68s
+  prefill 18 lite x 126.5 ms | decode 24 full x 137.7 ms | 4.22 tok/s wall | 98% of wall was device | context 42/500 (8%)
+  template   turn 1: +12 wrapper ids (7 body) | session 12 wrapper of 42 context steps (29%)
+             T7 budget: 12 fed + 0 generated <|im_end|> = 5*1+7 = 12 for the equivalent 1-message HF rendering
+
+  launches     43 (1 preamble / 18 lite / 24 full)
+  preamble     device ms  mean 0.0  min 0.0  max 0.0  (n=1)
+  lite         device ms  mean 126.5  min 126.4  max 126.7  (n=18)
+  full         device ms  mean 137.7  min 137.5  max 137.9  (n=24)
+  lite/full    91.9% of a decode step (spec risk 8: measured, not assumed)
+  context      42 of 500 forward steps (KV bank depth 4096)
+  stream       nch=4, head wid [248] chunk-interleaved over 4 channels (S4)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  template     ON: 12 wrapper ids over 1 turn(s) = 29% of the context; T7 says 5*1+7 = 12
+  sampling     OFF — greedy, 100% on-chip, bit-exact (the default)
+  MMIO         4564 reads / 606 writes
+report -> evidence/qwen9b/g6/078_chat_greedy.json
+=== rc: 0
+=== end: 2026-09-09T23:07:28-06:00

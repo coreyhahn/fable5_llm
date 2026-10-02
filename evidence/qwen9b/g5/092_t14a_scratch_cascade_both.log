@@ -1,0 +1,47 @@
+=== host: snoke
+=== date: 2026-09-07T00:51:27-06:00
+=== tree: 96ae645
+=== cmd:  bash -c 
+  W=/home/cah/r2d2/code/fpga/fable5_t14a_base
+  R=/home/cah/r2d2/code/fpga/fable5_llm
+  source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh
+  cd $R/synth/out_ooc9b_t14a_layer
+  vivado -mode batch -nojournal -log g5c_casc_head.log \
+    -source $R/evidence/qwen9b/g5/g5c_scratch_cascade.tcl \
+    -tclargs $R/synth/out_ooc9b_t14a_layer/post_synth.dcp HEAD_1dd2889 | grep -E "^G5C_"
+  cd $W/synth/out_ooc9b_t14a_base
+  vivado -mode batch -nojournal -log g5c_casc_base.log \
+    -source $R/evidence/qwen9b/g5/g5c_scratch_cascade.tcl \
+    -tclargs $W/synth/out_ooc9b_t14a_base/post_synth.dcp BASE_a553f18 | grep -E "^G5C_"
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+G5C_LABEL: HEAD_1dd2889
+G5C_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_t14a_layer/post_synth.dcp
+G5C_ARRAY HEAD_1dd2889 smem_a cells=32
+G5C_CASCADE_B HEAD_1dd2889 smem_a FIRST = 16
+G5C_CASCADE_B HEAD_1dd2889 smem_a LAST = 16
+G5C_TILE0 HEAD_1dd2889 smem_a smem_a_reg_bram_0 READ_WIDTH_B=1 DOB_REG=0
+G5C_ARRAY HEAD_1dd2889 smem_b cells=32
+G5C_CASCADE_B HEAD_1dd2889 smem_b FIRST = 16
+G5C_CASCADE_B HEAD_1dd2889 smem_b LAST = 16
+G5C_TILE0 HEAD_1dd2889 smem_b smem_b_reg_bram_0 READ_WIDTH_B=1 DOB_REG=0
+G5C_CASCADE_DONE
+G5C_LABEL: BASE_a553f18
+G5C_DCP: /home/cah/r2d2/code/fpga/fable5_t14a_base/synth/out_ooc9b_t14a_base/post_synth.dcp
+G5C_ARRAY BASE_a553f18 smem_a cells=32
+G5C_CASCADE_B BASE_a553f18 smem_a NONE = 32
+G5C_TILE0 BASE_a553f18 smem_a smem_a_reg_0_0 READ_WIDTH_B=1 DOB_REG=0
+G5C_ARRAY BASE_a553f18 smem_b cells=30
+G5C_CASCADE_B BASE_a553f18 smem_b FIRST = 5
+G5C_CASCADE_B BASE_a553f18 smem_b LAST = 5
+G5C_CASCADE_B BASE_a553f18 smem_b MIDDLE = 20
+G5C_TILE0 BASE_a553f18 smem_b smem_b_reg_bram_0 READ_WIDTH_B=9 DOB_REG=0
+G5C_CASCADE_DONE
+=== rc: 0
+=== end: 2026-09-07T00:55:54-06:00

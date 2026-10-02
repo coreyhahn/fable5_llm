@@ -180,6 +180,15 @@ module seq_unit_ipi (
     input  wire [2:0]   xrf_sb_idx,
     input  wire [17:0]  xrf_sb_data,
 
+    // BM1 (spec 2026-09-24 §1.1, D1a): matvec_chan c's engine-busy bit, on
+    // aclk, wired from mvchan_<c>/mv_busy_bm by synth/scripts/create_project.tcl.
+    // Four SCALAR pins (a module-reference cell's bus pin would need an
+    // xlconcat in the BD); plain signals, no X_INTERFACE.
+    input  wire         mv_busy_bm0,
+    input  wire         mv_busy_bm1,
+    input  wire         mv_busy_bm2,
+    input  wire         mv_busy_bm3,
+    output wire xpush0_valid, output wire [11:0] xpush0_idx, output wire [31:0] xpush0_data, input wire xpush0_room, input wire xpush0_busy, output wire xpush1_valid, output wire [11:0] xpush1_idx, output wire [31:0] xpush1_data, input wire xpush1_room, input wire xpush1_busy, output wire xpush2_valid, output wire [11:0] xpush2_idx, output wire [31:0] xpush2_data, input wire xpush2_room, input wire xpush2_busy, output wire xpush3_valid, output wire [11:0] xpush3_idx, output wire [31:0] xpush3_data, input wire xpush3_room, input wire xpush3_busy,  // R3-8 (B17.3): the x-push bus to mvchan_<c>, per-channel scalar/bus pins wired by synth/scripts/create_project.tcl (aclk; no X_INTERFACE)
     // status (plain signals — no X_INTERFACE attributes)
     output wire         seq_busy,
     output wire         seq_halted,
@@ -229,6 +238,7 @@ module seq_unit_ipi (
         .m_axib_rresp(m_axib_rresp), .m_axib_rlast(m_axib_rlast),
         .m_axib_rvalid(m_axib_rvalid), .m_axib_rready(m_axib_rready),
         .xrf_sb_we(xrf_sb_we), .xrf_sb_idx(xrf_sb_idx), .xrf_sb_data(xrf_sb_data),
+        .mv_busy_bm({mv_busy_bm3, mv_busy_bm2, mv_busy_bm1, mv_busy_bm0}), .xpush_valid({xpush3_valid, xpush2_valid, xpush1_valid, xpush0_valid}), .xpush_idx({xpush3_idx, xpush2_idx, xpush1_idx, xpush0_idx}), .xpush_data({xpush3_data, xpush2_data, xpush1_data, xpush0_data}), .xpush_room({xpush3_room, xpush2_room, xpush1_room, xpush0_room}), .xpush_busy({xpush3_busy, xpush2_busy, xpush1_busy, xpush0_busy}),  // R3-8
         .seq_busy(seq_busy), .seq_halted(seq_halted), .seq_err(seq_err)
     );
 

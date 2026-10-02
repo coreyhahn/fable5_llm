@@ -1,0 +1,52 @@
+=== host: snoke  date: 2026-10-01T06:48:52-06:00
+=== tree: 5caa4f2
+=== cmd : bash -c cat /tmp/r3_9b_ident.sh; echo ---; bash /tmp/r3_9b_ident.sh
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+set -u
+B=tb/obj_dir_seq_chip_srr3b/tb_seq_chip_9b_srr3b
+s=$(sha256sum $B | cut -d" " -f1); echo "binary $B sha256 $s"
+[ "$s" = 54d174a47e6d8995f4aa8ccd0052707ef2574ae1f3ae3e7c895526c8c8dc8d32 ] && echo "  BINARY MATCH (n3100:87)" || echo "  BINARY MISMATCH"
+bad=0; i=0
+for n in 1 2 3 4; do
+  L=$(ls evidence/qwen9b/sr/n272$((n-1))_r3_5_reorder_s${n}_B_r3.log)
+  f=tb/scripts/w9/model_9b_s${n}_reordB_r3.e4.seq
+  s=$(sha256sum $f | cut -d" " -f1)
+  ln=$(grep -n "=== wrote $f sha256 $s\$" $L | cut -d: -f1)
+  if [ -n "$ln" ]; then echo "s$n $f sha256 $s MATCH $L:$ln"; else echo "s$n $f sha256 $s MISMATCH vs $L"; bad=1; fi
+  for x in seqdata.bin seq.json; do echo "    .$x sha256 $(sha256sum tb/scripts/w9/model_9b_s${n}_reordB_r3.e4.$x | cut -d" " -f1)"; done
+  echo "    .e4.chip present? $(ls tb/scripts/w9/model_9b_s${n}_reordB_r3.e4.chip 2>/dev/null || echo no)"
+done
+[ $bad = 0 ] && echo "R3_9B_IDENT: 4/4 r3 streams MATCH R3-5, binary MATCH" || echo "R3_9B_IDENT: MISMATCH"
+for h in snoke kyloren darthplagueis; do echo "--- pgrep on $h:"; ssh -o BatchMode=yes $h "pgrep -af \"tb_seq_chip|run_sr_chip|vivado|verilator|Vtb\" | grep -v pgrep" || echo "    (none)"; done
+---
+binary tb/obj_dir_seq_chip_srr3b/tb_seq_chip_9b_srr3b sha256 54d174a47e6d8995f4aa8ccd0052707ef2574ae1f3ae3e7c895526c8c8dc8d32
+  BINARY MATCH (n3100:87)
+s1 tb/scripts/w9/model_9b_s1_reordB_r3.e4.seq sha256 3e77e57ca39452b987d3acea708c5daf40f6def43a9bf35524caf1d47e51d3ff MATCH evidence/qwen9b/sr/n2720_r3_5_reorder_s1_B_r3.log:61
+    .seqdata.bin sha256 4a7784f2f2c47e078437f84ffb95fd3724fcdceb9418d0e65a4af20f08ad108e
+    .seq.json sha256 0225242d7170f49833df7cadde683042ce8e7cd71b91412a6ba6a89e7f1f0dc2
+    .e4.chip present? no
+s2 tb/scripts/w9/model_9b_s2_reordB_r3.e4.seq sha256 4584810a1f340c9dd8ea2510dd00d5e1767d219a1693fd26bd39cdaa3db03012 MATCH evidence/qwen9b/sr/n2721_r3_5_reorder_s2_B_r3.log:41
+    .seqdata.bin sha256 4a7784f2f2c47e078437f84ffb95fd3724fcdceb9418d0e65a4af20f08ad108e
+    .seq.json sha256 44a657a54f3b4cd1468b2da62d486f165aa442cc0dfb9e9c017ceb9bf9397135
+    .e4.chip present? no
+s3 tb/scripts/w9/model_9b_s3_reordB_r3.e4.seq sha256 b282ca19b6729e65052f95ea096d5087a18fe99cd2bc8a89291403668f0dd4c8 MATCH evidence/qwen9b/sr/n2722_r3_5_reorder_s3_B_r3.log:41
+    .seqdata.bin sha256 4a7784f2f2c47e078437f84ffb95fd3724fcdceb9418d0e65a4af20f08ad108e
+    .seq.json sha256 d01c6c479ca110ad3340be96339a7473846da9d49021811adbcc018b2a3e58f6
+    .e4.chip present? no
+s4 tb/scripts/w9/model_9b_s4_reordB_r3.e4.seq sha256 735a73882ecaad2cfe183debdd25e971f28d500ba03f9eefb1b58d65450f23f4 MATCH evidence/qwen9b/sr/n2723_r3_5_reorder_s4_B_r3.log:61
+    .seqdata.bin sha256 4a7784f2f2c47e078437f84ffb95fd3724fcdceb9418d0e65a4af20f08ad108e
+    .seq.json sha256 c0d7153915c2355c08eb720a25192d32fd1bc3205e327f5c61a6bf7a0d35701e
+    .e4.chip present? no
+R3_9B_IDENT: 4/4 r3 streams MATCH R3-5, binary MATCH
+--- pgrep on snoke:
+cah@snoke: Permission denied (publickey,password).
+    (none)
+--- pgrep on kyloren:
+Host key verification failed.
+    (none)
+--- pgrep on darthplagueis:
+cah@darthplagueis: Permission denied (publickey,password).
+    (none)
+=== rc  : 0
+=== end : 2026-10-01T06:48:52-06:00

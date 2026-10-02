@@ -21,65 +21,23 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # device map / CSR offsets: single source of truth in hwmap.py
+import board_lock as BL                                          # noqa: E402
+import hwmap as HW                                               # noqa: E402
 from hwmap import (                                             # noqa: E402
     R_MAGIC, R_VERSION, R_CALIB, MAGIC, CALIB_ALL,
     R_CTRL, R_STATUS, R_WBASE_LO, R_WBASE_HI, R_WBEATS, R_SHAPE, shape_word,
+    shape_isa_for_version, UnknownBitstream,
     R_XWIN, R_XPTR, R_RES_PTR, R_RES_DATA, R_IDENT, MV_IDENT0, mv_base,
     LB, L_CMD, L_STAT, L_ARG0, L_ARG1, L_ARG2,
     L_SPTR, L_SWIN, L_EOUT, L_TCNT, L_IDENT, L_AMAXI, L_AMAXV, L_LAYER,
-    LAYER_IDENT, SCRATCH_WORDS,
-    CH_STRIDE, W_BASE, WID_ALIGN, RES_DEPTH, EMB_BASE,
+    L_DNSB, LAYER_IDENT, SCRATCH_WORDS,
+    CH_STRIDE, W_BASE, RES_DEPTH, EMB_BASE,
 )
-
-
-def plan_weights(man, wdir):
-    """Pack the manifest's weight images into chan-0 DDR, variable stride.
-
-    A fixed 16 MiB per-wid stride only fits 80 images below EMB_BASE; a
-    24-layer token script needs 187.  Instead lay the images out
-    back-to-back from W_BASE in wid order, each start aligned up to
-    WID_ALIGN.
-
-    The image footprint is exactly nbeats*64 == nrows*stride == the file
-    size (pack_ddr_rows emits nrows fixed-size, 64B-aligned rows and
-    nothing else), so the intra-image row math the matvec engine uses
-    (wbase = base[wid] + r0*stride, wbeats = rc*stride/64) is untouched
-    by the packing — only each image's base address moves.
-
-    This is group-size agnostic: `stride` and `nbeats` come from the
-    manifest, which pack_ddr_rows already computed from the row format, so
-    a g=64 image (one extra 64B scale beat per row when K > 2048) needs no
-    special case here.  The per-row arithmetic is re-derived and asserted
-    below so a hand-edited manifest cannot silently mis-place an image.
-
-    Returns (base_of_wid, top) where top is the first free address.
-    """
-    base, a = {}, W_BASE
-    for wid, m in sorted(man.items(), key=lambda kv: int(kv[0])):
-        sz = int(m["nbeats"]) * 64
-        assert sz == int(m["nrows"]) * int(m["stride"]), \
-            f"wid {wid}: nbeats*64={sz} != nrows*stride"
-        # v2 row format cross-check: stride == (K//128 + ceil((K/g)/32))*64,
-        # and the SHAPE ng field is the WEIGHT-beat count in both modes.
-        K, g = int(m["k"]), int(m.get("g", 128))
-        assert g in (128, 64), f"wid {wid}: unsupported group size {g}"
-        assert K % 128 == 0, f"wid {wid}: K={K} is not a multiple of 128"
-        wb = K // 128
-        sb = -(-(K // g) // 32)
-        assert int(m["ng"]) == wb, \
-            f"wid {wid}: manifest ng={m['ng']} != weight beats {wb}"
-        assert int(m["stride"]) == (wb + sb) * 64, (
-            f"wid {wid}: stride {m['stride']} != ({wb}w+{sb}s)*64 for "
-            f"K={K} g={g}")
-        fsz = os.path.getsize(os.path.join(wdir, m["file"]))
-        assert fsz == sz, f"wid {wid}: {m['file']} is {fsz}B, manifest {sz}B"
-        base[int(wid)] = a
-        a += (sz + WID_ALIGN - 1) // WID_ALIGN * WID_ALIGN
-    assert a < EMB_BASE, (
-        f"weight images ({len(man)} wids, {a - W_BASE} bytes packed from "
-        f"{W_BASE:#x}) reach {a:#x}, past EMB_BASE {EMB_BASE:#x} — "
-        f"move EMB_BASE or split the images across DDR channels")
-    return base, a
+# THE weight pack lives in hwmap.py (R-c: one authority — this file used to
+# carry a second copy of it, and the per-channel repack would have had to be
+# written twice).  Re-exported so `from layer_test import plan_weights` keeps
+# working for every existing caller.
+from hwmap import plan_weights                            # noqa: E402,F401
 
 
 def main():
@@ -98,7 +56,19 @@ def main():
     ap.add_argument("--dump", default=None,
                     help="dump full 16K scratch to .npy at stop/end")
     ap.add_argument("--out", default=None)
+    BL.add_lock_args(ap)                        # O3: --lock / --no-lock
     args = ap.parse_args()
+
+    # O3 (user ruling 2026-08-29): THE shared board lock, taken FIRST —
+    # before any artifact is opened and long before the first device fd,
+    # so a refusal is instant and this tool can no longer drive the board
+    # out from under a live session.
+    try:
+        _lock = BL.from_args(args, tool="layer_test.py").acquire()
+    except BL.BoardLockError as e:
+        print("*** %s" % e)
+        raise SystemExit(4)
+
 
     user = os.open(f"{args.dev}_user", os.O_RDWR)
     h2c = os.open(f"{args.dev}_h2c_0", os.O_WRONLY)
@@ -111,9 +81,21 @@ def main():
         os.pwrite(user, int(v).to_bytes(4, "little"), a)
 
     magic, calib = rd(R_MAGIC), rd(R_CALIB)
-    print(f"MAGIC={magic:08x} VERSION={rd(R_VERSION):08x} CALIB={calib:x}")
+    ver = rd(R_VERSION)
     assert magic == MAGIC, "wrong design"
     assert calib == CALIB_ALL, "DDR not calibrated"
+    # WHICH R_SHAPE LAYOUT THE RESIDENT BITSTREAM DECODES (G3.3), gated in
+    # the SAME place as MAGIC/CALIB and BEFORE anything is packed: the word
+    # goes straight to a live BAR, so it follows the VERSION CSR and not this
+    # checkout's RTL, and an image this checkout has no layout for REFUSES
+    # rather than guessing (the two layouts decode each other's words as
+    # plausible garbage -- sw/hwmap.UnknownBitstream).
+    try:
+        shape_isa = shape_isa_for_version(ver)
+    except UnknownBitstream as ex:
+        raise SystemExit("REFUSING TO TOUCH THE BOARD — " + str(ex))
+    print(f"MAGIC={magic:08x} VERSION={ver:08x} CALIB={calib:x} "
+          f"SHAPE_ISA={shape_isa}")
     li = rd(L_IDENT)
     assert li == LAYER_IDENT, f"layer_chan IDENT={li:08x}"
     mb = mv_base(args.chan)
@@ -125,7 +107,8 @@ def main():
                               capture_output=True, text=True,
                               cwd=os.path.dirname(os.path.abspath(__file__))
                               ).stdout.strip(),
-        "version_csr": hex(rd(R_VERSION)),
+        "version_csr": hex(ver),
+        "shape_isa": shape_isa,
         "runs": args.runs, "chan": args.chan, "real_matvec": not args.no_matvec,
         "results": [], "pass": True,
     }
@@ -135,6 +118,7 @@ def main():
         m = man[str(wid)] if str(wid) in man else man[wid]
         nrows, ng, sh, stride = m["nrows"], m["ng"], m["sh"], m["stride"]
         g = int(m.get("g", 128))       # v2 group size; absent == 128 legacy
+        w8 = bool(m.get("w8", False))  # V5 weight width; absent == W4
         xb = bytes((w & 0xFF) for w in x8_words)
         xb += b"\x00" * (-len(xb) % 4)
         out = np.zeros(nrows, dtype=np.int64)
@@ -145,7 +129,8 @@ def main():
             wr(mb + R_WBASE_LO, wbase & 0xFFFFFFFF)
             wr(mb + R_WBASE_HI, wbase >> 32)
             wr(mb + R_WBEATS, rc * stride // 64)
-            wr(mb + R_SHAPE, shape_word(rc, sh, ng, g))
+            wr(mb + R_SHAPE,
+               shape_word(rc, sh, ng, g, w8=w8, isa=shape_isa))
             wr(mb + R_XPTR, 0)
             for i in range(0, len(xb), 4):
                 wr(mb + R_XWIN, int.from_bytes(xb[i:i + 4], "little"))
@@ -167,7 +152,7 @@ def main():
 
     for script in args.scripts:
         prefix = script.rsplit(".", 1)[0]
-        man = json.load(open(f"{prefix}.weights.json"))
+        man, _ = HW.load_weights_manifest(prefix)   # R-b: drops the meta key
         wdir = os.path.dirname(script)
         # packed variable-stride layout, shared by the upload and every V
         wbase_of, wtop = plan_weights(man, wdir)
@@ -254,6 +239,8 @@ def main():
                     wr(L_TCNT, int(nx(), 16))
                 elif t == "L":
                     wr(L_LAYER, int(nx(), 16))
+                elif t == "B":       # SEQ_ISA v2.0 DNSB base pair
+                    wr(L_DNSB, int(nx(), 16))
                 elif t == "V":
                     wid, x8a = int(nx(), 16), int(nx(), 16)
                     nin, nrows = int(nx(), 16), int(nx(), 16)

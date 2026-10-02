@@ -1,6 +1,17 @@
-// tb_gate_unit: gate vectors replay (16 heads), bit-exact beta+decay.
+// tb_gate_unit: gate vectors replay (NH heads), bit-exact beta+decay.
+//
+// G3.4 (spec 4.6 wall 10): NH is a PARAMETER here rather than the ten bare
+// literals it used to be -- including a 4-bit `w_addr` that would have
+// failed SILENTLY at LNH = 32 (a truncated head index writes the wrong
+// entry; it does not run off an array bound).  The vectors are still the
+// 16-head set, so the default stays 16 and the DUT is instantiated at the
+// vector's width; the 32-head width is exercised on the real gate_unit
+// through layer_chan (tb_layer_dnbank's GATE case).
 `timescale 1ns/1ps
-module tb_gate_unit;
+module tb_gate_unit #(
+    parameter int NH = 16
+);
+    localparam int HB = $clog2(NH);
     logic clk = 0;
     /* verilator lint_off BLKSEQ */
     always #2 clk = ~clk;
@@ -11,24 +22,25 @@ module tb_gate_unit;
     /* verilator lint_on UNUSEDSIGNAL */
     logic w_we = 0;
     logic [1:0] w_sel = 0;
-    logic [3:0] w_addr = 0;
+    logic [HB-1:0] w_addr = 0;
     logic signed [17:0] w_data = 0;
-    logic [15:0] beta_o [16];
-    logic [15:0] decay_o [16];
+    logic [15:0] beta_o [NH];
+    logic [15:0] decay_o [NH];
 
     gate_unit #(
+        .NH(NH),
         .SIGMOID_ROM("../rtl/roms/sigmoid_pair_rom.hex"),
         .SOFTPLUS_ROM("../rtl/roms/softplus_pair_rom.hex"),
         .EXP2_ROM("../rtl/roms/exp2_pair_rom.hex")
     ) dut (.clk, .rstn, .start, .busy, .done,
            .w_we, .w_sel, .w_addr, .w_data, .beta_o, .decay_o);
 
-    logic [15:0] bf [16];
-    logic [15:0] af [16];
-    logic [17:0] Af [16];
-    logic [15:0] dtf [16];
-    logic [15:0] gbeta [16];
-    logic [15:0] gdecay [16];
+    logic [15:0] bf [NH];
+    logic [15:0] af [NH];
+    logic [17:0] Af [NH];
+    logic [15:0] dtf [NH];
+    logic [15:0] gbeta [NH];
+    logic [15:0] gdecay [NH];
     int errors = 0;
 
     string vecdir;
@@ -44,20 +56,20 @@ module tb_gate_unit;
         repeat (5) @(negedge clk);
         rstn = 1;
         repeat (2) @(negedge clk);
-        for (i = 0; i < 16; i++) begin
-            @(negedge clk); w_we = 1; w_sel = 0; w_addr = 4'(i);
+        for (i = 0; i < NH; i++) begin
+            @(negedge clk); w_we = 1; w_sel = 0; w_addr = HB'(i);
             w_data = 18'(signed'(bf[i]));
         end
-        for (i = 0; i < 16; i++) begin
-            @(negedge clk); w_sel = 1; w_addr = 4'(i);
+        for (i = 0; i < NH; i++) begin
+            @(negedge clk); w_sel = 1; w_addr = HB'(i);
             w_data = 18'(signed'(af[i]));
         end
-        for (i = 0; i < 16; i++) begin
-            @(negedge clk); w_sel = 2; w_addr = 4'(i);
+        for (i = 0; i < NH; i++) begin
+            @(negedge clk); w_sel = 2; w_addr = HB'(i);
             w_data = signed'(Af[i]);          // full 18-bit A
         end
-        for (i = 0; i < 16; i++) begin
-            @(negedge clk); w_sel = 3; w_addr = 4'(i);
+        for (i = 0; i < NH; i++) begin
+            @(negedge clk); w_sel = 3; w_addr = HB'(i);
             w_data = 18'(signed'(dtf[i]));
         end
         @(negedge clk); w_we = 0;
@@ -70,7 +82,7 @@ module tb_gate_unit;
             end
         end
         @(negedge clk);
-        for (i = 0; i < 16; i++) begin
+        for (i = 0; i < NH; i++) begin
             if (beta_o[i] !== gbeta[i]) begin
                 errors++;
                 $display("FAIL beta[%0d]: got %h want %h", i, beta_o[i], gbeta[i]);
@@ -81,7 +93,7 @@ module tb_gate_unit;
             end
         end
         if (errors == 0) begin
-            $display("TB_GATE_UNIT PASS: 16 heads beta+decay bit-exact");
+            $display("TB_GATE_UNIT PASS: %0d heads beta+decay bit-exact", NH);
             $finish;
         end else $fatal(1, "TB_GATE_UNIT FAIL: %0d", errors);
     end

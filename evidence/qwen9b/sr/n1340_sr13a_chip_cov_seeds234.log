@@ -1,0 +1,305 @@
+=== host: snoke  date: 2026-09-28T12:34:18-06:00
+=== tree: 93380f8
+=== cmd : bash -c F=0; for s in 2 3 4; do for kk in xbank rbank overlap; do st=sr13a_cov_${kk}_s$s; echo "######## $st control"; bash evidence/qwen9b/sr/run_sr_chip.sh $st $st control || F=1; grep -h "SEQ_CAPS" evidence/qwen9b/sr/sr13_seed_${st}_control.log; done; st=sr13a_cov_overlap_s$s; csv=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/$st.timeline.csv; echo "######## $st timeline"; bash evidence/qwen9b/sr/run_sr_chip.sh $st $st timeline --csv $csv || F=1; echo "######## $st timeline read"; /home/cah/.venv/bin/python evidence/qwen9b/sr/sr13a_overlap_tl.py $csv $(sha256sum $csv | cut -d" " -f1) tb/scripts/w9/$st.e4 | tail -3 || F=1; done; [ $F = 0 ] && echo SR13A_CHIP_COV_SEEDS234: ALL PASS || echo SR13A_CHIP_COV_SEEDS234: FAIL; exit $F
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+######## sr13a_cov_xbank_s2 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s2.e4  (.seq sha256 1d51fafe82bed471, .chip sha256 424a5585091f99cb)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s2   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_xbank_s2_control.log
+=== wall     11s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 41 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s2.e4 launch 0 [-]: 41 records, 275845 cycles (6727.93 cyc/rec, 1.103 ms @250MHz, PERF_CYC 275837)
+    LAUNCH 0 PASS: [-] pc 40, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 220 write bursts (56320 beats), 180 read bursts (46080 beats), busy_wr 93671 busy_rd 46836, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5161 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 42240/64000/64000/42240]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s2.e4 (launches 1, 275845 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  275845
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 11s
+SR_CHIP sr13a_cov_xbank_s2 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_rbank_s2 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s2.e4  (.seq sha256 3b66239c04dcf4a9, .chip sha256 e1a3efb27f1b4ee4)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s2   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_rbank_s2_control.log
+=== wall     59s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 41 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s2.e4 launch 0 [-]: 41 records, 1404487 cycles (34255.78 cyc/rec, 5.618 ms @250MHz, PERF_CYC 1404479)
+    LAUNCH 0 PASS: [-] pc 40, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 445 write bursts (112360 beats), 368 read bursts (91752 beats), busy_wr 186229 busy_rd 93144, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 10281 (miss 0), weight beats 1436160 total across 4 chan (miss 0) [ 270336/405504/304128/456192]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s2.e4 (launches 1, 1404487 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  1404487
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 59s
+SR_CHIP sr13a_cov_rbank_s2 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_overlap_s2 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2.e4  (.seq sha256 77571b7935b25a84, .chip sha256 ea3d30ca51b05ba4)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_overlap_s2_control.log
+=== wall     9s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 45 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2.e4 launch 0 [-]: 45 records, 217156 cycles (4825.69 cyc/rec, 0.869 ms @250MHz, PERF_CYC 217149)
+    LAUNCH 0 PASS: [-] pc 44, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 234 write bursts (59904 beats), 224 read bursts (57344 beats), busy_wr 105125 busy_rd 58260, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5165 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 67584/16896/102400/25600]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2.e4 (launches 1, 217156 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  217156
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 9s
+SR_CHIP sr13a_cov_overlap_s2 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_overlap_s2 timeline
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2.e4  (.seq sha256 77571b7935b25a84, .chip sha256 ea3d30ca51b05ba4)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2   mode: timeline
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_overlap_s2_timeline.log
+=== csv      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2.timeline.csv
+=== wall     9s   rc=0
+--- verdict lines
+    tb_seq_chip: TIMELINE CENSUS ON -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2.timeline.csv
+    tb_seq_chip: launch 0 [-] rec_off 0, 45 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2.e4 launch 0 [-]: 45 records, 217156 cycles (4825.69 cyc/rec, 0.869 ms @250MHz, PERF_CYC 217149)
+    LAUNCH 0 PASS: [-] pc 44, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 234 write bursts (59904 beats), 224 read bursts (57344 beats), busy_wr 105125 busy_rd 58260, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5165 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 67584/16896/102400/25600]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s2.e4 (launches 1, 217156 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  217156
+    CSV 4965 bytes, 45 record rows, sha256 d71cf66b17603f527e8f322866d3c91b8377245ab9a134a62c3f96f0cdbc9e77
+--- SEQ_TIMELINE per-token lines
+SEQ_TIMELINE meta ntok=1 bcyc=217149 nrec=45 nmv=4 wimgpc=1 lat=4 ddrlat=32 wlat=40 ncls=16
+SEQ_TIMELINE tcyc 0 217149
+SEQ_TIMELINE union 0 217017
+SEQ_TIMELINE none 0 132
+SEQ_TIMELINE stall 0 24
+--- wall 9s
+SR_CHIP sr13a_cov_overlap_s2 timeline: PASS
+######## sr13a_cov_overlap_s2 timeline read
+   44  HALT   -  0x0000  217147        2      0        0       0       0       0  []       
+  8 MOVX/MOVY records issued under a running stream; 8 of them with the engine busy for every cycle of the window
+SR13A_OVERLAP_TL: OVERLAPPED
+######## sr13a_cov_xbank_s3 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s3.e4  (.seq sha256 1d70e487acc283eb, .chip sha256 980e5c5189130c72)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s3   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_xbank_s3_control.log
+=== wall     11s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 41 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s3.e4 launch 0 [-]: 41 records, 275845 cycles (6727.93 cyc/rec, 1.103 ms @250MHz, PERF_CYC 275837)
+    LAUNCH 0 PASS: [-] pc 40, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 220 write bursts (56320 beats), 180 read bursts (46080 beats), busy_wr 93671 busy_rd 46836, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5161 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 42240/64000/64000/42240]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s3.e4 (launches 1, 275845 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  275845
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 11s
+SR_CHIP sr13a_cov_xbank_s3 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_rbank_s3 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s3.e4  (.seq sha256 1c54466d2181bf59, .chip sha256 dfab3d254fce9a3d)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s3   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_rbank_s3_control.log
+=== wall     57s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 41 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s3.e4 launch 0 [-]: 41 records, 1404487 cycles (34255.78 cyc/rec, 5.618 ms @250MHz, PERF_CYC 1404479)
+    LAUNCH 0 PASS: [-] pc 40, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 445 write bursts (112360 beats), 368 read bursts (91752 beats), busy_wr 186229 busy_rd 93144, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 10281 (miss 0), weight beats 1436160 total across 4 chan (miss 0) [ 270336/405504/304128/456192]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s3.e4 (launches 1, 1404487 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  1404487
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 57s
+SR_CHIP sr13a_cov_rbank_s3 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_overlap_s3 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3.e4  (.seq sha256 1562fae1419c91e9, .chip sha256 4a0978bca1388bff)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_overlap_s3_control.log
+=== wall     9s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 45 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3.e4 launch 0 [-]: 45 records, 217156 cycles (4825.69 cyc/rec, 0.869 ms @250MHz, PERF_CYC 217149)
+    LAUNCH 0 PASS: [-] pc 44, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 234 write bursts (59904 beats), 224 read bursts (57344 beats), busy_wr 105125 busy_rd 58260, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5165 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 67584/16896/102400/25600]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3.e4 (launches 1, 217156 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  217156
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 9s
+SR_CHIP sr13a_cov_overlap_s3 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_overlap_s3 timeline
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3.e4  (.seq sha256 1562fae1419c91e9, .chip sha256 4a0978bca1388bff)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3   mode: timeline
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_overlap_s3_timeline.log
+=== csv      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3.timeline.csv
+=== wall     9s   rc=0
+--- verdict lines
+    tb_seq_chip: TIMELINE CENSUS ON -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3.timeline.csv
+    tb_seq_chip: launch 0 [-] rec_off 0, 45 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3.e4 launch 0 [-]: 45 records, 217156 cycles (4825.69 cyc/rec, 0.869 ms @250MHz, PERF_CYC 217149)
+    LAUNCH 0 PASS: [-] pc 44, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 234 write bursts (59904 beats), 224 read bursts (57344 beats), busy_wr 105125 busy_rd 58260, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5165 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 67584/16896/102400/25600]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s3.e4 (launches 1, 217156 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  217156
+    CSV 4965 bytes, 45 record rows, sha256 6b8f398abc134b53813daad72eecb1738eb5c1315e346370f5addca07b26ed43
+--- SEQ_TIMELINE per-token lines
+SEQ_TIMELINE meta ntok=1 bcyc=217149 nrec=45 nmv=4 wimgpc=1 lat=4 ddrlat=32 wlat=40 ncls=16
+SEQ_TIMELINE tcyc 0 217149
+SEQ_TIMELINE union 0 217017
+SEQ_TIMELINE none 0 132
+SEQ_TIMELINE stall 0 24
+--- wall 9s
+SR_CHIP sr13a_cov_overlap_s3 timeline: PASS
+######## sr13a_cov_overlap_s3 timeline read
+   44  HALT   -  0x0000  217147        2      0        0       0       0       0  []       
+  8 MOVX/MOVY records issued under a running stream; 8 of them with the engine busy for every cycle of the window
+SR13A_OVERLAP_TL: OVERLAPPED
+######## sr13a_cov_xbank_s4 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s4.e4  (.seq sha256 f44547ca84126280, .chip sha256 9c634f8c2b85d964)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s4   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_xbank_s4_control.log
+=== wall     11s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 41 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s4.e4 launch 0 [-]: 41 records, 275845 cycles (6727.93 cyc/rec, 1.103 ms @250MHz, PERF_CYC 275837)
+    LAUNCH 0 PASS: [-] pc 40, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 220 write bursts (56320 beats), 180 read bursts (46080 beats), busy_wr 93671 busy_rd 46836, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5161 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 42240/64000/64000/42240]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_xbank_s4.e4 (launches 1, 275845 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  275845
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 11s
+SR_CHIP sr13a_cov_xbank_s4 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_rbank_s4 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s4.e4  (.seq sha256 3b66239c04dcf4a9, .chip sha256 62d5c166c0229e1c)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s4   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_rbank_s4_control.log
+=== wall     57s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 41 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s4.e4 launch 0 [-]: 41 records, 1404487 cycles (34255.78 cyc/rec, 5.618 ms @250MHz, PERF_CYC 1404479)
+    LAUNCH 0 PASS: [-] pc 40, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 445 write bursts (112360 beats), 368 read bursts (91752 beats), busy_wr 186229 busy_rd 93144, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 10281 (miss 0), weight beats 1436160 total across 4 chan (miss 0) [ 270336/405504/304128/456192]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_rbank_s4.e4 (launches 1, 1404487 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  1404487
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 57s
+SR_CHIP sr13a_cov_rbank_s4 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_overlap_s4 control
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4.e4  (.seq sha256 2bcfb733f4a0eefd, .chip sha256 a0917170e507aa2f)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_overlap_s4_control.log
+=== wall     9s   rc=0
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 45 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4.e4 launch 0 [-]: 45 records, 217156 cycles (4825.69 cyc/rec, 0.869 ms @250MHz, PERF_CYC 217149)
+    LAUNCH 0 PASS: [-] pc 44, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 234 write bursts (59904 beats), 224 read bursts (57344 beats), busy_wr 105125 busy_rd 58260, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5165 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 67584/16896/102400/25600]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4.e4 (launches 1, 217156 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  217156
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 9s
+SR_CHIP sr13a_cov_overlap_s4 control: PASS
+  SEQ_CAPS fab1ca03
+######## sr13a_cov_overlap_s4 timeline
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_sr13/tb_seq_chip_9b_sr13
+=== built    2026-09-28T12:20:27-06:00  sha256 0aa1c5acfd2556bbaa5861c2c9b5d5572429879b3fc4dc09bcd59e3019d2a373
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4.e4  (.seq sha256 2bcfb733f4a0eefd, .chip sha256 a0917170e507aa2f)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4   mode: timeline
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr13_seed_sr13a_cov_overlap_s4_timeline.log
+=== csv      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4.timeline.csv
+=== wall     9s   rc=0
+--- verdict lines
+    tb_seq_chip: TIMELINE CENSUS ON -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4.timeline.csv
+    tb_seq_chip: launch 0 [-] rec_off 0, 45 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4.e4 launch 0 [-]: 45 records, 217156 cycles (4825.69 cyc/rec, 0.869 ms @250MHz, PERF_CYC 217149)
+    LAUNCH 0 PASS: [-] pc 44, tokens 0, tcnt 8, scratch 65536, smem 0
+      state: 0 read beats, 0 write beats, 0 unmapped
+      burst: 234 write bursts (59904 beats), 224 read bursts (57344 beats), busy_wr 105125 busy_rd 58260, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 12
+      ddr beats 5165 (miss 0), weight beats 212480 total across 4 chan (miss 0) [ 67584/16896/102400/25600]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/sr13a_cov_overlap_s4.e4 (launches 1, 217156 cycles total, scratch 65536/launch, tokens 0, tcnt 8)
+    CYCLES measured  217156
+    CSV 4965 bytes, 45 record rows, sha256 9cf1590289e6e97d4ac5f05d843b360dfa11b1121df1f752114dc59b9bf838c5
+--- SEQ_TIMELINE per-token lines
+SEQ_TIMELINE meta ntok=1 bcyc=217149 nrec=45 nmv=4 wimgpc=1 lat=4 ddrlat=32 wlat=40 ncls=16
+SEQ_TIMELINE tcyc 0 217149
+SEQ_TIMELINE union 0 217017
+SEQ_TIMELINE none 0 132
+SEQ_TIMELINE stall 0 24
+--- wall 9s
+SR_CHIP sr13a_cov_overlap_s4 timeline: PASS
+######## sr13a_cov_overlap_s4 timeline read
+   44  HALT   -  0x0000  217147        2      0        0       0       0       0  []       
+  8 MOVX/MOVY records issued under a running stream; 8 of them with the engine busy for every cycle of the window
+SR13A_OVERLAP_TL: OVERLAPPED
+SR13A_CHIP_COV_SEEDS234: ALL PASS
+=== rc  : 0
+=== end : 2026-09-28T12:38:42-06:00

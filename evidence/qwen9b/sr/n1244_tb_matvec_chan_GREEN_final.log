@@ -1,0 +1,332 @@
+=== host: snoke  date: 2026-09-28T07:51:20-06:00
+=== tree: 2327d7a+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/USAGE.md
+=== cmd : bash -c cd tb && make --no-print-directory tb_matvec_chan CHANDIR=obj_dir_tb_chan_sr12 VECPY=/home/cah/.venv/bin/python JOBS=16
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 16 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  --Mdir obj_dir_tb_chan_sr12 -o tb_chan \
+  --top-module tb_matvec_chan \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv tb_matvec_chan.sv
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+/usr/bin/python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtb_matvec_chan.cpp Vtb_matvec_chan___024root__DepSet_hafd1621a__0.cpp Vtb_matvec_chan___024root__DepSet_h39d10e05__0.cpp Vtb_matvec_chan__main.cpp Vtb_matvec_chan__ConstPool_0.cpp Vtb_matvec_chan___024root__Slow.cpp Vtb_matvec_chan___024root__DepSet_hafd1621a__0__Slow.cpp Vtb_matvec_chan___024root__DepSet_h39d10e05__0__Slow.cpp Vtb_matvec_chan__Syms.cpp > Vtb_matvec_chan__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o Vtb_matvec_chan__ALL.o Vtb_matvec_chan__ALL.cpp
+echo "" > Vtb_matvec_chan__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_matvec_chan__ALL.a Vtb_matvec_chan__ALL.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_matvec_chan__ALL.a    -pthread -lpthread -latomic   -o tb_chan
+rm Vtb_matvec_chan__ALL.verilator_deplist.tmp
+obj_dir_tb_chan_sr12/tb_chan --seed 1 +vecdir=vec_s1
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[4276000] phase: doorbell
+[4292000] phase: poll
+[6868000] phase: results
+perf: 576 beats in 725 cycles
+TB_MATVEC_CHAN PASS: 64 rows bit-exact (K=1024)
+- tb_matvec_chan.sv:361: Verilog $finish
+obj_dir_tb_chan_sr12/tb_chan --seed 2 +vecdir=vec_s2
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[14516000] phase: doorbell
+[14532000] phase: poll
+[18764000] phase: results
+perf: 928 beats in 1217 cycles
+TB_MATVEC_CHAN PASS: 32 rows bit-exact (K=3584)
+- tb_matvec_chan.sv:361: Verilog $finish
+obj_dir_tb_chan_sr12/tb_chan --seed 3 +vecdir=vec_s3
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[1204000] phase: doorbell
+[1220000] phase: poll
+[3888000] phase: results
+perf: 384 beats in 497 cycles
+TB_MATVEC_CHAN PASS: 128 rows bit-exact (K=256)
+- tb_matvec_chan.sv:361: Verilog $finish
+obj_dir_tb_chan_sr12/tb_chan --seed 4 +vecdir=vec_s4
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[8372000] phase: doorbell
+[8388000] phase: poll
+[9584000] phase: results
+perf: 272 beats in 329 cycles
+TB_MATVEC_CHAN PASS: 16 rows bit-exact (K=2048)
+- tb_matvec_chan.sv:361: Verilog $finish
+-- self-test: sw/hwmap.shape_word, BOTH layouts + the VERSION gate --
+/home/cah/.venv/bin/python ../sw/hwmap.py
+HWMAP SHAPE_WORD SELFTEST PASS: isa=1 pinned to RD_GATE 0x20800290/0x20200290 (+ the 0.8B W4 control), g64=0x1000d1e0 w8=0x2000d1e0, w8+g64 refused; isa=2 ng[28:22] nrows[21:6] sh[5:0] round-trips at ng 1/32/64/96 x nrows 0/1/4096/65535 x sh 0/1/63, spare [31:29] zero, g64/w8/over-wide fields and ng outside 1..MAX_NG all refused; an UNKNOWN VERSION refuses (034/035 isa=1, 041 0xc973c18a isa=2)
+-- G3.3: the 9B row geometry through the FULL CSR/DMA chain --
+make q9_vectors
+vectors: seed=9101 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9102 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9103 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9104 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9201 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9202 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9203 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9204 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9301 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9302 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9303 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9304 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+for s in 1 2 3 4; do \
+  for nm in q1 q2 q3; do \
+    obj_dir_tb_chan_sr12/tb_chan --seed $s +shapeback +vecdir=vecv2/${nm}${s}_g128 || exit 1; \
+  done; \
+done
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16576000] phase: doorbell
+[16592000] phase: poll
+[18616000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32960000] phase: doorbell
+[32976000] phase: poll
+[35276000] phase: results
+perf: 462 beats in 590 cycles
+TB_MATVEC_CHAN PASS: 7 rows bit-exact (K=8192)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[49344000] phase: doorbell
+[49360000] phase: poll
+[51936000] phase: results
+perf: 495 beats in 644 cycles
+TB_MATVEC_CHAN PASS: 5 rows bit-exact (K=12288)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16576000] phase: doorbell
+[16592000] phase: poll
+[18616000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32960000] phase: doorbell
+[32976000] phase: poll
+[35276000] phase: results
+perf: 462 beats in 590 cycles
+TB_MATVEC_CHAN PASS: 7 rows bit-exact (K=8192)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[49344000] phase: doorbell
+[49360000] phase: poll
+[51936000] phase: results
+perf: 495 beats in 644 cycles
+TB_MATVEC_CHAN PASS: 5 rows bit-exact (K=12288)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16576000] phase: doorbell
+[16592000] phase: poll
+[18616000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32960000] phase: doorbell
+[32976000] phase: poll
+[35276000] phase: results
+perf: 462 beats in 590 cycles
+TB_MATVEC_CHAN PASS: 7 rows bit-exact (K=8192)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[49344000] phase: doorbell
+[49360000] phase: poll
+[51936000] phase: results
+perf: 495 beats in 644 cycles
+TB_MATVEC_CHAN PASS: 5 rows bit-exact (K=12288)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16576000] phase: doorbell
+[16592000] phase: poll
+[18616000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32960000] phase: doorbell
+[32976000] phase: poll
+[35276000] phase: results
+perf: 462 beats in 590 cycles
+TB_MATVEC_CHAN PASS: 7 rows bit-exact (K=8192)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[49344000] phase: doorbell
+[49360000] phase: poll
+[51936000] phase: results
+perf: 495 beats in 644 cycles
+TB_MATVEC_CHAN PASS: 5 rows bit-exact (K=12288)
+- tb_matvec_chan.sv:361: Verilog $finish
+-- SR12 (B17.2): the R2 banks through the real CSR, 4 seeds --
+for s in 1 2 3 4; do \
+  n=$(( $s % 4 + 1 )); \
+  obj_dir_tb_chan_sr12/tb_chan --seed $s +verilator+seed+$s +xbank +rbank +shapeback +vecdir=vec_s$s || exit 1; \
+  obj_dir_tb_chan_sr12/tb_chan --seed $s +verilator+seed+$s +xbank +rbank +shapeback +vecdir=vecv2/q1${s}_g128 || exit 1; \
+  obj_dir_tb_chan_sr12/tb_chan --seed $s +verilator+seed+$s +overlap=vec_s$n +vecdir=vec_s$s || exit 1; \
+done
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[8400000] phase: doorbell
+[8416000] phase: poll
+[11084000] phase: results
+perf: 576 beats in 754 cycles
+TB_MATVEC_CHAN PASS: 64 rows bit-exact (K=1024)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32976000] phase: doorbell
+[32992000] phase: poll
+[35016000] phase: results
+perf: 429 beats in 553 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[4276000] phase: doorbell
+[4292000] phase: SR12 overlap — B's x -> bank 1 while A runs
+  overlap: engine busy at 5 of 28 STATUS samples during the 896-word bank-1 load
+[18980000] phase: poll
+[19072000] phase: results
+[19856000] phase: SR12 overlap — B on XBANK|RBANK
+  overlap: B 32 rows at RES 2048.. and A 64 rows at RES 0.. both bit-exact
+perf: 928 beats in 1177 cycles
+TB_MATVEC_CHAN PASS: 64 rows bit-exact (K=1024)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[28880000] phase: doorbell
+[28896000] phase: poll
+[33036000] phase: results
+perf: 928 beats in 1194 cycles
+TB_MATVEC_CHAN PASS: 32 rows bit-exact (K=3584)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32976000] phase: doorbell
+[32992000] phase: poll
+[34924000] phase: results
+perf: 429 beats in 524 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[14516000] phase: doorbell
+[14532000] phase: SR12 overlap — B's x -> bank 1 while A runs
+  overlap: engine busy at 2 of 2 STATUS samples during the 64-word bank-1 load
+[15596000] phase: poll
+[18540000] phase: results
+[18940000] phase: SR12 overlap — B on XBANK|RBANK
+  overlap: B 128 rows at RES 2048.. and A 32 rows at RES 0.. both bit-exact
+perf: 384 beats in 483 cycles
+TB_MATVEC_CHAN PASS: 32 rows bit-exact (K=3584)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[2256000] phase: doorbell
+[2272000] phase: poll
+[4940000] phase: results
+perf: 384 beats in 479 cycles
+TB_MATVEC_CHAN PASS: 128 rows bit-exact (K=256)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32976000] phase: doorbell
+[32992000] phase: poll
+[34924000] phase: results
+perf: 429 beats in 528 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[1204000] phase: doorbell
+[1220000] phase: SR12 overlap — B's x -> bank 1 while A runs
+  overlap: engine busy at 5 of 16 STATUS samples during the 512-word bank-1 load
+[9620000] phase: poll
+[9712000] phase: results
+[11264000] phase: SR12 overlap — B on XBANK|RBANK
+  overlap: B 16 rows at RES 2048.. and A 128 rows at RES 0.. both bit-exact
+perf: 272 beats in 342 cycles
+TB_MATVEC_CHAN PASS: 128 rows bit-exact (K=256)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16592000] phase: doorbell
+[16608000] phase: poll
+[17804000] phase: results
+perf: 272 beats in 323 cycles
+TB_MATVEC_CHAN PASS: 16 rows bit-exact (K=2048)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32976000] phase: doorbell
+[32992000] phase: poll
+[35016000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:361: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[8372000] phase: doorbell
+[8388000] phase: SR12 overlap — B's x -> bank 1 while A runs
+  overlap: engine busy at 3 of 8 STATUS samples during the 256-word bank-1 load
+[12596000] phase: poll
+[12688000] phase: results
+[12896000] phase: SR12 overlap — B on XBANK|RBANK
+  overlap: B 64 rows at RES 2048.. and A 16 rows at RES 0.. both bit-exact
+perf: 576 beats in 707 cycles
+TB_MATVEC_CHAN PASS: 16 rows bit-exact (K=2048)
+- tb_matvec_chan.sv:361: Verilog $finish
+TB_MATVEC_CHAN OK: the 4 frozen stage-2 shapes + the 9B NG 32/64/96 x 4 seeds with the SHAPE round-trip + SR12 banks (XBANK+RBANK, q1 in a bank, bank-1 load during a bank-0 run) x 4 seeds
+=== rc  : 0
+=== end : 2026-09-28T07:51:32-06:00

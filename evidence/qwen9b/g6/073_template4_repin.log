@@ -1,0 +1,55 @@
+=== host: snoke
+=== date: 2026-09-09T22:52:45-06:00
+=== tree: 1b2cec6+dirty
+=== cmd:  bash -c 
+set +e
+PY=/home/cah/.venv/bin/python
+echo "########## [1] the shipped selection: the pin, and the whole suite"
+$PY sw/chat_seq.py --selftest 2>&1 | tail -5
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [2] which artifact each selection pins"
+for t in unset 2b 9b; do
+  if [ $t = unset ]; then unset FABLE5_MODEL; else export FABLE5_MODEL=$t; fi
+  $PY -c "
+import sys; sys.path[:0]=[\"sw\",\"ref\"]
+import chat_seq as C
+print(\"  FABLE5_MODEL=%-5s -> %-46s nrec %-7d sha %s\" % (
+    C.MODEL_TAG, C.os.path.relpath(C.TEMPLATE4_PREFIX, C.TOP_DIR),
+    C.TEMPLATE4_NREC, C.TEMPLATE4_SHA256[:16]))"
+done
+echo
+echo "########## [3] the 9B artifact on disk, against s4/001:203 and g6/024:15"
+sha256sum tb/scripts/w9/model_9b_s1.e4.seq
+grep -n "e4.seq " evidence/qwen9b/s4/001_emit_9b_s1.log
+grep -n "stream   158536" evidence/qwen9b/g6/024_seqmodel_gate_s1to4.log
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] the shipped selection: the pin, and the whole suite
+  [19c] rung 4 S6: OUT FIFO depth 64, 7-bit count, sticky of_ovf
+  [20] rung 4 S8: TOPK-32 STATUS decode + PTR auto-increment
+  [21] S3: conv-image witnesses + the session-reset DN memset
+  [22] S3/9B: the state region in the verifier, the session and the residency split
+  chat_seq selftest: 385 passed, 0 failed
+   rc=0
+
+########## [2] which artifact each selection pins
+  FABLE5_MODEL=0.8b  -> tb/scripts/w4/model_v2_s1.e4                   nrec 68119   sha e102e2df0835097d
+  FABLE5_MODEL=2b    -> tb/scripts/w4/model_v2_s1.e4                   nrec 68119   sha e102e2df0835097d
+  FABLE5_MODEL=9b    -> tb/scripts/w9/model_9b_s1.e4                   nrec 158536  sha 9760899df53b3b42
+
+########## [3] the 9B artifact on disk, against s4/001:203 and g6/024:15
+9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  tb/scripts/w9/model_9b_s1.e4.seq
+101:SEQ: 158536 records (2536576 B) + 563712 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq  [profile=epsnorm loop_steps=3]
+190:SEQ: 158536 records (2536576 B) + 563712 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/model_9b_s1/rep2.e4.seq  [profile=epsnorm loop_steps=3]
+203:  .e4.seq            IDENTICAL        2536576 B  9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+15:      stream   158536 records, 2536576 B (sha256 9760899df53b3b42)
+60:      stream   158536 records, 2536576 B (sha256 3483d82ab9116456)
+=== rc: 0
+=== end: 2026-09-09T22:53:16-06:00

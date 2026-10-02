@@ -1,0 +1,99 @@
+=== host: snoke
+=== date: 2026-09-09T22:00:38-06:00
+=== tree: 9bcacd6
+=== cmd:  bash -c 
+set +e
+PY=/home/cah/.venv/bin/python
+echo "########## [1] the shipped selection (FABLE5_MODEL unset) — what chat_seq is pinned to"
+$PY evidence/qwen9b/g6/g6_chat_scope_probe.py
+echo
+echo "########## [2] the 9B selection (FABLE5_MODEL=9b FABLE5_RS_F=7)"
+FABLE5_MODEL=9b FABLE5_RS_F=7 $PY evidence/qwen9b/g6/g6_chat_scope_probe.py
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] the shipped selection (FABLE5_MODEL unset) — what chat_seq is pinned to
+=== FABLE5_MODEL=unset
+--- ref/seq_chat.py, the compiler of record (frozen vs derived)
+  DEFAULT_PREFIX        tb/scripts/w4/model_v2_s1.e
+  TEMPLATE_NREC         60495   (FROZEN)
+  TEMPLATE_SHA256       a69864d25b6b129a   (FROZEN)
+  SEQDATA_SHA256        13bc65821b18194b   (FROZEN)
+  CONST_BYTES           998144   (FROZEN — the 0.8B/2B const region)
+  R_PREAMBLE/BODY_FULL  (0, 1524) / (1526, 16266)   (FROZEN)
+  R_BODY_LITE/TCNT/HALT (1526, 15532) / 45751 / 60494   (FROZEN)
+  POS_COPIES            6   (DERIVED from layer_types)
+  POS_WORDS/COPY_BYTES  128 / 256   (DERIVED)
+  POS_STRIDE            1536 B/position   (DERIVED)
+  POS_LDC_REC_OFFSETS   (2096, 4428, 6760, 9092, 11424, 13756)   (FROZEN, 6 entries)
+  T_MAX                 512   (FROZEN)
+  XRF_POS_MAX           85   (DERIVED: signed 18-bit XRF[4] / POS_STRIDE)
+--- sw/chat_seq.py, the host twin
+  TEMPLATE_PREFIX       tb/scripts/w4/model_v2_s1.e  nrec 60495  isa v1
+  TEMPLATE4_PREFIX      tb/scripts/w4/model_v2_s1.e4  nrec 68119
+  TEMPLATE4_SHA256      e102e2df0835097d   (the nch=4 gate)
+  POS_COPIES/POS_STRIDE 6 / 1536
+  T_MAX / POSBLOB_BYTES 512 / 786432 B
+  the same blob at T=4096: 6291456 B (6.0 MiB)
+  sw/hwmap.STATE_T_MAX  4096   (the HARDWARE ceiling)
+
+--- what derive_geometry() reads OUT OF the 9B stream (nch=4 path)
+  REFUSED: ChatSeqError: template geometry: 8 position-indexed LDCs in the body, expected 6
+
+########## [2] the 9B selection (FABLE5_MODEL=9b FABLE5_RS_F=7)
+=== FABLE5_MODEL=9b
+--- ref/seq_chat.py, the compiler of record (frozen vs derived)
+  DEFAULT_PREFIX        tb/scripts/w4/model_v2_s1.e
+  TEMPLATE_NREC         60495   (FROZEN)
+  TEMPLATE_SHA256       a69864d25b6b129a   (FROZEN)
+  SEQDATA_SHA256        13bc65821b18194b   (FROZEN)
+  CONST_BYTES           998144   (FROZEN — the 0.8B/2B const region)
+  R_PREAMBLE/BODY_FULL  (0, 1524) / (1526, 16266)   (FROZEN)
+  R_BODY_LITE/TCNT/HALT (1526, 15532) / 45751 / 60494   (FROZEN)
+  POS_COPIES            8   (DERIVED from layer_types)
+  POS_WORDS/COPY_BYTES  128 / 256   (DERIVED)
+  POS_STRIDE            2048 B/position   (DERIVED)
+  POS_LDC_REC_OFFSETS   (2096, 4428, 6760, 9092, 11424, 13756)   (FROZEN, 6 entries)
+  T_MAX                 512   (FROZEN)
+  XRF_POS_MAX           63   (DERIVED: signed 18-bit XRF[4] / POS_STRIDE)
+--- sw/chat_seq.py, the host twin
+  TEMPLATE_PREFIX       tb/scripts/w4/model_v2_s1.e  nrec 60495  isa v1
+  TEMPLATE4_PREFIX      tb/scripts/w4/model_v2_s1.e4  nrec 68119
+  TEMPLATE4_SHA256      e102e2df0835097d   (the nch=4 gate)
+  POS_COPIES/POS_STRIDE 8 / 2048
+  T_MAX / POSBLOB_BYTES 512 / 1048576 B
+  the same blob at T=4096: 8388608 B (8.0 MiB)
+  sw/hwmap.STATE_T_MAX  4096   (the HARDWARE ceiling)
+
+--- what derive_geometry() reads OUT OF the 9B stream (nch=4 path)
+  CONST_BYTES            551424
+  LITE_SUFFIX_RECS       768
+  NREC_BODY_FULL         39622
+  NREC_BODY_LITE         38854
+  NREC_PREAMBLE          37
+  POS_BLOB_BASE          2148035072
+  POS_COPY_BYTES         256
+  POS_LDC_REC_OFFSETS    (4305, 9160, 14015, 18870, 23725, 28580, 33435, 38282)
+  POS_STRIDE             2048
+  POS_WORDS              128
+  R_BODY_FULL            (39, 39661)
+  R_BODY_LITE            (39, 38893)
+  R_HALT                 158535
+  R_JMP                  158534
+  R_POSADV               158533
+  R_PREAMBLE             (0, 37)
+  R_SEED_POS             38
+  R_SEED_TOK             37
+  R_TCNT                 118910
+  SEQDATA_SHA256         4a7784f2f2c47e078437f84ffb95fd3724fcdceb9418d0e65a4af20f08ad108e
+  TEMPLATE_NREC          158536
+  X8_LEN                 4096
+  X8_WORD                8192
+  => the nch=4 path DERIVES all of it; the frozen slices above belong to the nch=1 path only
+=== rc: 0
+=== end: 2026-09-09T22:00:40-06:00

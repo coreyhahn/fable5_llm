@@ -1,0 +1,26 @@
+=== host: snoke  date: 2026-09-26T10:33:05-06:00
+=== tree: 4f8d628
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/bm/bm1_reorder_tdd.py
+=== env : FABLE5_MODEL=9b  FABLE5_SEQ_EXPECT_VERSION=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+T1 CLI
+  [FAIL] T1a --reorder in --help
+  [PASS] T1b --reorder C is an argparse error (rc 2)  rc 2
+T2 pins
+  [FAIL] T2a form A pinned to the SV1 artifact
+  [FAIL] T2b form B refused (B7)  AttributeError("module 'chat_seq' has no attribute 'resolve_reorder'")
+T3 off by default, byte-identical
+  [PASS] T3 preamble identical to 904b311  ('04f998daed6143c018d9589c47b94735ad709130c84af7028f80a1b1e71359b9', '04f998daed6143c018d9
+  [PASS] T3 lite identical to 904b311  ('9b6e3c005b88ec64586c132e33b590196408840c7559db147aff4fcc5e2b1c0e', '6cd8a5debaf82f0bd044
+  [PASS] T3 full identical to 904b311  ('2fd5b1a4a84ef815d8acd3b97cdaac7855c65c3a057f95b85f9f661663fcd370', '4b1ee083f3d9e78e89d6
+  [PASS] T3 blob identical to 904b311  a3ea37aa79d3e8041db8b8b841ca5d9c539c7604bf62bb1a8cfd299c20b66731
+  [PASS] T3 base identical to 904b311  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1
+  [PASS] T3 tmpl_sha identical to 904b311  9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+T4 resolve_reorder('A')
+  [FAIL] T4a regenerated == pinned; template switched  AttributeError("module 'chat_seq' has no attribute 'resolve_reorder'")
+  [FAIL] T4b a tampered pin is REFUSED  AttributeError("module 'chat_seq' has no attribute 'resolve_reorder'")
+T5 image hazard assert
+  [FAIL] T5a the three reordered images pass  AttributeError("module 'chat_seq' has no attribute 'reorder_image_hazards'")
+BM1_REORDER_TDD: 7 passed, 6 failed
+=== rc  : 1
+=== end : 2026-09-26T10:33:14-06:00

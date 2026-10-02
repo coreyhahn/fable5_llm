@@ -1,0 +1,36 @@
+=== host: snoke
+=== date: 2026-09-01T13:28:18-06:00
+=== tree: dc8f492
+=== cmd:  sw/.venv/bin/python -u evidence/qwen9b/o3/o3_red_percheckout.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+O3 RED capture — the per-checkout lock, plan Task 6 Step 1
+  python     /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python
+  checkouts  2
+    /home/cah/r2d2/code/fpga/fable5_llm
+    /home/cah/r2d2/code/fpga/grok46_llm/fable5
+
+[control] two processes, ONE checkout (/home/cah/r2d2/code/fpga/fable5_llm)
+    A  ok=True  lock=/home/cah/r2d2/code/fpga/fable5_llm/sw/.seq.lock
+    B  ok=False  why=another process holds /home/cah/r2d2/code/fpga/fable5_llm/sw/.seq.lock (pid 2715959 chat_seq.py 2026-09-01T13:
+    => EXCLUDED.  The flock mechanism is correct.
+
+[red] two processes, TWO checkouts
+    A  ok=True  lock=/home/cah/r2d2/code/fpga/fable5_llm/sw/.seq.lock
+       module   /home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py
+       identity 'pid 2716086 chat_seq.py 2026-09-01T13:28:26'
+    B  ok=True  lock=/home/cah/r2d2/code/fpga/grok46_llm/fable5/sw/.seq.lock
+       module   /home/cah/r2d2/code/fpga/grok46_llm/fable5/sw/chat_seq.py
+       identity 'pid 2716134 chat_seq.py 2026-09-01T13:28:27'
+    => BOTH HELD THE BOARD AT ONCE.  Two inodes, one board:
+       /home/cah/r2d2/code/fpga/fable5_llm/sw/.seq.lock
+       /home/cah/r2d2/code/fpga/grok46_llm/fable5/sw/.seq.lock
+
+O3_RED_PERCHECKOUT: CONFIRMED
+=== rc: 0
+=== end: 2026-09-01T13:28:34-06:00

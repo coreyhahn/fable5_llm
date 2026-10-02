@@ -1,0 +1,62 @@
+=== host: snoke
+=== date: 2026-09-07T00:04:09-06:00
+=== tree: 1dd2889+dirty
+=== cmd:  env FABLE5_RS_F=7 FABLE5_MODEL=9b bash -c for t in lint_layer_chan tb_dn_step tb_dn_step_pipe; do
+    echo "=== $t ==="
+    make -C tb GENPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python JOBS=8 $t 2>&1 | tr -d "\000" | /usr/bin/grep -avE "^g\+\+|^Archive|^echo |^rm |^make\[|^ +--|^ +\.\./|^verilator |verilator_includer"
+    echo "=== $t rc=${PIPESTATUS[0]} ==="
+  done
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== lint_layer_chan ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== lint_layer_chan rc=0 ===
+=== tb_dn_step ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+obj_dir_tb_dn/tb_dn +vecdir=vectors/s1
+DN_CYCLES RLAT=2 P2W=0 cycles_per_head=1799
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn/tb_dn +vecdir=vectors/s2
+DN_CYCLES RLAT=2 P2W=0 cycles_per_head=1799
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn/tb_dn +vecdir=vectors/s3
+DN_CYCLES RLAT=2 P2W=0 cycles_per_head=1799
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn/tb_dn +vecdir=vectors/s4
+DN_CYCLES RLAT=2 P2W=0 cycles_per_head=1799
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_dn_step rc=0 ===
+=== tb_dn_step_pipe ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+  -GRLAT=6 -GP2W=1 \
+obj_dir_tb_dn6/tb_dn6 +vecdir=vectors/s1
+DN_CYCLES RLAT=6 P2W=1 cycles_per_head=1931
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6/tb_dn6 +vecdir=vectors/s2
+DN_CYCLES RLAT=6 P2W=1 cycles_per_head=1931
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6/tb_dn6 +vecdir=vectors/s3
+DN_CYCLES RLAT=6 P2W=1 cycles_per_head=1931
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6/tb_dn6 +vecdir=vectors/s4
+DN_CYCLES RLAT=6 P2W=1 cycles_per_head=1931
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_dn_step_pipe rc=0 ===
+=== rc: 0
+=== end: 2026-09-07T00:04:41-06:00

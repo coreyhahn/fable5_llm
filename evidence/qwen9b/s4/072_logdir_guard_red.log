@@ -1,0 +1,31 @@
+=== host: snoke
+=== date: 2026-09-05T12:03:07-06:00
+=== tree: 8f89870
+=== cmd:  bash evidence/qwen9b/s4/logdir_guard_red.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+LOGDIR_GUARD_RED: host snoke, scratch /tmp/s4_logdir_guard.ZpXrhR
+  tracked check, for the record:
+    evidence/qwen9b/g4/seedlogs_model_9b_s  4 tracked file(s)
+    evidence/qwen9b/s4/seedlogs_model_9b_s  4 tracked file(s)
+
+=== RED: the DEFAULT LOGDIR for model_9b_s (expect rc 4, no simulation)
+    REFUSING: /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g4/seedlogs_model_9b_s holds TRACKED evidence; pass LOGDIR= explicitly
+    rc=4  wall=0s
+
+=== GREEN: an UNTRACKED LOGDIR must not trigger it (real tok9b_s1 replay)
+    LOGDIR = /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/s4/seedlogs_guard_green_tmp  (0 tracked file(s))
+    === binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_seq_chip_9b/tb_seq_chip_9b
+        TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4 (launches 1, 3893746 cycles total, scratch 36864/launch, tokens 2, tcnt 8)
+    G4A_REPLAY tok9b_s: ALL PASS
+    rc=0  wall=172s
+
+LOGDIR_GUARD_RED: PASS — the default LOGDIR for model_9b_s is REFUSED
+  (rc 4, no simulation) and an untracked LOGDIR still replays clean
+=== rc: 0
+=== end: 2026-09-05T12:05:59-06:00

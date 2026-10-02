@@ -1,0 +1,66 @@
+=== host: snoke
+=== date: 2026-09-09T23:07:46-06:00
+=== tree: 09ed6d7
+=== cmd:  bash -c 
+set +e
+PY=/home/cah/.venv/bin/python
+for s in 20260909 20260909 4242 777; do
+  echo "########## sampled seed $s  (temp 0.8, top-k 32, top-p 0.95)"
+  FABLE5_MODEL=9b $PY -u sw/chat_seq.py --nch 4 --temp 0.8 --top-k 32 --top-p 0.95 --seed $s       --prompt "What is the capital of France?" --ntok 24       --out evidence/qwen9b/g6/079_sampled_seed${s}_$RANDOM.json 2>&1     | grep -E "^  --> |^  ids |^  sampling|^  launches|^  OUT FIFO|seed|tok in|\*\*\*"
+  echo "   rc=${PIPESTATUS[0]}"
+  echo
+done
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## sampled seed 20260909  (temp 0.8, top-k 32, top-p 0.95)
+  sampling   temp=0.8 top_k=32 top_p=0.95 seed=20260909  |  source chip-topk: ready  |  capture k=32
+  decode     temp=0.8 top_k=32 top_p=0.95 seed=20260909 via chip-topk  |  the LM head + argmax run ON-CHIP every step
+  --> '"The Republic," and as its political and religious capital in all Europe of nations that can take them! So why was a'
+  ids [9726, 5260, 1288, 321, 430, 1141, 4788, 321, 10072, 6511, 303, 660, 4357, 314, 16185, 421, 628, 1831, 1070, 0, 1987, 3069, 557, 264]   24 tok in 5.69s
+  launches     43 (1 preamble / 18 lite / 24 full)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  sampling     temp=0.8 top_k=32 top_p=0.95 seed=20260909  (24 draws of 24 picks, 0.3989 ms mean)
+report -> evidence/qwen9b/g6/079_sampled_seed20260909_262.json
+   rc=0
+
+########## sampled seed 20260909  (temp 0.8, top-k 32, top-p 0.95)
+  sampling   temp=0.8 top_k=32 top_p=0.95 seed=20260909  |  source chip-topk: ready  |  capture k=32
+  decode     temp=0.8 top_k=32 top_p=0.95 seed=20260909 via chip-topk  |  the LM head + argmax run ON-CHIP every step
+  --> '"The Republic," and as its political and religious capital in all Europe of nations that can take them! So why was a'
+  ids [9726, 5260, 1288, 321, 430, 1141, 4788, 321, 10072, 6511, 303, 660, 4357, 314, 16185, 421, 628, 1831, 1070, 0, 1987, 3069, 557, 264]   24 tok in 5.68s
+  launches     43 (1 preamble / 18 lite / 24 full)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  sampling     temp=0.8 top_k=32 top_p=0.95 seed=20260909  (24 draws of 24 picks, 0.2522 ms mean)
+report -> evidence/qwen9b/g6/079_sampled_seed20260909_19523.json
+   rc=0
+
+########## sampled seed 4242  (temp 0.8, top-k 32, top-p 0.95)
+  sampling   temp=0.8 top_k=32 top_p=0.95 seed=4242  |  source chip-topk: ready  |  capture k=32
+  decode     temp=0.8 top_k=32 top_p=0.95 seed=4242 via chip-topk  |  the LM head + argmax run ON-CHIP every step
+  --> "> 🚀\n**\n\nI'd use emojis where natural—**`28. $, **$`."
+  ids [29, 10838, 248, 222, 198, 332, 271, 40, 4035, 958, 95637, 1332, 5629, 2218, 332, 63, 17, 23, 13, 393, 11, 2972, 3, 27653]   24 tok in 5.67s
+  launches     43 (1 preamble / 18 lite / 24 full)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  sampling     temp=0.8 top_k=32 top_p=0.95 seed=4242  (24 draws of 24 picks, 0.426 ms mean)
+report -> evidence/qwen9b/g6/079_sampled_seed4242_101.json
+   rc=0
+
+########## sampled seed 777  (temp 0.8, top-k 32, top-p 0.95)
+  sampling   temp=0.8 top_k=32 top_p=0.95 seed=777  |  source chip-topk: ready  |  capture k=32
+  decode     temp=0.8 top_k=32 top_p=0.95 seed=777 via chip-topk  |  the LM head + argmax run ON-CHIP every step
+  --> '🐲:\n\nParis has'
+  ids [9008, 238, 110, 25, 271, 248069, 57590, 682, 248046]   9 tok in 3.59s  [stop: EOS]
+  launches     28 (1 preamble / 18 lite / 9 full)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  sampling     temp=0.8 top_k=32 top_p=0.95 seed=777  (9 draws of 9 picks, 0.3366 ms mean)
+report -> evidence/qwen9b/g6/079_sampled_seed777_29976.json
+   rc=0
+
+=== rc: 0
+=== end: 2026-09-09T23:08:30-06:00

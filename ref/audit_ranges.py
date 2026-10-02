@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Increment (3) PREP — saturation / range audit of the FROZEN fixed-point
-formats against the REAL Qwen3.5-0.8B weights.
+formats against the REAL checkpoint weights of the model `FABLE5_MODEL`
+selects (`ref/model_select.py`; 0.8b default, 2b).
 
 Everything reported here is computable from weights alone.  The quantized
 values are produced by the actual production quantizers
@@ -31,6 +32,7 @@ Usage:  ref/.venv/bin/python ref/audit_ranges.py [-o report.md]
 """
 import argparse
 import datetime
+import inspect
 import os
 import subprocess
 import sys
@@ -42,6 +44,7 @@ import fixedpoint as fp                                       # noqa: E402
 import layer_fixed as LF                                      # noqa: E402
 import layer_ref as LR                                        # noqa: E402
 import load_qwen35 as LQ                                      # noqa: E402
+import model_select as MS                                     # noqa: E402
 import w4a8_ref as W4                                         # noqa: E402
 
 I16_MIN, I16_MAX = -32768, 32767
@@ -49,9 +52,34 @@ U18_MAX = (1 << 18) - 1
 I64 = np.int64
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# float64 GiB we insist on having free before quantizing the 248320x1024
-# LM head with the real (float64) quant_linear.
-HEAD_MEM_GIB = 10.0
+# Free-RAM headroom we insist on before quantizing the VOCAB x H LM head with
+# the real (float64) quant_linear: the MSE grid search holds the matrix plus
+# several float64 temporaries of the same shape.  GEOMETRY-DERIVED, and
+# calibrated to sit just above the measured peak RSS of a whole run
+# (7 copies of the VOCAB x H float64 matrix): 0.8B (248320x1024) -> 13.3 GiB
+# guard vs 12.1 GiB measured; 2B (248320x2048) -> 26.5 GiB vs 24.8 GiB
+# measured (evidence/qwen2b/q2/audit/audit_time_*.txt).  The hardcoded
+# 10.0 GiB this replaces was already optimistic at 0.8B and would have let
+# the 2B head start on a machine with well under half the RAM it needs.
+HEAD_MEM_COPIES = 7.0
+
+# The `dt_bias` / `A` rows of sections 1 and 3 are fed the values
+# layer_fixed.quant_deltanet STORES, and since 82781e5 those are already
+# np.clip'ped into their ports (layer_fixed.py:805-806).  This auditor
+# therefore cannot see a gate-port overflow at all.  Every report says so,
+# in the header and beside both sets of rows — text only, no measurement
+# moves.
+GATE_CLAMP_NOTE = (
+    "**GATE-PORT CAVEAT — the `dt_bias` and `A` rows of sections 1 and 3 "
+    "audit POST-CLAMP values.** `layer_fixed.quant_deltanet` saturates both "
+    "into their ports before returning them (`np.clip`, "
+    "`layer_fixed.py:805-806`, since `82781e5`), so those rows report "
+    "`0 / N` out of range and a max pinned exactly at the rail EVEN IF the "
+    "checkpoint exceeds the port — and section 3's \"max used (real "
+    "weights)\" column, which is computed from the FLOAT weights, can then "
+    "contradict its own verdict. The pre-clamp truth is recorded in "
+    "`qd[\"gate_sat\"]` (which this script does not read) and is measured by "
+    "`evidence/qwen2b/q2/audit/gate_port_probe.py`.")
 
 
 # ----------------------------------------------------------------------
@@ -252,23 +280,48 @@ def main():
     t0 = datetime.datetime.now()
 
     # ---------------- load ----------------
-    cp = LQ.find_checkpoint()
-    st = LQ.SafeTensors(cp)
+    # G2c: `find_checkpointS`.  `find_checkpoint` (singular) is the FIRST
+    # shard only and says so in its own docstring — it exists for callers
+    # that want the snapshot DIRECTORY, not the tensors.  0.8B and 2B are
+    # single-shard so this tool was right everywhere it had ever run; 4B has
+    # two shards and 9B four, and reading only shard 0 made every DeltaNet
+    # tensor of layer 0 a `KeyError` (G1 forked this file under `runpy` with
+    # exactly this patch to get its 9B numbers — `evidence/qwen9b/g1/
+    # audit_ranges_9b.py`).  `SafeTensors` takes the whole shard list.
+    cps = LQ.find_checkpoints()
+    cp = cps[0]
+    st = LQ.SafeTensors(cps)
     cfg = LQ.load_config()
     types = cfg["layer_types"]
     NL = cfg["num_hidden_layers"]
+    N_DN = sum(1 for t in types if t == "linear_attention")
+    N_GQA = sum(1 for t in types if t == "full_attention")
     VOCAB = cfg["vocab_size"]
+    # G2c: ground truth from the checkpoint, cross-checked against the config
+    # flag by `checkpoint_is_tied` (either direction of disagreement raises).
+    TIED, HEAD_KEY = LQ.checkpoint_is_tied(st)
 
-    R.w("# Increment (3) PREP — fixed-point range audit vs the real "
-        "Qwen3.5-0.8B weights")
+    model_name = MS.REPO_DIR.split("--")[-1]
+    mse_default = bool(inspect.signature(LF.quant_linear)
+                       .parameters["mse_scale"].default)
+    R.w(f"# Increment (3) PREP — fixed-point range audit vs the real "
+        f"{model_name} weights")
     R.w()
     R.w(f"- generated: `{t0:%Y-%m-%d %H:%M:%S}`  (repo `{_git_rev()}`)")
-    R.w(f"- checkpoint: `{cp}`")
-    R.w(f"- safetensors header sha256: `{st.header_sha}`")
+    R.w(f"- checkpoint: `{cp}`"
+        + ("" if st.n_shards == 1 else f"  ({st.n_shards} shards)"))
+    R.w(f"- safetensors header sha256: `{st.header_sha}`"
+        + ("" if st.n_shards == 1 else
+           "  (COMBINED over the shard header digests — a different kind of "
+           "number from a single-shard one; per-shard: "
+           + ", ".join(f"`{s}`" for s in st.shard_shas) + ")"))
     R.w(f"- model: {NL} layers "
         f"({types.count('linear_attention')} DeltaNet + "
         f"{types.count('full_attention')} GQA), H={LR.H}, FFN={LR.FFN}, "
-        f"vocab={VOCAB} (tied embeddings)")
+        f"vocab={VOCAB} "
+        + ("(TIED embeddings: the LM head is a copy of `embed_tokens`)"
+           if TIED else
+           f"(UNTIED: the LM head is the checkpoint's own `{HEAD_KEY}`)"))
     R.w(f"- frozen formats under test: RS_F={LF.RS_F} QKV_F={LF.QKV_F} "
         f"NRM_F={LF.NRM_F} S_F={LF.S_F} GAT_F={LF.GAT_F} CW_F={LF.CW_F} "
         f"ROPE_F={LF.ROPE_F} KVC_F={LF.KVC_F}, W4 group G={W4.G}")
@@ -276,21 +329,41 @@ def main():
         " `quant_deltanet` / `quant_mlp` / `quant_linear`), "
         "`w4a8_ref.quantize_weights`, `fixedpoint.softplus_q` / `exp_neg_q`"
         " / `sigmoid_q`. Nothing is re-implemented here.")
+    R.w(f"- W4 group-scale rule in force (`quant_linear` default "
+        f"`mse_scale`): **{'MSE-optimal (quant_linear_mse)' if mse_default else 'max|W_g|/7 (quantize_weights)'}**"
+        f" — section 2's `e` / `m` / INT4-clip / error columns are produced "
+        f"by THIS rule.")
+    R.w(f"- `res_scale = 1.0` (`quant_layer` default). res_scale is a "
+        f"power-of-two prescale of the three residual-writing matrices "
+        f"(`o_proj` / `dn.out` / `mlp.down`) and of the embedding seed, so "
+        f"it moves section 2's `e` column by exactly log2(S) on those "
+        f"families and nothing else there; section 4's seed occupancy DOES "
+        f"scale with S (see the runtime note in section 5).")
+    R.w()
+    R.w(GATE_CLAMP_NOTE)
     R.w()
 
     # ---------------- constants ----------------
+    # G2a: the per-family layer counts in these LABELS were 0.8B strings
+    # (24 / 48 / 6 / 18).  The COUNTS the audit computes were always
+    # geometry-correct; only the printed names lied at 4B/9B, which is a
+    # reporting defect G1 recorded and this gate closes.  K_LN12 is a dict
+    # KEY as well as a label, so it is built once here and used everywhere.
+    K_LN12 = f"ln1/ln2 ({NL} layers x2, zero-centered 1+w)"
     C = {
-        "ln1/ln2 (24 layers x2, zero-centered 1+w)":
-            ConstAudit("ln1 / ln2 (48 tensors, zero-centered 1+w)", 14,
+        K_LN12:
+            ConstAudit(f"ln1 / ln2 ({2 * NL} tensors, zero-centered 1+w)", 14,
                        I16_MIN, I16_MAX, "int16 Q1.14 (scratch / vecnorm wbuf)"),
         "ln_f":
             ConstAudit("model.norm (final RMSNorm, zero-centered 1+w)", 14,
                        I16_MIN, I16_MAX, "int16 Q1.14 (scratch / vecnorm wbuf)"),
         "qk_norm":
-            ConstAudit("q_norm / k_norm (6 GQA layers, zero-centered 1+w)", 14,
+            ConstAudit(f"q_norm / k_norm ({N_GQA} GQA layers, "
+                       f"zero-centered 1+w)", 14,
                        I16_MIN, I16_MAX, "int16 Q1.14 (scratch / vecnorm wbuf)"),
         "dn_norm":
-            ConstAudit("linear_attn.norm (18 layers, ONE-centered, used as-is)",
+            ConstAudit(f"linear_attn.norm ({N_DN} layers, ONE-centered, "
+                       f"used as-is)",
                        14, I16_MIN, I16_MAX,
                        "int16 Q1.14 (scratch / vecnorm wbuf)"),
         "conv_w":
@@ -318,8 +391,8 @@ def main():
         qw = LF.quant_layer(wf)
         if i == 0:
             ln1_q_layer0 = np.asarray(qw["ln1"], dtype=I64).copy()
-        C["ln1/ln2 (24 layers x2, zero-centered 1+w)"].add(f"L{i}.ln1", qw["ln1"])
-        C["ln1/ln2 (24 layers x2, zero-centered 1+w)"].add(f"L{i}.ln2", qw["ln2"])
+        C[K_LN12].add(f"L{i}.ln1", qw["ln1"])
+        C[K_LN12].add(f"L{i}.ln2", qw["ln2"])
 
         mats = [("mlp.gate", wf["mlp"]["gate"], qw["mlp"]["gate"]),
                 ("mlp.up", wf["mlp"]["up"], qw["mlp"]["up"]),
@@ -384,7 +457,7 @@ def main():
     R.w()
     hdr = ["format / tensor family", "container", "available", "max abs value",
            "range util", "out-of-range", "smallest container that fits", "verdict"]
-    keys1 = ("ln1/ln2 (24 layers x2, zero-centered 1+w)", "ln_f", "qk_norm",
+    keys1 = (K_LN12, "ln_f", "qk_norm",
              "dn_norm", "conv_w", "dt_bias", "A_q15")
     R.table(hdr, [C[k].row() for k in keys1])
 
@@ -408,6 +481,7 @@ def main():
             R.w(f"- PASS `{a.name}` — max abs value {a.used:.5g} of "
                 f"{a.avail:.5g} available ({100.0 * a.qmax / max(abs(a.lo), a.hi):.1f}% "
                 f"of the container); 0 of {a.n} values clip.")
+    R.w("- " + GATE_CLAMP_NOTE)
     R.w("- NOTE the four `1+w` families store the ZERO-CENTERED weight, so "
         "the effective RMSNorm scale is `1 + w`; `linear_attn.norm` stores "
         "the ONE-centered weight used as-is (`rmsnorm_fx(..., one_plus=False)`). "
@@ -444,41 +518,60 @@ def main():
     R.table(hdr, rows)
 
     # ---------------- LM head / embedding ----------------
-    R.w("### 2b. Tied embedding as the LM head")
+    # G2c: audit the LM HEAD, which is only `embed_tokens` when the checkpoint
+    # ties them.  At 9B `tie_word_embeddings` is false and `lm_head.weight` is
+    # a genuinely different 1,017,118,720-parameter tensor that lives OUTSIDE
+    # the `model.language_model.` prefix — auditing `embed_tokens` there would
+    # have reported the wrong matrix's `e`/`sh`/INT4-clip as the head's, and
+    # section 2's verdict is taken on those columns.
+    R.w("### 2b. " + ("Tied embedding as the LM head" if TIED
+                      else f"The untied LM head (`{HEAD_KEY}`)"))
     R.w()
+    # `emb` stays the EMBEDDING TABLE for section 4's residual-seed audit —
+    # a separate name, because at 9B the two matrices are different data and
+    # section 4 must keep auditing the one that seeds the residual stream.
     emb = st.get(f"{LQ.TEXT_PREFIX}embed_tokens.weight")   # float32 (V,H)
+    head_w = emb if TIED else st.get(HEAD_KEY)             # float32 (V,H)
+    head_label = "`lm_head` = `embed_tokens`" if TIED else f"`{HEAD_KEY}`"
     memg = _mem_available_gib()
+    HEAD_MEM_GIB = HEAD_MEM_COPIES * VOCAB * LR.H * 8 / 2**30
     head_stats = None
     head_note = ""
     if memg >= HEAD_MEM_GIB:
         print(f"quantizing the {VOCAB}x{LR.H} LM head "
               f"(MemAvailable {memg:.1f} GiB) ...", flush=True)
-        qhead = LF.quant_linear(emb)                       # real float64 path
-        head_stats = audit_w4(emb, qhead, block_rows=16384)
+        qhead = LF.quant_linear(head_w)                    # real float64 path
+        head_stats = audit_w4(head_w, qhead, block_rows=16384)
         head_note = ("quantized with the production `quant_linear` "
                      "(float64) on the full matrix")
         del qhead
     else:
         print(f"SKIP full-precision head quant (MemAvailable {memg:.1f} GiB "
-              f"< {HEAD_MEM_GIB} GiB)", flush=True)
+              f"< {HEAD_MEM_GIB:.1f} GiB)", flush=True)
         head_note = (f"**not run**: only {memg:.1f} GiB RAM available, the "
                      f"float64 `quant_linear` path on {VOCAB}x{LR.H} needs "
                      f"~{HEAD_MEM_GIB:.0f} GiB. Re-run on an idle machine.")
     if head_stats:
         a = head_stats
-        R.w(f"`lm_head` is the tied `embed_tokens` matrix ({head_note}).")
+        R.w((f"`lm_head` is the tied `embed_tokens` matrix ({head_note})."
+             if TIED else
+             f"`lm_head` is the checkpoint's own `{HEAD_KEY}`, a separate "
+             f"tensor from `embed_tokens` ({head_note})."))
         R.w()
         R.table(["matrix", "N x K", "e", "sh", "m range",
                  "m==1 (scale underflow)", "m clipped up from 0", "INT4 clip",
                  "rel err (Frobenius)", "y32 headroom wasted"],
-                [["`lm_head` = `embed_tokens`",
+                [[head_label,
                   f"{a['N']}x{a['K']}", a["e"], a["sh"],
                   f"{a['m_min']}..{a['m_max']}",
                   f"{a['n_m1']}/{a['n_groups']}",
                   f"{a['n_m_clip0']}/{a['n_groups']}",
                   f"{a['n_w4_clip']}/{a['n_w4']}",
                   f"{a['rel']:.2%}", f"{a['hdr_bits']:.1f} b"]])
-    else:
+    # release the head; section 4 needs `emb` only.  At 9B this is a real
+    # 4.07 GB float32 that is NOT the same object as `emb`.
+    del head_w
+    if not head_stats:
         R.w(f"- {head_note}")
         R.w()
 
@@ -617,6 +710,8 @@ def main():
     R.table(["gate quantity", "available", "max used (real weights)",
              "out-of-range / effect", "verdict"], rows)
 
+    R.w(GATE_CLAMP_NOTE)
+    R.w()
     R.w("Justifications:")
     if nA_bad:
         bad = [g for g in gate_rows if g["Aq"] > U18_MAX]
@@ -789,7 +884,9 @@ def main():
     head.append("")
     head.append(f"Matrices quantized with the production path: {n_mat}"
                 + (" + 1 LM head = %d" % (n_mat + 1) if head_stats else "")
-                + f" (`gen_token_script` expects 187 weight images at 24 layers).")
+                + f" (`gen_token_script` expects {8 * N_DN + 7 * N_GQA + 1} "
+                  f"weight images at {NL} layers: 8 per DeltaNet layer, "
+                  f"7 per full-attention layer, + the LM head).")
     head.append("")
     # splice section 0 right after the metadata block (before "## 1.")
     at = next(i for i, l in enumerate(R.buf) if l.startswith("## 1."))

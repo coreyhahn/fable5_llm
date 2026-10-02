@@ -2,9 +2,9 @@
 """Golden vectors for the sequencer rung-1 COMPUTE ops (docs/SEQ_ISA.md).
 
 Feeds tb/tb_vec_alu.sv and tb/tb_vecnorm.sv (+seqdir=).  Distinct from
-tb/scripts/gen_seq_vectors.py and gen_seq_unit_vectors.py, which belong to
-the SEQ-unit workstream and generate record streams for tb/tb_seq_unit.sv —
-different consumers, different files, no shared state.
+gen_seq_unit_vectors.py, which belongs to the SEQ-unit workstream and
+generates record streams for tb/tb_seq_unit.sv — different consumers, files,
+no shared state.  (Also named tb/scripts/gen_seq_vectors.py, DELETED b2f1223.)
 
 Everything here comes out of ref/layer_fixed.py — this script only formats.
 It NEVER writes into tb/vectors/ (the frozen unit-vector set); its output
@@ -14,6 +14,10 @@ lives in its own tree so the existing unit TB cases stay byte-identical.
                            the whole _dynq16_cases edge set + live DN heads
   <out>/probe8_cases.txt   vec_alu op 8 EMUL32 probe (max|prod| + k_a)
   <out>/epsnorm_cases.txt  vecnorm EPS-NORM, 20 magnitude decades
+  <out>/rms2048_{x16,w14,y16}.hex   vecnorm mode 0, N=2048 (n_log2 = 11)
+  <out>/l2n2048_{x16,y16}.hex       vecnorm mode 2, N=2048 (n_log2 = 11)
+  <out>/rms4096_{x16,w14,y16}.hex   vecnorm mode 0, N=4096 (n_log2 = 12)
+  <out>/l2n4096_{x16,y16}.hex       vecnorm mode 2, N=4096 (n_log2 = 12)
 
 File formats (whitespace separated, `%h` unless noted):
 
@@ -40,6 +44,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 import fixedpoint as fp            # noqa: E402
 import layer_fixed as LF           # noqa: E402
+
+# G3.4 (spec 0b A2.1): the rmsnorm VECTOR fraction is PINNED, and it is a
+# TB CONTRACT rather than the model's RS_F.  `tb/tb_vecnorm.sv` drives
+# `cfg_inf`/`cfg_outf` as the literal 4'd8 on every rmsnorm case, so a
+# vector generated at `LF.RS_F` silently stopped matching its own TB the
+# moment A2.1 moved RS_F to 7 -- the trap Task 8 declared and A2.1 made
+# live.  Pinning it here closes that at the root and costs NOTHING in
+# coverage: vecnorm normalizes, so the fraction is a shift, not a shape.
+# The value is 8 = what the TB drives, so this is BYTE-IDENTICAL to every
+# vector generated before it at the default RS_F.
+RMS_VEC_F = 8
 import layer_ref as LR             # noqa: E402
 from w4a8_ref import rshift_round as rshr   # noqa: E402
 
@@ -208,6 +223,47 @@ def write_epsnorm(path, cases):
             f.write(" ".join(hx(v, 16) for v in y) + "\n")
 
 
+# ----------------------------------------------------------------------
+# vecnorm at the two SHIPPED hidden sizes — N = 2048 (Qwen3.5-2B, the
+# n_log2 = 11 geometry) and N = 4096 (Qwen3.5-9B, n_log2 = 12).
+# ----------------------------------------------------------------------
+def wr_hex(path, vals, bits):
+    with open(path, "w") as f:
+        for v in np.asarray(vals).reshape(-1):
+            f.write(hx(v, bits) + "\n")
+
+
+def vecnorm_n_vectors(rng, out, n):
+    """rmsnorm (mode 0, 1+w) and l2norm (mode 2) over `n` elements.
+
+    N is HARD-CODED by the caller, not LR.H: these are UNIT vectors for
+    rtl/vecnorm_unit.sv's n_log2 geometries and must not move with
+    FABLE5_MODEL.  Same recipes as ref/gen_layer_vectors.py's N=1024
+    rmsnorm / N=128 l2norm cases, so the only variable is the length.
+
+    ONE set per call; `main` calls it TWICE and the ORDER IS LOAD-BEARING.
+    N=2048 goes first, so the 2B regression G3.2 must not disturb keeps
+    drawing from the same rng position it always did; N=4096 — the 9B
+    geometry G3.2 widened rtl/vecnorm_unit.sv to carry — is appended after
+    it.  The file names carry the length, so the two sets never collide.
+    """
+    # G3.4 (spec 0b A2.1): PINNED, not LF.RS_F -- see RMS_VEC_F above.
+    x = np.round(rng.normal(0, 2, n) * (1 << RMS_VEC_F)).astype(I64)
+    w = np.round(rng.normal(0, 0.1, n) * (1 << 14)).astype(I64)
+    y = LF.rmsnorm_fx(x, w, RMS_VEC_F, True)
+    wr_hex(f"{out}/rms{n}_x16.hex", x, 16)
+    wr_hex(f"{out}/rms{n}_w14.hex", w, 16)
+    wr_hex(f"{out}/rms{n}_y16.hex", y, 16)
+    xl = np.round(rng.normal(0, 1.5, n) * (1 << LF.QKV_F)).astype(I64)
+    wr_hex(f"{out}/l2n{n}_x16.hex", xl, 16)
+    wr_hex(f"{out}/l2n{n}_y16.hex",
+           LF.l2norm_fx(xl, LF.QKV_F, LF.NRM_F), 16)
+    assert np.abs(x).max() < (1 << 15) and np.abs(xl).max() < (1 << 15)
+    return n
+
+
+
+
 def main():
     out, seed = sys.argv[1], int(sys.argv[2])
     os.makedirs(out, exist_ok=True)
@@ -218,10 +274,16 @@ def main():
     write_probe8(f"{out}/probe8_cases.txt", pr)
     en = epsnorm_cases(rng)
     write_epsnorm(f"{out}/epsnorm_cases.txt", en)
+    # LAST on purpose: appending here leaves every case above byte-identical
+    # (one shared rng, consumed in order).  N=2048 stays FIRST for the same
+    # reason: the 4096 set is appended after it, so the committed 2B
+    # regression vectors are unchanged by G3.2.
+    n2k = vecnorm_n_vectors(rng, out, 2048)
+    n4k = vecnorm_n_vectors(rng, out, 4096)
     ks = sorted({k for _, _, k, _ in dq})
     print(f"seq vectors: seed={seed} -> {out}  "
           f"dynq16={len(dq)} (k {ks[0]}..{ks[-1]}), probe8={len(pr)}, "
-          f"epsnorm={len(en)}")
+          f"epsnorm={len(en)}, vecnorm N={n2k}+{n4k} (rmsnorm + l2norm)")
     _ = fp   # imported for parity with the other generators
 
 

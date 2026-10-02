@@ -1,0 +1,190 @@
+=== host: snoke  date: 2026-09-30T19:50:27-06:00
+=== tree: 5952bc7
+=== cmd : bash tb/scripts_scratch/r3_9a/mutrun.sh m2 bcast_bp 2:43307:2000
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+----- driver text:
+#!/usr/bin/env bash
+# R3-9a resume: ONE chip mutant over 4 seeds of its broadcast coverage stream;
+# every run MUST FAIL.  Scratch driver; its text is printed into the log.
+#   mutrun.sh <set> <kind> [hold]   (K = the set's obj_dir tag, r3_8_mutants.sh --meta)
+set -u
+cd /home/cah/r2d2/code/fpga/fable5_llm || exit 1
+echo "----- driver text:"; cat "$0"; echo "----- end driver text"
+R=evidence/qwen9b/sr; SET=$1; KIND=$2; HOLD=${3:-}
+META=$(bash $R/r3_8_mutants.sh --meta "$SET") || exit 2
+TAG=$(echo "$META" | cut -d" " -f1); export K=$TAG
+echo "=== set $SET: meta '$META' -> K=$K"
+echo "=== n3140's recorded sha: $(awk -v s="$SET" '/^######## set /{on=($3==s)} on && /binary sha256/{print $NF; exit}' $R/n3140_r3_9a_mut_builds.log)"
+echo "=== re-hash now        : $(sha256sum tb/obj_dir_seq_chip_sr$K/tb_seq_chip_9b_sr$K | cut -d" " -f1)"
+CAUGHT=0
+for s in 1 2 3 4; do
+  st=r3_9a_${KIND}_s$s
+  args=(--plusarg +caps_expect=fab1ca07)
+  [ -n "$HOLD" ] && args+=(--plusarg +xp_hold=$HOLD --logtag hold)
+  echo "######## $SET on $st ${HOLD:+(+xp_hold=$HOLD)} — MUST FAIL"
+  if bash $R/run_sr_chip.sh "$st" "$st" control "${args[@]}"; then
+    echo "    MUTANT $SET PASSED on $st — VACUOUS"
+  else
+    CAUGHT=$((CAUGHT + 1)); sl=$R/sr${K}_seed_${st}_control${HOLD:+_hold}.log
+    echo "    MUTANT $SET FAILED on $st, first failure lines of $sl:"
+    grep -m3 -E "%Fatal|MEM\[|%Error|WATCHDOG" "$sl" | sed 's/^/      /'
+  fi
+done
+echo "R3_9A_MUTANT $SET on $KIND: $CAUGHT of 4 seeds CAUGHT"
+[ "$CAUGHT" = 4 ]
+----- end driver text
+=== set m2: meta 'r3b_m2 1 matvec_chan.sv' -> K=r3b_m2
+=== n3140's recorded sha: 51983281453afb4ac9b1cb28b5a37b9565c312fb4824554a16575f16ed7c84aa
+=== re-hash now        : 51983281453afb4ac9b1cb28b5a37b9565c312fb4824554a16575f16ed7c84aa
+######## m2 on r3_9a_bcast_bp_s1 (+xp_hold=2:43307:2000) — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m2/tb_seq_chip_9b_srr3b_m2
+=== built    2026-09-30T03:09:04-06:00  sha256 51983281453afb4ac9b1cb28b5a37b9565c312fb4824554a16575f16ed7c84aa
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.e4  (.seq sha256 c051dd91dc6e6d90, .chip sha256 278136b80480d023)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_m2_seed_r3_9a_bcast_bp_s1_control_hold.log
+=== plusargs +caps_expect=fab1ca07 +xp_hold=2:43307:2000
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1710373 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     4s   rc=134
+--- verdict lines
+    tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+    tb_seq_chip: launch 0 [-] rec_off 0, 13 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+    %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+    tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+    NO PASS LINE — last 15 lines:
+      tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+        mem region 0: 208 B @ 000090000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.e4.seq
+        mem region 1: 49152 B @ 000080000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.e4.seqdata.bin
+        mem region -: (absent) /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.emb.bin
+        state window: 64 B image   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.state.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.wimg0.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.wimg1.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.wimg2.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s1.wimg3.bin
+      tb_seq_chip: launch 0 [-] rec_off 0, 13 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+      %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 4s
+SR_CHIP r3_9a_bcast_bp_s1 control: FAIL
+    MUTANT m2 FAILED on r3_9a_bcast_bp_s1, first failure lines of evidence/qwen9b/sr/srr3b_m2_seed_r3_9a_bcast_bp_s1_control_hold.log:
+      [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+      %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+######## m2 on r3_9a_bcast_bp_s2 (+xp_hold=2:43307:2000) — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m2/tb_seq_chip_9b_srr3b_m2
+=== built    2026-09-30T03:09:04-06:00  sha256 51983281453afb4ac9b1cb28b5a37b9565c312fb4824554a16575f16ed7c84aa
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.e4  (.seq sha256 b0cd0174afb70559, .chip sha256 3612527ffa0a2363)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_m2_seed_r3_9a_bcast_bp_s2_control_hold.log
+=== plusargs +caps_expect=fab1ca07 +xp_hold=2:43307:2000
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1710851 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     4s   rc=134
+--- verdict lines
+    tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+    tb_seq_chip: launch 0 [-] rec_off 0, 13 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+    %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+    tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+    NO PASS LINE — last 15 lines:
+      tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+        mem region 0: 208 B @ 000090000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.e4.seq
+        mem region 1: 49152 B @ 000080000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.e4.seqdata.bin
+        mem region -: (absent) /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.emb.bin
+        state window: 64 B image   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.state.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.wimg0.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.wimg1.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.wimg2.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s2.wimg3.bin
+      tb_seq_chip: launch 0 [-] rec_off 0, 13 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+      %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 4s
+SR_CHIP r3_9a_bcast_bp_s2 control: FAIL
+    MUTANT m2 FAILED on r3_9a_bcast_bp_s2, first failure lines of evidence/qwen9b/sr/srr3b_m2_seed_r3_9a_bcast_bp_s2_control_hold.log:
+      [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+      %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+######## m2 on r3_9a_bcast_bp_s3 (+xp_hold=2:43307:2000) — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m2/tb_seq_chip_9b_srr3b_m2
+=== built    2026-09-30T03:09:04-06:00  sha256 51983281453afb4ac9b1cb28b5a37b9565c312fb4824554a16575f16ed7c84aa
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.e4  (.seq sha256 b0cd0174afb70559, .chip sha256 99a4716143f84690)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_m2_seed_r3_9a_bcast_bp_s3_control_hold.log
+=== plusargs +caps_expect=fab1ca07 +xp_hold=2:43307:2000
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1711179 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     4s   rc=134
+--- verdict lines
+    tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+    tb_seq_chip: launch 0 [-] rec_off 0, 13 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+    %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+    tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+    NO PASS LINE — last 15 lines:
+      tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+        mem region 0: 208 B @ 000090000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.e4.seq
+        mem region 1: 49152 B @ 000080000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.e4.seqdata.bin
+        mem region -: (absent) /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.emb.bin
+        state window: 64 B image   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.state.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.wimg0.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.wimg1.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.wimg2.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s3.wimg3.bin
+      tb_seq_chip: launch 0 [-] rec_off 0, 13 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+      %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 4s
+SR_CHIP r3_9a_bcast_bp_s3 control: FAIL
+    MUTANT m2 FAILED on r3_9a_bcast_bp_s3, first failure lines of evidence/qwen9b/sr/srr3b_m2_seed_r3_9a_bcast_bp_s3_control_hold.log:
+      [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+      %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+######## m2 on r3_9a_bcast_bp_s4 (+xp_hold=2:43307:2000) — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m2/tb_seq_chip_9b_srr3b_m2
+=== built    2026-09-30T03:09:04-06:00  sha256 51983281453afb4ac9b1cb28b5a37b9565c312fb4824554a16575f16ed7c84aa
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.e4  (.seq sha256 c051dd91dc6e6d90, .chip sha256 f539dcadda5cae01)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_m2_seed_r3_9a_bcast_bp_s4_control_hold.log
+=== plusargs +caps_expect=fab1ca07 +xp_hold=2:43307:2000
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1711507 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     4s   rc=134
+--- verdict lines
+    tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+    tb_seq_chip: launch 0 [-] rec_off 0, 13 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+    %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+    tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+    NO PASS LINE — last 15 lines:
+      tb_seq_chip: +xp_hold: channel 2 ui_clk held low for 2000 aclk cycles from cycle 43307
+        mem region 0: 208 B @ 000090000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.e4.seq
+        mem region 1: 49152 B @ 000080000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.e4.seqdata.bin
+        mem region -: (absent) /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.emb.bin
+        state window: 64 B image   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.state.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.wimg0.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.wimg1.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.wimg2.bin
+        mem region 0: 3244032 B @ 000010000000   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_bp_s4.wimg3.bin
+      tb_seq_chip: launch 0 [-] rec_off 0, 13 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+      [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+      %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 4s
+SR_CHIP r3_9a_bcast_bp_s4 control: FAIL
+    MUTANT m2 FAILED on r3_9a_bcast_bp_s4, first failure lines of evidence/qwen9b/sr/srr3b_m2_seed_r3_9a_bcast_bp_s4_control_hold.log:
+      [173902000] %Fatal: matvec_chan.sv:818: Assertion failed in TOP.tb_seq_chip.g_mv[2].u_mv: matvec_chan 2: x-push word 750 arrived with the 8-entry skid FULL (a lost word: XP_INFLIGHT 1 under-sized)
+      %Error: /tmp/sr_src_3f38efd_srr3b_m2/tb/../rtl/matvec_chan.sv:818: Verilog $stop
+R3_9A_MUTANT m2 on bcast_bp: 4 of 4 seeds CAUGHT
+=== rc  : 0
+=== end : 2026-09-30T19:50:44-06:00

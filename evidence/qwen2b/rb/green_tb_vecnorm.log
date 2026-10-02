@@ -1,0 +1,67 @@
+=== GREEN: make tb_vecnorm after the 12-bit widening (host darthplagueis, Verilator 5.020) ===
+=== rtl/ diff vs HEAD ===
+ rtl/layer_chan.sv   | 18 +++++++++---------
+ rtl/vecnorm_unit.sv | 49 ++++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 45 insertions(+), 22 deletions(-)
+
+seq vectors: seed=1 -> vecseq/s1  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=2 -> vecseq/s2  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=3 -> vecseq/s3  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=4 -> vecseq/s4  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_vecnorm -o tb_vecnorm \
+  --top-module tb_vecnorm \
+  ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/vecnorm_unit.sv tb_vecnorm.sv
+obj_dir_tb_vecnorm/tb_vecnorm --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+case 6: rmsnorm N=2048 (nlog2=11, 2048 weights)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+  N=2048: l2norm + rmsnorm bit-exact (cfg_nlog2 = 11)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:270: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 2 +vecdir=vectors/s2 +seqdir=vecseq/s2
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+case 6: rmsnorm N=2048 (nlog2=11, 2048 weights)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+  N=2048: l2norm + rmsnorm bit-exact (cfg_nlog2 = 11)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:270: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 3 +vecdir=vectors/s3 +seqdir=vecseq/s3
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+case 6: rmsnorm N=2048 (nlog2=11, 2048 weights)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+  N=2048: l2norm + rmsnorm bit-exact (cfg_nlog2 = 11)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:270: Verilog $finish
+obj_dir_tb_vecnorm/tb_vecnorm --seed 4 +vecdir=vectors/s4 +seqdir=vecseq/s4
+case 1: rmsnorm
+case 2: l2norm
+case 3: EPS-NORM
+case 4: l2norm again (cfg_eps=0 back-compat)
+case 5: l2norm N=2048 (nlog2=11, no weights)
+case 6: rmsnorm N=2048 (nlog2=11, 2048 weights)
+  EPS-NORM: 68 cases bit-exact (k -14..17, scale_max 65535)
+  N=2048: l2norm + rmsnorm bit-exact (cfg_nlog2 = 11)
+TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact
+- tb_vecnorm.sv:270: Verilog $finish
+-- self-test: vecnorm_unit's cfg_nlog2 >= 12 envelope guard MUST trip --
+TB_VECNORM OK: 4 seeds (rmsnorm 1024, l2norm 128, EPS-NORM, N=2048 nlog2=11 x2) + envelope self-test
+MAKE_EXIT=0
+
+=== the guard, run in the foreground so its message is on the record ===
+[34000] %Fatal: vecnorm_unit.sv:425: Assertion failed in TOP.tb_vecnorm.dut: vecnorm_unit: cfg_nlog2 12 unsupported (max 11, N=2048)
+%Error: ../rtl/vecnorm_unit.sv:425: Verilog $stop
+Aborting...
+EXIT=134 (non-zero = the guard fired)

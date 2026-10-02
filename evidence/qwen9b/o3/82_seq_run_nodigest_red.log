@@ -1,0 +1,53 @@
+=== host: darthplagueis
+=== date: 2026-09-10T03:43:29-06:00
+=== tree: 8f0c5f6+dirty
+=== cmd:  bash /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/297477f1-b332-4f12-8141-aed7689cf8e7/scratchpad/seq_run_red.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== RED for triage (b)10 / #156 — sw/seq_run.verify_state_image
+=== The RED runs the NEW selftest cases against the PRE-FIX guard, in a
+=== scratch tree: sw/ is copied, tb/ and ref/ are symlinked (the
+=== selftest finds its artifacts by walking up from __file__), and the
+=== ONE line under test is put back to what b9e0851 had.
+=== scratch copy: the refusal removed, `if want and got != want` restored
+=== diff sw/seq_run.py (HEAD, fixed)  ->  scratch (pre-fix):
+1310,1317d1309
+<     if not want:
+<         raise SeqError(
+<             f"{path}: the manifest declares a state region "
+<             f"(dn={st.get('dn')!r} end={st.get('end')!r}) but carries no "
+<             f"state['sha256'] — this host cannot verify that the region "
+<             f"image belongs to this stream, and spec 7.2 makes that check "
+<             f"the precondition of the upload.  Re-emit the artifact with an "
+<             f"emitter that writes the digest (#156)")
+1323c1315
+<     if got != want:
+---
+>     if want and got != want:
+=== (the two selftest cases are IDENTICAL in both; only the guard differs)
+=== running the pre-fix selftest:
+seq_run selftest (pure python, no board):
+  --- /tmp/tmp.EdvJucnKBM/tb/scripts/w3/lay_s1.e
+      1987 records, 63360 B blob, 25 LDC (0 indirected), 44 MVGO, 0 expected tokens
+  --- /tmp/tmp.EdvJucnKBM/tb/scripts/w3/tok2_s1.e
+      1080 records, 61568 B blob, 14 LDC (1 indirected), 26 MVGO, 3 expected tokens
+  --- /tmp/tmp.EdvJucnKBM/tb/scripts/w4/model_v2_s1.e
+      60495 records, 1007360 B blob, 538 LDC (24 indirected), 1592 MVGO, 6 expected tokens
+  --- /tmp/tmp.EdvJucnKBM/tb/scripts/w4/model_v2_s1.e4
+      68119 records, 1007360 B blob, 538 LDC (24 indirected), 3464 MVGO, 6 expected tokens
+  --- /tmp/fable5_rp_r83bzxm1/rp.e
+      53 records, 2048 B blob, 1 LDC (0 indirected), 12 MVGO, 1 expected tokens
+  --- R-c: the emitter's placement-order guard
+  --- R-b: emb_row_bytes manifest key + EMBLOG2 CSR
+  --- S3: the DDR state region (plan, witnesses, bytes/token)
+    FAIL a state manifest with NO sha256 key is REFUSED (#156): 
+    FAIL a state manifest with an EMPTY sha256 is REFUSED (#156): 
+  seq_run selftest: 2785 passed, 2 failed
+=== RED rc: 1
+=== rc: 0
+=== end: 2026-09-10T03:43:39-06:00

@@ -1,0 +1,44 @@
+=== host: snoke
+=== date: 2026-09-09T20:22:20-06:00
+=== tree: 8962544+dirty
+=== cmd:  /home/cah/.venv/bin/python -c 
+import sys
+sys.path.insert(0,'sw'); sys.path.insert(0,'ref')
+import seq_run as SR, hwmap as HW, tok_meter as TM
+art = SR.Artifacts('tb/scripts/w9/model_9b_s1.e4')
+print('DDR traffic per token, sw/tok_meter.state_bytes_per_token (LABEL D):')
+for T in (512, 1024, 2048, 4096):
+    d = TM.state_bytes_per_token(T)
+    print('  T=%5d  dn %9d  cv %9d  kv %11d  TOTAL %11d B = %7.2f MiB' % (T, d['dn'], d['cv'], d['kv'], d['total'], d['total']/2**20))
+st = art.state
+print()
+print('the state region (S, from the artifact manifest):')
+print('  DN  0x%09x .. 0x%09x  %8.2f MiB  (%d blocks x %d B)' % (st['dn'], st['kv'], (st['kv']-st['dn'])/2**20, (st['kv']-st['dn'])//HW.STATE_DN_LAYER, HW.STATE_DN_LAYER))
+print('  KV  0x%09x .. 0x%09x  %8.2f MiB' % (st['kv'], st['cv'], (st['cv']-st['kv'])/2**20))
+print('  CV  0x%09x .. 0x%09x  %8.2f MiB  (%d x %d B)' % (st['cv'], st['end'], (st['end']-st['cv'])/2**20, len(art.conv_images), HW.STATE_CV_STRIDE))
+print('  total %d B; ALL on DDR channel %d (bits [33:32] of the 34-bit base)' % (st['end']-st['dn'], st['dn']>>32))
+print()
+print('hardware ceilings: STATE_T_MAX=%s  SCRATCH_WORDS=%d  SCRATCH_WORDS_BUILT=%d' % (getattr(HW,'STATE_T_MAX','n/a'), HW.SCRATCH_WORDS, HW.SCRATCH_WORDS_BUILT))
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+DDR traffic per token, sw/tok_meter.state_bytes_per_token (LABEL D):
+  T=  512  dn  50331648  cv   6291456  kv    16842752  TOTAL    73465856 B =   70.06 MiB
+  T= 1024  dn  50331648  cv   6291456  kv    33685504  TOTAL    90308608 B =   86.12 MiB
+  T= 2048  dn  50331648  cv   6291456  kv    67371008  TOTAL   123994112 B =  118.25 MiB
+  T= 4096  dn  50331648  cv   6291456  kv   134742016  TOTAL   191365120 B =  182.50 MiB
+
+the state region (S, from the artifact manifest):
+  DN  0x380000000 .. 0x381800000     24.00 MiB  (24 blocks x 1048576 B)
+  KV  0x381800000 .. 0x389800000    128.00 MiB
+  CV  0x389800000 .. 0x389b00000      3.00 MiB  (24 x 131072 B)
+  total 162529280 B; ALL on DDR channel 3 (bits [33:32] of the 34-bit base)
+
+hardware ceilings: STATE_T_MAX=4096  SCRATCH_WORDS=65536  SCRATCH_WORDS_BUILT=65536
+=== rc: 0
+=== end: 2026-09-09T20:22:20-06:00

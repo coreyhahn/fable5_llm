@@ -1,0 +1,39 @@
+=== host: snoke  date: 2026-09-27T12:40:26-06:00
+=== tree: 9b11356
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/ov/s1t_chat_vectors.py c4 --toks 11 0 271 --far-pos 510
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  effective_reorder(auto, 9b, --nch 4, shipped template) = 'B'  (the per-image order below is what a default 9B session runs)
+  [ship] launch 0 preamble tok=None pos=0: 39 recs, pc 38, out [], image sha 04f998daed6143c0 (0 s)
+  [ship] launch 1 lite tok=11 pos=0: 38858 recs, pc 38857, out [], image sha f74df4dde28d3232 (153 s)
+  [ship] launch 2 lite tok=0 pos=1: 38858 recs, pc 38857, out [], image sha af6b8aa8d44e0abb (154 s)
+  [ship] launch 3 full tok=271 pos=2: 39626 recs, pc 39625, out [11], image sha 1ff8f357b9541bd6 (170 s)
+  [ship] launch 4 full tok=11 pos=510: 39626 recs, pc 39625, out [271], image sha 9eb565637fdbc211 (164 s)
+  wrote tb/scripts/w9/s1t_c4_ship.e4.{seq,seqdata.bin,chip}  .seq 5949aa638d10d53e .seqdata.bin a3ea37aa79d3e804 .chip fcf97a0a1767620e
+  reorder    form B: PER IMAGE on the shipped template (static costs at position 0); pins lite c9efdf35175d55d4 full 7119833ca6ed7d1f
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  reorder    form B lite: 38858 -> 38378 records == pin c9efdf35175d55d4; MOVX elided 480, fences deferred 200; hazard assert PASS {'MOVX': 512, 'MVGO': 1248, 'MOVY': 1248, 'FENCE': 312}; postcheck 56205 edges
+  reorder    form B full: 39626 -> 39146 records == pin 7119833ca6ed7d1f; MOVX elided 480, fences deferred 200; hazard assert PASS {'MOVX': 516, 'MVGO': 1370, 'MOVY': 1370, 'FENCE': 343}; postcheck 57194 edges
+  reorder    form B images built in 5.7 s
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38378, full:39146  (7.1s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9096140
+  B lite: == pin c9efdf35175d55d4 (38378 records)
+  B full: == pin 7119833ca6ed7d1f (39146 records)
+  [B] launch 0 preamble tok=None pos=0: 39 recs, pc 38, out [], image sha 04f998daed6143c0 (0 s)
+  [B] launch 1 lite tok=11 pos=0: 38378 recs, pc 38377, out [], image sha cd7529a6d9dc0b95 (146 s)
+  [B] launch 2 lite tok=0 pos=1: 38378 recs, pc 38377, out [], image sha ed6f7366ce2e02c0 (146 s)
+  [B] launch 3 full tok=271 pos=2: 39146 recs, pc 39145, out [11], image sha 52e7699098d5af71 (162 s)
+  [B] launch 4 full tok=11 pos=510: 39146 recs, pc 39145, out [271], image sha ec6651f785e539bc (162 s)
+  wrote tb/scripts/w9/s1t_c4_B.e4.{seq,seqdata.bin,chip}  .seq 57858cb2065578ff .seqdata.bin a3ea37aa79d3e804 .chip 720ab1162ad3df69
+--- acceptance: shipped vs form B, launch by launch
+  launch 0 preamble tok None pos 0: records 39 -> 39, pc 38 -> 38; tokens [] vs []; golden lines IDENTICAL (36882); image identical; head same -> OK
+  launch 1 lite     tok 11 pos 0: records 38858 -> 38378, pc 38857 -> 38377; tokens [] vs []; golden lines IDENTICAL (36994); image reordered; head same -> OK
+  launch 2 lite     tok 0 pos 1: records 38858 -> 38378, pc 38857 -> 38377; tokens [] vs []; golden lines IDENTICAL (36994); image reordered; head same -> OK
+  launch 3 full     tok 271 pos 2: records 39626 -> 39146, pc 39625 -> 39145; tokens [11] vs [11]; golden lines IDENTICAL (36995); image reordered; head same -> OK
+  launch 4 full     tok 11 pos 510: records 39626 -> 39146, pc 39625 -> 39145; tokens [271] vs [271]; golden lines IDENTICAL (36995); image reordered; head same -> OK
+  seqdata identical: True
+S1T_VECTORS c4: PASS tokens [[], [], [], [11], [271]] (1269 s)
+=== rc  : 0
+=== end : 2026-09-27T13:01:36-06:00

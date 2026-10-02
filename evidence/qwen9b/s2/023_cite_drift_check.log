@@ -1,0 +1,749 @@
+=== host: darthplagueis
+=== date: 2026-09-04T19:56:51-06:00
+=== tree: a69fe1f
+=== cmd:  python3 evidence/qwen9b/o3/o3_cite_drift.py --base a51bc8e --edited rtl/layer_chan.sv,rtl/attn_core.sv,rtl/layer_chan_ipi.v,synth/scripts/create_project.tcl,tb/Makefile,tb/tb_attn_core.sv,tb/tb_layershim_c.sv,rtl/state_dma.sv,tb/axi_ram_bfm.sv,tb/tb_layer_sdma.sv,synth/scripts/ooc_9b.tcl,docs/SEQ_ISA.md --check
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+o3 citation-drift gate  [check]
+  code base  a51bc8e
+  doc base   a51bc8e
+  files      12 edited files
+  citations  400 distinct (file, line) pairs
+  unmoved    74
+  half-ranges 19 (one endpoint unresolved — NEVER rewritten)
+  DRIFTED    docs/SEQ_ISA.md:1270 -> :1273   ''
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1271 -> :1274   '### B15.2 The LAYER CSR (0x30) selects CACHE SLOTS and the attention layer'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1279 -> :1282   ''
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1280 -> :1283   '### B15.3 New CSRs (byte offsets; the RTL decodes word offsets 0x19..0x1D)'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1289 -> :1292   ''
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1290 -> :1293   '### B15.4 Error codes — STATUS.err_op set; SDMA.err carries the code'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1301 -> :1308   ''
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1302 -> :1309   '### B15.5 Ordering'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    docs/SEQ_ISA.md:1310 -> :1317   'are refused by the RTL (E_DMA_RANGE) — conv blocks arrive by SLD.'
+             cited by evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    rtl/attn_core.sv:165 -> :173   'logic [3:0]  shamt_q;          // 15-ve-8, registered (range [6,15])'
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:203 -> :211   "pv_p[d] <= 26'(33'(p_t_r[d/64]) * 33'(signed'(kv_data[d*8 +: 8])));"
+             cited by evidence/qwen9b/g2/D_TOL.md, ref/layer_fixed.py
+  DRIFTED    rtl/attn_core.sv:205 -> :213   "pv_abs[d] <= 26'((pv_p[d] < 0) ? unsigned'(27'(-pv_p[d]))"
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:210 -> :218   ":  18'(pv_c[d] >> shamt_r[d/64][1:0]);"
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:214 -> :222   "acc[d] <= 40'(acc[d] + 40'(pv_s[d]));"
+             cited by evidence/qwen9b/g2/D_TOL.md, ref/layer_fixed.py
+  DRIFTED    rtl/attn_core.sv:247 -> :255   'T <= cfg_t;'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/attn_core.sv:424 -> :432   've_q <= kv_exp;'
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:428 -> :436   "shamt_q <= 4'(8'sd15 - ve_q - 8'sd8);   // in [6,15]"
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/attn_core.sv:429 -> :437   "vadd_q <= 15'(16'd1 << (4'(8'sd15 - ve_q - 8'sd8) - 4'd1));"
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    rtl/layer_chan.sv:26 -> :28   '//   0x34 LCYC    R  cycles elapsed while busy==1; ANY write clears it'
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md, evidence/qwen9b/g4/tb_layer_census.sv
+  DRIFTED    rtl/layer_chan.sv:27 -> :29   "//   0x38 XRFI    RW {29'b0, idx[2:0]}  XRF index for the XRFD window"
+             cited by sw/hwmap.py
+  DRIFTED    rtl/layer_chan.sv:30 -> :32   "//   0x44 MAXPH   R  {16'b0, max|prod|[47:32]}"
+             cited by sw/hwmap.py
+  DRIFTED    rtl/layer_chan.sv:31 -> :33   '//'
+             cited by docs/ARCHITECTURE.md, docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt, ref/scripts/scan_spare_bits.py
+  DRIFTED    rtl/layer_chan.sv:53 -> :84   '// XRF (docs/SEQ_ISA.md): 8 x 18b, reset 0.  Entries are SIGNED except'
+             cited by NEXT_SESSION.md, docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:78 -> :119   '//'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:79 -> :120   '// ---- 16-bit scratch addressing (G3.1, SEQ_ISA v2.0) ------------------'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:85 -> :126   '//   ARG2 on ALU is {dst[31:16], p0[15:0]}; cfg_p0 is SEVENTEEN bits, so'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:92 -> :133   "// R-b's {hi[27:14], lo[13:0]} + lo[14]@28 + hi[14]@29 scatter existed for"
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/layer_chan.sv:99 -> :140   '// Commands (opcode, args):'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:104 -> :145   '//           arg2==0 is the legacy behaviour.'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:105 -> :146   '//   2 VNW   arg0=len[12:0]; arg1=src           vecnorm wbuf load'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:107 -> :148   '//            0-encodes-the-top escape any more and 0 means 0.  G3.2 widened'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:108 -> :149   '//            the DATAPATH to match: the wbuf is 4096 deep and vn_waddr is'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md, evidence/qwen_next/feas/layer_cmd_census.py
+  DRIFTED    rtl/layer_chan.sv:109 -> :150   '//            12 bits, so the field and the hardware now agree at 4096.)'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:110 -> :151   '//   3 ROPET arg1=src                         rope table: 64 cos + 64 sin'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md, evidence/qwen_next/feas/layer_cmd_census.py
+  DRIFTED    rtl/layer_chan.sv:112 -> :153   '//   5 CONVW arg0={nch[29:16],first[15:2],sel[1:0]}; arg1=src'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:116 -> :157   '//            CONV_DIM=8192 command could be ENCODED; G3.4 grew the conv'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:121 -> :162   '//   8 DNST  arg0={spare[31:5], head[4:0]}'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:122 -> :163   '//           arg1={src_k,src_q}; arg2={dst,src_v}'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:124 -> :165   '//           out: 128 x int32 {lo,hi} pairs at dst'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:134 -> :175   '//            DYNQ8s its whole FFN=6144 intermediate in ONE command and a'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:145 -> :186   '//'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:216 -> :243   '(* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 aclk CLK" *)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:232 -> :259   'input  wire         s_axil_bready,'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:236 -> :263   'output logic [31:0] s_axil_rdata,'
+             cited by rtl/layer_chan.sv
+  DRIFTED    rtl/layer_chan.sv:239 -> :266   'input  wire         s_axil_rready,'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:247 -> :274   'input  wire [2:0]   s_axib_awsize,'
+             cited by rtl/layer_chan.sv
+  DRIFTED    rtl/layer_chan.sv:276 -> :329   '// =================================================================='
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:278 -> :331   '// These are localparams, not parameters: U4 retired the multi-model'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:296 -> :361   'localparam int LNH   = 32;'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/g4/G4B_STRUCT.md, synth/exp_uram/scripts/exp_ooc.tcl, synth/scripts/ooc_9b.tcl
+  DRIFTED    rtl/layer_chan.sv:300 -> :365   'localparam int CVD   = 8192;'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/g4/G4B_STRUCT.md, synth/exp_uram/scripts/exp_ooc.tcl, synth/scripts/ooc_9b.tcl
+  DRIFTED    rtl/layer_chan.sv:317 -> :384   'localparam int KHB    = $clog2(NKVH);         // 2  kvhead width'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:339 -> :389   "localparam logic [3:0] OP_VN    = 4'd1;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:341 -> :391   "localparam logic [3:0] OP_ROPET = 4'd3;"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:342 -> :392   "localparam logic [3:0] OP_ROPE  = 4'd4;"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:350 -> :400   "localparam logic [3:0] OP_DNZ   = 4'd12;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/s1/S1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:359 -> :450   'logic [15:0] sptr;'
+             cited by evidence/qwen2b/ra/util_resident.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:360 -> :451   'logic [15:0] cmd_cnt;'
+             cited by evidence/qwen2b/ra/util_resident.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:364 -> :460   '// The host reaches kvheads 2/3 through the TCNT2 CSR (0x60); see the'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:370 -> :475   'logic [31:0] lcyc;                   // busy-cycle counter (LCYC CSR)'
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  DRIFTED    rtl/layer_chan.sv:371 -> :476   'logic        cmd_go;                 // pulse into dispatcher'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:372 -> :477   'logic        hw_we;                  // host scratch write (registered)'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:373 -> :478   'logic [15:0] hw_addr;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:396 -> :501   '// now the number matches the declaration below.'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:397 -> :502   '// =================================================================='
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:398 -> :503   'logic signed [15:0] smem_a [65536];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:399 -> :504   'logic signed [15:0] smem_b [65536];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:400 -> :505   'logic [15:0] sa_addr, sb_addr;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:404 -> :509   'logic        sw_en;'
+             cited by evidence/qwen2b/ra/dn_bank_verify.md
+  DRIFTED    rtl/layer_chan.sv:416 -> :521   '// build_020 violated-path family (rstn gates the CE of every'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:420 -> :525   '// =================================================================='
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen_next/feas/layer_cmd_census.py, evidence/qwen_next/feas/toks_model.py
+  DRIFTED    rtl/layer_chan.sv:430 -> :535   '// --- vecnorm ---'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:432 -> :537   'logic [11:0] vn_waddr;          // 4096 vecnorm weights (n_log2 = 12)'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:433 -> :538   'logic        vn_svalid, vn_sready, vn_mvalid, vn_mready;'
+             cited by evidence/qwen2b/ra/dn_bank_verify.md
+  DRIFTED    rtl/layer_chan.sv:449 -> :554   '.s_valid(vn_svalid), .s_ready(vn_sready), .s_data(vn_sdata),'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, synth/exp_uram/rtl/layer_chan.sv
+  DRIFTED    rtl/layer_chan.sv:454 -> :559   'logic [7:0]  rp_taddr;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, synth/exp_uram/rtl/layer_chan.sv
+  DRIFTED    rtl/layer_chan.sv:457 -> :562   '/* verilator lint_off UNUSEDSIGNAL */'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/feas/resource_budget.py, evidence/qwen_next/place_exp/PLACE_EXP.md
+  DRIFTED    rtl/layer_chan.sv:458 -> :563   'logic rp_busy;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:464 -> :569   '.m_valid(rp_mvalid), .m_ready(rp_mready), .m_data(rp_mdata));'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:465 -> :570   ''
+             cited by evidence/qwen_next/place_exp/PLACE_EXP.md
+  DRIFTED    rtl/layer_chan.sv:467 -> :572   'logic        cv_ivalid, cv_ovalid;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:470 -> :575   'logic signed [15:0] cv_oy;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/place_exp/PLACE_EXP.md
+  DRIFTED    rtl/layer_chan.sv:471 -> :576   'conv4_silu #(.SIGMOID_ROM(SIGMOID_ROM)) u_conv ('
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:484 -> :589   '/* verilator lint_off UNUSEDSIGNAL */'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:491 -> :596   'gate_unit #(.NH(LNH),'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:498 -> :603   '// --- dn_step + state URAM (32 heads x 128 rows x 2048b per slot) ---'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:505 -> :610   'logic signed [20:0] dn_vdata;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:507 -> :612   'logic [6:0]  dn_rda, dn_wra;'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:508 -> :613   'logic [2047:0] dn_rdq, dn_wrd;'
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md, synth/exp_uram/scripts/exp_ooc.tcl, synth/exp_uram/scripts/finish_reports.tcl
+  DRIFTED    rtl/layer_chan.sv:513 -> :618   '/* verilator lint_off UNUSEDSIGNAL */'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:522 -> :628   '.clk(aclk), .rstn(rstn_i), .start(dn_start), .busy(dn_busy),'
+             cited by evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:527 -> :633   '.s_wraddr(dn_wra), .s_wrdata(dn_wrd), .s_wren(dn_wren),'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:546 -> :745   'logic [HB-1:0]  dn_head;              // latched at dispatch (ISA field)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:552 -> :757   'wire           dn_w    = dn_wren | dnz_we;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:658 -> :786   'logic        at_start, at_qwe;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:659 -> :787   '/* verilator lint_off UNUSEDSIGNAL */'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:660 -> :788   'logic        at_done;   // collection is count-based; done pulse unused'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:667 -> :795   'logic        at_mvalid, at_mready;'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:671 -> :799   '/* verilator lint_off UNUSEDSIGNAL */'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:674 -> :802   'attn_core #(.EXP2_ROM(EXP2_ROM), .RECIP_ROM(RECIP_ROM)) u_attn ('
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  DRIFTED    rtl/layer_chan.sv:678 -> :806   '.kv_addr(at_kvaddr), .kv_data(at_kvdata), .kv_exp(at_kvexp),'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:679 -> :807   '.m_valid(at_mvalid), .m_ready(at_mready), .m_data(at_mdata),'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:724 -> :848   'always_ff @(posedge aclk) begin'
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  DRIFTED    rtl/layer_chan.sv:727 -> :853   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:745 -> :871   'logic [63:0] cw_wd;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:746 -> :872   'logic [47:0] cs_wd;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:747 -> :873   'logic        cw_we, cs_we;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:758 -> :891   'logic [63:0] wm [CVD];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:759 -> :892   'logic [47:0] sm [CVD];'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:774 -> :907   'always_ff @(posedge aclk) begin'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/layer_chan.sv:777 -> :910   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:790 -> :935   'logic signed [6:0]  alu_k;'
+             cited by evidence/qwen2b/rc/RC_GATE.md
+  DRIFTED    rtl/layer_chan.sv:797 -> :942   '.cfg_op(arg0[3:0]), .cfg_len(arg0[17:4]),   // G3.1: 14-bit len'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:801 -> :946   '.cfg_dst(arg2[31:16]), .e_out(alu_eout),'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:868 -> :1013   "xrf[0] <= 18'(signed'({1'b0, alu_eout}));   // e_x, unsigned 4b"
+             cited by evidence/qwen2b/rd/RD_GATE.md
+  DRIFTED    rtl/layer_chan.sv:882 -> :1027   'wire  [1:0]  unused_lsbs = s_axil_awaddr[1:0] | s_axil_araddr[1:0];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:891 -> :1036   "aw_got <= 1'b0; w_got <= 1'b0;"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen_next/feas/layer_cmd_census.py, evidence/qwen_next/feas/toks_model.py
+  DRIFTED    rtl/layer_chan.sv:908 -> :1060   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:914 -> :1066   'case (awaddr_q)'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:918 -> :1073   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:923 -> :1078   "10'h006: begin                               // SWIN"
+             cited by evidence/qwen2b/rd/RD_GATE.md, sw/seq_run.py
+  DRIFTED    rtl/layer_chan.sv:928 -> :1083   'end'
+             cited by evidence/qwen2b/rd/RD_GATE.md, sw/seq_run.py
+  DRIFTED    rtl/layer_chan.sv:929 -> :1084   "10'h008: begin                               // TCNT"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:932 -> :1088   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:933 -> :1089   "10'h018: begin                               // TCNT2"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:940 -> :1096   '// about.  Host mirror: sw/hwmap.py L_TCNT2.'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:944 -> :1100   "10'h00C: begin                               // LAYER"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:947 -> :1111   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:950 -> :1119   "10'h017: begin                                // DNSB"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:966 -> :1137   'if (tcnt_inc)'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:978 -> :1150   "10'h005: s_axil_rdata <= {16'b0, sptr};"
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:988 -> :1160   "10'h00B: s_axil_rdata <= unsigned'(alu_amax_val);"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:996 -> :1177   "10'h010: s_axil_rdata <= alu_maxp[31:0];      // MAXPL"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1033 -> :1214   'KQ_A, KQ_W, KQ_S, KQ_M, KQ_E,       // kvap maxabs scan + exp'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1039 -> :1220   '} st_e;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1040 -> :1221   'st_e st;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1043 -> :1224   "localparam logic [3:0] LT_VNW   = 4'd0;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1094 -> :1275   '// 16-bit scratch addressing (SEQ_ISA v2.0, G3.1).  ARG1 carries an'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1095 -> :1276   '// address PAIR as {hi[31:16], lo[15:0]} — NO SCATTERED BITS.  ARG2 uses'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1096 -> :1277   "// the same layout on GATE and DNST; the ALU's ARG2 is {dst[31:16],"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1100 -> :1281   '// bit-identically, and G3.1 is where that byte-lock is spent.'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    rtl/layer_chan.sv:1101 -> :1282   'wire [15:0] a1_src = arg1[15:0];'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1104 -> :1285   'wire [15:0] a2_dst = arg2[31:16];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1129 -> :1310   "wire [14:0] env_conv_end  = {1'b0, arg0[13:0]} + {1'b0, arg0[27:14]};"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1131 -> :1312   'wire cmd_env_bad ='
+             cited by docs/SEQ_ISA.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:1165 -> :1413   "vn_svalid <= 1'b0; rp_svalid <= 1'b0;"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1172 -> :1421   "vn_start <= 1'b0; rp_start <= 1'b0; gt_start <= 1'b0;"
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/layer_chan.sv:1183 -> :1432   'if (st inside {CV_A, CV_W, CV_W2, CV_W3, CV_P, CV_D}'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1185 -> :1434   "eng_swa <= dst_r + 16'(cvj);"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1192 -> :1441   '// ----------------------------------------------------'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1197 -> :1501   "rnd <= 1'b0; ki <= '0; eq <= '0; kmax <= '0;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1204 -> :1508   '// evidence/qwen9b/g3/isa_bits.py reads out of this file'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:1209 -> :1513   'dn_head <= arg0[4:0];'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen_next/feas/layer_cmd_census.py, evidence/qwen_next/feas/toks_model.py
+  DRIFTED    rtl/layer_chan.sv:1210 -> :1514   'kvhead_r <= arg0[1:0];'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1235 -> :1567   '// G3.1: ld_n/ld_i are 13 bits and the field'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1236 -> :1568   '// is arg0[12:0], so 4096 is carried DIRECTLY'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1241 -> :1573   '// FIELD and the DATAPATH now agree at 4096.'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1242 -> :1574   'ld_tgt <= LT_VNW; ld_n <= arg0[12:0];'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1251 -> :1583   'OP_CONVW: begin'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:1300 -> :1635   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1367 -> :1703   'if ((cmd_op == OP_VN) ? vn_mvalid : rp_mvalid) begin'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1372 -> :1708   "vn_mready <= 1'b0; rp_mready <= 1'b0;"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1377 -> :1713   ''
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1384 -> :1720   "vn_wwe <= 1'b1; vn_waddr <= ld_i[11:0];"
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1387 -> :1723   'LT_ROPET: begin'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1388 -> :1724   "rp_twe <= 1'b1; rp_taddr <= ld_i[7:0];"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1467 -> :1803   'end'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1514 -> :1850   'eng_swa <= dst_r + (off << 1);'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1519 -> :1855   "at_mready <= 1'b0;"
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1527 -> :1863   "eng_swe <= 1'b1;"
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1530 -> :1866   'end'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1531 -> :1867   ''
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:1533 -> :1869   'CV_A: begin'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1534 -> :1870   'if (cvi == arg0[27:14]) st <= CV_D;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:1541 -> :1877   'end'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1543 -> :1879   'CV_W2: st <= CV_W3;        // per-bank fabric stage (cw/cs_q_p)'
+             cited by evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1544 -> :1880   'CV_W3: st <= CV_P;         // registered bank mux settles'
+             cited by docs/SEQ_ISA.md, evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1547 -> :1883   "cv_win1 <= signed'(cs_q[31:16]);"
+             cited by docs/SEQ_ISA.md, evidence/qwen9b/g3/G3_2_VECNORM.md
+  DRIFTED    rtl/layer_chan.sv:1555 -> :1891   "cs_wa <= 13'(arg0[13:0] + cvi);"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1557 -> :1893   "cs_we <= 1'b1;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1566 -> :1902   'CW_P: begin'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1581 -> :1917   "if (wi + 1'b1 == arg0[29:16]) st <= DONE_S;"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:1590 -> :1926   'st <= CW_A;'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1592 -> :1928   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1595 -> :1931   "cs_wa <= 13'(arg0[15:2] + wi);"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1596 -> :1932   "cs_wd <= '0;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1597 -> :1933   "if (wi + 1'b1 == arg0[29:16]) st <= DONE_S;"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:1655 -> :1991   'eng_sa <= (rnd ? a1_dst : a1_src)'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    rtl/layer_chan.sv:1954 -> :2462   '.s_data({aw_win_bad, s_axib_awid, s_axib_awaddr[17:2], s_axib_awlen}),'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:1976 -> :2484   "wire aw_win_bad = ({1'b0, s_axib_awaddr[17:2]} + 17'(s_axib_awlen))"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/layer_chan.sv:1983 -> :2491   'logic [8:0]  wbeats;                // beats left in this burst'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    rtl/layer_chan.sv:2170 -> :2678   '$fatal(1, "s_axib: read capture FIFO overflow");'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/layer_chan.sv:2301 -> :2809   'if (!fresh && (ptr_we || ptr_adv)) ptr <= ptr_nxt;'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    synth/scripts/create_project.tcl:206 -> :207   'must {connect_bd_net [get_bd_pins xdma_0/axi_aclk] [get_bd_pins axi_smc/aclk]}'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    synth/scripts/create_project.tcl:262 -> :263   'must {connect_bd_net [get_bd_pins xdma_0/axi_aresetn] [get_bd_pins layer_0/are'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    synth/scripts/create_project.tcl:352 -> :359   'must {set_property range 4G $seg}'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    synth/scripts/create_project.tcl:357 -> :364   'set seg [get_bd_addr_segs -of_objects [get_bd_addr_spaces xdma_0/M_AXI_LITE] -'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    synth/scripts/create_project.tcl:390 -> :397   'for {set i 0} {$i < 4} {incr i} {'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    synth/scripts/create_project.tcl:397 -> :413   '# stride, mvchan_c at (c+1)<<16 and layer_0 at 8<<16 (R-b moved it from'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    synth/scripts/create_project.tcl:403 -> :419   '# window.  Two-pass parking, same reason as the AXI-Lite map above.'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:405 -> :421   "# R-b (2026-08-13): layer_0's window doubled to 128 KiB (32768 scratch"
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:407 -> :423   '# must be RANGE-ALIGNED and 0x50000 is not 128 KiB-aligned.  0x50000-0x5FFFF'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:408 -> :424   '# was then a decode hole.'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:409 -> :425   '#'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:419 -> :435   '# tb/tb_burst_fabric.sv LAYBASE and docs/SEQ_ISA.md B12.3.'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:420 -> :436   'set seq_axib_map {mvchan_0 0x10000 mvchan_1 0x20000 mvchan_2 0x30000 \\'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:421 -> :437   'mvchan_3 0x40000 layer_0 0x80000}'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:424 -> :440   'set seg [get_bd_addr_segs -of_objects [get_bd_addr_spaces seq_0/m_axib] -filte'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:433 -> :449   '# 256 KiB one (ADDR_WIDTH 18, G3.1; it was 128 KiB / 17 at R-b);'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:437 -> :453   '# 65536) — normalize before comparing'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/create_project.tcl:446 -> :462   '}'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    synth/scripts/ooc_9b.tcl:25 -> :29   '# Launcher: evidence/qwen9b/g4/run_g4b_ooc.sh (one out dir per run, never'
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  DRIFTED    synth/scripts/ooc_9b.tcl:68 -> :77   'set Files {fx_pkg fx_rsqrt fx_recip fx_silu vecnorm_unit rope_unit'
+             cited by synth/exp_uram/scripts/exp_ooc.tcl
+  DRIFTED    synth/scripts/ooc_9b.tcl:69 -> :78   'conv4_silu dn_step attn_core gate_unit vec_alu layer_chan}'
+             cited by synth/exp_uram/scripts/exp_ooc.tcl
+  DRIFTED    synth/scripts/ooc_9b.tcl:85 -> :94   '# $readmemh against the process CWD — run_g4b_ooc.sh symlinks rtl/roms/*.hex'
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  DRIFTED    synth/scripts/ooc_9b.tcl:90 -> :99   'puts "FATAL: $OutDir/$r.hex missing — evidence/qwen9b/g4/run_g4b_ooc.sh must s'
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  DRIFTED    synth/scripts/ooc_9b.tcl:124 -> :132   'proc ncells {pat} { return [llength [get_cells -quiet -hier -filter "REF_NAME '
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  DRIFTED    tb/Makefile:475 -> :533   '$(LAYER_RTL) tb_layer_chan.sv'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:493 -> :551   '$(VERILATOR) --lint-only -Wall --timing $(LAYER_RTL) \\'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:505 -> :563   '+verilator+rand+reset+2 || exit 1; \\'
+             cited by docs/USAGE.md
+  DRIFTED    tb/Makefile:523 -> :581   'TOPK_SEEDS   ?= 1 2 3 4'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:648 -> :707   'LAYERV2_SEEDS ?= 1 2 3 4'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:794 -> :853   'SEQ_SEEDS := 1 2 3 4'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:798 -> :857   'SEQ_ERRS  := op ind chan jmp xopsgn csrsp rsvd env0 env97'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/Makefile:801 -> :860   '# 1536-word XWIN MOVX (the R4 follow-on); `embrow` is the runtime EMB row'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    tb/Makefile:881 -> :940   '# RUNG 4 / S6 — the seq_unit OUT FIFO (docs/RUNG4_SPEC.md, agent D).'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    tb/Makefile:963 -> :1022   'SEQP       ?= $(CHIP_DIR)/tok2_s1.e'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/Makefile:984 -> :1043   '$(VECPY) scripts/gen_seq_chip_vectors.py $(SEQP) --base $(SEQBASE)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/Makefile:1045 -> :1104   'W8_NCH    ?= 4'
+             cited by docs/superpowers/plans/2026-08-16-qwen2b-v5-w8.md
+  DRIFTED    tb/Makefile:1123 -> :1182   '@echo "RETIRED (G3.3): this bitstream has no W8 engine mode — a W8 SHAPE"; \\'
+             cited by evidence/qwen9b/g4/G4A_REPLAY.md
+  DRIFTED    tb/Makefile:1228 -> :1287   'w9_9b_smoke_scripts:'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:1272 -> :1331   'seq_chip_vectors_9b:'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:1288 -> :1347   'for s in $(W9_SEEDS); do \\'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/tb_layershim_c.sv:279 -> :304   '// T3/T5 layout (disjoint regions inside the 65536-word scratchpad)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_layershim_c.sv:306 -> :331   'endcase'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_layershim_c.sv:335 -> :360   'task automatic t2_swin_write_burst_read();'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_layershim_c.sv:406 -> :431   '// ARG2 = {dst[31:16], p0[15:0]}.  These were `<< 14` / `<< 17`, a'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_layershim_c.sv:584 -> :609   '// poll that observes completion can never be racing a still-high'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  UNRESOLVED rtl/attn_core.sv:13 (the cited line was rewritten or deleted)   '// 8b exponent, 2-cycle latency. T <= 512.'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/g4/G4B_STRUCT.md, evidence/qwen_next/feas/resource_budget.py
+  UNRESOLVED rtl/attn_core.sv:29 (the cited line was rewritten or deleted)   'input  wire [9:0]          cfg_t,        // cache length T'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/g4/G4B_STRUCT.md, evidence/qwen9b/g4/g4b_layer_term.py
+  UNRESOLVED rtl/attn_core.sv:37 (the cited line was rewritten or deleted)   'output logic [9:0]         kv_addr,      // {bank, t[8:0]}'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/attn_core.sv:69 (the cited line was rewritten or deleted)   'logic signed [31:0] sc_mem [512];'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/g4/G4B_STRUCT.md, evidence/qwen9b/g5/G5A_FLOORPLAN.md, synth/exp_uram/scripts/exp_ooc.tcl
+  UNRESOLVED rtl/attn_core.sv:70 (the cited line was rewritten or deleted)   'logic [30:0]        es_mem [512];'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/attn_core.sv:104 (the cited line was rewritten or deleted)   'logic [9:0] t, T;'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:20 (the cited line was rewritten or deleted)   "//   0x20 TCNT    RW {6'b0, T1[9:0], 6'b0, T0[9:0]} KV append counters"
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  UNRESOLVED rtl/layer_chan.sv:21 (the cited line was rewritten or deleted)   '//                   (kvheads 0/1; kvheads 2/3 are at 0x60 TCNT2 — G3.4)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:25 (the cited line was rewritten or deleted)   "//   0x30 LAYER   RW {21'b0, kv_slot[10:8], 3'b0, dn_slot[4:0]} bank select"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:69 (the cited line was rewritten or deleted)   '// Layer banking (G3.4, the 9B geometry): one engine serves 32 transformer'
+             cited by docs/SEQ_ISA.md, docs/superpowers/plans/2026-08-12-qwen2b-track-r.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt, evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:74 (the cited line was rewritten or deleted)   '// TCNT host read/write use the LIVE LAYER.kv_slot (set LAYER before TCNT);'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  UNRESOLVED rtl/layer_chan.sv:195 (the cited line was rewritten or deleted)   '// DN_PIPE is PART OF THE STRUCTURE, not a tuning knob: 2 register'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:210 (the cited line was rewritten or deleted)   'parameter int DN_PIPE = 2,'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, synth/exp_uram/scripts/exp_ooc.tcl
+  UNRESOLVED rtl/layer_chan.sv:214 (the cited line was rewritten or deleted)   'parameter int DN_BPG = 8'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:284 (the cited line was rewritten or deleted)   '// (DN_EW / DN_PACK) are absent, because A1 ruled the container int16'
+             cited by synth/exp_uram/scripts/exp_ooc.tcl
+  UNRESOLVED rtl/layer_chan.sv:322 (the cited line was rewritten or deleted)   'localparam int KV_AW  = KVB + KHB + 10;       // 15'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:329 (the cited line was rewritten or deleted)   'localparam int DN_SDEL = 2 * DN_PIPE + 1;   // bank-select delay line'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:331 (the cited line was rewritten or deleted)   'localparam int DN_RLAT = 2 + 2 * DN_PIPE;   // 6 at DN_PIPE = 2'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:337 (the cited line was rewritten or deleted)   'localparam int DN_P2WAIT = (DN_RLAT > 2) ? 1 : 0;'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/g4/G4B_STRUCT.md, evidence/qwen9b/g4/run_g4b_census.sh, evidence/qwen9b/g4/tb_layer_census.sv, evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  UNRESOLVED rtl/layer_chan.sv:367 (the cited line was rewritten or deleted)   'logic [9:0]  tcnt_bank [N_KV][NKVH]; // [kv_slot][kvhead] KV append counters'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/g4/G4A_REPLAY.md
+  UNRESOLVED rtl/layer_chan.sv:368 (the cited line was rewritten or deleted)   'logic [LDB-1:0] layer_dn;            // live LAYER.dn_slot (0..23)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:369 (the cited line was rewritten or deleted)   'logic [KVB-1:0] layer_kv;            // live LAYER.kv_slot (0..7)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:518 (the cited line was rewritten or deleted)   "// G3.4 Step 1').  P2_WAIT = 1 is OPTION (i), the pass-2 wait state:"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  UNRESOLVED rtl/layer_chan.sv:521 (the cited line was rewritten or deleted)   'dn_step #(.RLAT(DN_RLAT), .P2_WAIT(DN_P2WAIT)) u_dn ('
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  UNRESOLVED rtl/layer_chan.sv:537 (the cited line was rewritten or deleted)   '// G3.4 REPLACED the shipped hand-split (bank = dn_layer_r[4:1], in-bank'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:566 (the cited line was rewritten or deleted)   'wire [DN_BW-1:0] dn_bsel  = dn_lin_r[DN_AW-1:12];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED rtl/layer_chan.sv:568 (the cited line was rewritten or deleted)   'generate'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED rtl/layer_chan.sv:569 (the cited line was rewritten or deleted)   'if (DN_PIPE == 0) begin : g_dnpipe0'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:580 (the cited line was rewritten or deleted)   'always_ff @(posedge aclk) begin'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:583 (the cited line was rewritten or deleted)   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:586 (the cited line was rewritten or deleted)   'dn_rdq <= dn_rdq_b[dn_bsel];  // fabric OREG: URAM CQ off the path'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:590 (the cited line was rewritten or deleted)   '// actually crosses a boundary runs flop -> flop with no logic in it:'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:602 (the cited line was rewritten or deleted)   'logic [DN_BW-1:0] dn_bsel_d [DN_SDEL];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:606 (the cited line was rewritten or deleted)   'end'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:607 (the cited line was rewritten or deleted)   'logic [2047:0] dn_rdq_gq [DN_GRP];    // per-group return, pipelined'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:608 (the cited line was rewritten or deleted)   'for (gg = 0; gg < DN_GRP; gg++) begin : g_grp'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:609 (the cited line was rewritten or deleted)   '(* dont_touch = "true" *) logic [11:0]      ra_p [DN_PIPE];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:613 (the cited line was rewritten or deleted)   '(* dont_touch = "true" *) logic [DN_BW-1:0] bs_p [DN_PIPE];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:619 (the cited line was rewritten or deleted)   'wd_p[i] <= wd_p[i-1]; w_p[i]  <= w_p[i-1];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:620 (the cited line was rewritten or deleted)   'bs_p[i] <= bs_p[i-1];'
+             cited by rtl/layer_chan.sv
+  UNRESOLVED rtl/layer_chan.sv:628 (the cited line was rewritten or deleted)   '(* ram_style = "ultra" *) logic [2047:0] mem [4096];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:633 (the cited line was rewritten or deleted)   'end'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:635 (the cited line was rewritten or deleted)   '// local mux over this group, then DN_PIPE return registers.'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:637 (the cited line was rewritten or deleted)   '// the return pipeline directly.'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:638 (the cited line was rewritten or deleted)   '(* dont_touch = "true" *) logic [2047:0] rq_p [DN_PIPE];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:639 (the cited line was rewritten or deleted)   'localparam int LW = (NB > 1) ? $clog2(NB) : 1;'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:640 (the cited line was rewritten or deleted)   'if (NB > 1) begin : g_lmux'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  UNRESOLVED rtl/layer_chan.sv:643 (the cited line was rewritten or deleted)   'end else begin : g_lmux1'
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  UNRESOLVED rtl/layer_chan.sv:644 (the cited line was rewritten or deleted)   'always_ff @(posedge aclk) rq_p[0] <= rdq_l[0];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:647 (the cited line was rewritten or deleted)   'for (int i = 1; i < DN_PIPE; i++) rq_p[i] <= rq_p[i-1];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:648 (the cited line was rewritten or deleted)   'assign dn_rdq_gq[gg] = rq_p[DN_PIPE-1];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:650 (the cited line was rewritten or deleted)   '// final small DN_GRP:1 mux into the OREG, in the destination SLR'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:651 (the cited line was rewritten or deleted)   'always_ff @(posedge aclk)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:653 (the cited line was rewritten or deleted)   "? DN_GW'(dn_bsel_d[2*DN_PIPE] / DN_BW'(DN_BPG)) : '0];"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:655 (the cited line was rewritten or deleted)   'endgenerate'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:682 (the cited line was rewritten or deleted)   '// KV cache: KV_NB = 8 URAM banks of 4096 x 2048b, ONE GQA LAYER PER'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:684 (the cited line was rewritten or deleted)   '// t[8:0]} cut at the 4096-row URAM depth.  At NKVH = 4 the in-bank'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, evidence/qwen9b/g3/G3_4_LAYER.md, rtl/layer_chan.sv
+  UNRESOLVED rtl/layer_chan.sv:685 (the cited line was rewritten or deleted)   '// address is FULL with {kvhead[1:0], k/v, t[8:0]}, which is spec 4.6'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:686 (the cited line was rewritten or deleted)   '// wall 9\'s "the 12-bit in-bank URAM address has no spare, so KV'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:687 (the cited line was rewritten or deleted)   '// capacity per bank doubles or T halves — resolved by the 8-bank'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:696 (the cited line was rewritten or deleted)   'logic [KVB-1:0] kv_layer_r;            // latched LAYER.kv_slot (0..7)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:701 (the cited line was rewritten or deleted)   'logic [KHB-1:0] kvhead_r;              // latched at dispatch (ISA field)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:704 (the cited line was rewritten or deleted)   'wire  [KV_AW-1:0] kv_lin_w = {kv_layer_r, kv_waddr};'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:708 (the cited line was rewritten or deleted)   'wire  [KV_BW-1:0] kv_bsel = kv_lin_r[KV_AW-1:12];            // 0..7'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:712 (the cited line was rewritten or deleted)   'generate for (gk = 0; gk < KV_NB; gk++) begin : g_kv'
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  UNRESOLVED rtl/layer_chan.sv:713 (the cited line was rewritten or deleted)   '(* ram_style = "ultra" *) logic [2047:0] mem  [4096];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED rtl/layer_chan.sv:714 (the cited line was rewritten or deleted)   'logic [7:0]                              emem [4096];'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g1/RUNG_INT8_STATE.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:721 (the cited line was rewritten or deleted)   'end'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:729 (the cited line was rewritten or deleted)   '// --- conv weight/state memories: 24 BRAM banks (one per dn slot) ---'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:744 (the cited line was rewritten or deleted)   'logic [12:0] cw_ra, cs_ra, cw_wa, cs_wa;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_2_VECNORM.md
+  UNRESOLVED rtl/layer_chan.sv:757 (the cited line was rewritten or deleted)   'generate for (gc = 0; gc < N_DN; gc++) begin : g_cv'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:765 (the cited line was rewritten or deleted)   "if (cw_we && dn_layer_r == LDB'(gc)) wm[cw_wa] <= cw_wd;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:766 (the cited line was rewritten or deleted)   "if (cs_we && dn_layer_r == LDB'(gc)) sm[cs_wa] <= cs_wd;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:775 (the cited line was rewritten or deleted)   'cw_q <= cw_q_p[dn_layer_r];'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:776 (the cited line was rewritten or deleted)   'cs_q <= cs_q_p[dn_layer_r];'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:904 (the cited line was rewritten or deleted)   "if (busy) lcyc <= lcyc + 1'b1;   // write-clear below wins"
+             cited by evidence/qwen9b/g4/G4B_STRUCT.md
+  UNRESOLVED rtl/layer_chan.sv:915 (the cited line was rewritten or deleted)   "10'h000: if (!busy) begin                    // CMD"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:941 (the cited line was rewritten or deleted)   'tcnt_bank[layer_kv][2] <= wdata_q[9:0];'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:968 (the cited line was rewritten or deleted)   "<= tcnt_bank[kv_layer_r][kvhead_r] + 1'b1;"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:974 (the cited line was rewritten or deleted)   "10'h001: s_axil_rdata <= {cmd_cnt, 14'b0, err_op, busy};"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:989 (the cited line was rewritten or deleted)   "10'h018: s_axil_rdata <= {6'b0, tcnt_bank[layer_kv][3],"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:1150 (the cited line was rewritten or deleted)   '|| (cmd_op == OP_CONV) || (cmd_op == OP_CONVW))'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:1193 (the cited line was rewritten or deleted)   'IDLE: if (cmd_go) begin'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED rtl/layer_chan.sv:1216 (the cited line was rewritten or deleted)   'if (cmd_env_bad) begin'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  UNRESOLVED rtl/layer_chan.sv:1288 (the cited line was rewritten or deleted)   '// NB the raw ARG field, not kvhead_r:'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:1662 (the cited line was rewritten or deleted)   'kv_waddr <= {kvhead_r, rnd,'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:1663 (the cited line was rewritten or deleted)   'tcnt_bank[kv_layer_r][kvhead_r][8:0]};'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED rtl/layer_chan.sv:1672 (the cited line was rewritten or deleted)   "tcnt_inc <= 1'b1;  // CSR: +1 tcnt_bank[kv_layer_r][kvhead_r]"
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  UNRESOLVED synth/scripts/create_project.tcl:204 (the cited line was rewritten or deleted)   'must {set_property -dict [list CONFIG.NUM_MI {4} CONFIG.NUM_SI {2} CONFIG.NUM_'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:69-92 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :69 '// Layer banking (G3.4, the 9B geometry): one engine serves ' -> GONE
+             :92 "// R-b's {hi[27:14], lo[13:0]} + lo[14]@28 + hi[14]@29 scatt" -> 133
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  HALF-MAPPED rtl/layer_chan.sv:69-116 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :69 '// Layer banking (G3.4, the 9B geometry): one engine serves ' -> GONE
+             :116 '//            CONV_DIM=8192 command could be ENCODED; G3.4 g' -> 157
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt, evidence/qwen9b/g3/G3_4_LAYER.md
+  HALF-MAPPED rtl/layer_chan.sv:74-112 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :74 '// TCNT host read/write use the LIVE LAYER.kv_slot (set LAYE' -> GONE
+             :112 '//   5 CONVW arg0={nch[29:16],first[15:2],sel[1:0]}; arg1=sr' -> 153
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  HALF-MAPPED rtl/layer_chan.sv:317-322 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :317 'localparam int KHB    = $clog2(NKVH);         // 2  kvhead w' -> 384
+             :322 'localparam int KV_AW  = KVB + KHB + 10;       // 15' -> GONE
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  HALF-MAPPED rtl/layer_chan.sv:498-518 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :498 '// --- dn_step + state URAM (32 heads x 128 rows x 2048b per' -> 603
+             :518 "// G3.4 Step 1').  P2_WAIT = 1 is OPTION (i), the pass-2 wai" -> GONE
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  HALF-MAPPED rtl/layer_chan.sv:507-590 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :507 'logic [6:0]  dn_rda, dn_wra;' -> 612
+             :590 '// actually crosses a boundary runs flop -> flop with no log' -> GONE
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:527-537 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :527 '.s_wraddr(dn_wra), .s_wrdata(dn_wrd), .s_wren(dn_wren),' -> 633
+             :537 '// G3.4 REPLACED the shipped hand-split (bank = dn_layer_r[4' -> GONE
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  HALF-MAPPED rtl/layer_chan.sv:684-727 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :684 '// t[8:0]} cut at the 4096-row URAM depth.  At NKVH = 4 the ' -> GONE
+             :727 'end' -> 853
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:712-724 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :712 'generate for (gk = 0; gk < KV_NB; gk++) begin : g_kv' -> GONE
+             :724 'always_ff @(posedge aclk) begin' -> 848
+             cited by evidence/qwen9b/g5/G5A_FLOORPLAN.md
+  HALF-MAPPED rtl/layer_chan.sv:729-777 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :729 '// --- conv weight/state memories: 24 BRAM banks (one per dn' -> GONE
+             :777 'end' -> 910
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:757-758 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :757 'generate for (gc = 0; gc < N_DN; gc++) begin : g_cv' -> GONE
+             :758 'logic [63:0] wm [CVD];' -> 891
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  HALF-MAPPED rtl/layer_chan.sv:759-766 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :759 'logic [47:0] sm [CVD];' -> 892
+             :766 "if (cs_we && dn_layer_r == LDB'(gc)) sm[cs_wa] <= cs_wd;" -> GONE
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:915-918 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :915 "10'h000: if (!busy) begin                    // CMD" -> GONE
+             :918 'end' -> 1073
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:940-941 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :940 '// about.  Host mirror: sw/hwmap.py L_TCNT2.' -> 1096
+             :941 'tcnt_bank[layer_kv][2] <= wdata_q[9:0];' -> GONE
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:966-968 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :966 'if (tcnt_inc)' -> 1137
+             :968 "<= tcnt_bank[kv_layer_r][kvhead_r] + 1'b1;" -> GONE
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:1129-1150 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :1129 "wire [14:0] env_conv_end  = {1'b0, arg0[13:0]} + {1'b0, arg0" -> 1310
+             :1150 '|| (cmd_op == OP_CONV) || (cmd_op == OP_CONVW))' -> GONE
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:1192-1193 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :1192 '// ----------------------------------------------------' -> 1441
+             :1193 'IDLE: if (cmd_go) begin' -> GONE
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  HALF-MAPPED rtl/layer_chan.sv:1193-1300 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :1193 'IDLE: if (cmd_go) begin' -> GONE
+             :1300 'end' -> 1635
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  HALF-MAPPED rtl/layer_chan.sv:1655-1672 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :1655 'eng_sa <= (rnd ? a1_dst : a1_src)' -> 1991
+             :1672 "tcnt_inc <= 1'b1;  // CSR: +1 tcnt_bank[kv_layer_r][kvhead_r" -> GONE
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+O3_CITE_DRIFT CHECK FAIL (237 drifted, 89 unresolved, 0 missing, 19 half-mapped)
+=== rc: 1
+=== end: 2026-09-04T19:56:53-06:00

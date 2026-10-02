@@ -1,0 +1,640 @@
+=== host: snoke
+=== date: 2026-08-29T18:12:10-06:00
+=== tree: 4965057+g2-dtol-bound-only
+=== cmd:  bash evidence/qwen9b/g2/run_ref_selftests_9b.sh
+=== venv: uv run --no-project --with numpy --with torch --with transformers
+=== tags: 0.8b 2b 9b   OMP_NUM_THREADS=3
+=== md5:  16310d33657beb539f8c6a3e59a9a68c  ref/layer_fixed.py ea56f7a3ebff6a08631c4933bf03134f  ref/fixedpoint.py cd42ad17c3c8370ae00f0e602c3c5a96  ref/w4a8_ref.py f19c2cdf7537a02bd9dac24deb476883  ref/layer_ref.py 
+
+===== FABLE5_MODEL=0.8b ref/layer_ref.py  =====
+full_attention: 8 decode steps, |x|_rms=3.130
+linear_attention: 8 decode steps, |x|_rms=2.255
+LAYER_REF SELFTEST PASS (float anchor; torch cross-check separate)
+----- exit 0
+
+===== FABLE5_MODEL=0.8b ref/w4a8_ref.py  =====
+N= 1024 K= 1024: rel_fp=11.498% (INT4 noise floor) rel_pipeline=3.43e-07 max_lsb=0.50 stride=576B e=-5 sh=5
+N=  256 K= 3584: rel_fp=12.359% (INT4 noise floor) rel_pipeline=1.86e-06 max_lsb=0.50 stride=1856B e=-4 sh=7
+N=   64 K=  256: rel_fp=13.572% (INT4 noise floor) rel_pipeline=1.87e-07 max_lsb=0.50 stride=192B e=-5 sh=3
+--- v2 row format (g=128 legacy | g=64) ---
+  N=  64 K= 1024  g128: 8w+1s beats stride=  576B rel_fp=14.512% rel_W=11.859%  g64: 8w+1s beats stride=  576B rel_fp=15.214% rel_W=10.854%
+  N=  37 K= 3584  g128: 28w+1s beats stride= 1856B rel_fp=14.142% rel_W=11.829%  g64: 28w+2s beats stride= 1920B rel_fp=13.030% rel_W=10.824%
+  N= 256 K= 2048  g128: 16w+1s beats stride= 1088B rel_fp=12.507% rel_W=11.744%  g64: 16w+1s beats stride= 1088B rel_fp=11.306% rel_W=10.774%
+  N=   5 K=  128  g128: 1w+1s beats stride=  128B rel_fp=10.396% rel_W=12.106%  g64: 1w+1s beats stride=  128B rel_fp=9.738% rel_W=11.345%
+  contract beat counts OK: K=1024 g64 -> 8w+1s (576B), K=1024 g128 -> 8w+1s (576B), K=2048 g64 -> 16w+1s (1088B), K=2048 g128 -> 16w+1s (1088B), K=3584 g64 -> 28w+2s (1920B), K=3584 g128 -> 28w+1s (1856B)
+--- W8 row format (Track Q V5; RTL: matvec_engine cfg_w8) ---
+  N=  64 K= 1024  g128: 16w+1s beats stride= 1088B rel_fp=0.974% rel_W=0.656% (W4 11.859% = 18.1x) sh=9 (W4 5)
+  N=  37 K= 3584  g128: 56w+1s beats stride= 3648B rel_fp=0.783% rel_W=0.651% (W4 11.829% = 18.2x) sh=11 (W4 7)
+  N= 256 K= 2048  g128: 32w+1s beats stride= 2112B rel_fp=0.961% rel_W=0.647% (W4 11.744% = 18.2x) sh=10 (W4 6)
+  N=   5 K=  128  g128: 2w+1s beats stride=  192B rel_fp=0.723% rel_W=0.707% (W4 12.106% = 17.1x) sh=6 (W4 2)
+  N=  17 K= 6144  g128: 96w+2s beats stride= 6272B rel_fp=1.054% rel_W=0.644% (W4 11.660% = 18.1x) sh=12 (W4 8)
+  W8 weight error beats W4's by >= 17.0x on every shape/seed/g (floor 4x; codes 7 -> 127)
+  matvec_y32_w8 == matvec_y32 on every pair above, and agrees with dequantized float math to 0.50 lsb (bound 0.51) — the m*2^(e-15) law is the W4 one, unchanged
+  illegal code -128 rejected: W8 code out of range: [-128, -128] not in +-127
+  contract beat counts OK: K=1024 g128 -> 16w+1s (1088B), K=2048 g128 -> 32w+1s (2112B), K=3584 g128 -> 56w+1s (3648B), K=6144 g128 -> 96w+2s (6272B)
+  envelope K= 2048 g128: sh=10 (W4  6)  signed widths: p 42b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 2048 g 64: sh=10 (W4  6)  signed widths: p 42b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 6144 g128: sh=12 (W4  8)  signed widths: p 44b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 6144 g 64: sh=12 (W4  8)  signed widths: p 44b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+W4A8_REF SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=0.8b ref/gptq.py --selftest =====
+--- 1: a DIAGONAL Hessian is bit-identically the V2/V3 quantizer ---
+  diag(H) == quant_linear_mse(salience=sqrt(diag)), I == unweighted MSE  OK
+--- 2: a CORRELATED Hessian moves the nibbles, not the format ---
+  wire format identical=True, group scales identical=True, nibbles moved 12992/49152 (26.4%) OK
+--- 3: it minimises what it claims to (output error, not weight) ---
+  ||(W-Wq)X^T||_F : unweighted 13.177 / V3-style 13.191 -> GPTQ 7.9068 (40.1% better than the V3-style diagonal) OK
+  (||W-Wq||_F rises 0.468 -> 0.7464: GPTQ trades weight fidelity for output fidelity, as designed)
+--- 4: row chunking is exact ---
+  rowchunk 7 == one-shot == default, bit-identical OK
+--- 5: the image packs and round-trips through the DDR row format ---
+  96x512 g=64: 320 B/row, unpack == pack OK
+--- 6: bad inputs are loud ---
+  5/5 rejected (missing / wrong K / negative / NaN / zero) OK
+--- 7: a dead input channel is survivable ---
+  1 dead channel: damp=7.954, format unchanged, image finite OK
+
+GPTQ SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=0.8b ref/layer_fixed.py  =====
+  dn_state int16 : identity on 2048 elements OK
+  dn_state int8:5 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.8: ceiling 0.4961, resolution 0.0039]
+  dn_state int8:6 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.7: ceiling 0.9922, resolution 0.0078]
+  dn_state int8:7 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.6: ceiling 1.9844, resolution 0.0156]
+  dn_state int8:8 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.5: ceiling 3.9688, resolution 0.0312]
+  dn_state int8e : idempotent + a 2^3 row rescale moves only the exponent + a quiet row keeps e=0 OK
+  DYNQ16 soak: 48 live DN head outputs + 366 synthetic blocks, k in [-14,17], 145 fixup / 88 left-shift / 2 zero blocks, min filled |y|max=16384 (>=16384)  OK
+  EPS-NORM soak (per magnitude decade: scale rel err, max |out| LSB delta, float-clip count)
+    2^-10  scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-9   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-8   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-7   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-6   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-5   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-4   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-3   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-2   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-1   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^0    scale_rel=6.04e-05  out_dlsb=1  m_ref_clipped=0
+    2^1    scale_rel=1.31e-04  out_dlsb=1  m_ref_clipped=0
+    2^2    scale_rel=1.37e-04  out_dlsb=1  m_ref_clipped=0
+    2^3    scale_rel=1.17e-04  out_dlsb=1  m_ref_clipped=0
+    2^4    scale_rel=1.15e-04  out_dlsb=1  m_ref_clipped=0
+    2^5    scale_rel=1.28e-04  out_dlsb=1  m_ref_clipped=0
+    2^6    scale_rel=1.27e-04  out_dlsb=1  m_ref_clipped=0
+    2^7    scale_rel=1.26e-04  out_dlsb=1  m_ref_clipped=0
+    2^8    scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^9    scale_rel=1.33e-04  out_dlsb=1  m_ref_clipped=0
+  worst scale rel err 1.37e-04 at (decade,k,m_ref,m_int)=(2, 2, 7299, 7298); worst out delta 1 LSB
+  gated-norm output (script_norm_fx, incl. norm_w op-3): 192/200 heads bit-identical, max |delta| 2 LSB
+  scale ceiling on any NON-ZERO block: 46341 < 65535 -> the cfg_p0/16-bit clamp is inert there
+  RTL envelope over 1200 vectors: p_in=33..33 (6b port), k in [-10,9], v_max=27977537961 (<2^35, 48b port), out shift 15..17, scale_max=16552 (clamped 0x at 65535)
+  eps addend E(k): k=-14 -> 2305843789824, k=-4 -> 2199024, k=0 -> 8590, k=4 -> 34, k=8 -> 0 (EPS_M=1099512 at 2^-40)
+  salience: None == arg-absent == ones(K) (bit-identical, g=128 and 64) OK
+  salience: FABLE5_CALIB_STATS unset -> every lookup is None (quant_layer inert) OK
+  salience: plumb ON re-scales 8/8 DeltaNet+MLP matrices (0 shifted the shared exponent), wire format (shape/dtype/sh/g/keys) unchanged OK
+  gptq: hess=None == arg-absent (bit-identical, g=128 and 64) OK
+  gptq: FABLE5_CALIB_STATS unset -> no Hessian lookup (quant_layer inert) OK
+  gptq: DIAGONAL Hessian == mode=h2 on 8/8 matrices (bit-identical: no off-diagonal, no feedback) OK
+  gptq: correlated Hessian moves nibbles on 8/8 matrices, 0/8 changed a group scale, wire format (shape/dtype/sh/g/keys) unchanged OK
+  rmsnorm1p              rel=1.340e-03  bound=2e-02  OK
+  rope                   rel=1.735e-03  bound=1e-02  OK
+  l2norm                 rel=4.860e-04  bound=1e-02  OK
+  attn softmax+pv        rel=2.666e-02  bound=8e-02  OK
+  deltanet step out      rel=2.553e-02  bound=5e-02  OK
+  deltanet step S        rel=3.631e-04  bound=2e-02  OK
+  soak linear_attention   g=128  32 steps: rms=7.90 sat=0 OK
+  soak linear_attention   g=64   32 steps: rms=7.51 sat=0 OK
+  soak full_attention     g=128  32 steps: rms=10.91 sat=0 OK
+  soak full_attention     g=64   32 steps: rms=10.82 sat=0 OK
+  w8: quant_linear_w8 == quantize_weights8 (rowchunk-identical), matvec_fx -> matvec_y32_w8 bit-exact on 4 seeds x 3 shapes x g128/g64; weight error beats the MSE W4 rule by >= 14.6x OK
+  w8: soak linear_attention   16 steps: rms=4.26 sat=0 OK
+  w8: soak full_attention     16 steps: rms=5.96 sat=0 OK
+  w8: quant_layer(w8=True) -> a W8 image behind all 15/15 matvecs of both layer types, every non-matvec tensor bit-identical to the W4 layer's OK
+  w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+  w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+LAYER_FIXED SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=0.8b ref/load_qwen35.py  =====
+checkpoint[0]: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+              1666.0 MiB  header sha256 c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+1 shard(s), 1.63 GiB
+header sha256: c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+tensors: 488 total, 320 under 'model.language_model.' (visual/mtp ignored)
+
+--- layer 0 (linear_attention) ---
+  ln1        shape=(1024,)          |max|=   1.0000 rms=  0.26716
+  ln2        shape=(1024,)          |max|=   0.3574 rms=  0.12813
+  mlp.gate   shape=(3584, 1024)     |max|=   0.1816 rms=  0.01212
+  mlp.up     shape=(3584, 1024)     |max|=   0.0835 rms=  0.00856
+  mlp.down   shape=(1024, 3584)     |max|=   0.2676 rms=  0.00850
+  dn.A_log   shape=(16,)            |max|=   6.5938 rms=  2.45239
+  dn.conv_w  shape=(6144, 4)        |max|=   1.7578 rms=  0.07282
+  dn.dt_bias shape=(16,)            |max|=  13.0625 rms=  6.06590
+  dn.in_a    shape=(16, 1024)       |max|=   0.1816 rms=  0.03769
+  dn.in_b    shape=(16, 1024)       |max|=   0.1357 rms=  0.01751
+  dn.in_qkv  shape=(6144, 1024)     |max|=   0.3906 rms=  0.01656
+  dn.in_z    shape=(2048, 1024)     |max|=   0.4609 rms=  0.01730
+  dn.norm_w  shape=(128,)           |max|=   1.0596 rms=  0.95547
+  dn.out     shape=(1024, 2048)     |max|=   0.2832 rms=  0.01237
+
+--- layer 3 (full_attention) ---
+  ln1        shape=(1024,)          |max|=   0.8398 rms=  0.35556
+  ln2        shape=(1024,)          |max|=   0.4629 rms=  0.24677
+  mlp.gate   shape=(3584, 1024)     |max|=   0.1494 rms=  0.01631
+  mlp.up     shape=(3584, 1024)     |max|=   0.0942 rms=  0.00801
+  mlp.down   shape=(1024, 3584)     |max|=   0.2256 rms=  0.00808
+  attn.k_norm  shape=(256,)           |max|=   1.6328 rms=  0.47225
+  attn.k_proj  shape=(512, 1024)      |max|=   0.1138 rms=  0.01241
+  attn.o_proj  shape=(1024, 2048)     |max|=   0.3262 rms=  0.01217
+  attn.q_norm  shape=(256,)           |max|=   1.2266 rms=  0.46373
+  attn.q_proj  shape=(4096, 1024)     |max|=   0.2500 rms=  0.01978
+  attn.v_proj  shape=(512, 1024)      |max|=   0.1348 rms=  0.01276
+
+  ln_f       shape=(1024,)          |max|=   5.3125 rms=  3.37607
+  emb        shape=(248320, 1024)   |max|=   0.2305 rms=  0.01970  (tied: LM head == emb)
+
+  emb raw-bytes sha256   3247e63f0f265462e2fba5316dfb2819941ea8ed62ab5b2c4904e4aab5b9d7aa
+  24-layer raw-bytes sha256 c01fbf58d98b8f1dcbc7ecb43d1101300e1425ccd30679f2a113ac2edbfa8740
+  float64 sum(|emb|)     3.939775e+06
+
+LOAD_QWEN35 SMOKE PASS (24 layers = 18 DeltaNet + 6 GQA, H=1024 CONV_DIM=6144 LNH=16/LNKH=16, shapes match layer_ref constants)
+----- exit 0
+
+===== FABLE5_MODEL=0.8b ref/perplexity_eval.py --selftest =====
+--- A: dequant scale vs the production matvec (the arbiter) ---
+  scale = m * 2**(e-15): max |y32-deq| = 0.500 lsb (<= 0.51), max rel = 1.13e-06
+  arbiter rejects m * 2**(e-16): it is 2.0x too small
+--- B: quant_linear_big == layer_fixed.quant_linear (bit for bit) ---
+  identical for (300,1024) and (1024,256) at g=128 and g=64
+--- C: int16 round trips vs the production formulas ---
+  emb16 == gen_model_script emb table (Q7.8 at res_scale 1, Q4.11 at 8); cw13 == quant_deltanet conv_w (Q2.13); W4 invariant to a power-of-2 res_scale (e shifts, w4/m/sh identical)
+--- D: --inject grammar ---
+  expansion, later-wins override, per-class validity, and --res-scale must bite: all hold
+--- D2: w4g64s (V3) grammar + the salience code path ---
+  the 16 salience keys this harness asks for are EXACTLY the ones calib_stats/fidelity_check produce (both directions)
+  w4g64s == w4g64 wire format and reproduces it EXACTLY under a uniform salience; a skewed one changes the image; emb/dn_conv rejected; --calib-stats must bite
+--- D3: w4g64h / w4g64gptq (V4) grammar + the Hessian code path ---
+  the 9 Hessian SITES this harness asks for are EXACTLY calib_stats' (from 16 tensors, both directions)
+  w4g64gptq == w4g64h EXACTLY under a diagonal Hessian (no off-diagonal = no feedback); a correlated one changes the image; same wire format and bit rate as w4g64
+--- D3b: w4g128gptq — GPTQ at the SHIPPED g128 cadence (Track L) ---
+  w4g128gptq parses, needs --calib-stats, is BIT-RATE IDENTICAL to w4g128 (ideal and packed, K=1024/2048/9216/12288), the Hessian bites, and it is distinct from w4g64gptq
+--- D4: w8g128 (V4mix / V5) grammar + the W8 code path ---
+  scale = m * 2**(e-15) holds for W8: max |y32-deq| = 0.500 lsb (<= 0.51), max rel = 8.26e-07
+  w8g128 weight error beats the PRODUCTION w4g128 (MSE rule) by 15.4-15.7x; mixed V4mix specs parse; salience/Hessian rejected
+--- E: DDR bit accounting is the PACKED rate, not the ideal one ---
+  K=1024 g128 -> 4.500 b/w (ideal 4.125, +9.1%); K=2048 -> 4.250 (+3.0%); K=6144 g64 -> 4.250 (ideal 4.250)
+  W8: K=1024 -> 8.500 b/w (ideal 8.125, +4.6%); K=2048 -> 8.250 (+1.5%); K=6144 -> 8.167 (+0.5%)
+--- F: tied embedding / LM head independence (tiny model) ---
+  emb-only injection leaves lm_head byte-identical, and vice versa
+--- G: PPL loop smoke on the tiny model ---
+  random-weight tiny model: 196 positions, PPL=561.3546 (batch 1 vs 2 agree), lm_head:w4g128 -> 561.0849
+
+PERPLEXITY_EVAL SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=0.8b ref/calib_stats.py --selftest =====
+--- A: tensor_key round trip ---
+  names match the HF module paths; non-W4 keys rejected
+--- B: hooks cover every key the V3 quantizer asks for ---
+  16 required keys present (16 hooked in total, tokens=130)
+--- C: shapes match K, values are finite and positive ---
+  every vector is float32[K] of the matrix it belongs to
+--- D: save/load round trip (numpy-only loader) ---
+  metadata stays out of the salience dict
+--- E: V4 Hessian — sites, shapes, and the sharing claim ---
+  9 sites from 16 tensors; layers.0.mlp.down_proj matches an independent X^T X/T to 3.08e-07
+--- F: h2 IS the stored diagonal; load()/HessStore split ---
+  9 h2 vectors == the stored Hessian diagonals, load() returns salience only
+
+CALIB_STATS SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=2b ref/layer_ref.py  =====
+full_attention: 8 decode steps, |x|_rms=5.813
+linear_attention: 8 decode steps, |x|_rms=5.254
+LAYER_REF SELFTEST PASS (float anchor; torch cross-check separate)
+----- exit 0
+
+===== FABLE5_MODEL=2b ref/w4a8_ref.py  =====
+N= 1024 K= 1024: rel_fp=11.498% (INT4 noise floor) rel_pipeline=3.43e-07 max_lsb=0.50 stride=576B e=-5 sh=5
+N=  256 K= 3584: rel_fp=12.359% (INT4 noise floor) rel_pipeline=1.86e-06 max_lsb=0.50 stride=1856B e=-4 sh=7
+N=   64 K=  256: rel_fp=13.572% (INT4 noise floor) rel_pipeline=1.87e-07 max_lsb=0.50 stride=192B e=-5 sh=3
+--- v2 row format (g=128 legacy | g=64) ---
+  N=  64 K= 1024  g128: 8w+1s beats stride=  576B rel_fp=14.512% rel_W=11.859%  g64: 8w+1s beats stride=  576B rel_fp=15.214% rel_W=10.854%
+  N=  37 K= 3584  g128: 28w+1s beats stride= 1856B rel_fp=14.142% rel_W=11.829%  g64: 28w+2s beats stride= 1920B rel_fp=13.030% rel_W=10.824%
+  N= 256 K= 2048  g128: 16w+1s beats stride= 1088B rel_fp=12.507% rel_W=11.744%  g64: 16w+1s beats stride= 1088B rel_fp=11.306% rel_W=10.774%
+  N=   5 K=  128  g128: 1w+1s beats stride=  128B rel_fp=10.396% rel_W=12.106%  g64: 1w+1s beats stride=  128B rel_fp=9.738% rel_W=11.345%
+  contract beat counts OK: K=1024 g64 -> 8w+1s (576B), K=1024 g128 -> 8w+1s (576B), K=2048 g64 -> 16w+1s (1088B), K=2048 g128 -> 16w+1s (1088B), K=3584 g64 -> 28w+2s (1920B), K=3584 g128 -> 28w+1s (1856B)
+--- W8 row format (Track Q V5; RTL: matvec_engine cfg_w8) ---
+  N=  64 K= 1024  g128: 16w+1s beats stride= 1088B rel_fp=0.974% rel_W=0.656% (W4 11.859% = 18.1x) sh=9 (W4 5)
+  N=  37 K= 3584  g128: 56w+1s beats stride= 3648B rel_fp=0.783% rel_W=0.651% (W4 11.829% = 18.2x) sh=11 (W4 7)
+  N= 256 K= 2048  g128: 32w+1s beats stride= 2112B rel_fp=0.961% rel_W=0.647% (W4 11.744% = 18.2x) sh=10 (W4 6)
+  N=   5 K=  128  g128: 2w+1s beats stride=  192B rel_fp=0.723% rel_W=0.707% (W4 12.106% = 17.1x) sh=6 (W4 2)
+  N=  17 K= 6144  g128: 96w+2s beats stride= 6272B rel_fp=1.054% rel_W=0.644% (W4 11.660% = 18.1x) sh=12 (W4 8)
+  W8 weight error beats W4's by >= 17.0x on every shape/seed/g (floor 4x; codes 7 -> 127)
+  matvec_y32_w8 == matvec_y32 on every pair above, and agrees with dequantized float math to 0.50 lsb (bound 0.51) — the m*2^(e-15) law is the W4 one, unchanged
+  illegal code -128 rejected: W8 code out of range: [-128, -128] not in +-127
+  contract beat counts OK: K=1024 g128 -> 16w+1s (1088B), K=2048 g128 -> 32w+1s (2112B), K=3584 g128 -> 56w+1s (3648B), K=6144 g128 -> 96w+2s (6272B)
+  envelope K= 2048 g128: sh=10 (W4  6)  signed widths: p 42b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 2048 g 64: sh=10 (W4  6)  signed widths: p 42b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 6144 g128: sh=12 (W4  8)  signed widths: p 44b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 6144 g 64: sh=12 (W4  8)  signed widths: p 44b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+W4A8_REF SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=2b ref/gptq.py --selftest =====
+--- 1: a DIAGONAL Hessian is bit-identically the V2/V3 quantizer ---
+  diag(H) == quant_linear_mse(salience=sqrt(diag)), I == unweighted MSE  OK
+--- 2: a CORRELATED Hessian moves the nibbles, not the format ---
+  wire format identical=True, group scales identical=True, nibbles moved 12992/49152 (26.4%) OK
+--- 3: it minimises what it claims to (output error, not weight) ---
+  ||(W-Wq)X^T||_F : unweighted 13.177 / V3-style 13.191 -> GPTQ 7.9068 (40.1% better than the V3-style diagonal) OK
+  (||W-Wq||_F rises 0.468 -> 0.7464: GPTQ trades weight fidelity for output fidelity, as designed)
+--- 4: row chunking is exact ---
+  rowchunk 7 == one-shot == default, bit-identical OK
+--- 5: the image packs and round-trips through the DDR row format ---
+  96x512 g=64: 320 B/row, unpack == pack OK
+--- 6: bad inputs are loud ---
+  5/5 rejected (missing / wrong K / negative / NaN / zero) OK
+--- 7: a dead input channel is survivable ---
+  1 dead channel: damp=7.954, format unchanged, image finite OK
+
+GPTQ SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=2b ref/layer_fixed.py  =====
+  dn_state int16 : identity on 2048 elements OK
+  dn_state int8:5 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.8: ceiling 0.4961, resolution 0.0039]
+  dn_state int8:6 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.7: ceiling 0.9922, resolution 0.0078]
+  dn_state int8:7 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.6: ceiling 1.9844, resolution 0.0156]
+  dn_state int8:8 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.5: ceiling 3.9688, resolution 0.0312]
+  dn_state int8e : idempotent + a 2^3 row rescale moves only the exponent + a quiet row keeps e=0 OK
+  DYNQ16 soak: 48 live DN head outputs + 366 synthetic blocks, k in [-14,17], 145 fixup / 88 left-shift / 2 zero blocks, min filled |y|max=16384 (>=16384)  OK
+  EPS-NORM soak (per magnitude decade: scale rel err, max |out| LSB delta, float-clip count)
+    2^-10  scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-9   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-8   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-7   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-6   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-5   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-4   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-3   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-2   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-1   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^0    scale_rel=6.04e-05  out_dlsb=1  m_ref_clipped=0
+    2^1    scale_rel=1.31e-04  out_dlsb=1  m_ref_clipped=0
+    2^2    scale_rel=1.37e-04  out_dlsb=1  m_ref_clipped=0
+    2^3    scale_rel=1.17e-04  out_dlsb=1  m_ref_clipped=0
+    2^4    scale_rel=1.15e-04  out_dlsb=1  m_ref_clipped=0
+    2^5    scale_rel=1.28e-04  out_dlsb=1  m_ref_clipped=0
+    2^6    scale_rel=1.27e-04  out_dlsb=1  m_ref_clipped=0
+    2^7    scale_rel=1.26e-04  out_dlsb=1  m_ref_clipped=0
+    2^8    scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^9    scale_rel=1.33e-04  out_dlsb=1  m_ref_clipped=0
+  worst scale rel err 1.37e-04 at (decade,k,m_ref,m_int)=(2, 2, 7299, 7298); worst out delta 1 LSB
+  gated-norm output (script_norm_fx, incl. norm_w op-3): 192/200 heads bit-identical, max |delta| 2 LSB
+  scale ceiling on any NON-ZERO block: 46341 < 65535 -> the cfg_p0/16-bit clamp is inert there
+  RTL envelope over 1200 vectors: p_in=33..33 (6b port), k in [-10,9], v_max=27977537961 (<2^35, 48b port), out shift 15..17, scale_max=16552 (clamped 0x at 65535)
+  eps addend E(k): k=-14 -> 2305843789824, k=-4 -> 2199024, k=0 -> 8590, k=4 -> 34, k=8 -> 0 (EPS_M=1099512 at 2^-40)
+  salience: None == arg-absent == ones(K) (bit-identical, g=128 and 64) OK
+  salience: FABLE5_CALIB_STATS unset -> every lookup is None (quant_layer inert) OK
+  salience: plumb ON re-scales 8/8 DeltaNet+MLP matrices (0 shifted the shared exponent), wire format (shape/dtype/sh/g/keys) unchanged OK
+  gptq: hess=None == arg-absent (bit-identical, g=128 and 64) OK
+  gptq: FABLE5_CALIB_STATS unset -> no Hessian lookup (quant_layer inert) OK
+  gptq: DIAGONAL Hessian == mode=h2 on 8/8 matrices (bit-identical: no off-diagonal, no feedback) OK
+  gptq: correlated Hessian moves nibbles on 8/8 matrices, 0/8 changed a group scale, wire format (shape/dtype/sh/g/keys) unchanged OK
+  rmsnorm1p              rel=1.331e-03  bound=2e-02  OK
+  rope                   rel=1.024e-03  bound=1e-02  OK
+  l2norm                 rel=5.693e-04  bound=1e-02  OK
+  attn softmax+pv        rel=3.288e-02  bound=8e-02  OK
+  deltanet step out      rel=5.419e-03  bound=5e-02  OK
+  deltanet step S        rel=3.178e-04  bound=2e-02  OK
+  soak linear_attention   g=128  32 steps: rms=18.98 sat=0 OK
+  soak linear_attention   g=64   32 steps: rms=20.30 sat=0 OK
+  soak full_attention     g=128  32 steps: rms=23.09 sat=0 OK
+  soak full_attention     g=64   32 steps: rms=22.47 sat=0 OK
+  w8: quant_linear_w8 == quantize_weights8 (rowchunk-identical), matvec_fx -> matvec_y32_w8 bit-exact on 4 seeds x 3 shapes x g128/g64; weight error beats the MSE W4 rule by >= 14.6x OK
+  w8: soak linear_attention   16 steps: rms=10.04 sat=0 OK
+  w8: soak full_attention     16 steps: rms=11.67 sat=0 OK
+  w8: quant_layer(w8=True) -> a W8 image behind all 15/15 matvecs of both layer types, every non-matvec tensor bit-identical to the W4 layer's OK
+  w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+  w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+LAYER_FIXED SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=2b ref/load_qwen35.py  =====
+checkpoint[0]: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+              4337.5 MiB  header sha256 ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d
+1 shard(s), 4.24 GiB
+header sha256: ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d
+tensors: 632 total, 320 under 'model.language_model.' (visual/mtp ignored)
+
+--- layer 0 (linear_attention) ---
+  ln1        shape=(2048,)          |max|=   1.0859 rms=  0.15188
+  ln2        shape=(2048,)          |max|=   0.9961 rms=  0.10864
+  mlp.gate   shape=(6144, 2048)     |max|=   0.1875 rms=  0.00999
+  mlp.up     shape=(6144, 2048)     |max|=   0.1147 rms=  0.00822
+  mlp.down   shape=(2048, 6144)     |max|=   0.3301 rms=  0.00827
+  dn.A_log   shape=(16,)            |max|=   5.9062 rms=  2.84286
+  dn.conv_w  shape=(6144, 4)        |max|=   1.5234 rms=  0.06309
+  dn.dt_bias shape=(16,)            |max|=  12.3125 rms=  6.37012
+  dn.in_a    shape=(16, 2048)       |max|=   0.2217 rms=  0.02909
+  dn.in_b    shape=(16, 2048)       |max|=   0.1191 rms=  0.01344
+  dn.in_qkv  shape=(6144, 2048)     |max|=   0.3945 rms=  0.01476
+  dn.in_z    shape=(2048, 2048)     |max|=   0.3711 rms=  0.01399
+  dn.norm_w  shape=(128,)           |max|=   1.0107 rms=  0.92170
+  dn.out     shape=(2048, 2048)     |max|=   0.3887 rms=  0.01201
+
+--- layer 3 (full_attention) ---
+  ln1        shape=(2048,)          |max|=   0.7109 rms=  0.16404
+  ln2        shape=(2048,)          |max|=   0.5117 rms=  0.12433
+  mlp.gate   shape=(6144, 2048)     |max|=   0.1582 rms=  0.01153
+  mlp.up     shape=(6144, 2048)     |max|=   0.1187 rms=  0.00801
+  mlp.down   shape=(2048, 6144)     |max|=   0.3223 rms=  0.00793
+  attn.k_norm  shape=(256,)           |max|=   1.5938 rms=  0.46410
+  attn.k_proj  shape=(512, 2048)      |max|=   0.1426 rms=  0.01223
+  attn.o_proj  shape=(2048, 2048)     |max|=   0.3809 rms=  0.01175
+  attn.q_norm  shape=(256,)           |max|=   1.1797 rms=  0.45494
+  attn.q_proj  shape=(4096, 2048)     |max|=   0.3203 rms=  0.01605
+  attn.v_proj  shape=(512, 2048)      |max|=   0.1396 rms=  0.01190
+
+  ln_f       shape=(2048,)          |max|=   5.3750 rms=  2.57653
+  emb        shape=(248320, 2048)   |max|=   0.1973 rms=  0.01501  (tied: LM head == emb)
+
+  emb raw-bytes sha256   b222b11204158144e369ae8fca02cab9cb63b0a8cde1dd59dd4d0c60690824ed
+  24-layer raw-bytes sha256 2d9d578cb6edc4cd9a4fe1db457bb1af320866512aea5913849e75d915ed812e
+  float64 sum(|emb|)     5.953986e+06
+
+LOAD_QWEN35 SMOKE PASS (24 layers = 18 DeltaNet + 6 GQA, H=2048 CONV_DIM=6144 LNH=16/LNKH=16, shapes match layer_ref constants)
+----- exit 0
+
+===== FABLE5_MODEL=2b ref/perplexity_eval.py --selftest =====
+--- A: dequant scale vs the production matvec (the arbiter) ---
+  scale = m * 2**(e-15): max |y32-deq| = 0.500 lsb (<= 0.51), max rel = 1.13e-06
+  arbiter rejects m * 2**(e-16): it is 2.0x too small
+--- B: quant_linear_big == layer_fixed.quant_linear (bit for bit) ---
+  identical for (300,1024) and (1024,256) at g=128 and g=64
+--- C: int16 round trips vs the production formulas ---
+  emb16 == gen_model_script emb table (Q7.8 at res_scale 1, Q4.11 at 8); cw13 == quant_deltanet conv_w (Q2.13); W4 invariant to a power-of-2 res_scale (e shifts, w4/m/sh identical)
+--- D: --inject grammar ---
+  expansion, later-wins override, per-class validity, and --res-scale must bite: all hold
+--- D2: w4g64s (V3) grammar + the salience code path ---
+  the 16 salience keys this harness asks for are EXACTLY the ones calib_stats/fidelity_check produce (both directions)
+  w4g64s == w4g64 wire format and reproduces it EXACTLY under a uniform salience; a skewed one changes the image; emb/dn_conv rejected; --calib-stats must bite
+--- D3: w4g64h / w4g64gptq (V4) grammar + the Hessian code path ---
+  the 9 Hessian SITES this harness asks for are EXACTLY calib_stats' (from 16 tensors, both directions)
+  w4g64gptq == w4g64h EXACTLY under a diagonal Hessian (no off-diagonal = no feedback); a correlated one changes the image; same wire format and bit rate as w4g64
+--- D3b: w4g128gptq — GPTQ at the SHIPPED g128 cadence (Track L) ---
+  w4g128gptq parses, needs --calib-stats, is BIT-RATE IDENTICAL to w4g128 (ideal and packed, K=1024/2048/9216/12288), the Hessian bites, and it is distinct from w4g64gptq
+--- D4: w8g128 (V4mix / V5) grammar + the W8 code path ---
+  scale = m * 2**(e-15) holds for W8: max |y32-deq| = 0.500 lsb (<= 0.51), max rel = 8.26e-07
+  w8g128 weight error beats the PRODUCTION w4g128 (MSE rule) by 15.4-15.7x; mixed V4mix specs parse; salience/Hessian rejected
+--- E: DDR bit accounting is the PACKED rate, not the ideal one ---
+  K=1024 g128 -> 4.500 b/w (ideal 4.125, +9.1%); K=2048 -> 4.250 (+3.0%); K=6144 g64 -> 4.250 (ideal 4.250)
+  W8: K=1024 -> 8.500 b/w (ideal 8.125, +4.6%); K=2048 -> 8.250 (+1.5%); K=6144 -> 8.167 (+0.5%)
+--- F: tied embedding / LM head independence (tiny model) ---
+  emb-only injection leaves lm_head byte-identical, and vice versa
+--- G: PPL loop smoke on the tiny model ---
+  random-weight tiny model: 196 positions, PPL=561.3546 (batch 1 vs 2 agree), lm_head:w4g128 -> 561.0849
+
+PERPLEXITY_EVAL SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=2b ref/calib_stats.py --selftest =====
+--- A: tensor_key round trip ---
+  names match the HF module paths; non-W4 keys rejected
+--- B: hooks cover every key the V3 quantizer asks for ---
+  16 required keys present (16 hooked in total, tokens=130)
+--- C: shapes match K, values are finite and positive ---
+  every vector is float32[K] of the matrix it belongs to
+--- D: save/load round trip (numpy-only loader) ---
+  metadata stays out of the salience dict
+--- E: V4 Hessian — sites, shapes, and the sharing claim ---
+  9 sites from 16 tensors; layers.0.mlp.down_proj matches an independent X^T X/T to 3.08e-07
+--- F: h2 IS the stored diagonal; load()/HessStore split ---
+  9 h2 vectors == the stored Hessian diagonals, load() returns salience only
+
+CALIB_STATS SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=9b ref/layer_ref.py  =====
+full_attention: 8 decode steps, |x|_rms=15.634
+linear_attention: 8 decode steps, |x|_rms=13.641
+LAYER_REF SELFTEST PASS (float anchor; torch cross-check separate)
+----- exit 0
+
+===== FABLE5_MODEL=9b ref/w4a8_ref.py  =====
+N= 1024 K= 1024: rel_fp=11.498% (INT4 noise floor) rel_pipeline=3.43e-07 max_lsb=0.50 stride=576B e=-5 sh=5
+N=  256 K= 3584: rel_fp=12.359% (INT4 noise floor) rel_pipeline=1.86e-06 max_lsb=0.50 stride=1856B e=-4 sh=7
+N=   64 K=  256: rel_fp=13.572% (INT4 noise floor) rel_pipeline=1.87e-07 max_lsb=0.50 stride=192B e=-5 sh=3
+--- v2 row format (g=128 legacy | g=64) ---
+  N=  64 K= 1024  g128: 8w+1s beats stride=  576B rel_fp=14.512% rel_W=11.859%  g64: 8w+1s beats stride=  576B rel_fp=15.214% rel_W=10.854%
+  N=  37 K= 3584  g128: 28w+1s beats stride= 1856B rel_fp=14.142% rel_W=11.829%  g64: 28w+2s beats stride= 1920B rel_fp=13.030% rel_W=10.824%
+  N= 256 K= 2048  g128: 16w+1s beats stride= 1088B rel_fp=12.507% rel_W=11.744%  g64: 16w+1s beats stride= 1088B rel_fp=11.306% rel_W=10.774%
+  N=   5 K=  128  g128: 1w+1s beats stride=  128B rel_fp=10.396% rel_W=12.106%  g64: 1w+1s beats stride=  128B rel_fp=9.738% rel_W=11.345%
+  contract beat counts OK: K=1024 g64 -> 8w+1s (576B), K=1024 g128 -> 8w+1s (576B), K=2048 g64 -> 16w+1s (1088B), K=2048 g128 -> 16w+1s (1088B), K=3584 g64 -> 28w+2s (1920B), K=3584 g128 -> 28w+1s (1856B)
+--- W8 row format (Track Q V5; RTL: matvec_engine cfg_w8) ---
+  N=  64 K= 1024  g128: 16w+1s beats stride= 1088B rel_fp=0.974% rel_W=0.656% (W4 11.859% = 18.1x) sh=9 (W4 5)
+  N=  37 K= 3584  g128: 56w+1s beats stride= 3648B rel_fp=0.783% rel_W=0.651% (W4 11.829% = 18.2x) sh=11 (W4 7)
+  N= 256 K= 2048  g128: 32w+1s beats stride= 2112B rel_fp=0.961% rel_W=0.647% (W4 11.744% = 18.2x) sh=10 (W4 6)
+  N=   5 K=  128  g128: 2w+1s beats stride=  192B rel_fp=0.723% rel_W=0.707% (W4 12.106% = 17.1x) sh=6 (W4 2)
+  N=  17 K= 6144  g128: 96w+2s beats stride= 6272B rel_fp=1.054% rel_W=0.644% (W4 11.660% = 18.1x) sh=12 (W4 8)
+  W8 weight error beats W4's by >= 17.0x on every shape/seed/g (floor 4x; codes 7 -> 127)
+  matvec_y32_w8 == matvec_y32 on every pair above, and agrees with dequantized float math to 0.50 lsb (bound 0.51) — the m*2^(e-15) law is the W4 one, unchanged
+  illegal code -128 rejected: W8 code out of range: [-128, -128] not in +-127
+  contract beat counts OK: K=1024 g128 -> 16w+1s (1088B), K=2048 g128 -> 32w+1s (2112B), K=3584 g128 -> 56w+1s (3648B), K=6144 g128 -> 96w+2s (6272B)
+  envelope K= 2048 g128: sh=10 (W4  6)  signed widths: p 42b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 2048 g 64: sh=10 (W4  6)  signed widths: p 42b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 6144 g128: sh=12 (W4  8)  signed widths: p 44b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+  envelope K= 6144 g 64: sh=12 (W4  8)  signed widths: p 44b (RTL has 48)  32-lane half 20b (W4 18b)  64-lane beat 21b
+W4A8_REF SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=9b ref/gptq.py --selftest =====
+--- 1: a DIAGONAL Hessian is bit-identically the V2/V3 quantizer ---
+  diag(H) == quant_linear_mse(salience=sqrt(diag)), I == unweighted MSE  OK
+--- 2: a CORRELATED Hessian moves the nibbles, not the format ---
+  wire format identical=True, group scales identical=True, nibbles moved 12992/49152 (26.4%) OK
+--- 3: it minimises what it claims to (output error, not weight) ---
+  ||(W-Wq)X^T||_F : unweighted 13.177 / V3-style 13.191 -> GPTQ 7.9068 (40.1% better than the V3-style diagonal) OK
+  (||W-Wq||_F rises 0.468 -> 0.7464: GPTQ trades weight fidelity for output fidelity, as designed)
+--- 4: row chunking is exact ---
+  rowchunk 7 == one-shot == default, bit-identical OK
+--- 5: the image packs and round-trips through the DDR row format ---
+  96x512 g=64: 320 B/row, unpack == pack OK
+--- 6: bad inputs are loud ---
+  5/5 rejected (missing / wrong K / negative / NaN / zero) OK
+--- 7: a dead input channel is survivable ---
+  1 dead channel: damp=7.954, format unchanged, image finite OK
+
+GPTQ SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=9b ref/layer_fixed.py  =====
+  dn_state int16 : identity on 2048 elements OK
+  dn_state int8:5 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.8: ceiling 0.4961, resolution 0.0039]
+  dn_state int8:6 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.7: ceiling 0.9922, resolution 0.0078]
+  dn_state int8:7 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.6: ceiling 1.9844, resolution 0.0156]
+  dn_state int8:8 : round!=trunc OK  sat+/-127 OK  idempotent OK   [Q2.5: ceiling 3.9688, resolution 0.0312]
+  dn_state int8e : idempotent + a 2^3 row rescale moves only the exponent + a quiet row keeps e=0 OK
+  DYNQ16 soak: 96 live DN head outputs + 366 synthetic blocks, k in [-14,17], 145 fixup / 88 left-shift / 2 zero blocks, min filled |y|max=16384 (>=16384)  OK
+  EPS-NORM soak (per magnitude decade: scale rel err, max |out| LSB delta, float-clip count)
+    2^-10  scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-9   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-8   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-7   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-6   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-5   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-4   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-3   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-2   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^-1   scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^0    scale_rel=6.04e-05  out_dlsb=1  m_ref_clipped=0
+    2^1    scale_rel=1.31e-04  out_dlsb=1  m_ref_clipped=0
+    2^2    scale_rel=1.37e-04  out_dlsb=1  m_ref_clipped=0
+    2^3    scale_rel=1.17e-04  out_dlsb=1  m_ref_clipped=0
+    2^4    scale_rel=1.15e-04  out_dlsb=1  m_ref_clipped=0
+    2^5    scale_rel=1.28e-04  out_dlsb=1  m_ref_clipped=0
+    2^6    scale_rel=1.27e-04  out_dlsb=1  m_ref_clipped=0
+    2^7    scale_rel=1.26e-04  out_dlsb=1  m_ref_clipped=0
+    2^8    scale_rel=0.00e+00  out_dlsb=0  m_ref_clipped=0
+    2^9    scale_rel=1.33e-04  out_dlsb=1  m_ref_clipped=0
+  worst scale rel err 1.37e-04 at (decade,k,m_ref,m_int)=(2, 2, 7299, 7298); worst out delta 1 LSB
+  gated-norm output (script_norm_fx, incl. norm_w op-3): 192/200 heads bit-identical, max |delta| 2 LSB
+  scale ceiling on any NON-ZERO block: 46341 < 65535 -> the cfg_p0/16-bit clamp is inert there
+  RTL envelope over 1200 vectors: p_in=33..33 (6b port), k in [-10,9], v_max=27977537961 (<2^35, 48b port), out shift 15..17, scale_max=16552 (clamped 0x at 65535)
+  eps addend E(k): k=-14 -> 2305843789824, k=-4 -> 2199024, k=0 -> 8590, k=4 -> 34, k=8 -> 0 (EPS_M=1099512 at 2^-40)
+  salience: None == arg-absent == ones(K) (bit-identical, g=128 and 64) OK
+  salience: FABLE5_CALIB_STATS unset -> every lookup is None (quant_layer inert) OK
+  salience: plumb ON re-scales 8/8 DeltaNet+MLP matrices (3 shifted the shared exponent), wire format (shape/dtype/sh/g/keys) unchanged OK
+  gptq: hess=None == arg-absent (bit-identical, g=128 and 64) OK
+  gptq: FABLE5_CALIB_STATS unset -> no Hessian lookup (quant_layer inert) OK
+  gptq: DIAGONAL Hessian == mode=h2 on 8/8 matrices (bit-identical: no off-diagonal, no feedback) OK
+  gptq: correlated Hessian moves nibbles on 8/8 matrices, 0/8 changed a group scale, wire format (shape/dtype/sh/g/keys) unchanged OK
+  rmsnorm1p              rel=1.049e-03  bound=2e-02  OK
+  rope                   rel=1.202e-03  bound=1e-02  OK
+  l2norm                 rel=5.565e-04  bound=1e-02  OK
+  attn softmax+pv        rel=3.918e-02  bound=8e-02  OK
+  deltanet step out      rel=6.578e-03  bound=5e-02  OK
+  deltanet step S        rel=3.852e-04  bound=2e-02  OK
+  soak linear_attention   g=128  32 steps: rms=57.39 sat=0 OK
+  soak linear_attention   g=64   32 steps: rms=55.35 sat=0 OK
+  soak full_attention     g=128  32 steps: rms=61.10 sat=0 OK
+  soak full_attention     g=64   32 steps: rms=58.87 sat=0 OK
+  w8: quant_linear_w8 == quantize_weights8 (rowchunk-identical), matvec_fx -> matvec_y32_w8 bit-exact on 4 seeds x 3 shapes x g128/g64; weight error beats the MSE W4 rule by >= 14.6x OK
+  w8: soak linear_attention   16 steps: rms=28.83 sat=0 OK
+  w8: soak full_attention     16 steps: rms=30.89 sat=0 OK
+  w8: quant_layer(w8=True) -> a W8 image behind all 15/15 matvecs of both layer types, every non-matvec tensor bit-identical to the W4 layer's OK
+  w8: w8=False == the argument being absent (g128 and g64, bit-identical) OK
+  w8: tighten_e / mse_scale=False / FABLE5_CALIB_STATS all REFUSED on the W8 path (3/3) OK
+LAYER_FIXED SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=9b ref/load_qwen35.py  =====
+checkpoint[0]: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+              5032.0 MiB  header sha256 9bcf722bdd0eee137b7f0e225f4bfb50683b9b33c42de0d560498ce92a8c63b0
+checkpoint[1]: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00002-of-00004.safetensors
+              5088.0 MiB  header sha256 6fb55b1326b7e6b47a38ce4723552eada6c80d09e58eda1d46f25cb8d3e06658
+checkpoint[2]: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00003-of-00004.safetensors
+              5120.0 MiB  header sha256 fd6ddcdceb46ce1b198534560343050523cbf70d15e9435d7716b693d4a67bab
+checkpoint[3]: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00004-of-00004.safetensors
+              3171.9 MiB  header sha256 245c737a43e483e0a9e743be9c75a366d56bec2ea238086dda8b5c2bc224571a
+4 shard(s), 17.98 GiB
+header sha256: 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b   (combined over shards)
+tensors: 775 total, 426 under 'model.language_model.' (visual/mtp ignored)
+
+--- layer 0 (linear_attention) ---
+  ln1        shape=(4096,)          |max|=   0.3027 rms=  0.04947
+  ln2        shape=(4096,)          |max|=   0.9961 rms=  0.12357
+  mlp.gate   shape=(12288, 4096)    |max|=   0.2852 rms=  0.01123
+  mlp.up     shape=(12288, 4096)    |max|=   0.1318 rms=  0.01055
+  mlp.down   shape=(4096, 12288)    |max|=   0.6523 rms=  0.01097
+  dn.A_log   shape=(32,)            |max|=   4.7188 rms=  3.50291
+  dn.conv_w  shape=(8192, 4)        |max|=   0.7266 rms=  0.05295
+  dn.dt_bias shape=(32,)            |max|=  18.5000 rms=  7.90881
+  dn.in_a    shape=(32, 4096)       |max|=   0.1680 rms=  0.02456
+  dn.in_b    shape=(32, 4096)       |max|=   0.0830 rms=  0.00818
+  dn.in_qkv  shape=(8192, 4096)     |max|=   0.3730 rms=  0.01714
+  dn.in_z    shape=(4096, 4096)     |max|=   0.2490 rms=  0.01677
+  dn.norm_w  shape=(128,)           |max|=   0.9626 rms=  0.88422
+  dn.out     shape=(4096, 4096)     |max|=   0.8281 rms=  0.01542
+
+--- layer 3 (full_attention) ---
+  ln1        shape=(4096,)          |max|=   0.8125 rms=  0.20361
+  ln2        shape=(4096,)          |max|=   0.9961 rms=  0.10384
+  mlp.gate   shape=(12288, 4096)    |max|=   0.1865 rms=  0.01157
+  mlp.up     shape=(12288, 4096)    |max|=   0.2285 rms=  0.01101
+  mlp.down   shape=(4096, 12288)    |max|=   0.6875 rms=  0.01100
+  attn.k_norm  shape=(256,)           |max|=   1.1719 rms=  0.38650
+  attn.k_proj  shape=(1024, 4096)     |max|=   0.2773 rms=  0.01630
+  attn.o_proj  shape=(4096, 4096)     |max|=   0.7344 rms=  0.01569
+  attn.q_norm  shape=(256,)           |max|=   0.9922 rms=  0.36458
+  attn.q_proj  shape=(8192, 4096)     |max|=   0.4453 rms=  0.01851
+  attn.v_proj  shape=(1024, 4096)     |max|=   0.2275 rms=  0.01618
+
+  ln_f       shape=(4096,)          |max|=   1.9922 rms=  1.14854
+  emb        shape=(248320, 4096)   |max|=   0.4707 rms=  0.01347  (UNTIED: head is lm_head.weight)
+  lm_head    shape=(248320, 4096)   |max|=   0.3555 rms=  0.01548
+
+  emb raw-bytes sha256   d87d444a38822588c6c1ed07dec4404ccd8d526f57d58565cbbbf60acc758afe
+  32-layer raw-bytes sha256 c714c2008c954366729e9ab460d74d02d32dab360a43161e49f0d4baf46598d3
+  float64 sum(|emb|)     1.079791e+07
+
+LOAD_QWEN35 SMOKE PASS (32 layers = 24 DeltaNet + 8 GQA, H=4096 CONV_DIM=8192 LNH=32/LNKH=16, shapes match layer_ref constants)
+----- exit 0
+
+===== FABLE5_MODEL=9b ref/perplexity_eval.py --selftest =====
+--- A: dequant scale vs the production matvec (the arbiter) ---
+  scale = m * 2**(e-15): max |y32-deq| = 0.500 lsb (<= 0.51), max rel = 1.13e-06
+  arbiter rejects m * 2**(e-16): it is 2.0x too small
+--- B: quant_linear_big == layer_fixed.quant_linear (bit for bit) ---
+  identical for (300,1024) and (1024,256) at g=128 and g=64
+--- C: int16 round trips vs the production formulas ---
+  emb16 == gen_model_script emb table (Q7.8 at res_scale 1, Q4.11 at 8); cw13 == quant_deltanet conv_w (Q2.13); W4 invariant to a power-of-2 res_scale (e shifts, w4/m/sh identical)
+--- D: --inject grammar ---
+  expansion, later-wins override, per-class validity, and --res-scale must bite: all hold
+--- D2: w4g64s (V3) grammar + the salience code path ---
+  the 16 salience keys this harness asks for are EXACTLY the ones calib_stats/fidelity_check produce (both directions)
+  w4g64s == w4g64 wire format and reproduces it EXACTLY under a uniform salience; a skewed one changes the image; emb/dn_conv rejected; --calib-stats must bite
+--- D3: w4g64h / w4g64gptq (V4) grammar + the Hessian code path ---
+  the 9 Hessian SITES this harness asks for are EXACTLY calib_stats' (from 16 tensors, both directions)
+  w4g64gptq == w4g64h EXACTLY under a diagonal Hessian (no off-diagonal = no feedback); a correlated one changes the image; same wire format and bit rate as w4g64
+--- D3b: w4g128gptq — GPTQ at the SHIPPED g128 cadence (Track L) ---
+  w4g128gptq parses, needs --calib-stats, is BIT-RATE IDENTICAL to w4g128 (ideal and packed, K=1024/2048/9216/12288), the Hessian bites, and it is distinct from w4g64gptq
+--- D4: w8g128 (V4mix / V5) grammar + the W8 code path ---
+  scale = m * 2**(e-15) holds for W8: max |y32-deq| = 0.500 lsb (<= 0.51), max rel = 8.26e-07
+  w8g128 weight error beats the PRODUCTION w4g128 (MSE rule) by 15.4-15.7x; mixed V4mix specs parse; salience/Hessian rejected
+--- E: DDR bit accounting is the PACKED rate, not the ideal one ---
+  K=1024 g128 -> 4.500 b/w (ideal 4.125, +9.1%); K=2048 -> 4.250 (+3.0%); K=6144 g64 -> 4.250 (ideal 4.250)
+  W8: K=1024 -> 8.500 b/w (ideal 8.125, +4.6%); K=2048 -> 8.250 (+1.5%); K=6144 -> 8.167 (+0.5%)
+--- F: tied embedding / LM head independence (tiny model) ---
+  emb-only injection leaves lm_head byte-identical, and vice versa
+--- G: PPL loop smoke on the tiny model ---
+  random-weight tiny model: 196 positions, PPL=561.3546 (batch 1 vs 2 agree), lm_head:w4g128 -> 561.0849
+
+PERPLEXITY_EVAL SELFTEST PASS
+----- exit 0
+
+===== FABLE5_MODEL=9b ref/calib_stats.py --selftest =====
+--- A: tensor_key round trip ---
+  names match the HF module paths; non-W4 keys rejected
+--- B: hooks cover every key the V3 quantizer asks for ---
+  16 required keys present (16 hooked in total, tokens=130)
+--- C: shapes match K, values are finite and positive ---
+  every vector is float32[K] of the matrix it belongs to
+--- D: save/load round trip (numpy-only loader) ---
+  metadata stays out of the salience dict
+--- E: V4 Hessian — sites, shapes, and the sharing claim ---
+  9 sites from 16 tensors; layers.0.mlp.down_proj matches an independent X^T X/T to 3.08e-07
+--- F: h2 IS the stored diagonal; load()/HessStore split ---
+  9 h2 vectors == the stored Hessian diagonals, load() returns salience only
+
+CALIB_STATS SELFTEST PASS
+----- exit 0
+
+OVERALL exit 0

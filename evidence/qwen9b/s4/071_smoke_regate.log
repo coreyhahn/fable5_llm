@@ -1,0 +1,79 @@
+=== host: snoke
+=== date: 2026-09-05T12:11:54-06:00
+=== tree: 2cf08af
+=== cmd:  bash evidence/qwen9b/s4/smoke_regate.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+SMOKE_REGATE: host snoke
+  BEFORE:
+    lay9b_s1.txt  2fab6e5d042c3cbbf766d6ac07e43edba06c698e8c636c7e95080b1c97b6297e
+    lay9b_s1.e4.seq  b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+    lay9b_s1.e4.seqdata.bin  bfbc0c00bfcdccf6fa074d9a4fd4f8ad8f09b003ce9a2f1656d2fa142a0f3d5b
+    lay9b_s1.state_final.bin  ca6e6e7f1fb21d4e98c0ba430ad604f1bc1f5b92d740903d9c53d70023ed5bfd
+    lay9b_s1.state.bin  36969da490db28c48693f0b9c50dd72ca8fedb40b5a2cb33605ff41b42054854
+
+=== make -C tb w9_9b_smoke_scripts W9_SEEDS=1  (emit, emit again, compare)
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+mkdir -p scripts/w9 scripts/w9/emit2
+for s in 1; do \
+  ( cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 \
+      SEQ_EMIT=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s$s.e4 \
+      /home/cah/.venv/bin/python gen_layer_script.py \
+      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s$s.txt $s 2 ) \
+    || exit 1; \
+  if [ "1" = 1 ]; then \
+    EMIT_GEN=gen_layer_script.py \
+    EMIT_ARGS="$s 2" MODELPY=/home/cah/.venv/bin/python \
+    EMIT_SEQ_ENV="FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1" \
+    REF_PREFIX=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s$s \
+      sh ../evidence/qwen9b/s3/emit_repeat.sh 1 /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s$s || exit 1; \
+  fi; \
+  FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python scripts/gen_seq_chip_vectors.py \
+    scripts/w9/lay9b_s$s.e4 --base scripts/w9/lay9b_s$s || exit 1; \
+done
+layer script: seed=1 ntok=2 wq=w4 cmds=978 hostwords=395200 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1.txt
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1.e4.seq  [profile=epsnorm loop_steps=0]
+emit_repeat: n=1 gen=gen_layer_script.py args='1 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/lay9b_s1
+  run 1  2fab6e5d042c3cbb b6ba7d8dcbadd11d bfbc0c00bfcdccf6 ca6e6e7f1fb21d4e
+  .txt  1 distinct sha over 1 run(s)   2fab6e5d042c3cbbf766d6ac07e43edba06c698e8c636c7e95080b1c97b6297e
+  .e4.seq  1 distinct sha over 1 run(s)   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   bfbc0c00bfcdccf6fa074d9a4fd4f8ad8f09b003ce9a2f1656d2fa142a0f3d5b
+  .state_final.bin  1 distinct sha over 1 run(s)   ca6e6e7f1fb21d4e98c0ba430ad604f1bc1f5b92d740903d9c53d70023ed5bfd
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1
+  .txt  IDENTICAL   2fab6e5d042c3cbbf766d6ac07e43edba06c698e8c636c7e95080b1c97b6297e
+  .e4.seq  IDENTICAL   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  IDENTICAL   bfbc0c00bfcdccf6fa074d9a4fd4f8ad8f09b003ce9a2f1656d2fa142a0f3d5b
+  .state_final.bin  IDENTICAL   ca6e6e7f1fb21d4e98c0ba430ad604f1bc1f5b92d740903d9c53d70023ed5bfd
+EMIT_REPEAT: PASS 1 identical emission(s)
+  plan re-derived from the manifest: 15 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (323624960, 323624960, 323624960, 323624960)
+  scripts/w9/lay9b_s1.wimg0.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s1.wimg1.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s1.wimg2.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  scripts/w9/lay9b_s1.wimg3.bin: 55189504 B (52.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w9/lay9b_s1.e4.chip: 4091 records, pc 4090, 0 tokens, 36864 scratch words checked (28672 staging words excluded), 10 state block(s)
+  seq_model stats: {'CSRWR': 2714, 'CMD': 890, 'MOVX': 120, 'MOVY': 152, 'MVGO': 152, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 38, 'LDC': 22, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 152}
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== make rc=0  wall=371s
+
+  AFTER, against BEFORE:
+    lay9b_s1.txt  UNMOVED   2fab6e5d042c3cbbf766d6ac07e43edba06c698e8c636c7e95080b1c97b6297e
+    lay9b_s1.e4.seq  UNMOVED   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+    lay9b_s1.e4.seqdata.bin  UNMOVED   bfbc0c00bfcdccf6fa074d9a4fd4f8ad8f09b003ce9a2f1656d2fa142a0f3d5b
+    lay9b_s1.state_final.bin  UNMOVED   ca6e6e7f1fb21d4e98c0ba430ad604f1bc1f5b92d740903d9c53d70023ed5bfd
+    lay9b_s1.state.bin  UNMOVED   36969da490db28c48693f0b9c50dd72ca8fedb40b5a2cb33605ff41b42054854
+
+SMOKE_REGATE: PASS — the smoke target's emit-twice gate still passes
+  through the repaired emit_repeat.sh, and every byte of lay9b_s1 is
+  where it was
+=== rc: 0
+=== end: 2026-09-05T12:18:07-06:00

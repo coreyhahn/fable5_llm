@@ -1,0 +1,83 @@
+=== host: snoke  date: 2026-09-24T20:16:06-06:00
+=== tree: dd85608+dirty
+=== dirty: ?? evidence/qwen9b/ov/n24_gate_shipped_s1_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n25_gate_shipped_s2_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n26_gate_shipped_s3_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n27_gate_shipped_s4_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n33_gate_s1_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n41_gate_s2_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n42_gate_s3_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n43_gate_s4_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n44_chipvec_s1_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n45_chipvec_s2_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n46_chipvec_s3_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n47_chipvec_s4_reordB.log
+=== cmd : bash evidence/qwen9b/bm/run_bm1.sh tok9b_s1 bm --expect evidence/qwen9b/bm/bm1_expect_tok9b_s1.txt --cycles-ref 3893746
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_bm1/tb_seq_chip_9b_bm1
+=== built    2026-09-24T20:15:59-06:00
+=== stem     tok9b_s1   mode: bm
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/tok9b_s1.log
+=== expect   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/bm1_expect_tok9b_s1.txt (sha256 44050659413776f2…)
+=== cycles-ref 3893746
+=== wall     181s   rc=0
+--- verdict lines
+    tb_seq_chip: BM1 counters ON, 14 expected values from /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/bm1_expect_tok9b_s1.txt
+    tb_seq_chip: launch 0 [-] rec_off 0, 2108 records, 2 tokens, 36864 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4 launch 0 [-]: 2108 records, 3893746 cycles (1847.13 cyc/rec, 15.575 ms @250MHz, PERF_CYC 3893739)
+    LAUNCH 0 PASS: [-] pc 2107, tokens 2, tcnt 8, scratch 36864, smem 10
+      state: 55336 read beats, 36976 write beats, 0 unmapped
+      burst: 2202 write bursts (522048 beats), 3360 read bursts (848000 beats), busy_wr 1042123 busy_rd 970232, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 30
+      ddr beats 10536 (miss 0), weight beats 7438464 total across 4 chan (miss 0) [ 1859616/1859616/1859616/1859616]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4 (launches 1, 3893746 cycles total, scratch 36864/launch, tokens 2, tcnt 8)
+    CYCLES measured  3893746
+    CYCLES IDENTICAL TO THE REFERENCE (3893746)
+    no SEQ_TIMELINE block, as required (no +timeline)
+--- BM1 block (39 lines)
+    tb_seq_chip: BM1 counters ON, 14 expected values from /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/bm1_expect_tok9b_s1.txt
+    BM1 L0 BEGIN  (0x100..0x134 read after HALT; ref = the testbench's negedge sampler)
+    BM1 L0 BM_IDENT rtl 4205949697 const 4205949697       OK
+    BM1 L0 PERF_CYC rtl 3893739 ref 3893739       OK
+    BM1 L0 BM_MVANY rtl 1579486 ref 1579486       OK
+    BM1 L0 BM_MV0 rtl 1575648 ref 1575648       OK
+    BM1 L0 BM_MV1 rtl 1575645 ref 1575645       OK
+    BM1 L0 BM_MV2 rtl 1575640 ref 1575640       OK
+    BM1 L0 BM_MV3 rtl 1575650 ref 1575650       OK
+    BM1 L0 BM_FENCE rtl 1577338 ref 1577338       OK
+    BM1 L0 BM_MVWORK rtl 998894 ref 998894       OK
+    BM1 L0 BM_MVWORK_ANY rtl 3536 ref 3536       OK
+    BM1 L0 BM_IMOVER rtl 2577208 ref 2577208       OK
+    BM1 L0 BM_STEPS rtl 2 ref 2       OK
+    BM1 L0 RSVD_12C rtl 0 const 0       OK
+    BM1 L0 BM_MOVX rtl 671840 ref 671840       OK
+    BM1 L0 BM_MOVY rtl 322552 ref 322552       OK
+    BM1 L0 RSVD_1FC rtl 0 const 0       OK
+    BM1 L0 OUTSIDE_200 rtl 3735929054 const 3735929054       OK
+    BM1 L0 INFO   MVGO work (MVWORK-MOVX-MOVY) 4502  ref MOVER 2576232  ref I2 1312  ref FENCE&ANY&!STR 60  ref WORK&ANY&STR 2284  L_LCYC 1224874
+    BM1 L0 ID_FENCE+WORK rtl 2576232 MOVER 2576232       OK
+    BM1 L0 ID_WORK>=W_ANY rtl 1 want 1       OK
+    BM1 L0 ID_MAX<=ANY<=S rtl 1 want 1       OK
+    BM1 L0 ID_MOVX+MOVY<=W rtl 1 want 1       OK
+    BM1 L0 ID_I2=C7-WS+FN rtl 1312 ref 1312       OK
+    BM1 L0 EXP_PERF_CYC rtl 3893739 census 3893739       OK
+    BM1 L0 EXP_BM_MV0 rtl 1575648 census 1575648       OK
+    BM1 L0 EXP_BM_MV1 rtl 1575645 census 1575645       OK
+    BM1 L0 EXP_BM_MV2 rtl 1575640 census 1575640       OK
+    BM1 L0 EXP_BM_MV3 rtl 1575650 census 1575650       OK
+    BM1 L0 EXP_BM_FENCE rtl 1577338 census 1577338       OK
+    BM1 L0 EXP_BM_MOVX rtl 671840 census 671840       OK
+    BM1 L0 EXP_BM_MOVY rtl 322552 census 322552       OK
+    BM1 L0 EXP_BM_MVWORK rtl 998894 census 998894       OK
+    BM1 L0 EXP_BM_IMOVER rtl 2577208 census 2577208       OK
+    BM1 L0 EXP_BM_STEPS rtl 2 census 2       OK
+    BM1 L0 EXP_L_LCYC rtl 1224874 census 1224874       OK
+    BM1 L0 EXP_BM_MVANY rtl 1579486 census 1579486       OK
+    BM1 L0 EXP_CENSUS_I2 rtl 1312 census 1312       OK
+    BM1 L0 PASS: every counter equals its reference and the census total
+    BM1 COUNTERS: every check OK
+--- wall 181s
+BM1_RUN tok9b_s1 bm: PASS
+=== rc  : 0
+=== end : 2026-09-24T20:19:07-06:00

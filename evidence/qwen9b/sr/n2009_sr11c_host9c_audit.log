@@ -1,0 +1,1516 @@
+=== host: snoke  date: 2026-09-28T13:00:11-06:00
+=== tree: 6d7e65f+dirty
+=== dirty:  M docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+=== dirty:  M docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+=== dirty:  M docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+=== dirty:  M docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+=== dirty:  M evidence/qwen2b/rc/RC_GATE.md
+=== dirty:  M evidence/qwen2b/rc/t4_wall8_probe.py
+=== dirty:  M evidence/qwen9b/bm/BM1_T1_GATE.md
+=== dirty:  M evidence/qwen9b/g3/G3_3_MATVEC.md
+=== dirty:  M evidence/qwen9b/g6/RD9_GATE.md
+=== dirty:  M evidence/qwen9b/g6/g6_nch.py
+=== dirty:  M evidence/qwen9b/sr/SR6_HOST.md
+=== dirty:  M sw/hwmap.py
+=== cmd : bash evidence/qwen9b/sr/sr11c_drift.sh host9c --audit
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SR11C_EXCLUDE NEXT_SESSION.md                                                        named by --also-exclude
+SR11C_EXCLUDE evidence/qwen9b/o3/o3_cite_drift.py                                    standing: o3's own docstring
+SR11C_EXCLUDE evidence/qwen9b/s3/S3_CHAIN.md                                         standing: S3_CHAIN.md (history)
+SR11C_EXCLUDE evidence/qwen9b/sr/SR11a_R2_MODEL.md                                   standing: SR11a gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/SR11b_R2_PASS.md                                    standing: SR11b gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/SR12_R2_RTL.md                                      standing: SR12 gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/SR13b_HOST_R2.md                                    standing: SR13b gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/SR7_R1_BUILD.md                                     standing: SR7 gate doc
+SR11C_EXCLUDE evidence/qwen9b/sr/sr11af2_drift.sh                                    standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr11c_drift.sh                                      standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr11c_undo_ea72c43.py                               standing: this task's own tools
+SR11C_EXCLUDE evidence/qwen9b/sr/sr13b_drift.sh                                      standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr13b_r2_pins.py                                    first commit 925af52 is after the base 9c8e73b
+SR11C_EXCLUDE evidence/qwen9b/sr/sr6_drift.sh                                        standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr6_hand_repairs.py                                 standing: hand-repair script
+SR11C_EXCLUDE evidence/qwen9b/sr/sr6fix1_drift.sh                                    standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr6fix1_hand_repairs.py                             standing: hand-repair script
+SR11C_EXCLUDE evidence/qwen9b/sr/sr7_drift.sh                                        standing: drift wrapper
+SR11C_EXCLUDE evidence/qwen9b/sr/sr7f1_drift.sh                                      standing: drift wrapper
+SR11C_EXCLUDE tb/scripts/gen_chat_i1_vectors.py                                      standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/scripts/gen_seq_chip_vectors.py                                     standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE tb/tb_seq_chip.sv                                                      standing: tb/ is SR13a's (incl. tb/tb_seq_chip.sv)
+SR11C_EXCLUDE total 22 document(s)
+=== docs/ARCHITECTURE.md  (REPAIR 2, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:1330 -> sw/chat_seq.py:1359   doc lines 382   at-base yes
+      base sw/chat_seq.py:1330  'ref/layer_fixed.rope_tables_q15(p), 1536 B per position.  The'
+      work sw/chat_seq.py:1330  'def seq_chat_for(geom):'
+      work sw/chat_seq.py:1359  'ref/layer_fixed.rope_tables_q15(p), 1536 B per position.  The'   <- proposed
+      doc:382  ...> Naming caveat: the specs and `sw/chat_seq.py:1330` call it "a sibling block...
+  REPAIR         sw/chat_seq.py:1351-1357 -> sw/chat_seq.py:1380-1386   doc lines 683   at-base yes
+      base sw/chat_seq.py:1351  '"""Blob offset of the position pool, READ OUT OF THE STREAM.'
+      work sw/chat_seq.py:1351  'm.GEOM = dict(geom)'
+      work sw/chat_seq.py:1380  '"""Blob offset of the position pool, READ OUT OF THE STREAM.'   <- proposed
+      base end :1357 '"""' / work end :1386 '"""'
+      doc:683  ...free next to the step (`sw/chat_seq.py:1351-1357`)....
+=== docs/QWEN35_2BOARD_FEASIBILITY.md  (REPAIR 4, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:564-572 -> sw/chat_seq.py:567-575   doc lines 601,1776   at-base yes
+      base sw/chat_seq.py:564  'TEMPLATE4_BY_MODEL = {'
+      work sw/chat_seq.py:564  '#'
+      work sw/chat_seq.py:567  'TEMPLATE4_BY_MODEL = {'   <- proposed
+      base end :572 '_T4 = TEMPLATE4_BY_MODEL.get(MODEL_TAG, TEMPLATE4_BY_MODEL[None])' / work end :575 '_T4 = TEMPLATE4_BY_MODEL.get(MODEL_TAG, TEMPLATE4_BY_MODEL[None])'
+      doc:601  ...cleanly. The dangerous one is `sw/chat_seq.py:564-572`, whose...
+      doc:1776  ...select.py:12-17`, `ref/layer_fixed.py:103`, `ref/seq_chat.py:178`, `sw/chat_seq.py:250`, `sw/chat_seq.py:564-572`, `sw/chat_seq.py:3036`, `sw/infer.py:9...
+  REPAIR         sw/chat_seq.py:3036 -> sw/chat_seq.py:3128   doc lines 604,1776   at-base yes
+      base sw/chat_seq.py:3036  "# the lockstep model predicts the CHIP's token, not the sampled"
+      work sw/chat_seq.py:3036  'if nbad:'
+      work sw/chat_seq.py:3128  "# the lockstep model predicts the CHIP's token, not the sampled"   <- proposed
+      doc:604  ...`sw/chat_seq.py:250`, `sw/chat_seq.py:3036`, `sw/infer.py:98`, and...
+      doc:1776  ...er_fixed.py:103`, `ref/seq_chat.py:178`, `sw/chat_seq.py:250`, `sw/chat_seq.py:564-572`, `sw/chat_seq.py:3036`, `sw/infer.py:98`, `sw/infer.py:675` |...
+  REPAIR         sw/chat_seq.py:564-572 -> sw/chat_seq.py:567-575   doc lines 601,1776   at-base yes
+      base sw/chat_seq.py:564  'TEMPLATE4_BY_MODEL = {'
+      work sw/chat_seq.py:564  '#'
+      work sw/chat_seq.py:567  'TEMPLATE4_BY_MODEL = {'   <- proposed
+      base end :572 '_T4 = TEMPLATE4_BY_MODEL.get(MODEL_TAG, TEMPLATE4_BY_MODEL[None])' / work end :575 '_T4 = TEMPLATE4_BY_MODEL.get(MODEL_TAG, TEMPLATE4_BY_MODEL[None])'
+      doc:601  ...cleanly. The dangerous one is `sw/chat_seq.py:564-572`, whose...
+      doc:1776  ...select.py:12-17`, `ref/layer_fixed.py:103`, `ref/seq_chat.py:178`, `sw/chat_seq.py:250`, `sw/chat_seq.py:564-572`, `sw/chat_seq.py:3036`, `sw/infer.py:9...
+  REPAIR         sw/chat_seq.py:3036 -> sw/chat_seq.py:3128   doc lines 604,1776   at-base yes
+      base sw/chat_seq.py:3036  "# the lockstep model predicts the CHIP's token, not the sampled"
+      work sw/chat_seq.py:3036  'if nbad:'
+      work sw/chat_seq.py:3128  "# the lockstep model predicts the CHIP's token, not the sampled"   <- proposed
+      doc:604  ...`sw/chat_seq.py:250`, `sw/chat_seq.py:3036`, `sw/infer.py:98`, and...
+      doc:1776  ...er_fixed.py:103`, `ref/seq_chat.py:178`, `sw/chat_seq.py:250`, `sw/chat_seq.py:564-572`, `sw/chat_seq.py:3036`, `sw/infer.py:98`, `sw/infer.py:675` |...
+=== docs/QWEN35_NEXT_FEASIBILITY.md  (REPAIR 11, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:1730 -> sw/chat_seq.py:1759   doc lines 482   at-base yes
+      base sw/chat_seq.py:1730  "#     tooling: --verify-head cross-checks the chip's head against it, an"
+      work sw/chat_seq.py:1730  'f"SEQ halted with err_code={st[\'err_code\']:#04x} "'
+      work sw/chat_seq.py:1759  "#     tooling: --verify-head cross-checks the chip's head against it, an"   <- proposed
+      doc:482  ...> **One pre-existing hole found on the way.** `sw/chat_seq.py:1730` already...
+  REPAIR         ref/seq_chat.py:1247-1250 -> ref/seq_chat.py:1262-1265   doc lines 736   at-base yes
+      base ref/seq_chat.py:1247  '+ SF.unpack_stream(seed._seed_pos_rec(2))),      # pos 2 -> XOP -> 3'
+      work ref/seq_chat.py:1247  '# XOP +1536 lands on pos 1, XRF[3] is overwritten by its own seed, so no'
+      work ref/seq_chat.py:1262  '+ SF.unpack_stream(seed._seed_pos_rec(2))),      # pos 2 -> XOP -> 3'   <- proposed
+      base end :1250 'case("committed/split-4", pieces,' / work end :1265 'case("committed/split-4", pieces,'
+      doc:736  ...  ~6 producer sites (`ref/gen_model_script.py:499`, `ref/seq_chat.py:1247-1250`,...
+  REPAIR         ref/seq_chat.py:978 -> ref/seq_chat.py:993   doc lines 779   at-base yes
+      base ref/seq_chat.py:978  ''
+      work ref/seq_chat.py:978  'len_or_addr_hi=r.len_or_addr_hi)'
+      work ref/seq_chat.py:993  ''   <- proposed
+      doc:779  ...| ~~`ref/seq_chat.py:978`, `:979`, `:1258`, `:1259` (and `:1260`...
+  REPAIR         `:979` -> `:994`   doc lines 779   at-base yes
+      base ref/seq_chat.py:979  '# ======================================================================'
+      work ref/seq_chat.py:979  'piece.append(r)'
+      work ref/seq_chat.py:994  '# ======================================================================'   <- proposed
+      doc:779  ...| ~~`ref/seq_chat.py:978`, `:979`, `:1258`, `:1259` (and `:1260` `vocab =...
+  REPAIR         `:1258` -> `:1273`   doc lines 779   at-base yes
+      base ref/seq_chat.py:1258  'def gate_a2(prefix=DEFAULT_PREFIX, t_max=T_MAX, log=print):'
+      work ref/seq_chat.py:1258  '+ SF.unpack_stream(seed._seed_pos_rec(0))),      # pos 0 -> XOP -> 1'
+      work ref/seq_chat.py:1273  'def gate_a2(prefix=DEFAULT_PREFIX, t_max=T_MAX, log=print):'   <- proposed
+      doc:779  ...| ~~`ref/seq_chat.py:978`, `:979`, `:1258`, `:1259` (and `:1260` `vocab = nrow`)~~...
+  REPAIR         `:1259` -> `:1274`   doc lines 779   at-base yes
+      base ref/seq_chat.py:1259  '"""A2 — the generated position pool reproduces the committed one.'
+      work ref/seq_chat.py:1259  '(SF.unpack_stream(seed._seed_tok_rec(314))'
+      work ref/seq_chat.py:1274  '"""A2 — the generated position pool reproduces the committed one.'   <- proposed
+      doc:779  ...| ~~`ref/seq_chat.py:978`, `:979`, `:1258`, `:1259` (and `:1260` `vocab = nrow`)~~ **FIXED ...
+  REPAIR         `:1260` -> `:1275`   doc lines 779   at-base yes
+      base ref/seq_chat.py:1260  ''
+      work ref/seq_chat.py:1260  '+ SF.unpack_stream(seed._seed_pos_rec(1))),      # pos 1 -> XOP -> 2'
+      work ref/seq_chat.py:1275  ''   <- proposed
+      doc:779  ...| ~~`ref/seq_chat.py:978`, `:979`, `:1258`, `:1259` (and `:1260` `vocab = nrow`)~~ **FIXED 2026-08-25** ...
+  REPAIR         ref/seq_chat.py:1305-1308 -> ref/seq_chat.py:1320-1323   doc lines 780   at-base yes
+      base ref/seq_chat.py:1305  '"My favorite color is",'
+      work ref/seq_chat.py:1305  'f"{blob[:CONST_BYTES] == raw[:CONST_BYTES]}")'
+      work ref/seq_chat.py:1320  '"My favorite color is",'   <- proposed
+      base end :1308 '' / work end :1323 ''
+      doc:780  ...| ~~`ref/seq_chat.py:1305-1308`~~ **FIXED 2026-08-25** | `1024` ×4 | t...
+  REPAIR         `:1292` -> `:1307`   doc lines 780   at-base yes
+      base ref/seq_chat.py:1292  'log(f"    XRF[4] cursor reaches pos <= {XRF_POS_MAX} "'
+      work ref/seq_chat.py:1292  'if not ok:'
+      work ref/seq_chat.py:1307  'log(f"    XRF[4] cursor reaches pos <= {XRF_POS_MAX} "'   <- proposed
+      doc:780  ...ln_f` load, wrong RMSNorm denominator, wrong DYNQ8 exponent — ~~five~~ **13** lines after `:1292` correctly uses `LR.H` |...
+  REPAIR         sw/chat_seq.py:2331 -> sw/chat_seq.py:2360   doc lines 782   at-base yes
+      base sw/chat_seq.py:2331  'elif off == SF.LOFF_SWIN:'
+      work sw/chat_seq.py:2331  'W.append((dst, n))'
+      work sw/chat_seq.py:2360  'elif off == SF.LOFF_SWIN:'   <- proposed
+      doc:782  ...| `sw/chat_seq.py:2331` / `:237` | `HEAD_WID = 186` | at 32 la...
+  REPAIR         `:596` -> `:599`   doc lines 782   at-base yes
+      base sw/chat_seq.py:596  '#      form A; its step bodies are byte-identical to body 0), with the'
+      work sw/chat_seq.py:596  '#      if the result equals the pinned SV1 artifact byte for byte (whose'
+      work sw/chat_seq.py:599  '#      form A; its step bodies are byte-identical to body 0), with the'   <- proposed
+      doc:782  ... / `:237` | `HEAD_WID = 186` | at 32 layers the head is a **different wid** (249 images); `:596` derives it correctly but the online cal...
+=== docs/USAGE.md  (REPAIR 2, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:52 -> sw/seq_run.py:61   doc lines 4   at-base yes
+      base sw/seq_run.py:52  '* The identity gate refuses to touch anything unless MAGIC / CALIB / the'
+      work sw/seq_run.py:52  '6. VERIFY    generated tokens vs <prefix>.seq.json "expect_tokens", with'
+      work sw/seq_run.py:61  '* The identity gate refuses to touch anything unless MAGIC / CALIB / the'   <- proposed
+      doc:4  ...and nothing in `sw/` ever will (`sw/seq_run.py:52`, `sw/chat_seq.py:80`)....
+  REPAIR         sw/chat_seq.py:1943 -> sw/chat_seq.py:1972   doc lines 214   at-base yes
+      base sw/chat_seq.py:1943  '= 68 MMIO accesses at the measured ~1.7 us = ~0.11 ms/token, i.e. free'
+      work sw/chat_seq.py:1943  '------------------------------------------------------------------'
+      work sw/chat_seq.py:1972  '= 68 MMIO accesses at the measured ~1.7 us = ~0.11 ms/token, i.e. free'   <- proposed
+      doc:214  ...| extra cost | — | ~68 MMIO reads/token ≈ 0.11 ms (`sw/chat_seq.py:1943`) |...
+=== docs/superpowers/plans/2026-08-12-qwen2b-track-r.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:583 -> sw/chat_seq.py:586   doc lines 67   at-base yes
+      base sw/chat_seq.py:583  '# form B at FABLE5_MODEL=9b --nch 4 on the shipped template, the shipped'
+      work sw/chat_seq.py:583  '#'
+      work sw/chat_seq.py:586  '# form B at FABLE5_MODEL=9b --nch 4 on the shipped template, the shipped'   <- proposed
+      doc:67  ...e committed 0.8B stream and are re-derived per-model by `derive_geometry()` at run time (`sw/chat_seq.py:583`); leave them....
+=== docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md  (REPAIR 19, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:2625 -> sw/chat_seq.py:2658   doc lines 107   at-base yes
+      base sw/chat_seq.py:2625  'wl = self.wlayout'
+      work sw/chat_seq.py:2625  'of_ovf is sticky until a HARD RESET (the xrf_ovf precedent), so it'
+      work sw/chat_seq.py:2658  'wl = self.wlayout'   <- proposed
+      doc:107  ...> (every 0.8B/2B artifact has no key); `sw/chat_seq.py:2625` is the live path...
+  REPAIR         sw/chat_seq.py:4939 -> sw/chat_seq.py:5035   doc lines 108   at-base yes
+      base sw/chat_seq.py:4939  'str(sp.logits([1024], 5)))'
+      work sw/chat_seq.py:4939  'for n in ("preamble", "lite", "full"):'
+      work sw/chat_seq.py:5035  'str(sp.logits([1024], 5)))'   <- proposed
+      doc:108  ...> and reads `spec.rs_f`; `sw/chat_seq.py:4939` already asserts the −21 case;...
+  REPAIR         sw/seq_run.py:2358 -> sw/seq_run.py:2461   doc lines 828   at-base yes
+      base sw/seq_run.py:2358  'check("the interleaved chunks cover every head row exactly once",'
+      work sw/seq_run.py:2358  'row += s["nrows_piece"]'
+      work sw/seq_run.py:2461  'check("the interleaved chunks cover every head row exactly once",'   <- proposed
+      doc:828  ...- `sw/seq_run.py:2358`'s hard-coded scratch-cover pair, which...
+  REPAIR         sw/seq_run.py:681 -> sw/seq_run.py:780   doc lines 831   at-base yes
+      base sw/seq_run.py:681  "through the host's own piece list — the mapping `ref/seq_model.py`"
+      work sw/seq_run.py:681  'f"rec {i}: LDC reads {a:#x}, outside the emitter\'s "'
+      work sw/seq_run.py:780  "through the host's own piece list — the mapping `ref/seq_model.py`"   <- proposed
+      doc:831  ...  `sw/seq_run.py:681`, `:1490-1491`, `:2490-2496` and `:2506...
+  REPAIR         `:1490-1491` -> `:1593-1594`   doc lines 831   at-base yes
+      base sw/seq_run.py:1490  '# skipped with them (`--skip-weights` means "assumed resident").'
+      work sw/seq_run.py:1490  'return self.rd(L_XRFD) & 0x3FFFF'
+      work sw/seq_run.py:1593  '# skipped with them (`--skip-weights` means "assumed resident").'   <- proposed
+      base end :1491 'rep["state"] = upload_state(dev, art, log=log, verify=verify,' / work end :1594 'rep["state"] = upload_state(dev, art, log=log, verify=verify,'
+      doc:831  ...  `sw/seq_run.py:681`, `:1490-1491`, `:2490-2496` and `:2506-2511`: the...
+  REPAIR         `:2490-2496` -> `:2593-2599`   doc lines 831   at-base yes
+      base sw/seq_run.py:2490  'aok = False'
+      work sw/seq_run.py:2490  ''
+      work sw/seq_run.py:2593  'aok = False'   <- proposed
+      base end :2496 'ps.sort(key=lambda s: s["r0"])' / work end :2599 'ps.sort(key=lambda s: s["r0"])'
+      doc:831  ...  `sw/seq_run.py:681`, `:1490-1491`, `:2490-2496` and `:2506-2511`: the...
+  REPAIR         `:2506-2511` -> `:2609-2614`   doc lines 831   at-base yes
+      base sw/seq_run.py:2506  'head_rows = {c: sum(s["nrows_piece"] for s in rs'
+      work sw/seq_run.py:2506  'else [int(meta.get("chan", 0))])'
+      work sw/seq_run.py:2609  'head_rows = {c: sum(s["nrows_piece"] for s in rs'   <- proposed
+      base end :2511 'sum(head_rows.values()) == hrows' / work end :2614 'sum(head_rows.values()) == hrows'
+      doc:831  ...  `sw/seq_run.py:681`, `:1490-1491`, `:2490-2496` and `:2506-2511`: the...
+  REPAIR         sw/chat_seq.py:1753 -> sw/chat_seq.py:1782   doc lines 840   at-base yes
+      base sw/chat_seq.py:1753  'candidate sequence, return the same tokens — that is the whole'
+      work sw/chat_seq.py:1753  '#   * A SAMPLED step will be the SAME full launch plus an on-chip TOP-K'
+      work sw/chat_seq.py:1782  'candidate sequence, return the same tokens — that is the whole'   <- proposed
+      doc:840  ...- `sw/chat_seq.py`'s per-op vector lengths at `sw/chat_seq.py:1753`, `:1755`,...
+  REPAIR         `:1755` -> `:1784`   doc lines 840   at-base yes
+      base sw/chat_seq.py:1755  'or reduction order because nothing here reduces over the vocabulary.'
+      work sw/chat_seq.py:1755  '#     from CSRs after the halt.  That unit ARRIVES WITH THE NEXT RTL RUN'
+      work sw/chat_seq.py:1784  'or reduction order because nothing here reduces over the vocabulary.'   <- proposed
+      doc:840  ...- `sw/chat_seq.py`'s per-op vector lengths at `sw/chat_seq.py:1753`, `:1755`,...
+  REPAIR         sw/chat_seq.py:1765 -> sw/chat_seq.py:1794   doc lines 841   at-base yes
+      base sw/chat_seq.py:1765  'temp = float(temp)'
+      work sw/chat_seq.py:1765  '#'
+      work sw/chat_seq.py:1794  'temp = float(temp)'   <- proposed
+      doc:841  ...  `sw/chat_seq.py:1765`, `sw/chat_seq.py:1768`, `sw/chat_seq.p...
+  REPAIR         sw/chat_seq.py:1768 -> sw/chat_seq.py:1797   doc lines 841   at-base yes
+      base sw/chat_seq.py:1768  'if temp < 0:'
+      work sw/chat_seq.py:1768  "# — in the CHIP's integer domain.  Everything downstream (dequant,"
+      work sw/chat_seq.py:1797  'if temp < 0:'   <- proposed
+      doc:841  ...  `sw/chat_seq.py:1765`, `sw/chat_seq.py:1768`, `sw/chat_seq.py:1771`,...
+  REPAIR         sw/chat_seq.py:1771 -> sw/chat_seq.py:1800   doc lines 841   at-base yes
+      base sw/chat_seq.py:1771  'raise ChatSeqError("--temp above 100 is a typo, not a request")'
+      work sw/chat_seq.py:1771  "# which is what makes S3's determinism hold by construction here: there"
+      work sw/chat_seq.py:1800  'raise ChatSeqError("--temp above 100 is a typo, not a request")'   <- proposed
+      doc:841  ...  `sw/chat_seq.py:1765`, `sw/chat_seq.py:1768`, `sw/chat_seq.py:1771`,...
+  REPAIR         sw/chat_seq.py:1773 -> sw/chat_seq.py:1802   doc lines 842   at-base yes
+      base sw/chat_seq.py:1773  'raise ChatSeqError("--top-k must be >= 0 (0 = no top-k cut)")'
+      work sw/chat_seq.py:1773  '#'
+      work sw/chat_seq.py:1802  'raise ChatSeqError("--top-k must be >= 0 (0 = no top-k cut)")'   <- proposed
+      doc:842  ...  `sw/chat_seq.py:1773`, `:1775` — `128`/`256`/`16`/`32` head-...
+  REPAIR         `:1775` -> `:1804`   doc lines 842   at-base yes
+      base sw/chat_seq.py:1775  'raise ChatSeqError("--top-p must be in (0, 1] (1.0 = off)")'
+      work sw/chat_seq.py:1775  '# ======================================================================'
+      work sw/chat_seq.py:1804  'raise ChatSeqError("--top-p must be in (0, 1] (1.0 = off)")'   <- proposed
+      doc:842  ...  `sw/chat_seq.py:1773`, `:1775` — `128`/`256`/`16`/`32` head-dim and...
+  REPAIR         sw/chat_seq.py:4936-4937 -> sw/chat_seq.py:5032-5033   doc lines 858,867   at-base yes
+      base sw/chat_seq.py:4936  'HEAD_LOGIT_EXP0 == -22 and'
+      work sw/chat_seq.py:4936  'reply = tkr.encode(HF_REF_REPLY) + [TOK_IM_END]        # "Paris." + EOS'
+      work sw/chat_seq.py:5032  'HEAD_LOGIT_EXP0 == -22 and'   <- proposed
+      base end :4937 'HEAD_LOGIT_EXP0 == HEAD_E + HEAD_SH - 15 - HEAD_RS_F and' / work end :5033 'HEAD_LOGIT_EXP0 == HEAD_E + HEAD_SH - 15 - HEAD_RS_F and'
+      doc:858  ...  `sw/head_cache.py:105`, `sw/head_cache.py:638-639` and `sw/chat_seq.py:4936-4937` —...
+      doc:867  ...    `sw/chat_seq.py:4936-4937`. Make that last form the definition an...
+  REPAIR         sw/chat_seq.py:4357 -> sw/chat_seq.py:4453   doc lines 865   at-base yes
+      base sw/chat_seq.py:4357  'wl, fl = sess.patch_writes("full", 1234, 300)'
+      work sw/chat_seq.py:4357  'and r.imm32 >= 1 for r in images[n].records())'
+      work sw/chat_seq.py:4453  'wl, fl = sess.patch_writes("full", 1234, 300)'   <- proposed
+      doc:865  ...    assert at `sw/chat_seq.py:4357`; the head-spec comparison at...
+  REPAIR         sw/chat_seq.py:2500 -> sw/chat_seq.py:2529   doc lines 866   at-base yes
+      base sw/chat_seq.py:2500  'self.tmpl_sha = TEMPLATE_SHA256'
+      work sw/chat_seq.py:2500  'self.level_caps = seq_rtl_caps(self.seq_rtl)'
+      work sw/chat_seq.py:2529  'self.tmpl_sha = TEMPLATE_SHA256'   <- proposed
+      doc:866  ...    `sw/chat_seq.py:2500`; and the one that already writes the a...
+  REPAIR         sw/chat_seq.py:4936-4937 -> sw/chat_seq.py:5032-5033   doc lines 858,867   at-base yes
+      base sw/chat_seq.py:4936  'HEAD_LOGIT_EXP0 == -22 and'
+      work sw/chat_seq.py:4936  'reply = tkr.encode(HF_REF_REPLY) + [TOK_IM_END]        # "Paris." + EOS'
+      work sw/chat_seq.py:5032  'HEAD_LOGIT_EXP0 == -22 and'   <- proposed
+      base end :4937 'HEAD_LOGIT_EXP0 == HEAD_E + HEAD_SH - 15 - HEAD_RS_F and' / work end :5033 'HEAD_LOGIT_EXP0 == HEAD_E + HEAD_SH - 15 - HEAD_RS_F and'
+      doc:858  ...  `sw/head_cache.py:105`, `sw/head_cache.py:638-639` and `sw/chat_seq.py:4936-4937` —...
+      doc:867  ...    `sw/chat_seq.py:4936-4937`. Make that last form the definition an...
+  REPAIR         sw/seq_run.py:706 -> sw/seq_run.py:805   doc lines 1729   at-base yes
+      base sw/seq_run.py:706  '"nrows": (end - wb) // s["stride"]})'
+      work sw/seq_run.py:706  'elif r.opcode == SF.OP_EMB:'
+      work sw/seq_run.py:805  '"nrows": (end - wb) // s["stride"]})'   <- proposed
+      doc:1729  ...  > put it into a stream record (`sw/seq_run.py:706`, `ref/seq_format.py`)....
+=== docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md  (REPAIR 5, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1409 -> ref/seq_chat.py:1424   doc lines 38,427   at-base yes
+      base ref/seq_chat.py:1409  ''
+      work ref/seq_chat.py:1409  'os.environ["SEQ_EMIT"] = saved'
+      work ref/seq_chat.py:1424  ''   <- proposed
+      doc:38  ...he `layerv2_s*` generator `tb_layer_chan` depends on), `ref/gen_token_script.py:198` and `ref/seq_chat.py:1409` (on the `sw/chat_seq.py --selftest` pa...
+      doc:427  ...`, `ref/gen_chain_script.py:108`, `ref/gen_chain_script.py:111`, `ref/seq_chat.py:1404`, `ref/seq_chat.py:1409`, `sw/infer.py:766` | the CONVW loop an...
+  REPAIR         ref/seq_chat.py:1404 -> ref/seq_chat.py:1419   doc lines 427   at-base yes
+      base ref/seq_chat.py:1404  'kv_pf = GLS.sched_kv_prefetch(types)'
+      work ref/seq_chat.py:1404  'saved = os.environ.pop("SEQ_EMIT", None)          # model only, never em'
+      work ref/seq_chat.py:1419  'kv_pf = GLS.sched_kv_prefetch(types)'   <- proposed
+      doc:427  .../gen_token_script.py:201`, `ref/gen_chain_script.py:108`, `ref/gen_chain_script.py:111`, `ref/seq_chat.py:1404`, `ref/seq_chat.py:1409`, `sw/infer.py:...
+  REPAIR         ref/seq_chat.py:1409 -> ref/seq_chat.py:1424   doc lines 38,427   at-base yes
+      base ref/seq_chat.py:1409  ''
+      work ref/seq_chat.py:1409  'os.environ["SEQ_EMIT"] = saved'
+      work ref/seq_chat.py:1424  ''   <- proposed
+      doc:38  ...he `layerv2_s*` generator `tb_layer_chan` depends on), `ref/gen_token_script.py:198` and `ref/seq_chat.py:1409` (on the `sw/chat_seq.py --selftest` pa...
+      doc:427  ...`, `ref/gen_chain_script.py:108`, `ref/gen_chain_script.py:111`, `ref/seq_chat.py:1404`, `ref/seq_chat.py:1409`, `sw/infer.py:766` | the CONVW loop an...
+  REPAIR         ref/seq_chat.py:1402 -> ref/seq_chat.py:1417   doc lines 435   at-base yes
+      base ref/seq_chat.py:1402  'types = [lt for (lt, _q, _d, _k) in layers]'
+      work ref/seq_chat.py:1402  ''
+      work ref/seq_chat.py:1417  'types = [lt for (lt, _q, _d, _k) in layers]'   <- proposed
+      doc:435  ...allers with bank indices — `ref/gen_chain_script.py:101`, `ref/gen_chain_script.py:118`, `ref/seq_chat.py:1402`, `ref/seq_chat.py:1421`, `sw/infer.py:...
+  REPAIR         ref/seq_chat.py:1421 -> ref/seq_chat.py:1436   doc lines 435   at-base yes
+      base ref/seq_chat.py:1421  'GLS.attn_token(M, qw["attn"], qw["ln1"], qw["ln2"], qw["mlp"],'
+      work ref/seq_chat.py:1421  'if lt != "full_attention":'
+      work ref/seq_chat.py:1436  'GLS.attn_token(M, qw["attn"], qw["ln1"], qw["ln2"], qw["mlp"],'   <- proposed
+      doc:435  ... — `ref/gen_chain_script.py:101`, `ref/gen_chain_script.py:118`, `ref/seq_chat.py:1402`, `ref/seq_chat.py:1421`, `sw/infer.py:766`, `sw/infer.py:796` ...
+=== docs/superpowers/plans/2026-09-27-seq-rtl-round.md  (REPAIR 6, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:155-171 -> sw/seq_run.py:164-189   doc lines 43,297   at-base yes
+      base sw/seq_run.py:155  'SEQ_VERSIONS = {'
+      work sw/seq_run.py:155  '# at evidence/qwen9b/bm/n24_T3_launch_build_042_bm1.log ("9b588e78").  I'
+      work sw/seq_run.py:164  'SEQ_VERSIONS = {'   <- proposed
+      base end :171 '}' / work end :189 '}'
+      doc:43  ...stream is admitted only when NAMED: its VERSION row in `sw/seq_run.py`'s `SEQ_VERSIONS` (`sw/seq_run.py:155-171`), and every SEQ-driving tool of a sess...
+      doc:297  ...fy (last step, only if the bitstream goes to the board): `sw/seq_run.py` `SEQ_VERSIONS` (`sw/seq_run.py:155-171`) gains the R1 row, "admitted only when...
+  REPAIR         sw/seq_run.py:814 -> sw/seq_run.py:913   doc lines 59,275   at-base yes
+      base sw/seq_run.py:814  'SF.validate_stream(recs, caps=caps)'
+      work sw/seq_run.py:814  '"n_host": len(h), "n_engine": len(e)})'
+      work sw/seq_run.py:913  'SF.validate_stream(recs, caps=caps)'   <- proposed
+      doc:59  ... today's rules** (`SF.validate_stream(...)` at `sw/seq_run.py:316`, `sw/seq_run.py:624`, `sw/seq_run.py:814`; the module contract at `sw/seq_run.py...
+      doc:275  ...**: the three `SF.validate_stream(...)` calls (`sw/seq_run.py:316`, `sw/seq_run.py:624`, `sw/seq_run.py:814`) take `caps=` from the open `Dev` (or,...
+  REPAIR         sw/seq_run.py:1313-1324 -> sw/seq_run.py:1416-1427   doc lines 275   at-base yes
+      base sw/seq_run.py:1313  '"""BM1 idle counters (docs/SEQ_ISA.md B16, v2.2): the SEQ 0x100'
+      work sw/seq_run.py:1313  'while off < len(data):'
+      work sw/seq_run.py:1416  '"""BM1 idle counters (docs/SEQ_ISA.md B16, v2.2): the SEQ 0x100'   <- proposed
+      base end :1324 'return {name: self.seq_rd(S_BM_IDENT + off)' / work end :1427 'return {name: self.seq_rd(S_BM_IDENT + off)'
+      doc:275  ...- Modify: `sw/seq_run.py` — `Dev.seq_caps()` beside the BM1 feature detection (`sw/seq_run.py:1313-1324`): reads `HW.S_SEQ_CAPS`, returns `HW.s...
+  REPAIR         sw/seq_run.py:814 -> sw/seq_run.py:913   doc lines 59,275   at-base yes
+      base sw/seq_run.py:814  'SF.validate_stream(recs, caps=caps)'
+      work sw/seq_run.py:814  '"n_host": len(h), "n_engine": len(e)})'
+      work sw/seq_run.py:913  'SF.validate_stream(recs, caps=caps)'   <- proposed
+      doc:59  ... today's rules** (`SF.validate_stream(...)` at `sw/seq_run.py:316`, `sw/seq_run.py:624`, `sw/seq_run.py:814`; the module contract at `sw/seq_run.py...
+      doc:275  ...**: the three `SF.validate_stream(...)` calls (`sw/seq_run.py:316`, `sw/seq_run.py:624`, `sw/seq_run.py:814`) take `caps=` from the open `Dev` (or,...
+  REPAIR         sw/chat_seq.py:635 -> sw/chat_seq.py:638   doc lines 276   at-base yes
+      base sw/chat_seq.py:635  'REORDER_B_IMAGES = {'
+      work sw/chat_seq.py:635  '# TurnCompiler.build_step(0, 0, kind) builds them in pos_mode "ldc", the'
+      work sw/chat_seq.py:638  'REORDER_B_IMAGES = {'   <- proposed
+      doc:276  ...er()` → `reorder_e4.reorder(…, rtl=…)`; the per-image r1 pins beside `REORDER_B_IMAGES` (`sw/chat_seq.py:635`), generated by a committed run; gates ...
+  REPAIR         sw/seq_run.py:155-171 -> sw/seq_run.py:164-189   doc lines 43,297   at-base yes
+      base sw/seq_run.py:155  'SEQ_VERSIONS = {'
+      work sw/seq_run.py:155  '# at evidence/qwen9b/bm/n24_T3_launch_build_042_bm1.log ("9b588e78").  I'
+      work sw/seq_run.py:164  'SEQ_VERSIONS = {'   <- proposed
+      base end :171 '}' / work end :189 '}'
+      doc:43  ...stream is admitted only when NAMED: its VERSION row in `sw/seq_run.py`'s `SEQ_VERSIONS` (`sw/seq_run.py:155-171`), and every SEQ-driving tool of a sess...
+      doc:297  ...fy (last step, only if the bitstream goes to the board): `sw/seq_run.py` `SEQ_VERSIONS` (`sw/seq_run.py:155-171`) gains the R1 row, "admitted only when...
+=== docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md  (REPAIR 39, COLLATERAL 1)
+  REPAIR         sw/chat_seq.py:2653 -> sw/chat_seq.py:2686   doc lines 234   at-base yes
+      base sw/chat_seq.py:2653  'raise ChatSeqError(              # StaticCostError'
+      work sw/chat_seq.py:2653  ''
+      work sw/chat_seq.py:2686  'raise ChatSeqError(              # StaticCostError'   <- proposed
+      doc:234  ...> * `sw/chat_seq.py:2653` `want_exp0 = head_logit_exp0(self.head...
+  REPAIR         sw/chat_seq.py:4964 -> sw/chat_seq.py:5060   doc lines 237   at-base yes
+      base sw/chat_seq.py:4964  '_t, info = s.pick(vals, ids, 5)'
+      work sw/chat_seq.py:4964  'st.tmpl_overhead == 12 + 13 and st.turns_templated == 2,'
+      work sw/chat_seq.py:5060  '_t, info = s.pick(vals, ids, 5)'   <- proposed
+      doc:237  ...> * `sw/chat_seq.py:4964` already asserts `head_logit_exp0(7) ==...
+  REPAIR         sw/chat_seq.py:4845-4846 -> sw/chat_seq.py:4941-4942   doc lines 1194,1215   at-base yes
+      base sw/chat_seq.py:4845  'g1 = run_turn(st, tkr, HF_REF_USER, len(reply),'
+      work sw/chat_seq.py:4845  'check("the identity block names host, pid, user, tool and tree",'
+      work sw/chat_seq.py:4941  'g1 = run_turn(st, tkr, HF_REF_USER, len(reply),'   <- proposed
+      base end :4846 'log=lambda *x: None, echo=False)' / work end :4942 'log=lambda *x: None, echo=False)'
+      doc:1194  ...(`sw/head_cache.py:105`, asserted at `sw/head_cache.py:638-639` and `sw/chat_seq.py:4845-4846`) — **the RTL...
+      doc:1215  ...> `sw/head_cache.py:638-639` and `sw/chat_seq.py:4845-4846`. It is small, and it removes...
+  REPAIR         sw/chat_seq.py:4845-4846 -> sw/chat_seq.py:4941-4942   doc lines 1194,1215   at-base yes
+      base sw/chat_seq.py:4845  'g1 = run_turn(st, tkr, HF_REF_USER, len(reply),'
+      work sw/chat_seq.py:4845  'check("the identity block names host, pid, user, tool and tree",'
+      work sw/chat_seq.py:4941  'g1 = run_turn(st, tkr, HF_REF_USER, len(reply),'   <- proposed
+      base end :4846 'log=lambda *x: None, echo=False)' / work end :4942 'log=lambda *x: None, echo=False)'
+      doc:1194  ...(`sw/head_cache.py:105`, asserted at `sw/head_cache.py:638-639` and `sw/chat_seq.py:4845-4846`) — **the RTL...
+      doc:1215  ...> `sw/head_cache.py:638-639` and `sw/chat_seq.py:4845-4846`. It is small, and it removes...
+  REPAIR         sw/chat_seq.py:1720 -> sw/chat_seq.py:1749   doc lines 1485   at-base yes
+      base sw/chat_seq.py:1720  '#   * MODEL COMPUTE STAYS ON-CHIP.  A decode step is a FULL launch, the'
+      work sw/chat_seq.py:1720  '"device_ms": round(perf["cyc"] / ACLK_HZ * 1e3, 3),'
+      work sw/chat_seq.py:1749  '#   * MODEL COMPUTE STAYS ON-CHIP.  A decode step is a FULL launch, the'   <- proposed
+      doc:1485  ...> at `sw/chat_seq.py:1720`, where the host already decodes 14 bit...
+  REPAIR         ref/seq_chat.py:1247-1250 -> ref/seq_chat.py:1262-1265   doc lines 1922   at-base yes
+      base ref/seq_chat.py:1247  '+ SF.unpack_stream(seed._seed_pos_rec(2))),      # pos 2 -> XOP -> 3'
+      work ref/seq_chat.py:1247  '# XOP +1536 lands on pos 1, XRF[3] is overwritten by its own seed, so no'
+      work ref/seq_chat.py:1262  '+ SF.unpack_stream(seed._seed_pos_rec(2))),      # pos 2 -> XOP -> 3'   <- proposed
+      base end :1250 'case("committed/split-4", pieces,' / work end :1265 'case("committed/split-4", pieces,'
+      doc:1922  ...  `ref/seq_chat.py:1247-1250` *(pre-fix line numbers — see the citat...
+  REPAIR         `:2321` -> `:2350`   doc lines 2031   at-base yes
+      base sw/chat_seq.py:2321  'if o == SF.OP_CSRWR and (r.target & 0xF000) == SF.CSR_SPACE_LAYER:'
+      work sw/chat_seq.py:2321  'sub, n = a0 & 0xF, (a0 >> 4) & 0x3FFF   # cfg_len = ARG0[17:4]'
+      work sw/chat_seq.py:2350  'if o == SF.OP_CSRWR and (r.target & 0xF000) == SF.CSR_SPACE_LAYER:'   <- proposed
+      doc:2031  ...| `sw/chat_seq.py:237` `HEAD_WID = 186`, used at `:2321` | exact | at 32 layers the head is a **...
+  REPAIR         `:589` -> `:592`   doc lines 2031   at-base yes
+      base sw/chat_seq.py:589  '#      ref/scripts/reorder_e4.py, unchanged, at the STATIC costs of'
+      work sw/chat_seq.py:589  '# (evidence/qwen9b/bm/bm1_reorder_tdd.py T3).  With `--reorder A` (9B,'
+      work sw/chat_seq.py:592  '#      ref/scripts/reorder_e4.py, unchanged, at the STATIC costs of'   <- proposed
+      doc:2031  ...86`, used at `:2321` | exact | at 32 layers the head is a **different wid** (249 images). `:589` already derives it correctly into `g["_...
+  REPAIR-SUSPECT sw/seq_run.py:83 -> sw/seq_run.py:92   doc lines 2034   at-base NO
+      base sw/seq_run.py:83  'R_IDENT, MV_IDENT0, mv_base,'
+      work sw/seq_run.py:83  'REF_DIR = os.path.join(os.path.dirname(SW_DIR), "ref")'
+      work sw/seq_run.py:92  'R_IDENT, MV_IDENT0, mv_base,'   <- proposed
+      doc:2034  ...| `sw/hwmap.py:215` `SCRATCH_WORDS = 32768` | exact — **the canonical definition**; `sw/seq_run.py:83` imports it, but `tb/scripts/gen_seq_un...
+  REPAIR         sw/seq_run.py:2256 -> sw/seq_run.py:2359   doc lines 2036   at-base yes
+      base sw/seq_run.py:2256  'if s["local_addr"] != wb + s["r0"] * stride:'
+      work sw/seq_run.py:2256  'f"min={min(offs) if offs else None} "'
+      work sw/seq_run.py:2359  'if s["local_addr"] != wb + s["r0"] * stride:'   <- proposed
+      doc:2036  ...| `sw/seq_run.py:2256` `cover in (16384, SCRATCH_WORDS)` | ex...
+  REPAIR         `:2251-2252` -> `:2354-2355`   doc lines 2036   at-base yes
+      base sw/seq_run.py:2251  'row = 0'
+      work sw/seq_run.py:2251  'break'
+      work sw/seq_run.py:2354  'row = 0'   <- proposed
+      base end :2252 'for s in pieces:' / work end :2355 'for s in pieces:'
+      doc:2036  ...| a **hard-coded pair**, not the "WHOLE power-of-two scratchpad" check its own comment at `:2251-2252` claims. Any third size fails the selfte...
+  REPAIR         sw/seq_run.py:674 -> sw/seq_run.py:773   doc lines 2037   at-base yes
+      base sw/seq_run.py:674  'exactly what a broken per-channel rebasing produces, and exactly what a'
+      work sw/seq_run.py:674  'lo_off, hi_off = None, None'
+      work sw/seq_run.py:773  'exactly what a broken per-channel rebasing produces, and exactly what a'   <- proposed
+      doc:2037  ...| `sw/seq_run.py:674` `man["emb_row_bytes"] = 2048`; `:1374-...
+  REPAIR         `:1374-1375` -> `:1477-1478`   doc lines 2037   at-base yes
+      base sw/seq_run.py:1374  'checked word is either written by this run or provably zero.'
+      work sw/seq_run.py:1374  'off += n'
+      work sw/seq_run.py:1477  'checked word is either written by this run or provably zero.'   <- proposed
+      base end :1375 '`rtl/layer_chan.sv:1078-1083` — SWIN writes scratch[SPTR] and' / work end :1478 '`rtl/layer_chan.sv:1078-1083` — SWIN writes scratch[SPTR] and'
+      doc:2037  ...| `sw/seq_run.py:674` `man["emb_row_bytes"] = 2048`; `:1374-1375` the back-compat docstring; `:2388-2394`...
+  REPAIR         `:2388-2394` -> `:2491-2497`   doc lines 2037   at-base yes
+      base sw/seq_run.py:2388  '# ---- 5d. THE property: every MVGO reads bytes the host wrote ------'
+      work sw/seq_run.py:2388  'check("4-chan quarters sum to the whole weight footprint", tot == full,'
+      work sw/seq_run.py:2491  '# ---- 5d. THE property: every MVGO reads bytes the host wrote ------'   <- proposed
+      base end :2394 '# EQUALITY, not containment (R-c review I1): the bytes the host' / work end :2497 '# EQUALITY, not containment (R-c review I1): the bytes the host'
+      doc:2037  ...sw/seq_run.py:674` `man["emb_row_bytes"] = 2048`; `:1374-1375` the back-compat docstring; `:2388-2394`, `:2404-2409` | exact | fixtures and ma...
+  REPAIR         `:2404-2409` -> `:2507-2512`   doc lines 2037   at-base yes
+      base sw/seq_run.py:2404  'aud = audit_weight_ranges(art.recs, art.manifest, wbase_of,'
+      work sw/seq_run.py:2404  '# (d) synthetic edge cases: indivisible and nrows<nch'
+      work sw/seq_run.py:2507  'aud = audit_weight_ranges(art.recs, art.manifest, wbase_of,'   <- proposed
+      base end :2409 'check("the audit is not vacuous (it resolved every MVGO)",' / work end :2512 'check("the audit is not vacuous (it resolved every MVGO)",'
+      doc:2037  ...674` `man["emb_row_bytes"] = 2048`; `:1374-1375` the back-compat docstring; `:2388-2394`, `:2404-2409` | exact | fixtures and mapping tests pi...
+  REPAIR         `:1367` -> `:1470`   doc lines 2037   at-base yes
+      base sw/seq_run.py:1367  'holding the moment two geometries alternate: 0.8B leaves y32 values'
+      work sw/seq_run.py:1367  'b = np.frombuffer(data[off:off + n], dtype=np.uint8)'
+      work sw/seq_run.py:1470  'holding the moment two geometries alternate: 0.8B leaves y32 values'   <- proposed
+      doc:2037  ...fixtures and mapping tests pinned at 2048 B / H=1024. The *mechanism* is manifest-driven (`:1367`); only the fallback and the fixtures ar...
+  REPAIR         sw/chat_seq.py:1644 -> sw/chat_seq.py:1673   doc lines 2038   at-base yes
+      base sw/chat_seq.py:1644  '# 3. CSRs (never while busy)'
+      work sw/chat_seq.py:1644  'raise ChatSeqError('
+      work sw/chat_seq.py:1673  '# 3. CSRs (never while busy)'   <- proposed
+      doc:2038  ...| `sw/chat_seq.py:1644`, `:1759`, `:4602` `& 0x7FFF` (SPTR) | ...
+  REPAIR         `:1759` -> `:1788`   doc lines 2038   at-base yes
+      base sw/chat_seq.py:1759  "RNG, so `--temp 0` is bit-identical to today's decode."
+      work sw/chat_seq.py:1759  "#     tooling: --verify-head cross-checks the chip's head against it, an"
+      work sw/chat_seq.py:1788  "RNG, so `--temp 0` is bit-identical to today's decode."   <- proposed
+      doc:2038  ...| `sw/chat_seq.py:1644`, `:1759`, `:4602` `& 0x7FFF` (SPTR) | exact | 15...
+  REPAIR         `:4602` -> `:4698`   doc lines 2038   at-base yes
+      base sw/chat_seq.py:4602  'fake_e._err = 0x10'
+      work sw/chat_seq.py:4602  ''
+      work sw/chat_seq.py:4698  'fake_e._err = 0x10'   <- proposed
+      doc:2038  ...| `sw/chat_seq.py:1644`, `:1759`, `:4602` `& 0x7FFF` (SPTR) | exact | 15-bit SPTR...
+  REPAIR         `:604` -> `:607`   doc lines 2039   at-base yes
+      base sw/chat_seq.py:604  '# FORM B (Task S1P lifts ruling B7).  Form B frees the layer chain, so a'
+      work sw/chat_seq.py:604  '#      images replayed in ref/seq_model.SeqExec (running-channel refusal'
+      work sw/chat_seq.py:607  '# FORM B (Task S1P lifts ruling B7).  Form B frees the layer chain, so a'   <- proposed
+      doc:2039  ...moves with the GQA layer count (6 → **8**) and `NKV`. Reinforced at `:26`, `:35`, `:175`, `:604`, `:806-808`, `:2604`, `:3600`, `:3674`,...
+  REPAIR         `:806-808` -> `:834-836`   doc lines 2039   at-base yes
+      base sw/chat_seq.py:806  'raise argparse.ArgumentTypeError('
+      work sw/chat_seq.py:806  'env = os.environ if env is None else env'
+      work sw/chat_seq.py:834  'raise argparse.ArgumentTypeError('   <- proposed
+      base end :808 'return v' / work end :836 'return v'
+      doc:2039  ...th the GQA layer count (6 → **8**) and `NKV`. Reinforced at `:26`, `:35`, `:175`, `:604`, `:806-808`, `:2604`, `:3600`, `:3674`, `:3921`, `:...
+  REPAIR         `:2604` -> `:2637`   doc lines 2039   at-base yes
+      base sw/chat_seq.py:2604  '"reprogrammed and the run repeated.")'
+      work sw/chat_seq.py:2604  ''
+      work sw/chat_seq.py:2637  '"reprogrammed and the run repeated.")'   <- proposed
+      doc:2039  ...ayer count (6 → **8**) and `NKV`. Reinforced at `:26`, `:35`, `:175`, `:604`, `:806-808`, `:2604`, `:3600`, `:3674`, `:3921`, `:5971` |  ...
+  REPAIR         `:3600` -> `:3696`   doc lines 2039   at-base yes
+      base sw/chat_seq.py:3600  'f"the tokenizer\'s derived stop ids {sorted(stops)} are not the "'
+      work sw/chat_seq.py:3600  'f"{cap + 1}."'
+      work sw/chat_seq.py:3696  'f"the tokenizer\'s derived stop ids {sorted(stops)} are not the "'   <- proposed
+      doc:2039  ...t (6 → **8**) and `NKV`. Reinforced at `:26`, `:35`, `:175`, `:604`, `:806-808`, `:2604`, `:3600`, `:3674`, `:3921`, `:5971` |  <!--cites...
+  REPAIR         `:3674` -> `:3770`   doc lines 2039   at-base yes
+      base sw/chat_seq.py:3674  '# 30 ids — T5, the same turn with a system message.'
+      work sw/chat_seq.py:3674  'return rep'
+      work sw/chat_seq.py:3770  '# 30 ids — T5, the same turn with a system message.'   <- proposed
+      doc:2039  ...8**) and `NKV`. Reinforced at `:26`, `:35`, `:175`, `:604`, `:806-808`, `:2604`, `:3600`, `:3674`, `:3921`, `:5971` |  <!--cites:noquote-...
+  REPAIR         `:3921` -> `:4017`   doc lines 2039   at-base yes
+      base sw/chat_seq.py:3921  'if echo:'
+      work sw/chat_seq.py:3921  'Prefix-monotone, so streaming decode still works: filtering a'
+      work sw/chat_seq.py:4017  'if echo:'   <- proposed
+      doc:2039  ...`NKV`. Reinforced at `:26`, `:35`, `:175`, `:604`, `:806-808`, `:2604`, `:3600`, `:3674`, `:3921`, `:5971` |  <!--cites:noquote-->...
+  REPAIR         `:5971` -> `:6067`   doc lines 2039   at-base yes
+      base sw/chat_seq.py:5971  'with open(os.path.join(_bad22, "x.weights.json"), "w") as _f:'
+      work sw/chat_seq.py:5971  '_n == 24 and len(_rd.w) == 24'
+      work sw/chat_seq.py:6067  'with open(os.path.join(_bad22, "x.weights.json"), "w") as _f:'   <- proposed
+      doc:2039  ...inforced at `:26`, `:35`, `:175`, `:604`, `:806-808`, `:2604`, `:3600`, `:3674`, `:3921`, `:5971` |  <!--cites:noquote-->...
+  REPAIR         sw/chat_seq.py:1695 -> sw/chat_seq.py:1724   doc lines 2040   at-base yes
+      base sw/chat_seq.py:1695  '# was reset — so it is a SESSION alarm, not a per-launch counter,'
+      work sw/chat_seq.py:1695  'st = dev.seq_status()'
+      work sw/chat_seq.py:1724  '# was reset — so it is a SESSION alarm, not a per-launch counter,'   <- proposed
+      doc:2040  ...| `sw/chat_seq.py` per-op vector lengths `sw/chat_seq.py:1695`, `sw/chat_seq.py:1697`, `sw/chat_seq.p...
+  REPAIR         sw/chat_seq.py:1697 -> sw/chat_seq.py:1726   doc lines 2040   at-base yes
+      base sw/chat_seq.py:1697  '"out_fifo_ovf": bool(st.get("of_ovf", False)),'
+      work sw/chat_seq.py:1697  'break'
+      work sw/chat_seq.py:1726  '"out_fifo_ovf": bool(st.get("of_ovf", False)),'   <- proposed
+      doc:2040  ...| `sw/chat_seq.py` per-op vector lengths `sw/chat_seq.py:1695`, `sw/chat_seq.py:1697`, `sw/chat_seq.py:1707`, `sw/chat_seq.p...
+  REPAIR         sw/chat_seq.py:1707 -> sw/chat_seq.py:1736   doc lines 2040   at-base yes
+      base sw/chat_seq.py:1707  'f"the HALT at {image.nrec - 1}")'
+      work sw/chat_seq.py:1707  'f"STATUS={st[\'raw\']:#010x} err={st[\'err_code\']:#04x} "'
+      work sw/chat_seq.py:1736  'f"the HALT at {image.nrec - 1}")'   <- proposed
+      doc:2040  ...| `sw/chat_seq.py` per-op vector lengths `sw/chat_seq.py:1695`, `sw/chat_seq.py:1697`, `sw/chat_seq.py:1707`, `sw/chat_seq.py:1710`, `sw/chat_seq.p...
+  REPAIR         sw/chat_seq.py:1710 -> sw/chat_seq.py:1739   doc lines 2040   at-base yes
+      base sw/chat_seq.py:1710  'f"{tokens}; one launch is one step")'
+      work sw/chat_seq.py:1710  'time.sleep(POLL_S)'
+      work sw/chat_seq.py:1739  'f"{tokens}; one launch is one step")'   <- proposed
+      doc:2040  ...r-op vector lengths `sw/chat_seq.py:1695`, `sw/chat_seq.py:1697`, `sw/chat_seq.py:1707`, `sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.p...
+  REPAIR         sw/chat_seq.py:1715 -> sw/chat_seq.py:1744   doc lines 2040   at-base yes
+      base sw/chat_seq.py:1715  '# SAMPLING'
+      work sw/chat_seq.py:1715  'pc = dev.seq_rd(S_PC)'
+      work sw/chat_seq.py:1744  '# SAMPLING'   <- proposed
+      doc:2040  .../chat_seq.py:1697`, `sw/chat_seq.py:1707`, `sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.py:1715`, `sw/chat_seq.py:1717` | exact | `128`...
+  REPAIR         sw/chat_seq.py:1717 -> sw/chat_seq.py:1746   doc lines 2040   at-base yes
+      base sw/chat_seq.py:1717  '# STATUS (2026-08-11, user ruling — this OVERRIDES docs/SAMPLING_SPEC.md'
+      work sw/chat_seq.py:1717  'rep = {"image": image.name, "tok_in": int(tok), "pos": int(pos),'
+      work sw/chat_seq.py:1746  '# STATUS (2026-08-11, user ruling — this OVERRIDES docs/SAMPLING_SPEC.md'   <- proposed
+      doc:2040  .../chat_seq.py:1707`, `sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.py:1715`, `sw/chat_seq.py:1717` | exact | `128`/`256`/`16`/`32` — head...
+  REPAIR         sw/chat_seq.py:1680-1684 -> sw/chat_seq.py:1709-1713   doc lines 2251   at-base yes
+      base sw/chat_seq.py:1680  '+ SR.disasm_window(image.recs, min(pc, image.nrec - 1)))'
+      work sw/chat_seq.py:1680  'dev.seq_wr(S_BASE_HI, (base >> 32) & 0x3)'
+      work sw/chat_seq.py:1709  '+ SR.disasm_window(image.recs, min(pc, image.nrec - 1)))'   <- proposed
+      base end :1684 '# 5. halted: now (and only now) pop the FIFO' / work end :1713 '# 5. halted: now (and only now) pop the FIFO'
+      doc:2251  ...| `sw/chat_seq.py:1680-1684` `_lo`/`_hi` inside `_cmd_scratch` (`:1...
+  REPAIR         `:1669` -> `:1698`   doc lines 2251   at-base yes
+      base sw/chat_seq.py:1669  'dt = time.monotonic() - t0'
+      work sw/chat_seq.py:1669  'raise ChatSeqError('
+      work sw/chat_seq.py:1698  'dt = time.monotonic() - t0'   <- proposed
+      doc:2251  ...| `sw/chat_seq.py:1680-1684` `_lo`/`_hi` inside `_cmd_scratch` (`:1669`) | the whole pair unpack, plus DNST bit...
+  REPAIR         `:1711-1712` -> `:1740-1741`   doc lines 2251   at-base yes
+      base sw/chat_seq.py:1711  'return rep'
+      work sw/chat_seq.py:1711  'wall = time.monotonic() - t0'
+      work sw/chat_seq.py:1740  'return rep'   <- proposed
+      base end :1712 '' / work end :1741 ''
+      doc:2251  ...o`/`_hi` inside `_cmd_scratch` (`:1669`) | the whole pair unpack, plus DNST bits 30/31 at `:1711-1712` and ALU `dst[14]`→bit 31 at `:1721`. **...
+  REPAIR         `:1721` -> `:1750`   doc lines 2251   at-base yes
+      base sw/chat_seq.py:1721  '#     LM head and the argmax run on the FPGA, and the token comes out of'
+      work sw/chat_seq.py:1721  '"out_cnt_at_halt": st["out_cnt"], "stale": stale,'
+      work sw/chat_seq.py:1750  '#     LM head and the argmax run on the FPGA, and the token comes out of'   <- proposed
+      doc:2251  ...| the whole pair unpack, plus DNST bits 30/31 at `:1711-1712` and ALU `dst[14]`→bit 31 at `:1721`. **Its docstring at `:1672-1673` alread...
+  REPAIR         `:1672-1673` -> `:1701-1702`   doc lines 2251   at-base yes
+      base sw/chat_seq.py:1672  'dev.seq_wr(S_CTRL, SEQ_CTRL_ABORT)   # the ONLY legal busy write'
+      work sw/chat_seq.py:1672  ''
+      work sw/chat_seq.py:1701  'dev.seq_wr(S_CTRL, SEQ_CTRL_ABORT)   # the ONLY legal busy write'   <- proposed
+      base end :1673 'time.sleep(0.05)' / work end :1702 'time.sleep(0.05)'
+      doc:2251  ...s DNST bits 30/31 at `:1711-1712` and ALU `dst[14]`→bit 31 at `:1721`. **Its docstring at `:1672-1673` already cites stale line ranges** for t...
+  REPAIR         ref/seq_chat.py:1360 -> ref/seq_chat.py:1375   doc lines 2615   at-base yes
+      base ref/seq_chat.py:1360  'for i, (lt, dn_slot, kv_slot) in enumerate(slots):'
+      work ref/seq_chat.py:1360  'import gen_layer_script as GLS'
+      work ref/seq_chat.py:1375  'for i, (lt, dn_slot, kv_slot) in enumerate(slots):'   <- proposed
+      doc:2615  ....8B, 2.03 GB at 2B), defeating the deliberate frees at `ref/gen_model_script.py:524` and `ref/seq_chat.py:1360`. **9B is untied and pays nothing** | r...
+  REPAIR         sw/chat_seq.py:1672-1673 -> sw/chat_seq.py:1701-1702   doc lines 2618   at-base yes
+      base sw/chat_seq.py:1672  'dev.seq_wr(S_CTRL, SEQ_CTRL_ABORT)   # the ONLY legal busy write'
+      work sw/chat_seq.py:1672  ''
+      work sw/chat_seq.py:1701  'dev.seq_wr(S_CTRL, SEQ_CTRL_ABORT)   # the ONLY legal busy write'   <- proposed
+      base end :1673 'time.sleep(0.05)' / work end :1702 'time.sleep(0.05)'
+      doc:2618  ...y:1162-1165`. *In the code:* `ref/gen_layer_script.py:1068-1090`'s docstring self-cites; `sw/chat_seq.py:1672-1673` cites `ref/seq_model.py:303-415` for a...
+  COLLATERAL     sw/chat_seq.py:1713 -> sw/chat_seq.py:1742   doc lines 2040   at-base yes
+      base sw/chat_seq.py:1713  ''
+      work sw/chat_seq.py:1713  '# 5. halted: now (and only now) pop the FIFO'
+      work sw/chat_seq.py:1742  ''   <- proposed
+      doc:2040  .../chat_seq.py:1695`, `sw/chat_seq.py:1697`, `sw/chat_seq.py:1707`, `sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.py:1715`, `sw/chat_seq.p...
+=== docs/superpowers/specs/2026-09-24-board-idle-counters-design.md  (REPAIR 9, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:1227-1229 -> sw/chat_seq.py:1256-1258   doc lines 226   at-base yes
+      base sw/chat_seq.py:1227  'g["NREC_BODY_FULL"] = g["R_BODY_FULL"][1] - g["R_BODY_FULL"][0]'
+      work sw/chat_seq.py:1227  '# (imm32) and its DDR address, the six copies of one position sit'
+      work sw/chat_seq.py:1256  'g["NREC_BODY_FULL"] = g["R_BODY_FULL"][1] - g["R_BODY_FULL"][0]'   <- proposed
+      base end :1229 'g["LITE_SUFFIX_RECS"] = g["NREC_BODY_FULL"] - g["NREC_BODY_LITE"]' / work end :1258 'g["LITE_SUFFIX_RECS"] = g["NREC_BODY_FULL"] - g["NREC_BODY_LITE"]'
+      doc:226  ...  (`sw/chat_seq.py:1227-1229`, and it refuses a launch that produced...
+  REPAIR         sw/chat_seq.py:1341-1343 -> sw/chat_seq.py:1370-1372   doc lines 227   at-base yes
+      base sw/chat_seq.py:1341  'blk = np.concatenate([np.asarray(cq), np.asarray(sq)]) \\'
+      work sw/chat_seq.py:1341  '"seq_chat_nch", os.path.abspath(SC.__file__))'
+      work sw/chat_seq.py:1370  'blk = np.concatenate([np.asarray(cq), np.asarray(sq)]) \\'   <- proposed
+      base end :1343 'if len(blk) != POS_BLOCK:' / work end :1372 'if len(blk) != POS_BLOCK:'
+      doc:227  ...  one token, `sw/chat_seq.py:1341-1343`) and reads `seq_perf()` after every...
+  REPAIR         sw/chat_seq.py:1320 -> sw/chat_seq.py:1349   doc lines 228   at-base yes
+      base sw/chat_seq.py:1320  'for o in geom["POS_LDC_REC_OFFSETS"])'
+      work sw/chat_seq.py:1320  'need(b[start * SEQ_REC_BYTES:(start + nb) * SEQ_REC_BYTES] == b0,'
+      work sw/chat_seq.py:1349  'for o in geom["POS_LDC_REC_OFFSETS"])'   <- proposed
+      doc:228  ...  HALT (`sw/chat_seq.py:1320`). So on the chat path the counters ARE...
+  REPAIR         sw/seq_run.py:121 -> sw/seq_run.py:130   doc lines 325   at-base yes
+      base sw/seq_run.py:121  '#     performs no access whatsoever to the 0x6000 window), and'
+      work sw/seq_run.py:121  '# The csr_0 VERSION word of the netlist that must be resident on the boa'
+      work sw/seq_run.py:130  '#     performs no access whatsoever to the 0x6000 window), and'   <- proposed
+      doc:325  ...`EXPECTED_SEQ_VERSION = 0xC973C18A` (`sw/seq_run.py:121`, the identity gate at...
+  REPAIR         sw/seq_run.py:1016-1081 -> sw/seq_run.py:1119-1184   doc lines 326   at-base yes
+      base sw/seq_run.py:1016  ''
+      work sw/seq_run.py:1016  'i = wchans.index(s["chan"])'
+      work sw/seq_run.py:1119  ''   <- proposed
+      base end :1081 'raise SeqError(f"{path}: no END line — truncated golden")' / work end :1184 'raise SeqError(f"{path}: no END line — truncated golden")'
+      doc:326  ...`sw/seq_run.py:1016-1081`). Required host changes, all in the im...
+  REPAIR         sw/seq_run.py:1016 -> sw/seq_run.py:1119   doc lines 326,335   at-base yes
+      base sw/seq_run.py:1016  ''
+      work sw/seq_run.py:1016  'i = wchans.index(s["chan"])'
+      work sw/seq_run.py:1119  ''   <- proposed
+      doc:326  ...`sw/seq_run.py:1016-1081`). Required host changes, all in t...
+      doc:335  ...   `expect_version`, `sw/seq_run.py:1016`) plumbed through the two tools below;...
+  REPAIR         sw/seq_run.py:1204-1210 -> sw/seq_run.py:1307-1313   doc lines 338   at-base yes
+      base sw/seq_run.py:1204  'raise SeqError(f"short DMA read {len(b)}/{nbytes} @ {addr:#x}")'
+      work sw/seq_run.py:1204  'expect_version = resolve_expect_version(expect_version)'
+      work sw/seq_run.py:1307  'raise SeqError(f"short DMA read {len(b)}/{nbytes} @ {addr:#x}")'   <- proposed
+      base end :1210 'while off < len(data):' / work end :1313 'while off < len(data):'
+      doc:338  ...3. **`seq_perf()`** (`sw/seq_run.py:1204-1210`) reads `BM_IDENT` and, only if...
+  REPAIR         sw/chat_seq.py:1227-1343 -> sw/chat_seq.py:1256-1372   doc lines 345   at-base yes
+      base sw/chat_seq.py:1227  'g["NREC_BODY_FULL"] = g["R_BODY_FULL"][1] - g["R_BODY_FULL"][0]'
+      work sw/chat_seq.py:1227  '# (imm32) and its DDR address, the six copies of one position sit'
+      work sw/chat_seq.py:1256  'g["NREC_BODY_FULL"] = g["R_BODY_FULL"][1] - g["R_BODY_FULL"][0]'   <- proposed
+      base end :1343 'if len(blk) != POS_BLOCK:' / work end :1372 'if len(blk) != POS_BLOCK:'
+      doc:345  ...   (`sw/chat_seq.py:1227-1343`) — legal, the sequencer is idle at bot...
+  REPAIR         sw/chat_seq.py:6324-6326 -> sw/chat_seq.py:6420-6422   doc lines 579   at-base yes
+      base sw/chat_seq.py:6324  ''
+      work sw/chat_seq.py:6324  ''
+      work sw/chat_seq.py:6420  ''   <- proposed
+      base end :6326 '# ======================================================================' / work end :6422 '# ======================================================================'
+      doc:579  ...the T-curve** | the same session once with `--prefill full` ("every step emits a token", `sw/chat_seq.py:6324-6326`), so every one of the ~511 launches is...
+=== docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:155-171 -> sw/seq_run.py:164-189   doc lines 381   at-base yes
+      base sw/seq_run.py:155  'SEQ_VERSIONS = {'
+      work sw/seq_run.py:155  '# at evidence/qwen9b/bm/n24_T3_launch_build_042_bm1.log ("9b588e78").  I'
+      work sw/seq_run.py:164  'SEQ_VERSIONS = {'   <- proposed
+      base end :171 '}' / work end :189 '}'
+      doc:381  ...`sw/seq_run.py`'s table (`sw/seq_run.py:155-171`), exactly as BM1's was....
+=== evidence/qwen2b/q2/v4/GPTQ.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1241 -> ref/seq_chat.py:1256   doc lines 501   at-base yes
+      base ref/seq_chat.py:1241  '(),'
+      work ref/seq_chat.py:1241  'results["cases"]["prefill-lite"] = {"tokens": toks, "expect": want_reply'
+      work ref/seq_chat.py:1256  '(),'   <- proposed
+      doc:501  ...| 2 | `ref/seq_chat.py:1241` — host-side chat runner | real ckpt | ...
+=== evidence/qwen2b/rc/RC_GATE.md  (REPAIR 3, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:1322 -> sw/seq_run.py:1425   doc lines 80,667,765   at-base yes
+      base sw/seq_run.py:1322  'if self.seq_rd(S_BM_IDENT) != SEQ_BM_IDENT:'
+      work sw/seq_run.py:1322  'f"got {int(a[i]):#04x} want {int(b[i]):#04x} "'
+      work sw/seq_run.py:1425  'if self.seq_rd(S_BM_IDENT) != SEQ_BM_IDENT:'   <- proposed
+      doc:80  ...reset. `sw/seq_run.py:1322` programs it on silicon, so **R-d is no...
+      doc:667  ...* `sw/seq_run.py:1322` programs it before any EMB record runs...
+  REPAIR         sw/seq_run.py:1322 -> sw/seq_run.py:1425   doc lines 80,667,765   at-base yes
+      base sw/seq_run.py:1322  'if self.seq_rd(S_BM_IDENT) != SEQ_BM_IDENT:'
+      work sw/seq_run.py:1322  'f"got {int(a[i]):#04x} want {int(b[i]):#04x} "'
+      work sw/seq_run.py:1425  'if self.seq_rd(S_BM_IDENT) != SEQ_BM_IDENT:'   <- proposed
+      doc:80  ...reset. `sw/seq_run.py:1322` programs it on silicon, so **R-d is no...
+      doc:667  ...* `sw/seq_run.py:1322` programs it before any EMB record runs...
+  REPAIR         sw/seq_run.py:1322 -> sw/seq_run.py:1425   doc lines 80,667,765   at-base yes
+      base sw/seq_run.py:1322  'if self.seq_rd(S_BM_IDENT) != SEQ_BM_IDENT:'
+      work sw/seq_run.py:1322  'f"got {int(a[i]):#04x} want {int(b[i]):#04x} "'
+      work sw/seq_run.py:1425  'if self.seq_rd(S_BM_IDENT) != SEQ_BM_IDENT:'   <- proposed
+      doc:80  ...reset. `sw/seq_run.py:1322` programs it on silicon, so **R-d is no...
+      doc:667  ...* `sw/seq_run.py:1322` programs it before any EMB record runs...
+=== evidence/qwen2b/rc/t4_wall8_probe.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:1322 -> sw/seq_run.py:1425   doc lines 11   at-base yes
+      base sw/seq_run.py:1322  'if self.seq_rd(S_BM_IDENT) != SEQ_BM_IDENT:'
+      work sw/seq_run.py:1322  'f"got {int(a[i]):#04x} want {int(b[i]):#04x} "'
+      work sw/seq_run.py:1425  'if self.seq_rd(S_BM_IDENT) != SEQ_BM_IDENT:'   <- proposed
+      doc:11  ...record runs (`sw/seq_run.py:1322`).  `tb/tb_seq_chip.sv` — the TB's host...
+=== evidence/qwen9b/bm/BM1_T1_GATE.md  (REPAIR 2, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:132-159 -> sw/seq_run.py:141-168   doc lines 60   at-base yes
+      base sw/seq_run.py:132  '}'
+      work sw/seq_run.py:132  'EXPECTED_SEQ_VERSION = 0xC973C18A  # build_041_ckr2_AltSpreadLogic_high '
+      work sw/seq_run.py:141  '}'   <- proposed
+      base end :159 '0x9B588E78: (HW.SHAPE_ISA_9B,' / work end :168 '0x9B588E78: (HW.SHAPE_ISA_9B,'
+      doc:60  ...| host read | `sw/seq_run.py:132-159`, `sw/seq_run.py:1225-1251` | `seq_perf...
+  REPAIR         sw/seq_run.py:1225-1251 -> sw/seq_run.py:1328-1354   doc lines 60   at-base yes
+      base sw/seq_run.py:1225  '# dma_write/read above add `self.ddr_off` (the FETCH channel) so the'
+      work sw/seq_run.py:1225  ''
+      work sw/seq_run.py:1328  '# dma_write/read above add `self.ddr_off` (the FETCH channel) so the'   <- proposed
+      base end :1251 'on any channel is verified where dma_write_chan actually put it.' / work end :1354 'on any channel is verified where dma_write_chan actually put it.'
+      doc:60  ...| host read | `sw/seq_run.py:132-159`, `sw/seq_run.py:1225-1251` | `seq_perf()` → `seq_bm()`, feature-d...
+=== evidence/qwen9b/g2/G2A_HOST.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1357 -> ref/seq_chat.py:1372   doc lines 644   at-base yes
+      base ref/seq_chat.py:1357  'log(f"    checkpoint {md[\'path\']} ({time.time() - t0:.0f}s)")'
+      work ref/seq_chat.py:1357  'committed .e.seq was generated from.  The checkpoint load + quantize is'
+      work ref/seq_chat.py:1372  'log(f"    checkpoint {md[\'path\']} ({time.time() - t0:.0f}s)")'   <- proposed
+      doc:644  ...   `ref/seq_chat.py:1357`, `sw/infer.py:696-697`, `ref/audit_ran...
+=== evidence/qwen9b/g2/G2C_CHAIN.md  (REPAIR 8, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1376 -> ref/seq_chat.py:1391   doc lines 85,1151   at-base yes
+      base ref/seq_chat.py:1376  'qw_head = GMS.quant_linear_big(md["head"], g=w4_group,'
+      work ref/seq_chat.py:1376  'wf = md["layers"][i]'
+      work ref/seq_chat.py:1391  'qw_head = GMS.quant_linear_big(md["head"], g=w4_group,'   <- proposed
+      doc:85  ...| 2 | `ref/seq_chat.py:1376` | `GMS.quant_linear_big(md["emb"], …)`...
+      doc:1151  ...   - **`ref/seq_chat.py:1376`** — the head quantization inside...
+  REPAIR         ref/seq_chat.py:1376 -> ref/seq_chat.py:1391   doc lines 85,1151   at-base yes
+      base ref/seq_chat.py:1376  'qw_head = GMS.quant_linear_big(md["head"], g=w4_group,'
+      work ref/seq_chat.py:1376  'wf = md["layers"][i]'
+      work ref/seq_chat.py:1391  'qw_head = GMS.quant_linear_big(md["head"], g=w4_group,'   <- proposed
+      doc:85  ...| 2 | `ref/seq_chat.py:1376` | `GMS.quant_linear_big(md["emb"], …)`...
+      doc:1151  ...   - **`ref/seq_chat.py:1376`** — the head quantization inside...
+  REPAIR         sw/chat_seq.py:5918 -> sw/chat_seq.py:6014   doc lines 1270   at-base yes
+      base sw/chat_seq.py:5918  'def run(self, max_steps=None):'
+      work sw/chat_seq.py:5918  'for i in range(HW.STATE_CV_STRIDE)]))'
+      work sw/chat_seq.py:6014  'def run(self, max_steps=None):'   <- proposed
+      doc:1270  ...is what the singular form is for — and `sw/chat_seq.py:5918` is inside a...
+  REPAIR         sw/chat_seq.py:4513 -> sw/chat_seq.py:4609   doc lines 1402   at-base yes
+      base sw/chat_seq.py:4513  'for n in ("preamble", "lite", "full"):'
+      work sw/chat_seq.py:4513  'if b.opcode == SF.EXT_LDC and b.ind != SF.IND_NONE))'
+      work sw/chat_seq.py:4609  'for n in ("preamble", "lite", "full"):'   <- proposed
+      doc:1402  ...| `chat_seq` line 3717, the literal assert | `sw/chat_seq.py:4513` — `HEAD_LOGIT_EXP0 == -22` | **stays `...
+  REPAIR         sw/chat_seq.py:2653 -> sw/chat_seq.py:2686   doc lines 1403,1419   at-base yes
+      base sw/chat_seq.py:2653  'raise ChatSeqError(              # StaticCostError'
+      work sw/chat_seq.py:2653  ''
+      work sw/chat_seq.py:2686  'raise ChatSeqError(              # StaticCostError'   <- proposed
+      doc:1403  ...| `chat_seq` line 2112, the head-spec comparison | `sw/chat_seq.py:2653` — `head_logit_exp0(self.head.spec.rs_f...
+      doc:1419  ...(`sw/chat_seq.py:2653`). **Changing `RS_F_DEFAULT` or `HEAD_L...
+  REPAIR         sw/chat_seq.py:4961-4966 -> sw/chat_seq.py:5057-5062   doc lines 1404   at-base yes
+      base sw/chat_seq.py:4961  'lg = vals.astype(np.float64) * 2.0 ** (5 - 22) / temp'
+      work sw/chat_seq.py:4961  'check("no full replay: turn 2 fed only its own 18 ids",'
+      work sw/chat_seq.py:5057  'lg = vals.astype(np.float64) * 2.0 ** (5 - 22) / temp'   <- proposed
+      base end :4966 'check(f"softmax at temp {temp} == the numpy reference",' / work end :5062 'check(f"softmax at temp {temp} == the numpy reference",'
+      doc:1404  ...| `chat_seq` lines 4283-4284, the algebra | `sw/chat_seq.py:4961-4966` | **already asserts `head_logit_exp0(7...
+  REPAIR         sw/chat_seq.py:2653 -> sw/chat_seq.py:2686   doc lines 1403,1419   at-base yes
+      base sw/chat_seq.py:2653  'raise ChatSeqError(              # StaticCostError'
+      work sw/chat_seq.py:2653  ''
+      work sw/chat_seq.py:2686  'raise ChatSeqError(              # StaticCostError'   <- proposed
+      doc:1403  ...| `chat_seq` line 2112, the head-spec comparison | `sw/chat_seq.py:2653` — `head_logit_exp0(self.head.spec.rs_f...
+      doc:1419  ...(`sw/chat_seq.py:2653`). **Changing `RS_F_DEFAULT` or `HEAD_L...
+  REPAIR         sw/chat_seq.py:4963-4966 -> sw/chat_seq.py:5059-5062   doc lines 1427   at-base yes
+      base sw/chat_seq.py:4963  'ref /= ref.sum()'
+      work sw/chat_seq.py:4963  'check("the session accounted the wrapper honestly",'
+      work sw/chat_seq.py:5059  'ref /= ref.sum()'   <- proposed
+      base end :4966 'check(f"softmax at temp {temp} == the numpy reference",' / work end :5062 'check(f"softmax at temp {temp} == the numpy reference",'
+      doc:1427  ...`sw/chat_seq.py:4963-4966` already checks the *moving* half —...
+=== evidence/qwen9b/g3/G3_1_ISA.md  (REPAIR 3, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:2653 -> sw/chat_seq.py:2686   doc lines 561   at-base yes
+      base sw/chat_seq.py:2653  'raise ChatSeqError(              # StaticCostError'
+      work sw/chat_seq.py:2653  ''
+      work sw/chat_seq.py:2686  'raise ChatSeqError(              # StaticCostError'   <- proposed
+      doc:561  ...| 2 | spec line 219 | `want_exp0 = head_logit_exp0(self.head.spec.rs_f)` | 2217 → `sw/chat_seq.py:2653` | RENUMBERED (A2.3) |...
+  REPAIR         sw/chat_seq.py:4964 -> sw/chat_seq.py:5060   doc lines 562   at-base yes
+      base sw/chat_seq.py:4964  '_t, info = s.pick(vals, ids, 5)'
+      work sw/chat_seq.py:4964  'st.tmpl_overhead == 12 + 13 and st.turns_templated == 2,'
+      work sw/chat_seq.py:5060  '_t, info = s.pick(vals, ids, 5)'   <- proposed
+      doc:562  ...| 3 | spec line 222 | `head_logit_exp0(7) == HEAD_LOGIT_EXP0 + 1` | 4282 → `sw/chat_seq.py:4964` | RENUMBERED (A2.3) |...
+  REPAIR         sw/chat_seq.py:4848 -> sw/chat_seq.py:4944   doc lines 574   at-base yes
+      base sw/chat_seq.py:4848  'st.fed[:19] == HF_REF_SINGLE, str(st.fed[:19]))'
+      work sw/chat_seq.py:4848  'BL.read_identity(lk.path))'
+      work sw/chat_seq.py:4944  'st.fed[:19] == HF_REF_SINGLE, str(st.fed[:19]))'   <- proposed
+      doc:574  ...> `sw/chat_seq.py:353`, `sw/chat_seq.py:2534` and `sw/chat_seq.py:4848` for...
+=== evidence/qwen9b/g3/G3_3_MATVEC.md  (REPAIR 7, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:714 -> sw/seq_run.py:813   doc lines 279   at-base yes
+      base sw/seq_run.py:714  '"engine_only": only_e[:4],'
+      work sw/seq_run.py:714  'raise SeqError(f"rec {i}: relocated EMB base {nb:#x} is "'
+      work sw/seq_run.py:813  '"engine_only": only_e[:4],'   <- proposed
+      doc:279  ...more put it into a stream record (`sw/seq_run.py:714`,...
+  REPAIR-SUSPECT sw/seq_run.py:115 -> sw/seq_run.py:124   doc lines 423,445,810   at-base NO
+      base sw/seq_run.py:115  '# lockstep with sw/infer.py:EXPECT_VERSION and with docs/USAGE.md §1.'
+      work sw/seq_run.py:115  "# local byte offset the emitter's MVGO WBASEs point at."
+      work sw/seq_run.py:124  '# lockstep with sw/infer.py:EXPECT_VERSION and with docs/USAGE.md §1.'   <- proposed
+      doc:423  ...tree already records them (`sw/seq_run.py:115`, `sw/seq_run.py:121`,...
+      doc:445  ...> that `sw/infer.py` line. `sw/seq_run.py:115` still records...
+  REPAIR-SUSPECT sw/seq_run.py:121 -> sw/seq_run.py:130   doc lines 423,441,810   at-base NO
+      base sw/seq_run.py:121  '#     performs no access whatsoever to the 0x6000 window), and'
+      work sw/seq_run.py:121  '# The csr_0 VERSION word of the netlist that must be resident on the boa'
+      work sw/seq_run.py:130  '#     performs no access whatsoever to the 0x6000 window), and'   <- proposed
+      doc:423  ...tree already records them (`sw/seq_run.py:115`, `sw/seq_run.py:121`,...
+      doc:441  ...> `sw/seq_run.py:121` reads `EXPECTED_SEQ_VERSION = 0xC973C1...
+  REPAIR-SUSPECT sw/seq_run.py:121 -> sw/seq_run.py:130   doc lines 423,441,810   at-base NO
+      base sw/seq_run.py:121  '#     performs no access whatsoever to the 0x6000 window), and'
+      work sw/seq_run.py:121  '# The csr_0 VERSION word of the netlist that must be resident on the boa'
+      work sw/seq_run.py:130  '#     performs no access whatsoever to the 0x6000 window), and'   <- proposed
+      doc:423  ...tree already records them (`sw/seq_run.py:115`, `sw/seq_run.py:121`,...
+      doc:441  ...> `sw/seq_run.py:121` reads `EXPECTED_SEQ_VERSION = 0xC973C1...
+  REPAIR-SUSPECT sw/seq_run.py:115 -> sw/seq_run.py:124   doc lines 423,445,810   at-base NO
+      base sw/seq_run.py:115  '# lockstep with sw/infer.py:EXPECT_VERSION and with docs/USAGE.md §1.'
+      work sw/seq_run.py:115  "# local byte offset the emitter's MVGO WBASEs point at."
+      work sw/seq_run.py:124  '# lockstep with sw/infer.py:EXPECT_VERSION and with docs/USAGE.md §1.'   <- proposed
+      doc:423  ...tree already records them (`sw/seq_run.py:115`, `sw/seq_run.py:121`,...
+      doc:445  ...> that `sw/infer.py` line. `sw/seq_run.py:115` still records...
+  REPAIR-SUSPECT sw/seq_run.py:115 -> sw/seq_run.py:124   doc lines 423,445,810   at-base NO
+      base sw/seq_run.py:115  '# lockstep with sw/infer.py:EXPECT_VERSION and with docs/USAGE.md §1.'
+      work sw/seq_run.py:115  "# local byte offset the emitter's MVGO WBASEs point at."
+      work sw/seq_run.py:124  '# lockstep with sw/infer.py:EXPECT_VERSION and with docs/USAGE.md §1.'   <- proposed
+      doc:423  ...tree already records them (`sw/seq_run.py:115`, `sw/seq_run.py:121`,...
+      doc:445  ...> that `sw/infer.py` line. `sw/seq_run.py:115` still records...
+  REPAIR-SUSPECT sw/seq_run.py:121 -> sw/seq_run.py:130   doc lines 423,441,810   at-base NO
+      base sw/seq_run.py:121  '#     performs no access whatsoever to the 0x6000 window), and'
+      work sw/seq_run.py:121  '# The csr_0 VERSION word of the netlist that must be resident on the boa'
+      work sw/seq_run.py:130  '#     performs no access whatsoever to the 0x6000 window), and'   <- proposed
+      doc:423  ...tree already records them (`sw/seq_run.py:115`, `sw/seq_run.py:121`,...
+      doc:441  ...> `sw/seq_run.py:121` reads `EXPECTED_SEQ_VERSION = 0xC973C1...
+=== evidence/qwen9b/g3/G3_4_LAYER.md  (REPAIR 7, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1016 -> ref/seq_chat.py:1031   doc lines 793,1317   at-base yes
+      base ref/seq_chat.py:1016  'such key answers `sw/hwmap.EMB_ROW_BYTES_DEFAULT`, which G3.4 moved from'
+      work ref/seq_chat.py:1016  'f"<prefix>{EMB_SUFFIX} so its `<prefix>.weights.json` can be "'
+      work ref/seq_chat.py:1031  'such key answers `sw/hwmap.EMB_ROW_BYTES_DEFAULT`, which G3.4 moved from'   <- proposed
+      doc:793  ...| `ref/seq_chat.py:1016` | "still answers 2048" | **REWRITTEN**...
+      doc:1317  ...| `ref/seq_chat.py:983` | `ref/seq_chat.py:1016` | the `EMB_ROW_BYTES_DEFAULT` caveat §...
+  REPAIR         sw/chat_seq.py:2169-2171 -> sw/chat_seq.py:2198-2200   doc lines 1021   at-base yes
+      base sw/chat_seq.py:2169  'rather than line-cited because these numbers drift — D-CITE) so the'
+      work sw/chat_seq.py:2169  'if ctx and ctx.get("x8") is not None:'
+      work sw/chat_seq.py:2198  'rather than line-cited because these numbers drift — D-CITE) so the'   <- proposed
+      base end :2171 '* x8 lives at word 0x800 and the head only ever WRITES 0x1000+, so' / work end :2200 '* x8 lives at word 0x800 and the head only ever WRITES 0x1000+, so'
+      doc:1021  ...| M2 | `tb/tb_seq_unit.sv:371-375`, `sw/chat_seq.py:2169-2171` | two "EMBLOG2 11 / absent = 2048" com...
+  REPAIR         ref/seq_chat.py:379 -> ref/seq_chat.py:380   doc lines 1282   at-base yes
+      base ref/seq_chat.py:379  'self.shape_isa = self.meta.get("shape_isa")'
+      work ref/seq_chat.py:379  '# whose meta declares `shape_isa` turns the check on with no edit.'
+      work ref/seq_chat.py:380  'self.shape_isa = self.meta.get("shape_isa")'   <- proposed
+      doc:1282  ...| `ref/seq_chat.py:379` `Templates.shape_isa` → the four `vali...
+  REPAIR         ref/seq_chat.py:937 -> ref/seq_chat.py:952   doc lines 1283   at-base yes
+      base ref/seq_chat.py:937  'def split_stream(stream, cuts, restore=(), shape_isa=None):'
+      work ref/seq_chat.py:937  'self.context_guard(start_pos, P, ntok)'
+      work ref/seq_chat.py:952  'def split_stream(stream, cuts, restore=(), shape_isa=None):'   <- proposed
+      doc:1283  ...| `ref/seq_chat.py:937` `split_stream`'s new `shape_isa` keywo...
+  REPAIR         ref/seq_chat.py:983 -> ref/seq_chat.py:998   doc lines 1317   at-base yes
+      base ref/seq_chat.py:983  ''
+      work ref/seq_chat.py:983  "# G3.4 fix round 2: the SHAPE layout is the CALLER's knowledge"
+      work ref/seq_chat.py:998  ''   <- proposed
+      doc:1317  ...| `ref/seq_chat.py:983` | `ref/seq_chat.py:1016` | the `EMB_RO...
+  REPAIR         ref/seq_chat.py:1016 -> ref/seq_chat.py:1031   doc lines 793,1317   at-base yes
+      base ref/seq_chat.py:1016  'such key answers `sw/hwmap.EMB_ROW_BYTES_DEFAULT`, which G3.4 moved from'
+      work ref/seq_chat.py:1016  'f"<prefix>{EMB_SUFFIX} so its `<prefix>.weights.json` can be "'
+      work ref/seq_chat.py:1031  'such key answers `sw/hwmap.EMB_ROW_BYTES_DEFAULT`, which G3.4 moved from'   <- proposed
+      doc:793  ...| `ref/seq_chat.py:1016` | "still answers 2048" | **REWRITTEN**...
+      doc:1317  ...| `ref/seq_chat.py:983` | `ref/seq_chat.py:1016` | the `EMB_ROW_BYTES_DEFAULT` caveat §...
+  REPAIR         ref/seq_chat.py:978 -> ref/seq_chat.py:993   doc lines 1501   at-base yes
+      base ref/seq_chat.py:978  ''
+      work ref/seq_chat.py:978  'len_or_addr_hi=r.len_or_addr_hi)'
+      work ref/seq_chat.py:993  ''   <- proposed
+      doc:1501  ...| `docs/HISTORY.md:423`, `evidence/qwen_next/defect_a/damage_test.py:48` (m4) | `ref/seq_chat.py:978/936/1213/1214/1215` — first element ren...
+=== evidence/qwen9b/g4/G4A_REPLAY.md  (REPAIR 3, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:379 -> ref/seq_chat.py:380   doc lines 202   at-base yes
+      base ref/seq_chat.py:379  'self.shape_isa = self.meta.get("shape_isa")'
+      work ref/seq_chat.py:379  '# whose meta declares `shape_isa` turns the check on with no edit.'
+      work ref/seq_chat.py:380  'self.shape_isa = self.meta.get("shape_isa")'   <- proposed
+      doc:202  ...`ref/seq_chat.py:379`, `ref/seq_model.py`'s `gate()` and...
+  REPAIR         sw/chat_seq.py:1740-1741 -> sw/chat_seq.py:1769-1770   doc lines 1509   at-base yes
+      base sw/chat_seq.py:1740  '# temperature, top-k, top-p, the seeded draw) is integer-in / token-out'
+      work sw/chat_seq.py:1740  'return rep'
+      work sw/chat_seq.py:1769  '# temperature, top-k, top-p, the seeded draw) is integer-in / token-out'   <- proposed
+      base end :1741 '# and has no floating-point dependence on where the candidates came from' / work end :1770 '# and has no floating-point dependence on where the candidates came from'
+      doc:1509  ...historical**: the spec's D-CITE row says *"`sw/chat_seq.py:1740-1741` cites...
+  REPAIR         sw/chat_seq.py:1847 -> sw/chat_seq.py:1876   doc lines 1511   at-base yes
+      base sw/chat_seq.py:1847  'self.ms.append((time.perf_counter() - t0) * 1e3)'
+      work sw/chat_seq.py:1847  'return (np.asarray(values, dtype=np.float64)'
+      work sw/chat_seq.py:1876  'self.ms.append((time.perf_counter() - t0) * 1e3)'   <- proposed
+      doc:1511  ...`sw/chat_seq.py:1847` says *"The old docstring cited...
+=== evidence/qwen9b/g6/RD9_GATE.md  (REPAIR 51, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:299 -> sw/seq_run.py:374   doc lines 459   at-base yes
+      base sw/seq_run.py:299  'm = self.meta'
+      work sw/seq_run.py:299  'def manifest_caps_check(meta, caps, what="stream"):'
+      work sw/seq_run.py:374  'm = self.meta'   <- proposed
+      doc:459  ...(`sw/seq_run.py:299`), and `--four-chan` — whose own help s...
+  REPAIR         sw/seq_run.py:2774 -> sw/seq_run.py:2877   doc lines 461   at-base yes
+      base sw/seq_run.py:2774  '"bm" not in f_bad.seq_perf())'
+      work sw/seq_run.py:2774  '"m": np.zeros((200, 2), dtype=np.int8),'
+      work sw/seq_run.py:2877  '"bm" not in f_bad.seq_perf())'   <- proposed
+      doc:461  ...(`sw/seq_run.py:2774`) — only asserts it. So "run it at nch=...
+  REPAIR         sw/chat_seq.py:1165-1167 -> sw/chat_seq.py:1194-1196   doc lines 606   at-base yes
+      base sw/chat_seq.py:1165  'need(recs[cut].opcode == SF.OP_MOVX,'
+      work sw/chat_seq.py:1165  '# each channel and the same address means different rows on different'
+      work sw/chat_seq.py:1194  'need(recs[cut].opcode == SF.OP_MOVX,'   <- proposed
+      base end :1167 'f"expected a MOVX XWIN <= scratch[...]")' / work end :1196 'f"expected a MOVX XWIN <= scratch[...]")'
+      doc:606  ...`sw/chat_seq.py:1165-1167` says the whole-pack escalation is...
+  REPAIR         sw/chat_seq.py:564-575 -> sw/chat_seq.py:567-578   doc lines 893,2501,3042,3201   at-base yes
+      base sw/chat_seq.py:564  'TEMPLATE4_BY_MODEL = {'
+      work sw/chat_seq.py:564  '#'
+      work sw/chat_seq.py:567  'TEMPLATE4_BY_MODEL = {'   <- proposed
+      base end :575 'TEMPLATE4_NREC = _T4[2]' / work end :578 'TEMPLATE4_NREC = _T4[2]'
+      doc:893  ...el_9b_s1.e4` for 9B. A NOMINATION of an artifact that already existed — no re-emission | `sw/chat_seq.py:564-575` |...
+      doc:2501  ... and §20.2 E now name the replacements (`ref/seq_chat.py:178`, `sw/chat_seq.py:251-252`, `sw/chat_seq.py:564-575`) BY HAND, and §20.6 says what replaced...
+  REPAIR         sw/chat_seq.py:2920 -> sw/chat_seq.py:3012   doc lines 894   at-base yes
+      base sw/chat_seq.py:2920  'sixteen counter writes, A1.3).  The KV region needs nothing: TCNT is'
+      work sw/chat_seq.py:2920  'else:'
+      work sw/chat_seq.py:3012  'sixteen counter writes, A1.3).  The KV region needs nothing: TCNT is'   <- proposed
+      doc:894  ...ilds the artifact's own initial region and `_run` passes it to `ref/seq_model.SeqExec` | `sw/chat_seq.py:2920`, `:2999` |...
+  REPAIR         `:2999` -> `:3091`   doc lines 894   at-base yes
+      base sw/chat_seq.py:2999  'self.verifier.preamble(self.images["preamble"])'
+      work sw/chat_seq.py:2999  'self.log(f"  state CV   {len(wit_cv)} conv witness(es) match "'
+      work sw/chat_seq.py:3091  'self.verifier.preamble(self.images["preamble"])'   <- proposed
+      doc:894  ...n initial region and `_run` passes it to `ref/seq_model.SeqExec` | `sw/chat_seq.py:2920`, `:2999` |...
+  REPAIR         sw/chat_seq.py:2370 -> sw/chat_seq.py:2399   doc lines 895,1928   at-base yes
+      base sw/chat_seq.py:2370  'name=f"fixture({os.path.basename(path)})")'
+      work sw/chat_seq.py:2370  'tag = "CMD:" + str(SF.LOP_NAME.get(lop, lop))'
+      work sw/chat_seq.py:2399  'name=f"fixture({os.path.basename(path)})")'   <- proposed
+      doc:895  ...ial region (never the `csrs_only` path — §14.2) and reads `SB_DN`/`SB_KV`/`SB_CV` back | `sw/chat_seq.py:2370` |...
+      doc:1928  ...> `ChatSession.bring_up_state` (`sw/chat_seq.py:2370`) writes the region's...
+  REPAIR         sw/chat_seq.py:2413 -> sw/chat_seq.py:2442   doc lines 896   at-base yes
+      base sw/chat_seq.py:2413  'self.fed = []              # every token id fed, in order'
+      work sw/chat_seq.py:2413  ''
+      work sw/chat_seq.py:2442  'self.fed = []              # every token id fed, in order'   <- proposed
+      doc:896  ...| **D** | the context reset re-zeroes DN **and restores the 24 conv taps** | `sw/chat_seq.py:2413` |...
+  REPAIR         sw/chat_seq.py:3039 -> sw/chat_seq.py:3131   doc lines 897   at-base yes
+      base sw/chat_seq.py:3039  'if not lite:'
+      work sw/chat_seq.py:3039  'f"session memset — the previous context would carry over")'
+      work sw/chat_seq.py:3131  'if not lite:'   <- proposed
+      doc:897  ...text, in the tool AND in the verifier | `ref/seq_chat.py:178`, `sw/chat_seq.py:251-252`, `sw/chat_seq.py:3039`, `sw/chat_seq.py:2879` |...
+  REPAIR         sw/chat_seq.py:2879 -> sw/chat_seq.py:2971   doc lines 897   at-base yes
+      base sw/chat_seq.py:2879  'is not enough**: `evidence/qwen9b/g6/RD9_GATE.md` §14.2 measured'
+      work sw/chat_seq.py:2879  '"""Residency probe -> targeted upload -> const blob + images."""'
+      work sw/chat_seq.py:2971  'is not enough**: `evidence/qwen9b/g6/RD9_GATE.md` §14.2 measured'   <- proposed
+      doc:897  ...n the verifier | `ref/seq_chat.py:178`, `sw/chat_seq.py:251-252`, `sw/chat_seq.py:3039`, `sw/chat_seq.py:2879` |...
+  REPAIR         sw/chat_seq.py:1177 -> sw/chat_seq.py:1206   doc lines 898,1899   at-base yes
+      base sw/chat_seq.py:1177  'need(x8_len > 0 and x8_word == 2 * x8_len,'
+      work sw/chat_seq.py:1177  'if rep else [nrows] * nch)'
+      work sw/chat_seq.py:1206  'need(x8_len > 0 and x8_word == 2 * x8_len,'   <- proposed
+      doc:898  ...nesses OUT of the weight pack's probe — §14.1's 5.8 GiB-per-session re-upload, retired | `sw/chat_seq.py:1177` |...
+      doc:1899  ...> `sw/chat_seq.split_witnesses` (`sw/chat_seq.py:1177`) takes the conv...
+  REPAIR         sw/chat_seq.py:5722 -> sw/chat_seq.py:5818   doc lines 967   at-base yes
+      base sw/chat_seq.py:5722  '| (0x80 if ovf else 0))'
+      work sw/chat_seq.py:5722  '# R-d regression: the LM head is INTERLEAVED, so a channel owns many'
+      work sw/chat_seq.py:5818  '| (0x80 if ovf else 0))'   <- proposed
+      doc:967  ...`sw/chat_seq.py:5722`,...
+  REPAIR         sw/chat_seq.py:3088 -> sw/chat_seq.py:3180   doc lines 977   at-base yes
+      base sw/chat_seq.py:3088  'entry["cand_values"] = [int(x) for x in v]'
+      work sw/chat_seq.py:3088  '# a fresh mach + the SAME preamble image, so an auto-reset keeps'
+      work sw/chat_seq.py:3180  'entry["cand_values"] = [int(x) for x in v]'   <- proposed
+      doc:977  ...   `sw/chat_seq.py:3088`, `return "xrf" if reach <= cap else "l...
+  REPAIR         sw/chat_seq.py:564 -> sw/chat_seq.py:567   doc lines 893,985,2501,3042,3201   at-base yes
+      base sw/chat_seq.py:564  'TEMPLATE4_BY_MODEL = {'
+      work sw/chat_seq.py:564  '#'
+      work sw/chat_seq.py:567  'TEMPLATE4_BY_MODEL = {'   <- proposed
+      doc:893  ...el_9b_s1.e4` for 9B. A NOMINATION of an artifact that already existed — no re-emission | `sw/chat_seq.py:564-575` |...
+      doc:985  ...   `TEMPLATE4_BY_MODEL` (`sw/chat_seq.py:564`) are the other two. Its 140...
+  REPAIR         sw/chat_seq.py:1111-1113 -> sw/chat_seq.py:1140-1142   doc lines 1878   at-base yes
+      base sw/chat_seq.py:1111  'f"{len(emb)} EMB / {len(amax)} AMAXL records: not a decode loop")'
+      work sw/chat_seq.py:1111  'TCNT_SEQ        the one CSRWR TCNT_SEQ            45751'
+      work sw/chat_seq.py:1140  'f"{len(emb)} EMB / {len(amax)} AMAXL records: not a decode loop")'   <- proposed
+      base end :1113 'g["R_BODY_FULL"] = (b0, amax[0] + 1)' / work end :1142 'g["R_BODY_FULL"] = (b0, amax[0] + 1)'
+      doc:1878  ...`sw/chat_seq.py:1111-1113` reasons that the conv blocks "are the ...
+  REPAIR         sw/chat_seq.py:1177 -> sw/chat_seq.py:1206   doc lines 898,1899   at-base yes
+      base sw/chat_seq.py:1177  'need(x8_len > 0 and x8_word == 2 * x8_len,'
+      work sw/chat_seq.py:1177  'if rep else [nrows] * nch)'
+      work sw/chat_seq.py:1206  'need(x8_len > 0 and x8_word == 2 * x8_len,'   <- proposed
+      doc:898  ...nesses OUT of the weight pack's probe — §14.1's 5.8 GiB-per-session re-upload, retired | `sw/chat_seq.py:1177` |...
+      doc:1899  ...> `sw/chat_seq.split_witnesses` (`sw/chat_seq.py:1177`) takes the conv...
+  REPAIR         sw/chat_seq.py:2370 -> sw/chat_seq.py:2399   doc lines 895,1928   at-base yes
+      base sw/chat_seq.py:2370  'name=f"fixture({os.path.basename(path)})")'
+      work sw/chat_seq.py:2370  'tag = "CMD:" + str(SF.LOP_NAME.get(lop, lop))'
+      work sw/chat_seq.py:2399  'name=f"fixture({os.path.basename(path)})")'   <- proposed
+      doc:895  ...ial region (never the `csrs_only` path — §14.2) and reads `SB_DN`/`SB_KV`/`SB_CV` back | `sw/chat_seq.py:2370` |...
+      doc:1928  ...> `ChatSession.bring_up_state` (`sw/chat_seq.py:2370`) writes the region's...
+  REPAIR         sw/chat_seq.py:6454 -> sw/chat_seq.py:6550   doc lines 2080,2140   at-base yes
+      base sw/chat_seq.py:6454  'pref = 0'
+      work sw/chat_seq.py:6454  '#'
+      work sw/chat_seq.py:6550  'pref = 0'   <- proposed
+      doc:2080  ...(`sw/chat_seq.py:6454` acquires it; `sw/chat_seq.py:6492` pri...
+      doc:2140  ...acquires it at `sw/chat_seq.py:6454`, before the session object exists — an...
+  REPAIR         sw/chat_seq.py:6492 -> sw/chat_seq.py:6588   doc lines 2080,2142   at-base yes
+      base sw/chat_seq.py:6492  'OUT FIFO token IS the chip-equivalent greedy token.  Then the host'
+      work sw/chat_seq.py:6492  'ntok = args.ntok if getattr(args, "ntok_given", False) else G2_NTOK'
+      work sw/chat_seq.py:6588  'OUT FIFO token IS the chip-equivalent greedy token.  Then the host'   <- proposed
+      doc:2080  ...(`sw/chat_seq.py:6454` acquires it; `sw/chat_seq.py:6492` prints it, and...
+      doc:2142  ...`sw/chat_seq.py:6492` prints the banner. Neither tool can ru...
+  REPAIR         sw/chat_seq.py:6485 -> sw/chat_seq.py:6581   doc lines 2081,2141   at-base yes
+      base sw/chat_seq.py:6485  '# state, sw/head_cache for the head, the shipped Sampler for the draw'
+      work sw/chat_seq.py:6485  'Everything else is reported honestly, including where the fixed-point'
+      work sw/chat_seq.py:6581  '# state, sw/head_cache for the head, the shipped Sampler for the draw'   <- proposed
+      doc:2081  ...`148` raised at `sw/chat_seq.py:6485`). **The standing lesson: a heading tha...
+      doc:2141  ...raised at `sw/chat_seq.py:6485` (`attach_sampling`), which is before...
+  REPAIR         sw/chat_seq.py:6454 -> sw/chat_seq.py:6550   doc lines 2080,2140   at-base yes
+      base sw/chat_seq.py:6454  'pref = 0'
+      work sw/chat_seq.py:6454  '#'
+      work sw/chat_seq.py:6550  'pref = 0'   <- proposed
+      doc:2080  ...(`sw/chat_seq.py:6454` acquires it; `sw/chat_seq.py:6492` pri...
+      doc:2140  ...acquires it at `sw/chat_seq.py:6454`, before the session object exists — an...
+  REPAIR         sw/chat_seq.py:6485 -> sw/chat_seq.py:6581   doc lines 2081,2141   at-base yes
+      base sw/chat_seq.py:6485  '# state, sw/head_cache for the head, the shipped Sampler for the draw'
+      work sw/chat_seq.py:6485  'Everything else is reported honestly, including where the fixed-point'
+      work sw/chat_seq.py:6581  '# state, sw/head_cache for the head, the shipped Sampler for the draw'   <- proposed
+      doc:2081  ...`148` raised at `sw/chat_seq.py:6485`). **The standing lesson: a heading tha...
+      doc:2141  ...raised at `sw/chat_seq.py:6485` (`attach_sampling`), which is before...
+  REPAIR         sw/chat_seq.py:6492 -> sw/chat_seq.py:6588   doc lines 2080,2142   at-base yes
+      base sw/chat_seq.py:6492  'OUT FIFO token IS the chip-equivalent greedy token.  Then the host'
+      work sw/chat_seq.py:6492  'ntok = args.ntok if getattr(args, "ntok_given", False) else G2_NTOK'
+      work sw/chat_seq.py:6588  'OUT FIFO token IS the chip-equivalent greedy token.  Then the host'   <- proposed
+      doc:2080  ...(`sw/chat_seq.py:6454` acquires it; `sw/chat_seq.py:6492` prints it, and...
+      doc:2142  ...`sw/chat_seq.py:6492` prints the banner. Neither tool can ru...
+  REPAIR         sw/seq_run.py:121 -> sw/seq_run.py:130   doc lines 2402   at-base yes
+      base sw/seq_run.py:121  '#     performs no access whatsoever to the 0x6000 window), and'
+      work sw/seq_run.py:121  '# The csr_0 VERSION word of the netlist that must be resident on the boa'
+      work sw/seq_run.py:130  '#     performs no access whatsoever to the 0x6000 window), and'   <- proposed
+      doc:2402  ...| `sw/seq_run.py:121`, cited by `sw/hwmap.py` | the `EXPECTE...
+  REPAIR         sw/chat_seq.py:530 -> sw/chat_seq.py:533   doc lines 2501,2717   at-base yes
+      base sw/chat_seq.py:530  "# interleaved over the 4 engines).  So it shares model_v2_s1's"
+      work sw/chat_seq.py:530  '#'
+      work sw/chat_seq.py:533  "# interleaved over the 4 engines).  So it shares model_v2_s1's"   <- proposed
+      doc:2501  ...| 3-7 | `UNRESOLVED ref/seq_chat.py:168`, `sw/chat_seq.py:239`, `sw/chat_seq.py:240`, `sw/chat_seq.py:530`, `sw/chat_seq.py:532`, all in **this**...
+      doc:2717  ...| 3-4 | `sw/chat_seq.py:530`, `:532` | §18.2's residual row 3-7 — r...
+  REPAIR         sw/chat_seq.py:532 -> sw/chat_seq.py:535   doc lines 2501   at-base yes
+      base sw/chat_seq.py:532  '# `model_v2_s1.e4.*`, and is longer: 68,119 records instead of 60,495.'
+      work sw/chat_seq.py:532  "# the matvec encoding differs (row-split MVGOs, and the LM head's chunks"
+      work sw/chat_seq.py:535  '# `model_v2_s1.e4.*`, and is longer: 68,119 records instead of 60,495.'   <- proposed
+      doc:2501  ... ref/seq_chat.py:168`, `sw/chat_seq.py:239`, `sw/chat_seq.py:240`, `sw/chat_seq.py:530`, `sw/chat_seq.py:532`, all in **this** document's §20 | thes...
+  REPAIR         sw/chat_seq.py:564-575 -> sw/chat_seq.py:567-578   doc lines 893,2501,3042,3201   at-base yes
+      base sw/chat_seq.py:564  'TEMPLATE4_BY_MODEL = {'
+      work sw/chat_seq.py:564  '#'
+      work sw/chat_seq.py:567  'TEMPLATE4_BY_MODEL = {'   <- proposed
+      base end :575 'TEMPLATE4_NREC = _T4[2]' / work end :578 'TEMPLATE4_NREC = _T4[2]'
+      doc:893  ...el_9b_s1.e4` for 9B. A NOMINATION of an artifact that already existed — no re-emission | `sw/chat_seq.py:564-575` |...
+      doc:2501  ... and §20.2 E now name the replacements (`ref/seq_chat.py:178`, `sw/chat_seq.py:251-252`, `sw/chat_seq.py:564-575`) BY HAND, and §20.6 says what replaced...
+  REPAIR         ref/seq_chat.py:935 -> ref/seq_chat.py:950   doc lines 2529   at-base yes
+      base ref/seq_chat.py:935  '# stream surgery used by the split-vs-mono gate'
+      work ref/seq_chat.py:935  'ids = [int(t) for t in prompt_ids]'
+      work ref/seq_chat.py:950  '# stream surgery used by the split-vs-mono gate'   <- proposed
+      doc:2529  ...`ref/seq_chat.py:935/936/1213/1214/1215`. The pass rewrote i...
+  REPAIR         sw/chat_seq.py:2999 -> sw/chat_seq.py:3091   doc lines 2596   at-base yes
+      base sw/chat_seq.py:2999  'self.verifier.preamble(self.images["preamble"])'
+      work sw/chat_seq.py:2999  'self.log(f"  state CV   {len(wit_cv)} conv witness(es) match "'
+      work sw/chat_seq.py:3091  'self.verifier.preamble(self.images["preamble"])'   <- proposed
+      doc:2596  ...`sw/chat_seq.py:2999`, in §8.3's...
+  REPAIR         sw/chat_seq.py:530 -> sw/chat_seq.py:533   doc lines 2501,2717   at-base yes
+      base sw/chat_seq.py:530  "# interleaved over the 4 engines).  So it shares model_v2_s1's"
+      work sw/chat_seq.py:530  '#'
+      work sw/chat_seq.py:533  "# interleaved over the 4 engines).  So it shares model_v2_s1's"   <- proposed
+      doc:2501  ...| 3-7 | `UNRESOLVED ref/seq_chat.py:168`, `sw/chat_seq.py:239`, `sw/chat_seq.py:240`, `sw/chat_seq.py:530`, `sw/chat_seq.py:532`, all in **this**...
+      doc:2717  ...| 3-4 | `sw/chat_seq.py:530`, `:532` | §18.2's residual row 3-7 — r...
+  REPAIR         `:532` -> `:535`   doc lines 2717   at-base yes
+      base sw/chat_seq.py:532  '# `model_v2_s1.e4.*`, and is longer: 68,119 records instead of 60,495.'
+      work sw/chat_seq.py:532  "# the matvec encoding differs (row-split MVGOs, and the LM head's chunks"
+      work sw/chat_seq.py:535  '# `model_v2_s1.e4.*`, and is longer: 68,119 records instead of 60,495.'   <- proposed
+      doc:2717  ...| 3-4 | `sw/chat_seq.py:530`, `:532` | §18.2's residual row 3-7 — round 2's ...
+  REPAIR         sw/chat_seq.py:2530 -> sw/chat_seq.py:2559   doc lines 2719,2839   at-base yes
+      base sw/chat_seq.py:2530  'self.const_blob = self.tc.blob()'
+      work sw/chat_seq.py:2530  'self.SCm = SC'
+      work sw/chat_seq.py:2559  'self.const_blob = self.tc.blob()'   <- proposed
+      doc:2719  ...| 6-7 | `sw/chat_seq.py:2530`, `:4799` | §19.1's table of the migrat...
+      doc:2839  ...| 219 | `want_exp0 = head_logit_exp0(self.head.spec.rs_f)` | `sw/chat_seq.py:2530` | 2377 |  <!--cites:noquote-->...
+  REPAIR         `:4799` -> `:4895`   doc lines 2719   at-base yes
+      base sw/chat_seq.py:4799  '+ tkr.encode("\\n") + [TOK_IM_START]'
+      work sw/chat_seq.py:4799  'if i and fed_c[i] == want_c[i - 1]] == [314, 369, 279])'
+      work sw/chat_seq.py:4895  '+ tkr.encode("\\n") + [TOK_IM_START]'   <- proposed
+      doc:2719  ...| 6-7 | `sw/chat_seq.py:2530`, `:4799` | §19.1's table of the migration spec's...
+  REPAIR         sw/chat_seq.py:2873 -> sw/chat_seq.py:2965   doc lines 2721   at-base yes
+      base sw/chat_seq.py:2873  'The board half of `SeqModelVerifier.state_region`.  Three things,'
+      work sw/chat_seq.py:2873  'self.log(f"  caps       {cs} from {where}; template, slices and the "'
+      work sw/chat_seq.py:2965  'The board half of `SeqModelVerifier.state_region`.  Three things,'   <- proposed
+      doc:2721  ...| 11 | `sw/chat_seq.py:2873` | repaired BY HAND to `:2879` (`def ch...
+  REPAIR         `:2879` -> `:2971`   doc lines 2721   at-base yes
+      base sw/chat_seq.py:2879  'is not enough**: `evidence/qwen9b/g6/RD9_GATE.md` §14.2 measured'
+      work sw/chat_seq.py:2879  '"""Residency probe -> targeted upload -> const blob + images."""'
+      work sw/chat_seq.py:2971  'is not enough**: `evidence/qwen9b/g6/RD9_GATE.md` §14.2 measured'   <- proposed
+      doc:2721  ...| 11 | `sw/chat_seq.py:2873` | repaired BY HAND to `:2879` (`def check_pos_mode`, whose signature ...
+  REPAIR         sw/chat_seq.py:2530 -> sw/chat_seq.py:2559   doc lines 2719,2839   at-base yes
+      base sw/chat_seq.py:2530  'self.const_blob = self.tc.blob()'
+      work sw/chat_seq.py:2530  'self.SCm = SC'
+      work sw/chat_seq.py:2559  'self.const_blob = self.tc.blob()'   <- proposed
+      doc:2719  ...| 6-7 | `sw/chat_seq.py:2530`, `:4799` | §19.1's table of the migrat...
+      doc:2839  ...| 219 | `want_exp0 = head_logit_exp0(self.head.spec.rs_f)` | `sw/chat_seq.py:2530` | 2377 |  <!--cites:noquote-->...
+  REPAIR         sw/chat_seq.py:4799 -> sw/chat_seq.py:4895   doc lines 2840   at-base yes
+      base sw/chat_seq.py:4799  '+ tkr.encode("\\n") + [TOK_IM_START]'
+      work sw/chat_seq.py:4799  'if i and fed_c[i] == want_c[i - 1]] == [314, 369, 279])'
+      work sw/chat_seq.py:4895  '+ tkr.encode("\\n") + [TOK_IM_START]'   <- proposed
+      doc:2840  ...| 222 | `head_logit_exp0(7) == HEAD_LOGIT_EXP0 + 1` | `sw/chat_seq.py:4799` | 4462 |  <!--cites:noquote-->...
+  REPAIR         ref/seq_chat.py:504 -> ref/seq_chat.py:518   doc lines 3011   at-base yes
+      base ref/seq_chat.py:504  'class TurnCompiler(object):'
+      work ref/seq_chat.py:504  'f"position LDC {j} is {SF.disasm(rr)}, expected "'
+      work ref/seq_chat.py:518  'class TurnCompiler(object):'   <- proposed
+      doc:3011  ...`ref/seq_chat.TurnCompiler` (`ref/seq_chat.py:504`) splices the three DDR...
+  REPAIR         sw/chat_seq.py:583 -> sw/chat_seq.py:586   doc lines 3018   at-base yes
+      base sw/chat_seq.py:583  '# form B at FABLE5_MODEL=9b --nch 4 on the shipped template, the shipped'
+      work sw/chat_seq.py:583  '#'
+      work sw/chat_seq.py:586  '# form B at FABLE5_MODEL=9b --nch 4 on the shipped template, the shipped'   <- proposed
+      doc:3018  ...`sw/chat_seq.derive_geometry` (`sw/chat_seq.py:583`), which reads all nine...
+  REPAIR         sw/chat_seq.py:923 -> sw/chat_seq.py:952   doc lines 3024   at-base yes
+      base sw/chat_seq.py:923  'if any(perm.get(i) != i for i in range(HEAD_RECS)):'
+      work sw/chat_seq.py:923  '"wall_s": round(time.monotonic() - t0, 1)}'
+      work sw/chat_seq.py:952  'if any(perm.get(i) != i for i in range(HEAD_RECS)):'   <- proposed
+      doc:3024  ...`sw/chat_seq.py:923`)....
+  REPAIR         sw/chat_seq.py:564-575 -> sw/chat_seq.py:567-578   doc lines 893,2501,3042,3201   at-base yes
+      base sw/chat_seq.py:564  'TEMPLATE4_BY_MODEL = {'
+      work sw/chat_seq.py:564  '#'
+      work sw/chat_seq.py:567  'TEMPLATE4_BY_MODEL = {'   <- proposed
+      base end :575 'TEMPLATE4_NREC = _T4[2]' / work end :578 'TEMPLATE4_NREC = _T4[2]'
+      doc:893  ...el_9b_s1.e4` for 9B. A NOMINATION of an artifact that already existed — no re-emission | `sw/chat_seq.py:564-575` |...
+      doc:2501  ... and §20.2 E now name the replacements (`ref/seq_chat.py:178`, `sw/chat_seq.py:251-252`, `sw/chat_seq.py:564-575`) BY HAND, and §20.6 says what replaced...
+  REPAIR         sw/chat_seq.py:2969 -> sw/chat_seq.py:3061   doc lines 3043   at-base yes
+      base sw/chat_seq.py:2969  'tag=f"conv image L{ci[\'layer\']}")'
+      work sw/chat_seq.py:2969  'the DN memset and one write per conv image, each read back — and'
+      work sw/chat_seq.py:3061  'tag=f"conv image L{ci[\'layer\']}")'   <- proposed
+      doc:3043  ...| **B** | give the verifier a state region | `sw/chat_seq.py:2969` (`self.mach = self.SM._fresh_mach()`) ...
+  REPAIR         sw/chat_seq.py:2997 -> sw/chat_seq.py:3089   doc lines 3043   at-base yes
+      base sw/chat_seq.py:2997  '# the lockstep model in step with the chip'
+      work sw/chat_seq.py:2997  'f"after the state upload: "'
+      work sw/chat_seq.py:3089  '# the lockstep model in step with the chip'   <- proposed
+      doc:3043  ...erifier a state region | `sw/chat_seq.py:2969` (`self.mach = self.SM._fresh_mach()`) and `sw/chat_seq.py:2997` (`ex = self.SM.SeqExec(recs, self.blob...
+  REPAIR         sw/chat_seq.py:6428 -> sw/chat_seq.py:6524   doc lines 3046,3094   at-base yes
+      base sw/chat_seq.py:6428  't1 = time.monotonic()'
+      work sw/chat_seq.py:6428  '# ref/fidelity_check.py:build_golden uses — eager attention, the bf16'
+      work sw/chat_seq.py:6524  't1 = time.monotonic()'   <- proposed
+      doc:3046  ...ion blob | `ref/seq_chat.py:178`, `sw/chat_seq.py:251-252`, and the `--max-ctx` guard at `sw/chat_seq.py:6428` | see §20.3 | **one constant + one gua...
+      doc:3094  ...   cost.** The `--max-ctx` guard at `sw/chat_seq.py:6428` moves with it....
+  REPAIR         sw/chat_seq.py:3236-3237 -> sw/chat_seq.py:3328-3329   doc lines 3078   at-base yes
+      base sw/chat_seq.py:3236  '"<|im_start|> wrapper — this is the pre-INSTRUCT_SPEC "'
+      work sw/chat_seq.py:3236  'raise ChatSeqError('
+      work sw/chat_seq.py:3328  '"<|im_start|> wrapper — this is the pre-INSTRUCT_SPEC "'   <- proposed
+      base end :3237 '"behaviour and the model will ramble/continue rather than "' / work end :3329 '"behaviour and the model will ramble/continue rather than "'
+      doc:3078  ...on the frozen checkpoint (`sw/chat_seq.py:3236-3237`). **Which one, exactly:**...
+  REPAIR         sw/chat_seq.py:3217 -> sw/chat_seq.py:3309   doc lines 3081,3254   at-base yes
+      base sw/chat_seq.py:3217  'f"{len(ids) + ntok - 1} steps, more than --max-ctx "'
+      work sw/chat_seq.py:3217  'cache=not getattr(a, "no_head_cache", False),'
+      work sw/chat_seq.py:3309  'f"{len(ids) + ntok - 1} steps, more than --max-ctx "'   <- proposed
+      doc:3081  ...(`sw/chat_seq.py:3217`) — re-review round 2, M-2. The outstan...
+      doc:3254  ...omment that pins the 0.8B snapshot | **fixed** — §20.1 names the 0.8B snapshot and cites `sw/chat_seq.py:3217` |...
+  REPAIR         sw/chat_seq.py:6428 -> sw/chat_seq.py:6524   doc lines 3046,3094   at-base yes
+      base sw/chat_seq.py:6428  't1 = time.monotonic()'
+      work sw/chat_seq.py:6428  '# ref/fidelity_check.py:build_golden uses — eager attention, the bf16'
+      work sw/chat_seq.py:6524  't1 = time.monotonic()'   <- proposed
+      doc:3046  ...ion blob | `ref/seq_chat.py:178`, `sw/chat_seq.py:251-252`, and the `--max-ctx` guard at `sw/chat_seq.py:6428` | see §20.3 | **one constant + one gua...
+      doc:3094  ...   cost.** The `--max-ctx` guard at `sw/chat_seq.py:6428` moves with it....
+  REPAIR         sw/chat_seq.py:564-575 -> sw/chat_seq.py:567-578   doc lines 893,2501,3042,3201   at-base yes
+      base sw/chat_seq.py:564  'TEMPLATE4_BY_MODEL = {'
+      work sw/chat_seq.py:564  '#'
+      work sw/chat_seq.py:567  'TEMPLATE4_BY_MODEL = {'   <- proposed
+      base end :575 'TEMPLATE4_NREC = _T4[2]' / work end :578 'TEMPLATE4_NREC = _T4[2]'
+      doc:893  ...el_9b_s1.e4` for 9B. A NOMINATION of an artifact that already existed — no re-emission | `sw/chat_seq.py:564-575` |...
+      doc:2501  ... and §20.2 E now name the replacements (`ref/seq_chat.py:178`, `sw/chat_seq.py:251-252`, `sw/chat_seq.py:564-575`) BY HAND, and §20.6 says what replaced...
+  REPAIR         sw/chat_seq.py:3217 -> sw/chat_seq.py:3309   doc lines 3081,3254   at-base yes
+      base sw/chat_seq.py:3217  'f"{len(ids) + ntok - 1} steps, more than --max-ctx "'
+      work sw/chat_seq.py:3217  'cache=not getattr(a, "no_head_cache", False),'
+      work sw/chat_seq.py:3309  'f"{len(ids) + ntok - 1} steps, more than --max-ctx "'   <- proposed
+      doc:3081  ...(`sw/chat_seq.py:3217`) — re-review round 2, M-2. The outstan...
+      doc:3254  ...omment that pins the 0.8B snapshot | **fixed** — §20.1 names the 0.8B snapshot and cites `sw/chat_seq.py:3217` |...
+  REPAIR         sw/chat_seq.py:3493 -> sw/chat_seq.py:3585   doc lines 3650   at-base yes
+      base sw/chat_seq.py:3493  '"""'
+      work sw/chat_seq.py:3493  ''
+      work sw/chat_seq.py:3585  '"""'   <- proposed
+      doc:3650  ...`lite`'s 121). **It needs one small, bounded tool change**: `sw/chat_seq.py:3493`...
+  REPAIR         ref/seq_chat.py:671 -> ref/seq_chat.py:686   doc lines 3742   at-base yes
+      base ref/seq_chat.py:671  'for j, off in enumerate(POS_LDC_REC_OFFSETS):'
+      work ref/seq_chat.py:671  'b = bytearray(self.T.tcnt)'
+      work ref/seq_chat.py:686  'for j, off in enumerate(POS_LDC_REC_OFFSETS):'   <- proposed
+      doc:3742  ...| position pool / RoPE `LDC` (`ref/seq_chat.py:671`-`672`) | `POS_BLOB_BASE + pos*2048`, p...
+=== evidence/qwen9b/g6/g6_longctx_lockstep.py  (REPAIR 2, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:6300 -> sw/chat_seq.py:6396   doc lines 180   at-base yes
+      base sw/chat_seq.py:6300  'tok = fed[i]'
+      work sw/chat_seq.py:6300  '_refuses(lambda: _cpm23(_PmSess("xrf"), tag="9b")))'
+      work sw/chat_seq.py:6396  'tok = fed[i]'   <- proposed
+      doc:180  ...    `argv` verbatim (`sw/chat_seq.py:6300`), the log carries the id list...
+  REPAIR         sw/chat_seq.py:3474 -> sw/chat_seq.py:3566   doc lines 181   at-base yes
+      base sw/chat_seq.py:3474  'escape hatch.  "auto" picks the mode that can actually reach'
+      work sw/chat_seq.py:3474  'if reg.plan != want:                               # pragma: no cover'
+      work sw/chat_seq.py:3566  'escape hatch.  "auto" picks the mode that can actually reach'   <- proposed
+      doc:181  ...    `run_turn` printed (`sw/chat_seq.py:3474`).  Nothing is retyped here....
+=== evidence/qwen9b/g6/g6_nch.py  (REPAIR 4, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:299 -> sw/seq_run.py:374   doc lines 16,71   at-base yes
+      base sw/seq_run.py:299  'm = self.meta'
+      work sw/seq_run.py:299  'def manifest_caps_check(meta, caps, what="stream"):'
+      work sw/seq_run.py:374  'm = self.meta'   <- proposed
+      doc:16  ...      out of the stream's own `meta["nch"]` (`sw/seq_run.py:299`,...
+      doc:71  ...    """(nch, nrec, key_present) the way `sw/seq_run.py:299` reads it:...
+  REPAIR         sw/seq_run.py:2894 -> sw/seq_run.py:3052   doc lines 17   at-base yes
+      base sw/seq_run.py:2894  '_outcome[_mode] = ("returned", list(_entered))'
+      work sw/seq_run.py:2894  'd = object.__new__(Dev)'
+      work sw/seq_run.py:3052  '_outcome[_mode] = ("returned", list(_entered))'   <- proposed
+      doc:17  ...      `sw/seq_run.py:2894`) and `--four-chan` only ASSERTS it...
+  REPAIR         sw/seq_run.py:2802 -> sw/seq_run.py:2942   doc lines 18   at-base yes
+      base sw/seq_run.py:2802  'check("parse_expect_version takes the bare git-hash form",'
+      work sw/seq_run.py:2802  'wo == old_man and mo["emb_row_bytes"] == EMB_ROW_BYTES_DEFAULT)'
+      work sw/seq_run.py:2942  'check("parse_expect_version takes the bare git-hash form",'   <- proposed
+      doc:18  ...      (`sw/seq_run.py:2802`).  So "run it at nch=1" is a request f...
+  REPAIR         sw/seq_run.py:299 -> sw/seq_run.py:374   doc lines 16,71   at-base yes
+      base sw/seq_run.py:299  'm = self.meta'
+      work sw/seq_run.py:299  'def manifest_caps_check(meta, caps, what="stream"):'
+      work sw/seq_run.py:374  'm = self.meta'   <- proposed
+      doc:16  ...      out of the stream's own `meta["nch"]` (`sw/seq_run.py:299`,...
+      doc:71  ...    """(nch, nrec, key_present) the way `sw/seq_run.py:299` reads it:...
+=== evidence/qwen9b/g6/g6_pack_rung.sh  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:1165-1167 -> sw/chat_seq.py:1194-1196   doc lines 9   at-base yes
+      base sw/chat_seq.py:1165  'need(recs[cut].opcode == SF.OP_MOVX,'
+      work sw/chat_seq.py:1165  '# each channel and the same address means different rows on different'
+      work sw/chat_seq.py:1194  'need(recs[cut].opcode == SF.OP_MOVX,'   <- proposed
+      base end :1167 'f"expected a MOVX XWIN <= scratch[...]")' / work end :1196 'f"expected a MOVX XWIN <= scratch[...]")'
+      doc:9  ...#       has never fired (sw/chat_seq.py:1165-1167) and hoping is not a test...
+=== evidence/qwen9b/g6/g6_residency.py  (REPAIR 3, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:1057-1064 -> sw/chat_seq.py:1086-1093   doc lines 13   at-base yes
+      base sw/chat_seq.py:1057  'res.update(ok=not diff, diff=diff, tokens=so,'
+      work sw/chat_seq.py:1057  'region=region,'
+      work sw/chat_seq.py:1086  'res.update(ok=not diff, diff=diff, tokens=so,'   <- proposed
+      base end :1064 '' / work end :1093 ''
+      doc:13  ...WHY THIS FILE EXISTS.  `sw/chat_seq.py:1057-1064` says it in its own words:...
+  REPAIR         sw/chat_seq.py:1165-1167 -> sw/chat_seq.py:1194-1196   doc lines 28,235   at-base yes
+      base sw/chat_seq.py:1165  'need(recs[cut].opcode == SF.OP_MOVX,'
+      work sw/chat_seq.py:1165  '# each channel and the same address means different rows on different'
+      work sw/chat_seq.py:1194  'need(recs[cut].opcode == SF.OP_MOVX,'   <- proposed
+      base end :1167 'f"expected a MOVX XWIN <= scratch[...]")' / work end :1196 'f"expected a MOVX XWIN <= scratch[...]")'
+      doc:28  ...and unproven" (`sw/chat_seq.py:1165-1167`).  9B is the first real chance to...
+      doc:235  ...        # sw/chat_seq.py:1165-1167 says had never happened on hardware....
+  REPAIR         sw/chat_seq.py:1165-1167 -> sw/chat_seq.py:1194-1196   doc lines 28,235   at-base yes
+      base sw/chat_seq.py:1165  'need(recs[cut].opcode == SF.OP_MOVX,'
+      work sw/chat_seq.py:1165  '# each channel and the same address means different rows on different'
+      work sw/chat_seq.py:1194  'need(recs[cut].opcode == SF.OP_MOVX,'   <- proposed
+      base end :1167 'f"expected a MOVX XWIN <= scratch[...]")' / work end :1196 'f"expected a MOVX XWIN <= scratch[...]")'
+      doc:28  ...and unproven" (`sw/chat_seq.py:1165-1167`).  9B is the first real chance to...
+      doc:235  ...        # sw/chat_seq.py:1165-1167 says had never happened on hardware....
+=== evidence/qwen9b/o3/BOARD_LOCK.md  (REPAIR 14, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:1715 -> sw/chat_seq.py:1744   doc lines 608,724   at-base yes
+      base sw/chat_seq.py:1715  '# SAMPLING'
+      work sw/chat_seq.py:1715  'pc = dev.seq_rd(S_PC)'
+      work sw/chat_seq.py:1744  '# SAMPLING'   <- proposed
+      doc:608  ...> carry `:1715` meaning the OLD line and `sw/chat_seq.py:1715` meaning the...
+      doc:724  ...`sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.py:1715`, `:1717`...
+  REPAIR         `:1715` -> `:1744`   doc lines 608   at-base yes
+      base sw/chat_seq.py:1715  '# SAMPLING'
+      work sw/chat_seq.py:1715  'pc = dev.seq_rd(S_PC)'
+      work sw/chat_seq.py:1744  '# SAMPLING'   <- proposed
+      doc:608  ...> carry `:1715` meaning the OLD line and `sw/chat_seq.p...
+  REPAIR         sw/chat_seq.py:1695 -> sw/chat_seq.py:1724   doc lines 723,843   at-base yes
+      base sw/chat_seq.py:1695  '# was reset — so it is a SESSION alarm, not a per-launch counter,'
+      work sw/chat_seq.py:1695  'st = dev.seq_status()'
+      work sw/chat_seq.py:1724  '# was reset — so it is a SESSION alarm, not a per-launch counter,'   <- proposed
+      doc:723  ...now reads `sw/chat_seq.py:1695`, `:1697`, `sw/chat_seq.py:1707`,...
+      doc:843  ...    lengths row names `sw/chat_seq.py:1695`…`:1717`, which is the faithful...
+  REPAIR         sw/chat_seq.py:1707 -> sw/chat_seq.py:1736   doc lines 723   at-base yes
+      base sw/chat_seq.py:1707  'f"the HALT at {image.nrec - 1}")'
+      work sw/chat_seq.py:1707  'f"STATUS={st[\'raw\']:#010x} err={st[\'err_code\']:#04x} "'
+      work sw/chat_seq.py:1736  'f"the HALT at {image.nrec - 1}")'   <- proposed
+      doc:723  ...now reads `sw/chat_seq.py:1695`, `:1697`, `sw/chat_seq.py:1707`,...
+  REPAIR         `:1697` -> `:1726`   doc lines 723   at-base yes
+      base sw/chat_seq.py:1697  '"out_fifo_ovf": bool(st.get("of_ovf", False)),'
+      work sw/chat_seq.py:1697  'break'
+      work sw/chat_seq.py:1726  '"out_fifo_ovf": bool(st.get("of_ovf", False)),'   <- proposed
+      doc:723  ...now reads `sw/chat_seq.py:1695`, `:1697`, `sw/chat_seq.py:1707`,...
+  REPAIR         sw/chat_seq.py:1710 -> sw/chat_seq.py:1739   doc lines 724   at-base yes
+      base sw/chat_seq.py:1710  'f"{tokens}; one launch is one step")'
+      work sw/chat_seq.py:1710  'time.sleep(POLL_S)'
+      work sw/chat_seq.py:1739  'f"{tokens}; one launch is one step")'   <- proposed
+      doc:724  ...`sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.p...
+  REPAIR         sw/chat_seq.py:1713 -> sw/chat_seq.py:1742   doc lines 724   at-base yes
+      base sw/chat_seq.py:1713  ''
+      work sw/chat_seq.py:1713  '# 5. halted: now (and only now) pop the FIFO'
+      work sw/chat_seq.py:1742  ''   <- proposed
+      doc:724  ...`sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.py:1715`, `:1717`...
+  REPAIR         sw/chat_seq.py:1715 -> sw/chat_seq.py:1744   doc lines 608,724   at-base yes
+      base sw/chat_seq.py:1715  '# SAMPLING'
+      work sw/chat_seq.py:1715  'pc = dev.seq_rd(S_PC)'
+      work sw/chat_seq.py:1744  '# SAMPLING'   <- proposed
+      doc:608  ...> carry `:1715` meaning the OLD line and `sw/chat_seq.py:1715` meaning the...
+      doc:724  ...`sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.py:1715`, `:1717`...
+  REPAIR         `:1717` -> `:1746`   doc lines 724,843   at-base yes
+      base sw/chat_seq.py:1717  '# STATUS (2026-08-11, user ruling — this OVERRIDES docs/SAMPLING_SPEC.md'
+      work sw/chat_seq.py:1717  'rep = {"image": image.name, "tok_in": int(tok), "pos": int(pos),'
+      work sw/chat_seq.py:1746  '# STATUS (2026-08-11, user ruling — this OVERRIDES docs/SAMPLING_SPEC.md'   <- proposed
+      doc:724  ...`sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.py:1715`, `:1717`...
+      doc:843  ...    lengths row names `sw/chat_seq.py:1695`…`:1717`, which is the faithful...
+  REPAIR         sw/chat_seq.py:1789 -> sw/chat_seq.py:1818   doc lines 729,846   at-base yes
+      base sw/chat_seq.py:1789  '@property'
+      work sw/chat_seq.py:1789  '"""'
+      work sw/chat_seq.py:1818  '@property'   <- proposed
+      doc:729  ...`_scratch_footprint`, whose docstring is at `sw/chat_seq.py:1789` and whose...
+      doc:846  ...    `_scratch_footprint` at `sw/chat_seq.py:1789` onward, and **G2a already...
+  REPAIR         sw/chat_seq.py:1813 -> sw/chat_seq.py:1842   doc lines 730   at-base yes
+      base sw/chat_seq.py:1813  '"spec": "docs/SAMPLING_SPEC.md S3/S5 + 2026-08-11 ruling"}'
+      work sw/chat_seq.py:1813  'self.n = 0                 # picks made'
+      work sw/chat_seq.py:1842  '"spec": "docs/SAMPLING_SPEC.md S3/S5 + 2026-08-11 ruling"}'   <- proposed
+      doc:730  ...per-op lengths run from `sw/chat_seq.py:1813` — and its own text records that...
+  REPAIR         sw/chat_seq.py:1695 -> sw/chat_seq.py:1724   doc lines 723,843   at-base yes
+      base sw/chat_seq.py:1695  '# was reset — so it is a SESSION alarm, not a per-launch counter,'
+      work sw/chat_seq.py:1695  'st = dev.seq_status()'
+      work sw/chat_seq.py:1724  '# was reset — so it is a SESSION alarm, not a per-launch counter,'   <- proposed
+      doc:723  ...now reads `sw/chat_seq.py:1695`, `:1697`, `sw/chat_seq.py:1707`,...
+      doc:843  ...    lengths row names `sw/chat_seq.py:1695`…`:1717`, which is the faithful...
+  REPAIR         `:1717` -> `:1746`   doc lines 724,843   at-base yes
+      base sw/chat_seq.py:1717  '# STATUS (2026-08-11, user ruling — this OVERRIDES docs/SAMPLING_SPEC.md'
+      work sw/chat_seq.py:1717  'rep = {"image": image.name, "tok_in": int(tok), "pos": int(pos),'
+      work sw/chat_seq.py:1746  '# STATUS (2026-08-11, user ruling — this OVERRIDES docs/SAMPLING_SPEC.md'   <- proposed
+      doc:724  ...`sw/chat_seq.py:1710`, `sw/chat_seq.py:1713`, `sw/chat_seq.py:1715`, `:1717`...
+      doc:843  ...    lengths row names `sw/chat_seq.py:1695`…`:1717`, which is the faithful...
+  REPAIR         sw/chat_seq.py:1789 -> sw/chat_seq.py:1818   doc lines 729,846   at-base yes
+      base sw/chat_seq.py:1789  '@property'
+      work sw/chat_seq.py:1789  '"""'
+      work sw/chat_seq.py:1818  '@property'   <- proposed
+      doc:729  ...`_scratch_footprint`, whose docstring is at `sw/chat_seq.py:1789` and whose...
+      doc:846  ...    `_scratch_footprint` at `sw/chat_seq.py:1789` onward, and **G2a already...
+=== evidence/qwen9b/ov/S1P_SHIP.md  (REPAIR 11, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:745 -> sw/chat_seq.py:773   doc lines 55,228   at-base yes
+      base sw/chat_seq.py:745  'def reorder_default(env=None):'
+      work sw/chat_seq.py:745  '"""The capability set a level\'s images NEED — reorder_e4.CAPS_OF, the'
+      work sw/chat_seq.py:773  'def reorder_default(env=None):'   <- proposed
+      doc:55  ...   (`sw/chat_seq.py:745`, `sw/chat_seq.py:6863`), for the chat_...
+      doc:228  ...anything else is refused) (`sw/chat_seq.py:745`). The **`sw/chat_seq.py` CLI**...
+  REPAIR         sw/chat_seq.py:6863 -> sw/chat_seq.py:6974   doc lines 55,230   at-base yes
+      base sw/chat_seq.py:6863  'reorder_default()'
+      work sw/chat_seq.py:6863  'ap.add_argument("--force-upload", action="store_true",'
+      work sw/chat_seq.py:6974  'reorder_default()'   <- proposed
+      doc:55  ...   (`sw/chat_seq.py:745`, `sw/chat_seq.py:6863`), for the chat_seq CLI only. §4...
+      doc:230  ...(`sw/chat_seq.py:6863`; fix round 1: not at import, so an imp...
+  REPAIR         sw/chat_seq.py:903 -> sw/chat_seq.py:931   doc lines 161   at-base yes
+      base sw/chat_seq.py:903  'def reorder_b_images(tc, SCm, rtl="r0"):'
+      work sw/chat_seq.py:903  '# regeneration == pin check below proves it on every session'
+      work sw/chat_seq.py:931  'def reorder_b_images(tc, SCm, rtl="r0"):'   <- proposed
+      doc:161  ...costs (`sw/chat_seq.py:903`). A lite image is its own segment, so ...
+  REPAIR         sw/chat_seq.py:940 -> sw/chat_seq.py:969   doc lines 165   at-base yes
+      base sw/chat_seq.py:940  'def follow_patch(p, perm, SCm):'
+      work sw/chat_seq.py:940  'reorder_e4 validates its output at {"R1"} and requires it REFUSED at'
+      work sw/chat_seq.py:969  'def follow_patch(p, perm, SCm):'   <- proposed
+      doc:165  ...the reordered position of the record it was aimed at (`sw/chat_seq.py:940`,...
+  REPAIR         sw/chat_seq.py:2689 -> sw/chat_seq.py:2722   doc lines 166   at-base yes
+      base sw/chat_seq.py:2689  'def step_patch(self, kind, tok, pos, tcnt=1, data_delta=0):'
+      work sw/chat_seq.py:2689  'for kind, (img, perm, rep) in built.items():'
+      work sw/chat_seq.py:2722  'def step_patch(self, kind, tok, pos, tcnt=1, data_delta=0):'   <- proposed
+      doc:166  ...`sw/chat_seq.py:2689`). The head records never move, and the...
+  REPAIR         sw/chat_seq.py:745 -> sw/chat_seq.py:773   doc lines 55,228   at-base yes
+      base sw/chat_seq.py:745  'def reorder_default(env=None):'
+      work sw/chat_seq.py:745  '"""The capability set a level\'s images NEED — reorder_e4.CAPS_OF, the'
+      work sw/chat_seq.py:773  'def reorder_default(env=None):'   <- proposed
+      doc:55  ...   (`sw/chat_seq.py:745`, `sw/chat_seq.py:6863`), for the chat_...
+      doc:228  ...anything else is refused) (`sw/chat_seq.py:745`). The **`sw/chat_seq.py` CLI**...
+  REPAIR         sw/chat_seq.py:6863 -> sw/chat_seq.py:6974   doc lines 55,230   at-base yes
+      base sw/chat_seq.py:6863  'reorder_default()'
+      work sw/chat_seq.py:6863  'ap.add_argument("--force-upload", action="store_true",'
+      work sw/chat_seq.py:6974  'reorder_default()'   <- proposed
+      doc:55  ...   (`sw/chat_seq.py:745`, `sw/chat_seq.py:6863`), for the chat_seq CLI only. §4...
+      doc:230  ...(`sw/chat_seq.py:6863`; fix round 1: not at import, so an imp...
+  REPAIR         sw/chat_seq.py:876 -> sw/chat_seq.py:904   doc lines 244   at-base yes
+      base sw/chat_seq.py:876  'new, _cps, rep = RE.reorder(recs, RE.SC.rows_for(recs), form,'
+      work sw/chat_seq.py:876  'raise ChatSeqError("the shipped 4-chan template\'s sha moved")'
+      work sw/chat_seq.py:904  'new, _cps, rep = RE.reorder(recs, RE.SC.rows_for(recs), form,'   <- proposed
+      doc:244  ...  regenerates its template at the static costs (`sw/chat_seq.py:876`). It still...
+  REPAIR         sw/chat_seq.py:770 -> sw/chat_seq.py:798   doc lines 330   at-base yes
+      base sw/chat_seq.py:770  'def effective_reorder(args, env=None, log=print):'
+      work sw/chat_seq.py:770  'return level'
+      work sw/chat_seq.py:798  'def effective_reorder(args, env=None, log=print):'   <- proposed
+      doc:330  ...(`sw/chat_seq.py:770`, called in `main()` at `sw/chat_seq.py...
+  REPAIR         sw/chat_seq.py:6885 -> sw/chat_seq.py:6996   doc lines 330   at-base yes
+      base sw/chat_seq.py:6885  'args.reorder = effective_reorder(args)'
+      work sw/chat_seq.py:6885  '"form B\'s per-image reorder emitting masked FENCEs "'
+      work sw/chat_seq.py:6996  'args.reorder = effective_reorder(args)'   <- proposed
+      doc:330  ...(`sw/chat_seq.py:770`, called in `main()` at `sw/chat_seq.py:6885`, before...
+  REPAIR         sw/chat_seq.py:644 -> sw/chat_seq.py:647   doc lines 361   at-base yes
+      base sw/chat_seq.py:644  'REORDER_B_POS = 0'
+      work sw/chat_seq.py:644  'REORDER_B_GATE_LOG = "evidence/qwen9b/ov/n89_s1p_formB_tdd_GREEN.log"'
+      work sw/chat_seq.py:647  'REORDER_B_POS = 0'   <- proposed
+      doc:361  ...  (`sw/chat_seq.py:644`). Whether a deeper pricing position gi...
+=== evidence/qwen9b/sr/SR2_ISA.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         sw/chat_seq.py:568-570 -> sw/chat_seq.py:571-573   doc lines 71   at-base yes
+      base sw/chat_seq.py:568  '"9b": (("tb", "scripts", "w9", "model_9b_s1.e4"),'
+      work sw/chat_seq.py:568  'None: (("tb", "scripts", "w4", "model_v2_s1.e4"),'
+      work sw/chat_seq.py:571  '"9b": (("tb", "scripts", "w9", "model_9b_s1.e4"),'   <- proposed
+      base end :570 '"cb7e6639320a5fd6d480719b", 158536),' / work end :573 '"cb7e6639320a5fd6d480719b", 158536),'
+      doc:71  ...sha256 checked against the pin in `sw/chat_seq.py:568-570`) validates at the...
+=== evidence/qwen9b/sr/SR6_HOST.md  (REPAIR 23, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:261 -> sw/seq_run.py:299   doc lines 39   at-base yes
+      base sw/seq_run.py:261  'def manifest_caps_check(meta, caps, what="stream"):'
+      work sw/seq_run.py:261  '("mvwork", 0x1C),      # 0x11C mover busy on MOVX/MVGO/MOVY'
+      work sw/seq_run.py:299  'def manifest_caps_check(meta, caps, what="stream"):'   <- proposed
+      doc:39  ...heck — a manifest `caps` claim must be a subset of the set, refused BY NAME (SeqError) | `sw/seq_run.py:261` |...
+  REPAIR         sw/seq_run.py:814 -> sw/seq_run.py:913   doc lines 42   at-base yes
+      base sw/seq_run.py:814  'SF.validate_stream(recs, caps=caps)'
+      work sw/seq_run.py:814  '"n_host": len(h), "n_engine": len(e)})'
+      work sw/seq_run.py:913  'SF.validate_stream(recs, caps=caps)'   <- proposed
+      doc:42  ...ct (a fixture WRITER, not a load) validates at the set its caller names, default empty | `sw/seq_run.py:814` |...
+  REPAIR         sw/seq_run.py:1327 -> sw/seq_run.py:1430   doc lines 43   at-base yes
+      base sw/seq_run.py:1327  'def seq_caps(self):'
+      work sw/seq_run.py:1327  '# ---- channel-explicit DDR (weights row-split across channels) ----'
+      work sw/seq_run.py:1430  'def seq_caps(self):'   <- proposed
+      doc:43  ...OPEN SEQ gate), decodes with HW.seq_caps_set; unknown bit is a SeqError naming the bit | `sw/seq_run.py:1327` |...
+  REPAIR         sw/seq_run.py:3121 -> sw/seq_run.py:3279   doc lines 44   at-base yes
+      base sw/seq_run.py:3121  'def parse_caps(text):'
+      work sw/seq_run.py:3121  'log("  --- S3: the DDR state region (plan, witnesses, bytes/token)")'
+      work sw/seq_run.py:3279  'def parse_caps(text):'   <- proposed
+      doc:44  ...| parse_caps / `--caps` (`--dry-run` only, default None = the empty set) | `sw/seq_run.py:3121`, `sw/seq_run.py:3195` |...
+  REPAIR         sw/seq_run.py:3195 -> sw/seq_run.py:3353   doc lines 44   at-base yes
+      base sw/seq_run.py:3195  'ap.add_argument("--caps", type=_argparse_caps, default=None,'
+      work sw/seq_run.py:3195  'def dma_read_chan(self, c, a, n):'
+      work sw/seq_run.py:3353  'ap.add_argument("--caps", type=_argparse_caps, default=None,'   <- proposed
+      doc:44  ...caps / `--caps` (`--dry-run` only, default None = the empty set) | `sw/seq_run.py:3121`, `sw/seq_run.py:3195` |...
+  REPAIR         sw/seq_run.py:3241-3267 -> sw/seq_run.py:3409-3435   doc lines 45   at-base yes
+      base sw/seq_run.py:3241  '# ---------------- board identity (SR6: FIRST) ----------------'
+      work sw/seq_run.py:3241  '_raises(lambda: upload_state(_FakeStateDev(mem_zero=False),'
+      work sw/seq_run.py:3409  '# ---------------- board identity (SR6: FIRST) ----------------'   <- proposed
+      base end :3267 'f"was uploaded or written")' / work end :3435 'f"was uploaded or written")'
+      doc:45  ... only), then the B3 closed-gate refusal, then the capability block, then the artifacts | `sw/seq_run.py:3241-3267`, `sw/seq_run.py:3269-3286` |...
+  REPAIR         sw/seq_run.py:3269-3286 -> sw/seq_run.py:3437-3454   doc lines 45   at-base yes
+      base sw/seq_run.py:3269  '# ---------------- capabilities (SR6, SEQ_ISA v2.3 B17.0) ------------'
+      work sw/seq_run.py:3269  ''
+      work sw/seq_run.py:3437  '# ---------------- capabilities (SR6, SEQ_ISA v2.3 B17.0) ------------'   <- proposed
+      base end :3286 'rep["caps"] = sorted(caps)' / work end :3454 'rep["caps"] = sorted(caps)'
+      doc:45  ...gate refusal, then the capability block, then the artifacts | `sw/seq_run.py:3241-3267`, `sw/seq_run.py:3269-3286` |...
+  REPAIR         sw/seq_run.py:2918 -> sw/seq_run.py:3076   doc lines 47   at-base yes
+      base sw/seq_run.py:2918  'log("  --- SR6: Dev.seq_caps / manifest_caps_check / --caps")'
+      work sw/seq_run.py:2918  '_fz = sorted(FROZEN_PRE_G3_STREAMS)'
+      work sw/seq_run.py:3076  'log("  --- SR6: Dev.seq_caps / manifest_caps_check / --caps")'   <- proposed
+      doc:47  ...| selftest block, +10 checks (the pieces; the end-to-end is sr6_host_tdd.py) | `sw/seq_run.py:2918` |...
+  REPAIR         sw/chat_seq.py:726 -> sw/chat_seq.py:753   doc lines 55   at-base yes
+      base sw/chat_seq.py:726  'def check_seq_rtl(args):'
+      work sw/chat_seq.py:726  'def seq_rtl_arg(s):'
+      work sw/chat_seq.py:753  'def check_seq_rtl(args):'   <- proposed
+      doc:55  ...| check_seq_rtl — a level above r0 needs `--reorder B` (refused naming `--seq-rtl`) | `sw/chat_seq.py:726` |...
+  REPAIR         sw/chat_seq.py:841 -> sw/chat_seq.py:869   doc lines 56   at-base yes
+      base sw/chat_seq.py:841  'level = check_seq_rtl(args)'
+      work sw/chat_seq.py:841  '# bad $FABLE5_REORDER; case-insensitive)'
+      work sw/chat_seq.py:869  'level = check_seq_rtl(args)'   <- proposed
+      doc:56  ...| resolve_reorder's form-B branch carries the level, its caps and its pins | `sw/chat_seq.py:841` |...
+  REPAIR         sw/chat_seq.py:903 -> sw/chat_seq.py:931   doc lines 57   at-base yes
+      base sw/chat_seq.py:903  'def reorder_b_images(tc, SCm, rtl="r0"):'
+      work sw/chat_seq.py:903  '# regeneration == pin check below proves it on every session'
+      work sw/chat_seq.py:931  'def reorder_b_images(tc, SCm, rtl="r0"):'   <- proposed
+      doc:57  ...| reorder_b_images takes `rtl=` and passes it to reorder_e4.reorder | `sw/chat_seq.py:903`, `sw/chat_seq.py:921` |...
+  REPAIR         sw/chat_seq.py:921 -> sw/chat_seq.py:950   doc lines 57   at-base yes
+      base sw/chat_seq.py:921  '"B", [], rtl=rtl)'
+      work sw/chat_seq.py:921  '"records": len(new), "hazard": rep["hazard"],'
+      work sw/chat_seq.py:950  '"B", [], rtl=rtl)'   <- proposed
+      doc:57  ...eorder_b_images takes `rtl=` and passes it to reorder_e4.reorder | `sw/chat_seq.py:903`, `sw/chat_seq.py:921` |...
+  REPAIR         sw/chat_seq.py:1029 -> sw/chat_seq.py:1058   doc lines 58   at-base yes
+      base sw/chat_seq.py:1029  'caps=(getattr(sess, "level_caps", frozenset())'
+      work sw/chat_seq.py:1029  'region = SeqModelVerifier.state_region(sess)'
+      work sw/chat_seq.py:1058  'caps=(getattr(sess, "level_caps", frozenset())'   <- proposed
+      doc:58  ...6: the shipped side's SeqExec at the empty set, the reordered side at the level's caps | `sw/chat_seq.py:1029` |...
+  REPAIR         sw/chat_seq.py:2470 -> sw/chat_seq.py:2499   doc lines 59   at-base yes
+      base sw/chat_seq.py:2470  'self.seq_rtl = check_seq_rtl(args)'
+      work sw/chat_seq.py:2470  '# ---- chat template (docs/INSTRUCT_SPEC.md) --------------------'
+      work sw/chat_seq.py:2499  'self.seq_rtl = check_seq_rtl(args)'   <- proposed
+      doc:59  ...| ChatSession: seq_rtl, level_caps, caps (the level's until open_board) | `sw/chat_seq.py:2470` |...
+  REPAIR         sw/chat_seq.py:2667 -> sw/chat_seq.py:2700   doc lines 60   at-base yes
+      base sw/chat_seq.py:2667  'SF.validate_stream(SF.unpack_stream(img.data),'
+      work sw/chat_seq.py:2667  '"""Agent A\'s per-launch patch, in HOST address space.'
+      work sw/chat_seq.py:2700  'SF.validate_stream(SF.unpack_stream(img.data),'   <- proposed
+      doc:60  ...| each reordered image is validated at the session's set after its pin check | `sw/chat_seq.py:2667` |...
+  REPAIR         sw/chat_seq.py:2720 -> sw/chat_seq.py:2779   doc lines 61   at-base yes
+      base sw/chat_seq.py:2720  'def open_board(self):'
+      work sw/chat_seq.py:2720  'f"{time.monotonic() - t0:.1f} s")'
+      work sw/chat_seq.py:2779  'def open_board(self):'   <- proposed
+      doc:61  ...and the three RELOCATED images at them, then the level-subset check, before any upload | `sw/chat_seq.py:2720`, `sw/chat_seq.py:2740`, `sw/chat_seq.p...
+  REPAIR         sw/chat_seq.py:2740 -> sw/chat_seq.py:2814   doc lines 61   at-base yes
+      base sw/chat_seq.py:2740  'def admit_caps(self, caps, word=None):'
+      work sw/chat_seq.py:2740  'im.recs, rep = SR.relocate(im.recs_emit, self.meta, self.plan,'
+      work sw/chat_seq.py:2814  'def admit_caps(self, caps, word=None):'   <- proposed
+      doc:61  ... images at them, then the level-subset check, before any upload | `sw/chat_seq.py:2720`, `sw/chat_seq.py:2740`, `sw/chat_seq.py:2759-2780` |...
+  REPAIR         sw/chat_seq.py:2759-2780 -> sw/chat_seq.py:2848-2872   doc lines 61   at-base yes
+      base sw/chat_seq.py:2759  'recs, _blob, _meta = load_template('
+      work sw/chat_seq.py:2759  'a = self.args'
+      work sw/chat_seq.py:2848  'recs, _blob, _meta = load_template('   <- proposed
+      base end :2780 'self.caps = self.dev_caps = caps' / work end :2872 'self.caps = self.dev_caps = caps'
+      doc:61  ...he level-subset check, before any upload | `sw/chat_seq.py:2720`, `sw/chat_seq.py:2740`, `sw/chat_seq.py:2759-2780` |...
+  REPAIR         sw/chat_seq.py:3424 -> sw/chat_seq.py:3516   doc lines 62   at-base yes
+      base sw/chat_seq.py:3424  'caps=getattr(self.sess, "caps", frozenset())'
+      work sw/chat_seq.py:3424  'f"(--max-ctx {reach + 1}).  ref/seq_model.SeqExec does not "'
+      work sw/chat_seq.py:3516  'caps=getattr(self.sess, "caps", frozenset())'   <- proposed
+      doc:62  ...| SeqModelVerifier (`--verify`, `--model-only`) runs SeqExec at the session's set | `sw/chat_seq.py:3424` |...
+  REPAIR         sw/chat_seq.py:6894 -> sw/chat_seq.py:7005   doc lines 64   at-base yes
+      base sw/chat_seq.py:6894  'check_seq_rtl(args)'
+      work sw/chat_seq.py:6894  'ap.add_argument("--shape-isa", type=int, default=None,'
+      work sw/chat_seq.py:7005  'check_seq_rtl(args)'   <- proposed
+      doc:64  ...| the level check before the lock (exit 4); open_board's refusal is exit 4 too | `sw/chat_seq.py:6894`, `sw/chat_seq.py:6981` |...
+  REPAIR         sw/chat_seq.py:6981 -> sw/chat_seq.py:7092   doc lines 64   at-base yes
+      base sw/chat_seq.py:6981  'sess.open_board()'
+      work sw/chat_seq.py:6981  '_rtl_env = seq_rtl_default()'
+      work sw/chat_seq.py:7092  'sess.open_board()'   <- proposed
+      doc:64  ...ck before the lock (exit 4); open_board's refusal is exit 4 too | `sw/chat_seq.py:6894`, `sw/chat_seq.py:6981` |...
+  REPAIR         sw/seq_run.py:1272 -> sw/seq_run.py:1375   doc lines 221   at-base yes
+      base sw/seq_run.py:1272  'return hashlib.sha256(data).hexdigest()'
+      work sw/seq_run.py:1272  '+ ("; to drive it, name it: --expect-version "'
+      work sw/seq_run.py:1375  'return hashlib.sha256(data).hexdigest()'   <- proposed
+      doc:221  ...    sw/seq_run.py:1272, was already wrong in content at 7e7212...
+  REPAIR         sw/seq_run.py:3365 -> sw/seq_run.py:3580   doc lines 323   at-base yes
+      base sw/seq_run.py:3365  'if args.dry_run and caps:'
+      work sw/seq_run.py:3365  'help="--dry-run ONLY (SR11a fix round 2): the MVGO SHAPE "'
+      work sw/seq_run.py:3580  'if args.dry_run and caps:'   <- proposed
+      doc:323  ...  (`sw/seq_run.py:3365`) after validate + relocate at the type...
+=== evidence/qwen_next/defect_a/CORRECTIONS.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1500-1502 -> ref/seq_chat.py:1515-1517   doc lines 12   at-base yes
+      base ref/seq_chat.py:1500  'ok = ok and good'
+      work ref/seq_chat.py:1500  'rows = []'
+      work ref/seq_chat.py:1515  'ok = ok and good'   <- proposed
+      base end :1502 'f"{got}  -> {\'IDENTICAL\' if good else \'MISMATCH\'}")' / work end :1517 'f"{got}  -> {\'IDENTICAL\' if good else \'MISMATCH\'}")'
+      doc:12  ...**Claimed** (first-round `ref/seq_chat.py:1500-1502` and the `2a50cac` commit...
+=== evidence/qwen_next/defect_a/demo_2b.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:978-979 -> ref/seq_chat.py:993-994   doc lines 9   at-base yes
+      base ref/seq_chat.py:978  ''
+      work ref/seq_chat.py:978  'len_or_addr_hi=r.len_or_addr_hi)'
+      work ref/seq_chat.py:993  ''   <- proposed
+      base end :979 '# ======================================================================' / work end :994 '# ======================================================================'
+      doc:9  ...PRE-FIX reader (ref/seq_chat.py:978-979, :1213-1215 before this fix):...
+=== evidence/qwen_next/defect_a/sibling_2b_probe.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1305-1308 -> ref/seq_chat.py:1320-1323   doc lines 5   at-base yes
+      base ref/seq_chat.py:1305  '"My favorite color is",'
+      work ref/seq_chat.py:1305  'f"{blob[:CONST_BYTES] == raw[:CONST_BYTES]}")'
+      work ref/seq_chat.py:1320  '"My favorite color is",'   <- proposed
+      base end :1308 '' / work end :1323 ''
+      doc:5  ...Before the fix (`ref/seq_chat.py:1305-1308`, §2.10's second row):...
+=== evidence/qwen_next/ladder/LADDER.md  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1360 -> ref/seq_chat.py:1375   doc lines 471   at-base yes
+      base ref/seq_chat.py:1360  'for i, (lt, dn_slot, kv_slot) in enumerate(slots):'
+      work ref/seq_chat.py:1360  'import gen_layer_script as GLS'
+      work ref/seq_chat.py:1375  'for i, (lt, dn_slot, kv_slot) in enumerate(slots):'   <- proposed
+      doc:471  ...at `ref/gen_model_script.py:525` and `ref/seq_chat.py:1360`, which set...
+=== ref/gen_layer_script.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1404 -> ref/seq_chat.py:1419   doc lines 1452   at-base yes
+      base ref/seq_chat.py:1404  'kv_pf = GLS.sched_kv_prefetch(types)'
+      work ref/seq_chat.py:1404  'saved = os.environ.pop("SEQ_EMIT", None)          # model only, never em'
+      work ref/seq_chat.py:1419  'kv_pf = GLS.sched_kv_prefetch(types)'   <- proposed
+      doc:1452  ...        # `ref/seq_chat.py:1404`, and this file's own `main`), so at 9B...
+=== ref/load_qwen35.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1360 -> ref/seq_chat.py:1375   doc lines 401   at-base yes
+      base ref/seq_chat.py:1360  'for i, (lt, dn_slot, kv_slot) in enumerate(slots):'
+      work ref/seq_chat.py:1360  'import gen_layer_script as GLS'
+      work ref/seq_chat.py:1375  'for i, (lt, dn_slot, kv_slot) in enumerate(slots):'   <- proposed
+      doc:401  ...        # `ref/gen_model_script.py:525` and `ref/seq_chat.py:1360` both set...
+=== ref/seq_chat.py  (REPAIR 1, COLLATERAL 0)
+  REPAIR         ref/seq_chat.py:1305-1308 -> ref/seq_chat.py:1320-1323   doc lines 1455   at-base yes
+      base ref/seq_chat.py:1305  '"My favorite color is",'
+      work ref/seq_chat.py:1305  'f"{blob[:CONST_BYTES] == raw[:CONST_BYTES]}")'
+      work ref/seq_chat.py:1320  '"My favorite color is",'   <- proposed
+      base end :1308 '' / work end :1323 ''
+      doc:1455  ...        # that used to be here are §2.10's `ref/seq_chat.py:1305-1308` row —...
+=== sw/hwmap.py  (REPAIR 4, COLLATERAL 0)
+  REPAIR         sw/seq_run.py:115 -> sw/seq_run.py:124   doc lines 92   at-base yes
+      base sw/seq_run.py:115  '# lockstep with sw/infer.py:EXPECT_VERSION and with docs/USAGE.md §1.'
+      work sw/seq_run.py:115  "# local byte offset the emitter's MVGO WBASEs point at."
+      work sw/seq_run.py:124  '# lockstep with sw/infer.py:EXPECT_VERSION and with docs/USAGE.md §1.'   <- proposed
+      doc:92  ...# `sw/seq_run.py:115` (the history line) and `sw/seq_run.py:...
+  REPAIR         sw/seq_run.py:121 -> sw/seq_run.py:130   doc lines 92   at-base yes
+      base sw/seq_run.py:121  '#     performs no access whatsoever to the 0x6000 window), and'
+      work sw/seq_run.py:121  '# The csr_0 VERSION word of the netlist that must be resident on the boa'
+      work sw/seq_run.py:130  '#     performs no access whatsoever to the 0x6000 window), and'   <- proposed
+      doc:92  ...# `sw/seq_run.py:115` (the history line) and `sw/seq_run.py:121` /...
+  REPAIR         sw/seq_run.py:2472 -> sw/seq_run.py:2575   doc lines 254   at-base yes
+      base sw/seq_run.py:2472  'f"{[hex(t) for t in rp_top]} vs one span {flat_top:#x}")'
+      work sw/seq_run.py:2472  'for c in range(4)))'
+      work sw/seq_run.py:2575  'f"{[hex(t) for t in rp_top]} vs one span {flat_top:#x}")'   <- proposed
+      doc:254  ...# `sw/seq_run.py:2472`, `sw/seq_run.py:3003` and...
+  REPAIR         sw/seq_run.py:3003 -> sw/seq_run.py:3161   doc lines 254   at-base yes
+      base sw/seq_run.py:3003  'import tok_meter as _TM'
+      work sw/seq_run.py:3003  '# ---------------- BM1-T4prep fix 1: strict parse + refuse-before-DMA --'
+      work sw/seq_run.py:3161  'import tok_meter as _TM'   <- proposed
+      doc:254  ...# `sw/seq_run.py:2472`, `sw/seq_run.py:3003` and...
+  EXCLUDED NEXT_SESSION.md
+  EXCLUDED evidence/qwen9b/o3/o3_cite_drift.py
+  EXCLUDED evidence/qwen9b/s3/S3_CHAIN.md
+  EXCLUDED evidence/qwen9b/sr/sr6_drift.sh
+  EXCLUDED evidence/qwen9b/sr/sr6_hand_repairs.py
+  EXCLUDED tb/tb_seq_chip.sv
+--- UNRESOLVED (cited base line rewritten/deleted; o3 leaves these):
+  sw/chat_seq.py:477 'SF.validate_stream(recs, caps=caps)'  cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, evidence/qwen9b/sr/SR6_HOST.md
+  sw/chat_seq.py:518 'SF.validate_stream(rr, caps=caps)'  cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, evidence/qwen9b/sr/SR6_HOST.md
+  sw/chat_seq.py:669 'SEQ_RTLS = ("r0", "r1")'  cited by evidence/qwen9b/sr/SR6_HOST.md
+  sw/chat_seq.py:2533 '"preamble": Resident("preamble", self.tc.build_session()),'  cited by evidence/qwen9b/g6/g6_longctx_lockstep.py
+  sw/chat_seq.py:2534 '"lite": Resident("lite", self.tc.build_step(0, 0, "lite")),'  cited by evidence/qwen9b/g3/G3_1_ISA.md
+  sw/chat_seq.py:6783 'ap.add_argument("--seq-rtl", type=seq_rtl_arg, metavar="{r0,r1}",'  cited by evidence/qwen9b/sr/SR6_HOST.md
+  sw/seq_run.py:23 'same set.'  cited by evidence/qwen9b/sr/SR6_HOST.md
+  sw/seq_run.py:316 'SF.validate_stream(self.recs, caps=self.caps)'  cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, evidence/qwen9b/sr/SR6_HOST.md
+  sw/seq_run.py:624 'SF.validate_stream(out, caps=caps)'  cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, evidence/qwen9b/sr/SR6_HOST.md
+  sw/seq_run.py:3290 'art = Artifacts(args.prefix, base=args.base, caps=caps)'  cited by evidence/qwen9b/sr/SR6_HOST.md
+  sw/seq_run.py:3334 'recs, rrep = relocate(art.recs, m, plan, len(art.blob), caps=caps)'  cited by evidence/qwen9b/sr/SR6_HOST.md
+--- HALF-MAPPED:
+  sw/chat_seq.py:669-682  cited by evidence/qwen9b/sr/SR6_HOST.md
+  sw/chat_seq.py:2533-2537  cited by evidence/qwen9b/g6/g6_longctx_lockstep.py
+  sw/seq_run.py:9-23  cited by evidence/qwen9b/sr/SR6_HOST.md
+  sw/seq_run.py:316-317  cited by evidence/qwen9b/sr/SR6_HOST.md
+--- MISSING (past the base EOF / absent):
+SR11C_AUDIT REPAIR 256 (of which SUSPECT 7)  COLLATERAL 1
+=== rc  : 0
+=== end : 2026-09-28T13:00:19-06:00

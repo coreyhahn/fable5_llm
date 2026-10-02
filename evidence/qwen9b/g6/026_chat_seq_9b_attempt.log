@@ -1,0 +1,89 @@
+=== host: snoke
+=== date: 2026-09-09T20:17:52-06:00
+=== tree: 8962544+dirty
+=== cmd:  bash -c 
+set +e
+echo "########## [1] chat_seq --verify with its DEFAULT (2B) template"
+/home/cah/.venv/bin/python sw/chat_seq.py --verify --nch 4 --out evidence/qwen9b/g6/026_chat_default.json 2>&1 | tail -25
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [2] chat_seq --verify pointed at the 9B artifact"
+/home/cah/.venv/bin/python sw/chat_seq.py --verify --nch 4 --template tb/scripts/w9/model_9b_s1.e4 --out evidence/qwen9b/g6/026_chat_9b.json 2>&1 | tail -25
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [3] and with --any-template, which drops the sha check only"
+/home/cah/.venv/bin/python sw/chat_seq.py --verify --nch 4 --any-template --template tb/scripts/w9/model_9b_s1.e4 --out evidence/qwen9b/g6/026_chat_9b_any.json 2>&1 | tail -25
+echo "   rc=${PIPESTATUS[0]}"
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] chat_seq --verify with its DEFAULT (2B) template
+  upload     const blob + 3 images: 2275 KiB readback-verified in 0.0s
+  tokenizer  2fc06364715b967f1860aea9cf38778875588b17: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  verify     building the ref/seq_model lockstep (~6 s of host time per step; the board idles meanwhile)
+  sampling   greedy (--temp 0): the chip's argmax, bit-exact  |  source chip-topk: ready  |  capture k=32
+--- preamble
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5690, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5611, in main
+    sess.preamble()          # replays into the verifier too, if any
+    ^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 2221, in preamble
+    rep = _launch(self.dev, im, writes=w, tok=0, pos=0,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 1142, in _launch
+    raise ChatSeqError(
+ChatSeqError: SEQ halted with err_code=0x10 (layer_chan err_op) at pc=5/1526 in image preamble (tok=0 pos=0)
+      0  CSRWR  L_LAYER      <= 0x00000000
+      1  LDC*   DDR[0xc000000] -> scratch[0x1000] 8192 words
+      2  CSRWR  L_ARG0       <= 0x04000000
+      3  CSRWR  L_ARG1       <= 0x00001000
+      4  CSRWR  L_ARG2       <= 0x00000000
+      5  CMD    CONVW  <<< PC
+      6  LDC*   DDR[0xc004000] -> scratch[0x1000] 8192 words
+   rc=1
+
+########## [2] chat_seq --verify pointed at the 9B artifact
+--- session bring-up
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5690, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5591, in main
+    sess = ChatSession(args)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 1935, in __init__
+    self.geom = derive_geometry(recs0, self.meta0)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 658, in derive_geometry
+    need(len(pl) == POS_COPIES,
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 565, in need
+    raise ChatSeqError("template geometry: " + msg)
+ChatSeqError: template geometry: 8 position-indexed LDCs in the body, expected 6
+   rc=1
+
+########## [3] and with --any-template, which drops the sha check only
+--- session bring-up
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5690, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5591, in main
+    sess = ChatSession(args)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 1935, in __init__
+    self.geom = derive_geometry(recs0, self.meta0)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 658, in derive_geometry
+    need(len(pl) == POS_COPIES,
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 565, in need
+    raise ChatSeqError("template geometry: " + msg)
+ChatSeqError: template geometry: 8 position-indexed LDCs in the body, expected 6
+   rc=1
+=== rc: 0
+=== end: 2026-09-09T20:18:48-06:00

@@ -1,0 +1,67 @@
+=== host: snoke  date: 2026-08-24T23:35:01-06:00
+=== tree: b3dd123+dirty
+=== cmd : make -C /home/cah/r2d2/code/fpga/fable5_llm/sw seq_run TAG=build035 EVID=../evidence/qwen2b/rd
+=== venv: 3.12.3 numpy 2.4.6
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/sw'
+.venv/bin/python -u seq_run.py --prefix ../tb/scripts/w4/model_v2_s1.e \
+  --out ../evidence/qwen2b/rd/seq_run_build035.json 
+--- SEQ stream: ../tb/scripts/w4/model_v2_s1.e
+  artifacts base   ../tb/scripts/w4/model_v2_s1
+  stream           60495 records, 967920 B (sha256 a69864d25b6b129a) VALIDATED
+  seqdata          1007360 B (sha256 13bc65821b18194b)
+  profile          epsnorm  dyn_ka=True  loop 3 steps (structurally safe)
+  opcodes          {'CSRWR': 42023, 'CMD': 13964, 'MOVX': 748, 'MOVY': 1592, 'MVGO': 1592, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'HALT': 1, 'LDC*': 538, 'XOP*': 28}
+  expected tokens  [561, 314, 279, 369, 279, 6511]
+  mode             single-channel (engine chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=1)
+  stream    0x9000000 .. 0x90ec4f0  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc0f5f00  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 187 images, chans [0])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 538 LDC records (24 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 4 EMB records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0x54443b9f CALIB=0xf  SEQ=READY
+  weight plan: 187 images match the stream's MVGO plan; 1592 MVGO WBASEs row-aligned inside them
+--- upload
+  weights   187 images, 398 MiB -> 0x10000000..0x28e34000 (chan 0)  [readback OK]
+  embedding 485 MiB -> 0x60000000  [readback OK]
+  seqdata   1007360 B -> 0xc000000  [readback OK]
+  stream    967920 B (60495 records) -> 0x9000000  [readback OK]
+  885 MiB written, 885 MiB read back and compared, 6.4s
+--- run
+  EMBLOG2    11 (2048 B embedding rows)
+  SEQ_BASE=0x9000000 LEN=60495 ENTRY=0 -> START
+    pc 344/60495  (0.0s)
+    pc 5141/60495  (0.0s)
+    pc 8466/60495  (0.0s)
+    pc 12896/60495  (0.0s)
+    pc 17567/60495  (0.1s)
+    pc 20876/60495  (0.1s)
+    pc 25305/60495  (0.1s)
+    pc 29330/60495  (0.1s)
+    pc 33306/60495  (0.1s)
+    pc 37723/60495  (0.1s)
+    pc 41012/60495  (0.1s)
+    pc 45173/60495  (0.1s)
+    pc 49239/60495  (0.1s)
+    pc 53432/60495  (0.2s)
+    pc 57454/60495  (0.2s)
+    pc 45772/60495  (0.2s)
+    pc 49459/60495  (0.2s)
+    pc 53543/60495  (0.2s)
+    pc 58078/60495  (0.2s)
+    pc 46387/60495  (0.2s)
+    pc 49605/60495  (0.2s)
+    pc 54106/60495  (0.3s)
+    pc 57391/60495  (0.3s)
+  halted at pc=60494/60495 in 0.28s wall / 278.778 ms device
+  STATUS=0x00010004 err=False err_code=0x00 (no error)
+  perf: {'cyc': 69694517, 'rec': 89979, 'axil_wr': 104852, 'axil_rd': 3865661, 'fetch_starved_cyc': 95, 'xrf_ovf': False}
+  tokens: [561, 314, 279, 369, 279, 6511]
+  TOKENS   IDENTICAL to the .seq.json (6 tokens)
+--- post-halt state vs ../tb/scripts/w4/model_v2_s1.e.chip
+  golden    7188 state checks, ALL MATCH
+SEQ RUN: PASS
+report -> ../evidence/qwen2b/rd/seq_run_build035.json
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/sw'
+=== rc  : 0
+=== end : 2026-08-24T23:35:09-06:00

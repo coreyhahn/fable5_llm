@@ -1,0 +1,42 @@
+=== host: snoke  date: 2026-09-15T17:21:10-06:00
+=== tree: 874f5de+dirty
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/feas2/fix1_checks.py
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+(1) I-1 — the SLD/SST layer envelope under the midpoint pipeline cut
+==============================================================================
+    the envelope: N_DN = 24, N_KV = 8  (rtl/layer_chan.sv:362-363), 5-bit sd_layer_a carries 0..31
+
+  9B        L= 32  cut@16
+      whole model    24 DN /   8 GQA   PASS, EXACTLY at the ceiling
+      board A [0,16)    12 DN /   4 GQA   PASS (room: 12 DN, 4 GQA)
+      board B [16,32)   12 DN /   4 GQA   PASS (room: 12 DN, 4 GQA)
+      cuts of 32 that pass on BOTH boards: 31 (1..31)
+
+  27B       L= 64  cut@32
+      whole model    48 DN /  16 GQA   FAIL
+      board A [0,32)    24 DN /   8 GQA   PASS, EXACTLY at the ceiling
+      board B [32,64)   24 DN /   8 GQA   PASS, EXACTLY at the ceiling
+      cuts of 64 that pass on BOTH boards: 1 (32)
+
+  35B-A3B   L= 40  cut@20
+      whole model    30 DN /  10 GQA   FAIL
+      board A [0,20)    15 DN /   5 GQA   PASS (room: 9 DN, 3 GQA)
+      board B [20,40)   15 DN /   5 GQA   PASS (room: 9 DN, 3 GQA)
+      cuts of 40 that pass on BOTH boards: 25 (8..32)
+
+==============================================================================
+(2) I-2 — the MEASURED 0.8B W4 g128 step, bucket by bucket
+==============================================================================
+    matvec 5.4754 x r=1.1037  =   6.043 ms   19.2 %
+    movers 11.332 x m=0.9117  =  10.331 ms   32.8 %
+    layer  (MEASURED)      =  15.128 ms   48.0 %
+    step                   = 31.5026 ms  (the log's 31.5023)
+
+    So the shipped 0.8B at W4 g128 was LAYER-BOUND at 48.0 % on silicon,
+    ABOVE the 35B-A3B's modelled 47.4 %.  'the first layer-bound target
+    in this project's history' is refuted by the study's own calibration
+    input, and the defensible claim is 'the first LARGE target to come
+    back layer-bound'.
+=== rc  : 0
+=== end : 2026-09-15T17:21:10-06:00

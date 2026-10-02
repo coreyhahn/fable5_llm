@@ -1,0 +1,53 @@
+=== host: darthplagueis
+=== date: 2026-09-03T22:17:54-06:00
+=== tree: a78345a
+=== cmd:  bash /tmp/g5_drift.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== the files this task edited outside evidence/qwen9b/g5/ ===
+  synth/constraints/fable5_floorplan_9b_dnbank.xdc
+  synth/constraints/fable5_floorplan_9b_dngrp.xdc
+  synth/constraints/fable5_floorplan_9b_dnslr.xdc
+  synth/constraints/fable5_floorplan_9b_layer0.xdc
+  synth/exp_uram/scripts/check_pblocks.tcl
+  synth/exp_uram/scripts/collect_evidence.sh
+  synth/exp_uram/scripts/dev_geom_census.tcl
+  synth/exp_uram/scripts/exp_ooc.tcl
+  synth/exp_uram/scripts/family_census.tcl
+  synth/exp_uram/scripts/finish_reports.tcl
+  synth/exp_uram/scripts/launch_exp.sh
+  synth/exp_uram/scripts/probe_names.tcl
+
+=== o3_cite_drift.py --plan, base = the tree the campaign's docs cite (0984087) ===
+=== --exclude the gate doc: it was written in the FINAL tree's coordinates ===
+o3 citation-drift gate  [plan — dry run, nothing is written]
+  code base  0984087
+  files      3 edited file(s)
+  TOTAL      REPAIR 0  COLLATERAL 0
+O3_FIX_PLAN: SAFE — every rewrite repairs a citation --verify reports stale
+
+=== --verify at the same base ===
+o3 citation-drift gate  [verify]
+  code base  0984087
+  doc base   0984087
+  files      3 edited files
+  citations  0 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  relocated  0 citation(s) checked against the base content and the citing documents
+  excluded   evidence/qwen9b/g5/G5A_FLOORPLAN.md
+O3_CITE_DRIFT VERIFY PASS (0 problem(s))
+
+=== --exclude's own negative control ===
+o3 citation-drift gate  [exclude negative control]
+  code base  0984087
+  doc base   0984087
+  candidates 0 document(s) this pass would rewrite
+O3_EXCLUDE_CONTROL: FAIL — no document would be rewritten, so the control is vacuous
+=== rc: 0
+=== end: 2026-09-03T22:17:58-06:00

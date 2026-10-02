@@ -1,0 +1,24 @@
+=== host: snoke  date: 2026-09-27T19:41:37-06:00
+=== tree: 341e957
+=== cmd : /home/cah/.venv/bin/python -u sw/chat_seq.py --nch 4 --seq-rtl r1 --reorder B --reorder-check
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  reorder    form B: PER IMAGE on the shipped template (static costs at position 0, --seq-rtl r1: masked FENCEs, caps ['R1']); pins lite 999911226f9a70b4 full bf115a04ffcc6bfa
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  reorder    form B r1 lite: 38858 -> 39314 records == pin 999911226f9a70b4; MOVX elided 480, fences deferred 352; hazard assert PASS {'MOVX': 512, 'MVGO': 1248, 'MOVY': 1248, 'FENCE': 1248}; postcheck 56205 edges; FENCE masks {1: 312, 2: 312, 4: 312, 8: 312}; static model 30209477 -> 25195119 cyc
+  reorder    form B r1 full: 39626 -> 40173 records == pin bf115a04ffcc6bfa; MOVX elided 480, fences deferred 382; hazard assert PASS {'MOVX': 516, 'MVGO': 1370, 'MOVY': 1370, 'FENCE': 1370}; postcheck 57194 edges; FENCE masks {1: 343, 2: 343, 4: 342, 8: 342}; static model 32771280 -> 27135354 cyc
+  reorder    form B images built in 4.9 s
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:39314, full:40173  (6.3s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9099bc0
+    [B6 shipped] preamble tok=0 pos=0: out [] (0 s)
+    [B6 shipped] lite tok=760 pos=0: out [] (129 s)
+    [B6 shipped] full tok=2614 pos=1: out [513] (146 s)
+    [B6 reordered] preamble tok=0 pos=0: out [] (0 s)
+    [B6 reordered] lite tok=760 pos=0: out [] (123 s)
+    [B6 reordered] full tok=2614 pos=1: out [513] (139 s)
+  B6 model gate: PASS — tokens [[], [], [513]] vs [[], [], [513]]; state diff []; 540.0 s
+REORDER CHECK: PASS
+=== rc  : 0
+=== end : 2026-09-27T19:50:45-06:00

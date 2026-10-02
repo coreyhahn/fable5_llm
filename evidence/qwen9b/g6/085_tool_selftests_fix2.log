@@ -1,0 +1,49 @@
+=== host: snoke
+=== date: 2026-09-09T23:32:10-06:00
+=== tree: 09ed6d7+dirty
+=== cmd:  bash -c 
+set +e
+PY=/home/cah/.venv/bin/python
+for t in chat_seq seq_chat; do :; done
+echo "########## [1] sw/chat_seq.py --selftest"
+$PY -u sw/chat_seq.py --selftest 2>&1 | tail -4
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [2] ref/seq_chat.py --selftest"
+$PY -u ref/seq_chat.py --selftest 2>&1 | tail -3
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [3] sw/seq_run.py --selftest and sw/hwmap.py --selftest (untouched, control)"
+$PY -u sw/seq_run.py --selftest 2>&1 | tail -2
+echo "   rc=${PIPESTATUS[0]}"
+$PY -u sw/hwmap.py --selftest 2>&1 | tail -2
+echo "   rc=${PIPESTATUS[0]}"
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] sw/chat_seq.py --selftest
+  [21] S3: conv-image witnesses + the session-reset DN memset
+  [22] S3/9B: the state region in the verifier, the session and the residency split
+  [23] E: T_MAX = the hardware ceiling, the position blob, and pos_mode at 9B
+  chat_seq selftest: 397 passed, 0 failed
+   rc=0
+
+########## [2] ref/seq_chat.py --selftest
+    [ok] emb geometry at FABLE5_MODEL=9b [EMB GEOMETRY SELFTEST: PASS  (H=4096)]
+SELFTEST: PASS
+seq_chat: PASS
+   rc=0
+
+########## [3] sw/seq_run.py --selftest and sw/hwmap.py --selftest (untouched, control)
+  --- S3: the DDR state region (plan, witnesses, bytes/token)
+  seq_run selftest: 2785 passed, 0 failed
+   rc=0
+HWMAP SHAPE_WORD SELFTEST PASS: isa=1 pinned to RD_GATE 0x20800290/0x20200290 (+ the 0.8B W4 control), g64=0x1000d1e0 w8=0x2000d1e0, w8+g64 refused; isa=2 ng[28:22] nrows[21:6] sh[5:0] round-trips at ng 1/32/64/96 x nrows 0/1/4096/65535 x sh 0/1/63, spare [31:29] zero, g64/w8/over-wide fields and ng outside 1..MAX_NG all refused; an UNKNOWN VERSION refuses (034/035 isa=1, 041 0xc973c18a isa=2)
+   rc=0
+=== rc: 0
+=== end: 2026-09-09T23:32:57-06:00

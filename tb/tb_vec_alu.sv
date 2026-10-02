@@ -1,7 +1,7 @@
 // tb_vec_alu: all ops vs layer_fixed-derived golden vectors, bit-exact.
 //   +vecdir=  the frozen per-seed unit vectors (ops 0..9), UNCHANGED
-//   +seqdir=  sequencer rung-1 goldens from tb/scripts/gen_seq_vectors.py
-//             (op 12 DYNQ16 both clamp modes, op 8 probe max|prod|/k_a)
+//   +seqdir=  rung-1 goldens from tb/scripts/gen_seq_c_vectors.py (op 12
+//             DYNQ16 both modes, op 8 probe; was gen_seq_vectors.py, DELETED)
 //   +amaxlong the >2^18 element chain (512 commands) as well as the short one
 //
 // RUNG 4 S5 (docs/RUNG4_SPEC.md): vec_alu exports ONE registered 51-bit
@@ -26,11 +26,15 @@ module tb_vec_alu;
     wire bu = busy;
     /* verilator lint_on UNUSEDSIGNAL */
     logic [3:0] cfg_op = 0;
-    logic [11:0] cfg_len = 0;
+    // G3.1: FOURTEEN bits.  This TB's own cfg_len was 13 and capped at
+    // 8191, so it BROKE at FFN = 12288 — wall 3's TB twin, which spec 4.6
+    // did not name.  A TB that cannot drive the production length cannot
+    // gate it.
+    logic [13:0] cfg_len = 0;                  // G3.1: 14-bit element count
     logic signed [16:0] cfg_p0 = 0;
-    logic [13:0] cfg_srca = 0, cfg_srcb = 0, cfg_dst = 0;
+    logic [15:0] cfg_srca = 0, cfg_srcb = 0, cfg_dst = 0;   // G3.1: 16 b
     logic [3:0] e_out;
-    logic [13:0] a_addr, b_addr, w_addr;
+    logic [15:0] a_addr, b_addr, w_addr;
     logic signed [15:0] a_q, b_q, w_data;
     logic w_en;
 
@@ -107,7 +111,10 @@ module tb_vec_alu;
     always_ff @(posedge clk) if (rstn && k_we) k_pulses <= k_pulses + 1;
 
     // scratch model
-    logic signed [15:0] mem [16384];
+    // G3.1: 64K words — the drain-time parking address (cfg_dst + len)
+    // must land in range, and the long-length case below deliberately
+    // parks its destination in the TOP half.
+    logic signed [15:0] mem [65536];
     always_ff @(posedge clk) begin
         a_q <= mem[a_addr];
         b_q <= mem[b_addr];
@@ -120,8 +127,8 @@ module tb_vec_alu;
     task automatic run_op(input logic [3:0] op, input int len,
                           input int p0, input int sa, input int sb, input int d);
     /* verilator lint_on UNUSEDSIGNAL */
-        cfg_op = op; cfg_len = 12'(len); cfg_p0 = 17'(p0);
-        cfg_srca = 14'(sa); cfg_srcb = 14'(sb); cfg_dst = 14'(d);
+        cfg_op = op; cfg_len = 14'(len); cfg_p0 = 17'(p0);
+        cfg_srca = 16'(sa); cfg_srcb = 16'(sb); cfg_dst = 16'(d);
         @(negedge clk); start = 1; @(negedge clk); start = 0;
         begin
             int guard = 0;
@@ -460,6 +467,71 @@ module tb_vec_alu;
             errors++;
             $display("FAIL S5: %0d bundle pulses fired outside an AMAX32",
                      tk_bad_op);
+        end
+
+        // ==============================================================
+        // G3.1: the ALU element count is 14 bits (ARG0[17:4] -> cfg_len).
+        //
+        // It was 12, and the Qwen3.5-2B MLP quantizes its whole FFN = 6144
+        // intermediate in ONE DYNQ8 — a length that CANNOT be chunked,
+        // because DYNQ8 picks one shared exponent from max|x| over the
+        // vector and reports it on EOUT.  `6144 & 0xFFF` = 2048, so the
+        // engine silently ran a third of the vector; nothing downstream
+        // could see it, because no python model had a 12-bit field.  R-c
+        // took the field to 13 (max 8191).  Qwen3.5-9B's FFN is 12288, so
+        // 13 bits break the SAME WAY (`12288 & 0x1FFF` = 4096) and G3.1
+        // takes it to 14 — and the case below now runs at 12288, past both
+        // old truncation points, with its destination in the TOP HALF of
+        // the 64K scratchpad so the 16-bit address is exercised too.
+        //
+        // Two directed checks at the REAL production length:
+        //   (a) ADD over 12288 elements is elementwise-exact end to end —
+        //       proves the address generator and the write counter reach
+        //       the last element, not just element 4095.
+        //   (b) DYNQ8's SCAN sees the whole vector: the max is planted at
+        //       index 10000, i.e. beyond both old truncation points, and
+        //       the exponent it produces must DIFFER from the one the
+        //       first 4096 elements alone imply.  This is the semantic a
+        //       truncated length destroys, and it needs no golden
+        //       arithmetic to state.
+        // ==============================================================
+        begin
+            localparam int LONG = 12288;        // = FFN at Qwen3.5-9B
+            localparam int LA = 0, LB = 16384, LD = 40960;
+            logic [3:0] e_long, e_short;
+            int nbad_long;
+
+            for (int k = 0; k < LONG; k++) begin
+                mem[LA + k] = 16'sd3 + 16'(k % 7);
+                mem[LB + k] = 16'sd5 + 16'(k % 11);
+                mem[LD + k] = 16'sh5A5A;        // sentinel: must be written
+            end
+            // (a) ADD, every element
+            run_op(4, LONG, 0, LA, LB, LD);
+            nbad_long = 0;
+            for (int k = 0; k < LONG; k++)
+                if (mem[LD + k] !== (16'sd3 + 16'(k % 7)) + (16'sd5 + 16'(k % 11)))
+                    nbad_long++;
+            if (nbad_long != 0) begin
+                errors++;
+                $display("FAIL G3.1 ADD len=%0d: %0d of %0d elements wrong (a 13-bit cfg_len runs %0d)",
+                         LONG, nbad_long, LONG, LONG & 32'h1FFF);
+            end
+
+            // (b) DYNQ8 scan reach: plant the max PAST the old truncation
+            for (int k = 0; k < LONG; k++) mem[LA + k] = 16'sd64;
+            mem[LA + 10000] = 16'sh4000;        // only visible to a full scan
+            run_op(0, LONG, 0, LA, 0, LD);
+            e_long = e_out;
+            run_op(0, 4096, 0, LA, 0, LD);      // the 13-bit truncated prefix
+            e_short = e_out;
+            if (e_long === e_short) begin
+                errors++;
+                $display("FAIL G3.1 DYNQ8 len=%0d: exponent %0d equals the one the first 4096 elements imply: the scan did NOT reach the max planted at index 10000",
+                         LONG, e_long);
+            end else
+                $display("  G3.1 long-length: ADD %0d/%0d exact into the TOP half (dst %0d); DYNQ8 e=%0d over %0d vs e=%0d over 4096 (the scan reaches past the 13-bit truncation point)",
+                         LONG - nbad_long, LONG, LD, e_long, LONG, e_short);
         end
 
         if (errors == 0) begin

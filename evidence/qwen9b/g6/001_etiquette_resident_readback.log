@@ -1,0 +1,77 @@
+=== host: snoke
+=== date: 2026-09-09T19:28:37-06:00
+=== tree: 5a08f0b
+=== cmd:  bash evidence/qwen9b/g6/g6_board_etiquette.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== [1] the PCI endpoint
+82:00.0 Serial controller: Xilinx Corporation Device 9038
+82:00.0 Serial controller [0700]: Xilinx Corporation Device [10ee:9038]
+crw-rw-rw- 1 root root 510, 36 Aug 24 23:32 /dev/xdma0_c2h_0
+crw-rw-rw- 1 root root 510,  1 Aug 24 23:32 /dev/xdma0_control
+crw-rw-rw- 1 root root 510, 32 Aug 24 23:32 /dev/xdma0_h2c_0
+crw-rw-rw- 1 root root 510,  0 Aug 24 23:32 /dev/xdma0_user
+
+=== [2] the two worktrees that share this board
+/home/cah/r2d2/code/fpga/fable5_llm         5a08f0b [main]
+/home/cah/r2d2/code/fpga/grok46_llm/fable5  8ad8be0 [grok46-qwen2b]
+
+=== [3] other board users (both worktrees, whole host)
+  (no board tool is running)
+
+=== [4] the shared board lock, before we take it
+board lock  /home/cah/r2d2/code/fpga/.fable5_board.lock
+  fstype    nfs4
+  state     not held
+  identity  (empty)
+  legacy    /home/cah/r2d2/code/fpga/fable5_llm/sw/.seq.lock exists (free) — NOTHING TAKES IT ANY MORE; it is the per-checkout file O3 replaced
+--- the nolock audit trail, if any
+  (no lock sidecar files)
+  (no --no-lock escape has ever been taken here)
+
+=== [5] the bitstream Task 14-B signed off (G5D_TIMING.md 11)
+--- expected: 53074589 B, 2026-09-07 20:46:01, VERSION c973c18a
+-rw-rw-r-- 1 cah cah 53074589 2026-09-07 20:46:01.495503604 -0600 synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper.bit
+  bytes=53074589  mtime=2026-09-07 20:46:01.495503604 -0600
+eeeef897495d783aa4eb0b2b555373bbeed36182a4a754089d787b801224f031  synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper.bit
+--- the rollback (build_035, the 2B design, known good)
+-rw-rw-r-- 1 cah cah 54072409 2026-08-24 23:13:19.084483502 -0600 synth/out_build_035_fp2a_exc_po/bd_wrapper.bit
+58b06450f8f9b2581d3bd42407771a6c77b99a83f323f5c7fc416d78f7e6847e  synth/out_build_035_fp2a_exc_po/bd_wrapper.bit
+
+=== [6] host thermals before anything is programmed
+coretemp-isa-0001
+Adapter: ISA adapter
+Package id 1:  +59.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 0:        +50.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 1:        +53.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 2:        +53.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 3:        +52.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 4:        +52.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 5:        +52.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 8:        +52.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 9:        +52.0°C  (high = +85.0°C, crit = +95.0°C)
+Core 10:       +50.0°C  (high = +85.0°C, crit = +95.0°C)
+ 19:28:45 up 21 days, 30 min, 10 users,  load average: 1.77, 1.25, 1.33
+
+=== [7] THE TEED READBACK — what is resident RIGHT NOW
+--- resident bitstream identity (AXI-Lite reads only; no DMA)
+  MAGIC        0xfab1e001 (OK)
+  VERSION      0x54443b9f   build_035_fp2a_exc_po (R-d, the 2B W8 design)
+  SCRATCH      0x00000000
+  CALIB        0xf        (ALL FOUR CHANNELS CALIBRATED)
+  UPTIME       341947318865471 cycles = 1367789.275 s @ 250 MHz  (lo 0xd0790e3f hi 0x000136ff)
+  layer IDENT  0xfab1e5a0 (OK)
+  matvec0 IDENT 0xfab1c4a0 (OK)
+  matvec1 IDENT 0xfab1c4a1 (OK)
+  matvec2 IDENT 0xfab1c4a2 (OK)
+  matvec3 IDENT 0xfab1c4a3 (OK)
+  SEQ IDENT    0xfab1e5e0 (OK)
+  json -> evidence/qwen9b/g6/g6_ident_pre.json
+G6_IDENT: OK
+=== rc: 0
+=== end: 2026-09-09T19:28:45-06:00

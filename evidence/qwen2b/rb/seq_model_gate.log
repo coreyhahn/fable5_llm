@@ -1,0 +1,37 @@
+=== ref/seq_model.py --selftest  2026-08-13T09:08:49-06:00 host=darthplagueis ===
+dynq16/eps-norm semantics from: layer_fixed (agent A)
+DYNQ16 == op1+dn_o_shift on 200/200 blocks
+EPS-NORM vs frozen dn_norm_scale: 200/200 blocks bit-identical, worst |delta| = 0 LSB
+SELFTEST_EXIT=0
+
+=== ref/seq_model.py --gate ../tb/scripts/w3/lay_s1.e  2026-08-13T09:08:49-06:00 ===
+--- SEQ gate: ../tb/scripts/w3/lay_s1.e
+  stream   1987 records, 31792 B (sha256 407429b498e92634)
+  seqdata  63360 B (sha256 afd5bea218f7add4)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 1381, 'CMD': 460, 'MOVX': 30, 'MOVY': 44, 'MVGO': 44, 'HALT': 1, 'LDC*': 25, 'XOP*': 2}
+  loop     0 steps  (fewer than two decode steps)
+  .txt     508 commands, 163552 host-relayed words, checks {'R': 46, 'E': 30, 'A': 0, 'V': 30} (0.4s)
+  .seq     460 commands issued, movers MOVX=30 MVGO=44 MOVY=44 LDC=25 EMB=0 AMAXL=0 (0.7s)
+  CHECKPT  46/46 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+GATE_LAY_EXIT=0
+
+=== ref/seq_model.py --gate ../tb/scripts/w3/tok2_s1.e  2026-08-13T09:08:50-06:00 ===
+--- SEQ gate: ../tb/scripts/w3/tok2_s1.e
+  stream   1080 records, 17280 B (sha256 b0017745a3d20516)
+  seqdata  61568 B (sha256 49bba6d805c661b5)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 745, 'CMD': 247, 'MOVX': 16, 'MOVY': 26, 'MVGO': 26, 'EMB': 1, 'AMAXL': 1, 'JMP': 1, 'HALT': 1, 'LDC*': 14, 'XOP*': 2}
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+  .txt     773 commands, 282192 host-relayed words, checks {'R': 72, 'E': 48, 'A': 3, 'V': 48} (0.6s)
+  .seq     701 commands issued, movers MOVX=48 MVGO=78 MOVY=78 LDC=36 EMB=3 AMAXL=3 (4.5s)
+  CHECKPT  72/72 live-state checkpoints sampled, ALL BIT-EXACT
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  [219, 1891, 4436]
+SEQ GATE: PASS
+GATE_TOK_EXIT=0

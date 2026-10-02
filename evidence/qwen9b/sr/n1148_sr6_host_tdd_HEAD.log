@@ -1,0 +1,77 @@
+=== host: snoke  date: 2026-09-28T10:58:21-06:00
+=== tree: 899f03e
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr6_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+SR6 host TDD — FABLE5_MODEL=9b FABLE5_RS_F=None
+=== seq_run: the real load path (main) on mock SEQ windows
+    fixtures: r0 / r1 (12 masked FENCEs, first at record 5) / r1 manifest [] / r0 manifest [R2]; SEQ_CAPS words R1 0xfab1ca01, old 0xdeadc0de
+    (a) r1 on R1: outcome 'exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (sh'; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+      |   SEQ CSRs untouched: SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SE
+      | exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's cap
+  [a] FAIL an r1 stream LOADS through seq_run.main on a 0xFAB1CA01 mock  -- exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SEQ_VERSIONS row names) -- VERSION mismatch or no sequencer; nothing was uploaded or written"
+  [a] FAIL ... and SEQ_CAPS was read before the upload  -- ['dev', 'seq_caps_read']
+    (b) r1 on old: outcome "exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x"; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      | exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'
+  [b] PASS the r1 stream is REFUSED on a 0xDEADC0DE mock, before any DMA (upload tripwire untouched)  (exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]')
+  [b] PASS the refusal is the validator's and names the first masked FENCE (record 5)  (  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+  capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+)
+  [b2] PASS the refusal is DEVICE-keyed: SEQ_CAPS was read first  (['dev', 'seq_caps_read', 'seq_caps_read'])
+    (c) r0 on R1: outcome 'exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (sh'; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+      |   SEQ CSRs untouched: SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SE
+      | exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's cap
+  [c] FAIL a shipped-form (r0) stream loads on the R1 mock  -- exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SEQ_VERSIONS row names) -- VERSION mismatch or no sequencer; nothing was uploaded or written"
+  [c2] PASS ... with SEQ_CAPS read (R1)  (['dev', 'seq_caps_read'])
+    (c) r0 on old: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [c] PASS a shipped-form (r0) stream loads on the old mock  (tripped upload)
+  [c2] PASS ... with SEQ_CAPS read (old)  (['dev', 'seq_caps_read', 'seq_caps_read', 'upload'])
+    (d) r1 manifest [] on old: outcome "exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1e/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0"; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      | exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1e/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'
+  [d] PASS r1 with manifest caps [] still REFUSES on 0xDEADC0DE (before any DMA)  (exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1e/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]')
+    (d) r1 manifest [] on R1: outcome 'exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (sh'; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+      |   SEQ CSRs untouched: SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SE
+      | exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's cap
+  [d] FAIL r1 with manifest caps [] still LOADS on 0xFAB1CA01 (the manifest is not the key)  -- exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SEQ_VERSIONS row names) -- VERSION mismatch or no sequencer; nothing was uploaded or written"
+    (e) manifest [R2] on R1: outcome 'exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (sh'; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+      |   SEQ CSRs untouched: SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SE
+      | exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's cap
+  [e] PASS a manifest claiming caps [R2] on a 0xFAB1CA01 device is REFUSED before any DMA  (exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SEQ_VERSIONS row names) -- VERSION mismatch or no sequencer; nothing was uploaded or written")
+  [e] FAIL ... BY NAME (the message names R2)  --  SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SEQ_VERSIONS row names
+
+  [l] PASS --caps defaults to the empty set; --caps R1 parses to {R1}  (None / frozenset({'R1'}))
+  [l] PASS --caps R9 (unknown) is an argparse error
+    (l) SEQ run with --caps: outcome 'exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (sh'; events ['dev', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+      |   SEQ CSRs untouched: SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SE
+      | exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's cap
+  [l] FAIL --caps on a SEQ run (not --dry-run) is refused before any DMA (a run validates at the DEVICE's caps)  -- exit "REFUSING before any DMA: the SEQ gate is closed (SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SEQ_VERSIONS row names) -- VERSION mismatch or no sequencer; nothing was uploaded or written"
+    (l) dry-run r1, no --caps: outcome "exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x"; events ['dev']
+      |   SEQ CSRs untouched: --dry-run: the SEQ CSR window is not touched
+      |   capabilities     {}  (default (board-free: --dry-run never reads the SEQ window))
+      | exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]'
+  [l] PASS --dry-run of an r1 stream without --caps is refused (the board-free default is the EMPTY set)  (exit 'REFUSING before any DMA: /tmp/sr6_fx_f2prg5yz/r1/rp.e at capabilities {}: rec 5: FENCE takes no operands  [op=0x09 fl=0x00 tgt=0x0001 imm=0x00000000 lo=0x00000000 hi=0x00000000]')
+  [l] PASS ... and the dry-run never read SEQ_CAPS (the SEQ window is untouched)  (['dev'])
+    (l) dry-run r1 --caps R1: outcome 'exit 0'; events ['dev']
+      |   RELOCATION: 1 LDC records (0 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 1 EMB records checked, delta +0x0
+      | --- DRY RUN at --caps ['R1']: validated only, nothing uploaded — the stream validated and relocated at the typed capability set, which no device read backs, so no DMA of any kind was issued (a SEQ run
+      | exit 0
+  [l] PASS --dry-run --caps R1 uploads NOTHING: no upload / DMA tripwire fires, exit 0  (exit 0 ['dev'])
+  [l] PASS ... it still VALIDATED at the typed caps {R1} and RELOCATED, and says so   (00000 -> 0xc000000); 1 EMB records checked, delta +0x0
+--- DRY RUN at --caps ['R1']: validated only, nothing uploaded — the stream validated and relocated at the typed capability set, which no device read backs, so no DMA of any kind was issued (a SEQ run validates at the device's SEQ_CAPS instead)
+)
+  [l] PASS ... and never read SEQ_CAPS  (['dev'])
+REFUSING a SEQ CSR read at 0x6064: SEQ_CAPS=0xfab1ca01 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)): the bitstream's capabilities are not the ones its SEQ_VERSIONS row names
+=== rc  : 1
+=== end : 2026-09-28T10:58:22-06:00

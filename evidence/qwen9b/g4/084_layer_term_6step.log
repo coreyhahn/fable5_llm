@@ -1,0 +1,96 @@
+=== host: darthplagueis
+=== date: 2026-09-03T19:14:06-06:00
+=== tree: 6620aa2
+=== cmd:  python3 evidence/qwen9b/g4/g4b_layer_term.py shipped6=evidence/qwen9b/g4/census_shipped6.txt shipped=evidence/qwen9b/g4/census_shipped.txt optii=evidence/qwen9b/g4/census_optii.txt pipe0=evidence/qwen9b/g4/census_pipe0.txt
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+LAYERTERM ==== per-DNST cycles, measured ====
+LAYERTERM cfg       DN_PIPE RLAT P2W  DNST cmds  cyc/DNST  min  max
+LAYERTERM shipped6        2    6   1       4608      3090   3090   3090
+LAYERTERM shipped         2    6   1        768      3090   3090   3090
+LAYERTERM optii           2    6   0        768      2962   2962   2962
+LAYERTERM pipe0           0    2   0        768      2958   2958   2958
+LAYERTERM comparator rtl/dn_step.sv:14 estimate   : 1300 cycles/head
+LAYERTERM comparator Task 10 tb_dn_step control RLAT=2 P2_WAIT=0: 1798 cycles/head
+LAYERTERM comparator Task 10 tb_dn_step option (i)  RLAT=6 P2_WAIT=1: 1930 cycles/head
+LAYERTERM comparator Task 10 tb_dn_step option (ii) RLAT=6 P2_WAIT=0: 1802 cycles/head
+
+LAYERTERM ==== the LAYER TERM per token ====
+LAYERTERM cfg        step  commands   busy_cyc      ms@250MHz  vs model 47.00 ms
+LAYERTERM shipped6       1      9205     11506810       46.027     0.979x
+LAYERTERM shipped6       2      9205     11511950       46.048     0.980x
+LAYERTERM shipped6       3      9205     11517223       46.069     0.980x
+LAYERTERM shipped6       4      9205     11522454       46.090     0.981x
+LAYERTERM shipped6       5      9205     11527697       46.111     0.981x
+LAYERTERM shipped6       6      9205     11532962       46.132     0.982x
+LAYERTERM shipped        1      9205     11506810       46.027     0.979x
+LAYERTERM optii          1      9205     11408506       45.634     0.971x
+LAYERTERM pipe0          1      9205     11405434       45.622     0.971x
+
+LAYERTERM ==== the preamble (step 0), reported separately ====
+LAYERTERM   MEASURED contents: 120 CONVW + 768 DNZ = 888 commands,
+LAYERTERM   and NOTHING else -- the once-per-launch conv weight/state
+LAYERTERM   load and the DeltaNet state zeroing.  ROPET is NOT in it:
+LAYERTERM   the stream re-emits its 8 RoPE-table loads every forward
+LAYERTERM   step.  The preamble is not per-token, so it is NOT in the
+LAYERTERM   layer term.
+LAYERTERM shipped6   preamble       888 cmds      2655096 cyc = 10.620 ms
+LAYERTERM shipped    preamble       888 cmds      2655096 cyc = 10.620 ms
+LAYERTERM optii      preamble       888 cmds      2655096 cyc = 10.620 ms
+LAYERTERM pipe0      preamble       888 cmds      2655096 cyc = 10.620 ms
+
+LAYERTERM ==== the T-DEPENDENT opcodes, per step ====
+LAYERTERM   rtl/attn_core.sv:29 takes cfg_t (cache length T) and its
+LAYERTERM   inner loop runs over the cache, so ATTN and KVAP are the
+LAYERTERM   two opcodes whose cost grows with sequence position.
+LAYERTERM   Every other opcode is context-independent by construction.
+LAYERTERM shipped6 per-step ATTN/KVAP (T = step number):
+LAYERTERM   step 1  T=1  busy     11506810 cyc =   46.027 ms  (+0 cyc vs step 1)
+LAYERTERM   step 2  T=2  busy     11511950 cyc =   46.048 ms  (+5140 cyc vs step 1)
+LAYERTERM   step 3  T=3  busy     11517223 cyc =   46.069 ms  (+10413 cyc vs step 1)
+LAYERTERM   step 4  T=4  busy     11522454 cyc =   46.090 ms  (+15644 cyc vs step 1)
+LAYERTERM   step 5  T=5  busy     11527697 cyc =   46.111 ms  (+20887 cyc vs step 1)
+LAYERTERM   step 6  T=6  busy     11532962 cyc =   46.132 ms  (+26152 cyc vs step 1)
+
+LAYERTERM ==== spec section 10's step, with ONE term replaced ====
+LAYERTERM   matvec 58.95 + movers 32.66 stay MODELLED (E).
+LAYERTERM   THE PER-TOKEN TERM IS THE MEAN OVER THE STEPS PRESENT, and
+LAYERTERM   the reason is like-for-like: the model's layer coefficient
+LAYERTERM   is fitted to RD_GATE's two SILICON points, each of which is
+LAYERTERM   an LCYC total DIVIDED BY ITS TOKEN COUNT (0.8B 22,692,603
+LAYERTERM   cyc = 15.128 ms/token over 6 tokens; 2B 26,940,149 =
+LAYERTERM   17.960 over 6).  A mean over the same six steps is the same
+LAYERTERM   quantity.  Step 1 and the last step are given as the
+LAYERTERM   bracket, because only ATTN and KVAP move between them.
+LAYERTERM cfg        basis     layer_ms    step_ms   tok/s   vs 7.21
+LAYERTERM shipped6   step 1       46.027    137.637   7.265    1.007x
+LAYERTERM shipped6   step 6       46.132    137.742   7.260    1.006x
+LAYERTERM shipped6   MEAN 1..6    46.079    137.689   7.263    1.007x
+LAYERTERM shipped    step 1       46.027    137.637   7.265    1.007x
+LAYERTERM optii      step 1       45.634    137.244   7.286    1.010x
+LAYERTERM pipe0      step 1       45.622    137.232   7.287    1.010x
+LAYERTERM  modelled  —            47.000    138.610   7.214   1.000x
+
+LAYERTERM ==== the wait state, priced on the real stream ====
+LAYERTERM option (i) - option (ii) = 98304 cyc/token = 0.393 ms = 0.86 % of the option-(ii) layer term
+LAYERTERM per DNST command: 128 cycles; x 768 DNST/token = 98304 cyc/token
+LAYERTERM DN_PIPE=2 - DN_PIPE=0 = 101376 cyc/token = 0.406 ms = 0.89 % of the unpipelined layer term
+
+LAYERTERM ==== DNST share of the layer term ====
+LAYERTERM shipped6   DNST 768 x 3090 = 2373120 cyc = 20.62 % of the layer term
+LAYERTERM shipped    DNST 768 x 3090 = 2373120 cyc = 20.62 % of the layer term
+LAYERTERM optii      DNST 768 x 2962 = 2274816 cyc = 19.94 % of the layer term
+LAYERTERM pipe0      DNST 768 x 2958 = 2271744 cyc = 19.92 % of the layer term
+
+LAYERTERM ==== correctness: every census is also a replay ====
+LAYERTERM shipped6   commands=56118 checks=8600034 errors=0
+LAYERTERM shipped    commands=10093 checks=1433339 errors=0
+LAYERTERM optii      commands=10093 checks=1433339 errors=0
+LAYERTERM pipe0      commands=10093 checks=1433339 errors=0
+=== rc: 0
+=== end: 2026-09-03T19:14:06-06:00

@@ -1,0 +1,44 @@
+=== host: snoke
+=== date: 2026-09-09T22:50:23-06:00
+=== tree: 4662b06+dirty
+=== cmd:  bash -c 
+set +e
+PY=/home/cah/.venv/bin/python
+echo "########## [1] chat_seq --selftest, the shipped selection"
+$PY sw/chat_seq.py --selftest 2>&1 | tail -8
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [2] ref/seq_chat.py --selftest (agent A, the compiler of record)"
+$PY ref/seq_chat.py --selftest 2>&1 | tail -8
+echo "   rc=${PIPESTATUS[0]}"
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] chat_seq --selftest, the shipped selection
+  [17] S7 layout: the LM head never overwrites x8 (0x800..0xBFF)
+  [18] sw/head_cache.py: exact integer path + cache discipline
+  [19] rung 4 S4: nch sessions, derived geometry, weight placement
+  [19c] rung 4 S6: OUT FIFO depth 64, 7-bit count, sticky of_ovf
+  [20] rung 4 S8: TOPK-32 STATUS decode + PTR auto-increment
+  [21] S3: conv-image witnesses + the session-reset DN memset
+  [22] S3/9B: the state region in the verifier, the session and the residency split
+  chat_seq selftest: 380 passed, 0 failed
+   rc=0
+
+########## [2] ref/seq_chat.py --selftest (agent A, the compiler of record)
+    [ok] resident set: session/lite/full, 484480 B, 4 KiB aligned ([('session', 0, 1526), ('lite', 24576, 14010), ('full', 249856, 14744)])
+    [ok] host_meta carries the committed weight manifest for seq_run
+    [ok] emb geometry at FABLE5_MODEL=0.8b [EMB GEOMETRY SELFTEST: PASS  (H=1024)]
+    [ok] emb geometry at FABLE5_MODEL=2b [EMB GEOMETRY SELFTEST: PASS  (H=2048)]
+    [ok] emb geometry at FABLE5_MODEL=4b [EMB GEOMETRY SELFTEST: PASS  (H=2560)]
+    [ok] emb geometry at FABLE5_MODEL=9b [EMB GEOMETRY SELFTEST: PASS  (H=4096)]
+SELFTEST: PASS
+seq_chat: PASS
+   rc=0
+=== rc: 0
+=== end: 2026-09-09T22:51:00-06:00

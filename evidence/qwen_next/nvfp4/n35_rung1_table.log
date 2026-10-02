@@ -1,0 +1,73 @@
+=== host: snoke  date: 2026-09-23T12:11:35-06:00
+=== tree: 20dcf90
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/nvfp4/rung1_table.py
+=== venv: 3.12.3 numpy 2.4.6
+PROVENANCE: 21 rows share corpus 6bf4f8677a3b3fff…, checkpoint ccba2c1f645fe592…, window 512, batch 4, 24528 positions, host snoke, device cpu, model 2b
+INERT-ORDER PROOF: plain-H seed 1 == seed 0 bit for bit, nll_sum 66543.9931511879 (evidence/qwen_next/nvfp4/n23_ppl_2b_nvfp4h_actdyn_seed1.json:390 == evidence/qwen_next/nvfp4/n19_ppl_2b_nvfp4h_actdyn.json:390)
+
+PANEL A — quality (PPL cited to the json field)
+key | row | PPL | dPPL vs bf16 | d% | % of shipped gap left | act | weights | cite
+bf16 | bf16 anchor (re-used) | 12.346298 | +0.000000 | +0.00% | 0.00% | None | bf16 | evidence/qwen2b/q1/ppl_2b_bf16_snoke.json:123
+SHIP | W4 g128 + A8 (THE SHIPPED POINT) | 14.860742 | +2.514444 | +20.37% | 100.00% | a8 | all:w4g128 | evidence/qwen_next/nvfp4/n11_ppl_2b_w4g128_a8.json:293
+W4 | W4 g128, weights only | 14.177184 | +1.830886 | +14.83% | 72.81% | None | all:w4g128 | evidence/qwen_next/nvfp4/n12_ppl_2b_w4g128.json:157
+GPTQ | W4 g64 GPTQ + A8 | 13.423831 | +1.077533 | +8.73% | 42.85% | a8 | all:w4g64gptq | evidence/qwen_next/nvfp4/n13_ppl_2b_w4g64gptq_a8.json:315
+NV | NVFP4, weights only | 13.493740 | +1.147442 | +9.29% | 45.63% | None | all:nvfp4 | evidence/qwen_next/nvfp4/n14_ppl_2b_nvfp4.json:157
+NVH | NVFP4 + RHT, weights only | 13.420657 | +1.074360 | +8.70% | 42.73% | None | all:nvfp4h | evidence/qwen_next/nvfp4/n27_ppl_2b_nvfp4h_hd.json:157
+NV_A8 | NVFP4 + A8 | 14.028509 | +1.682211 | +13.63% | 66.90% | a8 | all:nvfp4 | evidence/qwen_next/nvfp4/n16_ppl_2b_nvfp4_a8.json:293
+NVH_A8 | NVFP4 + RHT + A8 | 13.494146 | +1.147848 | +9.30% | 45.65% | a8 | all:nvfp4h | evidence/qwen_next/nvfp4/n28_ppl_2b_nvfp4h_hd_a8.json:391
+NV_DYN | full NVFP4, dynamic act scale | 14.305507 | +1.959209 | +15.87% | 77.92% | nvfp4:dyn | all:nvfp4 | evidence/qwen_next/nvfp4/n18_ppl_2b_nvfp4_actdyn.json:293
+NVH_DYN | full NVFP4 + RHT, dynamic act scale | 14.710242 | +2.363944 | +19.15% | 94.01% | nvfp4h:dyn | all:nvfp4h | evidence/qwen_next/nvfp4/n29_ppl_2b_nvfp4h_hd_actdyn.json:391
+NVH_ST | full NVFP4 + RHT, static act scale | 14.790656 | +2.444358 | +19.80% | 97.21% | nvfp4h:static | all:nvfp4h | evidence/qwen_next/nvfp4/n30_ppl_2b_nvfp4h_hd_actstatic.json:496
+A8 | bf16 weights + A8 | 12.842898 | +0.496600 | +4.02% | 19.75% | a8 | bf16 | evidence/qwen_next/nvfp4/n21_ppl_2b_bf16_a8.json:285
+ADYN | bf16 weights + NVFP4 act (dyn) | 13.153599 | +0.807301 | +6.54% | 32.11% | nvfp4:dyn | bf16 | evidence/qwen_next/nvfp4/n22_ppl_2b_bf16_actnvfp4dyn.json:285
+PH | plain-H NVFP4, weights only (superseded) | 13.818605 | +1.472308 | +11.93% | 58.55% | None | all:nvfp4h | evidence/qwen_next/nvfp4/n15_ppl_2b_nvfp4h.json:157
+PH_A8 | plain-H NVFP4 + A8 (superseded) | 13.843699 | +1.497401 | +12.13% | 59.55% | a8 | all:nvfp4h | evidence/qwen_next/nvfp4/n17_ppl_2b_nvfp4h_a8.json:391
+PH_DYN | plain-H full NVFP4, dyn (superseded) | 15.074142 | +2.727844 | +22.09% | 108.49% | nvfp4h:dyn | all:nvfp4h | evidence/qwen_next/nvfp4/n19_ppl_2b_nvfp4h_actdyn.json:391
+PH_ST | plain-H full NVFP4, static (superseded) | 15.136248 | +2.789950 | +22.60% | 110.96% | nvfp4h:static | all:nvfp4h | evidence/qwen_next/nvfp4/n20_ppl_2b_nvfp4h_actstatic.json:496
+
+PANEL B — cost
+  cross-check: the shipped row's bytes_per_token_matvec == bytes_per_token.py's 2B all:w4g128 == 996,282,368 (evidence/qwen_next/nvfp4/n11_ppl_2b_w4g128_a8.json:144)
+  9B w4g128   : 4,091,805,696 B/token, busiest channel 1,025,925,120 B, x1.000000 of shipped, per-image stride ratios [1.0]
+  9B w4g64gptq: 4,215,799,808 B/token, busiest channel 1,057,013,760 B, x1.030303 of shipped, per-image stride ratios [1.030303]
+  9B nvfp4    : 4,463,789,028 B/token, busiest channel 1,119,191,040 B, x1.090909 of shipped, per-image stride ratios [1.090909]
+key | packed b/w (matvec) | bytes/token 2B | x shipped | 9B modelled d ms/token | 9B modelled ms/token (board) | tok/s | cite
+bf16 | 16.000 (bf16) | 3,762,552,832 | 3.7766 | n/a (bf16 reference) | n/a | n/a | evidence/qwen2b/q1/ppl_2b_bf16_snoke.json:12
+SHIP | 4.2366 | 996,282,368 | 1.0000 | +0.000 | 137.121 | 7.293 | evidence/qwen_next/nvfp4/n11_ppl_2b_w4g128_a8.json:144
+W4 | 4.2366 | 996,282,368 | 1.0000 | +0.000 | 137.121 | 7.293 | evidence/qwen_next/nvfp4/n12_ppl_2b_w4g128.json:8
+GPTQ | 4.2500 | 999,428,096 | 1.0032 | +1.649 | 138.770 | 7.206 | evidence/qwen_next/nvfp4/n13_ppl_2b_w4g64gptq_a8.json:144
+NV | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n14_ppl_2b_nvfp4.json:8
+NVH | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n27_ppl_2b_nvfp4h_hd.json:8
+NV_A8 | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n16_ppl_2b_nvfp4_a8.json:144
+NVH_A8 | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n28_ppl_2b_nvfp4h_hd_a8.json:242
+NV_DYN | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n18_ppl_2b_nvfp4_actdyn.json:144
+NVH_DYN | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n29_ppl_2b_nvfp4h_hd_actdyn.json:242
+NVH_ST | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n30_ppl_2b_nvfp4h_hd_actstatic.json:347
+A8 | 16.000 (bf16) | 3,762,552,832 | 3.7766 | n/a (bf16 reference) | n/a | n/a | evidence/qwen_next/nvfp4/n21_ppl_2b_bf16_a8.json:158
+ADYN | 16.000 (bf16) | 3,762,552,832 | 3.7766 | n/a (bf16 reference) | n/a | n/a | evidence/qwen_next/nvfp4/n22_ppl_2b_bf16_actnvfp4dyn.json:158
+PH | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n15_ppl_2b_nvfp4h.json:8
+PH_A8 | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n17_ppl_2b_nvfp4h_a8.json:242
+PH_DYN | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n19_ppl_2b_nvfp4h_actdyn.json:242
+PH_ST | 4.5000 | 1,058,218,732 | 1.0622 | +4.946 | 142.067 | 7.039 | evidence/qwen_next/nvfp4/n20_ppl_2b_nvfp4h_actstatic.json:347
+
+DECOMPOSITION (dPPL vs bf16; interaction = combined - weight - act)
+  W4 g128 x A8: weight +1.830886, act +0.496600, combined +2.514444, interaction +0.186958
+  NVFP4 x A8: weight +1.147442, act +0.496600, combined +1.682211, interaction +0.038169
+  NVFP4 x NVFP4-act(dyn): weight +1.147442, act +0.807301, combined +1.959209, interaction +0.004467
+  RHT effect (RHT row - no-RHT row, same act) | plain-H row - no-RHT:
+    weights only: RHT -0.073082 PPL | plain H +0.324866 PPL
+    + A8: RHT -0.534363 PPL | plain H -0.184809 PPL
+    + NVFP4 act dyn: RHT +0.404735 PPL | plain H +0.768634 PPL
+  static - dynamic act scale: RHT +0.080414 PPL | plain H +0.062106 PPL
+
+RHT SEED SENSITIVITY (full NVFP4 + RHT, H16 diag(D)/4)
+  dynamic act scale, seed 0: PPL 14.710242  (evidence/qwen_next/nvfp4/n29_ppl_2b_nvfp4h_hd_actdyn.json:391, evidence/qwen_next/nvfp4/n29_ppl_2b_nvfp4h_hd_actdyn.json:395)
+  dynamic act scale, seed 1: PPL 14.665678  (evidence/qwen_next/nvfp4/n31_ppl_2b_nvfp4h_hd_actdyn_seed1.json:391, evidence/qwen_next/nvfp4/n31_ppl_2b_nvfp4h_hd_actdyn_seed1.json:395)
+  dynamic act scale, seed 2: PPL 14.885853  (evidence/qwen_next/nvfp4/n32_ppl_2b_nvfp4h_hd_actdyn_seed2.json:391, evidence/qwen_next/nvfp4/n32_ppl_2b_nvfp4h_hd_actdyn_seed2.json:395)
+  dynamic act scale: mean 14.753924, spread max-min 0.220174 PPL = 8.76% of the shipped gap; best seed 14.665678 vs no-RHT row 14.305507
+  static act scale, seed 0: PPL 14.790656  (evidence/qwen_next/nvfp4/n30_ppl_2b_nvfp4h_hd_actstatic.json:496, evidence/qwen_next/nvfp4/n30_ppl_2b_nvfp4h_hd_actstatic.json:500)
+  static act scale, seed 1: PPL 14.659090  (evidence/qwen_next/nvfp4/n33_ppl_2b_nvfp4h_hd_actstatic_seed1.json:496, evidence/qwen_next/nvfp4/n33_ppl_2b_nvfp4h_hd_actstatic_seed1.json:500)
+  static act scale, seed 2: PPL 14.691098  (evidence/qwen_next/nvfp4/n34_ppl_2b_nvfp4h_hd_actstatic_seed2.json:496, evidence/qwen_next/nvfp4/n34_ppl_2b_nvfp4h_hd_actstatic_seed2.json:500)
+  static act scale: mean 14.713615, spread max-min 0.131566 PPL = 5.23% of the shipped gap; best seed 14.659090 vs no-RHT row 14.305507
+  mean over seeds, static act scale - dynamic act scale: -0.040309 PPL
+=== rc  : 0
+=== end : 2026-09-23T12:11:35-06:00

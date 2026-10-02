@@ -1,0 +1,94 @@
+=== host: snoke
+=== date: 2026-08-31T19:22:00-06:00
+=== tree: 19bbfd6
+=== cmd:  /home/cah/.local/bin/uv run --no-project --with torch --with transformers --with numpy python -u evidence/qwen9b/g2/g2c_chat_template.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=2 MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== G2c Step 5 — the 9B chat template, re-derived ===
+
+1. FILE EQUIVALENCE CLASSES (sha256, first 16 hex)
+
+  file                                  0.8B                2B                4B                9B
+  tokenizer.json            5f9e4d4901a92b99  5f9e4d4901a92b99  5f9e4d4901a92b99  5f9e4d4901a92b99   ONE CLASS
+  vocab.json                ce99b4cb2983d118  ce99b4cb2983d118  ce99b4cb2983d118  ce99b4cb2983d118   ONE CLASS
+  merges.txt                a9d356d7bdf1ef49  a9d356d7bdf1ef49  a9d356d7bdf1ef49  a9d356d7bdf1ef49   ONE CLASS
+  chat_template.jinja       273d8e0e683b8850  273d8e0e683b8850  a4aee8afcf2e0711  a4aee8afcf2e0711   2 CLASSES
+  tokenizer_config.json     49e2b6e395f959f0  49e2b6e395f959f0  316230d6a809701f  316230d6a809701f   2 CLASSES
+
+  tokenizing files (tokenizer.json, vocab.json, merges.txt): ONE class across all four models — the pinned PPL corpus and its 24,528 positions, and every wrapper id, carry over UNCHANGED
+  templating files (chat_template.jinja, tokenizer_config.json): TWO classes — 0.8B/2B share one, 4B/9B share the other
+
+2. chat_template.jinja — 0.8B vs 9B
+
+  lines: 0.8B 154, 9B 154   bytes: 7755 / 7756
+  changed lines: 3 removed + 3 added = 6 of 154
+  unified diff (n=3): 15 lines total = 3 header lines + a 12-line hunk body (6 context + 6 changed)
+
+    --- 0.8B
+    +++ 9B
+    @@ -146,9 +146,9 @@
+     {%- endfor %}
+     {%- if add_generation_prompt %}
+         {{- '<|im_start|>assistant\n' }}
+    -    {%- if enable_thinking is defined and enable_thinking is true %}
+    +    {%- if enable_thinking is defined and enable_thinking is false %}
+    +        {{- '<think>\n\n</think>\n\n' }}
+    +    {%- else %}
+             {{- '<think>\n' }}
+    -    {%- else %}
+    -        {{- '<think>\n\n</think>\n\n' }}
+         {%- endif %}
+     {%- endif %}
+
+3. HF RENDERINGS  (transformers 5.11.0)
+
+  --- Qwen3.5-0.8B ---
+    single  default                 19 ids  == HF_REF_SINGLE
+    single  enable_thinking=True    17 ids  != HF_REF_SINGLE   (tail differs from id 16)
+    single  enable_thinking=False   19 ids  == HF_REF_SINGLE
+    system  default                 30 ids  == HF_REF_SYSTEM_SINGLE
+    system  enable_thinking=True    28 ids  != HF_REF_SYSTEM_SINGLE   (tail differs from id 27)
+    system  enable_thinking=False   30 ids  == HF_REF_SYSTEM_SINGLE
+    3msg    default                 35 ids  == HF_REF_3MSG
+    3msg    enable_thinking=True    33 ids  != HF_REF_3MSG   (tail differs from id 32)
+    3msg    enable_thinking=False   35 ids  == HF_REF_3MSG
+
+  --- Qwen3.5-9B ---
+    single  default                 17 ids  != HF_REF_SINGLE   (tail differs from id 16)
+    single  enable_thinking=True    17 ids  != HF_REF_SINGLE   (tail differs from id 16)
+    single  enable_thinking=False   19 ids  == HF_REF_SINGLE
+    system  default                 28 ids  != HF_REF_SYSTEM_SINGLE   (tail differs from id 27)
+    system  enable_thinking=True    28 ids  != HF_REF_SYSTEM_SINGLE   (tail differs from id 27)
+    system  enable_thinking=False   30 ids  == HF_REF_SYSTEM_SINGLE
+    3msg    default                 33 ids  != HF_REF_3MSG   (tail differs from id 32)
+    3msg    enable_thinking=True    33 ids  != HF_REF_3MSG   (tail differs from id 32)
+    3msg    enable_thinking=False   35 ids  == HF_REF_3MSG
+
+4. WHAT IT MEANS FOR THE HOST WRAPPER
+
+  0.8B, enable_thinking UNSET     reproduces HF_REF_SINGLE: True
+  9B,   enable_thinking UNSET     reproduces HF_REF_SINGLE: False
+  9B,   enable_thinking=False     reproduces HF_REF_SINGLE: True
+
+  WRAP_PER_MESSAGE = 5, WRAP_GEN_PROMPT = 7  (overhead = 5*messages + 7)
+  the closed-empty block is [248068, enc('\n\n'), 248069, enc('\n\n')] = 4 ids;
+  the OPEN block is [<think>, enc('\n')] = 2 ids, so a host that followed
+  the 9B jinja default would emit a 5-id generation prompt and then have to
+  generate the reasoning and the '</think>' itself before any visible token.
+
+  Reading: the frozen wrapper is UNCHANGED as a SEQUENCE OF IDS at 9B — every
+  id in it comes from tokenizing files that are byte-identical across the four
+  models.  What changes is which HF invocation it CORRESPONDS to: at 0.8B/2B
+  it is `apply_chat_template(...)` with the default, at 4B/9B it is
+  `apply_chat_template(..., enable_thinking=False)`.  So the host's T2 decision
+  ("NEVER enable_thinking=True") is unchanged and its ids are unchanged; the
+  REFERENCE the selftest compares against must name the flag explicitly at 9B.
+
+G2C_CHAT_TEMPLATE PASS
+=== rc: 0
+=== end: 2026-08-31T19:22:08-06:00

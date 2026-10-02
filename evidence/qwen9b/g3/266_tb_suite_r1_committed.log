@@ -1,0 +1,344 @@
+=== host: snoke
+=== date: 2026-09-02T07:36:41-06:00
+=== tree: 89b2d7d
+=== cmd:  env FABLE5_RS_F=7 bash -c for t in tb_dn_step tb_dn_step_pipe tb_dn_step_pipe_ii tb_gate_unit tb_conv4_silu tb_layer_dnbank tb_layer_env tb_layershim_c lint_seq lint_seq_unit; do
+    echo "=== $t ==="
+    make -C tb GENPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python $t 2>&1 | tr -d "\000" | /usr/bin/grep -avE "^g\+\+|^Archive|^echo |^rm |^make\[|^ +--|^ +\.\./|^verilator |verilator_includer"
+    echo "=== $t rc=${PIPESTATUS[0]} ==="
+  done
+  echo "=== make -j2 on the two directed targets (M4) ==="
+  make -C tb -j2 GENPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python tb_layer_dnbank tb_layer_env >/dev/null 2>&1
+  echo "=== make -j2 rc=$? ==="
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== tb_dn_step ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+obj_dir_tb_dn/tb_dn +vecdir=vectors/s1
+DN_CYCLES RLAT=2 P2W=0 cycles_per_head=1798
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn/tb_dn +vecdir=vectors/s2
+DN_CYCLES RLAT=2 P2W=0 cycles_per_head=1798
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn/tb_dn +vecdir=vectors/s3
+DN_CYCLES RLAT=2 P2W=0 cycles_per_head=1798
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn/tb_dn +vecdir=vectors/s4
+DN_CYCLES RLAT=2 P2W=0 cycles_per_head=1798
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_dn_step rc=0 ===
+=== tb_dn_step_pipe ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+  -GRLAT=6 -GP2W=1 \
+obj_dir_tb_dn6/tb_dn6 +vecdir=vectors/s1
+DN_CYCLES RLAT=6 P2W=1 cycles_per_head=1930
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6/tb_dn6 +vecdir=vectors/s2
+DN_CYCLES RLAT=6 P2W=1 cycles_per_head=1930
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6/tb_dn6 +vecdir=vectors/s3
+DN_CYCLES RLAT=6 P2W=1 cycles_per_head=1930
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6/tb_dn6 +vecdir=vectors/s4
+DN_CYCLES RLAT=6 P2W=1 cycles_per_head=1930
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_dn_step_pipe rc=0 ===
+=== tb_dn_step_pipe_ii ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+  -GRLAT=6 -GP2W=0 \
+obj_dir_tb_dn6b/tb_dn6b +vecdir=vectors/s1
+DN_CYCLES RLAT=6 P2W=0 cycles_per_head=1802
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6b/tb_dn6b +vecdir=vectors/s2
+DN_CYCLES RLAT=6 P2W=0 cycles_per_head=1802
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6b/tb_dn6b +vecdir=vectors/s3
+DN_CYCLES RLAT=6 P2W=0 cycles_per_head=1802
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+obj_dir_tb_dn6b/tb_dn6b +vecdir=vectors/s4
+DN_CYCLES RLAT=6 P2W=0 cycles_per_head=1802
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+- tb_dn_step.sv:167: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_dn_step_pipe_ii rc=0 ===
+=== tb_gate_unit ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+obj_dir_tb_gate/tb_gate +vecdir=vectors/s1
+TB_GATE_UNIT PASS: 16 heads beta+decay bit-exact
+- tb_gate_unit.sv:97: Verilog $finish
+obj_dir_tb_gate/tb_gate +vecdir=vectors/s2
+TB_GATE_UNIT PASS: 16 heads beta+decay bit-exact
+- tb_gate_unit.sv:97: Verilog $finish
+obj_dir_tb_gate/tb_gate +vecdir=vectors/s3
+TB_GATE_UNIT PASS: 16 heads beta+decay bit-exact
+- tb_gate_unit.sv:97: Verilog $finish
+obj_dir_tb_gate/tb_gate +vecdir=vectors/s4
+TB_GATE_UNIT PASS: 16 heads beta+decay bit-exact
+- tb_gate_unit.sv:97: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_gate_unit rc=0 ===
+=== tb_conv4_silu ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+obj_dir_tb_conv/tb_conv +vecdir=vectors/s1
+TB_CONV4_SILU PASS: 64 channels bit-exact
+- tb_conv4_silu.sv:61: Verilog $finish
+obj_dir_tb_conv/tb_conv +vecdir=vectors/s2
+TB_CONV4_SILU PASS: 64 channels bit-exact
+- tb_conv4_silu.sv:61: Verilog $finish
+obj_dir_tb_conv/tb_conv +vecdir=vectors/s3
+TB_CONV4_SILU PASS: 64 channels bit-exact
+- tb_conv4_silu.sv:61: Verilog $finish
+obj_dir_tb_conv/tb_conv +vecdir=vectors/s4
+TB_CONV4_SILU PASS: 64 channels bit-exact
+- tb_conv4_silu.sv:61: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_conv4_silu rc=0 ===
+=== tb_layer_dnbank ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+  OK DN state (slot 0, head 16) independent: 512 words identical
+  OK DN state (slot 0, head 31) independent: 512 words identical
+  OK DN state (slot 17, head 15) independent: 512 words identical
+  OK DN state (slot 18, head 0) independent: 512 words identical
+  OK DN state (slot 23, head 31) independent: 512 words identical
+  OK DN state (slot 23, head 16) independent: 512 words identical
+  OK DN step 2 (slot 0, head 16) agrees: 512 words identical
+  OK DN step 2 (slot 0, head 31) agrees: 512 words identical
+  OK DN step 2 (slot 17, head 15) agrees: 512 words identical
+  OK DN step 2 (slot 18, head 0) agrees: 512 words identical
+  OK DN step 2 (slot 23, head 31) agrees: 512 words identical
+  OK DN step 2 (slot 23, head 16) agrees: 512 words identical
+  OK KV cache (slot 0, kvh 1) independent: 512 words identical
+  OK KV cache (slot 0, kvh 2) independent: 512 words identical
+  OK KV cache (slot 0, kvh 3) independent: 512 words identical
+  OK T reset slot 0: all 4 kvhead counters zeroed
+  OK KV cache (slot 6, kvh 0) independent: 512 words identical
+  OK KV cache (slot 6, kvh 1) independent: 512 words identical
+  OK KV cache (slot 6, kvh 2) independent: 512 words identical
+  OK KV cache (slot 6, kvh 3) independent: 512 words identical
+  OK T reset slot 6: all 4 kvhead counters zeroed
+  OK KV cache (slot 7, kvh 0) independent: 512 words identical
+  OK KV cache (slot 7, kvh 1) independent: 512 words identical
+  OK KV cache (slot 7, kvh 2) independent: 512 words identical
+  OK KV cache (slot 7, kvh 3) independent: 512 words identical
+  OK T reset slot 7: all 4 kvhead counters zeroed
+  OK conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: 4 words identical
+  OK conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: 4 words identical
+  OK GATE wrote exactly 64 words (2 x LNH = 32 heads)
+TB_LAYER_DNBANK PASS: DN 24x32, KV 8x4, conv 24x8192
+- tb_layer_chan.sv:524: Verilog $finish
+  OK DN state (slot 0, head 16) independent: 512 words identical
+  OK DN state (slot 0, head 31) independent: 512 words identical
+  OK DN state (slot 17, head 15) independent: 512 words identical
+  OK DN state (slot 18, head 0) independent: 512 words identical
+  OK DN state (slot 23, head 31) independent: 512 words identical
+  OK DN state (slot 23, head 16) independent: 512 words identical
+  OK DN step 2 (slot 0, head 16) agrees: 512 words identical
+  OK DN step 2 (slot 0, head 31) agrees: 512 words identical
+  OK DN step 2 (slot 17, head 15) agrees: 512 words identical
+  OK DN step 2 (slot 18, head 0) agrees: 512 words identical
+  OK DN step 2 (slot 23, head 31) agrees: 512 words identical
+  OK DN step 2 (slot 23, head 16) agrees: 512 words identical
+  OK KV cache (slot 0, kvh 1) independent: 512 words identical
+  OK KV cache (slot 0, kvh 2) independent: 512 words identical
+  OK KV cache (slot 0, kvh 3) independent: 512 words identical
+  OK T reset slot 0: all 4 kvhead counters zeroed
+  OK KV cache (slot 6, kvh 0) independent: 512 words identical
+  OK KV cache (slot 6, kvh 1) independent: 512 words identical
+  OK KV cache (slot 6, kvh 2) independent: 512 words identical
+  OK KV cache (slot 6, kvh 3) independent: 512 words identical
+  OK T reset slot 6: all 4 kvhead counters zeroed
+  OK KV cache (slot 7, kvh 0) independent: 512 words identical
+  OK KV cache (slot 7, kvh 1) independent: 512 words identical
+  OK KV cache (slot 7, kvh 2) independent: 512 words identical
+  OK KV cache (slot 7, kvh 3) independent: 512 words identical
+  OK T reset slot 7: all 4 kvhead counters zeroed
+  OK conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: 4 words identical
+  OK conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: 4 words identical
+  OK GATE wrote exactly 64 words (2 x LNH = 32 heads)
+TB_LAYER_DNBANK PASS: DN 24x32, KV 8x4, conv 24x8192
+- tb_layer_chan.sv:524: Verilog $finish
+  OK DN state (slot 0, head 16) independent: 512 words identical
+  OK DN state (slot 0, head 31) independent: 512 words identical
+  OK DN state (slot 17, head 15) independent: 512 words identical
+  OK DN state (slot 18, head 0) independent: 512 words identical
+  OK DN state (slot 23, head 31) independent: 512 words identical
+  OK DN state (slot 23, head 16) independent: 512 words identical
+  OK DN step 2 (slot 0, head 16) agrees: 512 words identical
+  OK DN step 2 (slot 0, head 31) agrees: 512 words identical
+  OK DN step 2 (slot 17, head 15) agrees: 512 words identical
+  OK DN step 2 (slot 18, head 0) agrees: 512 words identical
+  OK DN step 2 (slot 23, head 31) agrees: 512 words identical
+  OK DN step 2 (slot 23, head 16) agrees: 512 words identical
+  OK KV cache (slot 0, kvh 1) independent: 512 words identical
+  OK KV cache (slot 0, kvh 2) independent: 512 words identical
+  OK KV cache (slot 0, kvh 3) independent: 512 words identical
+  OK T reset slot 0: all 4 kvhead counters zeroed
+  OK KV cache (slot 6, kvh 0) independent: 512 words identical
+  OK KV cache (slot 6, kvh 1) independent: 512 words identical
+  OK KV cache (slot 6, kvh 2) independent: 512 words identical
+  OK KV cache (slot 6, kvh 3) independent: 512 words identical
+  OK T reset slot 6: all 4 kvhead counters zeroed
+  OK KV cache (slot 7, kvh 0) independent: 512 words identical
+  OK KV cache (slot 7, kvh 1) independent: 512 words identical
+  OK KV cache (slot 7, kvh 2) independent: 512 words identical
+  OK KV cache (slot 7, kvh 3) independent: 512 words identical
+  OK T reset slot 7: all 4 kvhead counters zeroed
+  OK conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: 4 words identical
+  OK conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: 4 words identical
+  OK GATE wrote exactly 64 words (2 x LNH = 32 heads)
+TB_LAYER_DNBANK PASS: DN 24x32, KV 8x4, conv 24x8192
+- tb_layer_chan.sv:524: Verilog $finish
+  OK DN state (slot 0, head 16) independent: 512 words identical
+  OK DN state (slot 0, head 31) independent: 512 words identical
+  OK DN state (slot 17, head 15) independent: 512 words identical
+  OK DN state (slot 18, head 0) independent: 512 words identical
+  OK DN state (slot 23, head 31) independent: 512 words identical
+  OK DN state (slot 23, head 16) independent: 512 words identical
+  OK DN step 2 (slot 0, head 16) agrees: 512 words identical
+  OK DN step 2 (slot 0, head 31) agrees: 512 words identical
+  OK DN step 2 (slot 17, head 15) agrees: 512 words identical
+  OK DN step 2 (slot 18, head 0) agrees: 512 words identical
+  OK DN step 2 (slot 23, head 31) agrees: 512 words identical
+  OK DN step 2 (slot 23, head 16) agrees: 512 words identical
+  OK KV cache (slot 0, kvh 1) independent: 512 words identical
+  OK KV cache (slot 0, kvh 2) independent: 512 words identical
+  OK KV cache (slot 0, kvh 3) independent: 512 words identical
+  OK T reset slot 0: all 4 kvhead counters zeroed
+  OK KV cache (slot 6, kvh 0) independent: 512 words identical
+  OK KV cache (slot 6, kvh 1) independent: 512 words identical
+  OK KV cache (slot 6, kvh 2) independent: 512 words identical
+  OK KV cache (slot 6, kvh 3) independent: 512 words identical
+  OK T reset slot 6: all 4 kvhead counters zeroed
+  OK KV cache (slot 7, kvh 0) independent: 512 words identical
+  OK KV cache (slot 7, kvh 1) independent: 512 words identical
+  OK KV cache (slot 7, kvh 2) independent: 512 words identical
+  OK KV cache (slot 7, kvh 3) independent: 512 words identical
+  OK T reset slot 7: all 4 kvhead counters zeroed
+  OK conv slot 0 ch 8188..8191 matches slot 0 ch 0..3: 4 words identical
+  OK conv slot 23 ch 8188..8191 matches slot 0 ch 0..3: 4 words identical
+  OK GATE wrote exactly 64 words (2 x LNH = 32 heads)
+TB_LAYER_DNBANK PASS: DN 24x32, KV 8x4, conv 24x8192
+- tb_layer_chan.sv:524: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layer_dnbank rc=0 ===
+=== tb_layer_env ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+  ENV REFUSED (err_op=1) as required: VN nlog2 13 > 12
+  ENV REFUSED (err_op=1) as required: VNW len 4097 > 4096
+  ENV REFUSED (err_op=1) as required: VNW len 0 refused
+  ENV REFUSED (err_op=1) as required: CONV 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVW 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVW nch 0 refused (the retired wrap escape)
+  ENV REFUSED (err_op=1) as required: DNZ at dn_slot 24 (no bank)
+  ENV REFUSED (err_op=1) as required: DNST at dn_slot 24 (no bank)
+  ENV REFUSED (err_op=1) as required: CONV at dn_slot 24 (no bank)
+TB_LAYER_ENV PASS: every envelope check fired
+- tb_layer_chan.sv:524: Verilog $finish
+  ENV REFUSED (err_op=1) as required: VN nlog2 13 > 12
+  ENV REFUSED (err_op=1) as required: VNW len 4097 > 4096
+  ENV REFUSED (err_op=1) as required: VNW len 0 refused
+  ENV REFUSED (err_op=1) as required: CONV 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVW 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVW nch 0 refused (the retired wrap escape)
+  ENV REFUSED (err_op=1) as required: DNZ at dn_slot 24 (no bank)
+  ENV REFUSED (err_op=1) as required: DNST at dn_slot 24 (no bank)
+  ENV REFUSED (err_op=1) as required: CONV at dn_slot 24 (no bank)
+TB_LAYER_ENV PASS: every envelope check fired
+- tb_layer_chan.sv:524: Verilog $finish
+  ENV REFUSED (err_op=1) as required: VN nlog2 13 > 12
+  ENV REFUSED (err_op=1) as required: VNW len 4097 > 4096
+  ENV REFUSED (err_op=1) as required: VNW len 0 refused
+  ENV REFUSED (err_op=1) as required: CONV 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVW 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVW nch 0 refused (the retired wrap escape)
+  ENV REFUSED (err_op=1) as required: DNZ at dn_slot 24 (no bank)
+  ENV REFUSED (err_op=1) as required: DNST at dn_slot 24 (no bank)
+  ENV REFUSED (err_op=1) as required: CONV at dn_slot 24 (no bank)
+TB_LAYER_ENV PASS: every envelope check fired
+- tb_layer_chan.sv:524: Verilog $finish
+  ENV REFUSED (err_op=1) as required: VN nlog2 13 > 12
+  ENV REFUSED (err_op=1) as required: VNW len 4097 > 4096
+  ENV REFUSED (err_op=1) as required: VNW len 0 refused
+  ENV REFUSED (err_op=1) as required: CONV 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVW 8190+4 > 8192
+  ENV REFUSED (err_op=1) as required: CONVW nch 0 refused (the retired wrap escape)
+  ENV REFUSED (err_op=1) as required: DNZ at dn_slot 24 (no bank)
+  ENV REFUSED (err_op=1) as required: DNST at dn_slot 24 (no bank)
+  ENV REFUSED (err_op=1) as required: CONV at dn_slot 24 (no bank)
+TB_LAYER_ENV PASS: every envelope check fired
+- tb_layer_chan.sv:524: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layer_env rc=0 ===
+=== tb_layershim_c ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+T1 OK: 1428 words burst-written, SWIN readback bit-exact
+T2 OK: 954 words SWIN-written, burst readback bit-exact
+T3 OK: burst W/R during a live ALU op 4 (len 2048) -> SLVERR on 256/256 read beats + BRESP SLVERR; 2048 ALU results bit-exact; 256 victim words untouched
+T4 OK: the blocked burst retried clean once idle (256 words)
+T5 OK: DNZ (busy, non-ALU mux arm) -> SLVERR, scratch untouched
+T6 OK: 128 SWIN writes concurrent with a 128-beat burst, no beat lost on either side
+T7 OK: WSTRB=0 beats consumed, answered OKAY, wrote nothing
+T8 OK: 8x (CMD -> DONE poll -> immediate burst) all BRESP OKAY and bit-exact
+TB_LAYERSHIM_C PASS (seed 1): T1 1428 w, T2 954 w, T3 ALU 2048 + 256 SLVERR beats, T6 128 w, T4/T5/T7/T8 ok
+- tb_layershim_c.sv:641: Verilog $finish
+T1 OK: 1037 words burst-written, SWIN readback bit-exact
+T2 OK: 922 words SWIN-written, burst readback bit-exact
+T3 OK: burst W/R during a live ALU op 4 (len 2048) -> SLVERR on 256/256 read beats + BRESP SLVERR; 2048 ALU results bit-exact; 256 victim words untouched
+T4 OK: the blocked burst retried clean once idle (256 words)
+T5 OK: DNZ (busy, non-ALU mux arm) -> SLVERR, scratch untouched
+T6 OK: 128 SWIN writes concurrent with a 128-beat burst, no beat lost on either side
+T7 OK: WSTRB=0 beats consumed, answered OKAY, wrote nothing
+T8 OK: 8x (CMD -> DONE poll -> immediate burst) all BRESP OKAY and bit-exact
+TB_LAYERSHIM_C PASS (seed 2): T1 1037 w, T2 922 w, T3 ALU 2048 + 256 SLVERR beats, T6 128 w, T4/T5/T7/T8 ok
+- tb_layershim_c.sv:641: Verilog $finish
+T1 OK: 1123 words burst-written, SWIN readback bit-exact
+T2 OK: 840 words SWIN-written, burst readback bit-exact
+T3 OK: burst W/R during a live ALU op 4 (len 2048) -> SLVERR on 256/256 read beats + BRESP SLVERR; 2048 ALU results bit-exact; 256 victim words untouched
+T4 OK: the blocked burst retried clean once idle (256 words)
+T5 OK: DNZ (busy, non-ALU mux arm) -> SLVERR, scratch untouched
+T6 OK: 128 SWIN writes concurrent with a 128-beat burst, no beat lost on either side
+T7 OK: WSTRB=0 beats consumed, answered OKAY, wrote nothing
+T8 OK: 8x (CMD -> DONE poll -> immediate burst) all BRESP OKAY and bit-exact
+TB_LAYERSHIM_C PASS (seed 3): T1 1123 w, T2 840 w, T3 ALU 2048 + 256 SLVERR beats, T6 128 w, T4/T5/T7/T8 ok
+- tb_layershim_c.sv:641: Verilog $finish
+T1 OK: 1378 words burst-written, SWIN readback bit-exact
+T2 OK: 708 words SWIN-written, burst readback bit-exact
+T3 OK: burst W/R during a live ALU op 4 (len 2048) -> SLVERR on 256/256 read beats + BRESP SLVERR; 2048 ALU results bit-exact; 256 victim words untouched
+T4 OK: the blocked burst retried clean once idle (256 words)
+T5 OK: DNZ (busy, non-ALU mux arm) -> SLVERR, scratch untouched
+T6 OK: 128 SWIN writes concurrent with a 128-beat burst, no beat lost on either side
+T7 OK: WSTRB=0 beats consumed, answered OKAY, wrote nothing
+T8 OK: 8x (CMD -> DONE poll -> immediate burst) all BRESP OKAY and bit-exact
+TB_LAYERSHIM_C PASS (seed 4): T1 1378 w, T2 708 w, T3 ALU 2048 + 256 SLVERR beats, T6 128 w, T4/T5/T7/T8 ok
+- tb_layershim_c.sv:641: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layershim_c rc=0 ===
+=== lint_seq ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== lint_seq rc=0 ===
+=== lint_seq_unit ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== lint_seq_unit rc=0 ===
+=== make -j2 on the two directed targets (M4) ===
+=== make -j2 rc=0 ===
+=== rc: 0
+=== end: 2026-09-02T07:39:28-06:00

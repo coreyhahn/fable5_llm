@@ -1,0 +1,17 @@
+--- 1: a DIAGONAL Hessian is bit-identically the V2/V3 quantizer ---
+  diag(H) == quant_linear_mse(salience=sqrt(diag)), I == unweighted MSE  OK
+--- 2: a CORRELATED Hessian moves the nibbles, not the format ---
+  wire format identical=True, group scales identical=True, nibbles moved 12992/49152 (26.4%) OK
+--- 3: it minimises what it claims to (output error, not weight) ---
+  ||(W-Wq)X^T||_F : unweighted 13.177 / V3-style 13.191 -> GPTQ 7.9068 (40.1% better than the V3-style diagonal) OK
+  (||W-Wq||_F rises 0.468 -> 0.7464: GPTQ trades weight fidelity for output fidelity, as designed)
+--- 4: row chunking is exact ---
+  rowchunk 7 == one-shot == default, bit-identical OK
+--- 5: the image packs and round-trips through the DDR row format ---
+  96x512 g=64: 320 B/row, unpack == pack OK
+--- 6: bad inputs are loud ---
+  5/5 rejected (missing / wrong K / negative / NaN / zero) OK
+--- 7: a dead input channel is survivable ---
+  1 dead channel: damp=7.954, format unchanged, image finite OK
+
+GPTQ SELFTEST PASS

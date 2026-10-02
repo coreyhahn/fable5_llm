@@ -1,0 +1,62 @@
+=== host: snoke  date: 2026-09-28T11:33:57-06:00
+=== tree: e6fa23f
+=== cmd : env FABLE5_MODEL=9b /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11b_model_correction.py --fit
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr11b_model_correction.py  FABLE5_MODEL=9b
+=== R1 timeline /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r1.timeline.csv
+    sha256 1f586cbfb3f2fcd2ce6b2c472c0ee09859718697ffceb1d868e642fbba38361f  committed 1f586cbfb3f2fcd2ce6b2c472c0ee09859718697ffceb1d868e642fbba38361f  MATCH
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  model: body 118911..158534; replay of the emitted r1 order 27136513 (SR4's prediction 27136513: REPRODUCED)
+  emitted body == the r1 stream's body 120552..160722 (sha 4e11a2ae6872970e MATCH): 40171/40171 records identical
+    token 4: 0 body pcs absent []; of them FENCE/stream-window pcs: 0
+    token 5: 0 body pcs absent []; of them FENCE/stream-window pcs: 0
+    token 6: 5 body pcs absent [(120552, 'LDC*'), (120553, 'CSRWR'), (120554, 'CSRWR'), (120555, 'CSRWR'), (120556, 'CMD')]; of them FENCE/stream-window pcs: 0
+    body FENCEs 1370; tokens read [4, 5, 6]: [40171, 40171, 40167] rows
+  token 4: FENCEs not waiting on the TB 1022: window min 23 max 23 (the record cost; REC = 23)
+  token 5: FENCEs not waiting on the TB 1022: window min 23 max 23 (the record cost; REC = 23)
+  token 6: FENCEs not waiting on the TB 1022: window min 23 max 23 (the record cost; REC = 23)
+
+=== THE FIT: effective single-channel tail per drained class, over the FENCEs that WAITED on the TB, tokens (5, 6) (token 4 held out)
+    key | n waited (fit) | tail = mean(FENCE end - 23 - (MVGO end + model S)) | of which mean(S_meas - S_model) | net tail (vs measured S) | old tau | token-4 in-sample tail (n)
+    DN   dn_out    |   32 |      18.2 |      -0.5 |     18.7 |   45.6 |      19.1 (16)
+    DN   in_a      |   48 |      17.8 |      -0.1 |     17.9 |   39.0 |      17.8 (24)
+    DN   in_qkv    |   48 |      22.0 |      -0.5 |     22.6 |   43.7 |      22.0 (24)
+    DN   in_z      |   48 |      27.1 |      -0.4 |     27.5 |   47.5 |      26.0 (24)
+    DN   mlp_down  |   48 |      73.8 |       0.0 |     73.8 |   90.5 |      73.8 (24)
+    DN   mlp_gate  |   96 |      24.9 |      -0.2 |     25.1 |   42.5 |      24.9 (48)
+    DN   mlp_up    |   96 |      25.8 |       0.3 |     25.5 |   42.0 |      25.8 (48)
+    GQA  mlp_down  |   16 |      75.2 |       0.0 |     75.2 |   91.6 |      75.2 (8)
+    GQA  mlp_gate  |   32 |      25.0 |      -0.1 |     25.1 |   43.2 |      25.0 (16)
+    GQA  mlp_up    |   32 |      25.9 |       0.4 |     25.4 |   43.4 |      25.9 (16)
+    GQA  o_proj    |   16 |      19.0 |       0.1 |     18.9 |   46.2 |      19.0 (8)
+    GQA  q_proj    |   16 |      25.9 |       0.4 |     25.5 |   43.8 |      25.9 (8)
+    HEAD lm_head   |  168 |      22.6 |       0.0 |     22.6 |   43.7 |      22.6 (84)
+    pooled (every waited FENCE, tokens (5, 6)): n 696, tail 28.1 -> TAIL1_DEFAULT = 28
+
+=== constants for ref/seq_cost.py (transcribe; cite this log):
+FENCE_REC = 23
+TAIL1 = {
+    ('DN', 'dn_out'): 18,
+    ('DN', 'in_a'): 18,
+    ('DN', 'in_qkv'): 22,
+    ('DN', 'in_z'): 27,
+    ('DN', 'mlp_down'): 74,
+    ('DN', 'mlp_gate'): 25,
+    ('DN', 'mlp_up'): 26,
+    ('GQA', 'mlp_down'): 75,
+    ('GQA', 'mlp_gate'): 25,
+    ('GQA', 'mlp_up'): 26,
+    ('GQA', 'o_proj'): 19,
+    ('GQA', 'q_proj'): 26,
+    ('HEAD', 'lm_head'): 23,
+}
+TAIL1_DEFAULT = 28
+SR11B_MODEL_CORRECTION FIT: DONE
+=== rc  : 0
+=== end : 2026-09-28T11:34:03-06:00

@@ -1,0 +1,107 @@
+=== host: snoke  date: 2026-10-01T06:57:23-06:00
+=== tree: 2a18ef5
+=== cmd : env FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python evidence/qwen9b/sr/r3_predict.py --r3-pins-log evidence/qwen9b/sr/n2801_r3_6_pins.log
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== INPUTS (every one read back from a committed log line)
+  T  r2 s1 token-4 body window MEASURED 26171253  (n1349e_sr13a_chip_s1_r2_timeline.log:56: 'SEQ_TIMELINE tcyc 4 26171253')
+  E  r2 s1 body: replay_mk 26146927, pred_mk 26183590 (lane 26164282 + resid 19308)  (n1165_reorder_s1_B_r2.log)
+  E  r3 s1 body: replay_mk 24102767, pred_mk 24139430 (lane 24120122 + resid 19308)  (n2720_r3_5_reorder_s1_B_r3.log)
+  T  r2 whole runs MEASURED (SR13a, line 30 of each): s1 157010908, s2 157011556, s3 157011490, s4 157010986
+  T  SR11b's DMA stall (placement band width) 17212 cyc (n1182_sr11b_r2_derive.log:28)
+  E  census (n1600): R2 26146927 (:23), R3 24102767 (:26), SAVE 2044160 = removed 2427816 - idle rise 383656 (:36); live MOVX 516 / 3237088 (:17); carriers 129 / 809272 (:19); siblings 387 / 2427816 (:20)
+  D  R3-4 NET saving 2044160 (n2606_r3_4_derive.log:24)
+  D  r2 token-4 measured by class (n1349g:69-81), MOVX lane work 3237088 (n1349g:110)
+  [PASS] r2 replay_mk = census R2 row: 26146927 vs 26146927
+  [PASS] r3 replay_mk = census R3 row: 24102767 vs 24102767
+  [PASS] census saving = R3-4 NET: 2044160 vs 2044160
+  [PASS] census saving = n1600 SAVE: 2044160 vs 2044160
+  [PASS] corrected saving = census saving: 2044160 vs 2044160
+  [PASS] n1349g MOVX class measured = MOVX lane work: 3237088 vs 3237088
+  [PASS] r2 measured MOVX lane = census live MOVX: 3237088 vs 3237088
+  [PASS] live = carriers + siblings: 3237088 vs 3237088
+  [PASS] r2 s1 stream sha 117ed8b061d56625 is the one n1165_reorder_s1_B_r2.log:58 wrote
+  [PASS] r3 s1 stream sha 3e77e57ca39452b9 is the one n2720_r3_5_reorder_s1_B_r3.log:61 wrote
+
+=== THE PREDICTION — s1 token-4 body window of the r3 stream on the chip TB (MODEL; every number from the lines above)
+  P-A (PRIMARY, absolute, corrected-model saving): 26171253 - (26183590 - 24139430 = 2044160) = 24127093 cyc = 96.508 ms
+  P-B (absolute, census saving): 26171253 - (26146927 - 24102767 = 2044160) = 24127093 cyc; P-B - P-A +0
+  P-C (the pass's own corrected r3 prediction, SR13a's form): 24139430 cyc, placement band 24122218 .. 24139430 (the 17212-cyc DMA stall absorbed by a FENCE wait or not); P-C - P-A +12337 = +0.051 % of P-A
+  R2's offset carried: measured r2 - corrected r2 = -12337 cyc = -0.0471 %; P-C + that absolute offset = 24127093 (= P-A: True); P-C x (1 -0.0471 %) = 24128056
+  ratio forms (INFORMATIONAL, no band): 26171253 x 24139430/26183590 = 24128056 (+0.004 % vs P-A); census ratio x1.0848 -> 24125191 (-0.008 % vs P-A)
+  saving expected on the chip TB: 2044160 cyc = 8.177 ms/token (the 2,044,160 of R3-4 / R3-5, in both conventions) — resting on the UNMEASURED one-window pricing of a broadcast (R3-4); R3-9b is its first test
+
+=== BANDS on P-A (SR5b's; |measured / P-A - 1|)
+  HELD  +-0.5 %: 24006457.5 .. 24247728.5 cyc (+-120635.5)
+  LOOSE +-2 %  : 23644551.1 .. 24609634.9 cyc (+-482541.9)
+  as a measured SAVING (26,171,253 - measured): HELD 1923525 .. 2164795; LOOSE 1561618 .. 2526702 cyc
+  one more / one fewer 17212-cyc DMA stall moves the window 0.071 % of P-A; the HELD band is 7.0 stalls wide each side
+  inside +-0.5 %: HELD.  inside +-2 %: HELD LOOSELY — ATTRIBUTE BY CLASS (MOVX vs FENCE (dn_out apart) vs CMD) from the s1 r3 timeline BEFORE R3-10 launches.
+  OUTSIDE +-2 %: STOP — the campaign stops before the full build (R3-10; no Vivado time) and the controller returns to the user.
+  MODEL context: x shipped body 1.3589; x r2 measured 1.0847; board-scaled (OV1 uniform factor, MODEL) 9.910 tok/s vs r2 measured-window 9.136
+
+=== s2..s4 — the whole run, r3 / r2 (SR13a's measured r2 cycles, same seed) and r3 / shipped
+  criterion: r3/r2 < 1 and within +-0.5 % of s1's r3/r2; r3/shipped within +-0.5 % of s1's; outside +-0.5 % attribute, outside +-2 % STOP
+  s1: per-segment saving corrected [2044160, 2044160, 2044160, 2044160] (census [2044160, 2044160, 2044160, 2044160]); windows 3 + 3 x body; whole-run saving 12264960 (census 12264960); PREDICTED r3 whole run 157010908 - 12264960 = 144745948 cyc = 96.497 ms/token; r3/r2 0.921885; r3/shipped 0.735846; x shipped 1.3590
+  s2: per-segment saving corrected [2044160, 2044160] (census [2044160, 2044160]); windows 1 + 5 x body; whole-run saving 12264960 (census 12264960); PREDICTED r3 whole run 157011556 - 12264960 = 144746596 cyc = 96.498 ms/token; r3/r2 0.921885; r3/shipped 0.735846; x shipped 1.3590
+  s3: per-segment saving corrected [2044160, 2044160] (census [2044160, 2044160]); windows 1 + 5 x body; whole-run saving 12264960 (census 12264960); PREDICTED r3 whole run 157011490 - 12264960 = 144746530 cyc = 96.498 ms/token; r3/r2 0.921885; r3/shipped 0.735846; x shipped 1.3590
+  s4: per-segment saving corrected [2044160, 2044160, 2044160, 2044160] (census [2044160, 2044160, 2044160, 2044160]); windows 3 + 3 x body; whole-run saving 12264960 (census 12264960); PREDICTED r3 whole run 157010986 - 12264960 = 144746026 cyc = 96.497 ms/token; r3/r2 0.921885; r3/shipped 0.735846; x shipped 1.3590
+  s2 vs s1 (predicted): r3/r2 +0.0000 %; r3/shipped +0.0000 %
+  s3 vs s1 (predicted): r3/r2 +0.0000 %; r3/shipped -0.0000 %
+  s4 vs s1 (predicted): r3/r2 +0.0000 %; r3/shipped +0.0000 %
+
+=== PER-CLASS EXPECTATION, token 4, s1 (the attribution's reference; MODEL)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  r2: stream sha 117ed8b061d56625 MATCH; model rebuilt: replay 26146927 (= 26146927: True), predict() 26183590 (= 26183590: True); lane 26164282 + resid 19308; emitted body == the stream's body 120552..160722: 40171/40171
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  r3: stream sha 3e77e57ca39452b9 MATCH; model rebuilt: replay 24102767 (= 24102767: True), predict() 24139430 (= 24139430: True); lane 24120122 + resid 19308; emitted body == the stream's body 119391..159174: 39784/39784
+  class | r2 model | r3 model | model delta | r2 MEASURED (n1349g) | r3 EXPECTED = r2 measured + delta
+    MOVX         n   516->  129 |   3237088 |    809272 |  -2427816 |   3237088 |    809272
+    FENCE        n  1370-> 1370 |   8999456 |   9383112 |   +383656 |   8987848 |   9371504
+    MOVY         n  1370-> 1370 |   2847256 |   2847256 |        +0 |   2847256 |   2847256
+    MVGO         n  1370-> 1370 |     43928 |     43928 |        +0 |     43840 |     43840
+    XOP          n     9->    9 |        36 |        36 |        +0 |        36 |        36
+    LDC          n   161->  161 |    320718 |    320718 |        +0 |    320125 |    320125
+    (CMD resid)  n     0->    0 |     19308 |     19308 |        +0 |         0 |         0
+    CSRWR        n    88->   88 |       264 |       264 |        +0 |       264 |       264
+    EMB          n     1->    1 |      4710 |      4710 |        +0 |      4662 |      4662
+    JMP          n     1->    1 |        39 |        39 |        +0 |        39 |        39
+    (lane tail)  n     0->    0 |         0 |         0 |        +0 |         0 |         0
+    CMD+ARG      n 35284->35284 |  10710770 |  10710770 |        +0 |  10730078 |  10730078
+    AMAXL        n     1->    1 |        17 |        17 |        +0 |        17 |        17
+  sum of the expected classes 24127093 (= P-A 24127093: True; the additive residual's measured 0 carried)
+  model delta: MOVX -2427816, FENCE +383656, every other class +0; census: siblings removed -2427816, lane idle +383656 (n1600:36)
+
+=== THE ONE-WINDOW ASSUMPTION, stated for measurement (REPORTED, NOT BANDED)
+  assumption (R3-4; spec §1.3 (a)): a broadcast MOVX costs ONE unicast MOVX window of its length; its three siblings cost 0
+  measure (R3-9a coverage (5), R3-9b s1 timeline): mean broadcast MOVX window / mean unicast MOVX window of the SAME length on SR13a's r2 timeline; expected 1.00 + the broadcast's fixed extra (three more closing STATUS reads, R3-8's X_STATW walk)
+  r2 timeline CSV sha256 f2e24609eaa90023 MATCH (committed f2e24609eaa90023)
+  r2 token-4 unicast MOVX by length (the denominator): len | n | mean measured | min | max || r3 broadcasts of that len | model window each | expected broadcast lane work (r2 mean x n)
+      4096 |  388 |    4216.99 |   4216 |   4219 ||   97 |    4217.0 |   409048.0
+     12288 |  128 |   12507.00 |  12507 |  12507 ||   32 |   12507.0 |   400224.0
+  r2 live MOVX 516 (= census live 516: True); r3 broadcasts 129 (= carriers 129: True)
+  THE MOVX CLASS, token 4: r2 measured 3237088 -> r3 expected 809272 at exactly one window (25.00 % of r2, i.e. a fall of 2427816 = 75.00 %: the 387 siblings of 516) + 129 x the fixed extra (unmeasured; R3-9a measures it)
+
+=== THE r3 CHAT IMAGES (R3-9b Step 4 on the chip TB; R3-11 P1' on the board) — the absolute form, static makespans at position 0
+  inputs: r1 static replay (n601:9/15) lite 25195119, full 27135354; r2 static replay / corrected (n1351:9/15) lite 24341703 / 24377574, full 26131018 / 26168056; r1 chip-TB MEASURED per launch (SR5b n588:41/43) lite 25221328..25228270, full 27173524..27178738
+  BOARD (R3-11 P1', the plan's formula): n1508 (r2 board, per image) - (r2 corrected static - r3 corrected static) per image kind; the numbers are R3-11's n3300
+  CHIP TB (R3-9b Step 4): no r2 chat image ever ran on the chip TB (SR15 §4), so the measured previous rung is SR5b's r1: P-chat(kind) = n588 r1 measured - (r1 static replay - r3 static replay), both sides the same static model; with the r2 step shown: r1->r2 replay saving + r2->r3
+    lite: r1->r2 replay saving 853416 cyc; the implied r2 chip-TB image (never measured) 24367912..24374854
+    full: r1->r2 replay saving 1004336 cyc; the implied r2 chip-TB image (never measured) 26169188..26174402
+  r3 static replay / corrected (n2801_r3_6_pins.log) lite 22297831 / 22333702, full 24087146 / 24124184
+    lite: r2->r3 saving corrected 2043872 cyc = 8.1755 ms (replay 2043872); CHIP TB P-chat 22324040..22330982 cyc (r1->r3 replay saving 2897288); BOARD P1' = n1508 - 8.1755 ms
+    full: r2->r3 saving corrected 2043872 cyc = 8.1755 ms (replay 2043872); CHIP TB P-chat 24125316..24130530 cyc (r1->r3 replay saving 3048208); BOARD P1' = n1508 - 8.1755 ms
+
+R3_PREDICT: PREDICTIONS WRITTEN — P-A 24127093 cyc (HELD +-0.5 %, LOOSE +-2 %, outside +-2 % STOP before R3-10)
+=== rc  : 0
+=== end : 2026-10-01T06:57:33-06:00

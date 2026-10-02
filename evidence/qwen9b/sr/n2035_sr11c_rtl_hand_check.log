@@ -1,0 +1,217 @@
+=== host: snoke  date: 2026-09-28T13:16:53-06:00
+=== tree: 8acdcf0+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/NVFP4_STUDY.md
+=== dirty:  M docs/QWEN35_2BOARD_FEASIBILITY.md
+=== dirty:  M docs/QWEN35_NEXT_FEASIBILITY.md
+=== dirty:  M docs/SEQ_ISA.md
+=== dirty:  M docs/USAGE.md
+=== dirty:  M docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+=== dirty:  M docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+=== dirty:  M docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+=== dirty:  M docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+=== dirty:  M docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+=== dirty:  M docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+=== dirty:  M docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+=== dirty:  M evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+=== dirty:  M evidence/qwen2b/rc/TIMING_035.md
+=== dirty:  M evidence/qwen9b/bm/BM1_T1_GATE.md
+=== dirty:  M evidence/qwen9b/bm/BM1_T3_BUILD.md
+=== dirty:  M evidence/qwen9b/bn/BN_CENSUS.md
+=== dirty:  M evidence/qwen9b/bn/bn_timeline.py
+=== dirty:  M evidence/qwen9b/g2/FINAL_BYTELOCK.md
+=== dirty:  M evidence/qwen9b/g2/G2A_HOST.md
+=== dirty:  M evidence/qwen9b/g3/G3_1_ISA.md
+=== dirty:  M evidence/qwen9b/g3/G3_3_MATVEC.md
+=== dirty:  M evidence/qwen9b/g3/G3_4_LAYER.md
+=== dirty:  M evidence/qwen9b/g4/G4B_STRUCT.md
+=== dirty:  M evidence/qwen9b/g4/g4b_pacc_probe.py
+=== dirty:  M evidence/qwen9b/g4/pacc_probe.sv
+=== dirty:  M evidence/qwen9b/g4/tb_layer_census.sv
+=== dirty:  M evidence/qwen9b/g5/G5B_TIMING.md
+=== dirty:  M evidence/qwen9b/g6/RD9_GATE.md
+=== dirty:  M evidence/qwen9b/g6/g6_emblog2.py
+=== dirty:  M evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+=== dirty:  M evidence/qwen9b/ov/ov_census.py
+=== dirty:  M evidence/qwen9b/ov/ov_derive.py
+=== dirty:  M evidence/qwen9b/ov/sr0_clock_sens.py
+=== dirty:  M evidence/qwen9b/s4/S4_REPLAY.md
+=== dirty:  M evidence/qwen9b/s4/census_nodrain_red.sh
+=== dirty:  M evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+=== dirty:  M evidence/qwen9b/sr/SR2_ISA.md
+=== dirty:  M evidence/qwen9b/sr/SR3_R1_RTL.md
+=== dirty:  M evidence/qwen_next/feas/addrmap_options.py
+=== dirty:  M evidence/qwen_next/nvfp4/NVFP4_RUNG1.md
+=== dirty:  M ref/scripts/reorder_e4.py
+=== dirty:  M ref/seq_chat.py
+=== dirty:  M ref/seq_format.py
+=== dirty:  M ref/seq_model.py
+=== dirty:  M rtl/layer_chan.sv
+=== dirty:  M rtl/matvec_engine.sv
+=== dirty:  M rtl/state_dma.sv
+=== dirty:  M sw/hwmap.py
+=== dirty:  M synth/exp_uram/rtl/layer_chan.sv
+=== dirty:  M synth/scripts/final_verify.tcl
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11c_hand_repairs.py --check --pass rtl
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+OK  [rtl] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:453  rtl/seq_unit.sv:793 -> rtl/seq_unit.sv:821   (MOVY target[15:4] check -> the v_movy_rsvd start-row check)
+      2910d4d rtl/seq_unit.sv:793  "else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end"
+      work    rtl/seq_unit.sv:821  'else if (v_movy_rsvd)            begin v_bad=1; v_code=E_RSVD; end'
+OK  [rtl] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:454  rtl/seq_movers.sv:628 -> rtl/seq_movers.sv:643   (res_row_q <= 12'd0 -> res_row_q <= cmd_row)
+      2910d4d rtl/seq_movers.sv:628  "res_row_q <= 12'd0;              // S12: v1 always drains row 0"
+      work    rtl/seq_movers.sv:643  'res_row_q <= cmd_row;            // SR12: B17.2 RES start row'
+OK  [rtl] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:454  rtl/seq_movers.sv:658 -> rtl/seq_movers.sv:674   (the MOVX XWIN burst base (now + xword_q))
+      2910d4d rtl/seq_movers.sv:658  'bw_saddr  <= mvbaddr(chan_q, MVB_XWIN);'
+      work    rtl/seq_movers.sv:674  "bw_saddr  <= mvbaddr(chan_q, MVB_XWIN + {18'd0, xword_q, 2'b00});"
+OK  [rtl] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:456  rtl/matvec_engine.sv:455 -> rtl/matvec_engine.sv:480   (x_line's start assignment (now XB_LINE under XBANK))
+      2910d4d rtl/matvec_engine.sv:455  "x_line   <= '0;"
+      work    rtl/matvec_engine.sv:480  "x_line   <= cfg_xbank ? XB_LINE : 7'd0;   // SR12: B17.2"
+OK  [rtl] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:456  rtl/matvec_engine.sv:470 -> rtl/matvec_engine.sv:495   (x_line's row-end assignment)
+      2910d4d rtl/matvec_engine.sv:470  "x_line       <= '0;"
+      work    rtl/matvec_engine.sv:495  "x_line       <= cfg_xbank ? XB_LINE : 7'd0;   // SR12"
+OK  [rtl] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:456  rtl/matvec_engine.sv:456 -> rtl/matvec_engine.sv:481   (row_in's start assignment (now RB_ROW under RBANK))
+      2910d4d rtl/matvec_engine.sv:456  "row_in   <= '0;"
+      work    rtl/matvec_engine.sv:481  "row_in   <= cfg_rbank ? RB_ROW : '0;      // SR12: B17.2"
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:104  rtl/seq_unit.sv:787-793 -> rtl/seq_unit.sv:813-821   (OP_MOVY validator arm (its target[15:4] line rewritten))
+      2910d4d rtl/seq_unit.sv:787  'OP_MOVY: begin'
+      work    rtl/seq_unit.sv:813  'OP_MOVY: begin'
+      2910d4d rtl/seq_unit.sv:793  "else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end"
+      work    rtl/seq_unit.sv:821  'else if (v_movy_rsvd)            begin v_bad=1; v_code=E_RSVD; end'
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:106  rtl/seq_movers.sv:658 -> rtl/seq_movers.sv:674   (the MOVX XWIN burst base)
+      2910d4d rtl/seq_movers.sv:658  'bw_saddr  <= mvbaddr(chan_q, MVB_XWIN);'
+      work    rtl/seq_movers.sv:674  "bw_saddr  <= mvbaddr(chan_q, MVB_XWIN + {18'd0, xword_q, 2'b00});"
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:108  rtl/seq_movers.sv:628 -> rtl/seq_movers.sv:643   (res_row_q at MOVY dispatch)
+      2910d4d rtl/seq_movers.sv:628  "res_row_q <= 12'd0;              // S12: v1 always drains row 0"
+      work    rtl/seq_movers.sv:643  'res_row_q <= cmd_row;            // SR12: B17.2 RES start row'
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:112  rtl/matvec_engine.sv:455 -> rtl/matvec_engine.sv:480   (x_line start)
+      2910d4d rtl/matvec_engine.sv:455  "x_line   <= '0;"
+      work    rtl/matvec_engine.sv:480  "x_line   <= cfg_xbank ? XB_LINE : 7'd0;   // SR12: B17.2"
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:112  rtl/matvec_engine.sv:470 -> rtl/matvec_engine.sv:495   (x_line row end)
+      2910d4d rtl/matvec_engine.sv:470  "x_line       <= '0;"
+      work    rtl/matvec_engine.sv:495  "x_line       <= cfg_xbank ? XB_LINE : 7'd0;   // SR12"
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:114  rtl/matvec_engine.sv:456 -> rtl/matvec_engine.sv:481   (row_in start)
+      2910d4d rtl/matvec_engine.sv:456  "row_in   <= '0;"
+      work    rtl/matvec_engine.sv:481  "row_in   <= cfg_rbank ? RB_ROW : '0;      // SR12: B17.2"
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:210  rtl/seq_unit.sv:793 -> rtl/seq_unit.sv:821   (MOVY target[15:4])
+      2910d4d rtl/seq_unit.sv:793  "else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end"
+      work    rtl/seq_unit.sv:821  'else if (v_movy_rsvd)            begin v_bad=1; v_code=E_RSVD; end'
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:214  rtl/seq_unit.sv:793 -> rtl/seq_unit.sv:821   (MOVY target[15:4])
+      2910d4d rtl/seq_unit.sv:793  "else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end"
+      work    rtl/seq_unit.sv:821  'else if (v_movy_rsvd)            begin v_bad=1; v_code=E_RSVD; end'
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:220  rtl/seq_movers.sv:628 -> rtl/seq_movers.sv:643   (res_row_q)
+      2910d4d rtl/seq_movers.sv:628  "res_row_q <= 12'd0;              // S12: v1 always drains row 0"
+      work    rtl/seq_movers.sv:643  'res_row_q <= cmd_row;            // SR12: B17.2 RES start row'
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:222  rtl/seq_movers.sv:658 -> rtl/seq_movers.sv:674   (the XWIN burst base)
+      2910d4d rtl/seq_movers.sv:658  'bw_saddr  <= mvbaddr(chan_q, MVB_XWIN);'
+      work    rtl/seq_movers.sv:674  "bw_saddr  <= mvbaddr(chan_q, MVB_XWIN + {18'd0, xword_q, 2'b00});"
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:233  rtl/matvec_engine.sv:455 -> rtl/matvec_engine.sv:480   (x_line start)
+      2910d4d rtl/matvec_engine.sv:455  "x_line   <= '0;"
+      work    rtl/matvec_engine.sv:480  "x_line   <= cfg_xbank ? XB_LINE : 7'd0;   // SR12: B17.2"
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:234  rtl/matvec_engine.sv:470 -> rtl/matvec_engine.sv:495   (x_line row end)
+      2910d4d rtl/matvec_engine.sv:470  "x_line       <= '0;"
+      work    rtl/matvec_engine.sv:495  "x_line       <= cfg_xbank ? XB_LINE : 7'd0;   // SR12"
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:236  rtl/matvec_engine.sv:456 -> rtl/matvec_engine.sv:481   (row_in start)
+      2910d4d rtl/matvec_engine.sv:456  "row_in   <= '0;"
+      work    rtl/matvec_engine.sv:481  "row_in   <= cfg_rbank ? RB_ROW : '0;      // SR12: B17.2"
+OK  [rtl] evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:231  rtl/seq_unit.sv:793-796 -> rtl/seq_unit.sv:821-824   (by content (base 793 rewritten -> 821, 796 -> 824); PRE-EXISTING STALE: the FENCE decode is 834-837 (SR9))
+      2910d4d rtl/seq_unit.sv:793  "else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end"
+      work    rtl/seq_unit.sv:821  'else if (v_movy_rsvd)            begin v_bad=1; v_code=E_RSVD; end'
+      2910d4d rtl/seq_unit.sv:796  "OP_AMAXL: if ((r_flags != 8'd0) || (r_tgt != 16'd0)"
+      work    rtl/seq_unit.sv:824  "OP_AMAXL: if ((r_flags != 8'd0) || (r_tgt != 16'd0)"
+OK  [rtl] evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:630  rtl/seq_unit.sv:793-796 -> rtl/seq_unit.sv:821-824   (as :231 (pre-existing stale, SR9))
+      2910d4d rtl/seq_unit.sv:793  "else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end"
+      work    rtl/seq_unit.sv:821  'else if (v_movy_rsvd)            begin v_bad=1; v_code=E_RSVD; end'
+      2910d4d rtl/seq_unit.sv:796  "OP_AMAXL: if ((r_flags != 8'd0) || (r_tgt != 16'd0)"
+      work    rtl/seq_unit.sv:824  "OP_AMAXL: if ((r_flags != 8'd0) || (r_tgt != 16'd0)"
+OK  [rtl] evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:631  rtl/seq_movers.sv:628 -> rtl/seq_movers.sv:643   (res_row_q)
+      2910d4d rtl/seq_movers.sv:628  "res_row_q <= 12'd0;              // S12: v1 always drains row 0"
+      work    rtl/seq_movers.sv:643  'res_row_q <= cmd_row;            // SR12: B17.2 RES start row'
+OK  [rtl] evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:632  rtl/matvec_engine.sv:455 -> rtl/matvec_engine.sv:480   (x_line start)
+      2910d4d rtl/matvec_engine.sv:455  "x_line   <= '0;"
+      work    rtl/matvec_engine.sv:480  "x_line   <= cfg_xbank ? XB_LINE : 7'd0;   // SR12: B17.2"
+OK  [rtl] evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:632  rtl/matvec_engine.sv:470 -> rtl/matvec_engine.sv:495   (x_line row end)
+      2910d4d rtl/matvec_engine.sv:470  "x_line       <= '0;"
+      work    rtl/matvec_engine.sv:495  "x_line       <= cfg_xbank ? XB_LINE : 7'd0;   // SR12"
+OK  [rtl] evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:632  rtl/seq_movers.sv:652-658 -> rtl/seq_movers.sv:668-674   (X_DRAIN .. the XWIN burst base)
+      2910d4d rtl/seq_movers.sv:652  'X_DRAIN: if (wr_idle) begin'
+      work    rtl/seq_movers.sv:668  'X_DRAIN: if (wr_idle) begin'
+      2910d4d rtl/seq_movers.sv:658  'bw_saddr  <= mvbaddr(chan_q, MVB_XWIN);'
+      work    rtl/seq_movers.sv:674  "bw_saddr  <= mvbaddr(chan_q, MVB_XWIN + {18'd0, xword_q, 2'b00});"
+OK  [rtl] evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:633  rtl/seq_movers.sv:652-658 -> rtl/seq_movers.sv:668-674   (X_DRAIN .. the XWIN burst base)
+      2910d4d rtl/seq_movers.sv:652  'X_DRAIN: if (wr_idle) begin'
+      work    rtl/seq_movers.sv:668  'X_DRAIN: if (wr_idle) begin'
+      2910d4d rtl/seq_movers.sv:658  'bw_saddr  <= mvbaddr(chan_q, MVB_XWIN);'
+      work    rtl/seq_movers.sv:674  "bw_saddr  <= mvbaddr(chan_q, MVB_XWIN + {18'd0, xword_q, 2'b00});"
+OK  [rtl] ref/scripts/reorder_e4.py:35  rtl/seq_unit.sv:793-796 -> rtl/seq_unit.sv:821-824   (as OV1 :231 (pre-existing stale, SR9))
+      2910d4d rtl/seq_unit.sv:793  "else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end"
+      work    rtl/seq_unit.sv:821  'else if (v_movy_rsvd)            begin v_bad=1; v_code=E_RSVD; end'
+      2910d4d rtl/seq_unit.sv:796  "OP_AMAXL: if ((r_flags != 8'd0) || (r_tgt != 16'd0)"
+      work    rtl/seq_unit.sv:824  "OP_AMAXL: if ((r_flags != 8'd0) || (r_tgt != 16'd0)"
+OK  [rtl] evidence/qwen9b/sr/SR3_R1_RTL.md:28  rtl/seq_unit.sv:335-336 -> rtl/seq_unit.sv:338-339   (the SEQ_CAPS literal (r2 bit now 1; SR3's row records r2=0 at SR3))
+      2910d4d rtl/seq_unit.sv:335  "localparam logic [31:0] SEQ_CAPS = {24'hFAB1CA, 5'd0,"
+      work    rtl/seq_unit.sv:338  "localparam logic [31:0] SEQ_CAPS = {24'hFAB1CA, 5'd0,"
+      2910d4d rtl/seq_unit.sv:336  "1'b0 /*r3*/, 1'b0 /*r2*/, 1'b1 /*r1*/};"
+      work    rtl/seq_unit.sv:339  "1'b0 /*r3*/, 1'b1 /*r2*/, 1'b1 /*r1*/};"
+OK  [rtl] evidence/qwen9b/sr/SR3_R1_RTL.md:32  rtl/seq_unit.sv:947 -> rtl/seq_unit.sv:977   (mv_fmask <= '0; (now + mv_xword/mv_row resets))
+      2910d4d rtl/seq_unit.sv:947  "mv_fmask <= '0;"
+      work    rtl/seq_unit.sv:977  "mv_fmask <= '0; mv_xword <= '0; mv_row <= '0;"
+OK  [rtl] docs/NVFP4_STUDY.md:526  rtl/matvec_engine.sv:224-227 -> rtl/matvec_engine.sv:241-246   (the x_line comment ending 'the waived xline_q cone' (rewritten, 6 lines))
+      2910d4d rtl/matvec_engine.sv:224  '// x_mem line / accumulator-bank index of the beat being accepted: the'
+      work    rtl/matvec_engine.sv:241  '// x_mem line of the beat being accepted: the group index, one per'
+      2910d4d rtl/matvec_engine.sv:227  '// output, with no mux in front of the LUTRAM (the waived xline_q cone).'
+      work    rtl/matvec_engine.sv:246  '// xline_q cone).'
+OK  [rtl] evidence/qwen2b/rb/seq_isa_ref_sweep.txt:62  rtl/matvec_chan.sv:18-19 -> rtl/matvec_chan.sv:18-20   (the SHAPE entry (now 2 lines) + the layout line)
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+      2910d4d rtl/matvec_chan.sv:19  '//                     SEQ_ISA v2.0 / G3.3 layout, CONTIGUOUS: ng is 7 bits'
+      work    rtl/matvec_chan.sv:20  '//                     SEQ_ISA v2.0 / G3.3 layout, CONTIGUOUS: ng is 7 bits'
+OK  [rtl] evidence/qwen9b/g3/G3_3_MATVEC.md:649  rtl/matvec_chan.sv:18-32 -> rtl/matvec_chan.sv:18-42   (the SHAPE header table through 'does not fit six bits')
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+      2910d4d rtl/matvec_chan.sv:32  '//                     K = 12288 -> ng = 96, which does not fit six bits.'
+      work    rtl/matvec_chan.sv:42  '//                     K = 12288 -> ng = 96, which does not fit six bits.'
+OK  [rtl] docs/SEQ_ISA.md:634  rtl/matvec_chan.sv:18-35 -> rtl/matvec_chan.sv:18-45   (B9 heading: SHAPE .. the 0x24 XWIN line)
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+      2910d4d rtl/matvec_chan.sv:35  '//   0x24 XWIN      W  push x word at xptr; xptr++'
+      work    rtl/matvec_chan.sv:45  '//   0x24 XWIN      W  push x word at xptr; xptr++'
+OK  [rtl] docs/QWEN35_2BOARD_FEASIBILITY.md:414  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] docs/QWEN35_2BOARD_FEASIBILITY.md:1770  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] docs/QWEN35_NEXT_FEASIBILITY.md:505  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] docs/superpowers/plans/2026-09-27-seq-rtl-round.md:455  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md:1550  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:110  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] evidence/qwen2b/q2/v4_v5/W8_SKETCH.md:105  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] evidence/qwen9b/g2/FINAL_BYTELOCK.md:458  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] evidence/qwen9b/g2/G2A_HOST.md:520  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] evidence/qwen9b/g2/G2A_HOST.md:832  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] evidence/qwen9b/g3/G3_3_MATVEC.md:649  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+OK  [rtl] evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md:631  rtl/matvec_chan.sv:18 -> rtl/matvec_chan.sv:18   (KEEP: the SHAPE register line, rewritten IN PLACE by SR12 (still :18))
+      2910d4d rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31:29], ng[28:22], nrows[21:6], sh[5:0]}'
+      work    rtl/matvec_chan.sv:18  '//   0x14 SHAPE     W  {spare[31], rbank[30], xbank[29], ng[28:22],'
+SR11C_HAND_REPAIRS PASS: 45 entries, 0 bad
+=== rc  : 0
+=== end : 2026-09-28T13:16:53-06:00

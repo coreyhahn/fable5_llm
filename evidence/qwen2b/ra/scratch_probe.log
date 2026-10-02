@@ -1,0 +1,118 @@
+# scratch-map high-water probe — Track R task R-a, 2026-08-12, darthplagueis
+# Re-run after the review fixes (single-derivation refactor of scratch_map()).
+# Instrumented Mach.mem (ndarray subclass recording every slice bound
+# read/written) over 4 seeds x 3 tokens x {dn_token, attn_token}+mlp_block.
+# Measured peak must equal the derived PEAK and stay <= 32768.
+
+$ FABLE5_MODEL=0.8b ref/.venv/bin/python probe_map.py 0.8b
+[0.8b seed=1] H=1024 FFN=3584  measured peak: DN(+MLP)=16384 ATTN(+MLP)=15872 conv-preamble=12288
+[0.8b seed=2] H=1024 FFN=3584  measured peak: DN(+MLP)=16384 ATTN(+MLP)=15872 conv-preamble=15872
+[0.8b seed=3] H=1024 FFN=3584  measured peak: DN(+MLP)=16384 ATTN(+MLP)=15872 conv-preamble=15872
+[0.8b seed=4] H=1024 FFN=3584  measured peak: DN(+MLP)=16384 ATTN(+MLP)=15872 conv-preamble=15872
+[0.8b] MEASURED PEAK=16384  DERIVED PEAK=16384  SCRATCH=16384  headroom=0
+[0.8b] OK: measured <= derived <= 32768
+
+$ FABLE5_MODEL=2b ref/.venv/bin/python probe_map.py 2b
+[2b seed=1] H=2048 FFN=6144  measured peak: DN(+MLP)=25600 ATTN(+MLP)=25600 conv-preamble=15360
+[2b seed=2] H=2048 FFN=6144  measured peak: DN(+MLP)=25600 ATTN(+MLP)=25600 conv-preamble=25600
+[2b seed=3] H=2048 FFN=6144  measured peak: DN(+MLP)=25600 ATTN(+MLP)=25600 conv-preamble=25600
+[2b seed=4] H=2048 FFN=6144  measured peak: DN(+MLP)=25600 ATTN(+MLP)=25600 conv-preamble=25600
+[2b] MEASURED PEAK=25600  DERIVED PEAK=25600  SCRATCH=32768  headroom=7168
+[2b] OK: measured <= derived <= 32768
+
+# import-time invariants (both geometries):
+  FABLE5_MODEL=0.8b  PEAK=16384  scratch_map() max end=16384  SCRATCH=16384  -> _LEGACY_MAP + _MAP_PEAK_OK + PEAK<=SCRATCH all PASSED
+  FABLE5_MODEL=2b  PEAK=25600  scratch_map() max end=25600  SCRATCH=32768  -> _LEGACY_MAP + _MAP_PEAK_OK + PEAK<=SCRATCH all PASSED
+
+# --------- appendix: probe_map.py (verbatim, for reproduction) ---------
+#!/usr/bin/env python3
+"""Empirical scratch-extent probe (throwaway; not committed).
+
+Wraps Mach.mem in an ndarray subclass that records the high-water mark of
+every slice read/written, then runs the real DN + ATTN token bodies.
+Reports the measured peak against the derived PEAK/SCRATCH.
+"""
+import sys
+import numpy as np
+
+sys.path.insert(0, "/home/cah/r2d2/code/fpga/fable5_llm/ref")
+import gen_layer_script as G          # noqa: E402
+import layer_ref as LR                # noqa: E402
+import layer_fixed as LF              # noqa: E402
+
+HI = {"w": 0, "r": 0}
+
+
+def _stop(k, n):
+    if isinstance(k, slice):
+        return n if k.stop is None else min(int(k.stop), n)
+    if isinstance(k, (int, np.integer)):
+        return int(k) + 1
+    return 0
+
+
+class Tracked(np.ndarray):
+    def __setitem__(self, k, v):
+        HI["w"] = max(HI["w"], _stop(k, self.shape[0]))
+        return super().__setitem__(k, v)
+
+    def __getitem__(self, k):
+        HI["r"] = max(HI["r"], _stop(k, self.shape[0]))
+        return super().__getitem__(k)
+
+
+def run(seed, ntok, tag):
+    rng = np.random.default_rng(seed)
+    with open("/dev/null", "w") as f:
+        M = G.Mach(f)
+        M.mem = np.zeros(G.SCRATCH, dtype=G.I64).view(Tracked)
+
+        wf = LR.init_layer_weights(rng, "linear_attention")
+        qw = LF.quant_layer(wf)
+        cache = LF.new_cache_fx("linear_attention")
+        x = np.round(rng.normal(0, 1, LR.H) * (1 << G.RS_F)).astype(G.I64)
+        qd = qw["dn"]
+        for c in range(0, LR.CONV_DIM, 2048):
+            M.W(G.STG, qd["conv_w"][c:c + 2048].reshape(-1))
+            M.convw(c, 2048, G.STG)
+        M.convz(0, LR.CONV_DIM)
+        for h in range(LR.LNH):
+            M.dnz(h)
+        pre = dict(HI)
+        HI["w"] = HI["r"] = 0            # exclude the conv-weight preamble
+        M.W(G.X0, x)
+        for t in range(ntok):
+            gold = LF.layer_decode_fx(x, qw, cache, t)
+            G.dn_token(M, qd, qw["ln1"], qw["ln2"], qw["mlp"], gold)
+            x = gold
+        dn = dict(HI)
+        HI["w"] = HI["r"] = 0
+
+        wf = LR.init_layer_weights(rng, "full_attention")
+        qw = LF.quant_layer(wf)
+        cache = LF.new_cache_fx("full_attention")
+        x = np.round(rng.normal(0, 1, LR.H) * (1 << G.RS_F)).astype(G.I64)
+        M.Treset()
+        M.kc[0] = [[], []]
+        M.vc[0] = [[], []]
+        M.W(G.X0, x)
+        for t in range(ntok):
+            gold = LF.layer_decode_fx(x, qw, cache, t)
+            G.attn_token(M, qw["attn"], qw["ln1"], qw["ln2"], qw["mlp"],
+                         t, gold)
+            x = gold
+        at = dict(HI)
+    print(f"[{tag} seed={seed}] H={G.H} FFN={G.FFN}  measured peak: "
+          f"DN(+MLP)={max(dn.values())} ATTN(+MLP)={max(at.values())} "
+          f"conv-preamble={max(pre.values())}")
+    return max(max(dn.values()), max(at.values()))
+
+
+if __name__ == "__main__":
+    tag = sys.argv[1]
+    peak = max(run(s, 3, tag) for s in (1, 2, 3, 4))
+    print(f"[{tag}] MEASURED PEAK={peak}  DERIVED PEAK={G.PEAK}  "
+          f"SCRATCH={G.SCRATCH}  headroom={G.SCRATCH - peak}")
+    assert peak <= G.PEAK, f"measured {peak} EXCEEDS derived PEAK {G.PEAK}"
+    assert G.PEAK <= 32768, f"derived PEAK {G.PEAK} exceeds the 32K budget"
+    print(f"[{tag}] OK: measured <= derived <= 32768")

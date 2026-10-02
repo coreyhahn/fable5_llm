@@ -1,0 +1,587 @@
+=== host: snoke  date: 2026-09-27T18:16:15-06:00
+=== tree: b4b2501
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/o3/o3_cite_drift.py --base 3ae0ff9 --edited rtl/seq_unit.sv,rtl/seq_movers.sv,tb/scripts/gen_seq_unit_vectors.py,tb/tb_seq_unit.sv,tb/Makefile --check
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+o3 citation-drift gate  [check]
+  code base  3ae0ff9
+  doc base   3ae0ff9
+  files      5 edited files
+  citations  339 distinct (file, line) pairs
+  unmoved    61
+  half-ranges 4 (one endpoint unresolved — NEVER rewritten)
+  DRIFTED    rtl/seq_movers.sv:50 -> :55   '// C3  NEW.  AXI gives no ordering between two different master ports.  Every'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, rtl/state_dma.sv
+  DRIFTED    rtl/seq_movers.sv:54 -> :59   '//     the burst write engine first (bw_idle = every B response collected).'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md, rtl/state_dma.sv
+  DRIFTED    rtl/seq_movers.sv:90 -> :95   'input  wire         cmd_nowait,     // MVGO: return before engine done'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_movers.sv:111 -> :117   "// Served only while the mover is idle; seq_unit's issue FSM never has a"
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:113 -> :119   '// I_BULKRUN are different states of one single-threaded FSM).'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:121 -> :127   ''
+             cited by docs/USAGE.md, sw/hwmap.py
+  DRIFTED    rtl/seq_movers.sv:124 -> :130   '// ---------------- AXI4 burst master (S3): 32b data, 32b addr -------'
+             cited by docs/USAGE.md, sw/hwmap.py
+  DRIFTED    rtl/seq_movers.sv:162 -> :168   "localparam logic [1:0] MOP_FENCE = 2'd3;"
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_movers.sv:175 -> :181   "localparam logic [31:0] MVB_RES  = 32'h0000_0000;   // 4096 rows  x 4 B"
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/seq_movers.sv:176 -> :182   "localparam logic [31:0] MVB_XWIN = 32'h0000_4000;   // 3072 words x 4 B"
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    rtl/seq_movers.sv:180 -> :186   'localparam int XWIN_WORDS  = 3072;   // K <= 12288 (matvec_engine MAX_NG 96).'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    rtl/seq_movers.sv:184 -> :190   'localparam int SCR_WORDS   = 65536;   // G3.1, spec 4.3 S4'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/seq_movers.sv:187 -> :193   "localparam logic [7:0] E_AXI      = 8'h12;   // m_axib RRESP/BRESP != OK"
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/seq_movers.sv:191 -> :197   "localparam logic [7:0] E_MOVER_TMO= 8'h23;   // mover stream stalled"
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/seq_movers.sv:227 -> :233   '// S12 (v2 door): the RES burst read start row is a full 12-bit field'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:232 -> :238   'logic [11:0] res_row_q;'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:235 -> :241   'logic [3:0]  chan_pend;'
+             cited by docs/SEQ_ISA.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:446 -> :453   '// dequant: rshr64s(v, shift) + round-half-away, then clip'
+             cited by evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+  DRIFTED    rtl/seq_movers.sv:458 -> :465   '// followed by clip_out — algebraically identical to `deq` for every v.'
+             cited by evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+  DRIFTED    rtl/seq_movers.sv:526 -> :533   "wire [23:0] x_wwords = 24'((len_q + 24'd3) >> 2);"
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/ov/sr0_clock_sens.py
+  DRIFTED    rtl/seq_movers.sv:567 -> :574   'always_comb begin'
+             cited by synth/exp_uram/rtl/layer_chan.sv
+  DRIFTED    rtl/seq_movers.sv:579 -> :586   "bwd_data  = 32'd0;"
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    rtl/seq_movers.sv:582 -> :589   ''
+             cited by NEXT_SESSION.md, evidence/qwen9b/g3/G3_3_MATVEC.md, rtl/layer_chan.sv
+  DRIFTED    rtl/seq_movers.sv:588 -> :595   'st <= S_IDLE;'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_movers.sv:592 -> :599   "chan_pend <= '0; fence_chan <= '0; poll_is_fence <= 1'b0;"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_movers.sv:612 -> :620   '// --------------------------------------------------------'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:613 -> :621   'S_IDLE: if (cmd_valid) begin'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_movers.sv:619 -> :628   "res_row_q <= 12'd0;              // S12: v1 always drains row 0"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:630 -> :639   "MOP_FENCE: begin fence_chan <= 2'd0; st <= F_SCAN; end"
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:631 -> :640   'default:   st <= S_DONE;'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:643 -> :652   'X_DRAIN: if (wr_idle) begin'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:647 -> :656   'br_sbeats <= len_q;'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:649 -> :658   'bw_saddr  <= mvbaddr(chan_q, MVB_XWIN);'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:680 -> :689   'X_END: if (wr_idle && bw_idle) begin'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:694 -> :703   '// ========================================================'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md, ref/seq_model.py
+  DRIFTED    rtl/seq_movers.sv:700 -> :709   'G_DRAIN: if (wr_idle) begin'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:702 -> :711   "chan_pend[chan_q] <= 1'b1;"
+             cited by docs/SEQ_ISA.md
+  DRIFTED    rtl/seq_movers.sv:704 -> :713   'end else begin'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md, ref/seq_model.py
+  DRIFTED    rtl/seq_movers.sv:712 -> :721   "if (guard_cnt == 32'(MVGO_GUARD - 1)) begin"
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:723 -> :732   'G_POLLW: if (rd_rsp_valid) begin'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:727 -> :736   "chan_pend[chan_q] <= 1'b0;"
+             cited by docs/SEQ_ISA.md
+  DRIFTED    rtl/seq_movers.sv:731 -> :740   ''
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:754 -> :763   "br_saddr  <= mvbaddr(chan_q, MVB_RES + {18'd0, res_row_q, 2'b00});"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:809 -> :818   'Y_END: if (wr_idle && bw_idle) st <= S_DONE;'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:814 -> :824   '// FENCE also drains the AXI-Lite write pipe: a run of CSRWRs'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_movers.sv:817 -> :827   'F_SCAN: if (wr_idle) begin'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md, evidence/qwen9b/ov/ov_census.py
+  DRIFTED    rtl/seq_movers.sv:828 -> :838   'end'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:833 -> :843   'st   <= S_IDLE;'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md, evidence/qwen9b/ov/ov_census.py
+  DRIFTED    rtl/seq_movers.sv:888 -> :898   'wr_addr  = mvaddr(chan_q, MV_RESPTR);'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:889 -> :899   "wr_data  = {20'd0, res_row_q}; end"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_movers.sv:896 -> :906   'assign cmd_ready = (st == S_IDLE);'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_movers.sv:897 -> :907   'assign busy      = (st != S_IDLE);'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:49 -> :54   '//   0x100..0x1FC  R  BM1 idle counters (docs/SEQ_ISA.md B16, v2.2): 0x100'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:50 -> :55   '//                 BM_IDENT 0xFAB1B301, 0x104..0x128 and 0x130/0x134 the'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_unit.sv:51 -> :56   '//                 counters, the rest read 0.  Host-read-only; cleared by'
+             cited by docs/USAGE.md, sw/hwmap.py
+  DRIFTED    rtl/seq_unit.sv:53 -> :58   '//                 "BM1 idle counters" block below.'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:59 -> :64   '//   0x03 XRF index out of range      0x04 illegal flags for the opcode'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:162 -> :167   '// 5<<16 .. 7<<16 is a decode HOLE — an AXI segment must be'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/seq_unit.sv:243 -> :248   'output logic [31:0] m_axib_araddr,'
+             cited by ref/seq_chat.py
+  DRIFTED    rtl/seq_unit.sv:261 -> :266   '// ---------------- BM1: matvec engine busy, one bit per channel ------'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:263 -> :268   '// one source flop).  Counted only (the idle counters, SEQ 0x100..);'
+             cited by evidence/qwen9b/bn/bn_timeline.py
+  DRIFTED    rtl/seq_unit.sv:264 -> :269   '// no control depends on it.  Unbuilt channels tie 0.'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:265 -> :270   'input  wire [3:0]   mv_busy_bm,'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:266 -> :271   ''
+             cited by evidence/qwen9b/bn/bn_timeline.py
+  DRIFTED    rtl/seq_unit.sv:267 -> :272   'output logic        seq_busy,'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:279 -> :284   ''
+             cited by docs/SEQ_ISA.md
+  DRIFTED    rtl/seq_unit.sv:280 -> :285   "localparam logic [3:0] IND_NONE = 4'h0, IND_ADD = 4'h1, IND_SUB = 4'h2;"
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/seq_unit.sv:281 -> :286   ''
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/seq_unit.sv:284 -> :289   "L_ARG2 = 12'h010;"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:285 -> :290   '// L_SWIN (0x018) is deliberately absent: no seq_unit path streams the'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/seq_unit.sv:286 -> :291   '// scratch window through AXI-Lite any more (rung 3 moved LDC/EMB onto'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:300 -> :305   '//               layout (G3.3), which covers every host that packs a'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:312 -> :317   "// authority), here, sw/hwmap.py's SHAPE_MAX_NG[2] and"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:313 -> :318   "// ref/seq_format.py -- because RTL cannot consume another module's"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:315 -> :320   '// The four are TIED BY evidence/qwen9b/g3/isa_bits.py, which PARSES'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:323 -> :328   '// sh[5:0]}.'
+             cited by evidence/qwen9b/g2/FINAL_BYTELOCK.md, evidence/qwen9b/g2/G2A_HOST.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:326 -> :331   "localparam logic [31:0] IDENT = 32'hFAB1_E5E0;"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_unit.sv:327 -> :337   '// R-b: the EMB row size is RUNTIME (CSR 0x60 EMBLOG2), not a localparam.'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/g6/RD9_GATE.md, evidence/qwen9b/g6/g6_emblog2.py
+  DRIFTED    rtl/seq_unit.sv:328 -> :338   '// Reset 11 = 2048 B = the 0.8B H=1024 row, so a host that never writes'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:337 -> :347   '// SEQ_EMBLOG2_RST (and EMB_ROW_BYTES_DEFAULT, derived from it).'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/seq_unit.sv:341 -> :351   'wire rstn = aresetn;'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md, evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:363 -> :373   '// extra MSB that makes full and empty distinguishable, exactly as the'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:488 -> :498   'logic [ADDR_W-1:0] fa_addr;           // next fetch burst DDR address'
+             cited by evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:583 -> :593   'if (fq_push) begin'
+             cited by ref/seq_format.py
+  DRIFTED    rtl/seq_unit.sv:606 -> :616   "fa_left  <= (seq_len > flush_pc) ? (seq_len - flush_pc) : 32'd0;"
+             cited by ref/seq_format.py
+  DRIFTED    rtl/seq_unit.sv:708 -> :718   'wire [3:0]  r_chan = r_flags[7:4];                    // MOVX/MVGO (A1)'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:752 -> :762   'case (r_op)'
+             cited by evidence/qwen2b/rb/seq_isa_ref_sweep.txt, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:757 -> :767   'begin v_bad=1; v_code=E_IND; end'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md, docs/SEQ_ISA.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:758 -> :768   "else if (r_xrf4 >= 4'd8)         begin v_bad=1; v_code=E_XRFIDX; end"
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:760 -> :770   "&& (r_tgt[15:12] > 4'h2)) begin v_bad=1; v_code=E_CSRSP; end"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:764 -> :774   'OP_CMD: begin'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:765 -> :775   "if (r_flags != 8'd0)             begin v_bad=1; v_code=E_FLAGS; end"
+             cited by docs/SEQ_ISA.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:766 -> :776   "else if (r_tgt[15:12] != 4'd0)   begin v_bad=1; v_code=E_CSRSP; end"
+             cited by evidence/qwen2b/rb/seq_isa_ref_sweep.txt, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:768 -> :778   'OP_MOVX, OP_MVGO: begin'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:770 -> :780   "else if (r_chan >= 4'd4)         begin v_bad=1; v_code=E_CHAN; end"
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:772 -> :782   'else if ((r_op == OP_MVGO)'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:775 -> :785   'begin v_bad=1; v_code=E_ENV; end'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:777 -> :787   'OP_MOVY: begin'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:781 -> :791   'begin v_bad=1; v_code=E_IND; end'
+             cited by docs/SEQ_ISA.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:782 -> :792   "else if (r_tgt[3:0] >= 4'd4)     begin v_bad=1; v_code=E_CHAN; end"
+             cited by evidence/qwen2b/rb/seq_isa_ref_sweep.txt, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    rtl/seq_unit.sv:783 -> :793   "else if (r_tgt[15:4] != 12'd0)   begin v_bad=1; v_code=E_RSVD; end"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md, ref/scripts/reorder_e4.py
+  DRIFTED    rtl/seq_unit.sv:786 -> :796   "OP_AMAXL: if ((r_flags != 8'd0) || (r_tgt != 16'd0)"
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md, ref/scripts/reorder_e4.py
+  DRIFTED    rtl/seq_unit.sv:797 -> :813   'begin v_bad=1; v_code=E_RSVD; end'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:800 -> :816   "else if (r_tgt >= 16'd8)         begin v_bad=1; v_code=E_XRFIDX; end"
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md, evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:809 -> :825   '// issue FSM'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md, evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:812 -> :828   'I_IDLE, I_SYNC, I_SYNCW, I_FETCH, I_EXEC,'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:833 -> :849   ''
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md, evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:835 -> :851   '// (RUNG3 S8).  The DDR read side (m_axi, 128-bit) is untouched.'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:841 -> :857   ''
+             cited by ref/seq_chat.py
+  DRIFTED    rtl/seq_unit.sv:846 -> :862   'logic [1:0]  mv_op, mv_chan;'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_unit.sv:850 -> :867   'logic signed [31:0] mv_shift;'
+             cited by ref/seq_chat.py
+  DRIFTED    rtl/seq_unit.sv:886 -> :903   'endcase'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/seq_unit.sv:887 -> :904   'endfunction'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md, docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/addrmap_options.py
+  DRIFTED    rtl/seq_unit.sv:888 -> :905   ''
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/feas/addrmap_options.py
+  DRIFTED    rtl/seq_unit.sv:904 -> :921   '// NB `!flush`: on the cycle a JMP/START flush is applied the FIFO still'
+             cited by evidence/qwen9b/g6/RD9_GATE.md, evidence/qwen9b/g6/g6_emblog2.py
+  DRIFTED    rtl/seq_unit.sv:928 -> :945   "mv_cmd_valid <= 1'b0;"
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md, evidence/qwen9b/bn/BN_CENSUS.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:929 -> :946   "mv_op <= '0; mv_chan <= '0; mv_saddr <= '0; mv_len <= '0;"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_unit.sv:933 -> :951   "flush    <= 1'b0;"
+             cited by evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:954 -> :972   'err_code <= E_AXI;'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:955 -> :973   'ist <= I_ERR;'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:966 -> :984   "perf_axr <= '0; perf_fst <= '0;"
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/seq_unit.sv:981 -> :999   'err_code <= E_ABORT;'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/seq_unit.sv:1001 -> :1019   'case (r_op)'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/seq_unit.sv:1009 -> :1027   "if (!XRF_WRITE_THROUGH) pc <= pc + 32'd1;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/seq_unit.sv:1013 -> :1031   'ist <= I_FETCH;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/seq_unit.sv:1016 -> :1034   'ist <= I_ERR;'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/seq_unit.sv:1022 -> :1040   'if (r_tgt[7:0] == L_ARG2[7:0]) arg2_sh <= imm_res;'
+             cited by evidence/qwen9b/bn/BN_CENSUS.md, evidence/qwen9b/bn/bn_timeline.py
+  DRIFTED    rtl/seq_unit.sv:1033 -> :1051   'end'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1034 -> :1052   'OP_MOVX: begin'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:1035 -> :1053   '// 16-bit scratch addressing (SEQ_ISA v2.0): addr_lo'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:1037 -> :1055   '// costs nothing in the record — only in the width'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:1041 -> :1059   "mv_cmd_valid <= 1'b1;"
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1043 -> :1061   'end'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:1049 -> :1067   'mv_nowait <= r_tgt[0];'
+             cited by docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:1050 -> :1068   "mv_cmd_valid <= 1'b1;"
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md, evidence/qwen9b/bn/BN_CENSUS.md, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1053 -> :1071   'OP_MOVY: begin'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-24-board-idle-counters-design.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/bn/BN_CENSUS.md, evidence/qwen9b/bn/bn_timeline.py, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1055 -> :1073   'mv_saddr <= r_lo[15:0]; mv_len <= r_hi[23:0];'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:1060 -> :1078   'end'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:1061 -> :1079   'OP_FENCE: begin'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:1062 -> :1080   "mv_op <= 2'd3;"
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/seq_unit.sv:1065 -> :1084   'end'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  DRIFTED    rtl/seq_unit.sv:1067 -> :1086   'if (emb_a[0]) begin'
+             cited by docs/SEQ_ISA.md
+  DRIFTED    rtl/seq_unit.sv:1069 -> :1088   'ist <= I_ERR;'
+             cited by docs/SEQ_ISA.md
+  DRIFTED    rtl/seq_unit.sv:1086 -> :1105   'bulk_addr <= ldc_a[ADDR_W-1:0];'
+             cited by evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1098 -> :1117   'if (r_flags[0]) begin'
+             cited by evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1121 -> :1140   'end'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1136 -> :1155   'end'
+             cited by evidence/qwen9b/g4/tb_layer_census.sv, evidence/qwen9b/s4/S4_REPLAY.md
+  DRIFTED    rtl/seq_unit.sv:1137 -> :1156   '// AXI gives no read/write ordering: the CMD write must LAND'
+             cited by evidence/qwen9b/g4/tb_layer_census.sv, evidence/qwen9b/s4/census_nodrain_red.sh
+  DRIFTED    rtl/seq_unit.sv:1154 -> :1173   "xrf_dst  <= cmd_wr_dynq8 ? 3'd0"
+             cited by evidence/qwen9b/g4/tb_layer_census.sv, evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md, evidence/qwen9b/s4/S4_REPLAY.md
+  DRIFTED    rtl/seq_unit.sv:1163 -> :1182   'ist <= I_FETCH;'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/seq_unit.sv:1187 -> :1206   ''
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1195 -> :1214   'end'
+             cited by evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1277 -> :1296   "10'h003: seq_base[33:32] <= csr_wdata[1:0];"
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:1278 -> :1297   "10'h004: seq_len   <= csr_wdata;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/seq_unit.sv:1281 -> :1300   "10'h018: begin                             // 0x60 EMBLOG2"
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:1282 -> :1301   '// Host misuse, not a stream error: an out-of-range'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/seq_unit.sv:1286 -> :1305   '// a host CSR write, and inventing one would change'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:1291 -> :1310   '$error("seq_unit EMBLOG2: %0d outside [%0d,%0d] (host misuse), register unchan'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/seq_unit.sv:1305 -> :1324   '// =================================================================='
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1324 -> :1343   '// delayed busy_r is still low and a host read comes long after the'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:1325 -> :1344   '// delayed window has closed, so the delay changes no count.'
+             cited by docs/QWEN35_2BOARD_FEASIBILITY.md
+  DRIFTED    rtl/seq_unit.sv:1334 -> :1353   'wire [6:0] bm_loc = {'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1335 -> :1354   '(ist == I_EXEC) && !v_bad && (r_op == OP_EMB),'
+             cited by docs/SEQ_ISA.md
+  DRIFTED    rtl/seq_unit.sv:1341 -> :1360   'busy_r };'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1353 -> :1372   'wire       bm_clr  = (ist == I_IDLE) && start_req;   // == the PERF clear'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1362 -> :1381   "bm_mvb_q1 <= '0; bm_mvb_q2 <= '0;"
+             cited by evidence/qwen9b/bm/BM1_T3_BUILD.md
+  DRIFTED    rtl/seq_unit.sv:1368 -> :1387   'bm_loc_d1 <= bm_loc;'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1370 -> :1389   'bm_loc_d3 <= bm_loc_d2;'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1371 -> :1390   'bm_mvb_q1 <= mv_busy_bm;'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1372 -> :1391   'bm_mvb_q2 <= bm_mvb_q1;'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1413 -> :1432   'end'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1436 -> :1455   "? (LAYER_BASE + {20'd0, L_EOUT})"
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:1452 -> :1471   'end'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/seq_unit.sv:1461 -> :1480   '.LAYER_BASE(LAYER_BASE), .MV_BASE(MV_BASE), .MV_STRIDE(MV_STRIDE),'
+             cited by evidence/qwen9b/bn/BN_CENSUS.md
+  DRIFTED    rtl/seq_unit.sv:1463 -> :1482   ') u_mov ('
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:1465 -> :1484   '.cmd_valid(mv_cmd_valid), .cmd_ready(mv_cmd_ready),'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  DRIFTED    rtl/seq_unit.sv:1470 -> :1489   '.done(mv_done), .err(mv_err), .err_code(mv_err_code), .busy(mv_busy),'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_unit.sv:1583 -> :1602   "10'h018: s_axil_rdata <= {27'd0, emb_row_log2}; // EMBLOG2"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    rtl/seq_unit.sv:1586 -> :1606   "else if (s_axil_araddr[11:8] == 4'h1)       // BM1 0x100..0x1FC"
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1587 -> :1607   's_axil_rdata <= bm_rdata;'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    rtl/seq_unit.sv:1588 -> :1608   "else s_axil_rdata <= 32'hDEAD_C0DE;"
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md, evidence/qwen9b/sr/SR2_ISA.md
+  DRIFTED    tb/Makefile:881 -> :892   'mkdir -p $(SEQ_VEC)'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    tb/Makefile:968 -> :979   '@echo "-- the SAME streams over the burst fabric at blat 0/8 --"'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/Makefile:989 -> :1000   'for p in 0 3; do for s in $(SEQ_SEEDS); do \\'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/Makefile:1050 -> :1061   'tb_seq_chip_build:'
+             cited by docs/superpowers/plans/2026-08-16-qwen2b-v5-w8.md
+  DRIFTED    tb/Makefile:1128 -> :1139   'FABLE5_MODEL=2b $(VECPY) scripts/gen_seq_chip_vectors.py \\'
+             cited by evidence/qwen9b/g4/G4A_REPLAY.md
+  DRIFTED    tb/Makefile:1233 -> :1244   '#'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:1262 -> :1273   'W9_DIR    ?= scripts/w9'
+             cited by evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+  DRIFTED    tb/Makefile:1264 -> :1275   'W9_SEQ    ?= $(W9_BASE).e4'
+             cited by evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+  DRIFTED    tb/Makefile:1270 -> :1281   'W9_SEEDS  ?= 1 2 3 4'
+             cited by NEXT_SESSION.md
+  DRIFTED    tb/Makefile:1278 -> :1289   '# generators.  `ref/layer_fixed.RS_F` is a process-global constant fixed at'
+             cited by docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:1300 -> :1311   '# --- the cheap fail-fast: ONE DN + ONE ATTN layer at the 9B geometry,'
+             cited by NEXT_SESSION.md, docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+  DRIFTED    tb/Makefile:1395 -> :1406   '# S3 fix round 2 (C1 part 3), unchanged in intent: the model artifact is'
+             cited by evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+  DRIFTED    tb/Makefile:1397 -> :1408   '# -- the GPTQ pass alone was 2 h 55 min (G2C_CHAIN.md 4.2) -- and that is'
+             cited by evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+  DRIFTED    tb/Makefile:1398 -> :1409   '# the price of keeping an artifact a bit-exact replay depends on.'
+             cited by evidence/qwen9b/s3/S3_CHAIN.md, evidence/qwen9b/s4/S4_REPLAY.md, evidence/qwen9b/s4/emit_model_gated.sh
+  DRIFTED    tb/Makefile:1399 -> :1410   'w9_9b_model_script:'
+             cited by evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+  DRIFTED    tb/Makefile:1406 -> :1417   '$(W9_SEED) $(W9_NTOK) $(W9_FLAGS) 2>&1; \\'
+             cited by evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+  DRIFTED    tb/Makefile:1420 -> :1431   '$(CURDIR)/$(W9_EMIT_OUT) | tail -20; \\'
+             cited by evidence/qwen9b/s3/S3_CHAIN.md, evidence/qwen9b/s4/S4_REPLAY.md, evidence/qwen9b/s4/emit_model_gated.sh
+  DRIFTED    tb/Makefile:1427 -> :1438   'EMIT_ENV="$(W9_GPTQ)" MODELPY=$(MODELPY) \\'
+             cited by evidence/qwen9b/s3/S3_CHAIN.md, evidence/qwen9b/s4/S4_REPLAY.md, evidence/qwen9b/s4/emit_model_gated.sh
+  DRIFTED    tb/Makefile:1428 -> :1439   'EMIT_SEQ_ENV="$(W9_ENV)" REF_PREFIX=$(CURDIR)/$(W9_BASE) \\'
+             cited by evidence/qwen9b/s3/S3_CHAIN.md, evidence/qwen9b/s4/S4_REPLAY.md, evidence/qwen9b/s4/emit_model_gated.sh
+  DRIFTED    tb/Makefile:1536 -> :1547   'TL_MDIR ?= obj_dir_seq_chip_tl'
+             cited by evidence/qwen9b/ov/SV1_S1_VERIFY.md
+  DRIFTED    tb/Makefile:1540 -> :1551   '--Mdir $(TL_MDIR) -o $(TL_BIN) \\'
+             cited by evidence/qwen9b/ov/SV1_S1_VERIFY.md
+  DRIFTED    tb/Makefile:1760 -> :1771   '# ======================================================================'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    tb/Makefile:1798 -> :1809   '@echo "LINT_BM1 OK: -Wall clean (seq_unit, seq_unit_ipi, matvec_chan, matvec_c'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:71 -> :80   'BLOB_BASE   = 0x9002_0000'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:72 -> :81   'EMB_BASE    = 0x9004_0000'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:73 -> :82   "# R-b: the EMB row size is a RUNTIME CSR (seq_unit's EMBLOG2 at SEQ 0x60),"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:74 -> :83   '# not a localparam.  G3.4 (spec 5.3 S8) moved the RESET to 13 = 8192 B ='
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:82 -> :91   'EMB_ROW_LOG2  = 13'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:85 -> :94   '# G3.4 fix round 1 (spec 5.4 S9): every MVGO SHAPE immediate below is'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:95 -> :104   'def _shape(nrows, sh, ng):'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:96 -> :105   'return HW.shape_word(nrows, sh, ng, isa=HW.SHAPE_ISA_9B)'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:282 -> :306   'elif o == SF.OP_FENCE:'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:307 -> :344   'def validate(self, r, nrec):'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:333 -> :370   '# G3.4 (spec 5.4 S9): the MVGO SHAPE envelope, mirrored from'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:342 -> :379   'elif o == SF.OP_MOVY:'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:364 -> :409   'return 0x06'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:366 -> :411   'if fl:'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:460 -> :517   'for w in words:'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:463 -> :520   'self.sptr += 1'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:467 -> :524   'if r.ind == SF.IND_ADD:'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:490 -> :547   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:492 -> :549   'def csr_layer_w(off, val, ind=0, xi=0):'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:493 -> :550   'return rec(SF.OP_CSRWR, flags=(ind | (xi << 4)),'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:494 -> :551   'target=SF.csr_layer(off), imm32=val & 0xFFFFFFFF)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:497 -> :554   'def xop(dst, a, b, s1, s2, simm):'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:501 -> :558   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:503 -> :560   'def alu_cmd(sub, n, srca, srcb, p0, dst):'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:508 -> :565   'exercised a high-half ALU address (spec 7.6 C).  At SEQ_ISA v2.0 it does'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:512 -> :569   'a0 = GLS.enc_alu_a0(sub, n, p0)'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:514 -> :571   'a2 = GLS.enc_alu_a2(p0, dst)'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:517 -> :574   'imm32=11)]'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:528 -> :585   'blob_words = rng.integers(-32768, 32767, size=4096).astype("<i2")'
+             cited by NEXT_SESSION.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:634 -> :691   '# G3.4 (spec 5.4 S9): the MVGO SHAPE envelope.  ng = 0 and ng = 97 are'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:652 -> :709   'rec(SF.OP_HALT)], 0x0D)'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:654 -> :784   ''
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:730 -> :872   'R.append(csr_layer_w([L_ARG0, L_ARG1, L_ARG2][i % 3], 0x1000 + i))'
+             cited by NEXT_SESSION.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:732 -> :874   'R.append(rec(SF.EXT_LDC, target=0x0000, imm32=4096,'
+             cited by NEXT_SESSION.md
+  DRIFTED    tb/scripts/gen_seq_unit_vectors.py:773 -> :915   'The MOVX length is deliberately 6144 int8 elements = 1536 XWIN words,'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    tb/tb_seq_unit.sv:90 -> :99   'localparam int MAXMEM = 65536;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:211 -> :220   '// BM1 (SEQ_ISA B16): the stub channels have no engine-busy bit; the'
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    tb/tb_seq_unit.sv:214 -> :223   ".mv_busy_bm(4'd0),"
+             cited by evidence/qwen9b/bm/BM1_T1_GATE.md
+  DRIFTED    tb/tb_seq_unit.sv:350 -> :359   '// expected traces'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:362 -> :371   'int unsigned exp_xrf [8];'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/tb_seq_unit.sv:363 -> :372   'int unsigned exp_tok [1024];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/tb_seq_unit.sv:366 -> :375   '// R-b: the EMBLOG2 CSR value this vector expects the HOST to program.'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/tb_seq_unit.sv:384 -> :405   'function automatic bit is_poll(input int unsigned a);'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  DRIFTED    tb/tb_seq_unit.sv:391 -> :412   'int unsigned a, d;'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    tb/tb_seq_unit.sv:436 -> :457   'exp_xrf[a[2:0]] = d;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_seq_unit.sv:452 -> :473   'if (n_exp_mem >= MAXTR) $fatal(1, "too many MEM lines");'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_seq_unit.sv:507 -> :553   'got_w, a, d, exp_waddr[got_w], exp_wdata[got_w]);'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:509 -> :555   'end'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:513 -> :559   'begin'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:517 -> :563   'if (a !== exp_raddr[got_r])'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:523 -> :569   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:527 -> :573   'take_w(m_awaddr, m_wdata);'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:534 -> :585   'if (mb_awvalid && mb_awready) begin'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:542 -> :593   "32'd10, 32'd11}) begin"
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    tb/tb_seq_unit.sv:544 -> :595   '$fatal(1, "burst AW %08h outside the layer scratch window",'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  DRIFTED    tb/tb_seq_unit.sv:545 -> :596   'mb_awaddr);'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:551 -> :602   'if (mb_arvalid && mb_arready) begin'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:556 -> :607   "32'd10, 32'd11}) begin"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:719 -> :773   'end'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:748 -> :810   "hwr(32'h20, 32'd0);"
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/tb_seq_unit.sv:749 -> :811   '// XRF[3] seed (prompt token) — the generator always uses 0 here and'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_seq_unit.sv:752 -> :814   '// R-b: EMBLOG2 (SEQ 0x60) — the EMB row size, host-programmed before'
+             cited by evidence/qwen9b/g3/G3_4_LAYER.md
+  DRIFTED    tb/tb_seq_unit.sv:753 -> :815   '// any EMB record.  G3.4 moved the RESET to 13 (8192 B, the 9B row),'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  DRIFTED    tb/tb_seq_unit.sv:884 -> :967   'end'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:913 -> :996   'end'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    tb/tb_seq_unit.sv:914 -> :997   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  UNRESOLVED rtl/seq_movers.sv:812 (the cited line was rewritten or deleted)   '// FENCE: drain every channel a no-wait MVGO left running'
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  UNRESOLVED rtl/seq_movers.sv:818 (the cited line was rewritten or deleted)   'if (chan_pend[fence_chan]) begin'
+             cited by docs/SEQ_ISA.md
+  UNRESOLVED rtl/seq_unit.sv:794 (the cited line was rewritten or deleted)   'OP_FENCE, OP_HALT:'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  UNRESOLVED tb/Makefile:862 (the cited line was rewritten or deleted)   'SEQ_ERRS  := op ind chan jmp xopsgn csrsp rsvd env0 env97'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  UNRESOLVED tb/Makefile:870 (the cited line was rewritten or deleted)   'SEQ_DIRECTED := hiaddr embrow repack1 repack2 repack3 repack4'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  UNRESOLVED tb/scripts/gen_seq_unit_vectors.py:283 (the cited line was rewritten or deleted)   'self.pend = [False] * 4      # polls only -> no logged traffic'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  UNRESOLVED tb/scripts/gen_seq_unit_vectors.py:362 (the cited line was rewritten or deleted)   'elif o in (SF.OP_FENCE, SF.OP_HALT):'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  UNRESOLVED tb/scripts/gen_seq_unit_vectors.py:679 (the cited line was rewritten or deleted)   'SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B)'
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, evidence/qwen9b/g3/G3_4_LAYER.md, evidence/qwen9b/g4/G4A_REPLAY.md
+  HALF-MAPPED rtl/seq_movers.sv:812-814 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :812 '// FENCE: drain every channel a no-wait MVGO left running' -> GONE
+             :814 '// FENCE also drains the AXI-Lite write pipe: a run of CSRWR' -> 824
+             cited by docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+  HALF-MAPPED rtl/seq_unit.sv:794-797 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :794 'OP_FENCE, OP_HALT:' -> GONE
+             :797 'begin v_bad=1; v_code=E_RSVD; end' -> 813
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md, docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+  HALF-MAPPED tb/scripts/gen_seq_unit_vectors.py:282-283 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :282 'elif o == SF.OP_FENCE:' -> 306
+             :283 'self.pend = [False] * 4      # polls only -> no logged traff' -> GONE
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+  HALF-MAPPED tb/scripts/gen_seq_unit_vectors.py:362-364 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :362 'elif o in (SF.OP_FENCE, SF.OP_HALT):' -> GONE
+             :364 'return 0x06' -> 409
+             cited by docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+O3_CITE_DRIFT CHECK FAIL (270 drifted, 8 unresolved, 0 missing, 4 half-mapped)
+=== rc  : 1
+=== end : 2026-09-27T18:16:20-06:00

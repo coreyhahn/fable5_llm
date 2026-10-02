@@ -1,0 +1,538 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date              : Thu Sep  3 21:52:51 2026
+| Host              : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command           : report_timing -to [get_cells -quiet -hier -filter {REF_NAME =~ URAM288* && NAME =~ *g_dn*}] -max_paths 10 -nworst 10 -setup -file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_g5_v4b/reports/dn_write_fanout_paths.rpt
+| Design            : layer_chan
+| Device            : xcvu9p-fsgd2104
+| Speed File        : -2L  PRODUCTION 1.28 03-30-2022
+| Design State      : Fully Placed
+| Temperature Grade : E
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.477ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][89]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[17]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.128ns  (logic 0.081ns (1.962%)  route 4.047ns (98.038%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.028     0.028                         aclk
+    SLICE_X61Y395        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][89]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X61Y395        FDRE (Prop_AFF2_SLICEL_C_Q)
+                                                      0.081     0.109 r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][89]/Q
+                         net (fo=8, estimated)        4.047     4.156                         g_dnpipeN.g_grp[0].wd_p[1][89]
+    SLR Crossing[1->0]   
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[17]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X2Y9         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[17])
+                                                     -0.340     3.679    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1
+  -------------------------------------------------------------------
+                         required time                          3.679                           
+                         arrival time                          -4.156                           
+  -------------------------------------------------------------------
+                         slack                                 -0.477                           
+
+Slack (VIOLATED) :        -0.477ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][89]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[17]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.128ns  (logic 0.081ns (1.962%)  route 4.047ns (98.038%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.028     0.028                         aclk
+    SLICE_X61Y395        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][89]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X61Y395        FDRE (Prop_AFF2_SLICEL_C_Q)
+                                                      0.081     0.109 f  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][89]/Q
+                         net (fo=8, estimated)        4.047     4.156                         g_dnpipeN.g_grp[0].wd_p[1][89]
+    SLR Crossing[1->0]   
+    URAM288_X2Y9         URAM288                                      f  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[17]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X2Y9         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[17])
+                                                     -0.340     3.679    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1
+  -------------------------------------------------------------------
+                         required time                          3.679                           
+                         arrival time                          -4.156                           
+  -------------------------------------------------------------------
+                         slack                                 -0.477                           
+
+Slack (VIOLATED) :        -0.454ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][653]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_9/DIN_B[5]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.108ns  (logic 0.076ns (1.850%)  route 4.032ns (98.150%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.034ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.030     0.030                         aclk
+    SLICE_X38Y390        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][653]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X38Y390        FDRE (Prop_EFF_SLICEM_C_Q)
+                                                      0.076     0.106 r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][653]/Q
+                         net (fo=8, estimated)        4.032     4.138                         g_dnpipeN.g_grp[0].wd_p[1][653]
+    SLR Crossing[1->0]   
+    URAM288_X0Y0         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_9/DIN_B[5]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X0Y0         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_9/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X0Y0         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[5])
+                                                     -0.335     3.684    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_9
+  -------------------------------------------------------------------
+                         required time                          3.684                           
+                         arrival time                          -4.138                           
+  -------------------------------------------------------------------
+                         slack                                 -0.454                           
+
+Slack (VIOLATED) :        -0.454ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][653]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_9/DIN_B[5]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.108ns  (logic 0.076ns (1.850%)  route 4.032ns (98.150%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.034ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.030     0.030                         aclk
+    SLICE_X38Y390        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][653]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X38Y390        FDRE (Prop_EFF_SLICEM_C_Q)
+                                                      0.076     0.106 f  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][653]/Q
+                         net (fo=8, estimated)        4.032     4.138                         g_dnpipeN.g_grp[0].wd_p[1][653]
+    SLR Crossing[1->0]   
+    URAM288_X0Y0         URAM288                                      f  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_9/DIN_B[5]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X0Y0         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_9/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X0Y0         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[5])
+                                                     -0.335     3.684    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_9
+  -------------------------------------------------------------------
+                         required time                          3.684                           
+                         arrival time                          -4.138                           
+  -------------------------------------------------------------------
+                         slack                                 -0.454                           
+
+Slack (VIOLATED) :        -0.441ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][1638]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_22/DIN_B[54]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.123ns  (logic 0.081ns (1.965%)  route 4.042ns (98.035%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.028     0.028                         aclk
+    SLICE_X57Y371        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][1638]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X57Y371        FDRE (Prop_AFF2_SLICEL_C_Q)
+                                                      0.081     0.109 r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][1638]/Q
+                         net (fo=8, estimated)        4.042     4.151                         g_dnpipeN.g_grp[0].wd_p[1][1638]
+    SLR Crossing[1->0]   
+    URAM288_X2Y5         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_22/DIN_B[54]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X2Y5         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_22/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X2Y5         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[54])
+                                                     -0.309     3.710    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_22
+  -------------------------------------------------------------------
+                         required time                          3.710                           
+                         arrival time                          -4.151                           
+  -------------------------------------------------------------------
+                         slack                                 -0.441                           
+
+Slack (VIOLATED) :        -0.441ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][1638]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_22/DIN_B[54]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.123ns  (logic 0.081ns (1.965%)  route 4.042ns (98.035%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.028     0.028                         aclk
+    SLICE_X57Y371        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][1638]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X57Y371        FDRE (Prop_AFF2_SLICEL_C_Q)
+                                                      0.081     0.109 f  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][1638]/Q
+                         net (fo=8, estimated)        4.042     4.151                         g_dnpipeN.g_grp[0].wd_p[1][1638]
+    SLR Crossing[1->0]   
+    URAM288_X2Y5         URAM288                                      f  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_22/DIN_B[54]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X2Y5         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_22/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X2Y5         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[54])
+                                                     -0.309     3.710    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[1].mem_reg_uram_22
+  -------------------------------------------------------------------
+                         required time                          3.710                           
+                         arrival time                          -4.151                           
+  -------------------------------------------------------------------
+                         slack                                 -0.441                           
+
+Slack (VIOLATED) :        -0.425ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][87]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[15]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.096ns  (logic 0.079ns (1.929%)  route 4.017ns (98.071%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.029     0.029                         aclk
+    SLICE_X61Y392        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][87]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X61Y392        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][87]/Q
+                         net (fo=8, estimated)        4.017     4.125                         g_dnpipeN.g_grp[0].wd_p[1][87]
+    SLR Crossing[1->0]   
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[15]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X2Y9         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[15])
+                                                     -0.319     3.700    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1
+  -------------------------------------------------------------------
+                         required time                          3.700                           
+                         arrival time                          -4.125                           
+  -------------------------------------------------------------------
+                         slack                                 -0.425                           
+
+Slack (VIOLATED) :        -0.425ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][87]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[15]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.096ns  (logic 0.079ns (1.929%)  route 4.017ns (98.071%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.029     0.029                         aclk
+    SLICE_X61Y392        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][87]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X61Y392        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][87]/Q
+                         net (fo=8, estimated)        4.017     4.125                         g_dnpipeN.g_grp[0].wd_p[1][87]
+    SLR Crossing[1->0]   
+    URAM288_X2Y9         URAM288                                      f  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[15]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X2Y9         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[15])
+                                                     -0.319     3.700    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1
+  -------------------------------------------------------------------
+                         required time                          3.700                           
+                         arrival time                          -4.125                           
+  -------------------------------------------------------------------
+                         slack                                 -0.425                           
+
+Slack (VIOLATED) :        -0.418ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][83]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[11]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.108ns  (logic 0.079ns (1.923%)  route 4.029ns (98.077%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.028     0.028                         aclk
+    SLICE_X61Y396        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][83]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X61Y396        FDRE (Prop_AFF_SLICEL_C_Q)
+                                                      0.079     0.107 r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][83]/Q
+                         net (fo=8, estimated)        4.029     4.136                         g_dnpipeN.g_grp[0].wd_p[1][83]
+    SLR Crossing[1->0]   
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[11]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X2Y9         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[11])
+                                                     -0.301     3.718    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1
+  -------------------------------------------------------------------
+                         required time                          3.718                           
+                         arrival time                          -4.136                           
+  -------------------------------------------------------------------
+                         slack                                 -0.418                           
+
+Slack (VIOLATED) :        -0.418ns  (required time - arrival time)
+  Source:                 g_dnpipeN.g_grp[0].wd_p_reg[1][83]/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[11]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.108ns  (logic 0.079ns (1.923%)  route 4.029ns (98.077%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    PBlock               Netlist Resource(s)
+  -------------------------------------------------------------------    ----------------------------------------
+                         (clock aclk rise edge)       0.000     0.000 r                       
+                                                      0.000     0.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.028     0.028                         aclk
+    SLICE_X61Y396        FDRE                                         r  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][83]/C
+  -------------------------------------------------------------------    ----------------------------------------
+    SLICE_X61Y396        FDRE (Prop_AFF_SLICEL_C_Q)
+                                                      0.079     0.107 f  pb_layer0            g_dnpipeN.g_grp[0].wd_p_reg[1][83]/Q
+                         net (fo=8, estimated)        4.029     4.136                         g_dnpipeN.g_grp[0].wd_p[1][83]
+    SLR Crossing[1->0]   
+    URAM288_X2Y9         URAM288                                      f  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/DIN_B[11]
+  -------------------------------------------------------------------    ----------------------------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r                       
+                                                      0.000     4.000 r                       aclk (IN)
+                         net (fo=94736, unset)        0.064     4.064                         aclk
+    URAM288_X2Y9         URAM288                                      r  pb_dn_slr0           g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1/CLK
+                         clock pessimism              0.000     4.064                           
+                         inter-SLR compensation      -0.010     4.054                           
+                         clock uncertainty           -0.035     4.019                           
+    URAM288_X2Y9         URAM288 (Setup_URAM_288K_INST_URAM288_CLK_DIN_B[11])
+                                                     -0.301     3.718    pb_dn_slr0             g_dnpipeN.g_grp[0].g_dn[5].mem_reg_uram_1
+  -------------------------------------------------------------------
+                         required time                          3.718                           
+                         arrival time                          -4.136                           
+  -------------------------------------------------------------------
+                         slack                                 -0.418                           
+
+
+
+

@@ -1,0 +1,61 @@
+=== host: snoke
+=== date: 2026-09-07T00:02:48-06:00
+=== tree: 407c619+dirty
+=== cmd:  env FABLE5_RS_F=7 FABLE5_MODEL=9b bash -c for t in lint_layer_chan tb_fx_silu tb_conv4_silu; do
+    echo "=== $t ==="
+    make -C tb GENPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python JOBS=8 $t 2>&1 | tr -d "\000" | /usr/bin/grep -avE "^g\+\+|^Archive|^echo |^rm |^make\[|^ +--|^ +\.\./|^verilator |verilator_includer"
+    echo "=== $t rc=${PIPESTATUS[0]} ==="
+  done
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== lint_layer_chan ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== lint_layer_chan rc=0 ===
+=== tb_fx_silu ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+/home/cah/.venv/bin/python ../ref/gen_silu_cases.py silu_cases_s1.txt 1
+silu cases: silu_cases_s1.txt
+/home/cah/.venv/bin/python ../ref/gen_silu_cases.py silu_cases_s2.txt 2
+silu cases: silu_cases_s2.txt
+/home/cah/.venv/bin/python ../ref/gen_silu_cases.py silu_cases_s3.txt 3
+silu cases: silu_cases_s3.txt
+/home/cah/.venv/bin/python ../ref/gen_silu_cases.py silu_cases_s4.txt 4
+silu cases: silu_cases_s4.txt
+obj_dir_tb_silu/tb_silu +cases=silu_cases_s1.txt
+TB_FX_SILU PASS: 409 cases bit-exact (pipelined)
+- tb_fx_silu.sv:65: Verilog $finish
+obj_dir_tb_silu/tb_silu +cases=silu_cases_s2.txt
+TB_FX_SILU PASS: 409 cases bit-exact (pipelined)
+- tb_fx_silu.sv:65: Verilog $finish
+obj_dir_tb_silu/tb_silu +cases=silu_cases_s3.txt
+TB_FX_SILU PASS: 409 cases bit-exact (pipelined)
+- tb_fx_silu.sv:65: Verilog $finish
+obj_dir_tb_silu/tb_silu +cases=silu_cases_s4.txt
+TB_FX_SILU PASS: 409 cases bit-exact (pipelined)
+- tb_fx_silu.sv:65: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_fx_silu rc=0 ===
+=== tb_conv4_silu ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+obj_dir_tb_conv/tb_conv +vecdir=vectors/s1
+TB_CONV4_SILU PASS: 64 channels bit-exact
+- tb_conv4_silu.sv:61: Verilog $finish
+obj_dir_tb_conv/tb_conv +vecdir=vectors/s2
+TB_CONV4_SILU PASS: 64 channels bit-exact
+- tb_conv4_silu.sv:61: Verilog $finish
+obj_dir_tb_conv/tb_conv +vecdir=vectors/s3
+TB_CONV4_SILU PASS: 64 channels bit-exact
+- tb_conv4_silu.sv:61: Verilog $finish
+obj_dir_tb_conv/tb_conv +vecdir=vectors/s4
+TB_CONV4_SILU PASS: 64 channels bit-exact
+- tb_conv4_silu.sv:61: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_conv4_silu rc=0 ===
+=== rc: 0
+=== end: 2026-09-07T00:03:03-06:00

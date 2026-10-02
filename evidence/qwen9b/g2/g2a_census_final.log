@@ -1,0 +1,81 @@
+=== host: snoke
+=== date: 2026-08-31T09:15:58-06:00
+=== tree: cdee139+dirty
+=== cmd:  bash evidence/qwen9b/g2/g2a_census.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== G2a literal-census closure sweep (2026-08-31T09:15:58-06:00, /usr/bin/grep) ===
+
+--- [1] hard 1024 arguments on sw/infer.py's step() path (defect B)
+21:        # over the WHOLE residual: H words, not 1024.
+
+--- [2] SCRATCH_WORDS: one definition, the rest import it
+evidence/qwen9b/g2/seq_unit_vectors_check.py:7:`SCRATCH_WORDS = 32768`.  G2a made it an import from `sw/hwmap.py`, the
+evidence/qwen9b/g2/seq_unit_vectors_check.py:46:            + ("HW.SCRATCH_WORDS = 32768   # the pre-G2a literal\n"
+evidence/qwen9b/g2/seq_unit_vectors_check.py:67:        print(f"  sw/hwmap.SCRATCH_WORDS = {hw.SCRATCH_WORDS} "
+sw/hwmap.py:136:SCRATCH_WORDS = 65536
+tb/scripts/gen_seq_unit_vectors.py:84:SCRATCH_WORDS = HW.SCRATCH_WORDS
+
+--- [3] SPTR masks in sw/chat_seq.py (three -> SPTR_MASK; the remaining
+        0x7FFF is the GATE dst ISA FIELD and stays 15-bit until Task 7)
+287:SPTR_MASK = 0xFFFF
+1554:    keep = int(dev.rd(HW.L_SPTR)) & SPTR_MASK
+1632:        # `a0 & 0x7FFF` is the ISA's 15-bit dst FIELD, not the SPTR mask —
+1635:        W.append((a0 & 0x7FFF, 2 * LNH))
+1683:                sptr = r.imm32 & SPTR_MASK
+4185:                self.sptr = v & SPTR_MASK
+
+--- [4] RS_F: no host site pins the value 8 any more
+  (none)
+
+--- [5] manifest meta keys and their defaults (one edit, not two)
+271:EMB_ROW_BYTES_DEFAULT = 1 << SEQ_EMBLOG2_RST      # 2048 B = H 1024
+272:RS_F_DEFAULT = 8                                  # ref/layer_fixed.py RS_F
+273:_META_DEFAULTS = {"emb_row_bytes": EMB_ROW_BYTES_DEFAULT,
+275:MANIFEST_META_KEYS = tuple(_META_DEFAULTS)
+
+--- [6] DN/KV slot counts and KV heads: one definition
+ref/gen_layer_script.py:286:_DN_SLOTS = 24                   # self.S / dn_slot bank count
+ref/gen_layer_script.py:287:_KV_SLOTS = 8                    # self.kc / self.vc / self.T bank count
+ref/gen_layer_script.py:288:_KVH = 4                         # KV heads per slot (NKV at 4B/9B)
+ref/gen_token_script.py:84:DN_SLOTS, KV_SLOTS = _DN_SLOTS, _KV_SLOTS
+
+--- [7] the GD+16+h wall-17 defect (live sites only)
+1312:        M.dnst(h, QNS, KN, v_src, decay_base + h, beta_base + h, DO32)
+
+--- [7b] dnz has BOTH guards, not just the geometry one (review B1)
+955-        # G2a review B1: it had only the first.  When `DNST_HEAD_MAX` went
+967-        assert 0 <= head <= self.DNST_HEAD_MAX, (
+968-            f"DNZ head {head} outside 0..{self.DNST_HEAD_MAX} (LNH="
+970-        assert head < (1 << self.ARG0_HEAD_BITS), (
+972-            f"[{self.ARG0_HEAD_BITS - 1}:0]; layer_chan.sv reads "
+
+--- [8] VREP in the emitter's QKV head loop
+1301:        hk = h // LR.VREP
+1302:        q_src = QKV + hk * LR.LDK
+1303:        k_src = QKV + LR.LKD + hk * LR.LDK
+
+--- [9] POS_COPIES / POS_STRIDE derived on both sides
+ref/seq_chat.py:163:POS_COPIES = sum(1 for _t in (LF.LR.CFG.get("layer_types") or [])
+ref/seq_chat.py:165:POS_WORDS = 2 * LF.LR.ROT                # int16 per copy (cos ROT | sin ROT)
+ref/seq_chat.py:166:POS_COPY_BYTES = POS_WORDS * 2           # 256
+ref/seq_chat.py:167:POS_STRIDE = POS_COPIES * POS_COPY_BYTES  # 1536 B per position at 0.8B/2B
+sw/chat_seq.py:220:POS_COPIES = SC.POS_COPIES if SC is not None else 6
+sw/chat_seq.py:221:POS_BLOCK = (SC.POS_COPY_BYTES if SC is not None
+sw/chat_seq.py:223:POS_STRIDE = POS_COPIES * POS_BLOCK            # 1536 B/pos at 0.8B/2B
+
+--- [10] tok_meter's plan_weights call (D-TOK)
+272:        wbase_of, wtop = plan_weights(man, wdir, nch=nch, rows_of=_rows_of)
+274:        wbase_of, wtop = plan_weights(man, wdir)
+
+--- [11] the dead generator (D-DEAD)
+  tb/scripts/gen_seq_vectors.py: DELETED (absent from git ls-files)
+
+CENSUS SWEEP DONE
+=== rc: 0
+=== end: 2026-08-31T09:15:58-06:00

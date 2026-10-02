@@ -1,0 +1,51 @@
+=== host: snoke  date: 2026-09-29T20:49:39-06:00
+=== tree: 690196f
+=== cmd : bash -c A=evidence/qwen9b/sr/n1244_tb_matvec_chan_GREEN_final.log; B=evidence/qwen9b/sr/n3020_r3_8_tb_matvec_chan_GREEN.log; echo "perf lines: SR12 $(grep -c ^perf: $A), R3-8 $(grep -c ^perf: $B)"; echo "-- the first 16 (4 frozen stage-2 + 12 9B q runs), in order:"; diff <(grep ^perf: $A | head -16) <(grep ^perf: $B | head -16) && echo "FIRST16 IDENTICAL"; echo "-- every SR12 perf line present in the R3-8 run (multiset):"; diff <(grep ^perf: $A | sort) <(grep ^perf: $B | head -$(grep -c ^perf: $A) | sort) && echo "FIRST-N MULTISET IDENTICAL"; echo "-- the R3-8 runs 1..36 (the pre-R3 recipe) vs SR12 lines, count of R3-8 non-push perf lines found in SR12:"; grep ^perf: $B | head -36 | sort | uniq -c | head -50
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+perf lines: SR12 28, R3-8 52
+-- the first 16 (4 frozen stage-2 + 12 9B q runs), in order:
+FIRST16 IDENTICAL
+-- every SR12 perf line present in the R3-8 run (multiset):
+1d0
+< perf: 272 beats in 323 cycles
+3d1
+< perf: 272 beats in 342 cycles
+13d10
+< perf: 429 beats in 544 cycles
+14a12
+> perf: 462 beats in 563 cycles
+18a17,19
+> perf: 462 beats in 598 cycles
+> perf: 495 beats in 633 cycles
+> perf: 495 beats in 635 cycles
+23d23
+< perf: 576 beats in 707 cycles
+-- the R3-8 runs 1..36 (the pre-R3 recipe) vs SR12 lines, count of R3-8 non-push perf lines found in SR12:
+      1 perf: 272 beats in 323 cycles
+      1 perf: 272 beats in 329 cycles
+      1 perf: 272 beats in 342 cycles
+      1 perf: 384 beats in 479 cycles
+      1 perf: 384 beats in 483 cycles
+      1 perf: 384 beats in 497 cycles
+      1 perf: 429 beats in 524 cycles
+      1 perf: 429 beats in 528 cycles
+      5 perf: 429 beats in 544 cycles
+      1 perf: 429 beats in 553 cycles
+      2 perf: 462 beats in 563 cycles
+      1 perf: 462 beats in 584 cycles
+      4 perf: 462 beats in 590 cycles
+      1 perf: 462 beats in 598 cycles
+      1 perf: 495 beats in 602 cycles
+      1 perf: 495 beats in 617 cycles
+      1 perf: 495 beats in 633 cycles
+      1 perf: 495 beats in 635 cycles
+      4 perf: 495 beats in 644 cycles
+      1 perf: 576 beats in 707 cycles
+      1 perf: 576 beats in 725 cycles
+      1 perf: 576 beats in 754 cycles
+      1 perf: 928 beats in 1177 cycles
+      1 perf: 928 beats in 1194 cycles
+      1 perf: 928 beats in 1217 cycles
+=== rc  : 0
+=== end : 2026-09-29T20:49:39-06:00

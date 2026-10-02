@@ -1,0 +1,628 @@
+=== host: darthplagueis
+=== date: 2026-09-02T01:28:56-06:00
+=== tree: ec08638+dirty
+=== cmd:  python3 evidence/qwen9b/o3/o3_cite_drift.py --base ec08638 --edited rtl/vecnorm_unit.sv,rtl/layer_chan.sv,ref/gen_layer_script.py,tb/tb_vecnorm.sv,tb/tb_vecnorm_diff.sv,tb/scripts/gen_seq_c_vectors.py,tb/Makefile --check --negative-control
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+o3 citation-drift gate  [check]
+  code base  ec08638
+  doc base   ec08638
+  files      7 edited files
+  citations  287 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 8 (one endpoint unresolved — NEVER rewritten)
+  MODE       NEGATIVE CONTROL
+  DRIFTED    ref/gen_layer_script.py:10 -> :11   'flawed command mapping aborts here and never reaches simulation.'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    ref/gen_layer_script.py:24 -> :25   'V <wid> <x8a> <nin> <nrows> + nrows hex32   matvec point: hw runs weight'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    ref/gen_layer_script.py:40 -> :41   'LF.S_F, LF.GAT_F, LF.CW_F)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:46 -> :47   '# G3.1 SPENT THAT BYTE-LOCK.  SEQ_ISA v2.0 re-encodes every layer ARG word,'
+             cited by ref/layer_fixed.py
+  DRIFTED    ref/gen_layer_script.py:68 -> :69   '# SCRATCH REGION MAP — everything derives from the layer_ref geometry'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    ref/gen_layer_script.py:69 -> :70   '# ----------------------------------------------------------------------'
+             cited by evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    ref/gen_layer_script.py:83 -> :84   '# matvec occupies (lo/hi int16 pairs)'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    ref/gen_layer_script.py:86 -> :87   'XN = H                           # RMSNorm output         H words'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:92 -> :93   '#'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    ref/gen_layer_script.py:118 -> :119   '("QN",   LR.LDK),                # l2(q)              LDK'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:129 -> :130   '_o += _sz'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    ref/gen_layer_script.py:130 -> :131   'SCA_SZ = _o'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    ref/gen_layer_script.py:132 -> :133   ''
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    ref/gen_layer_script.py:150 -> :151   'decay_base = GD + LR.LNH         # GATE writes decay  at decay_base + h'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:151 -> :152   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:221 -> :222   ''
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/feas/scratch_peak.py
+  DRIFTED    ref/gen_layer_script.py:222 -> :223   'HD_LNF = STG                     # final-norm weight staging   H'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:264 -> :265   '# ---- full-attention body ----'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, sw/chat_seq.py
+  DRIFTED    ref/gen_layer_script.py:280 -> :281   '"ML.DDST":           (ML_DDST, H, "residual delta"),'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:281 -> :282   '# ---- LM-head tail (gen_model_script / gen_token_script) ----'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:282 -> :283   '"HD.LNF":            (HD_LNF, H, "final-norm weight staging"),'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:283 -> :284   '"HD.AMAX":           (HD_AMAX, 2 * CHUNK, "argmax y32 chunks"),'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:285 -> :286   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:315 -> :316   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:317 -> :318   '# 16-bit scratch addressing (G3.1, spec 4.3 S3, SEQ_ISA v2.0)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:319 -> :320   '# The scratchpad is 65,536 words and every scratch address field in the'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:341 -> :342   '# G2a split two ceilings that one name was conflating.  G3.1 raises the'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:342 -> :343   '# narrower one to meet the wider, and they stay two names because they mean'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    ref/gen_layer_script.py:345 -> :346   '#   SCRATCH_MAX     the scratchpad depth (spec 4.3 S4: 65,536 words, fully'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:358 -> :359   '"""Range-check one scratch address against the scratchpad DEPTH.'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:368 -> :369   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:370 -> :371   '"""Range-check one scratch address against what an ARG word can CARRY.'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:371 -> :372   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:375 -> :376   'a = enc_saddr(a)'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:378 -> :379   'f"0..{ISA_SADDR_MAX - 1} — SEQ_ISA v2.0 packs address PAIRS into one "'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:379 -> :380   'f"ARG word as {{hi[31:16], lo[15:0]}}")'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:381 -> :382   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:382 -> :383   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:383 -> :384   'def enc_a1(lo, hi=0):'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:384 -> :385   '"""Pack an address PAIR the way ARG1 (and GATE/DNST ARG2) carries it."""'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:386 -> :387   'return (lo & 0xFFFF) | ((hi & 0xFFFF) << 16)'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:387 -> :388   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:389 -> :390   'def dec_a1_lo(a1):'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:390 -> :391   'return a1 & 0xFFFF'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:391 -> :392   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:392 -> :393   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:393 -> :394   'def dec_a1_hi(a1):'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:394 -> :395   'return (a1 >> 16) & 0xFFFF'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:395 -> :396   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:398 -> :399   '"""Pack the ALU ARG2 word: {dst[31:16], p0[15:0]}.'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:406 -> :407   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:408 -> :409   '"""Pack the ALU ARG0 word: {spare[31:19], p0[16]@18, len[13:0]@17:4,'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:414 -> :415   'return (a2 >> 16) & 0xFFFF'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:415 -> :416   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:418 -> :419   'return (a0 >> 4) & 0x3FFF'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:422 -> :423   '"""The 17-bit p0, whose top bit is the ONE relocation in SEQ_ISA v2.0."""'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:425 -> :426   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:469 -> :470   'self.am_idx = 0'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:491 -> :492   '# Completes the "deferred, activation-dependent" rows of'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:492 -> :493   '# ref/audit_ranges_report.md section 5.  Every command that writes int16'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:493 -> :494   '# scratch reports how many written words sit AT the int16 rail; a true'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:498 -> :499   'def audit_on(self):'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, sw/chat_seq.py
+  DRIFTED    ref/gen_layer_script.py:511 -> :512   'st[2] = max(st[2], int(np.abs(a).max()))'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:512 -> :513   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:513 -> :514   'def audit_report(self, out=None):'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:515 -> :516   'import io'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, sw/head_cache.py
+  DRIFTED    ref/gen_layer_script.py:518 -> :519   'w = buf.write'
+             cited by sw/head_cache.py
+  DRIFTED    ref/gen_layer_script.py:578 -> :579   'if self.seq is not None:'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:580 -> :581   '# the engine writes it directly (MVGO + MOVY), so the host W is'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:614 -> :615   'self.seq.on_treset()'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:617 -> :618   '"""Select the banked layer state: dn_slot for conv/DeltaNet, kv_slot'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:622 -> :623   'self.kv_slot = kv_slot'
+             cited by sw/chat_seq.py
+  DRIFTED    ref/gen_layer_script.py:623 -> :624   'print(f"L {(kv_slot << 8) | dn_slot:08x}", file=self.f)'
+             cited by sw/chat_seq.py
+  DRIFTED    ref/gen_layer_script.py:635 -> :636   'assert 0 <= a0 < (1 << 32) and 0 <= a1 < (1 << 32) and 0 <= a2 < (1 << 32)'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    ref/gen_layer_script.py:646 -> :647   'enc_a1(src, dst), 0)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:648 -> :649   'if mode == 0:'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:682 -> :687   'assert n <= self.VNW_HW_MAX, ('
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:697 -> :703   'self.mem[dst:dst + LR.HD] = LF.rope_fx(self.mem[src:src + LR.HD],'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:699 -> :705   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:719 -> :725   'f"CONV channel count {nch} does not fit its 14-bit field"'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    ref/gen_layer_script.py:732 -> :738   'def conv(self, first, nch, src, dst):'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    ref/gen_layer_script.py:733 -> :739   'self._conv_fields(first, nch)'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    ref/gen_layer_script.py:764 -> :770   '# which no 0.8B or 2B stream ever does (LNH=16, NKV=2), so nothing is'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    ref/gen_layer_script.py:770 -> :776   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:795 -> :801   'if self.gate_probe is not None:'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:796 -> :802   'self.gate_probe(self.dn_slot, a, dt, A,'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:887 -> :893   '# ARG0 is {spare[31:5], head[4:0]} — 5 bits used of 32.  The two'
+             cited by evidence/qwen_next/defect_a/defect_b_probe.py
+  DRIFTED    ref/gen_layer_script.py:895 -> :901   'f"DNST head {head} does not fit ARG0[{self.ARG0_HEAD_BITS - 1}:0]; "'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2C_CHAIN.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:912 -> :918   'dec = int(self.mem[a_dec])'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:941 -> :947   'f"kv_expbias = arg0[8:4], {self.KVAP_EXPB_MAX} max)")'
+             cited by evidence/qwen_next/defect_a/defect_b_probe.py
+  DRIFTED    ref/gen_layer_script.py:947 -> :953   'self.T[self.kv_slot][kvh] += 1'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1009 -> :1015   ''
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:1033 -> :1039   'self.mem[dst:dst + n] = clip16(rshr(a * p0, 15))'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1036 -> :1042   'elif op == 4:                                # ADD'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1058 -> :1064   'v = self.pairs(srca, n)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1059 -> :1065   'if p0 & 1:'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1060 -> :1066   'self.am_g, self.am_first = 0, True'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1069 -> :1075   '# int8/int16 writers: audit the words just written (op 9 writes'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/feas/layer_cmd_census.py, evidence/qwen_next/feas/toks_model.py
+  DRIFTED    ref/gen_layer_script.py:1076 -> :1082   "# `dn_head <= arg0[3:0]` — so it needs BOTH of DNST's guards."
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/layer_cmd_census.py, evidence/qwen_next/feas/toks_model.py
+  DRIFTED    ref/gen_layer_script.py:1084 -> :1090   '# `ref/gen_token_script.py:201`, `ref/gen_chain_script.py:111`,'
+             cited by evidence/qwen9b/o3/BOARD_LOCK.md
+  DRIFTED    ref/gen_layer_script.py:1129 -> :1135   '"""Assert the on-chip x8/EOUT, then compute raw y32 host-side'
+             cited by evidence/qwen2b/q2/v4/GPTQ.md
+  DRIFTED    ref/gen_layer_script.py:1130 -> :1136   'from those asserted values. Caller stages + dequants. Emits a V'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1131 -> :1137   'record so the hardware host can run the REAL matvec engine on'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1132 -> :1138   'weight image wid and verify it reproduces these y32.'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1133 -> :1139   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1137 -> :1143   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1139 -> :1145   '`layer_fixed.qw_codes` — `{"w8", ...}` (int8 codes in [-127,127])'
+             cited by evidence/qwen2b/rc/RC_GATE.md
+  DRIFTED    ref/gen_layer_script.py:1149 -> :1155   'x8 = np.asarray(self.mem[x8_addr:x8_addr + n_in]).astype(np.int8)'
+             cited by evidence/qwen2b/q2/v4/GPTQ.md
+  DRIFTED    ref/gen_layer_script.py:1178 -> :1184   ''
+             cited by evidence/qwen2b/rc/RC_GATE.md
+  DRIFTED    ref/gen_layer_script.py:1262 -> :1268   'man["rs_f"] = int(rs_f)'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    ref/gen_layer_script.py:1279 -> :1285   'f"refusing to write a manifest with no `rs_f` key while "'
+             cited by docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2C_CHAIN.md
+  DRIFTED    ref/gen_layer_script.py:1382 -> :1391   'M.inject_dequant(y, M.shift_for(qd["in_qkv"], ex, RS_F, RS_F), STG, QKV)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1384 -> :1393   'M.inject_dequant(y, M.shift_for(qd["in_z"], ex, RS_F, QKV_F), STG, Z16)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1386 -> :1395   'M.inject_dequant(y, M.shift_for(qd["in_b"], ex, RS_F, 12), STG, B16)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1388 -> :1397   'M.inject_dequant(y, M.shift_for(qd["in_a"], ex, RS_F, 12), STG, A16)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1439 -> :1448   '# VREP: value head h reads KEY head h // VREP.  The packed block is'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:1456 -> :1465   '# int32 -> int16 block float + script-side gated RMSNorm'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    ref/gen_layer_script.py:1484 -> :1493   'M.inject_dequant(y, M.shift_for(qd["out"], ex, LF.DN_NORM_F, RS_F),'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1505 -> :1514   'M.inject_dequant(y, M.shift_for(qa["q_proj"], ex, RS_F, QKV_F), STG, QG)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1507 -> :1516   'M.inject_dequant(y, M.shift_for(qa["k_proj"], ex, RS_F, QKV_F), STG, K16)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1509 -> :1518   'M.inject_dequant(y, M.shift_for(qa["v_proj"], ex, RS_F, QKV_F), STG, V16)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1563 -> :1572   "# k_a moved the gated vector's binary point; the o_proj requant shift"
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1583 -> :1592   'M.inject_dequant(y, M.shift_for(qm["gate"], ex, RS_F, 12), GP, SG, op=6)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1585 -> :1594   '# u kept 32-bit: SHIFT32W in place, then EMUL32 in place'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    ref/gen_layer_script.py:1597 -> :1606   'M.inject_dequant(y, M.shift_for(qm["down"], ex, RS_F, RS_F), DSTG, DDST)'
+             cited by evidence/qwen9b/g2/g2c_pack_fit.py
+  DRIFTED    rtl/layer_chan.sv:12 -> :13   '//   0x00 CMD     W  {opcode[3:0]} - dispatch (idle only)'
+             cited by NEXT_SESSION.md, docs/ARCHITECTURE.md, docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt, ref/scripts/scan_spare_bits.py
+  DRIFTED    rtl/layer_chan.sv:16 -> :17   '//   0x18 SWIN    W  scratch[SPTR]=d[15:0]; SPTR++'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, sw/chat_seq.py
+  DRIFTED    rtl/layer_chan.sv:18 -> :19   '//   0x1C EOUT    R  last ALU DYNQ8 exponent [3:0]'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, sw/chat_seq.py
+  DRIFTED    rtl/layer_chan.sv:26 -> :27   "//   0x3C XRFD    RW XRF[XRFI]: read {14'b0, raw18}, write raw18 = d[17:0]"
+             cited by sw/hwmap.py
+  DRIFTED    rtl/layer_chan.sv:29 -> :30   '//'
+             cited by sw/hwmap.py
+  DRIFTED    rtl/layer_chan.sv:30 -> :31   '// ---- rung 4 S5: the TOPK-32 sibling block (docs/RUNG4_SPEC.md) --------'
+             cited by docs/ARCHITECTURE.md, docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt, ref/scripts/scan_spare_bits.py
+  DRIFTED    rtl/layer_chan.sv:52 -> :53   '// XRF[3] (token id), which is UNSIGNED — the XRFD window is raw/'
+             cited by NEXT_SESSION.md
+  DRIFTED    rtl/layer_chan.sv:69 -> :70   '// command dispatch). Per-command state memories are banked on the'
+             cited by docs/SEQ_ISA.md, docs/superpowers/plans/2026-08-12-qwen2b-track-r.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/layer_chan.sv:74 -> :75   '// LAYER=0 reduces every banked address to the original single-bank map.'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:76 -> :77   '// ---- 16-bit scratch addressing (G3.1, SEQ_ISA v2.0) ------------------'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:77 -> :78   '// The scratchpad is 64K words and every scratch address field below is 16'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:92 -> :93   '// stream to preserve and DNST had no 16th spare bit to borrow — it used 94'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/layer_chan.sv:97 -> :98   '//   1 VN    arg0={outf[13:10],inf[9:6],nlog2[5:2],mode[1:0]}'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:102 -> :103   '//   2 VNW   arg0=len[12:0]; arg1=src           vecnorm wbuf load'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:108 -> :109   '//   4 ROPE  arg1={dst,src}                    256 elems'
+             cited by evidence/qwen_next/feas/layer_cmd_census.py
+  DRIFTED    rtl/layer_chan.sv:112 -> :113   '//           (v2.0 widens both channel fields 13 -> 14 bits so a whole-block'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:116 -> :117   '//           A as {lo,hi} pairs; out: beta[0..LNH-1], decay[0..LNH-1] at dst'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/layer_chan.sv:118 -> :119   '//           arg1={src_k,src_q}; arg2={dst,src_v}'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:119 -> :120   '//           a_beta = DNSB[15:0] + head, a_dec = DNSB[31:16] + head'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:121 -> :122   '//   9 KVAP  arg0={expbias[8:4],kvhead[1:0]}; arg1={src_v,src_k}'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:131 -> :132   '//            DYNQ8 cannot be chunked -- one shared exponent over the whole'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:142 -> :143   '// ---- S6 burst window (docs/RUNG3_SPEC.md, rung 3) --------------------'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:254 -> :255   "localparam logic [3:0] OP_ROPE  = 4'd4;"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:255 -> :256   "localparam logic [3:0] OP_CONVW = 4'd5;"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:272 -> :273   'logic [15:0] cmd_cnt;'
+             cited by evidence/qwen2b/ra/util_resident.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:273 -> :274   'logic        busy, err_op;'
+             cited by evidence/qwen2b/ra/util_resident.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:276 -> :277   'logic [4:0]  layer_dn;               // live LAYER.dn_slot (0..17)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:278 -> :279   'logic [31:0] lcyc;                   // busy-cycle counter (LCYC CSR)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:280 -> :281   'logic        hw_we;                  // host scratch write (registered)'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:281 -> :282   'logic [15:0] hw_addr;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:282 -> :283   'logic [15:0] hw_data;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:307 -> :308   'logic signed [15:0] smem_b [65536];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:308 -> :309   'logic [15:0] sa_addr, sb_addr;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:309 -> :310   'logic signed [15:0] sa_q, sb_q;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:341 -> :342   'logic        vn_svalid, vn_sready, vn_mvalid, vn_mready;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:393 -> :394   'logic gt_busy;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:396 -> :397   '.EXP2_ROM(EXP2_ROM)) u_gate ('
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:397 -> :398   '.clk(aclk), .rstn(rstn_i), .start(gt_start), .busy(gt_busy),'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:404 -> :405   'logic        dn_done;   // collection is count-based; done pulse unused'
+             cited by evidence/qwen2b/ra/dn_bank_verify.md
+  DRIFTED    rtl/layer_chan.sv:409 -> :410   'logic [15:0] dn_decay, dn_beta;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:416 -> :417   '/* verilator lint_off UNUSEDSIGNAL */'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:420 -> :421   '.clk(aclk), .rstn(rstn_i), .start(dn_start), .busy(dn_busy),'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen_next/feas/layer_cmd_census.py, evidence/qwen_next/feas/toks_model.py
+  DRIFTED    rtl/layer_chan.sv:430 -> :431   '// MSB. Bank = dn_layer_r[4:1] (0..8); in-bank addr (12b) ='
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:433 -> :434   '// 2-cycle read latency dn_step expects. LAYER=0 -> bank 0, MSB 0 = old.'
+             cited by evidence/qwen2b/ra/dn_bank_verify.md
+  DRIFTED    rtl/layer_chan.sv:449 -> :450   ': {dn_head_hw, dnz_addr};'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, synth/exp_uram/rtl/layer_chan.sv
+  DRIFTED    rtl/layer_chan.sv:454 -> :455   'logic [2047:0] dn_rdq_b [9];          // per-bank URAM CQ'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md, synth/exp_uram/rtl/layer_chan.sv
+  DRIFTED    rtl/layer_chan.sv:457 -> :458   '(* ram_style = "ultra" *) logic [2047:0] mem [4096];'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/feas/resource_budget.py, evidence/qwen_next/place_exp/PLACE_EXP.md
+  DRIFTED    rtl/layer_chan.sv:458 -> :459   'always_ff @(posedge aclk) begin'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:464 -> :465   'dn_rdq <= dn_rdq_b[dn_bsel];   // fabric OREG: URAM CQ off the path'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:465 -> :466   ''
+             cited by evidence/qwen_next/place_exp/PLACE_EXP.md
+  DRIFTED    rtl/layer_chan.sv:467 -> :468   'logic        at_start, at_qwe;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:468 -> :469   '/* verilator lint_off UNUSEDSIGNAL */'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:469 -> :470   'logic        at_done;   // collection is count-based; done pulse unused'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:470 -> :471   '/* verilator lint_on UNUSEDSIGNAL */'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, evidence/qwen_next/place_exp/PLACE_EXP.md
+  DRIFTED    rtl/layer_chan.sv:471 -> :472   'logic [7:0]  at_qaddr;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:498 -> :499   'logic [2047:0] kv_wrow;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:513 -> :514   '/* verilator lint_on UNUSEDSIGNAL */'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:518 -> :519   'logic [2047:0] kv_rdq_b  [3];          // per-bank URAM CQ (row)'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:522 -> :523   '(* ram_style = "ultra" *) logic [2047:0] mem  [4096];'
+             cited by evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:523 -> :524   'logic [7:0]                              emem [4096];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:524 -> :525   'always_ff @(posedge aclk) begin'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g1/RUNG_INT8_STATE.md
+  DRIFTED    rtl/layer_chan.sv:552 -> :553   'logic [12:0] cw_ra, cs_ra, cw_wa, cs_wa;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:553 -> :554   'logic [63:0] cw_wd;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:554 -> :555   'logic [47:0] cs_wd;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:555 -> :556   'logic        cw_we, cs_we;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:556 -> :557   'logic [63:0] cw_q_b [18];             // per-bank BRAM read register'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:566 -> :567   'logic [63:0] wm [6144];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:568 -> :569   'always_ff @(posedge aclk) begin'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:583 -> :584   'cw_q <= cw_q_p[dn_layer_r];'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/layer_chan.sv:599 -> :600   'logic               alu_k_we;'
+             cited by evidence/qwen2b/rc/RC_GATE.md
+  DRIFTED    rtl/layer_chan.sv:606 -> :607   ".cfg_p0(signed'({arg0[18], arg2[15:0]})),   // p0[16] relocated"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:610 -> :611   '.amax_idx(alu_amax_idx), .amax_val(alu_amax_val),'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:677 -> :678   "if (alu_k_we) xrf[alu_k_idx] <= 18'(alu_k);"
+             cited by evidence/qwen2b/rd/RD_GATE.md
+  DRIFTED    rtl/layer_chan.sv:733 -> :734   "hw_we   <= 1'b1;"
+             cited by evidence/qwen2b/rd/RD_GATE.md, sw/seq_run.py
+  DRIFTED    rtl/layer_chan.sv:738 -> :739   "10'h008: begin                               // TCNT"
+             cited by evidence/qwen2b/rd/RD_GATE.md, sw/seq_run.py
+  DRIFTED    rtl/layer_chan.sv:830 -> :831   'K2_A, K2_W, K2_S, K2_B, K2_Q, K_WR, // kvap quant pass + row write'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:836 -> :837   'st_e st;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:837 -> :838   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:840 -> :841   "localparam logic [3:0] LT_ROPET = 4'd1;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:891 -> :892   '// address PAIR as {hi[31:16], lo[15:0]} — NO SCATTERED BITS.  ARG2 uses'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen_next/feas/layer_cmd_census.py, evidence/qwen_next/feas/toks_model.py
+  DRIFTED    rtl/layer_chan.sv:892 -> :893   "// the same layout on GATE and DNST; the ALU's ARG2 is {dst[31:16],"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:893 -> :894   "// p0[15:0]}, with p0's 17th bit relocated to arg0[18] (see the vec_alu"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:897 -> :898   'wire [15:0] a1_src = arg1[15:0];'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    rtl/layer_chan.sv:898 -> :899   'wire [15:0] a1_dst = arg1[31:16];'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:901 -> :902   'wire [4:0]  kv_expbias = arg0[8:4];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:916 -> :917   "vn_mready <= 1'b0; rp_mready <= 1'b0;"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:923 -> :924   "dn_start <= 1'b0; at_start <= 1'b0; alu_start <= 1'b0;"
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/layer_chan.sv:934 -> :935   '&& cv_ovalid) begin'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:936 -> :937   'eng_swd <= cv_oy;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:943 -> :944   'IDLE: if (cmd_go) begin'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:944 -> :945   "busy <= 1'b1;"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:952 -> :953   'kvhead_r <= arg0[1:0];'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:953 -> :954   'dn_layer_r <= layer_dn;   // bank state on latched slots'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:979 -> :980   'ld_src <= a1_src; eng_sa <= a1_src;'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1104 -> :1105   "eng_swa <= dst_r + 16'(ci);"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1109 -> :1110   'st <= DONE_S;'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1114 -> :1115   '// ---------- generic preload loop ----------'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1124 -> :1125   "rp_twe <= 1'b1; rp_taddr <= ld_i[7:0];"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1125 -> :1126   'rp_sdata <= sa_q;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1204 -> :1205   'LT_DQ: begin'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:1236 -> :1237   "else gi <= gi + 1'b1;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1251 -> :1252   "eng_swd <= signed'(md[15:0]);"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md, evidence/qwen_next/feas/resource_budget.py
+  DRIFTED    rtl/layer_chan.sv:1267 -> :1268   ''
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1271 -> :1272   'else begin'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1318 -> :1319   'else begin'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1332 -> :1333   "cs_wd <= '0;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1333 -> :1334   "if (wi + 1'b1 == arg0[29:16]) st <= DONE_S;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/layer_chan.sv:1334 -> :1335   "else wi <= wi + 1'b1;"
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  DRIFTED    rtl/layer_chan.sv:1908 -> :1913   'end'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/layer_chan.sv:2039 -> :2044   "sel <= fresh ? 50'd0 : ent[ptr_nxt][49:0];"
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  DRIFTED    rtl/vecnorm_unit.sv:73 -> :78   ''
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/vecnorm_unit.sv:80 -> :85   'input  wire [1:0]         cfg_mode,'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/vecnorm_unit.sv:82 -> :87   'input  wire [3:0]         cfg_inf,'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md
+  DRIFTED    rtl/vecnorm_unit.sv:93 -> :98   'input  wire [15:0]        w_wdata,'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/vecnorm_unit.sv:107 -> :112   "always_ff @(posedge clk) if (w_we) wbuf[w_waddr] <= signed'(w_wdata);"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/vecnorm_unit.sv:162 -> :169   ''
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/vecnorm_unit.sv:269 -> :278   "m_valid <= 1'b0;"
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    rtl/vecnorm_unit.sv:277 -> :286   "busy <= 1'b1;"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen_next/ladder/LADDER.md, ref/fidelity_check.py, ref/layer_fixed.py
+  DRIFTED    rtl/vecnorm_unit.sv:323 -> :332   "(((cfg_mode != 2'd2) || eps_on) ? 6'(cfg_nlog2)"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, ref/fidelity_check.py
+  DRIFTED    rtl/vecnorm_unit.sv:325 -> :334   "rs_start <= 1'b1;"
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, ref/fidelity_check.py
+  DRIFTED    rtl/vecnorm_unit.sv:422 -> :431   'always_ff @(posedge clk) begin'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    rtl/vecnorm_unit.sv:426 -> :435   'end'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/Makefile:32 -> :33   'VECPY := $(shell command -v python3 >/dev/null && python3 -c "import numpy" 2>'
+             cited by docs/USAGE.md
+  DRIFTED    tb/Makefile:259 -> :260   'case "$$out" in \\'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    tb/Makefile:262 -> :263   'echo "$$out" | tail -3; exit 1;; \\'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    tb/Makefile:344 -> :345   '$(VECPY) ../ref/gen_matvec_vectors.py vec_s1 101 64 1024'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    tb/Makefile:389 -> :390   '# tb/scripts/gen_seq_c_vectors.py (ref/layer_fixed.py is the numerics) and'
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    tb/Makefile:390 -> :391   '# land in their OWN tree — tb/vectors/ stays frozen, so every pre-existing'
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    tb/Makefile:393 -> :394   '# gen_seq_unit_vectors.py belong to the SEQ-unit workstream (tb_seq_unit'
+             cited by docs/QWEN35_NEXT_FEASIBILITY.md, docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md, evidence/qwen9b/g2/G2A_HOST.md
+  DRIFTED    tb/Makefile:459 -> :460   'obj_dir_tb_conv/tb_conv +vecdir=vectors/s4'
+             cited by docs/USAGE.md
+  DRIFTED    tb/Makefile:472 -> :473   '$(VERILATOR) --binary --timing -j $(JOBS) -Wall \\'
+             cited by evidence/qwen9b/g2/D_TOL.md
+  DRIFTED    tb/Makefile:548 -> :549   'done'
+             cited by docs/USAGE.md
+  DRIFTED    tb/Makefile:1038 -> :1039   'W8_NTOK   ?= 3'
+             cited by docs/superpowers/plans/2026-08-16-qwen2b-v5-w8.md
+  DRIFTED    tb/scripts/gen_seq_c_vectors.py:5 -> :6   'the SEQ-unit workstream and generate record streams for tb/tb_seq_unit.sv —'
+             cited by evidence/qwen9b/g2/G2A_HOST.md
+  DRIFTED    tb/scripts/gen_seq_c_vectors.py:94 -> :97   'st = LF.new_cache_fx("linear_attention")'
+             cited by evidence/qwen2b/q2/v4/GPTQ.md
+  DRIFTED    tb/scripts/gen_seq_c_vectors.py:230 -> :239   'x = np.round(rng.normal(0, 2, n) * (1 << LF.RS_F)).astype(I64)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/scripts/gen_seq_c_vectors.py:239 -> :248   'LF.l2norm_fx(xl, LF.QKV_F, LF.NRM_F), 16)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_vecnorm.sv:5 -> :6   '// decades of DYNQ16 output plus the zero/tightest-block edges, checking'
+             cited by evidence/qwen9b/g2/G2A_HOST.md
+  DRIFTED    tb/tb_vecnorm.sv:40 -> :45   'logic [15:0] w_wdata = 0;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_vecnorm.sv:59 -> :64   'int errors = 0;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_vecnorm.sv:66 -> :71   'int    wd_cyc = 0;'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_vecnorm.sv:172 -> :177   'while (!s_ready) @(negedge clk);'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    tb/tb_vecnorm.sv:176 -> :181   'i = 0; guard = 0;'
+             cited by docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  DRIFTED    tb/tb_vecnorm.sv:251 -> :258   '$display("case 5: l2norm N=2048 (nlog2=11, no weights)");'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_vecnorm.sv:268 -> :290   '$display("TB_VECNORM PASS: rmsnorm(1024) + l2norm(128) bit-exact");'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    tb/tb_vecnorm_diff.sv:51 -> :56   "logic [15:0]       w_wdata = '0;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED ref/gen_layer_script.py:672 (the cited line was rewritten or deleted)   '#                Task 8 (G3.2), and it is a DATAPATH bound, not a field.'
+             cited by evidence/qwen9b/g2/G2C_CHAIN.md
+  UNRESOLVED rtl/layer_chan.sv:105 (the cited line was rewritten or deleted)   '//            itself is still 2048 deep -- widening the DATAPATH to N=4096'
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  UNRESOLVED rtl/layer_chan.sv:106 (the cited line was rewritten or deleted)   '//            is G3.2, and the emitter refuses a longer load until then.)'
+             cited by evidence/qwen_next/feas/layer_cmd_census.py
+  UNRESOLVED rtl/vecnorm_unit.sv:106 (the cited line was rewritten or deleted)   'logic signed [15:0] wbuf [2048];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED rtl/vecnorm_unit.sv:159 (the cited line was rewritten or deleted)   'logic [47:0] ss_acc;            // 2048 * 32767^2 < 2^42, still fine'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED rtl/vecnorm_unit.sv:161 (the cited line was rewritten or deleted)   'logic [11:0] ecnt;              // OUT retire cursor (elements handshaked)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED rtl/vecnorm_unit.sv:424 (the cited line was rewritten or deleted)   '$fatal(1, "vecnorm_unit: cfg_nlog2 %0d unsupported (max 11, N=2048)",'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/scripts/gen_seq_c_vectors.py:222 (the cited line was rewritten or deleted)   '"""rmsnorm (mode 0, 1+w) and l2norm (mode 2) over 2048 elements.'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/scripts/gen_seq_c_vectors.py:225 (the cited line was rewritten or deleted)   "rtl/vecnorm_unit.sv's n_log2 = 11 geometry and must not move with"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/scripts/gen_seq_c_vectors.py:234 (the cited line was rewritten or deleted)   'wr_hex(f"{out}/rms2048_w14.hex", w, 16)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/tb_vecnorm.sv:9 (the cited line was rewritten or deleted)   '// then mode 0, so both the weightless and the weighted path run at the'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/tb_vecnorm.sv:57 (the cited line was rewritten or deleted)   'logic [15:0] wv [2048];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/tb_vecnorm.sv:58 (the cited line was rewritten or deleted)   'logic [15:0] gv [2048];'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/tb_vecnorm.sv:65 (the cited line was rewritten or deleted)   '// 2048 feed beats + 2048 drain beats + the rsqrt/prep latency).'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/tb_vecnorm_diff.sv:48 (the cited line was rewritten or deleted)   '// legacy copy keeps its 10-bit port and is fed the low half — this'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED tb/tb_vecnorm_diff.sv:50 (the cited line was rewritten or deleted)   "logic [10:0]       w_waddr = '0;"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  HALF-MAPPED rtl/layer_chan.sv:102-105 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :102 '//   2 VNW   arg0=len[12:0]; arg1=src           vecnorm wbuf' -> 103
+             :105 '//            itself is still 2048 deep -- widening the DATA' -> GONE
+             cited by evidence/qwen9b/g3/G3_1_ISA.md
+  HALF-MAPPED rtl/layer_chan.sv:106-108 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :106 '//            is G3.2, and the emitter refuses a longer load' -> GONE
+             :108 '//   4 ROPE  arg1={dst,src}                    256 elems' -> 109
+             cited by evidence/qwen_next/feas/layer_cmd_census.py
+  HALF-MAPPED rtl/vecnorm_unit.sv:106-107 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :106 'logic signed [15:0] wbuf [2048];' -> GONE
+             :107 "always_ff @(posedge clk) if (w_we) wbuf[w_waddr] <= signed'(" -> 112
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  HALF-MAPPED rtl/vecnorm_unit.sv:424-426 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :424 '$fatal(1, "vecnorm_unit: cfg_nlog2 %0d unsupported (max 11, ' -> GONE
+             :426 'end' -> 435
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  HALF-MAPPED tb/scripts/gen_seq_c_vectors.py:222-230 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :222 '"""rmsnorm (mode 0, 1+w) and l2norm (mode 2) over 2048 eleme' -> GONE
+             :230 'x = np.round(rng.normal(0, 2, n) * (1 << LF.RS_F)).astype(I6' -> 239
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  HALF-MAPPED tb/scripts/gen_seq_c_vectors.py:234-239 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :234 'wr_hex(f"{out}/rms2048_w14.hex", w, 16)' -> GONE
+             :239 'LF.l2norm_fx(xl, LF.QKV_F, LF.NRM_F), 16)' -> 248
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  HALF-MAPPED tb/tb_vecnorm.sv:58-59 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :58 'logic [15:0] gv [2048];' -> GONE
+             :59 'int errors = 0;' -> 64
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  HALF-MAPPED tb/tb_vecnorm.sv:65-66 — the start endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :65 '// 2048 feed beats + 2048 drain beats + the rsqrt/prep laten' -> GONE
+             :66 'int    wd_cyc = 0;' -> 71
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+O3_CITE_DRIFT CHECK NEGATIVE CONTROL: CAUGHT (295 reported)
+=== rc: 0
+=== end: 2026-09-02T01:28:57-06:00

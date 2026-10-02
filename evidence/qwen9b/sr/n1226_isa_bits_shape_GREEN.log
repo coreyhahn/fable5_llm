@@ -1,0 +1,59 @@
+=== host: snoke  date: 2026-09-28T07:44:03-06:00
+=== tree: 9c69419+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/USAGE.md
+=== dirty:  M evidence/qwen9b/g3/isa_bits.py
+=== dirty:  M rtl/matvec_chan.sv
+=== dirty:  M rtl/matvec_engine.sv
+=== dirty:  M rtl/seq_movers.sv
+=== dirty:  M rtl/seq_unit.sv
+=== dirty:  M tb/Makefile
+=== dirty:  M tb/mvshim_b_stubs.sv
+=== dirty:  M tb/scripts/gen_seq_unit_vectors.py
+=== dirty:  M tb/seq_stub_mvchan.sv
+=== dirty:  M tb/tb_matvec.sv
+=== dirty:  M tb/tb_matvec_chan.sv
+=== dirty:  M tb/tb_seq_unit.sv
+=== dirty:  M tb/tb_streamer_engine.sv
+=== dirty: ?? evidence/qwen9b/sr/sr12_golden_same.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_mv_cycles.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_mv_each.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_rtl_copies.sh
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/g3/isa_bits.py --shape
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  field   rtl/matvec_chan.sv   tb/tb_matvec_chan.sv   width
+  ng      [28:22]             [28:22]                7 b
+  nrows   [21: 6]             [21: 6]               16 b
+  sh      [ 5: 0]             [ 5: 0]                6 b
+  spare bits: 3 (spec 5.2 pins THREE)
+  isa=2 round-trips: 88 of 88 value sets (ng [1, 32, 64, 96] x nrows [0, 1, 65535] x sh [0, 63] + 64 seeded random) through hwmap -> {rtl slice, seq_format, seq_model}
+  isa=1 round-trips: 22 value sets (4 PINNED to RD_GATE.md:238 + ng 1/32/48 x nrows 0/1/65535 x sh 0/63) through hwmap -> seq_model
+  seq_stub_mvchan.sv           SHAPE stored WHOLE: yes; decodes fields: no
+  infer.py:244   R_SHAPE write -> shape_word
+  layer_test.py:132   R_SHAPE write -> shape_word
+  matvec_test.py:123   R_SHAPE write -> shape_word
+  tok_meter.py:428   R_SHAPE write -> shape_word
+  4 live R_SHAPE producer(s) in sw/, all through the one packer: yes
+
+  -- 7. SR12: the B17.2 (R2) record fields --
+  MOVX start word: RTL mv_xword      ok   rtl/seq_unit.sv r_tgt[11, 0] vs seq_format.validate's range field [11, 0] (MOVX_WORD_MASK 0x0fff)
+  MOVX: burst base carries the word  ok   rtl/seq_movers.sv XWIN burst base = MVB_XWIN + 4 * start word
+  MOVX window: RTL R2_XWIN_WORDS     ok   3072 vs seq_format.XWIN_WORDS 3072
+  MOVX: seq_model + TB golden twin   ok   SeqExec._movx writes x_mem at 4*w0 and Model.movx lists window w0, w0 in {0, 1, 1535, 1536, 3071}
+  SHAPE XBANK: RTL csr_static_xbank  ok   wdata_q[29] vs the validator's XBANK bit 29 (SHAPE_XBANK 0x20000000)
+  SHAPE RBANK: RTL csr_static_rbank  ok   wdata_q[30] vs the validator's RBANK bit 30 (SHAPE_RBANK 0x40000000)
+  SHAPE bit 31: dropped by the RTL   ok   no wdata_q[31] in the SHAPE write case (spare, B17.2)
+  SHAPE banks: tb/tb_matvec_chan.sv twin ok   TB XB (29, 29) RB (30, 30)
+  XBANK start line: engine XB_LINE   ok   48 vs seq_format.XBANK_LINE 48 (loaded at the start AND at every row end)
+  RBANK start row: engine RB_ROW     ok   2048 vs seq_format.RBANK_ROW 2048
+  SHAPE banks: seq_model + TB golden twin ok   SeqExec._mvgo reads x at 1536*XBANK, writes rows at 2048*RBANK; both running ranges start there
+  MOVY start row: RTL mv_row         ok   rtl/seq_unit.sv r_tgt[15, 4] vs seq_format.validate's range field [15, 4]
+  MOVY: movers load res_row_q from it ok   rtl/seq_movers.sv res_row_q <= cmd_row (was 12'd0)
+  MOVY window: RTL R2_RES_ROWS       ok   4096 vs seq_format.RES_ROWS 4096
+  MOVY: seq_model + TB golden twin   ok   SeqExec._movy reads RES row r0, Model.movy lists window r0 and writes RES_PTR = r0, r0 in {0, 1, 2047, 2048, 4095}
+  R2_ROWS: PASS
+
+SHAPE_BITS: PASS
+=== rc  : 0
+=== end : 2026-09-28T07:44:03-06:00

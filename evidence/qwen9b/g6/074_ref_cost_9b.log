@@ -1,0 +1,30 @@
+=== host: snoke
+=== date: 2026-09-09T22:55:22-06:00
+=== tree: 432e6ab
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/g6/g6_ref_cost.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== FABLE5_MODEL=9b  template=tb/scripts/w9/model_9b_s1.e4  nrec=158536
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_9b_s1.e4 -> preamble:39, lite:38858, full:39626  (1.2s)
+  blob       1600000 B = 551424 B constants + 512 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  session    built in 2.4s  (pos_mode=ldc, t_max=512)
+  state      {'dn': 15032385536, 'kv': 15057551360, 'cv': 15191769088, 'end': 15194914816, 'sha256': '3a716409081f0c54d9bf554b85310e28c66562080865b65da79a99241628e493', 'final_sha256': '7bd38ff095ad91a06de4e5e8ddc5da35179f733e924135d3cf849d8c235e9efe'}
+  verifier   built in 0.8s; region PRESENT {'dn': 15032385536, 'kv': 15057551360, 'cv': 15191769088, 'end': 15194914816}
+------------------------------------------------------------------------
+  image      records    host s  token
+  preamble        39       0.0  None
+  lite         38858     131.2  None
+  full         39626     149.3  198
+  512 lockstep steps at these rates: 18.7 h (all lite) .. 21.2 h (all full)
+  sdma blocks stored by the two steps: 112
+REF COST: PASS
+=== rc: 0
+=== end: 2026-09-09T23:00:06-06:00

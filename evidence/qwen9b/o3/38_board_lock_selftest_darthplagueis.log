@@ -1,0 +1,71 @@
+=== host: darthplagueis
+=== date: 2026-09-01T19:22:28-06:00
+=== tree: a77a819+dirty
+=== cmd:  sw/.venv/bin/python -u sw/board_lock.py --selftest
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+board_lock selftest (single process, temp path):
+    [ok] the default path is the fixed shared one, not this checkout's sw/
+    [ok] the legacy per-checkout path is named and IS inside a checkout
+    [ok] $FABLE5_BOARD_LOCK overrides the default
+    [ok] acquire writes the identity block
+    [ok] re-acquiring an already-held lock is a no-op
+    [ok] ...and leaving the with-block releases it once
+    [ok] ...and it is re-acquirable afterwards
+    [ok] identity carries host
+    [ok] identity carries pid
+    [ok] identity carries user
+    [ok] identity carries tool
+    [ok] identity carries t
+    [ok] identity carries tree
+    [ok] identity pid is this process
+    [ok] identity user survives a hostile $LOGNAME/$USER
+    [ok] identity block is at most 256 bytes
+    [ok] is_locked() sees it held
+    [ok] probe_state() says 'held'
+    [ok] probe_state() says 'absent' for a missing file
+    [ok] a second acquire is refused
+    [ok] the refusal names the holder
+    [ok] the refusal names --no-lock
+    [ok] release truncates the identity block
+    [ok] an existing unlocked file probes 'free', not 'held'
+    [ok] is_locked() sees it free after release
+    [ok] the lock is reusable after release
+    [ok] a stale block with no flock reports NOT held
+    [ok] status() calls the stale block stale
+    [ok] acquire overwrites a stale block
+    [ok] a forged inherit marker does not stop a real acquire
+    [ok] ...and the real acquire happened
+    [ok] child_env exports the marker
+    [ok] release() never raises
+    [ok] an unusable path is refused
+    [ok] the unusable message names the env override
+    [ok] a subclass raises its own ERROR
+************************************************************************
+*** --no-lock: THE BOARD LOCK IS NOT HELD BY selftest_null (pid 1073133)
+*** lock  /tmp/blk_8me224qa/board.lock
+*** state not held
+*** --no-lock is for a HUMAN who has confirmed sole use of the board.
+*** It is NEVER for a script, and NEVER for working around a stuck lock:
+*** a lock that will not open is a live holder somewhere, and flock has no
+*** stale state to clear (the kernel releases it when the holder dies).
+************************************************************************
+************************************************************************
+*** --no-lock: THE BOARD LOCK IS NOT HELD BY selftest_null (pid 1073133)
+*** lock  /tmp/blk_8me224qa/board.lock
+*** state not held
+*** --no-lock is for a HUMAN who has confirmed sole use of the board.
+*** It is NEVER for a script, and NEVER for working around a stuck lock:
+*** a lock that will not open is a live holder somewhere, and flock has no
+*** stale state to clear (the kernel releases it when the holder dies).
+************************************************************************
+    [ok] NullLock takes nothing
+    [ok] NullLock appends an audit line
+BOARD_LOCK_SELFTEST PASS
+=== rc: 0
+=== end: 2026-09-01T19:22:28-06:00

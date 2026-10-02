@@ -1,0 +1,144 @@
+=== host: darthplagueis
+=== date: 2026-09-10T17:45:40-06:00
+=== tree: bddd092+dirty
+=== cmd:  bash /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/297477f1-b332-4f12-8141-aed7689cf8e7/scratchpad/fixture_red2.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== the fixture is the WORKING one (cases F and G added this round):
+===   49d0103acc76b71cce7a8aed65d6d643d1ef1182629d819bbc06b893d1773a1c  evidence/qwen9b/o3/o3_cite_drift_fixture.sh
+=== the tool is bddd092's, unmodified:
+===   6a0d0c08d45c0256a0dc1a5d3b0b77bd2b07114e507d9757855f43a5be194221  /tmp/o3red2.BI2U3j/o3_cite_drift.py
+===   6a0d0c08d45c0256a0dc1a5d3b0b77bd2b07114e507d9757855f43a5be194221  -
+=== bddd092 knows neither the reason nor the WOULD CLEAR verb:
+===   'WOULD CLEAR' in the base tool: 0
+===   '=REASON' in the base tool:     0
+=== ---
+=== fixture: base fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a, sw/fixture_only_foo.pyx 12 -> 14 lines (+2 at the top)
+=== pass 1
+o3 citation-drift gate  [fix]
+  code base  fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  doc base   fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  files      1 edited files
+  citations  3 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  fixed      docs/D1.md
+  fixed      docs/D2.md
+  fixed      docs/D3.md
+  FIXED      3 citation(s) in 3 document(s)
+O3_CITE_DRIFT FIX APPLIED — now run --verify
+=== pass 1 rc 0
+  PASS  A sha pin left byte-identical
+  PASS  A no rewritten pin
+  PASS  B live cite 5 -> 7
+  PASS  B D2 live cite 9 -> 11
+=== pass 2 (same base, same tree — must change nothing)
+o3 citation-drift gate  [fix]
+  code base  fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  doc base   fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  files      1 edited files
+  citations  3 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+O3_CITE_DRIFT FIX REFUSED — --verify is already clean at base fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a, so this pass has ALREADY been applied; a second one would double-shift every citation it renumbered
+=== pass 2 rc 2
+  PASS  C second --fix is a no-op
+=== mixed tree: D2 already at :11 by hand, D1 still stale at :5
+o3 citation-drift gate  [fix]
+  code base  fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  doc base   fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  files      1 edited files
+  citations  3 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  ! COLLATERAL docs/D2.md  sw/fixture_only_foo.pyx:11 -> sw/fixture_only_foo.pyx:13
+O3_CITE_DRIFT FIX REFUSED — 1 rewrite(s) would move a citation that is ALREADY correct (a pass at base fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a has partly landed).  Repair the stale one(s) BY HAND, --exclude those documents (which forfeits their REPAIRs too), or clear each token you have CHECKED with --allow-collateral <doc|path:NNN>; see --plan
+=== mixed rc 2
+  PASS  D mixed tree REFUSED (rc 2)
+  PASS  D hand-repaired D2 not moved again
+  PASS  D no double shift to :13
+  PASS  D D1's stale :5 is NOT repaired either — the refusal is whole-pass
+=== mixed tree + --allow-collateral docs/D2.md
+o3 citation-drift gate  [fix]
+  code base  fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  doc base   fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  files      1 edited files
+  citations  3 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  ALLOWED COLLATERAL docs/D2.md  sw/fixture_only_foo.pyx:11 -> sw/fixture_only_foo.pyx:13   (--allow-collateral docs/D2.md)
+  ALLOWED    1 collateral rewrite(s), EVERY ONE NAMED ABOVE, on the operator's assertion that each was checked by hand
+  fixed      docs/D1.md
+  fixed      docs/D2.md
+  fixed      docs/D3.md
+  FIXED      3 citation(s) in 3 document(s)
+O3_CITE_DRIFT FIX APPLIED — now run --verify
+=== allowed rc 0
+  PASS  E cleared pass APPLIES (rc 0)
+  PASS  E D1's stale :5 IS repaired to :7
+  PASS  E the cleared token is named in the output
+  PASS  E the cleared token IS moved — that is what clearing it means
+  PASS  E the sha pin is STILL not rewritten
+=== per-citation form rc 0
+  PASS  E per-citation --allow-collateral clears the same token
+=== typo rc 2
+  PASS  E a value naming no collateral token clears NOTHING (rc 2)
+  PASS  E ...and says so
+  PASS  E typo run wrote nothing: D2 still at :11
+=== two collateral tokens, only docs/D2.md cleared
+o3 citation-drift gate  [fix]
+  code base  fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  doc base   fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  files      1 edited files
+  citations  3 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  ALLOWED COLLATERAL docs/D2.md  sw/fixture_only_foo.pyx:11 -> sw/fixture_only_foo.pyx:13   (--allow-collateral docs/D2.md)
+  ALLOWED    1 collateral rewrite(s), EVERY ONE NAMED ABOVE, on the operator's assertion that each was checked by hand
+  ! COLLATERAL docs/D3.md  sw/fixture_only_foo.pyx:5 -> sw/fixture_only_foo.pyx:7
+O3_CITE_DRIFT FIX REFUSED — 1 rewrite(s) would move a citation that is ALREADY correct (a pass at base fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a has partly landed).  Repair the stale one(s) BY HAND, --exclude those documents (which forfeits their REPAIRs too), or clear each token you have CHECKED with --allow-collateral <doc|path:NNN>; see --plan
+=== partly cleared rc 2
+  PASS  F a partly cleared run still REFUSES (rc 2)
+  FAIL  F the cleared token is announced as WOULD CLEAR
+        expected: 1
+        actual:   0
+  FAIL  F the word ALLOWED appears NOWHERE in a refused run
+        expected: 0
+        actual:   2
+  PASS  F the token that was NOT cleared is named
+  PASS  F nothing was written: D2 still at :11
+  PASS  F nothing was written: D3 still at :5
+=== --allow-collateral docs/D2.md=<reason>
+o3 citation-drift gate  [fix]
+  code base  fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  doc base   fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a
+  files      1 edited files
+  citations  3 distinct (file, line) pairs
+  unmoved    0
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  ! ALLOW-COLLATERAL docs/D2.md=checked by hand against the base tree matches no collateral token — it clears NOTHING (exact match on a citing document or a `path:line`)
+  ! COLLATERAL docs/D2.md  sw/fixture_only_foo.pyx:11 -> sw/fixture_only_foo.pyx:13
+O3_CITE_DRIFT FIX REFUSED — 1 rewrite(s) would move a citation that is ALREADY correct (a pass at base fb0b9979d73fbec9f6caaa7ef06dfcc3107f7f8a has partly landed).  Repair the stale one(s) BY HAND, --exclude those documents (which forfeits their REPAIRs too), or clear each token you have CHECKED with --allow-collateral <doc|path:NNN>; see --plan
+=== reason rc 2
+  FAIL  G a value carrying =<reason> still clears its token (rc 0)
+        expected: 0
+        actual:   2
+  FAIL  G the reason is printed beside the cleared token
+        expected: 1
+        actual:   0
+  FAIL  G the token is still named in full
+        expected: 1
+        actual:   0
+  FAIL  G with NO reason the log says so, rather than staying silent
+        expected: 1
+        actual:   0
+
+O3_CITE_DRIFT FIXTURE: FAIL (6 check(s))
+=== fixture rc: 1
+=== rc: 0
+=== end: 2026-09-10T17:45:40-06:00

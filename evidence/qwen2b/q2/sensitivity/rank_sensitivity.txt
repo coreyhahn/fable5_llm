@@ -1,0 +1,66 @@
+provenance OK: 8 points share the anchor's corpus/checkpoint/window/batch/positions (24528)
+bf16 anchor PPL 12.346298
+
+| rank | class | quant | mats | params | PPL | ΔPPL | Δ% | ΔPPL/Mparam |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `gate_up` | w4g64 | 48 | 603.98 M | 12.815768 | +0.469470 | +3.80 % | +0.00078 |
+| 2 | `lm_head` | w4g64 | 1 | 508.56 M | 12.619157 | +0.272859 | +2.21 % | +0.00054 |
+| 3 | `dn_in` | w4g64 | 72 | 303.17 M | 12.531978 | +0.185680 | +1.50 % | +0.00061 |
+| 4 | `down` | w4g64 | 24 | 301.99 M | 12.485822 | +0.139524 | +1.13 % | +0.00046 |
+| 5 | `o_proj` | w4g64 | 6 | 25.17 M | 12.474616 | +0.128317 | +1.04 % | +0.00510 |
+| 6 | `qkv` | w4g64 | 18 | 62.91 M | 12.462538 | +0.116240 | +0.94 % | +0.00185 |
+| 7 | `dn_out` | w4g64 | 18 | 75.50 M | 12.356938 | +0.010640 | +0.09 % | +0.00014 |
+| 8 | `emb` | emb16 S=8 | 1 | 508.56 M | 12.346475 | +0.000177 | +0.00 % | +0.00000 |
+
+median ΔPPL 0.133921   10x median 1.339207   negative deltas: 0   points > 10x median: 0
+
+--- rank correlations (audit §2 per-family worst rel err, g128) ---
+  class    ΔPPL rank  size rank  errmax rank  errmax%
+  gate_up          1          1            4   11.69
+  lm_head          2          2            7   11.26
+  dn_in            3          3            2   16.12
+  down             4          4            5   11.67
+  o_proj           5          7            3   12.92
+  qkv              6          6            1   17.28
+  dn_out           7          5            6   11.54
+
+  n=7, exact permutation critical |rho| at alpha=0.05 = 0.786 (p=0.0480)
+  ΔPPL vs params         rho = +0.857   permutation p = 0.0238   SIGNIFICANT
+  ΔPPL vs max rel err    rho = -0.179   permutation p = 0.7131   not significant at 0.05
+  ΔPPL/param vs rel err  rho = +0.714   permutation p = 0.0881   not significant at 0.05
+  [8 classes, emb included] ΔPPL vs params rho = +0.479 (midranks: emb and lm_head are the SAME tied matrix, 508,559,360 weights each, so they share size rank 2.5)
+      emb is joint-largest by size and least damaged of all, so including it cuts rho by more than a third — which is why the headline rho is the 7 W4 classes only.
+
+--- additivity ---
+  sum of the 8 one-at-a-time deltas 1.322907
+  V2 joint delta                    1.397933
+  scan covers 94.6 % of the joint; super-additive residual +0.075026
+
+--- bytes/token (7 W4 classes' packed rows; emb excluded) ---
+  V1 g128     996,282,368  (feasibility 996,282,368: MATCH)
+  V2 g64      999,428,096  (+0.316 % vs V1)
+    gate_up    320,864,256  32.10 %
+    lm_head    270,172,160  27.03 %
+    dn_in      161,058,816  16.12 %
+    down       160,432,128  16.05 %
+    o_proj      13,369,344   1.34 %
+    qkv         33,423,360   3.34 %
+    dn_out      40,108,032   4.01 %
+
+  W8-on-all-seven at the 8.125 b/w IDEAL FLOOR: 1,910,671,360 B/token = 1.912x V2
+  V4 top-1 (gate_up):
+    W4 side   678,563,840 B  (= 999,428,096 − 320,864,256)  + W8 rows [Task 9]
+    floor   1,291,980,800 B = 1.293x V2 = 67.6 % of full-W8 traffic
+    ΔPPL recoverable 0.469470 = 33.6 % of the joint / 35.5 % of the sum of parts; est. PPL 13.274761
+  V4 top-2 (gate_up+lm_head):
+    W4 side   408,391,680 B  (= 999,428,096 − 591,036,416)  + W8 rows [Task 9]
+    floor   1,538,314,240 B = 1.539x V2 = 80.5 % of full-W8 traffic
+    ΔPPL recoverable 0.742328 = 53.1 % of the joint / 56.1 % of the sum of parts; est. PPL 13.001903
+  V4 top-3 (gate_up+lm_head+dn_in):
+    W4 side   247,332,864 B  (= 999,428,096 − 752,095,232)  + W8 rows [Task 9]
+    floor   1,685,161,984 B = 1.686x V2 = 88.2 % of full-W8 traffic
+    ΔPPL recoverable 0.928008 = 66.4 % of the joint / 70.1 % of the sum of parts; est. PPL 12.816223
+
+--- re-run agreement (host-fault ruling) ---
+  gate_up  12.815768 vs 12.815768  AGREE  nll_sum bit-identical: True (62562.987946)
+  dn_out   12.356938 vs 12.356938  AGREE  nll_sum bit-identical: True (61668.731806)

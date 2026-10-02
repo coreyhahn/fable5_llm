@@ -1,0 +1,70 @@
+=== host: snoke  date: 2026-09-28T07:44:05-06:00
+=== tree: 9c69419+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/USAGE.md
+=== dirty:  M evidence/qwen9b/g3/isa_bits.py
+=== dirty:  M rtl/matvec_chan.sv
+=== dirty:  M rtl/matvec_engine.sv
+=== dirty:  M rtl/seq_movers.sv
+=== dirty:  M rtl/seq_unit.sv
+=== dirty:  M tb/Makefile
+=== dirty:  M tb/mvshim_b_stubs.sv
+=== dirty:  M tb/scripts/gen_seq_unit_vectors.py
+=== dirty:  M tb/seq_stub_mvchan.sv
+=== dirty:  M tb/tb_matvec.sv
+=== dirty:  M tb/tb_matvec_chan.sv
+=== dirty:  M tb/tb_seq_unit.sv
+=== dirty:  M tb/tb_streamer_engine.sv
+=== dirty: ?? evidence/qwen9b/sr/sr12_golden_same.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_mv_cycles.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_mv_each.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_rtl_copies.sh
+=== cmd : bash -c for p in movx_word movy_row xbank_bit rbank_bit xb_line rb_row; do echo "##### --shape-perturb $p"; /home/cah/.venv/bin/python evidence/qwen9b/g3/isa_bits.py --shape-perturb $p | grep -E "FAIL|R2_ROWS|SHAPE_BITS|PERTURBED"; echo "##### $p rc ${PIPESTATUS[0]}"; done
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+##### --shape-perturb movx_word
+  (PERTURBED: movx_word — narrow the RTL MOVX start-word slice by one bit)
+  MOVX start word: RTL mv_xword      FAIL rtl/seq_unit.sv r_tgt[10, 0] vs seq_format.validate's range field [11, 0] (MOVX_WORD_MASK 0x0fff)
+  (PERTURBED: movx_word — narrow the RTL MOVX start-word slice by one bit)
+  R2_ROWS: FAIL
+SHAPE_BITS: FAIL
+##### movx_word rc 1
+##### --shape-perturb movy_row
+  (PERTURBED: movy_row — narrow the RTL MOVY start-row slice by one bit (lo + 1))
+  MOVY start row: RTL mv_row         FAIL rtl/seq_unit.sv r_tgt[15, 5] vs seq_format.validate's range field [15, 4]
+  (PERTURBED: movy_row — narrow the RTL MOVY start-row slice by one bit (lo + 1))
+  R2_ROWS: FAIL
+SHAPE_BITS: FAIL
+##### movy_row rc 1
+##### --shape-perturb xbank_bit
+  (PERTURBED: xbank_bit — move the RTL XBANK SHAPE bit down by one (29 -> 28))
+  SHAPE XBANK: RTL csr_static_xbank  FAIL wdata_q[28] vs the validator's XBANK bit 29 (SHAPE_XBANK 0x20000000)
+  SHAPE banks: tb/tb_matvec_chan.sv twin FAIL TB XB (29, 29) RB (30, 30)
+  (PERTURBED: xbank_bit — move the RTL XBANK SHAPE bit down by one (29 -> 28))
+  R2_ROWS: FAIL
+SHAPE_BITS: FAIL
+##### xbank_bit rc 1
+##### --shape-perturb rbank_bit
+  (PERTURBED: rbank_bit — move the RTL RBANK SHAPE bit up by one (30 -> 31))
+  SHAPE RBANK: RTL csr_static_rbank  FAIL wdata_q[31] vs the validator's RBANK bit 30 (SHAPE_RBANK 0x40000000)
+  SHAPE banks: tb/tb_matvec_chan.sv twin FAIL TB XB (29, 29) RB (30, 30)
+  (PERTURBED: rbank_bit — move the RTL RBANK SHAPE bit up by one (30 -> 31))
+  R2_ROWS: FAIL
+SHAPE_BITS: FAIL
+##### rbank_bit rc 1
+##### --shape-perturb xb_line
+  (PERTURBED: xb_line — the engine's XBANK start line one lower (48 -> 47))
+  XBANK start line: engine XB_LINE   FAIL 47 vs seq_format.XBANK_LINE 48 (loaded at the start AND at every row end)
+  (PERTURBED: xb_line — the engine's XBANK start line one lower (48 -> 47))
+  R2_ROWS: FAIL
+SHAPE_BITS: FAIL
+##### xb_line rc 1
+##### --shape-perturb rb_row
+  (PERTURBED: rb_row — the engine's RBANK start row one lower (2048 -> 2047))
+  RBANK start row: engine RB_ROW     FAIL 2047 vs seq_format.RBANK_ROW 2048
+  (PERTURBED: rb_row — the engine's RBANK start row one lower (2048 -> 2047))
+  R2_ROWS: FAIL
+SHAPE_BITS: FAIL
+##### rb_row rc 1
+=== rc  : 0
+=== end : 2026-09-28T07:44:08-06:00

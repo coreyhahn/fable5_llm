@@ -1,0 +1,639 @@
+=== host: snoke
+=== date: 2026-09-02T04:20:04-06:00
+=== tree: d2d8b64+dirty
+=== cmd:  make -C tb VECPY=/home/cah/.venv/bin/python tb_matvec tb_matvec_ng tb_matvec_chan tb_mvshim_b tb_streamer_engine lint_matvec lint_mvshim_b
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_matvec -o tb_matvec \
+  --top-module tb_matvec \
+  ../rtl/matvec_engine.sv tb_matvec.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_matvec'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_matvec'
+obj_dir_tb_matvec/tb_matvec --seed 1 +vecdir=vec_s1
+[26000] case vec_s1: K=1024 NG=8 SH=5 NROWS=64 BPR=9
+TB_MATVEC PASS: 1 case(s), 64 rows bit-exact (last K=1024)
+- tb_matvec.sv:347: Verilog $finish
+obj_dir_tb_matvec/tb_matvec --seed 2 +vecdir=vec_s2
+[26000] case vec_s2: K=3584 NG=28 SH=7 NROWS=32 BPR=29
+TB_MATVEC PASS: 1 case(s), 32 rows bit-exact (last K=3584)
+- tb_matvec.sv:347: Verilog $finish
+obj_dir_tb_matvec/tb_matvec --seed 3 +vecdir=vec_s3
+[26000] case vec_s3: K=256 NG=2 SH=3 NROWS=128 BPR=3
+TB_MATVEC PASS: 1 case(s), 128 rows bit-exact (last K=256)
+- tb_matvec.sv:347: Verilog $finish
+obj_dir_tb_matvec/tb_matvec --seed 4 +vecdir=vec_s4
+[26000] case vec_s4: K=2048 NG=16 SH=6 NROWS=16 BPR=17
+TB_MATVEC PASS: 1 case(s), 16 rows bit-exact (last K=2048)
+- tb_matvec.sv:347: Verilog $finish
+vectors: seed=6101 N=23 K=128 g=128 ng=1 wbeats=1 sbeats=1 sh=2 e=-5 beats=46
+vectors: seed=6102 N=23 K=128 g=128 ng=1 wbeats=1 sbeats=1 sh=2 e=-5 beats=46
+vectors: seed=6103 N=23 K=128 g=128 ng=1 wbeats=1 sbeats=1 sh=2 e=-5 beats=46
+vectors: seed=6104 N=23 K=128 g=128 ng=1 wbeats=1 sbeats=1 sh=2 e=-5 beats=46
+vectors: seed=6201 N=24 K=256 g=128 ng=2 wbeats=2 sbeats=1 sh=3 e=-5 beats=72
+vectors: seed=6202 N=24 K=256 g=128 ng=2 wbeats=2 sbeats=1 sh=3 e=-5 beats=72
+vectors: seed=6203 N=24 K=256 g=128 ng=2 wbeats=2 sbeats=1 sh=3 e=-5 beats=72
+vectors: seed=6204 N=24 K=256 g=128 ng=2 wbeats=2 sbeats=1 sh=3 e=-5 beats=72
+vectors: seed=6301 N=17 K=384 g=128 ng=3 wbeats=3 sbeats=1 sh=4 e=-5 beats=68
+vectors: seed=6302 N=17 K=384 g=128 ng=3 wbeats=3 sbeats=1 sh=4 e=-5 beats=68
+vectors: seed=6303 N=17 K=384 g=128 ng=3 wbeats=3 sbeats=1 sh=4 e=-5 beats=68
+vectors: seed=6304 N=17 K=384 g=128 ng=3 wbeats=3 sbeats=1 sh=4 e=-5 beats=68
+vectors: seed=6401 N=31 K=512 g=128 ng=4 wbeats=4 sbeats=1 sh=4 e=-5 beats=155
+vectors: seed=6402 N=31 K=512 g=128 ng=4 wbeats=4 sbeats=1 sh=4 e=-5 beats=155
+vectors: seed=6403 N=31 K=512 g=128 ng=4 wbeats=4 sbeats=1 sh=4 e=-5 beats=155
+vectors: seed=6404 N=31 K=512 g=128 ng=4 wbeats=4 sbeats=1 sh=4 e=-5 beats=155
+vectors: seed=6501 N=9 K=6144 g=128 ng=48 wbeats=48 sbeats=2 sh=8 e=-5 beats=450
+vectors: seed=6502 N=9 K=6144 g=128 ng=48 wbeats=48 sbeats=2 sh=8 e=-5 beats=450
+vectors: seed=6503 N=9 K=6144 g=128 ng=48 wbeats=48 sbeats=2 sh=8 e=-5 beats=450
+vectors: seed=6504 N=9 K=6144 g=128 ng=48 wbeats=48 sbeats=2 sh=8 e=-5 beats=450
+vectors: seed=6601 N=21 K=4608 g=128 ng=36 wbeats=36 sbeats=2 sh=8 e=-5 beats=798
+vectors: seed=6602 N=21 K=4608 g=128 ng=36 wbeats=36 sbeats=2 sh=8 e=-5 beats=798
+vectors: seed=6603 N=21 K=4608 g=128 ng=36 wbeats=36 sbeats=2 sh=8 e=-5 beats=798
+vectors: seed=6604 N=21 K=4608 g=128 ng=36 wbeats=36 sbeats=2 sh=8 e=-5 beats=798
+vectors: seed=9101 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9102 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9103 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9104 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9201 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9202 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9203 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9204 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9301 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9302 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9303 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9304 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_matvec -o tb_matvec \
+  --top-module tb_matvec \
+  ../rtl/matvec_engine.sv tb_matvec.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_matvec'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_matvec'
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec/tb_matvec --seed $s \
+    +vecdirs=vecv2/n1${s}_g128,vecv2/n2${s}_g128,vecv2/n3${s}_g128,vecv2/n4${s}_g128,vecv2/n5${s}_g128,vecv2/n6${s}_g128 || exit 1; \
+done
+[26000] case vecv2/n11_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[636000] case vecv2/n21_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[1396000] case vecv2/n31_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[2170000] case vecv2/n41_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[3460000] case vecv2/n51_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[10938000] case vecv2/n61_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n12_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[636000] case vecv2/n22_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[1396000] case vecv2/n32_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[2170000] case vecv2/n42_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[3460000] case vecv2/n52_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[10938000] case vecv2/n62_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n13_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[636000] case vecv2/n23_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[1396000] case vecv2/n33_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[2170000] case vecv2/n43_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[3460000] case vecv2/n53_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[10938000] case vecv2/n63_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n14_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[636000] case vecv2/n24_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[1396000] case vecv2/n34_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[2170000] case vecv2/n44_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[3460000] case vecv2/n54_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[10938000] case vecv2/n64_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec/tb_matvec --seed $s +chunk=1 \
+    +vecdirs=vecv2/n1${s}_g128,vecv2/n2${s}_g128,vecv2/n3${s}_g128,vecv2/n4${s}_g128,vecv2/n5${s}_g128,vecv2/n6${s}_g128 || exit 1; \
+done
+[26000] case vecv2/n11_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[1503000] case vecv2/n21_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[3344000] case vecv2/n31_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[4854000] case vecv2/n41_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[7554000] case vecv2/n51_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[16596000] case vecv2/n61_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n12_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[1503000] case vecv2/n22_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[3344000] case vecv2/n32_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[4854000] case vecv2/n42_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[7554000] case vecv2/n52_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[16596000] case vecv2/n62_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n13_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[1503000] case vecv2/n23_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[3344000] case vecv2/n33_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[4854000] case vecv2/n43_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[7554000] case vecv2/n53_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[16596000] case vecv2/n63_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n14_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[1503000] case vecv2/n24_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[3344000] case vecv2/n34_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[4854000] case vecv2/n44_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[7554000] case vecv2/n54_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[16596000] case vecv2/n64_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec/tb_matvec --seed $s +chunk=3 \
+    +vecdirs=vecv2/n1${s}_g128,vecv2/n2${s}_g128,vecv2/n3${s}_g128,vecv2/n4${s}_g128,vecv2/n5${s}_g128,vecv2/n6${s}_g128 || exit 1; \
+done
+[26000] case vecv2/n11_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[930000] case vecv2/n21_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[1973000] case vecv2/n31_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[2973000] case vecv2/n41_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[4667000] case vecv2/n51_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[12535000] case vecv2/n61_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n12_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[930000] case vecv2/n22_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[1973000] case vecv2/n32_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[2973000] case vecv2/n42_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[4667000] case vecv2/n52_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[12535000] case vecv2/n62_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n13_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[930000] case vecv2/n23_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[1973000] case vecv2/n33_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[2973000] case vecv2/n43_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[4667000] case vecv2/n53_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[12535000] case vecv2/n63_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n14_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[930000] case vecv2/n24_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+[1973000] case vecv2/n34_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+[2973000] case vecv2/n44_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+[4667000] case vecv2/n54_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[12535000] case vecv2/n64_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec/tb_matvec --seed $s +nogap \
+    +maxstall=0 +ngfloor=6 \
+    +vecdirs=vecv2/n1${s}_g128,vecv2/n2${s}_g128,vecv2/n3${s}_g128,vecv2/n4${s}_g128,vecv2/n5${s}_g128,vecv2/n6${s}_g128 || exit 1; \
+done
+[26000] case vecv2/n11_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+  thru: K=128 NG=1 rows=23 beats=46 cycles=134 stalls=88 -> 0.343 beats/cycle, 3.82 stalls/row, period 5.82 cyc/row (BPR = 2, retire residual 3.82 cyc/row)
+[636000] case vecv2/n21_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+  thru: K=256 NG=2 rows=24 beats=72 cycles=141 stalls=69 -> 0.510 beats/cycle, 2.87 stalls/row, period 5.87 cyc/row (BPR = 3, retire residual 2.87 cyc/row)
+[1376000] case vecv2/n31_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+  thru: K=384 NG=3 rows=17 beats=68 cycles=100 stalls=32 -> 0.680 beats/cycle, 1.88 stalls/row, period 5.88 cyc/row (BPR = 4, retire residual 1.88 cyc/row)
+[2087000] case vecv2/n41_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+  thru: K=512 NG=4 rows=31 beats=155 cycles=185 stalls=30 -> 0.837 beats/cycle, 0.96 stalls/row, period 5.96 cyc/row (BPR = 5, retire residual 0.96 cyc/row)
+[3187000] case vecv2/n51_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+  thru: K=6144 NG=48 rows=9 beats=450 cycles=450 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 50.00 cyc/row (BPR = 50, retire residual 0.00 cyc/row)
+[10008000] case vecv2/n61_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+  thru: K=4608 NG=36 rows=21 beats=798 cycles=798 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 38.00 cyc/row (BPR = 38, retire residual 0.00 cyc/row)
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n12_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+  thru: K=128 NG=1 rows=23 beats=46 cycles=134 stalls=88 -> 0.343 beats/cycle, 3.82 stalls/row, period 5.82 cyc/row (BPR = 2, retire residual 3.82 cyc/row)
+[636000] case vecv2/n22_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+  thru: K=256 NG=2 rows=24 beats=72 cycles=141 stalls=69 -> 0.510 beats/cycle, 2.87 stalls/row, period 5.87 cyc/row (BPR = 3, retire residual 2.87 cyc/row)
+[1376000] case vecv2/n32_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+  thru: K=384 NG=3 rows=17 beats=68 cycles=100 stalls=32 -> 0.680 beats/cycle, 1.88 stalls/row, period 5.88 cyc/row (BPR = 4, retire residual 1.88 cyc/row)
+[2087000] case vecv2/n42_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+  thru: K=512 NG=4 rows=31 beats=155 cycles=185 stalls=30 -> 0.837 beats/cycle, 0.96 stalls/row, period 5.96 cyc/row (BPR = 5, retire residual 0.96 cyc/row)
+[3187000] case vecv2/n52_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+  thru: K=6144 NG=48 rows=9 beats=450 cycles=450 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 50.00 cyc/row (BPR = 50, retire residual 0.00 cyc/row)
+[10008000] case vecv2/n62_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+  thru: K=4608 NG=36 rows=21 beats=798 cycles=798 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 38.00 cyc/row (BPR = 38, retire residual 0.00 cyc/row)
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n13_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+  thru: K=128 NG=1 rows=23 beats=46 cycles=134 stalls=88 -> 0.343 beats/cycle, 3.82 stalls/row, period 5.82 cyc/row (BPR = 2, retire residual 3.82 cyc/row)
+[636000] case vecv2/n23_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+  thru: K=256 NG=2 rows=24 beats=72 cycles=141 stalls=69 -> 0.510 beats/cycle, 2.87 stalls/row, period 5.87 cyc/row (BPR = 3, retire residual 2.87 cyc/row)
+[1376000] case vecv2/n33_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+  thru: K=384 NG=3 rows=17 beats=68 cycles=100 stalls=32 -> 0.680 beats/cycle, 1.88 stalls/row, period 5.88 cyc/row (BPR = 4, retire residual 1.88 cyc/row)
+[2087000] case vecv2/n43_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+  thru: K=512 NG=4 rows=31 beats=155 cycles=185 stalls=30 -> 0.837 beats/cycle, 0.96 stalls/row, period 5.96 cyc/row (BPR = 5, retire residual 0.96 cyc/row)
+[3187000] case vecv2/n53_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+  thru: K=6144 NG=48 rows=9 beats=450 cycles=450 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 50.00 cyc/row (BPR = 50, retire residual 0.00 cyc/row)
+[10008000] case vecv2/n63_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+  thru: K=4608 NG=36 rows=21 beats=798 cycles=798 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 38.00 cyc/row (BPR = 38, retire residual 0.00 cyc/row)
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/n14_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+  thru: K=128 NG=1 rows=23 beats=46 cycles=134 stalls=88 -> 0.343 beats/cycle, 3.82 stalls/row, period 5.82 cyc/row (BPR = 2, retire residual 3.82 cyc/row)
+[636000] case vecv2/n24_g128: K=256 NG=2 SH=3 NROWS=24 BPR=3
+  thru: K=256 NG=2 rows=24 beats=72 cycles=141 stalls=69 -> 0.510 beats/cycle, 2.87 stalls/row, period 5.87 cyc/row (BPR = 3, retire residual 2.87 cyc/row)
+[1376000] case vecv2/n34_g128: K=384 NG=3 SH=4 NROWS=17 BPR=4
+  thru: K=384 NG=3 rows=17 beats=68 cycles=100 stalls=32 -> 0.680 beats/cycle, 1.88 stalls/row, period 5.88 cyc/row (BPR = 4, retire residual 1.88 cyc/row)
+[2087000] case vecv2/n44_g128: K=512 NG=4 SH=4 NROWS=31 BPR=5
+  thru: K=512 NG=4 rows=31 beats=155 cycles=185 stalls=30 -> 0.837 beats/cycle, 0.96 stalls/row, period 5.96 cyc/row (BPR = 5, retire residual 0.96 cyc/row)
+[3187000] case vecv2/n54_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+  thru: K=6144 NG=48 rows=9 beats=450 cycles=450 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 50.00 cyc/row (BPR = 50, retire residual 0.00 cyc/row)
+[10008000] case vecv2/n64_g128: K=4608 NG=36 SH=8 NROWS=21 BPR=38
+  thru: K=4608 NG=36 rows=21 beats=798 cycles=798 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 38.00 cyc/row (BPR = 38, retire residual 0.00 cyc/row)
+TB_MATVEC PASS: 6 case(s), 21 rows bit-exact (last K=4608)
+- tb_matvec.sv:347: Verilog $finish
+-- the 9B row geometry: NG 32/64/96 (K 4096/8192/12288) --
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec/tb_matvec --seed $s \
+    +vecdirs=vecv2/q1${s}_g128,vecv2/q2${s}_g128,vecv2/q3${s}_g128 || exit 1; \
+done
+[26000] case vecv2/q11_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[5631000] case vecv2/q21_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+[14949000] case vecv2/q31_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+TB_MATVEC PASS: 3 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q12_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[5631000] case vecv2/q22_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+[14949000] case vecv2/q32_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+TB_MATVEC PASS: 3 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q13_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[5631000] case vecv2/q23_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+[14949000] case vecv2/q33_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+TB_MATVEC PASS: 3 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q14_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[5631000] case vecv2/q24_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+[14949000] case vecv2/q34_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+TB_MATVEC PASS: 3 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec/tb_matvec --seed $s +chunk=2 \
+    +vecdirs=vecv2/q3${s}_g128,vecv2/q1${s}_g128,vecv2/q2${s}_g128 || exit 1; \
+done
+[26000] case vecv2/q31_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+[13712000] case vecv2/q11_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[20234000] case vecv2/q21_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+TB_MATVEC PASS: 3 case(s), 7 rows bit-exact (last K=8192)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q32_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+[13712000] case vecv2/q12_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[20234000] case vecv2/q22_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+TB_MATVEC PASS: 3 case(s), 7 rows bit-exact (last K=8192)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q33_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+[13712000] case vecv2/q13_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[20234000] case vecv2/q23_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+TB_MATVEC PASS: 3 case(s), 7 rows bit-exact (last K=8192)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q34_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+[13712000] case vecv2/q14_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[20234000] case vecv2/q24_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+TB_MATVEC PASS: 3 case(s), 7 rows bit-exact (last K=8192)
+- tb_matvec.sv:347: Verilog $finish
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec/tb_matvec --seed $s +nogap \
+    +maxstall=0 +ngfloor=6 \
+    +vecdirs=vecv2/q1${s}_g128,vecv2/q2${s}_g128,vecv2/q3${s}_g128 || exit 1; \
+done
+[26000] case vecv2/q11_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+  thru: K=4096 NG=32 rows=13 beats=429 cycles=429 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 33.00 cyc/row (BPR = 33, retire residual 0.00 cyc/row)
+[5017000] case vecv2/q21_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+  thru: K=8192 NG=64 rows=7 beats=462 cycles=462 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 66.00 cyc/row (BPR = 66, retire residual 0.00 cyc/row)
+[13639000] case vecv2/q31_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+  thru: K=12288 NG=96 rows=5 beats=495 cycles=495 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 99.00 cyc/row (BPR = 99, retire residual 0.00 cyc/row)
+TB_MATVEC PASS: 3 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q12_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+  thru: K=4096 NG=32 rows=13 beats=429 cycles=429 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 33.00 cyc/row (BPR = 33, retire residual 0.00 cyc/row)
+[5017000] case vecv2/q22_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+  thru: K=8192 NG=64 rows=7 beats=462 cycles=462 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 66.00 cyc/row (BPR = 66, retire residual 0.00 cyc/row)
+[13639000] case vecv2/q32_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+  thru: K=12288 NG=96 rows=5 beats=495 cycles=495 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 99.00 cyc/row (BPR = 99, retire residual 0.00 cyc/row)
+TB_MATVEC PASS: 3 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q13_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+  thru: K=4096 NG=32 rows=13 beats=429 cycles=429 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 33.00 cyc/row (BPR = 33, retire residual 0.00 cyc/row)
+[5017000] case vecv2/q23_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+  thru: K=8192 NG=64 rows=7 beats=462 cycles=462 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 66.00 cyc/row (BPR = 66, retire residual 0.00 cyc/row)
+[13639000] case vecv2/q33_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+  thru: K=12288 NG=96 rows=5 beats=495 cycles=495 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 99.00 cyc/row (BPR = 99, retire residual 0.00 cyc/row)
+TB_MATVEC PASS: 3 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q14_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+  thru: K=4096 NG=32 rows=13 beats=429 cycles=429 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 33.00 cyc/row (BPR = 33, retire residual 0.00 cyc/row)
+[5017000] case vecv2/q24_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+  thru: K=8192 NG=64 rows=7 beats=462 cycles=462 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 66.00 cyc/row (BPR = 66, retire residual 0.00 cyc/row)
+[13639000] case vecv2/q34_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+  thru: K=12288 NG=96 rows=5 beats=495 cycles=495 stalls=0 -> 0.000 beats/cycle, 0.00 stalls/row, period 99.00 cyc/row (BPR = 99, retire residual 0.00 cyc/row)
+TB_MATVEC PASS: 3 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+-- MIXED, one engine instance, no reset: 9B and small-NG shapes interleaved --
+for s in 1 2 3 4; do \
+  obj_dir_tb_matvec/tb_matvec --seed $s \
+    +vecdirs=vecv2/q3${s}_g128,vecv2/n1${s}_g128,vecv2/q1${s}_g128,vecv2/n5${s}_g128,vecv2/q2${s}_g128,vecv2/q3${s}_g128 || exit 1; \
+done
+[26000] case vecv2/q31_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+[12999000] case vecv2/n11_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[13609000] case vecv2/q11_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[19220000] case vecv2/n51_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[26712000] case vecv2/q21_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+[35957000] case vecv2/q31_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+TB_MATVEC PASS: 6 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q32_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+[12999000] case vecv2/n12_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[13609000] case vecv2/q12_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[19220000] case vecv2/n52_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[26712000] case vecv2/q22_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+[35957000] case vecv2/q32_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+TB_MATVEC PASS: 6 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q33_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+[12999000] case vecv2/n13_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[13609000] case vecv2/q13_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[19220000] case vecv2/n53_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[26712000] case vecv2/q23_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+[35957000] case vecv2/q33_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+TB_MATVEC PASS: 6 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+[26000] case vecv2/q34_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+[12999000] case vecv2/n14_g128: K=128 NG=1 SH=2 NROWS=23 BPR=2
+[13609000] case vecv2/q14_g128: K=4096 NG=32 SH=7 NROWS=13 BPR=33
+[19220000] case vecv2/n54_g128: K=6144 NG=48 SH=8 NROWS=9 BPR=50
+[26712000] case vecv2/q24_g128: K=8192 NG=64 SH=8 NROWS=7 BPR=66
+[35957000] case vecv2/q34_g128: K=12288 NG=96 SH=9 NROWS=5 BPR=99
+TB_MATVEC PASS: 6 case(s), 5 rows bit-exact (last K=12288)
+- tb_matvec.sv:347: Verilog $finish
+-- self-test: matvec_engine's cfg_ng > MAX_NG envelope guard MUST trip --
+Aborted (core dumped)
+TB_MATVEC_NG OK: NG 1..4 + 36 + 48 + the 9B 32/64/96 x 4 seeds — random, chunk=1/2/3, nogap, mixed-shape, + the cfg_ng=97 envelope self-test
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 4 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  --Mdir obj_dir_tb_chan -o tb_chan \
+  --top-module tb_matvec_chan \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv tb_matvec_chan.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_chan'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_chan'
+obj_dir_tb_chan/tb_chan --seed 1 +vecdir=vec_s1
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[4276000] phase: doorbell
+[4292000] phase: poll
+[6868000] phase: results
+perf: 576 beats in 725 cycles
+TB_MATVEC_CHAN PASS: 64 rows bit-exact (K=1024)
+- tb_matvec_chan.sv:248: Verilog $finish
+obj_dir_tb_chan/tb_chan --seed 2 +vecdir=vec_s2
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[14516000] phase: doorbell
+[14532000] phase: poll
+[18764000] phase: results
+perf: 928 beats in 1217 cycles
+TB_MATVEC_CHAN PASS: 32 rows bit-exact (K=3584)
+- tb_matvec_chan.sv:248: Verilog $finish
+obj_dir_tb_chan/tb_chan --seed 3 +vecdir=vec_s3
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[1204000] phase: doorbell
+[1220000] phase: poll
+[3888000] phase: results
+perf: 384 beats in 497 cycles
+TB_MATVEC_CHAN PASS: 128 rows bit-exact (K=256)
+- tb_matvec_chan.sv:248: Verilog $finish
+obj_dir_tb_chan/tb_chan --seed 4 +vecdir=vec_s4
+[64000] phase: identity
+[76000] phase: configure
+[152000] phase: x load
+[8372000] phase: doorbell
+[8388000] phase: poll
+[9584000] phase: results
+perf: 272 beats in 329 cycles
+TB_MATVEC_CHAN PASS: 16 rows bit-exact (K=2048)
+- tb_matvec_chan.sv:248: Verilog $finish
+-- self-test: sw/hwmap.shape_word, BOTH layouts + the VERSION gate --
+/home/cah/.venv/bin/python ../sw/hwmap.py
+HWMAP SHAPE_WORD SELFTEST PASS: isa=1 pinned to RD_GATE 0x20800290/0x20200290 (+ the 0.8B W4 control), g64=0x1000d1e0 w8=0x2000d1e0, w8+g64 refused; isa=2 ng[28:22] nrows[21:6] sh[5:0] round-trips at ng 1/32/64/96 x nrows 0/1/4096/65535 x sh 0/1/63, spare [31:29] zero, g64/w8/over-wide fields and ng outside 1..MAX_NG all refused; an UNKNOWN VERSION refuses (build_034 0x4f908df2 and build_035 0x54443b9f are isa=1)
+-- G3.3: the 9B row geometry through the FULL CSR/DMA chain --
+make q9_vectors
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+vectors: seed=9101 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9102 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9103 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9104 N=13 K=4096 g=128 ng=32 wbeats=32 sbeats=1 sh=7 e=-5 beats=429
+vectors: seed=9201 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9202 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9203 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9204 N=7 K=8192 g=128 ng=64 wbeats=64 sbeats=2 sh=8 e=-5 beats=462
+vectors: seed=9301 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9302 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9303 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+vectors: seed=9304 N=5 K=12288 g=128 ng=96 wbeats=96 sbeats=3 sh=9 e=-5 beats=495
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+for s in 1 2 3 4; do \
+  for nm in q1 q2 q3; do \
+    obj_dir_tb_chan/tb_chan --seed $s +shapeback +vecdir=vecv2/${nm}${s}_g128 || exit 1; \
+  done; \
+done
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16576000] phase: doorbell
+[16592000] phase: poll
+[18616000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32960000] phase: doorbell
+[32976000] phase: poll
+[35276000] phase: results
+perf: 462 beats in 590 cycles
+TB_MATVEC_CHAN PASS: 7 rows bit-exact (K=8192)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[49344000] phase: doorbell
+[49360000] phase: poll
+[51936000] phase: results
+perf: 495 beats in 644 cycles
+TB_MATVEC_CHAN PASS: 5 rows bit-exact (K=12288)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16576000] phase: doorbell
+[16592000] phase: poll
+[18616000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32960000] phase: doorbell
+[32976000] phase: poll
+[35276000] phase: results
+perf: 462 beats in 590 cycles
+TB_MATVEC_CHAN PASS: 7 rows bit-exact (K=8192)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[49344000] phase: doorbell
+[49360000] phase: poll
+[51936000] phase: results
+perf: 495 beats in 644 cycles
+TB_MATVEC_CHAN PASS: 5 rows bit-exact (K=12288)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16576000] phase: doorbell
+[16592000] phase: poll
+[18616000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32960000] phase: doorbell
+[32976000] phase: poll
+[35276000] phase: results
+perf: 462 beats in 590 cycles
+TB_MATVEC_CHAN PASS: 7 rows bit-exact (K=8192)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[49344000] phase: doorbell
+[49360000] phase: poll
+[51936000] phase: results
+perf: 495 beats in 644 cycles
+TB_MATVEC_CHAN PASS: 5 rows bit-exact (K=12288)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[16576000] phase: doorbell
+[16592000] phase: poll
+[18616000] phase: results
+perf: 429 beats in 544 cycles
+TB_MATVEC_CHAN PASS: 13 rows bit-exact (K=4096)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[32960000] phase: doorbell
+[32976000] phase: poll
+[35276000] phase: results
+perf: 462 beats in 590 cycles
+TB_MATVEC_CHAN PASS: 7 rows bit-exact (K=8192)
+- tb_matvec_chan.sv:248: Verilog $finish
+[64000] phase: identity
+[76000] phase: configure
+[164000] phase: x load
+[49344000] phase: doorbell
+[49360000] phase: poll
+[51936000] phase: results
+perf: 495 beats in 644 cycles
+TB_MATVEC_CHAN PASS: 5 rows bit-exact (K=12288)
+- tb_matvec_chan.sv:248: Verilog $finish
+TB_MATVEC_CHAN OK: the 4 frozen stage-2 shapes + the 9B NG 32/64/96 x 4 seeds with the SHAPE round-trip
+verilator --binary --timing -j 4 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt \
+  --Mdir obj_dir_tb_mvshim_b -o tb_mvshim_b \
+  --top-module tb_mvshim_b \
+  mvshim_b_stubs.sv ../rtl/matvec_chan.sv tb_mvshim_b.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_mvshim_b'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_mvshim_b'
+obj_dir_tb_mvshim_b/tb_mvshim_b --seed 1 +seed=1 +verilator+rand+reset+2
+tb_mvshim_b: PASS seed=1, 0 errors, gen=4, ui_clk=fast300M, s_axib W beats=3212, WREADY-stall cyc=13, AXIL-AR-held-off cyc=1280
+- tb_mvshim_b.sv:705: Verilog $finish
+obj_dir_tb_mvshim_b/tb_mvshim_b --seed 2 +seed=2 +verilator+rand+reset+2
+tb_mvshim_b: PASS seed=2, 0 errors, gen=4, ui_clk=fast300M, s_axib W beats=3212, WREADY-stall cyc=13, AXIL-AR-held-off cyc=1293
+- tb_mvshim_b.sv:705: Verilog $finish
+obj_dir_tb_mvshim_b/tb_mvshim_b --seed 3 +seed=3 +verilator+rand+reset+2 +slowui
+tb_mvshim_b: PASS seed=3, 0 errors, gen=4, ui_clk= slow50M, s_axib W beats=3212, WREADY-stall cyc=7746, AXIL-AR-held-off cyc=1294
+- tb_mvshim_b.sv:705: Verilog $finish
+obj_dir_tb_mvshim_b/tb_mvshim_b --seed 4 +seed=4 +verilator+rand+reset+2 +slowui
+tb_mvshim_b: PASS seed=4, 0 errors, gen=4, ui_clk= slow50M, s_axib W beats=3212, WREADY-stall cyc=7834, AXIL-AR-held-off cyc=1282
+- tb_mvshim_b.sv:705: Verilog $finish
+-- self-test: the scoreboard MUST trip under +sabotage --
+TB_MVSHIM_B OK: 4 seeds (2 fast ui_clk, 2 slow ui_clk) + sabotage self-test
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s1 101 64 1024
+vectors: seed=101 N=64 K=1024 NG=8 sh=5 beats=576
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s2 202 32 3584
+vectors: seed=202 N=32 K=3584 NG=28 sh=7 beats=928
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s3 303 128 256
+vectors: seed=303 N=128 K=256 NG=2 sh=3 beats=384
+/home/cah/.venv/bin/python ../ref/gen_matvec_vectors.py vec_s4 404 16 2048
+vectors: seed=404 N=16 K=2048 NG=16 sh=6 beats=272
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_se -o tb_se \
+  --top-module tb_streamer_engine \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv tb_streamer_engine.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_se'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+/usr/bin/python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtb_streamer_engine.cpp Vtb_streamer_engine___024root__DepSet_h950a76dc__0.cpp Vtb_streamer_engine___024root__DepSet_h77b4abaf__0.cpp Vtb_streamer_engine__main.cpp Vtb_streamer_engine__ConstPool_0.cpp Vtb_streamer_engine___024root__Slow.cpp Vtb_streamer_engine___024root__DepSet_h950a76dc__0__Slow.cpp Vtb_streamer_engine___024root__DepSet_h77b4abaf__0__Slow.cpp Vtb_streamer_engine__Syms.cpp > Vtb_streamer_engine__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o Vtb_streamer_engine__ALL.o Vtb_streamer_engine__ALL.cpp
+echo "" > Vtb_streamer_engine__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_streamer_engine__ALL.a Vtb_streamer_engine__ALL.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_streamer_engine__ALL.a    -pthread -lpthread -latomic   -o tb_se
+rm Vtb_streamer_engine__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_se'
+obj_dir_tb_se/tb_se --seed 1 +vecdir=vec_s1
+perf: 576 beats in 700 cycles (82.3% bus util)
+TB_STREAMER_ENGINE PASS: 64 rows bit-exact (K=1024)
+- tb_streamer_engine.sv:225: Verilog $finish
+obj_dir_tb_se/tb_se --seed 2 +vecdir=vec_s2
+perf: 928 beats in 1138 cycles (81.5% bus util)
+TB_STREAMER_ENGINE PASS: 32 rows bit-exact (K=3584)
+- tb_streamer_engine.sv:225: Verilog $finish
+obj_dir_tb_se/tb_se --seed 3 +vecdir=vec_s3
+perf: 384 beats in 471 cycles (81.5% bus util)
+TB_STREAMER_ENGINE PASS: 128 rows bit-exact (K=256)
+- tb_streamer_engine.sv:225: Verilog $finish
+obj_dir_tb_se/tb_se --seed 4 +vecdir=vec_s4
+perf: 272 beats in 330 cycles (82.4% bus util)
+TB_STREAMER_ENGINE PASS: 16 rows bit-exact (K=2048)
+- tb_streamer_engine.sv:225: Verilog $finish
+verilator --lint-only -Wall --timing ../rtl/matvec_engine.sv
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module matvec_chan \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module matvec_chan_ipi \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv \
+  ../rtl/matvec_chan_ipi.v
+LINT_MVSHIM_B OK: -Wall clean (matvec_chan + matvec_chan_ipi)
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc: 0
+=== end: 2026-09-02T04:20:30-06:00

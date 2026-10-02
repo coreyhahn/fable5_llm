@@ -1,0 +1,283 @@
+=== host: snoke
+=== date: 2026-09-07T21:19:31-06:00
+=== tree: 51f49d2+dirty
+=== cmd:  bash -c source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh >/dev/null && exec vivado -mode batch -nolog -nojournal -source evidence/qwen9b/g5/g5b_t14a_cone_census.tcl -tclargs /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp evidence/qwen9b/g5/150_t14b_cones_ckr2 50
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Mon Sep  7 21:19:33 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source evidence/qwen9b/g5/g5b_t14a_cone_census.tcl
+# if {[llength $argv] < 2} { puts "FATAL: need <dcp> <out_prefix> \[max_paths\]"; exit 1 }
+# set DCP  [lindex $argv 0]
+# set PRE  [lindex $argv 1]
+# set NMAX 50
+# if {[llength $argv] > 2} { set NMAX [lindex $argv 2] }
+# if {![file exists $DCP]} { puts "FATAL: no such checkpoint: $DCP"; exit 1 }
+# set_param general.maxThreads 8
+# puts "T14A_DCP: $DCP"
+T14A_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+# puts "T14A_DCP_MTIME: [clock format [file mtime $DCP] -format {%Y-%m-%d %H:%M:%S}]"
+T14A_DCP_MTIME: 2026-09-07 20:34:57
+# puts "T14A_DCP_BYTES: [file size $DCP]"
+T14A_DCP_BYTES: 288126447
+# puts "T14A_OUT_PREFIX: $PRE"
+T14A_OUT_PREFIX: evidence/qwen9b/g5/150_t14b_cones_ckr2
+# puts "T14A_MAX_PATHS: $NMAX"
+T14A_MAX_PATHS: 50
+# open_checkpoint $DCP
+Command: open_checkpoint /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.07 . Memory (MB): peak = 1427.047 ; gain = 0.000 ; free physical = 39838 ; free virtual = 318450
+INFO: [Device 21-403] Loading part xcvu9p-fsgd2104-2L-e
+Netlist sorting complete. Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 3875.855 ; gain = 0.000 ; free physical = 34923 ; free virtual = 313645
+INFO: [Netlist 29-17] Analyzing 31335 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 26 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Constraints 18-550] Could not create 'DRIVE' constraint because net 'bd_i/ddr4_0/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/cal_RESET_n[0]' is not directly connected to top level port. 'DRIVE' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'SLEW' constraint because net 'bd_i/ddr4_0/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/cal_RESET_n[0]' is not directly connected to top level port. 'SLEW' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'bd_i/ddr4_0/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/sys_clk_in' is not directly connected to top level port. 'IBUF_LOW_PWR' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'DRIVE' constraint because net 'bd_i/ddr4_1/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/cal_RESET_n[0]' is not directly connected to top level port. 'DRIVE' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'SLEW' constraint because net 'bd_i/ddr4_1/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/cal_RESET_n[0]' is not directly connected to top level port. 'SLEW' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'bd_i/ddr4_1/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/sys_clk_in' is not directly connected to top level port. 'IBUF_LOW_PWR' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'DRIVE' constraint because net 'bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/cal_RESET_n[0]' is not directly connected to top level port. 'DRIVE' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'SLEW' constraint because net 'bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/cal_RESET_n[0]' is not directly connected to top level port. 'SLEW' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'bd_i/ddr4_2/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/sys_clk_in' is not directly connected to top level port. 'IBUF_LOW_PWR' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'DRIVE' constraint because net 'bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/cal_RESET_n[0]' is not directly connected to top level port. 'DRIVE' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'SLEW' constraint because net 'bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/cal_RESET_n[0]' is not directly connected to top level port. 'SLEW' is ignored for synthesis but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'bd_i/ddr4_3/inst/u_ddr4_mem_intfc/u_mig_ddr4_phy/sys_clk_in' is not directly connected to top level port. 'IBUF_LOW_PWR' is ignored for synthesis but preserved for implementation.
+Read ShapeDB Complete: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 5542.348 ; gain = 116.805 ; free physical = 31688 ; free virtual = 310410
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Power 33-23] Power model is not available for xiphy_riu_or
+INFO: [Power 33-23] Power model is not available for genVref.u_hpio_vref
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 9770.352 ; gain = 40.945 ; free physical = 19781 ; free virtual = 298510
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 9770.352 ; gain = 0.000 ; free physical = 19718 ; free virtual = 298447
+Read PlaceDB: Time (s): cpu = 00:00:39 ; elapsed = 00:00:42 . Memory (MB): peak = 10358.477 ; gain = 588.125 ; free physical = 16904 ; free virtual = 295633
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10358.477 ; gain = 0.000 ; free physical = 16896 ; free virtual = 295626
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:22 ; elapsed = 00:00:08 . Memory (MB): peak = 10771.781 ; gain = 413.305 ; free physical = 16489 ; free virtual = 295219
+Read Physdb Files: Time (s): cpu = 00:01:03 ; elapsed = 00:00:51 . Memory (MB): peak = 10771.781 ; gain = 1042.375 ; free physical = 16487 ; free virtual = 295218
+Restored from archive | CPU: 68.630000 secs | Memory: 934.151054 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:01:04 ; elapsed = 00:00:52 . Memory (MB): peak = 10771.781 ; gain = 1042.375 ; free physical = 16475 ; free virtual = 295206
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip'.
+Netlist sorting complete. Time (s): cpu = 00:00:00.1 ; elapsed = 00:00:00.16 . Memory (MB): peak = 10771.781 ; gain = 0.000 ; free physical = 16381 ; free virtual = 295112
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 8345 instances were transformed.
+  DSP48E1 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 12 instances
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 1848 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 1 instance 
+  IBUFDS => IBUFDS (DIFFINBUF, IBUFCTRL): 4 instances
+  IOBUFDS => IOBUFDS (DIFFINBUF, IBUFCTRL, INV, OBUFT(x2)): 32 instances
+  IOBUFE3 => IOBUFE3 (IBUFCTRL, INBUF, OBUFT_DCIEN): 288 instances
+  LUT6_2 => LUT6_2 (LUT5, LUT6): 124 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUF(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 40 instances
+  RAM256X1D => RAM256X1D (MUXF7(x4), MUXF8(x2), RAMD64E(x8)): 512 instances
+  RAM256X1S => RAM256X1S (MUXF7(x2), MUXF8, RAMS64E(x4)): 9 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 866 instances
+  RAM32M16 => RAM32M16 (RAMD32(x14), RAMS32(x2)): 1978 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 80 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 16 instances
+  RAM64M8 => RAM64M8 (RAMD64E(x8)): 2515 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 16 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2024.2 (64-bit) build 5239630
+WARNING: [Vivado 12-23575] Critical violations of the methodology design rules detected. Critical violations may contribute to timing failures or cause functional issues in hardware. Run report_methodology for more information.
+open_checkpoint: Time (s): cpu = 00:11:28 ; elapsed = 00:06:18 . Memory (MB): peak = 10771.781 ; gain = 9344.734 ; free physical = 16355 ; free virtual = 295086
+get_timing_paths: Time (s): cpu = 00:12:00 ; elapsed = 00:02:14 . Memory (MB): peak = 11943.344 ; gain = 1171.562 ; free physical = 12215 ; free virtual = 290945
+# set wns [get_property SLACK [get_timing_paths -max_paths 1 -nworst 1 -setup]]
+get_timing_paths: Time (s): cpu = 00:00:46 ; elapsed = 00:00:06 . Memory (MB): peak = 11943.344 ; gain = 0.000 ; free physical = 19131 ; free virtual = 297860
+# set whs [get_property SLACK [get_timing_paths -max_paths 1 -nworst 1 -hold]]
+# puts "T14A_TIMING: WNS=$wns WHS=$whs"
+T14A_TIMING: WNS=0.000 WHS=0.001
+# proc slr_of {objname} {
+#     set c [get_cells -quiet -of_objects $objname]
+#     if {$c eq ""} { return "?" }
+#     set st [get_sites -quiet -of_objects $c]
+#     if {$st eq ""} { return "unplaced" }
+#     set s [get_slrs -quiet -of_objects $st]
+#     if {$s eq ""} { return "?" }
+#     return [get_property NAME $s]
+# }
+# set allp [get_timing_paths -quiet -max_paths 6000 -nworst 1 -setup -slack_lesser_than 0]
+# puts "T14A_FAILING_SAMPLE: [llength $allp]"
+T14A_FAILING_SAMPLE: 0
+# array set gcnt {}
+# array set gworst {}
+# foreach p $allp {
+#     set g [get_property GROUP $p]
+#     if {[info exists gcnt($g)]} { incr gcnt($g) } else { set gcnt($g) 1 }
+#     set s [get_property SLACK $p]
+#     if {![info exists gworst($g)] || $s < $gworst($g)} { set gworst($g) $s }
+# }
+# puts "T14A_GROUPS_BEGIN"
+T14A_GROUPS_BEGIN
+# foreach g [lsort [array names gcnt]] {
+#     puts [format "T14A_GROUP %-24s failing=%-6d worst=%s" $g $gcnt($g) $gworst($g)]
+# }
+# puts "T14A_GROUPS_END"
+T14A_GROUPS_END
+# set CONE {
+#     DN_VDATA        {*u_core/dn_vdata_reg*}
+#     AT_QDATA        {*u_core/at_qdata_reg*}
+#     AXIL_RDATA      {*s_axil_rdata_reg*}
+#     CONV_SILU_M3    {*u_conv*m3_reg*}
+#     XLINE_Q0_CE     {*u_engine/xline_q0_reg*}
+#     SDMA            {*u_dma/*}
+#     ATTN_DSP        {*u_attn/*}
+#     DN_LANE         {*u_dn/*}
+#     DN_SLOT         {*g_dnslot*}
+#     KV_SLOT         {*g_kvslot*}
+#     CV_SLOT         {*g_cvslot*}
+#     SCRATCH_SMEM    {*smem_*}
+#     LAYER_OTHER     {*layer_0*}
+#     MVCHAN          {*mvchan_*}
+#     SEQ             {*seq_0*}
+#     VENDOR          {*}
+# }
+# array set ccnt {}
+# array set cworst {}
+# array set cworstp {}
+# foreach p $allp {
+#     set ep [get_property ENDPOINT_PIN $p]
+#     set fam "VENDOR"
+#     foreach {name pat} $CONE { if {[string match $pat $ep]} { set fam $name; break } }
+#     if {[info exists ccnt($fam)]} { incr ccnt($fam) } else { set ccnt($fam) 1 }
+#     set s [get_property SLACK $p]
+#     if {![info exists cworst($fam)] || $s < $cworst($fam)} {
+#         set cworst($fam) $s
+#         set cworstp($fam) $p
+#     }
+# }
+# puts "T14A_CONE_TALLY_BEGIN  (over all [llength $allp] failing setup paths)"
+T14A_CONE_TALLY_BEGIN  (over all 0 failing setup paths)
+# foreach f [lsort [array names ccnt]] {
+#     set p $cworstp($f)
+#     set dl [get_property DATAPATH_DELAY $p]
+#     set lg [get_property DATAPATH_LOGIC_DELAY $p]
+#     set rt [get_property DATAPATH_NET_DELAY $p]
+#     set pct "n/a"
+#     if {$dl ne "" && $dl > 0} { set pct [format %.1f [expr {100.0*$lg/$dl}]] }
+#     puts [format "T14A_CONE %-14s n=%-6d worst=%-8s lvl=%-3s dp=%-7s logic=%-7s route=%-7s logic%=%-6s group=%s" \
+#         $f $ccnt($f) $cworst($f) [get_property LOGIC_LEVELS $p] $dl $lg $rt $pct \
+#         [get_property GROUP $p]]
+#     puts "T14A_CONE_PATH $f [get_property STARTPOINT_PIN $p] -> [get_property ENDPOINT_PIN $p]"
+# }
+# puts "T14A_CONE_TALLY_END"
+T14A_CONE_TALLY_END
+# foreach g [lsort [array names gcnt]] {
+#     set safe [regsub -all {[^A-Za-z0-9_]} $g "_"]
+#     # A path-group name that -group will not take (spaces, **async_default**)
+#     # must not kill the run: say so and move on.
+#     if {[catch {get_timing_paths -quiet -max_paths $NMAX -nworst 1 -setup \
+#                     -group $g -slack_lesser_than 0 -sort_by slack} ps]} {
+#         puts "T14A_DETAIL_SKIP $g : $ps"
+#         continue
+#     }
+#     puts "T14A_DETAIL_BEGIN $g n=[llength $ps]"
+#     foreach p $ps {
+#         set dl [get_property DATAPATH_DELAY $p]
+#         set lg [get_property DATAPATH_LOGIC_DELAY $p]
+#         set rt [get_property DATAPATH_NET_DELAY $p]
+#         set pct "n/a"
+#         if {$dl ne "" && $dl > 0} { set pct [format %.1f [expr {100.0*$lg/$dl}]] }
+#         set sp [get_property STARTPOINT_PIN $p]
+#         set ep [get_property ENDPOINT_PIN $p]
+#         set cone "VENDOR"
+#         foreach {name pat} $CONE { if {[string match $pat $ep]} { set cone $name; break } }
+#         set ssl [slr_of $sp]
+#         set esl [slr_of $ep]
+#         set xslr [expr {$ssl eq $esl ? "same" : "CROSS"}]
+#         puts [format "T14A_P %-8s %-14s lvl=%-3s dp=%-7s logic=%-7s route=%-7s logic%=%-6s %s %s->%s | %s <- %s" \
+#             [get_property SLACK $p] $cone [get_property LOGIC_LEVELS $p] \
+#             $dl $lg $rt $pct $xslr $ssl $esl $ep $sp]
+#     }
+#     puts "T14A_DETAIL_END $g"
+#     if {[llength $ps] > 0} {
+#         report_timing -of_objects $ps -path_type full_clock_expanded -input_pins \
+#             -file ${PRE}_${safe}_paths.rpt
+#         puts "T14A_WROTE ${PRE}_${safe}_paths.rpt"
+#         report_design_analysis -of_timing_paths $ps -logic_level_distribution \
+#             -file ${PRE}_${safe}_rda.rpt
+#         report_design_analysis -of_timing_paths $ps -timing -append \
+#             -file ${PRE}_${safe}_rda.rpt
+#         puts "T14A_WROTE ${PRE}_${safe}_rda.rpt"
+#     }
+# }
+# report_design_analysis -logic_level_distribution -logic_level_dist_paths 20000 \
+#     -file ${PRE}_lld.rpt
+report_design_analysis: Time (s): cpu = 00:01:06 ; elapsed = 00:00:26 . Memory (MB): peak = 11943.344 ; gain = 0.000 ; free physical = 22105 ; free virtual = 300835
+# puts "T14A_WROTE ${PRE}_lld.rpt"
+T14A_WROTE evidence/qwen9b/g5/150_t14b_cones_ckr2_lld.rpt
+# set PROBE {
+#     DN_VDATA        {*u_core/dn_vdata_reg*/D}
+#     AT_QDATA        {*u_core/at_qdata_reg*/D}
+#     AXIL_RDATA      {*s_axil_rdata_reg*/D}
+#     CONV_SILU_M3    {*u_conv*m3_reg*/D}
+#     XLINE_Q0_CE     {*u_engine/xline_q0_reg*/CE}
+# }
+# puts "T14A_PROBE_BEGIN"
+T14A_PROBE_BEGIN
+# foreach {name pat} $PROBE {
+#     set pins [get_pins -quiet -hier -filter "NAME =~ $pat"]
+#     if {[llength $pins] == 0} { puts "T14A_PROBE $name PINS=0 ABSENT"; continue }
+#     set p [lindex [get_timing_paths -quiet -to $pins -max_paths 1 -nworst 1 -setup] 0]
+#     if {$p eq ""} { puts "T14A_PROBE $name PINS=[llength $pins] no-path"; continue }
+#     set dl [get_property DATAPATH_DELAY $p]
+#     set lg [get_property DATAPATH_LOGIC_DELAY $p]
+#     set pct "n/a"
+#     if {$dl ne "" && $dl > 0} { set pct [format %.1f [expr {100.0*$lg/$dl}]] }
+#     puts [format "T14A_PROBE %-14s PINS=%-6d worst=%-8s lvl=%-3s dp=%-7s logic=%-7s route=%-7s logic%=%s" \
+#         $name [llength $pins] [get_property SLACK $p] [get_property LOGIC_LEVELS $p] \
+#         $dl $lg [get_property DATAPATH_NET_DELAY $p] $pct]
+#     puts "T14A_PROBE_PATH $name [get_property STARTPOINT_PIN $p] -> [get_property ENDPOINT_PIN $p]"
+#     report_timing -of_objects [list $p] -path_type full_clock_expanded -input_pins \
+#         -file ${PRE}_probe_[string tolower $name].rpt
+#     puts "T14A_WROTE ${PRE}_probe_[string tolower $name].rpt"
+# }
+T14A_PROBE DN_VDATA       PINS=21     worst=0.188    lvl=2   dp=3.370   logic=1.418   route=1.952   logic%=42.1
+T14A_PROBE_PATH DN_VDATA bd_i/layer_0/inst/u_core/smem_a_reg_bram_18/CLKBWRCLK -> bd_i/layer_0/inst/u_core/dn_vdata_reg[14]/D
+WARNING: [Vivado 12-1072] '-of_objects' option can't be used with options '-path_type', '-input_pins', and 'nets', These options will be ignored.
+T14A_WROTE evidence/qwen9b/g5/150_t14b_cones_ckr2_probe_dn_vdata.rpt
+T14A_PROBE AT_QDATA       PINS=228    worst=0.018    lvl=1   dp=3.928   logic=1.296   route=2.632   logic%=33.0
+T14A_PROBE_PATH AT_QDATA bd_i/layer_0/inst/u_core/smem_a_reg_bram_28/CLKBWRCLK -> bd_i/layer_0/inst/u_core/at_qdata_reg[14]_rep__10/D
+WARNING: [Vivado 12-1072] '-of_objects' option can't be used with options '-path_type', '-input_pins', and 'nets', These options will be ignored.
+T14A_WROTE evidence/qwen9b/g5/150_t14b_cones_ckr2_probe_at_qdata.rpt
+T14A_PROBE AXIL_RDATA     PINS=224    worst=0.244    lvl=6   dp=3.547   logic=1.794   route=1.753   logic%=50.6
+T14A_PROBE_PATH AXIL_RDATA bd_i/layer_0/inst/u_core/smem_a_reg_bram_10/CLKBWRCLK -> bd_i/layer_0/inst/u_core/s_axil_rdata_reg[5]/D
+WARNING: [Vivado 12-1072] '-of_objects' option can't be used with options '-path_type', '-input_pins', and 'nets', These options will be ignored.
+T14A_WROTE evidence/qwen9b/g5/150_t14b_cones_ckr2_probe_axil_rdata.rpt
+T14A_PROBE CONV_SILU_M3 PINS=27 no-path
+T14A_PROBE XLINE_Q0_CE    PINS=4096   worst=0.138    lvl=4   dp=2.915   logic=0.517   route=2.398   logic%=17.7
+T14A_PROBE_PATH XLINE_Q0_CE bd_i/mvchan_3/inst/u_chan/u_streamer/f_rd_reg[3]_replica/C -> bd_i/mvchan_3/inst/u_chan/u_engine/xline_q0_reg[10]__21/CE
+WARNING: [Vivado 12-1072] '-of_objects' option can't be used with options '-path_type', '-input_pins', and 'nets', These options will be ignored.
+T14A_WROTE evidence/qwen9b/g5/150_t14b_cones_ckr2_probe_xline_q0_ce.rpt
+# puts "T14A_PROBE_END"
+T14A_PROBE_END
+# puts "T14A_DONE"
+T14A_DONE
+INFO: [Common 17-206] Exiting Vivado at Mon Sep  7 21:28:57 2026...
+=== rc: 0
+=== end: 2026-09-07T21:29:12-06:00

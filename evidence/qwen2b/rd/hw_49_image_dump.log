@@ -1,0 +1,100 @@
+=== host: snoke  date: 2026-08-25T01:03:22-06:00
+=== tree: 01b9f0f+dirty
+=== cmd : bash -lc FABLE5_MODEL=2b /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_image_dump.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e && echo && echo '########## 0.8B nch=4 control ##########' && /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_image_dump.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e4
+=== venv: 3.12.3 numpy 2.4.6
+=== /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e
+
+--- preamble: 1526 records, 24416 B
+   [    0]       0  CSRWR  L_LAYER      <= 0x00000000
+   [    1]       1  LDC*   DDR[0x80000000] -> scratch[0x1c00] 8192 words
+   [    2]       2  CSRWR  L_ARG0       <= 0x04000000
+   [    3]       3  CSRWR  L_ARG1       <= 0x00001c00
+   [    4]       4  CSRWR  L_ARG2       <= 0x00000000
+   [    5]       5  CMD    CONVW
+    ...
+   [ 1521]    1521  CMD    DNZ
+   [ 1522]    1522  CSRWR  L_LAYER      <= 0x00000511
+   [ 1523]    1523  CSRWR  L_TCNT       <= 0x00000000
+   [ 1524]    1524  CSRWR  TCNT_SEQ     <= 0x00000001
+   [ 1525]    1525  HALT
+
+--- lite: 15978 records, 255648 B
+   [    0]       0  CSRWR  XRF[3]       <= 0x00000000
+   [    1]       1  CSRWR  XRF[4]       <= 0x00000000
+   [    2]       2  CSRWR  TCNT_SEQ     <= 0x00000001
+   [    3]       3  EMB    DDR[0x60000000 + XRF[3]<<EMBLOG2] -> scratch[0x0] 2048 words
+   [    4]       4  CSRWR  L_LAYER      <= 0x00000000
+   [    5]       5  LDC*   DDR[0x800d8000] -> scratch[0x1c00] 2048 words
+    ...
+   [15973]   15973  CSRWR  L_ARG0       <= 0x00008000
+   [15974]   15974  CSRWR  L_ARG1       <= 0x00000800
+   [15975]   15975  CSRWR  L_ARG2       <= 0x20000000
+   [15976]   15976  CMD    ALU
+   [15977]   15977  HALT
+
+--- full: 16746 records, 267936 B
+   [    0]       0  CSRWR  XRF[3]       <= 0x00000000
+   [    1]       1  CSRWR  XRF[4]       <= 0x00000000
+   [    2]       2  CSRWR  TCNT_SEQ     <= 0x00000001
+   [    3]       3  EMB    DDR[0x60000000 + XRF[3]<<EMBLOG2] -> scratch[0x0] 2048 words
+   [    4]       4  CSRWR  L_LAYER      <= 0x00000000
+   [    5]       5  LDC*   DDR[0x800d8000] -> scratch[0x1c00] 2048 words
+    ...
+   [16741]   16741  CSRWR  L_ARG1       <= 0x00001c00
+   [16742]   16742  CSRWR  L_ARG2       <= 0x00000000
+   [16743]   16743  CMD    ALU
+   [16744]   16744  AMAXL  AMAXI -> XRF[3], push OUT_FIFO
+   [16745]   16745  HALT
+
+full-step body vs artifact recs[1526:18268]: 267872 B vs 267872 B — BYTE-IDENTICAL
+preamble body vs artifact recs[0:1524]: BYTE-IDENTICAL
+
+########## 0.8B nch=4 control ##########
+=== /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e4
+
+--- preamble: 1526 records, 24416 B
+   [    0]       0  CSRWR  L_LAYER      <= 0x00000000
+   [    1]       1  LDC*   DDR[0x80000000] -> scratch[0x1000] 8192 words
+   [    2]       2  CSRWR  L_ARG0       <= 0x04000000
+   [    3]       3  CSRWR  L_ARG1       <= 0x00001000
+   [    4]       4  CSRWR  L_ARG2       <= 0x00000000
+   [    5]       5  CMD    CONVW
+    ...
+   [ 1521]    1521  CMD    DNZ
+   [ 1522]    1522  CSRWR  L_LAYER      <= 0x00000511
+   [ 1523]    1523  CSRWR  L_TCNT       <= 0x00000000
+   [ 1524]    1524  CSRWR  TCNT_SEQ     <= 0x00000001
+   [ 1525]    1525  HALT
+
+--- lite: 15882 records, 254112 B
+   [    0]       0  CSRWR  XRF[3]       <= 0x00000000
+   [    1]       1  CSRWR  XRF[4]       <= 0x00000000
+   [    2]       2  CSRWR  TCNT_SEQ     <= 0x00000001
+   [    3]       3  EMB    DDR[0x60000000 + XRF[3]<<EMBLOG2] -> scratch[0x0] 1024 words
+   [    4]       4  CSRWR  L_LAYER      <= 0x00000000
+   [    5]       5  LDC*   DDR[0x800d8000] -> scratch[0x1000] 1024 words
+    ...
+   [15877]   15877  CSRWR  L_ARG0       <= 0x00004000
+   [15878]   15878  CSRWR  L_ARG1       <= 0x00000400
+   [15879]   15879  CSRWR  L_ARG2       <= 0x10000000
+   [15880]   15880  CMD    ALU
+   [15881]   15881  HALT
+
+--- full: 16650 records, 266400 B
+   [    0]       0  CSRWR  XRF[3]       <= 0x00000000
+   [    1]       1  CSRWR  XRF[4]       <= 0x00000000
+   [    2]       2  CSRWR  TCNT_SEQ     <= 0x00000001
+   [    3]       3  EMB    DDR[0x60000000 + XRF[3]<<EMBLOG2] -> scratch[0x0] 1024 words
+   [    4]       4  CSRWR  L_LAYER      <= 0x00000000
+   [    5]       5  LDC*   DDR[0x800d8000] -> scratch[0x1000] 1024 words
+    ...
+   [16645]   16645  CSRWR  L_ARG1       <= 0x00001000
+   [16646]   16646  CSRWR  L_ARG2       <= 0x00000000
+   [16647]   16647  CMD    ALU
+   [16648]   16648  AMAXL  AMAXI -> XRF[3], push OUT_FIFO
+   [16649]   16649  HALT
+
+full-step body vs artifact recs[1526:18172]: 266336 B vs 266336 B — BYTE-IDENTICAL
+preamble body vs artifact recs[0:1524]: BYTE-IDENTICAL
+=== rc  : 0
+=== end : 2026-08-25T01:03:23-06:00

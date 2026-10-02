@@ -1,0 +1,51 @@
+# 2B emitter smoke — FABLE5_MODEL=2b, H=2048 FFN=6144, darthplagueis 2026-08-12
+# Re-run after the review fixes (single-derivation refactor).
+# No checkpoint needed: gen_layer_script/gen_token_script use random weights,
+# so the scratch map is exercised from the config geometry alone.
+# Every run self-checks each token's residual against layer_fixed.layer_decode_fx
+# (and the argmax against np.argmax), so a scratch collision aborts generation.
+
+## derived map
+H=2048 FFN=6144 STGCH=4096 STG=7168 STG_SZ=6144 BIG=13312
+PEAK_DN=21504 PEAK_ATTN=23552 PEAK_MLP=25600 PEAK=25600 SCRATCH=32768
+  X0   residual           0 +2048   -> 2048    live end-to-end
+  XN   normed          2048 +2048   -> 4096    transient, per norm
+  X8   int8 act        4096 +2048   -> 6144    transient, per matvec group
+  SCA  DN scalars      6144 +992    -> 7136    B16/A16/GD/QN/QNS/KN/DO32/OH/NH
+  STG  staging         7168 +6144   -> 13312   W/W32 window + out-proj x8
+  DN.QKV              13312 +6144   -> 19456   conv q|k|v, 16-bit
+  DN.Z16              19456 +2048   -> 21504   z branch
+  DN.ON                2048 +2048   -> 4096    gated outputs, overlays XN
+  DN.OUTSTG            9216 +4096   -> 13312   out-proj y32 stage
+  DN.OUTDST           13312 +2048   -> 15360   residual delta, overlays QKV (dead)
+  AT.QG               13312 +4096   -> 17408   q_proj out = q | gate
+  AT.K16              17408 +512    -> 17920   k_proj out
+  AT.V16              17920 +512    -> 18432   v_proj out
+  AT.QR               18432 +2048   -> 20480   roped q
+  AT.KR               20480 +512    -> 20992   roped k
+  AT.AO32              7168 +512    -> 7680    ATTN out (int32)
+  AT.OG                7680 +256    -> 7936    sigmoid gate
+  AT.GATED             7936 +2048   -> 9984    gated heads
+  AT.GX8              10048 +2048   -> 12096   o_proj x8
+  AT.OSTG             15360 +4096   -> 19456   o_proj y32 stage
+  AT.ODST             21504 +2048   -> 23552   residual delta
+  ML.GP                7168 +12288  -> 19456   gate|up int32 pairs
+  ML.SG               19456 +6144   -> 25600   silu(gate)
+  ML.DSTG             19456 +4096   -> 23552   down y32 stage (=SG)
+  ML.DDST             23552 +2048   -> 25600   residual delta
+  HD.LNF               7168 +2048   -> 9216    final-norm weight staging
+  HD.AMAX              7168 +4096   -> 11264   argmax y32 chunks
+
+## 1 DN layer + 1 GQA layer, 3 tokens (gen_layer_script), 4 seeds
+layer script: seed=1 ntok=3 cmds=770 hostwords=332368 weights=15 -> /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/438c35d2-4833-48a4-9f48-8d1e8147d6f4/scratchpad/l2b_1.txt
+layer script: seed=2 ntok=3 cmds=770 hostwords=332368 weights=15 -> /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/438c35d2-4833-48a4-9f48-8d1e8147d6f4/scratchpad/l2b_2.txt
+layer script: seed=3 ntok=3 cmds=770 hostwords=332368 weights=15 -> /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/438c35d2-4833-48a4-9f48-8d1e8147d6f4/scratchpad/l2b_3.txt
+layer script: seed=4 ntok=3 cmds=770 hostwords=332368 weights=15 -> /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/438c35d2-4833-48a4-9f48-8d1e8147d6f4/scratchpad/l2b_4.txt
+
+## legacy pair + full LM-head tail, vocab 8192 (gen_token_script)
+token script: seed=1 ntok=3 vocab=8192 nlayers=2 (DN=1 GQA=1) cmds=791 hostwords=383568 weights=16 tokens_out=[2776, 2342, 7343] -> /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/438c35d2-4833-48a4-9f48-8d1e8147d6f4/scratchpad/t2b.txt
+
+## full 24-layer model shape, 187 weight images (gen_token_script)
+token script: seed=1 ntok=2 vocab=4096 nlayers=24 (DN=18 GQA=6) cmds=7594 hostwords=2961344 weights=187 tokens_out=[3834, 341] -> /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/438c35d2-4833-48a4-9f48-8d1e8147d6f4/scratchpad/t2b24.txt
+
+# NOTE: no 2B artifact is committed — these outputs live only in scratch.

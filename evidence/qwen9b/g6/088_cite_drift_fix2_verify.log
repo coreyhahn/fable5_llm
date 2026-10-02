@@ -1,0 +1,48 @@
+=== host: snoke
+=== date: 2026-09-10T00:06:17-06:00
+=== tree: 09ed6d7+dirty
+=== cmd:  bash -c 
+set +e
+PY=/home/cah/.venv/bin/python
+echo "########## [1] the sw/chat_seq.py + ref/seq_chat.py pass"
+$PY evidence/qwen9b/o3/o3_cite_drift.py --base 4662b06 --doc-base 4662b06 --edited sw/chat_seq.py,ref/seq_chat.py --verify 2>&1 | tail -12
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [2] the docs/USAGE.md + NEXT_SESSION.md pass"
+$PY evidence/qwen9b/o3/o3_cite_drift.py --base 4662b06 --doc-base 4662b06 --edited docs/USAGE.md,NEXT_SESSION.md --verify 2>&1 | tail -8
+echo "   rc=${PIPESTATUS[0]}"
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] the sw/chat_seq.py + ref/seq_chat.py pass
+  citations  154 distinct (file, line) pairs
+  unmoved    12
+  half-ranges 1 (one endpoint unresolved — NEVER rewritten)
+  relocated  136 citation(s) checked against the base content and the citing documents
+  ! HALF-MAPPED sw/chat_seq.py:236-288 left untouched (start endpoint gone); repair by hand against `git show 4662b06:sw/chat_seq.py`, cited by evidence/qwen9b/g3/G3_1_ISA.md
+  ! UNRESOLVED ref/seq_chat.py:168 (the cited line was rewritten or deleted) cited by evidence/qwen9b/g6/RD9_GATE.md
+  ! UNRESOLVED sw/chat_seq.py:236 (the cited line was rewritten or deleted) cited by evidence/qwen9b/g3/G3_1_ISA.md
+  ! UNRESOLVED sw/chat_seq.py:239 (the cited line was rewritten or deleted) cited by evidence/qwen9b/g6/RD9_GATE.md
+  ! UNRESOLVED sw/chat_seq.py:240 (the cited line was rewritten or deleted) cited by evidence/qwen9b/g6/RD9_GATE.md
+  ! UNRESOLVED sw/chat_seq.py:526 (the cited line was rewritten or deleted) cited by evidence/qwen9b/g6/RD9_GATE.md
+  ! UNRESOLVED sw/chat_seq.py:528 (the cited line was rewritten or deleted) cited by evidence/qwen9b/g6/RD9_GATE.md
+O3_CITE_DRIFT VERIFY FAIL (6 problem(s))
+   rc=1
+
+########## [2] the docs/USAGE.md + NEXT_SESSION.md pass
+  code base  4662b06
+  doc base   4662b06
+  files      2 edited files
+  citations  38 distinct (file, line) pairs
+  unmoved    2
+  half-ranges 0 (one endpoint unresolved — NEVER rewritten)
+  relocated  36 citation(s) checked against the base content and the citing documents
+O3_CITE_DRIFT VERIFY PASS (0 problem(s))
+   rc=0
+=== rc: 0
+=== end: 2026-09-10T00:06:23-06:00

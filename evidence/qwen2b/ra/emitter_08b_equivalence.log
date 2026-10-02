@@ -1,0 +1,17 @@
+# 0.8B emitter equivalence — parameterized map vs HEAD (81f2c3f) generators
+# darthplagueis, 2026-08-12.  'old' = symlink farm over ref/ with the three
+# edited files replaced by 'git show 81f2c3f:ref/<f>'; 'new' = working tree.
+# Re-run after the review fixes (scratch_map() single-derivation refactor).
+
+BYTE-IDENTICAL  L_s1  (gen_layer_script.py 1 3)  2421331 bytes
+BYTE-IDENTICAL  L_s4  (gen_layer_script.py 4 3)  2421331 bytes
+BYTE-IDENTICAL  T_s1  (gen_token_script.py 1 3)  2909443 bytes
+BYTE-IDENTICAL  T24_s2  (gen_token_script.py 2 3 8192 24)  31354614 bytes
+BYTE-IDENTICAL  C_s3  (gen_chain_script.py 3 3 8)  10300766 bytes
+
+# Cross-check of the two committed goldens against the HEAD generator.
+# Any drift here is PRE-EXISTING (reproduced without any of my edits).
+  layer_s1.txt: STALE vs HEAD generator (pre-existing)
+  token_s1.txt: STALE vs HEAD generator (pre-existing)
+  token24_s2.txt: HEAD generator reproduces it
+  chain_s3.txt: HEAD generator reproduces it

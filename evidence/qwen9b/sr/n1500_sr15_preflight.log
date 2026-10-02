@@ -1,0 +1,87 @@
+=== host: snoke  date: 2026-09-29T05:11:08-06:00
+=== tree: cff0ac3
+=== cmd : bash evidence/qwen9b/sr/sr15_preflight.sh
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+--- [1] board lock (sw/board_lock.py --status)
+board lock  /home/cah/r2d2/code/fpga/.fable5_board.lock
+  fstype    nfs4
+  state     not held
+  identity  (empty)
+  legacy    /home/cah/r2d2/code/fpga/fable5_llm/sw/.seq.lock exists (free) — NOTHING TAKES IT ANY MORE; it is the per-checkout file O3 replaced
+--- [2] hw_server, and every vivado / hw_server / xsdb / hw_manager process on snoke
+10107 /home/cah/r2d2/sc2data/tools/Vitis/2024.2/bin/unwrapped/lnx64.o/hw_server -d -s tcp::3121
+  hw_server pid 10107 = the lab's (SR8's close)
+  all matching processes (pgrep -af 'vivado|hw_server|xsdb|hw_manager'):
+    10107 /home/cah/r2d2/sc2data/tools/Vitis/2024.2/bin/unwrapped/lnx64.o/hw_server -d -s tcp::3121
+    1132425 /home/cah/anaconda3/envs/base313/bin/python3.13 /home/cah/anaconda3/envs/base313/bin/vivado-mcp
+  established TCP connections to hw_server port 3121 (an attached hw_manager client):
+    none
+--- [3] uptime / last boot (NEXT_SESSION §1: boot 2026-09-27 07:08)
+ 05:11:09 up 1 day, 22:02,  5 users,  load average: 1.61, 1.62, 1.60
+boot: 2026-09-27 07:08
+--- [4] PCI ID at 82:00.0 (want 10ee:9038; 1e24:1525 = factory image)
+82:00.0 Serial controller [0700]: Xilinx Corporation Device [10ee:9038]
+crw-rw-rw- 1 root root 509, 36 Sep 29 04:37 /dev/xdma0_c2h_0
+crw-rw-rw- 1 root root 509, 32 Sep 29 04:37 /dev/xdma0_h2c_0
+crw-rw-rw- 1 root root 509,  0 Sep 29 04:37 /dev/xdma0_user
+xdma                  110592  0
+--- [5] what is on the board (sr8_ident.py --expect c973c18a; raw reads, no DMA) — MUST be build_041
+--- expect VERSION 0xc973c18a, caps {none}
+  MAGIC        0xfab1e001  want 0xfab1e001  OK
+  VERSION      0xc973c18a  want 0xc973c18a  OK
+  CALIB        0x0000000f  want 0x0000000f  OK
+  LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+  SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+  TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+  BM_IDENT     0xdeadc0de  want 0xdeadc0de  OK
+  SEQ_CAPS     0xdeadc0de  decoded {none}  want {none}  OK
+  CAPS_WORD    0xdeadc0de  want 0xdeadc0de  OK
+IDENT: PASS
+--- [6] the two bitstreams this session may program (size, sha256), and the twin it must NOT
+-rw-rw-r-- 1 cah cah 53080061 2026-09-29 02:06:37.210052893 -0600 synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper.bit
+  size 53080061 sha256 c4caeb096b298206c207facca031652a904962a0b0f8a27e98233342af8b4dcb
+-rw-rw-r-- 1 cah cah 53074589 2026-09-07 20:46:01.495503604 -0600 synth/out_build_041_ckr2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper.bit
+  size 53074589 sha256 eeeef897495d783aa4eb0b2b555373bbeed36182a4a754089d787b801224f031
+-rw-rw-r-- 1 cah cah 49900081 2026-09-28 21:06:28.185101851 -0600 synth/out_build_045_r2/proj/stage1.runs/impl_1/bd_wrapper.bit
+  TWIN (never programmed) sha256 de6ad3635f1fbdcd3e798350909fd9b0950a576a89c2965cc3e29147fd21acaa
+  the twin differs from the ruled file: OK
+--- [7] r2 stream .seq sha256 (FULL) vs SR11b's writes (n1161..n1164)
+  tb/scripts/w9/model_9b_s1_reordB_r2.e4.seq 117ed8b061d5662517d67f905ff1b5900520ba39eff680548e8af9a7efc17d19
+  tb/scripts/w9/model_9b_s2_reordB_r2.e4.seq 5d0a8bdd8298ea252af063041c63bb5df654a9aa834be4acb66e8772c23c6756
+  tb/scripts/w9/model_9b_s3_reordB_r2.e4.seq e35772cc8ed3e554bd3f1fbe93e2f40a754b70e2ea98adaa94d66e71a097a70c
+  tb/scripts/w9/model_9b_s4_reordB_r2.e4.seq 8b16c7b15d1f204a00bc47b3cce11f8c85dc580ee4294f069451d41155b28563
+--- [7a] r1 stream .seq sha256 (FULL) vs SR4's pins (n800's full digests)
+  tb/scripts/w9/model_9b_s1_reordB_r1.e4.seq 4e11a2ae6872970ecb61e2bb37524b7bd863815e47df1fb9c3af2fbb3218cb28
+  tb/scripts/w9/model_9b_s2_reordB_r1.e4.seq cc982e4f66be17cef279bf09dcbc36d1170a4347b68b90e31a51d5993b93bbd4
+  tb/scripts/w9/model_9b_s3_reordB_r1.e4.seq 0f85a974ffa9aa7e9431202e9346b74073fb0ab51624bb3720edb3927946fe3b
+  tb/scripts/w9/model_9b_s4_reordB_r1.e4.seq 492e0def197b635b9e64b01e2ff1637bc4f1eda4db0899961e994160274e6c95
+--- [7b] the streams this session runs (sha256 vs their .seq.json, full)
+  model_9b_s1.e4.seq 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b manifest 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b
+  model_9b_s2.e4.seq dae587343056264626a8a9ca95b339dcf8ffe3c40cc945c959367869a4fc0d95 manifest dae587343056264626a8a9ca95b339dcf8ffe3c40cc945c959367869a4fc0d95
+  model_9b_s3.e4.seq 8dfad7db118d5da4f23b31dbe451bb92519844678bafd93f4752301b3c2b1b40 manifest 8dfad7db118d5da4f23b31dbe451bb92519844678bafd93f4752301b3c2b1b40
+  model_9b_s4.e4.seq 3483d82ab91164569d06065b8c1bc2529d03d161d5df7d54b7a09e562e1b876b manifest 3483d82ab91164569d06065b8c1bc2529d03d161d5df7d54b7a09e562e1b876b
+  model_9b_s1_reordB.e4.seq 57ec3051a0d6e68ee689859bc020b44001bcce6323b8d5c78415055853bee4da manifest 57ec3051a0d6e68ee689859bc020b44001bcce6323b8d5c78415055853bee4da
+  model_9b_s1_reordB_r1.e4.seq 4e11a2ae6872970ecb61e2bb37524b7bd863815e47df1fb9c3af2fbb3218cb28 manifest 4e11a2ae6872970ecb61e2bb37524b7bd863815e47df1fb9c3af2fbb3218cb28
+  model_9b_s1_reordB_r2.e4.seq 117ed8b061d5662517d67f905ff1b5900520ba39eff680548e8af9a7efc17d19 manifest 117ed8b061d5662517d67f905ff1b5900520ba39eff680548e8af9a7efc17d19
+--- [8] chat image pins in sw/chat_seq.py (FULL sha256): r2 (SR13b n1351), r1 (SR6 n601)
+697:REORDER_B_R2_IMAGES = {
+698-    "lite": ("c78312bb293a5c2a16f94a76bfabcba5"
+699-             "6ce34937457b10b69b12b4bd02ff6d45", 39314),
+700-    "full": ("868ba4e03b26276ddb455c1fbe4aca55"
+701-             "95f9a5ff9ab734c2b017a377f2b3ad87", 40173),
+702-}
+--- [9] the admission row (sw/seq_run.py has 0x266E3AE7)
+3699:SEQ_VERSIONS[0x266E3AE7] = (
+3711:    _R2V, _R1V = 0x266E3AE7, 0xE3C2FF1E
+3732:              and parse_expect_version("0x266E3AE7") == _R2V)
+--- [10] the shipped venv
+/home/cah/.venv/bin/python 3.12.3 numpy 2.4.6
+--- [11] git (snoke's view)
+cff0ac3 tools(SR15): sr15_preflight.sh (sr8's, retargeted to R2; build_041 identity, attached hw_server clients and full-sha pins are hard checks) and sr15_predict.py (P1' absolute primary, P2' ratio, P3' census) — committed before first use
+(end status)
+--- [12] other board users
+  none
+PREFLIGHT: PASS
+=== rc  : 0
+=== end : 2026-09-29T05:11:10-06:00

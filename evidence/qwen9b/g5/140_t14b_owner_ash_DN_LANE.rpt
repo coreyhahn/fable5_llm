@@ -1,0 +1,82 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date              : Mon Sep  7 16:43:51 2026
+| Host              : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command           : report_timing -of_objects {{bd_i/layer_0/inst/u_core/g_dnslot[1].mem_reg_uram_12/CLK --> bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13/DSP_A_B_DATA_INST/A[7]}} -path_type full -input_pins -file evidence/qwen9b/g5/140_t14b_owner_ash_DN_LANE.rpt
+| Design            : bd_wrapper
+| Device            : xcvu9p-fsgd2104
+| Speed File        : -2L  PRODUCTION 1.28 03-30-2022
+| Design State      : Physopt postRoute
+| Temperature Grade : E
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.147ns  (required time - arrival time)
+  Source:                 bd_i/layer_0/inst/u_core/g_dnslot[1].mem_reg_uram_12/CLK
+                            (rising edge-triggered cell URAM288 clocked by xdma_0_axi_aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13/DSP_A_B_DATA_INST/A[7]
+                            (rising edge-triggered cell DSP_A_B_DATA clocked by xdma_0_axi_aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             xdma_0_axi_aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (xdma_0_axi_aclk rise@4.000ns - xdma_0_axi_aclk rise@0.000ns)
+  Data Path Delay:        3.832ns  (logic 1.361ns (35.512%)  route 2.471ns (64.488%))
+  Logic Levels:           1  (LUT3=1)
+  Clock Path Skew:        -0.013ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.853ns = ( 7.853 - 4.000 ) 
+    Source Clock Delay      (SCD):    4.120ns
+    Clock Pessimism Removal (CPR):    0.254ns
+  Clock Uncertainty:      0.046ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.060ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      3.905ns (routing 2.001ns, distribution 1.904ns)
+  Clock Net Delay (Destination): 3.661ns (routing 1.811ns, distribution 1.850ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock xdma_0_axi_aclk rise edge)
+                                                      0.000     0.000 r  
+    GTYE4_CHANNEL_X1Y35  GTYE4_CHANNEL                0.000     0.000 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[32].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK
+                         net (fo=7, routed)           0.085     0.085    bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/GT_TXOUTCLK[0]
+    BUFG_GT_X1Y203                                                    r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/I
+    BUFG_GT_X1Y203       BUFG_GT (Prop_BUFG_GT_I_O)
+                                                      0.130     0.215 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O
+    X2Y5 (CLOCK_ROOT)    net (fo=150232, routed)      3.905     4.120    bd_i/layer_0/inst/u_core/aclk
+    SLR Crossing[1->0]   
+    URAM288_X0Y49        URAM288                                      r  bd_i/layer_0/inst/u_core/g_dnslot[1].mem_reg_uram_12/CLK
+  -------------------------------------------------------------------    -------------------
+    URAM288_X0Y49        URAM288 (Prop_URAM_288K_INST_URAM288_CLK_DOUT_A[55])
+                                                      1.200     5.320 r  bd_i/layer_0/inst/u_core/g_dnslot[1].mem_reg_uram_12/DOUT_A[55]
+                         net (fo=2, routed)           0.970     6.290    bd_i/layer_0/inst/u_core/u_dn/g_dnslot[1].dn_rdq_b_reg[1][919]
+    SLICE_X39Y130                                                     r  bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13_i_9/I0
+    SLICE_X39Y130        LUT3 (Prop_A5LUT_SLICEL_I0_O)
+                                                      0.161     6.451 r  bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13_i_9/O
+                         net (fo=3, routed)           1.501     7.952    bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13/A[7]
+    DSP48E2_X5Y19        DSP_A_B_DATA                                 r  bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13/DSP_A_B_DATA_INST/A[7]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock xdma_0_axi_aclk rise edge)
+                                                      4.000     4.000 r  
+    GTYE4_CHANNEL_X1Y35  GTYE4_CHANNEL                0.000     4.000 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[32].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK
+                         net (fo=7, routed)           0.078     4.078    bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/GT_TXOUTCLK[0]
+    BUFG_GT_X1Y203                                                    r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/I
+    BUFG_GT_X1Y203       BUFG_GT (Prop_BUFG_GT_I_O)
+                                                      0.114     4.192 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O
+    X2Y5 (CLOCK_ROOT)    net (fo=150232, routed)      3.661     7.853    bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13/CLK
+    SLR Crossing[1->0]   
+    DSP48E2_X5Y19        DSP_A_B_DATA                                 r  bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13/DSP_A_B_DATA_INST/CLK
+                         clock pessimism              0.254     8.107    
+                         clock uncertainty           -0.046     8.061    
+    DSP48E2_X5Y19        DSP_A_B_DATA (Setup_DSP_A_B_DATA_DSP48E2_CLK_A[7])
+                                                     -0.256     7.805    bd_i/layer_0/inst/u_core/u_dn/p_1_out__2__13/DSP_A_B_DATA_INST
+  -------------------------------------------------------------------
+                         required time                          7.805    
+                         arrival time                          -7.952    
+  -------------------------------------------------------------------
+                         slack                                 -0.147    
+
+
+
+

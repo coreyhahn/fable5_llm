@@ -1,0 +1,24 @@
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+--- A: dequant scale vs the production matvec (the arbiter) ---
+  scale = m * 2**(e-15): max |y32-deq| = 0.500 lsb (<= 0.51), max rel = 1.13e-06
+  arbiter rejects m * 2**(e-16): it is 2.0x too small
+--- B: quant_linear_big == layer_fixed.quant_linear (bit for bit) ---
+  identical for (300,1024) and (1024,256) at g=128 and g=64
+--- C: int16 round trips vs the production formulas ---
+  emb16 == gen_model_script emb table (Q7.8 at res_scale 1, Q4.11 at 8); cw13 == quant_deltanet conv_w (Q2.13); W4 invariant to a power-of-2 res_scale (e shifts, w4/m/sh identical)
+--- D: --inject grammar ---
+  expansion, later-wins override, per-class validity, w8g128 rejected at parse time, and --res-scale must bite: all hold
+--- D2: w4g64s (V3) grammar + the salience code path ---
+  the 16 salience keys this harness asks for are EXACTLY the ones calib_stats/fidelity_check produce (both directions)
+  w4g64s == w4g64 wire format and reproduces it EXACTLY under a uniform salience; a skewed one changes the image; emb/dn_conv rejected; --calib-stats must bite
+--- D3: w4g64h / w4g64gptq (V4) grammar + the Hessian code path ---
+  the 9 Hessian SITES this harness asks for are EXACTLY calib_stats' (from 16 tensors, both directions)
+  w4g64gptq == w4g64h EXACTLY under a diagonal Hessian (no off-diagonal = no feedback); a correlated one changes the image; same wire format and bit rate as w4g64
+--- E: DDR bit accounting is the PACKED rate, not the ideal one ---
+  K=1024 g128 -> 4.500 b/w (ideal 4.125, +9.1%); K=2048 -> 4.250 (+3.0%); K=6144 g64 -> 4.250 (ideal 4.250)
+--- F: tied embedding / LM head independence (tiny model) ---
+  emb-only injection leaves lm_head byte-identical, and vice versa
+--- G: PPL loop smoke on the tiny model ---
+  random-weight tiny model: 196 positions, PPL=561.3546 (batch 1 vs 2 agree), lm_head:w4g128 -> 561.0849
+
+PERPLEXITY_EVAL SELFTEST PASS

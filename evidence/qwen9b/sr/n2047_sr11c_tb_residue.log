@@ -1,0 +1,16 @@
+=== host: snoke  date: 2026-09-28T13:28:05-06:00
+=== tree: e2ef302
+=== cmd : bash -c for a in "67181c6 sw/hwmap.py" "9c8e73b sw/seq_run.py,sw/chat_seq.py,ref/seq_chat.py" "966cbcf sw/seq_run.py,sw/chat_seq.py" "7e64d05 ref/seq_model.py,ref/seq_format.py" "2910d4d rtl/seq_unit.sv,rtl/seq_movers.sv,rtl/matvec_chan.sv,rtl/matvec_engine.sv"; do set -- $a; echo "== base $1 edited $2"; /home/cah/.venv/bin/python evidence/qwen9b/o3/o3_cite_drift.py --base $1 --doc-base $1 --edited $2 --plan | grep -A12 "^  tb/" | grep -E "^  tb/|^      coll"; done
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+== base 67181c6 edited sw/hwmap.py
+== base 9c8e73b edited sw/seq_run.py,sw/chat_seq.py,ref/seq_chat.py
+  tb/tb_seq_chip.sv                                              REPAIR  1  COLLATERAL   0
+== base 966cbcf edited sw/seq_run.py,sw/chat_seq.py
+  tb/tb_seq_chip.sv                                              REPAIR  1  COLLATERAL   0
+== base 7e64d05 edited ref/seq_model.py,ref/seq_format.py
+  tb/scripts/gen_chat_i1_vectors.py                              REPAIR  1  COLLATERAL   0
+== base 2910d4d edited rtl/seq_unit.sv,rtl/seq_movers.sv,rtl/matvec_chan.sv,rtl/matvec_engine.sv
+  tb/seq_stub_mvchan.sv                                          REPAIR  1  COLLATERAL   0
+=== rc  : 0
+=== end : 2026-09-28T13:28:34-06:00

@@ -1,0 +1,82 @@
+=== host: snoke  date: 2026-08-25T06:02:14-06:00
+=== tree: 33dc8a3+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/ddr_fit.py /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/ddr_fit.json
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+CROSS-CHECK: the synthetic image inventory vs the real checkpoints
+==============================================================================
+  --- 2B: 187 images, cross-check vs the safetensors headers
+      dn_in     inventory     303,169,536  checkpoint     303,169,536  OK
+      dn_out    inventory      75,497,472  checkpoint      75,497,472  OK
+      down      inventory     301,989,888  checkpoint     301,989,888  OK
+      gate_up   inventory     603,979,776  checkpoint     603,979,776  OK
+      o_proj    inventory      25,165,824  checkpoint      25,165,824  OK
+      qkv       inventory      62,914,560  checkpoint      62,914,560  OK
+      lm_head   inventory     508,559,360  checkpoint     508,559,360  OK   (tie_word_embeddings=True)
+  --- 4B: 249 images, cross-check vs the safetensors headers
+      dn_in     inventory     758,906,880  checkpoint     758,906,880  OK
+      dn_out    inventory     251,658,240  checkpoint     251,658,240  OK
+      down      inventory     754,974,720  checkpoint     754,974,720  OK
+      gate_up   inventory   1,509,949,440  checkpoint   1,509,949,440  OK
+      o_proj    inventory      83,886,080  checkpoint      83,886,080  OK
+      qkv       inventory     209,715,200  checkpoint     209,715,200  OK
+      lm_head   inventory     635,699,200  checkpoint     635,699,200  OK   (tie_word_embeddings=True)
+  --- 9B: 249 images, cross-check vs the safetensors headers
+      dn_in     inventory   1,214,251,008  checkpoint   1,214,251,008  OK
+      dn_out    inventory     402,653,184  checkpoint     402,653,184  OK
+      down      inventory   1,610,612,736  checkpoint   1,610,612,736  OK
+      gate_up   inventory   3,221,225,472  checkpoint   3,221,225,472  OK
+      o_proj    inventory     134,217,728  checkpoint     134,217,728  OK
+      qkv       inventory     335,544,320  checkpoint     335,544,320  OK
+      lm_head   inventory   1,017,118,720  checkpoint   1,017,118,720  OK   (tie_word_embeddings=False)
+
+==============================================================================
+DDR FIT — weight window 1280 MiB/chan (EMB_BASE 0x60000000 - W_BASE 0x10000000), channel span 4 GiB
+==============================================================================
+
+### map = all:w8g128
+    model   imgs     bytes/token       MiB    b/w     nch=1   busiest ch (nch=4)  % window  verdict
+    2B       187   1,936,920,576    1847.2  8.237    144.3%             464.8 MiB     36.3%  FIT PASS
+    4B       249   4,303,618,048    4104.2  8.188    320.7%            1029.8 MiB     80.4%  FIT PASS
+    9B       249   8,059,617,280    7686.2  8.125    600.5%            1927.3 MiB    150.6%  FIT FAIL   [weight images (249 wids, 2020933632 bytes packed from 0x10000000) reach chan 0 0x88750000, chan 1 0x88138000, chan 2 0x87f30000, chan 3 0x87f30000, past EMB_BASE 0x60000000]
+
+### map = all:w4g128
+    model   imgs     bytes/token       MiB    b/w     nch=1   busiest ch (nch=4)  % window  verdict
+    2B       187     996,282,368     950.1  4.237     74.2%             239.1 MiB     18.7%  FIT PASS
+    4B       249   2,201,223,168    2099.2  4.188    164.0%             526.7 MiB     41.1%  FIT PASS
+    9B       249   4,091,805,696    3902.2  4.125    304.9%             978.6 MiB     76.5%  FIT PASS
+
+### map = all:w4g64
+    model   imgs     bytes/token       MiB    b/w     nch=1   busiest ch (nch=4)  % window  verdict
+    2B       187     999,428,096     953.1  4.250     74.5%             239.9 MiB     18.7%  FIT PASS
+    4B       249   2,294,808,576    2188.5  4.366    171.0%             549.1 MiB     42.9%  FIT PASS
+    9B       249   4,215,799,808    4020.5  4.250    314.1%            1008.2 MiB     78.8%  FIT PASS
+
+==============================================================================
+PER-CHANNEL DETAIL at all:w8g128 and all:w4g128, nch=4
+==============================================================================
+    2B   all:w8g128  ch0    464.8 MiB  ch1    461.7 MiB  ch2    460.6 MiB  ch3    460.6 MiB   spread 4.1 MiB   xcheck=True
+    4B   all:w8g128  ch0   1029.8 MiB  ch1   1025.9 MiB  ch2   1024.6 MiB  ch3   1024.6 MiB   spread 5.1 MiB   xcheck=True
+    9B   all:w8g128  ch0   1927.3 MiB  ch1   1921.2 MiB  ch2   1919.2 MiB  ch3   1919.2 MiB   spread 8.1 MiB   xcheck=None
+    2B   all:w4g128  ch0    239.1 MiB  ch1    237.5 MiB  ch2    237.0 MiB  ch3    237.0 MiB   spread 2.1 MiB   xcheck=True
+    4B   all:w4g128  ch0    526.7 MiB  ch1    524.7 MiB  ch2    524.1 MiB  ch3    524.1 MiB   spread 2.6 MiB   xcheck=True
+    9B   all:w4g128  ch0    978.6 MiB  ch1    975.5 MiB  ch2    974.4 MiB  ch3    974.4 MiB   spread 4.1 MiB   xcheck=True
+
+==============================================================================
+EMBEDDING TABLE — sw/hwmap.py:206-215 seq_emb_log2 rejects non-pow2
+==============================================================================
+    EMB_BASE 0x60000000 on channel 0 only; channel span 4 GiB; EMBLOG2 range [8, 13]
+    2B   packed 2*H       row   4096 B  table     970.0 MiB  ends 0x9ca00000 (inside the 4 GiB channel)  OK  EMBLOG2=12
+    4B   packed 2*H       row   5120 B  table    1212.5 MiB  ends 0xabc80000 (inside the 4 GiB channel)  REJECTED: emb row 5120 B is not a power of two
+    4B   padded to pow2   row   8192 B  table    1940.0 MiB  ends 0xd9400000 (inside the 4 GiB channel)  OK  EMBLOG2=13
+         -> padding waste 727.5 MiB (60 % of the table)
+    9B   packed 2*H       row   8192 B  table    1940.0 MiB  ends 0xd9400000 (inside the 4 GiB channel)  OK  EMBLOG2=13
+=== rc  : 0
+=== end : 2026-08-25T06:02:14-06:00
+
+=== CORRECTION 2026-08-25 (review round 2) — appended, log body NOT rewritten
+The 9B all:w8g128 row is the REFUSED one, so hwmap.plan_weights never placed
+it and its "xcheck" reads None, not True — its per-channel footprint above
+comes from this study's independent re-implementation ALONE, with no
+cross-check against the shipped allocator.  Every other row in the table was
+placed by plan_weights and agrees with the re-implementation.

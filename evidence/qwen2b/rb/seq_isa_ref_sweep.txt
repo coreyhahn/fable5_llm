@@ -1,0 +1,128 @@
+PRE-G3.3 ROWS, KEPT AS THE RECORD -- dated note 2026-09-02 (Task 9).
+Lines marked <!--cites:noquote--> quote source that G3.3 DELETED (the
+SHAPE w8/g64 bits and the pre-versioning sw/hwmap.shape_word signature),
+not source that merely moved.  Kept verbatim as the record; the post-G3.3
+landmark for each is in evidence/qwen9b/g3/G3_3_MATVEC.md section 11.1.
+
+SEQ_ISA doc-ref sweep — round 5 (content-verdicted)
+swept 2026-08-13T12:42:33-06:00  tree 26395f3+doc-round-5  doc 842 lines
+
+51 filename refs + 7 continuation/colon-bare refs = 58 total.
+EVERY ref below is CONTENT-verified: the first cited line is
+quoted verbatim and the topic tag records the sweeper's judgement
+that the line is about what the doc sentence claims. Line-number
+existence alone (the round-3 failure mode) is not accepted.
+
+SEQ_ISA:221  rtl/seq_unit.sv:24-48              [csr-map] // AXI-Lite slave map (SEQ CSR block, 4 KB window; ISA 0x2nn space)
+SEQ_ISA:225  sw/hwmap.py:211                     [SB-base] SB = 0x6000
+SEQ_ISA:256  seq_unit.sv:1420                   [unmapped-read] else s_axil_rdata <= 32'hDEAD_C0DE;
+SEQ_ISA:265  seq_unit.sv:905-913                [start-clears] I_IDLE: if (start_req) begin
+SEQ_ISA:266  seq_unit.sv:856-876  [bare]        [reset-block] if (!rstn) begin
+SEQ_ISA:279  seq_unit.sv:1218                   [abort-bit] if (csr_wdata[1]) abort_req <= 1'b1;
+SEQ_ISA:281  docs/CHAT_SEQ_SPEC.md:145          [abort-ratified] - ABORT is CTRL[1] at SEQ+0x00 (no SEQ_ABORT register exists).
+SEQ_ISA:283  seq_unit.sv:924  [bare]            [ifetch-state] I_FETCH: begin
+SEQ_ISA:283  seq_unit.sv:925                    [abort-check] if (abort_req) begin
+SEQ_ISA:287  seq_unit.sv:1392-1393              [status-layout] 10'h001: s_axil_rdata <= {err_code, of_ovf, of_cnt,
+SEQ_ISA:293  sw/hwmap.py:287-292                [status-decode] SEQ_ST_OUTCNT_SHIFT, SEQ_ST_OUTCNT_MASK = 16, 0x7F   # S6: 5 -> 7 bits
+SEQ_ISA:302  seq_unit.sv:318                    [of-depth] localparam int OF_DEPTH = 64;
+SEQ_ISA:306  seq_unit.sv:320-322                [of-pointers] logic  [6:0] of_wp, of_rp;
+SEQ_ISA:309  sw/chat_seq.py:93                  [drain-workaround] hazard: seq_unit.sv:1049 vs :1100 of_cnt push/pop race).  This is a
+SEQ_ISA:312  seq_unit.sv:1161-1164              [of-overflow] if (of_cnt != 7'(OF_DEPTH)) begin
+SEQ_ISA:317  sw/hwmap.py:288-292                [of-ovf-flag] SEQ_ST_OF_OVF = 1 << 23   # sticky OUT-FIFO overflow: a token was DROPPED.
+SEQ_ISA:319  seq_unit.sv:1406                   [pop-guard] csr_of_pop   <= (of_cnt != 7'd0);
+SEQ_ISA:333  seq_unit.sv:696-751                [validator] // ---- validation (ref/seq_format.validate, executed in one cycle) ----
+SEQ_ISA:337  seq_unit.sv:826-832                [csr-addr] function automatic logic [31:0] csr_addr(input logic [15:0] t);
+SEQ_ISA:349  seq_unit.sv:964-968                [arg-shadow] if (r_tgt[15:12] == 4'h0) begin
+SEQ_ISA:361  seq_movers.sv:517                  [xwin-count] wire [23:0] x_wwords = 24'((len_q + 24'd3) >> 2);
+SEQ_ISA:371  seq_movers.sv:437-449              [dequant] // dequant: rshr64s(v, shift) + round-half-away, then clip
+SEQ_ISA:371  seq_movers.sv:465-480  [cont]      [clip-out] function automatic logic [31:0] clip_out(input logic signed [63:0] t,
+SEQ_ISA:379  seq_unit.sv:988-996                [mvgo-fields] OP_MVGO: begin
+SEQ_ISA:401  seq_unit.sv:1041-1053              [jmp-block] OP_JMP: begin
+SEQ_ISA:414  seq_unit.sv:844-847                [ldc-base] wire signed [63:0] ldc_base = signed'({r_hi, r_lo});
+SEQ_ISA:434  seq_unit.sv:656-659                [xrf-idx-flags] wire [3:0]  r_xrf4 = r_flags[7:4];                    // general rule
+SEQ_ISA:437  seq_unit.sv:335-339                [xrf-read] function automatic logic signed [31:0] xrf_rd(input logic [2:0] i,
+SEQ_ISA:438  layer_chan.sv:44-47                [xrf3-unsigned] // XRF[3] (token id), which is UNSIGNED — the XRFD window is raw/
+SEQ_ISA:441  seq_unit.sv:1055-1057              [xop-trunc] xrf[r_tgt[2:0]] <= xop_res[17:0];
+SEQ_ISA:449  seq_unit.sv:1241-1242              [host-xrf-write] default: if (csr_waddr[9:3] == 7'h02)      // 0x40..0x5C
+SEQ_ISA:455  seq_unit.sv:107-111                [xrf-sniff] // XRF WRITERS the SEQ must sniff, from the ARG shadow it issued itself
+SEQ_ISA:455  seq_unit.sv:820-823  [cont]        [probe-sniff] wire       cmd_wr_dynq8 = cmd_is_alu && (alu_sub == 4'd0);
+SEQ_ISA:473  rtl/seq_unit.sv:287-292            [err-codes] localparam logic [7:0] E_OPCODE = 8'h01, E_IND    = 8'h02, E_XRFIDX = 8'h03,
+SEQ_ISA:474  sw/hwmap.py:299-320                [err-table] SEQ_ERR = {
+SEQ_ISA:474  rtl/seq_movers.sv:202-206          [mover-errs] localparam logic [7:0] E_AXI      = 8'h12;   // m_axib RRESP/BRESP != OK
+SEQ_ISA:478  rtl/layer_chan.sv:12-31            [layer-map] // Register map (byte addr, 32-bit):
+SEQ_ISA:502  sw/hwmap.py:65-73                  [post-v15-regs] L_LAYER = LB + 0x30       # {kv_slot[10:8], dn_slot[4:0]} bank select  <!--cites:noquote-->
+SEQ_ISA:505  layer_chan.sv:85-116               [cmd-opcodes] // Commands (opcode, args):
+SEQ_ISA:517  rtl/vec_alu.sv:13-47               [subop-list] // op 0 DYNQ8  (len)      y = clip(rshr(a,e), -127,127), e minimal s.t.
+SEQ_ISA:524  vec_alu.sv:55-63                   [probe-bit6] // cfg_p0[6] was chosen after reading the op-8 decode: op 8 consumes cfg_p0
+SEQ_ISA:532  rtl/layer_chan.sv:2170-2301        [topk-module] // layer_topk32 — rung 4 S5 (docs/RUNG4_SPEC.md).  A 32-entry sorted
+SEQ_ISA:543  layer_chan.sv:556-580              [topk-wiring] // ==================================================================
+SEQ_ISA:543  layer_chan.sv:729-736  [cont]      [topk-read] // ---- rung 4 S5: TOPK-32 (0x48..0x58) ----
+SEQ_ISA:543  layer_chan.sv:747-748  [cont]      [tkptr-we] assign tk_ptr_we = aw_got && w_got && !s_axil_bvalid
+SEQ_ISA:548  vec_alu.sv:425-426                 [topk-export] topk_bun <= {(t_cp[0] && (op_q == 4'd10)),
+SEQ_ISA:580  rtl/matvec_chan.sv:18-20           [shape-word] //   0x14 SHAPE     W  {3'b0, g64[28], nrows[27:12], sh[11:6], ng[5:0]}  <!--cites:noquote-->
+SEQ_ISA:580  rtl/matvec_chan.sv:315-319  [cont] [shape-decode] 10'h005: begin                                        // SHAPE
+SEQ_ISA:604  ref/seq_format.py:592-593          [movx-reserved] if r.opcode == OP_MOVX and r.target:
+SEQ_ISA:605  rtl/seq_unit.sv:782-796            [movx-validator] OP_MOVX, OP_MVGO: begin
+SEQ_ISA:606  ref/seq_format.py:590-591          [mvgo-reserved] if r.opcode == OP_MVGO and (r.target >> 1):
+SEQ_ISA:623  rtl/seq_unit.sv:818                [jmp-bound] else if (r_imm >= seq_len)       begin v_bad=1; v_code=E_JMP; end
+SEQ_ISA:627  ref/seq_format.py:686              [jmp-bound-fix] if nrec is not None and r.imm32 >= nrec:
+SEQ_ISA:633  rtl/matvec_chan.sv:318             [nrows-latch] csr_static_nrows <= wdata_q[27:12];
+SEQ_ISA:636  sw/hwmap.py:36-38                  [shape-comment] # R_SHAPE layout:  {g64[28], nrows[27:12], sh[11:6], ng[5:0]}
+SEQ_ISA:639  sw/chat_seq.py:220                 [topk-base] TOPK_BASE = HW.LB + 0x48     # 0x5048 IDENT / 0x504C STATUS / 0x5050 PTR
+SEQ_ISA:649  docs/CHAT_SEQ_SPEC.md:69-73        [ovf-drain] only hard reset clears it -> drain (while halted) before every START.
+SEQ_ISA:692  rtl/layer_chan.sv:69-116           [arg-fields] // The scratchpad is 32K words, so every scratch address field below is 15
+
+58 references, 0 unresolved, 0 untagged.
+
+---------------------------------------------------------------------
+Round-5 fixes (each verified against the live file BEFORE repointing;
+old ref -> new ref, with what the old first line actually was):
+
+Enumerated by the round-3 re-reviewer:
+  :532 layer_chan.sv 1774-1908 -> 1811-1942   module layer_topk32. :1774 had
+       become an s_axib write-channel line; 1811 = module header comment,
+       1942 = its endmodule (1943-1945 are the file trailer — lint_on +
+       default_nettype — so the range stops at 1942, not EOF).
+  :371 seq_movers.sv 432-440 -> 437-449       dequant comment block. :432 had
+       become `assign ext_idle = bw_idle;`. Actual block is 437-449 (through
+       "followed by clip_out"), not the pure +5 shift 437-445.
+  :371 cont 460-475 -> 465-480                clip_out function, exactly
+       `function automatic ... clip_out` .. `endfunction`.
+  :543 cont 709-716, 727-728 -> 729-736, 747-748  TOPK read arms (TK_IDENT..
+       TK_IDX) and the tk_ptr_we decode. Old ranges pointed at XRFD/MAXP arms.
+  :580 cont 305-309 -> 308-312                SHAPE write decode (10'h005
+       begin .. g64 latch).
+  :524 vec_alu.sv 57-66 -> 55-63              "why p0[2] was impossible":
+       starts at :55 (cfg_p0[6] chosen after reading the op-8 decode) and
+       ends at :63 ("shift bit 2 for op 8 and cannot be used").
+
+Found by this round's content verdicting (quoted line was about something
+else than the doc sentence):
+  :361 seq_movers.sv 512 -> 517               "XWIN words = ceil(len/4)":
+       :512 is x_last_rsp; the expression `(len_q + 3) >> 2` is :517
+       (the +5 file shift was never applied to this ref).
+  :505 layer_chan.sv 68-97 -> 85-116          layer COMMAND opcodes list:
+       68-84 is the 15-bit-addressing preamble; the "Commands (opcode,
+       args)" list is 85-116, ending at "12 DNZ".
+  :633 matvec_chan.sv 308 -> 311              "latches wdata_q[27:12]": the
+       nrows latch is :311; :308 is the SHAPE case-item begin.
+  :517 vec_alu.sv 14-48 -> 13-47              sub-op list starts at op 0 on
+       :13; :48 is a blank comment line.
+  :692 layer_chan.sv 69-120 -> 69-116         B12.1 ARG fields: 117-120 are
+       already the S6 burst-window section.
+
+Also this round: the B11 preamble ("Recorded, not silently patched") was
+reworded — items 1 and 2 carry landed fixes and say so — which added one
+line, shifting doc refs at 620+ by +1 (622->623 etc.; reflected above).
+
+Carried forward, still deliberately not fixed (source comment, not a doc
+ref): sw/chat_seq.py:93's own text cites the pre-rung-4 "seq_unit.sv:1049
+vs :1100" push/pop race lines.
+
+Sweep method (round 5): unfiltered `<file>.<ext> : <range>` regex over the
+whole doc as ONE string, so a filename and its range may be split by a
+line wrap ("vec_alu.sv / :55-63" — a whole ref rounds 3-4 missed) and a
+range may wrap mid-hyphen ("1041- / 1053"). After each ref, comma-
+separated bare `NNN[-NNN]` tokens (across one wrap) are parsed as
+continuation refs [cont]; ` :NNN[-NNN]` tokens attach to the most recent
+filename [bare]. Every ref is then CONTENT-verdicted, not just resolved.

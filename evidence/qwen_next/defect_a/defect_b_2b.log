@@ -1,0 +1,9 @@
+FABLE5_MODEL=2b  H=2048   LM-head K = H = 2048, group g = 128
+  W4: n_in = H =  2048  -> y32 (8,), ok
+  W4: n_in = 1024        -> ValueError: cannot reshape array of size 1024 into shape (1,16,128)
+  W8: n_in = H =  2048  -> y32 (8,), ok
+  W8: n_in = 1024        -> ValueError: cannot reshape array of size 1024 into shape (1,16,128)
+
+  the vnw_/vn/alu triple at n=1024 touches 1024/2048 words (50% of the residual) with no error — the corruption starts silently and the matvec is where it stops
+
+DEFECT B: LOUD as documented (crashes at H != 1024)

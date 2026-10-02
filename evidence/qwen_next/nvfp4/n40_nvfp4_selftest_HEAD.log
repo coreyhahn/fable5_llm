@@ -1,0 +1,22 @@
+=== host: snoke  date: 2026-09-23T12:16:16-06:00
+=== tree: 8f43c42
+=== cmd : /home/cah/.venv/bin/python ref/nvfp4.py --selftest
+=== venv: 3.12.3 numpy 2.4.6
+--- A: E2M1 grid rounding, hand vectors (ties to even code) ---
+  20 hand values incl. all 7 ties: 0.25->0 0.75->1 1.25->1 1.75->2 2.5->2 3.5->4 5->4, >6 saturates
+--- B: UE4M3 encode/decode, hand vectors ---
+  16 hand values: saturation at 448, mantissa ties to even, subnormals down to 2^-9, 2^-10 -> 0, the 2^-6 boundary
+--- C: RHT round trip, orthogonality, W'x' == Wx ---
+  M M^T = I; unrotate(rotate(X)) and W'x' vs Wx: max err 1.8e-15 (< 1e-6); signs deterministic per (seed, site); two seeds give different quantized results; the diag(D) H16 order is inert (Q(yD) == Q(y)D exactly)
+--- D: dequant(quant(X)) error bounded by the grid ---
+  |x - deq| <= S * half-gap of the E2M1 interval (<= S), saturation <= S * 0.375; zero block -> zeros; per-row == scalar
+--- E: integer exactness (q2 integers, scales mu * 2^k) ---
+  2*value in {0,1,2,3,4,6,8,12}; every block scale = mu*2^k with integer mu <= 15; value == (q2*mu) * 2^k * s_t / 2 bit for bit
+--- F: weights (plain + RHT) and the accounting ---
+  (informational) outlier matrix rel err: plain 0.0796, RHT 0.1159; row_stride K=2048 -> 1152 B (4.5 b/w), K=3584 -> 2048 B (4.571 b/w), +32 bits/matrix for s_t
+--- G: A8 == fixedpoint.dyn_quant_i8 on integer vectors ---
+  150 int16 vectors: float A8 == x8 * 2^e of the shipped dyn_quant_i8, bit for bit; zero rows stay zero
+
+NVFP4 SELFTEST PASS
+=== rc  : 0
+=== end : 2026-09-23T12:16:17-06:00

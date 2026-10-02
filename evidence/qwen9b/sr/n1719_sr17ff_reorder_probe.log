@@ -1,0 +1,15 @@
+=== host: snoke  date: 2026-09-29T08:15:44-06:00
+=== tree: 1692cdc
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr17ff_reorder_probe.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+MODEL_TAG 9b
+CLI --seq-rtl r2 --nch 4               -> effective reorder='B'  check_seq_rtl -> r2 (ACCEPTED)
+CLI --seq-rtl r2 --nch 4 --reorder B   -> effective reorder='B'  check_seq_rtl -> r2 (ACCEPTED)
+CLI --seq-rtl r2 --nch 4 --reorder off -> effective reorder=None  REFUSED: --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level
+CLI --seq-rtl r2 --nch 4 --reorder A   -> effective reorder='A'  REFUSED: --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder A -- run --seq-rtl r0 for the shipped RTL level
+CLI --seq-rtl r1 --nch 4               -> effective reorder='B'  check_seq_rtl -> r1 (ACCEPTED)
+bypass ns reorder=REORDER_AUTO -> REFUSED: --seq-rtl r2 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level
+bypass ns reorder='B' -> r2 (ACCEPTED)
+=== rc  : 0
+=== end : 2026-09-29T08:15:44-06:00

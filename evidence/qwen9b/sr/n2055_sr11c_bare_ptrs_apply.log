@@ -1,0 +1,82 @@
+=== host: snoke  date: 2026-09-28T14:56:36-06:00
+=== tree: c612e51
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11c_bare_ptrs.py --apply
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  SEQ_ISA:268  seq_unit.sv:1420)  [reads outside the map return 0xDEADC0DE]  C0 52d5cab  anchor 'DEAD_C0DE'
+      1420 -> 1641   C0 :1420 "else s_axil_rdata <= 32'hDEAD_C0DE;" | HEAD :1641 "else s_axil_rdata <= 32'hDEAD_C0DE;"
+      PROVEN  'seq_unit.sv:1420)' -> 'seq_unit.sv:1641)'
+  SEQ_ISA:277  seq_unit.sv:905-913,  [what a START does not clear]  C0 52d5cab  anchor 'if (start'
+      905-913 -> 1008-1016   C0 :905 'I_IDLE: if (start_req) begin' | HEAD :1008 'I_IDLE: if (start_req) begin' .. :1016 'ist <= I_SYNC;'
+      PROVEN  'seq_unit.sv:905-913,' -> 'seq_unit.sv:1008-1016,'
+  SEQ_ISA:291  seq_unit.sv:1218, `abort_req`  [ABORT is CTRL bit 1]  C0 52d5cab  anchor 'abort_req'
+      1218 -> 1325   C0 :1218 "if (csr_wdata[1]) abort_req <= 1'b1;" | HEAD :1325 "if (csr_wdata[1]) abort_req <= 1'b1;"
+      PROVEN  'seq_unit.sv:1218, `abort_req`' -> 'seq_unit.sv:1325, `abort_req`'
+  SEQ_ISA:295  seq_unit.sv:925, in I_FETCH at :924  [PC past the end raises err 0x0C (the I_FETCH check)]  C0 9e1ee44  anchor 'abort_req'
+      925 -> 1028   C0 :925 'if (abort_req) begin' | HEAD :1028 'if (abort_req) begin'
+      924 -> 1027   C0 :924 'I_FETCH: begin' | HEAD :1027 'I_FETCH: begin'
+      PROVEN  'seq_unit.sv:925, in I_FETCH at :924' -> 'seq_unit.sv:1028, in I_FETCH at :1027'
+  SEQ_ISA:299  seq_unit.sv:1392-1393  [STATUS bit layout]  C0 9e1ee44  anchor 'of_ovf'
+      1392-1393 -> 1610-1611   C0 :1392 "10'h001: s_axil_rdata <= {err_code, of_ovf, of_cnt," | HEAD :1610 "10'h001: s_axil_rdata <= {err_code, of_ovf, of_cnt," .. :1611 "13'd0, halted_r, err_r, busy_r};"
+      PROVEN  'seq_unit.sv:1392-1393' -> 'seq_unit.sv:1610-1611'
+  SEQ_ISA:314  seq_unit.sv:318, `OF_DEPTH`  [OUT FIFO depth 64]  C0 9e1ee44  anchor 'OF_DEPTH'
+      318 -> 387   C0 :318 'localparam int OF_DEPTH = 64;' | HEAD :387 'localparam int OF_DEPTH = 64;'
+      PROVEN  'seq_unit.sv:318, `OF_DEPTH`' -> 'seq_unit.sv:387, `OF_DEPTH`'
+  SEQ_ISA:318  (seq_unit.sv:320-322)  [the OUT FIFO]  C0 9e1ee44  anchor 'of_'
+      320-322 -> 389-391   C0 :320 'logic  [6:0] of_wp, of_rp;' | HEAD :389 'logic  [6:0] of_wp, of_rp;' .. :391 'wire   [6:0] of_cnt = of_wp - of_rp;   // 0..64'
+      PROVEN  '(seq_unit.sv:320-322)' -> '(seq_unit.sv:389-391)'
+  SEQ_ISA:324  seq_unit.sv:1161-1164  [push when full sets the sticky of_ovf]  C0 9e1ee44  anchor 'of_ovf'
+      1161-1164 -> 1268-1271   C0 :1161 "if (of_cnt != 7'(OF_DEPTH)) begin" | HEAD :1268 "if (of_cnt != 7'(OF_DEPTH)) begin" .. :1271 "end else of_ovf <= 1'b1;"
+      PROVEN  'seq_unit.sv:1161-1164' -> 'seq_unit.sv:1268-1271'
+  SEQ_ISA:331  seq_unit.sv:1406)  [csr_of_pop <= (of_cnt != 0)]  C0 9e1ee44  anchor 'csr_of_pop'
+      1406 -> 1624   C0 :1406 "csr_of_pop   <= (of_cnt != 7'd0);" | HEAD :1624 "csr_of_pop   <= (of_cnt != 7'd0);"
+      PROVEN  'seq_unit.sv:1406)' -> 'seq_unit.sv:1624)'
+  SEQ_ISA:345  seq_unit.sv:696-751  [the decode validator]  C0 9e1ee44  anchor 'v_bad'
+      696-751 -> 765-850   C0 :696 '// ---- validation (ref/seq_format.validate, executed in one' | HEAD :765 '// ---- validation (ref/seq_format.validate, executed in one cycle) --' .. :850 'end'
+      PROVEN  'seq_unit.sv:696-751' -> 'seq_unit.sv:765-850'
+  SEQ_ISA:349  seq_unit.sv:826-832, `csr_addr`  [csr_id spaces, csr_addr]  C0 9e1ee44  anchor 'csr_addr'
+      826-832 -> 928-934   C0 :826 'function automatic logic [31:0] csr_addr(input logic [15:0] ' | HEAD :928 'function automatic logic [31:0] csr_addr(input logic [15:0] t);' .. :934 'endfunction'
+      PROVEN  'seq_unit.sv:826-832, `csr_addr`' -> 'seq_unit.sv:928-934, `csr_addr`'
+  SEQ_ISA:361  seq_unit.sv:964-968  [ARG0/1/2 shadow]  C0 9e1ee44  anchor 'L_ARG'
+      964-968 -> 1067-1071   C0 :964 "if (r_tgt[15:12] == 4'h0) begin" | HEAD :1067 "if (r_tgt[15:12] == 4'h0) begin" .. :1071 'end'
+      PROVEN  'seq_unit.sv:964-968' -> 'seq_unit.sv:1067-1071'
+  SEQ_ISA:373  (seq_movers.sv:517)  [ragged tail zero-padded]  C0 49f783f  anchor 'x_wwords'
+      517 -> 547   C0 :517 "wire [23:0] x_wwords = 24'((len_q + 24'd3) >> 2);" | HEAD :547 "wire [23:0] x_wwords = 24'((len_q + 24'd3) >> 2);"
+      PROVEN  '(seq_movers.sv:517)' -> '(seq_movers.sv:547)'
+  SEQ_ISA:383  seq_movers.sv:437-449,  [MOVY dequant (rshr64s + round), then clip]  C0 49f783f  anchor 'rshr64s'
+      437-449 -> 467-479   C0 :437 '// dequant: rshr64s(v, shift) + round-half-away, then clip' | HEAD :467 '// dequant: rshr64s(v, shift) + round-half-away, then clip' .. :479 '// followed by clip_out — algebraically identical '
+      PROVEN  'seq_movers.sv:437-449,' -> 'seq_movers.sv:467-479,'
+  SEQ_ISA:384  465-480) —  [the clip to int16 / int32 (clip_out)]  C0 49f783f  anchor 'clip_out'
+      465-480 -> 495-510   C0 :465 'function automatic logic [31:0] clip_out(input logic signed ' | HEAD :495 'function automatic logic [31:0] clip_out(input logic signed [63:0] t,' .. :510 'endfunction'
+      PROVEN  '465-480) —' -> '495-510) —'
+  SEQ_ISA:391  seq_unit.sv:988-996)  [MVGO dispatch]  C0 9e1ee44  anchor 'MVGO'
+      988-996 -> 1093-1101   C0 :988 'OP_MVGO: begin' | HEAD :1093 'OP_MVGO: begin' .. :1101 'end'
+      PROVEN  'seq_unit.sv:988-996)' -> 'seq_unit.sv:1093-1101)'
+  SEQ_ISA:413  seq_unit.sv:1041-  [JMP taken iff pre-decrement TCNT_SEQ != 1 (range start)]  C0 9e1ee44  anchor 'OP_JMP'
+      1041 -> 1148   C0 :1041 'OP_JMP: begin' | HEAD :1148 'OP_JMP: begin'
+      PROVEN  'seq_unit.sv:1041-' -> 'seq_unit.sv:1148-'
+  SEQ_ISA:414  1053). HAZARD  [the same range's end, on the next line]  C0 9e1ee44  anchor 'I_FETCH'
+      1053 -> 1160   C0 :1053 'end' | HEAD :1160 'end'
+      PROVEN  '1053). HAZARD' -> '1160). HAZARD'
+  SEQ_ISA:426  seq_unit.sv:844-847)  [per the indirection code]  C0 9e1ee44  anchor 'IND_'
+      844-847 -> 946-949   C0 :844 "wire signed [63:0] ldc_base = signed'({r_hi, r_lo});" | HEAD :946 "wire signed [63:0] ldc_base = signed'({r_hi, r_lo});" .. :949 ': ldc_base;'
+      PROVEN  'seq_unit.sv:844-847)' -> 'seq_unit.sv:946-949)'
+  SEQ_ISA:446  seq_unit.sv:656-659)  [the XRF index for everything else]  C0 9e1ee44  anchor 'xrf'
+      656-659 -> 725-728   C0 :656 'wire [3:0]  r_xrf4 = r_flags[7:4];                    // gen' | HEAD :725 'wire [3:0]  r_xrf4 = r_flags[7:4];                    // general rule' .. :728 'wire [2:0]  xsel   = (r_op == OP_MOVY) ? r_xrfy : '
+      PROVEN  'seq_unit.sv:656-659)' -> 'seq_unit.sv:725-728)'
+  SEQ_ISA:449  seq_unit.sv:335-339, xrf_rd  [xrf_rd]  C0 9e1ee44  anchor 'xrf_rd'
+      335-339 -> 404-408   C0 :335 'function automatic logic signed [31:0] xrf_rd(input logic [2' | HEAD :404 'function automatic logic signed [31:0] xrf_rd(input logic [2:0] i,' .. :408 'endfunction'
+      PROVEN  'seq_unit.sv:335-339, xrf_rd' -> 'seq_unit.sv:404-408, xrf_rd'
+  SEQ_ISA:453  seq_unit.sv:1055-1057)  [the asymmetric bound]  C0 9e1ee44  anchor 'xrf'
+      1055-1057 -> 1162-1164   C0 :1055 'xrf[r_tgt[2:0]] <= xop_res[17:0];' | HEAD :1162 'xrf[r_tgt[2:0]] <= xop_res[17:0];' .. :1164 "xrf_ovf <= 1'b1;"
+      PROVEN  'seq_unit.sv:1055-1057)' -> 'seq_unit.sv:1162-1164)'
+  SEQ_ISA:461  seq_unit.sv:1241-1242)  [host XRF seeding must go in-stream]  C0 9e1ee44  anchor 'xrf'
+      1241-1242 -> 1348-1349   C0 :1241 "default: if (csr_waddr[9:3] == 7'h02)      // 0x40..0x5C" | HEAD :1348 "default: if (csr_waddr[9:3] == 7'h02)      // 0x40..0x5C" .. :1349 'xrf[csr_waddr[2:0]] <= csr_wdata[17:0];'
+      PROVEN  'seq_unit.sv:1241-1242)' -> 'seq_unit.sv:1348-1349)'
+  SEQ_ISA:467  seq_unit.sv:107-111, 820-823)  [the XRF sideband]  C0 9e1ee44  anchor ['sniff', 'cmd_wr']
+      107-111 -> 120-124   C0 :107 '// XRF WRITERS the SEQ must sniff, from the ARG shadow it is' | HEAD :120 '// XRF WRITERS the SEQ must sniff, from the ARG shadow it issued itsel' .. :124 '//   ALU sub-op 8  EMUL32 + p0[6]   -> XRF[2]  (op'
+      820-823 -> 922-925   C0 :820 "wire       cmd_wr_dynq8 = cmd_is_alu && (alu_sub == 4'd0);" | HEAD :922 "wire       cmd_wr_dynq8 = cmd_is_alu && (alu_sub == 4'd0);" .. :925 'wire       cmd_wr_probe = cmd_is_alu && (alu_sub ='
+      PROVEN  'seq_unit.sv:107-111, 820-823)' -> 'seq_unit.sv:120-124, 922-925)'
+SR11C_BARE_PTRS APPLIED: 24 pointer(s) proven (24 to rewrite), 0 not provable
+=== rc  : 0
+=== end : 2026-09-28T14:56:38-06:00

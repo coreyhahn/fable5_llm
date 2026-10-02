@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Real Qwen3.5-0.8B checkpoint loader -> ref/layer_fixed.py weight dicts.
+"""Real Qwen3.5 checkpoint loader -> ref/layer_fixed.py weight dicts.
+
+Which checkpoint is loaded follows ref/model_select.py (FABLE5_MODEL;
+default 0.8b) — REPO_DIR and the config JSON both come from there.
 
 Reads the bf16 safetensors shard straight out of the local HuggingFace
 cache with numpy only (no torch, no safetensors package): a safetensors
@@ -52,8 +55,10 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import layer_ref as LR                                          # noqa: E402
+from model_select import CONFIG_JSON, REPO_DIR, TAG             # noqa: E402
 
-REPO_DIR = "models--Qwen--Qwen3.5-0.8B"
+# "models--Qwen--Qwen3.5-0.8B" -> "Qwen/Qwen3.5-0.8B" (the huggingface-cli id)
+REPO_ID = REPO_DIR[len("models--"):].replace("--", "/")
 TEXT_PREFIX = "model.language_model."
 f32 = np.float32
 
@@ -71,28 +76,41 @@ def _hf_cache_roots():
     return [r for r in roots if r]
 
 
-def find_checkpoint(path=None):
-    """Absolute path of the Qwen3.5-0.8B safetensors shard (single file)."""
+def find_checkpoints(path=None):
+    """Absolute paths of the selected model's safetensors shards, in order.
+
+    0.8B and 2B ship ONE shard; 4B ships 2 and 9B ships 4
+    (`docs/QWEN35_NEXT_FEASIBILITY.md` §1).  The published names sort into
+    shard order lexicographically (`…-00001-of-00004.safetensors`), and that
+    order is what `SafeTensors` uses for its combined header digest, so it
+    must stay deterministic — `sorted()`, never the glob's directory order.
+    """
     if path:
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"explicit checkpoint path not found: {path}")
-        return os.path.abspath(path)
+        paths = [path] if isinstance(path, str) else list(path)
+        for p in paths:
+            if not os.path.exists(p):
+                raise FileNotFoundError(f"explicit checkpoint path not found: {p}")
+        return [os.path.abspath(p) for p in paths]
     tried = []
     for root in _hf_cache_roots():
         pat = os.path.join(root, REPO_DIR, "snapshots", "*", "*.safetensors")
         tried.append(pat)
         hits = sorted(glob.glob(pat))
         if hits:
-            if len(hits) > 1:
-                raise RuntimeError(
-                    "expected ONE safetensors shard, found %d — sharded "
-                    "checkpoints are not supported by this loader:\n  %s"
-                    % (len(hits), "\n  ".join(hits)))
-            return os.path.abspath(hits[0])
+            return [os.path.abspath(h) for h in hits]
     raise FileNotFoundError(
-        "Qwen3.5-0.8B safetensors not found in the HuggingFace cache.\n"
+        f"{REPO_ID} safetensors not found in the HuggingFace cache "
+        f"(FABLE5_MODEL={TAG}).\n"
         "Looked for:\n  " + "\n  ".join(tried) + "\n"
-        "Fetch it with:  huggingface-cli download Qwen/Qwen3.5-0.8B")
+        f"Fetch it with:  huggingface-cli download {REPO_ID}")
+
+
+def find_checkpoint(path=None):
+    """First (or only) shard.  Callers that want the snapshot DIRECTORY — the
+    tokenizer lives beside the weights — should keep using this; callers that
+    read tensors want `find_checkpoints` / `SafeTensors`, which take the whole
+    shard list."""
+    return find_checkpoints(path)[0]
 
 
 # ----------------------------------------------------------------------
@@ -111,8 +129,8 @@ def bf16_to_f32(u16):
     return (np.asarray(u16, dtype=np.uint16).astype(np.uint32) << 16).view(np.float32)
 
 
-class SafeTensors:
-    """Read-only mmap view of a .safetensors file (numpy only)."""
+class _Shard:
+    """Read-only mmap view of ONE .safetensors file (numpy only)."""
 
     def __init__(self, path):
         self.path = path
@@ -126,24 +144,12 @@ class SafeTensors:
         self.data_start = 8 + hlen
         self._mm = np.memmap(path, dtype=np.uint8, mode="r")
 
-    def __contains__(self, name):
-        return name in self.header
-
-    def keys(self):
-        return self.header.keys()
-
-    def shape(self, name):
-        return tuple(self.header[name]["shape"])
-
     def raw_bytes(self, name):
         ent = self.header[name]
         b0, b1 = ent["data_offsets"]
         return self._mm[self.data_start + b0:self.data_start + b1]
 
     def get(self, name, dtype=f32):
-        """Tensor as `dtype` (default float32), always a fresh writable copy."""
-        if name not in self.header:
-            raise KeyError(f"{name!r} not in {os.path.basename(self.path)}")
         ent = self.header[name]
         if ent["dtype"] not in _DECODE:
             raise NotImplementedError(f"dtype {ent['dtype']} for {name}")
@@ -157,13 +163,110 @@ class SafeTensors:
         return np.ascontiguousarray(arr.reshape(shape), dtype=dtype)
 
 
+class SafeTensors:
+    """Read-only mmap view of a checkpoint: ONE shard or a sharded set.
+
+    Accepts a path or a list of paths.  A single-shard checkpoint behaves
+    EXACTLY as before, `header_sha` included — 0.8B's and 2B's committed
+    header digests are unchanged, which is what lets every existing json keep
+    its provenance field.
+
+    For a sharded checkpoint (4B: 2 shards, 9B: 4) `header_sha` is the sha256
+    of the per-shard header digests joined by newlines, in shard order.  It is
+    a DIFFERENT KIND of number from the single-shard one and is labelled as
+    such wherever it is published; `shard_shas` carries the per-file digests so
+    nothing is lost.
+    """
+
+    def __init__(self, path):
+        paths = [path] if isinstance(path, str) else list(path)
+        if not paths:
+            raise ValueError("SafeTensors: no checkpoint path given")
+        self.shards = [_Shard(p) for p in paths]
+        self.paths = [s.path for s in self.shards]
+        self.path = self.paths[0]
+        self.shard_shas = [s.header_sha for s in self.shards]
+        self.n_shards = len(self.shards)
+        if self.n_shards == 1:
+            self.header_sha = self.shard_shas[0]
+        else:
+            self.header_sha = hashlib.sha256(
+                "\n".join(self.shard_shas).encode()).hexdigest()
+        self.metadata = self.shards[0].metadata
+        self.header = {}
+        self._owner = {}
+        for sh in self.shards:
+            for k, ent in sh.header.items():
+                if k in self._owner:
+                    raise ValueError(
+                        f"tensor {k!r} appears in two shards: "
+                        f"{self._owner[k].path} and {sh.path}")
+                self._owner[k] = sh
+                self.header[k] = ent
+
+    def __contains__(self, name):
+        return name in self.header
+
+    def keys(self):
+        return self.header.keys()
+
+    def shape(self, name):
+        return tuple(self.header[name]["shape"])
+
+    def raw_bytes(self, name):
+        return self._owner[name].raw_bytes(name)
+
+    def get(self, name, dtype=f32):
+        """Tensor as `dtype` (default float32), always a fresh writable copy."""
+        if name not in self._owner:
+            raise KeyError(f"{name!r} not in "
+                           f"{[os.path.basename(p) for p in self.paths]}")
+        return self._owner[name].get(name, dtype)
+
+
 # ----------------------------------------------------------------------
 # config
 # ----------------------------------------------------------------------
+def load_config_full():
+    """The whole config.json (the multimodal wrapper), not just text_config."""
+    return json.load(open(CONFIG_JSON))
+
+
 def load_config():
-    p = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                     "qwen3_5_0.8b_config.json")
-    return json.load(open(p))["text_config"]
+    return load_config_full()["text_config"]
+
+
+HEAD_KEYS = ("lm_head.weight", TEXT_PREFIX + "lm_head.weight")
+
+
+def config_says_tied():
+    """`tie_word_embeddings` as the CONFIG states it — top level first.
+
+    Reading only `text_config` is a trap: the 9B carries the flag `false` at
+    the TOP level and OMITS it from `text_config`
+    (`docs/QWEN35_NEXT_FEASIBILITY.md` §1.2), so a `text_config`-only lookup
+    silently defaults to True on the one checkpoint where it is False.  The
+    tensor is still the ground truth — `checkpoint_is_tied` cross-checks the
+    two and refuses a disagreement.
+    """
+    full = load_config_full()
+    if "tie_word_embeddings" in full:
+        return bool(full["tie_word_embeddings"])
+    return bool(full["text_config"].get("tie_word_embeddings", True))
+
+
+def checkpoint_is_tied(st):
+    """Ground truth: is there a separate LM head tensor?  Raises if the config
+    flag and the checkpoint disagree — either direction is a real defect and
+    neither should be papered over."""
+    present = [k for k in HEAD_KEYS if k in st]
+    tied = not present
+    if tied != config_says_tied():
+        raise ValueError(
+            f"tie_word_embeddings disagreement: config says "
+            f"tied={config_says_tied()} but the checkpoint carries "
+            f"{present or 'no lm_head tensor'} (FABLE5_MODEL={TAG})")
+    return tied, (present[0] if present else None)
 
 
 # ----------------------------------------------------------------------
@@ -256,15 +359,22 @@ def load_model(path=None, layer_idxs=None, with_emb=True, prefix=TEXT_PREFIX):
     """Full model in layer_fixed form.
 
     Returns {"layers": [...], "ln_f": (H,) f32, "emb": (vocab,H) f32 or None,
-             "layer_types": [...], "path": str, "header_sha256": str,
-             "config": dict}.
+             "head": (vocab,H) f32 or None, "tied": bool,
+             "layer_types": [...], "path": str, "paths": [str],
+             "header_sha256": str, "shard_sha256": [str], "config": dict}.
 
     layer_idxs limits which layers are materialised (memory: the full
-    24-layer float32 model is ~2.0 GiB, the embedding another ~1.0 GiB);
-    "layers" is then a dict {idx: wf} instead of a list.
+    float32 model is ~2.0 GiB at 0.8B's 24 layers and ~16 GiB at 9B's 32,
+    the embedding another ~1.0 / ~4.1 GiB); "layers" is then a dict
+    {idx: wf} instead of a list.
+
+    `head` is the LM head.  At 0.8B/2B/4B (`tie_word_embeddings: true`) it is
+    a SEPARATE float copy of the embedding matrix — the hardware emits two
+    independent images of it and every harness here keeps them apart.  At 9B
+    it is the checkpoint's own top-level `lm_head.weight`.
     """
-    cp = find_checkpoint(path)
-    st = SafeTensors(cp)
+    cps = find_checkpoints(path)
+    st = SafeTensors(cps)
     cfg = load_config()
     types = cfg["layer_types"]
     nl = cfg["num_hidden_layers"]
@@ -275,26 +385,46 @@ def load_model(path=None, layer_idxs=None, with_emb=True, prefix=TEXT_PREFIX):
     else:
         layers = {i: load_layer(st, i, types[i], prefix) for i in layer_idxs}
 
-    emb = None
+    emb = head = None
+    tied, head_key = checkpoint_is_tied(st)
     if with_emb:
         emb = st.get(f"{prefix}embed_tokens.weight")
         if emb.shape != (cfg["vocab_size"], LR.H):
             raise ValueError(f"embed_tokens shape {emb.shape} != "
                              f"{(cfg['vocab_size'], LR.H)}")
-        if not cfg.get("tie_word_embeddings", True):
-            raise ValueError("config says untied embeddings but this loader "
-                             "returns the tied matrix as the LM head")
-        for k in ("lm_head.weight", f"{prefix}lm_head.weight"):
-            if k in st:
-                raise ValueError(f"checkpoint carries {k}: embeddings are NOT "
-                                 "tied, LM head must be loaded separately")
+        # NOTE (Track L review, finding N7, 2026-08-26) — NOT fixed here, on
+        # purpose.  `st.get` already returns "a fresh writable copy" (:220),
+        # so `.copy()` makes a SECOND full float32 table whenever the head is
+        # tied: vocab_size * H * 4 bytes = 0.95 GiB at 0.8B, **2.03 GB
+        # (1.89 GiB) at 2B**, 2.54 GB at 4B.  (9B is untied, so it pays
+        # nothing.)  That defeats the deliberate frees downstream —
+        # `ref/gen_model_script.py:525` and `ref/seq_chat.py:1375` both set
+        # `md["emb"] = None` to release the table, and `md["head"]` quietly
+        # holds an identical one.  These are shipped paths.
+        #
+        # The obvious fix is `head = emb` (alias, no copy).  It is NOT taken
+        # here because it is only safe if no consumer mutates either array in
+        # place, and that is an audit of every load_model caller in ref/, sw/
+        # and tb/scripts/ — migration work, not review work, and this track
+        # does not own those callers.  Aliasing without that audit would turn
+        # a memory cost into a silent correctness bug, which is the wrong
+        # trade.  Recorded with its price so the migration can decide.
+        head = emb.copy() if tied else st.get(head_key)
+        if head.shape != (cfg["vocab_size"], LR.H):
+            raise ValueError(f"{head_key or 'tied head'} shape {head.shape} != "
+                             f"{(cfg['vocab_size'], LR.H)}")
 
     return {"layers": layers,
             "ln_f": st.get(f"{prefix}norm.weight"),
             "emb": emb,
+            "head": head,
+            "tied": tied,
+            "head_key": head_key,
             "layer_types": list(types),
-            "path": cp,
+            "path": cps[0],
+            "paths": cps,
             "header_sha256": st.header_sha,
+            "shard_sha256": list(st.shard_shas),
             "config": cfg}
 
 
@@ -308,11 +438,17 @@ def _fmt(a):
 
 
 def _smoke():
-    cp = find_checkpoint()
-    print(f"checkpoint: {cp}")
-    print(f"            {os.path.getsize(os.path.realpath(cp)) / 2**20:.1f} MiB")
-    st = SafeTensors(cp)
-    print(f"header sha256: {st.header_sha}")
+    cps = find_checkpoints()
+    st = SafeTensors(cps)
+    tot = 0
+    for i, cp in enumerate(cps):
+        sz = os.path.getsize(os.path.realpath(cp))
+        tot += sz
+        print(f"checkpoint[{i}]: {cp}\n              {sz / 2**20:.1f} MiB  "
+              f"header sha256 {st.shard_shas[i]}")
+    print(f"{len(cps)} shard(s), {tot / 2**30:.2f} GiB")
+    print(f"header sha256: {st.header_sha}"
+          + ("" if st.n_shards == 1 else "   (combined over shards)"))
     nlm = sum(1 for k in st.keys() if k.startswith(TEXT_PREFIX))
     print(f"tensors: {len(st.header)} total, {nlm} under {TEXT_PREFIX!r} "
           f"(visual/mtp ignored)")
@@ -336,27 +472,34 @@ def _smoke():
     ln_f = st.get(f"{TEXT_PREFIX}norm.weight")
     print(f"\n  ln_f       {_fmt(ln_f)}")
     emb = st.get(f"{TEXT_PREFIX}embed_tokens.weight")
-    print(f"  emb        {_fmt(emb)}  (tied: LM head == emb)")
+    tied, head_key = checkpoint_is_tied(st)
+    print(f"  emb        {_fmt(emb)}  "
+          + ("(tied: LM head == emb)" if tied else f"(UNTIED: head is {head_key})"))
+    if not tied:
+        print(f"  lm_head    {_fmt(st.get(head_key))}")
 
     # checksums: raw-byte digest (bit-exact identity of the tensors we use)
     h = hashlib.sha256()
     h.update(bytes(st.raw_bytes(f"{TEXT_PREFIX}embed_tokens.weight")))
     print(f"\n  emb raw-bytes sha256   {h.hexdigest()}")
+    nl = cfg["num_hidden_layers"]
     h = hashlib.sha256()
-    for i in range(cfg["num_hidden_layers"]):
+    for i in range(nl):
         for k in sorted(st.keys()):
             if k.startswith(f"{TEXT_PREFIX}layers.{i}."):
                 h.update(bytes(st.raw_bytes(k)))
-    print(f"  24-layer raw-bytes sha256 {h.hexdigest()}")
+    print(f"  {nl}-layer raw-bytes sha256 {h.hexdigest()}")
     print(f"  float64 sum(|emb|)     {np.abs(emb.astype(np.float64)).sum():.6e}")
 
-    # structural cross-checks
-    assert len(types) == 24 and types.count("linear_attention") == 18 \
-        and types.count("full_attention") == 6
-    for i in range(24):
+    # structural cross-checks — against the CONFIG, not against 0.8B's numbers
+    ndn = types.count("linear_attention")
+    nfa = types.count("full_attention")
+    assert len(types) == nl and ndn + nfa == nl
+    for i in range(nl):
         p = f"{TEXT_PREFIX}layers.{i}"
         assert (f"{p}.linear_attn.A_log" in st) == (types[i] == "linear_attention")
-    print("\nLOAD_QWEN35 SMOKE PASS (24 layers = 18 DeltaNet + 6 GQA, "
+    print(f"\nLOAD_QWEN35 SMOKE PASS ({nl} layers = {ndn} DeltaNet + {nfa} GQA, "
+          f"H={LR.H} CONV_DIM={LR.CONV_DIM} LNH={LR.LNH}/LNKH={LR.LNKH}, "
           "shapes match layer_ref constants)")
 
 

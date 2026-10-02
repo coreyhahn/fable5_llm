@@ -1,0 +1,64 @@
+=== host: snoke  date: 2026-09-29T19:40:42-06:00
+=== tree: 213ade7
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11a_fix2_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+SR11a fix 2 host TDD — FABLE5_MODEL=9b
+=== seq_run: the board-admission path on mock SEQ windows
+    (a) W8 2B on build_035: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 187 images match the stream's MVGO plan; 3464 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [a] PASS the frozen 2B W8 artifact LOADS at build_035's VERSION with caps {} (reaches the upload tripwire)  -- tripped upload
+  [a] PASS ... validated at the device's layout (isa=1, printed)
+    (b) XBANK on build_041: outcome "exit 'REFUSING before any DMA: /tmp/sr11af2_fx_3cyd4div/xb/rp.e at capabilities {}: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); witho"; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xc973c18a)
+      | exit 'REFUSING before any DMA: /tmp/sr11af2_fx_3cyd4div/xb/rp.e at capabilities {}: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x0
+  [b] PASS an XBANK record (rec 4) is REFUSED at build_041's VERSION with caps {} before any DMA, naming R2  -- exit 'REFUSING before any DMA: /tmp/sr11af2_fx_3cyd4div/xb/rp.e at capabilities {}: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x0
+    (b) XBANK on build_044_r1: outcome 'exit "REFUSING before any DMA: /tmp/sr11af2_fx_3cyd4div/xb/rp.e at capabilities [\'R1\']: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); w'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xe3c2ff1e)
+      | exit "REFUSING before any DMA: /tmp/sr11af2_fx_3cyd4div/xb/rp.e at capabilities ['R1']: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op
+  [b] PASS ... and at build_044_r1_incr's VERSION with caps {R1}  -- exit "REFUSING before any DMA: /tmp/sr11af2_fx_3cyd4div/xb/rp.e at capabilities ['R1']: rec 4: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op
+    (c) XBANK on a mock {R1,R2}: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [c] PASS the XBANK stream LOADS on a mock reporting caps {R1,R2}  -- tripped upload
+    (d) W8 dry-run, no --shape-isa: outcome "exit 'REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e at capabilities {}: rec 1545: MVGO SHAPE bits 29/30 (XBANK/RBA"; events ['dev']
+      |   capabilities     {}  (default (board-free: --dry-run never reads the SEQ window))
+      |   SHAPE layout     unstated  (none stated (--dry-run: pass --shape-isa 1|2))
+      | exit 'REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e at capabilities {}: rec 1545: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without 
+  [d] PASS --dry-run of the W8 artifact without --shape-isa is REFUSED before any DMA, naming --shape-isa  -- exit 'REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e at capabilities {}: rec 1545: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without 
+    (d) W8 dry-run --shape-isa 1: outcome 'tripped upload'; events ['dev', 'upload']
+      |   weight plan: 187 images match the stream's MVGO plan; 3464 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [d] PASS ... with --shape-isa 1 it proceeds (reaches the upload tripwire)  -- tripped upload
+    (d) --shape-isa on a SEQ run: outcome 'exit "REFUSING before any DMA: --shape-isa is for --dry-run only; a SEQ run validates the stream at the DEVICE\'s SHAPE layout, hwmap.shape_isa_for_version(VERSI'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      | --- board: MAGIC=0xfab1e001 VERSION=0x54443b9f CALIB=0xf  SEQ=READY
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      | exit "REFUSING before any DMA: --shape-isa is for --dry-run only; a SEQ run validates the stream at the DEVICE's SHAPE layout, hwmap.shape_isa_for_version(VERSION) (docs/SEQ_ISA.md B17.2)"
+  [d] PASS --shape-isa on a SEQ run is REFUSED before any DMA (the layout is the device's)  -- exit "REFUSING before any DMA: --shape-isa is for --dry-run only; a SEQ run validates the stream at the DEVICE's SHAPE layout, hwmap.shape_isa_for_version(VERSION) (docs/SEQ_ISA.md B17.2)"
+  [f] PASS on a SEQ run every seq_run validate_stream call states shape_isa_for_version(VERSION) (= 2 on build_041)  -- tripped upload shape_isa seen [2, 2]
+=== chat_seq (rd_chat2b.sh's recipe) on the build_035 mock, FABLE5_MODEL=2b, in a child process
+    (with --shape-isa 1): outcome 'tripped bring_up' events ['dev', 'seq_caps_read', 'seq_caps_read', 'bring_up'] (3 s)
+      |   board      MAGIC=0xfab1e001 VERSION=0x54443b9f CALIB=0xf SEQ=READY
+      |   shape      SHAPE layout isa=1 (the device's VERSION 0x54443b9f)
+      |   caps       {} from the device's SEQ_CAPS 0xdeadc0de; template, slices and the 3 images (--seq-rtl r0) validated at it (0.4 s)
+    (without --shape-isa 1): outcome 'exit 4' events [] (3 s)
+      |   nch=4      model_w8_2b_s1.e: 68503 records, body 16742 full / 15974 lite; head image(s) [186] chunk-INTERLEAVED over 4 channels (S4)
+      | *** the template's step images fail validation: rec 22: MVGO SHAPE bits 29/30 (XBANK/RBANK) need capability R2 (B17.2); without it they are spare, must be 0  [op=0x05 fl=0x00 tgt=0x0001 imm=0x20600290 lo=0x10000000 hi=0x
+      |   (no SHAPE layout was stated and the artifact declares none: pass --shape-isa 1 for a build_034/035 artifact, whose MVGO SHAPE bit 29 is w8, or --shape-isa 2; docs/SEQ_ISA.md B17.2)
+    (mismatch --shape-isa 1): outcome 'exit 4' events ['dev', 'seq_caps_read'] (3 s)
+      |   relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x9044640
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+      | *** REFUSED before any upload: the session was built at SHAPE isa=1 but the device (VERSION 0xc973c18a) decodes isa=2
+  [e] PASS chat_seq on the 2B W8 template with --shape-isa 1 LOADS at build_035 (reaches bring_up)  -- tripped bring_up
+  [e] PASS ... without --shape-isa it is REFUSED before any upload, naming --shape-isa  -- exit 4
+  [e] PASS ... a session built at --shape-isa 1 is REFUSED at open_board on an isa=2 device (build_041), before any upload  -- exit 4
+per case: (a) 2/2  (b) 2/2  (c) 1/1  (d) 3/3  (f) 1/1  (e) 3/3
+SR11A_FIX2_HOST_TDD: 12 passed, 0 failed (5 s) -> PASS
+=== rc  : 0
+=== end : 2026-09-29T19:40:48-06:00

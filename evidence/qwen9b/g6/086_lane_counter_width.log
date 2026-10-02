@@ -1,0 +1,40 @@
+=== host: snoke
+=== date: 2026-09-10T00:00:48-06:00
+=== tree: 09ed6d7+dirty
+=== cmd:  bash -c 
+set -u
+cd /home/cah/r2d2/code/fpga/fable5_llm
+PY=/home/cah/.venv/bin/python
+G6=evidence/qwen9b/g6
+export FABLE5_MODEL=9b
+echo "########## [1] cleared, then a SHORT session (43 launches, ~5.7 s device)"
+$PY -u $G6/g6_lane_counters.py --clear
+$PY -u sw/chat_seq.py --nch 4 --ntok 24 --prompt "What is the capital of France?" 2>&1 | grep -E "^  ids |^  --> |prefill 18 lite|OUT FIFO"
+echo "########## [2] the counters over THAT session"
+$PY -u $G6/g6_lane_counters.py --read --steps 43 --tokens 24 --t 42 --out $G6/086_lanes_short.json
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] cleared, then a SHORT session (43 launches, ~5.7 s device)
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+  cleared    L_LCYC=0 L_SDMA_CYC=0
+  --> "The capital of France is **Paris**.\n\nIt is the country's most populous city and a major global center for finance"
+  ids [760, 6511, 314, 9338, 369, 2972, 57590, 159034, 271, 2064, 369, 279, 3046, 579, 1379, 91188, 3177, 321, 264, 3478, 3521, 3990, 364, 16519]   24 tok in 5.67s
+  prefill 18 lite x 126.5 ms | decode 24 full x 137.7 ms | 4.23 tok/s wall | 98% of wall was device | context 42/500 (8%)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+########## [2] the counters over THAT session
+  board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf
+  ACLK_HZ    250000000.0
+  L_LCYC     436162646 cycles = 1744.651 ms  (compute lane, busy_cmp)
+  L_SDMA_CYC 54219240 cycles = 216.877 ms  (DMA lane, busy_dma)
+  per STEP   L_LCYC 40.573 ms  L_SDMA_CYC 5.044 ms  (43 forward steps)
+  traffic    sw/tok_meter.state_bytes_per_token(42) = {'dn': 50331648, 'cv': 6291456, 'kv': 1384448, 'total': 58007552}
+             = 55.32 MiB/token  (label D, the model — DDR channel 3 holds the region)
+report -> evidence/qwen9b/g6/086_lanes_short.json
+=== rc: 0
+=== end: 2026-09-10T00:01:00-06:00

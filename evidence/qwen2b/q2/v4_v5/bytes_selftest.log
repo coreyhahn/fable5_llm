@@ -1,0 +1,19 @@
+--- A: the two feasibility byte totals, to the byte ---
+  0.8b  W4 g128 = 417,435,648 B/token  MATCH (docs/QWEN2B_FEASIBILITY.md, evidence/qwen2b/ra/MOVER_NORM.md)
+  2b    W4 g128 = 996,282,368 B/token  MATCH (docs/QWEN2B_FEASIBILITY.md, evidence/qwen2b/ra/MOVER_NORM.md)
+--- B: per-class bytes vs five COMMITTED perplexity_eval runs ---
+  ppl_08b_w4g128.json  all:w4g128                             7/7 classes agree on mats, weights AND packed bytes (417,435,648 B/token)
+  ppl_v1.json          all:w4g128,dn_conv:cw13,emb:emb16      7/7 classes agree on mats, weights AND packed bytes (996,282,368 B/token)
+  ppl_v2.json          all:w4g64,dn_conv:cw13,emb:emb16       7/7 classes agree on mats, weights AND packed bytes (999,428,096 B/token)
+  ppl_v5.json          all:w8g128,dn_conv:cw13,emb:emb16      7/7 classes agree on mats, weights AND packed bytes (1,936,920,576 B/token)
+  ppl_v4mix_top3.json  all:w4g64,gate_up:w8g128,lm_head:w8g128,dn_in:w8g128,dn_conv:cw13,emb:emb16 7/7 classes agree on mats, weights AND packed bytes (1,707,282,432 B/token)
+--- C: the 4-channel split vs MOVER_NORM.md section 3.1 ---
+  0.8b  nch=4 beats per channel [1643280, 1629456, 1624848, 1624848] -> busiest 1,643,280  MATCH
+  2b    nch=4 beats per channel [3915664, 3889552, 3880848, 3880848] -> busiest 3,915,664  MATCH
+--- D: the W8 row law ---
+  0.8b  W8 everywhere = 793,382,912 B/token = 1.9006x W4 g128, 8.4414 b/w (ideal 8.125, +3.89%)
+  2b    W8 everywhere = 1,936,920,576 B/token = 1.9441x W4 g128, 8.2366 b/w (ideal 8.125, +1.37%)
+--- E: map grammar ---
+  later-wins override, emb/dn_conv ignored with a note, partial maps and unknown names rejected
+
+BYTES_PER_TOKEN SELFTEST PASS

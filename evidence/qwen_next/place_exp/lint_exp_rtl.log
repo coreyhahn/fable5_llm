@@ -1,0 +1,32 @@
+=== Track P — Verilator lint of the experiment RTL (fix round) ===
+host: darthplagueis  date: 2026-08-25T22:49:13-06:00
+tree: 161ce2e8  (47 dirty files)
+verilator: Verilator 5.020 2024-01-01 rev (Debian 5.020-1)
+
+NB: explicit file order, NOT a glob — fx_pkg.sv must precede its importers
+    or Verilator fails with PKGNODECL.  Same order as exp_ooc.tcl:78-81.
+
+--- BASE (as built)                     
+    args: <defaults>
+    exit=0  (0 = clean under -Wall)
+--- WIDE 4B/9B                          
+    args: -GLNH=32 -GN_DN=24 -GN_KV=8 -GNKVH=4 -GCVD=8192
+    exit=0  (0 = clean under -Wall)
+--- INT8 unpacked                       
+    args: -GLNH=32 -GN_DN=24 -GN_KV=8 -GNKVH=4 -GCVD=8192 -GDN_EW=8
+    exit=0  (0 = clean under -Wall)
+--- INT8 packed + write combiner        
+    args: -GLNH=32 -GN_DN=24 -GN_KV=8 -GNKVH=4 -GCVD=8192 -GDN_EW=8 -GDN_PACK=1
+    exit=0  (0 = clean under -Wall)
+--- INT8 packed, naive partial write    
+    args: -GLNH=32 -GN_DN=24 -GN_KV=8 -GNKVH=4 -GCVD=8192 -GDN_EW=8 -GDN_PACK=2
+    exit=0  (0 = clean under -Wall)
+--- WIDE + registered crossing, depth 1 
+    args: -GLNH=32 -GN_DN=24 -GN_KV=8 -GNKVH=4 -GCVD=8192 -GDN_PIPE=1
+    exit=0  (0 = clean under -Wall)
+--- WIDE + registered crossing, depth 2 
+    args: -GLNH=32 -GN_DN=24 -GN_KV=8 -GNKVH=4 -GCVD=8192 -GDN_PIPE=2
+    exit=0  (0 = clean under -Wall)
+--- WIDE + depth 2, PER-BANK fan-out    
+    args: -GLNH=32 -GN_DN=24 -GN_KV=8 -GNKVH=4 -GCVD=8192 -GDN_PIPE=2 -GDN_BPG=1
+    exit=0  (0 = clean under -Wall)

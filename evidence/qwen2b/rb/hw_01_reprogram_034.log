@@ -1,0 +1,54 @@
+=== resident BEFORE (foreign) ===
+removed 0000:82:00.0 from PCI tree
+# if {[llength $argv] < 1} { puts "FATAL: need <bitfile>"; exit 1 }
+# if {![file exists $bit]} { puts "FATAL: $bit not found"; exit 1 }
+# if {$dev eq ""} { puts "FATAL: no xcvu9p device on JTAG"; exit 1 }
+# puts "PROGRAM_OK: $bit"
+PROGRAM_OK: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_034_po2_AltSpreadLogic_high/proj/stage1.runs/impl_1/bd_wrapper.bit
+rescan OK: 82:00.0 Serial controller: Xilinx Corporation Device 9038
+MAGIC   0xfab1e001 (want 0xfab1e001)
+VERSION 0x4f908df2 (want 0x4f908df2)
+CALIB   0xf (want 0xf)
+LAYER   0xfab1e5a0 (want 0xfab1e5a0)
+SEQ     0xfab1e5e0 (want 0xfab1e5e0)
+TOPK    0xfab1704b (want 0xfab1704b)
+UPTIME  0x3437f0da 0x00000001
+EMBLOG2 (0x6060) = 11 (reset want 11)
+
+======================================================================
+APPENDED 2026-08-16, AFTER THE FACT — PRE-REPROGRAM READBACK
+======================================================================
+PROVENANCE, stated plainly: the block below was NOT tee'd to this file at
+the time.  The "=== resident BEFORE (foreign) ===" header above was echoed
+inside the reprogram command, but the readback itself had been run as a
+SEPARATE command a few minutes earlier and its output went only to the
+session transcript.  The text below is transcribed verbatim from that
+transcript.  It is a real readback, not a reconstruction, but it is
+NOT independently reproducible now and should be weighted accordingly.
+
+Command (run on snoke, project sw/ dir, before `pcie_helper.sh remove`):
+  ./.venv/bin/python -c "<the docs/USAGE.md §1 identity snippet>"
+
+Output:
+  MAGIC   0xfab1e001 (want 0xfab1e001)
+  VERSION 0x4b15b576
+  CALIB   0xf (want 0xf)
+  LAYER   0xfab1e5a0 (want 0xfab1e5a0)
+  SEQ     0xfab1e5e0 (want 0xfab1e5e0)
+  TOPK    0xfab1704b (want 0xfab1704b)
+
+The corroborating evidence for attributing 0x4b15b576 to the
+grok46_llm/fable5 worktree was a MTIME CORRELATION -- /dev/xdma0_* node
+mtimes of 2026-08-15 14:23 (that session's rescan) against that worktree's
+sw/ mtime of 14:25.  THAT CORRELATION IS NO LONGER REPRODUCIBLE: the
+rescan performed by this gate at 2026-08-16 13:51 rewrote the /dev/xdma0_*
+node mtimes.  Treat the worktree attribution as UNCONFIRMED.
+
+What is NOT in doubt, and needs no readback to establish: the resident
+bitstream was not build_033's.  `git rev-parse` shows 4b15b57 is a real
+commit in this repository (2026-08-15 05:54), and NONE of the 34 build
+directories under synth/out_build_*/ stamps it -- every one was checked
+(`head -3 build.log | grep create_project`), and the five most recent
+stamp 9e1e0bae, 4d71adcc, 0c991953, 33d720e5 and 4f908df2.  The
+board-sharing follow-on rests on that, not on the readback.
+======================================================================

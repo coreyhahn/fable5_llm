@@ -1,0 +1,24 @@
+=== host: snoke
+=== date: 2026-08-31T07:22:25-06:00
+=== tree: 78cea11+dirty
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/g2/damage_defect_b.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=0.8b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+damage_defect_b: FABLE5_MODEL=0.8b  H=1024  RS_F=8
+[1] the fix is in — no hard 1024 argument on the online step() path
+  PASS sw/infer.py has a step() method to inspect
+  PASS no call inside step() passes a literal 1024
+  PASS the AMAX32 staging chunk 2048 is still a literal (it is an ISA limit, not H)
+[2] the damage is detectable — the three SILENT lines, measured
+  PASS at H=1024 the damaged width IS the true width, so the two agree exactly — this geometry cannot detect defect B and says so
+[3] the fourth line still raises — matvec_y32 refuses n_in=1024
+  PASS CONTROL: matvec_y32 accepts an H-wide activation against an H-wide head
+  PASS at H=1024 there is nothing for it to refuse (n_in IS H)
+damage_defect_b: 6 passed, 0 failed
+=== rc: 0
+=== end: 2026-08-31T07:22:26-06:00

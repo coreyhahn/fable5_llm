@@ -1,0 +1,113 @@
+=== host: snoke  date: 2026-09-28T00:34:42-06:00
+=== tree: 9943a11
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr_derive.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== PREDICTIONS AND BANDS (written before any SR5b chip run)
+  s1 token-4 body window prediction 27136513 cyc = 108.546 ms (n120:17 B:R1; SR4 replay n410:49)
+  model board tok/s at that window: 1000 / (108.546 x 1.04562) = 8.811 (n120's GRID B:R1 r=0 uni 8.811)
+  BAND held  +-0.5 %: 27000830.4 .. 27272195.6 cyc (+-135682.6)
+  BAND loose +-2 %  : 26593782.7 .. 27679243.3 cyc (+-542730.3); outside = STOP before any build
+  s2..s4: whole-run R1/S1-B < 1 and within +-0.5 % of s1's R1/S1-B; R1/shipped within +-0.5 % of s1's R1/shipped; outside +-0.5 % attribute, outside +-2 % STOP
+  S1-B whole-run references (T, SV1 §3): s1 171731320, s2 171731695, s3 171731695, s4 171731425
+  shipped whole-run references (T, S4_REPLAY:398-401): s1 196706821, s2 196707670, s3 196707670, s4 196706833
+  informational whole-run model (SV1's method on the r1 segments; NO band):
+    s1: segments [(32771865, 27121551), (32776832, 27128540), (32782160, 27129666), (32786868, 27136513)]; body x3; token windows 196691461, outside 15360; PREDICTED whole run 162804656 cyc = 108.536 ms/token; x shipped 1.2082; R1/S1-B 0.94802; R1/shipped 0.82765
+    s2: segments [(32782160, 27129666), (32786868, 27136513)]; body x5; token windows 196716500, outside -8830; PREDICTED whole run 162803401 cyc = 108.536 ms/token; x shipped 1.2083; R1/S1-B 0.94801; R1/shipped 0.82764
+    s3: segments [(32782160, 27129666), (32786868, 27136513)]; body x5; token windows 196716500, outside -8830; PREDICTED whole run 162803401 cyc = 108.536 ms/token; x shipped 1.2083; R1/S1-B 0.94801; R1/shipped 0.82764
+    s4: segments [(32771865, 27121551), (32776832, 27128540), (32782160, 27129666), (32786868, 27136513)]; body x3; token windows 196691461, outside 15372; PREDICTED whole run 162804668 cyc = 108.536 ms/token; x shipped 1.2082; R1/S1-B 0.94802; R1/shipped 0.82765
+
+=== MEASURED (the chip-TB runs on the SR5a binary)
+  s1: MEASURED 162967117 cyc = 108.645 ms/token; x shipped 1.2070; x S1-B 1.0538; R1/S1-B 0.94897; R1/shipped 0.82848; vs the informational whole-run model +162461 cyc = +0.100 %; tokens IDENTICAL; runner PASS; wall 7776 s; n560_sr5b_chip_s1_r1_control.log
+  s1: board-scaled (uniform assumption, MODEL) 113.602 ms/token = 8.803 tok/s (shipped 7.293, S1-B 8.353)
+  s2: MEASURED 162965710 cyc = 108.644 ms/token; x shipped 1.2070; x S1-B 1.0538; R1/S1-B 0.94896; R1/shipped 0.82847; vs the informational whole-run model +162309 cyc = +0.100 %; tokens IDENTICAL; runner PASS; wall 7801 s; n561_sr5b_chip_s2_r1_control.log
+  s2: board-scaled (uniform assumption, MODEL) 113.601 ms/token = 8.803 tok/s (shipped 7.293, S1-B 8.353)
+  s3: MEASURED 162965710 cyc = 108.644 ms/token; x shipped 1.2070; x S1-B 1.0538; R1/S1-B 0.94896; R1/shipped 0.82847; vs the informational whole-run model +162309 cyc = +0.100 %; tokens IDENTICAL; runner PASS; wall 7687 s; n562_sr5b_chip_s3_r1_control.log
+  s3: board-scaled (uniform assumption, MODEL) 113.601 ms/token = 8.803 tok/s (shipped 7.293, S1-B 8.353)
+  s4: MEASURED 162967195 cyc = 108.645 ms/token; x shipped 1.2070; x S1-B 1.0538; R1/S1-B 0.94897; R1/shipped 0.82848; vs the informational whole-run model +162527 cyc = +0.100 %; tokens IDENTICAL; runner PASS; wall 7812 s; n563_sr5b_chip_s4_r1_control.log
+  s4: board-scaled (uniform assumption, MODEL) 113.602 ms/token = 8.803 tok/s (shipped 7.293, S1-B 8.353)
+
+=== s1 timeline run n564_sr5b_chip_s1_r1_timeline.log: whole run 162967117 cyc; = the control (162967117): YES; tokens IDENTICAL; runner PASS
+  per token (cycles): shipped (BN1 003) / S1-B (SV1 n57) / R1
+    token 0: 211 / 211 / 17197 = 0.069 ms; x shipped 0.0123; x S1-B 0.0123
+    token 1: 32771865 / 28609264 / 27146851 = 108.587 ms; x shipped 1.2072; x S1-B 1.0539
+    token 2: 32776832 / 28614374 / 27155684 = 108.623 ms; x shipped 1.2070; x S1-B 1.0537
+    token 3: 32782160 / 28619267 / 27156626 = 108.627 ms; x shipped 1.2072; x S1-B 1.0539
+    token 4: 32786868 / 28624410 / 27163998 = 108.656 ms; x shipped 1.2070; x S1-B 1.0538
+    token 5: 32792031 / 28629428 / 27169211 = 108.677 ms; x shipped 1.2070; x S1-B 1.0537
+    token 6: 32796845 / 28634359 / 27157543 = 108.630 ms; x shipped 1.2077; x S1-B 1.0544
+  s1 TOKEN-4 BODY WINDOW 27163998 cyc = 108.656 ms vs prediction 27136513: +27485 cyc = +0.101 % -> s1 HELD (within +-0.5 %)
+  s1 token-4 board-scaled (MODEL) 8.802 tok/s vs the model's 8.811
+
+=== s2..s4 whole-run ratios against s1's (R1/S1-B 0.948966, R1/shipped 0.828477)
+  s2: R1/S1-B 0.948955 (< 1: True; vs s1 -0.0011 % -> HELD (within +-0.5 %)); R1/shipped 0.828466 (vs s1 -0.0013 % -> HELD (within +-0.5 %)) -> s2 HELD (within +-0.5 %)
+  s3: R1/S1-B 0.948955 (< 1: True; vs s1 -0.0011 % -> HELD (within +-0.5 %)); R1/shipped 0.828466 (vs s1 -0.0013 % -> HELD (within +-0.5 %)) -> s3 HELD (within +-0.5 %)
+  s4: R1/S1-B 0.948965 (< 1: True; vs s1 -0.0000 % -> HELD (within +-0.5 %)); R1/shipped 0.828478 (vs s1 +0.0000 % -> HELD (within +-0.5 %)) -> s4 HELD (within +-0.5 %)
+
+=== BAND VERDICT, every stream
+  s1: HELD (within +-0.5 %)
+  s2: HELD (within +-0.5 %)
+  s3: HELD (within +-0.5 %)
+  s4: HELD (within +-0.5 %)
+  tokens IDENTICAL and runner PASS: 4/4 control runs
+
+=== per-class attribution, token 4, s1 R1; CSV sha256 1f586cbfb3f2fcd2 MATCH (committed 1f586cbfb3f2fcd2)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  model: body 118911..158534; replay of the emitted r1 order 27136513 cyc (prediction 27136513: REPRODUCED)
+  model walk: lane end 27136513, tail after the last record 0, makespan 27136513 (= replay)
+  emitted body == the r1 stream's body 120552..160722: 40171/40171 records identical (the JMP by opcode; its target is remapped)
+  measured token 4: sum of per-record windows 27163998 cyc; SEQ_TIMELINE tcyc 4 = 27163998; difference +0 (the launch/record edge the rows do not hold)
+  model total 27136513 (= 27136513); measured rows 27163998; measured - model +27485 cyc
+  BY CLASS (token 4, cycles): records | model | measured | measured - model | share of the gap
+    CMD+ARG   35284 |  10710770 |  10730078 |   +19308 = +0.0772 ms = +0.0712 % of the prediction | +70.2 %
+    FENCE      1370 |   9971687 |   9980593 |    +8906 = +0.0356 ms = +0.0328 % of the prediction | +32.4 %
+    LDC         161 |    320718 |    320125 |     -593 = -0.0024 ms = -0.0022 % of the prediction | -2.2 %
+    MVGO       1370 |     43928 |     43840 |      -88 = -0.0004 ms = -0.0003 % of the prediction | -0.3 %
+    EMB           1 |      4710 |      4662 |      -48 = -0.0002 ms = -0.0002 % of the prediction | -0.2 %
+    JMP           1 |        39 |        39 |       +0 = +0.0000 ms = +0.0000 % of the prediction | +0.0 %
+    CSRWR        88 |       264 |       264 |       +0 = +0.0000 ms = +0.0000 % of the prediction | +0.0 %
+    AMAXL         1 |        17 |        17 |       +0 = +0.0000 ms = +0.0000 % of the prediction | +0.0 %
+    (tail)        0 |         0 |         0 |       +0 = +0.0000 ms = +0.0000 % of the prediction | +0.0 %
+    MOVX        516 |   3237088 |   3237088 |       +0 = +0.0000 ms = +0.0000 % of the prediction | +0.0 %
+    MOVY       1370 |   2847256 |   2847256 |       +0 = +0.0000 ms = +0.0000 % of the prediction | +0.0 %
+    XOP           9 |        36 |        36 |       +0 = +0.0000 ms = +0.0000 % of the prediction | +0.0 %
+  FENCE records in the body: 1370 (x 4 tokens = 5480 + the unrolled segments; the stream carries 5480 by the pass's hazard line in n410); masks single-channel: True
+    zero-wait in the model: 981 FENCEs; measured window sum 22563 = mean 23.00 cyc/record (min 23, max 23); most common [(23, 981)]  <- the per-record cost the model does not charge
+    waiting in the model: 389 FENCEs; model wait 9971687, measured 9958030, measured - model -13657 cyc (= -35.11 cyc/FENCE)  <- the single-channel poll-tail error (+ that FENCE's own record cost)
+    FENCE windows by the class of the stream drained (n, model, measured, measured - model; ms):
+      DN   dn_out       96    0.783    0.744  -0.0381
+      DN   mlp_gate    192    6.208    6.221  +0.0121
+      DN   mlp_down     96    6.552    6.561  +0.0088
+      DN   in_b         96    0.002    0.009  +0.0068
+      DN   in_a         96    0.020    0.026  +0.0068
+      DN   in_z         96    1.860    1.867  +0.0068
+      DN   in_qkv       96    5.489    5.495  +0.0068
+      DN   mlp_up      192    6.302    6.308  +0.0057
+      GQA  mlp_gate     64    2.070    2.074  +0.0040
+      GQA  mlp_down     32    2.191    2.194  +0.0030
+      GQA  k_proj       32    0.000    0.003  +0.0029
+      GQA  v_proj       32    0.000    0.003  +0.0029
+      GQA  q_proj       32    1.389    1.391  +0.0026
+      GQA  o_proj       32    0.361    0.363  +0.0020
+      GQA  mlp_up       64    2.101    2.103  +0.0018
+      HEAD lm_head     122    4.560    4.560  +0.0007
+  lane work by opcode, token 4 (ms): S1-B measured (SV1 CSV, sha MATCH) -> R1 measured (delta)
+    AMAXL      0.000 ->     0.000 (+0.0000)
+    CMD       42.594 ->    42.603 (+0.0084)
+    CSRWR      0.319 ->     0.319 (+0.0000)
+    EMB        0.019 ->     0.019 (-0.0002)
+    FENCE     45.770 ->    39.922 (-5.8475)
+    JMP        0.000 ->     0.000 (+0.0000)
+    LDC        1.282 ->     1.280 (-0.0020)
+    MOVX      12.948 ->    12.948 (+0.0000)
+    MOVY      11.389 ->    11.389 (+0.0000)
+    MVGO       0.176 ->     0.175 (-0.0004)
+    XOP        0.000 ->     0.000 (+0.0000)
+SR_DERIVE: DONE
+=== rc  : 0
+=== end : 2026-09-28T00:34:48-06:00

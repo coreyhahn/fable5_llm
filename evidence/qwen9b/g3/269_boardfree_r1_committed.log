@@ -1,0 +1,109 @@
+=== host: snoke
+=== date: 2026-09-02T08:05:01-06:00
+=== tree: 89b2d7d
+=== cmd:  bash evidence/qwen2b/rd/rd_boardfree.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== version constants in the tree ===
+seq_run.py:106:EXPECTED_SEQ_VERSION = 0x54443B9F  # build_035_fp2a_exc_po (R-d: W8 engine mode,
+infer.py:97:EXPECT_VERSION = 0x54443B9F  # build_035_fp2a_exc_po (R-d: W8 engine mode)
+
+=== make seq_selftest ===
+.venv/bin/python -u seq_run.py --selftest
+seq_run selftest (pure python, no board):
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py", line 2613, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py", line 2413, in main
+    raise SystemExit(0 if _selftest() else 1)
+                          ^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py", line 1663, in _selftest
+    art = Artifacts(p)
+          ^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py", line 171, in __init__
+    SF.validate_stream(self.recs)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 573, in validate_stream
+    validate(r, nrec=n, idx=i)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 522, in validate
+    bad(f"MVGO SHAPE ng {ng} outside the engine envelope "
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 479, in bad
+    raise SeqValidationError(f"{where}{msg}  [{_disasm_raw(r)}]")
+seq_format.SeqValidationError: rec 108: MVGO SHAPE ng 0 outside the engine envelope 1..96 (imm32=0x00010148); rtl/matvec_engine.sv MAX_NG  [op=0x05 fl=0x00 tgt=0x0000 imm=0x00010148 lo=0x10480000 hi=0x00009000]
+make: *** [Makefile:89: seq_selftest] Error 1
+=== make serve_test ===
+.venv/bin/python -u serve.py --selftest
+serve.py selftest (no board):
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template OFF (--raw)
+  chat template (T4/T5/T8) in BoardBackend/MockBackend.encode:
+  rung 4 S4: the per-request nch assertion
+  sampling request fields, refusal path and telemetry (S5)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  chat_seq API the adapter depends on (/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py):
+    chat_seq.ChatSession                                       ok
+    chat_seq.SeqLock                                           ok
+    chat_seq.ChatSeqError                                      ok
+    chat_seq.load_tokenizer                                    ok
+    chat_seq.TEMPLATE_PREFIX                                   ok
+    chat_seq.T_MAX                                             ok
+    chat_seq.ChatTemplate                                      ok
+    chat_seq.CHAT_STOP_IDS                                     ok
+    chat_seq.TOK_IM_START                                      ok
+    chat_seq.TOK_IM_END                                        ok
+    chat_seq.TOK_THINK                                         ok
+    chat_seq.TOK_THINK_END                                     ok
+    chat_seq.HF_REF_SINGLE                                     ok
+    chat_seq.HF_REF_3MSG_INCR                                  ok
+    ChatTemplate.turn_ids(self, text, system=None, first=True, carry=None) ok
+    ChatTemplate.render(self, messages, add_generation_prompt=True) ok
+    ChatTemplate.visible(self, ids)                            ok
+    ChatSession.open_board(self)                               ok
+    ChatSession.bring_up(self)                                 ok
+    ChatSession.preamble(self)                                 ok
+    ChatSession.step(self, tok, lite)                          ok
+    ChatSession.plan_turn(self, ids, ntok)                     ok
+    ChatSession.attach_template(self, tk, log=<built-in function print>) ok
+    ChatSession.truncate_history(self, ids, ntok)              ok
+    SeqLock.acquire()                                          ok
+    SeqLock.release()                                          ok
+    args namespace covers chat_seq's args.* reads              ok
+  backend API check: PASS
+  serve selftest: 85 passed, 0 failed
+=== chat_seq --selftest ===
+chat_seq selftest (pure python, NO board):
+  [1] template source, frozen sha256, spec slice indices
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5490, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5351, in main
+    raise SystemExit(0 if selftest(args) else 1)
+                          ^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 3158, in selftest
+    recs, blob, meta = load_template(args.template)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 451, in load_template
+    SF.validate_stream(recs)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 573, in validate_stream
+    validate(r, nrec=n, idx=i)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 522, in validate
+    bad(f"MVGO SHAPE ng {ng} outside the engine envelope "
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 479, in bad
+    raise SeqValidationError(f"{where}{msg}  [{_disasm_raw(r)}]")
+seq_format.SeqValidationError: rec 1552: MVGO SHAPE ng 0 outside the engine envelope 1..96 (imm32=0x00010148); rtl/matvec_engine.sv MAX_NG  [op=0x05 fl=0x00 tgt=0x0000 imm=0x00010148 lo=0x10480000 hi=0x00009000]
+SELFTEST_RCS seq=2 serve=0 chat=1
+BOARDFREE_FAIL
+=== rc: 0
+=== end: 2026-09-02T08:05:04-06:00

@@ -1,0 +1,83 @@
+=== host: snoke
+=== date: 2026-09-09T20:40:04-06:00
+=== tree: 637fb91+dirty
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/o3/o3_cite_drift.py --base 5a08f0b --doc-base 5a08f0b --edited sw/seq_run.py,sw/infer.py,sw/hwmap.py,sw/chat_seq.py,docs/USAGE.md,docs/ARCHITECTURE.md,NEXT_SESSION.md --check --only-docs docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+o3 citation-drift gate  [check]
+  code base  5a08f0b
+  doc base   5a08f0b
+  files      7 edited files
+  citations  318 distinct (file, line) pairs
+  unmoved    264
+  half-ranges 3 (one endpoint unresolved — NEVER rewritten)
+  DRIFTED    NEXT_SESSION.md:282 -> :343   'audited. A model switch (0.8B <-> 2B) is a FULL weight re-upload —'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:283 -> :344   'one pack fits DDR at a time (docs/ARCHITECTURE.md).'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:293 -> :356   'passes a soak, numeric compute stays on snoke);'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:295 -> :358   'board, no shared lock — sw/.seq.lock is per-checkout);'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:297 -> :360   '~~W8 CSR-decode range checks~~ **CLOSED 2026-09-02 by G3.3 (Task 9):'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:332 -> :396   '**16,404 golden state checks ALL MATCH**, tokens bit-exact, `chat_seq'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:350 -> :414   'witness per PIECE (proven on silicon, hw_36), and any miss re-uploads the'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:353 -> :417   '(3) `chat_seq` had three 0.8B constants baked in (repacked plan, x8'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:355 -> :419   '- NEXT ACTION: **T7 — merge qwen2b -> main** (the gate-D decision authorized'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:356 -> :420   'it AT R-d; `git merge --ff-only`, STOP if main moved).'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:374 -> :438   'USER DECISION 2026-08-24: closed as a **constraint, not a waiver** (waiving'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:375 -> :439   '−0.004 was declined). Full record: `evidence/qwen2b/rc/TIMING_035.md` §11-13.'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:376 -> :440   '- ⚠ **DO NOT expect a fresh re-roll to close.** **No roll ever measured 0.000*'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:384 -> :448   'expect several attempts. (TIMING_035.md §13.5.)'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:389 -> :453   '- Open follow-on (not blocking): `layer_0/u_core/s_axil_rdata_reg[3]/D` is 72%'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:390 -> :454   'logic (2.773 ns of 3.835) — a deep AXI-Lite readback mux, the one endpoint'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:394 -> :458   '- USER DECISIONS (2026-08-16, interactive, after the full study'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:396 -> :460   'matvec weights** (PPL 12.361 = 99% of the W4 gap closed; accepted costs:'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:440 -> :504   "so the resident bitstream was not build_033's. One board, two worktrees,"
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  DRIFTED    NEXT_SESSION.md:441 -> :505   'no shared lock (sw/.seq.lock is per-checkout) — needs a ruling.'
+             cited by docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  UNRESOLVED docs/ARCHITECTURE.md:15 (the cited line was rewritten or deleted)   '| decode rate | 0.8B: **30.4 tok/s** (`--nch 4`, 32.95 ms/token) / 21.5 tok/s '
+             cited by docs/QWEN2B_QUANT_STUDY.md
+  UNRESOLVED sw/hwmap.py:96 (the cited line was rewritten or deleted)   '# checkout REFUSES a 9B board rather than guessing at its layout.'
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  UNRESOLVED sw/hwmap.py:287 (the cited line was rewritten or deleted)   'SCRATCH_WORDS_BUILT = 32768'
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  UNRESOLVED sw/infer.py:98 (the cited line was rewritten or deleted)   'EXPECT_VERSION = 0x54443B9F  # build_035_fp2a_exc_po (R-d: W8 engine mode)'
+             cited by sw/hwmap.py
+  UNRESOLVED sw/seq_run.py:108 (the cited line was rewritten or deleted)   'EXPECTED_SEQ_VERSION = 0x54443B9F  # build_035_fp2a_exc_po (R-d: W8 engine mod'
+             cited by sw/hwmap.py
+  HALF-MAPPED sw/hwmap.py:88-96 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :88 '# never a heuristic and NEVER a default: a tool that drives ' -> 88
+             :96 '# checkout REFUSES a 9B board rather than guessing at its la' -> GONE
+             cited by evidence/qwen9b/g3/G3_3_MATVEC.md
+  HALF-MAPPED sw/hwmap.py:282-287 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :282 '#' -> 282
+             :287 'SCRATCH_WORDS_BUILT = 32768' -> GONE
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+  HALF-MAPPED sw/hwmap.py:283-287 — the end endpoint is unresolved, so the WHOLE token is left alone (O3)
+             :283 '# `SCRATCH_WORDS` is THE canonical definition: `sw/seq_run.p' -> 283
+             :287 'SCRATCH_WORDS_BUILT = 32768' -> GONE
+             cited by docs/SEQ_ISA.md, evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+O3_CITE_DRIFT CHECK FAIL (20 drifted, 5 unresolved, 0 missing, 3 half-mapped)
+=== rc: 1
+=== end: 2026-09-09T20:40:07-06:00

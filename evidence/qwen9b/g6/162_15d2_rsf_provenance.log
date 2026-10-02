@@ -1,0 +1,58 @@
+=== host: snoke
+=== date: 2026-09-11T12:35:22-06:00
+=== tree: 781f8e6
+=== cmd:  /bin/bash /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g6/g6_rsf_provenance.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+A = 2762662  (2026-09-10 00:41:17 -0600  instrument(G6): --limit runs exit 0 on a clean PARTIAL, not 1)
+B = 8639813  (2026-09-10 19:34:01 -0600  evidence(15D): --verify-head is NOT AVAILABLE at 9B — it refuses, with the reason)
+
+---- the replay's execution path, A vs B (EMPTY = byte-identical) ----
+---- (end; no line above means no file in that list changed) ----
+
+---- ref/ files that DID change ----
+ ref/layer_fixed.py | 66 +++++++++++++++++++++++++++++++++++++++++++++++++++---
+ ref/seq_chat.py    | 22 +++++++++---------
+ 2 files changed, 74 insertions(+), 14 deletions(-)
+
+---- RS_F at tree A ----
+74:RS_F = int(os.environ.get("FABLE5_RS_F", "8") or "8")
+---- RS_F at tree B ----
+103:RS_F_BY_TAG = {"0.8b": 8, "2b": 8, "4b": 8, "9b": 7}
+104:_RS_F_LAW = RS_F_BY_TAG[_MS.TAG]
+134:RS_F = int(_RS_F_ENV) if _RS_F_ENV is not None else _RS_F_LAW
+
+---- the runtime consumer: Mach.conv ----
+    def conv(self, first, nch, src, dst):
+        pre_raw = rshr(acc, RS_F + CW_F - 12)
+---- and it is identical at B ----
+    def conv(self, first, nch, src, dst):
+        pre_raw = rshr(acc, RS_F + CW_F - 12)
+
+---- CW_F, both trees ----
+85:CW_F = 13       # conv weight fraction bits (int16 Q2.13)
+145:CW_F = 13       # conv weight fraction bits (int16 Q2.13)
+
+---- what the shipping RTL bakes ----
+        // A2.1 (spec 0b): RS_F = 7 is the 9B operating point, so the
+        // baked shift is RS_F + CW_F - 12 = 7 + 13 - 12 = 8.  It was 9 at
+        // RS_F = 8.  This is the ONE RTL literal on the RS_F axis; the
+        // host expression beside it already reads the constant (A2.3).
+        pre = rshr64(64'(acc1), 8);          // RS_F + CW_F - 12 = 8
+
+---- what the artifact's manifest says ----
+2493: "rs_f": 7,
+
+---- when the fix landed, against 106's launch ----
+28fac0b 2026-09-10 04:51:37 -0600  tool(b11): RS_F is DERIVED from MS.TAG, not remembered (#26)
+106 launched: === date: 2026-09-10T00:44:07-06:00
+
+DERIVED: conv shift RS_F+CW_F-12 is 8+13-12=9 at A and 7+13-12=8 at B;
+         the RTL literal is 8, so A is one bit too far.
+=== rc: 0
+=== end: 2026-09-11T12:35:23-06:00

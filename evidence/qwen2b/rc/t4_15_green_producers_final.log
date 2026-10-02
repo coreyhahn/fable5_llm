@@ -1,0 +1,22 @@
+=== host: snoke  date: 2026-08-22T13:18:13-06:00
+=== tree: 999df81+dirty
+=== cmd : bash -c /home/cah/.venv/bin/python evidence/qwen2b/rc/t4_producers.py && cd ref && FABLE5_MODEL=0.8b /home/cah/.venv/bin/python seq_model.py --selftest 2>&1 | tail -12
+=== venv: 3.12.3 numpy 2.4.6
+t4_producers.py  mode=GREEN  host=snoke
+A. dump_weights W8
+  PASS  W8 image packs + manifest tag + round trip
+  PASS  W8 + g64 refused by the packer
+  PASS  Mach.matvec dispatches W8 (rowchunk-identical)
+B. build_wimg per-channel
+        12 pieces verified across 4 channels, tops ['0xa000', '0xa000', '0xa000', '0x7600']
+  PASS  repacked stream -> one region file per channel, rows exact
+  PASS  non-repacked stream -> one flat region file, unchanged
+
+T4_PRODUCERS PASS
+dynq16/eps-norm semantics from: layer_fixed (agent A)
+DYNQ16 == op1+dn_o_shift on 200/200 blocks
+EPS-NORM vs frozen dn_norm_scale: 200/200 blocks bit-identical, worst |delta| = 0 LSB
+W8 MVGO (SHAPE 0x200111c2, 17x256, stride 320B): packed-DDR and live-dict paths both == matvec_y32_w8 (|y|max 3297945), 2/2 wrong SHAPE words refused — PASS
+REPACK (nch=2, 2 W8 images, 7 pieces): every piece's MVGO == matvec_y32_w8 on its global rows; per-channel packs [5440, 5248] B vs one span 10688 B; 8 wrong-plan/wrong-channel lookups refused or diverted — PASS
+=== rc  : 0
+=== end : 2026-08-22T13:18:14-06:00

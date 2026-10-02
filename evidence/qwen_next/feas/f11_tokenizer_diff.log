@@ -1,0 +1,31 @@
+=== host: snoke  date: 2026-08-25T06:18:59-06:00
+=== tree: b254009+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/tokenizer_diff.py
+=== venv: 3.12.3 numpy 2.4.6
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+tokenizer_config.json  4B == 9B: True  len 2B/4B: 16709 16710
+  keys only in 2B: []
+  keys only in 4B: []
+  chat_template: 2B={%- set image_count = namespace(value=0) %}
+{%- set video_count = namespace(value=0) %}
+{%- macro render_content(content, do_vision_count, is_system_c  ->  4B={%- set image_count = namespace(value=0) %}
+{%- set video_count = namespace(value=0) %}
+{%- macro render_content(content, do_vision_count, is_system_c
+======================================================================
+chat_template.jinja  4B == 9B: True  len 2B/4B: 7755 7756
+  unified diff, 12 lines:
+    --- 2B
+    +++ 4B
+    @@ -148,6 +148,6 @@
+         {{- '<|im_start|>assistant\n' }}
+    -    {%- if enable_thinking is defined and enable_thinking is true %}
+    +    {%- if enable_thinking is defined and enable_thinking is false %}
+    +        {{- '<think>\n\n</think>\n\n' }}
+    +    {%- else %}
+             {{- '<think>\n' }}
+    -    {%- else %}
+    -        {{- '<think>\n\n</think>\n\n' }}
+         {%- endif %}
+=== rc  : 0
+=== end : 2026-08-25T06:19:00-06:00

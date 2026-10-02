@@ -1,0 +1,29 @@
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+  header sha256 ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d (golden ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d)
+  loaded in 1.8s
+  LM head quantized (mse=True g=128) e=-4 sh=6 (51.2s)
+
+=== config S=16 mse ===
+    quantized 24 layers in 136.4s
+    emb table |q|max 808 of 32767 (2.2s)
+
+===== CAUGHT =====
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/438c35d2-4833-48a4-9f48-8d1e8147d6f4/scratchpad/diag_s16.py", line 46, in instrumented
+    return _orig(w4, m, sh, x8, g=g)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/w4a8_ref.py", line 161, in matvec_y32
+    assert np.abs(acc).max() < (1 << 31)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+===== W4A8 GUARD TRIP =====
+  w4 (6144, 2048) int8  min -8 max 7
+  x8 (2048,) int8  min -87 max 90
+  m (6144, 16) uint16  min 338 max 9458
+  sh=6  g=128  NG=16
+  |acc|max = 1750   guard 2**31 = 2147483648   naive bound g*8*127 = 130048
+  |p|max   = 38473390   (int64)
+  |y|max   = 601147   guard 2**31 = 2147483648   -> y guard ok
+===========================
+  RETRY of the identical call SUCCEEDED

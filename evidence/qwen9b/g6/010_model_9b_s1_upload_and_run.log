@@ -1,0 +1,110 @@
+=== host: snoke
+=== date: 2026-09-09T19:39:29-06:00
+=== tree: b5cb735+dirty
+=== cmd:  /home/cah/.venv/bin/python sw/seq_run.py --prefix tb/scripts/w9/model_9b_s1.e4 --four-chan --zero-scratch --out evidence/qwen9b/g6/010_model_9b_s1.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- SEQ stream: tb/scripts/w9/model_9b_s1.e4
+  artifacts base   tb/scripts/w9/model_9b_s1
+  stream           158536 records, 2536576 B (sha256 9760899df53b3b42) VALIDATED
+  seqdata          563712 B (sha256 4a7784f2f2c47e07)
+  profile          epsnorm  dyn_ka=True  loop 3 steps (structurally safe)
+  opcodes          {'CSRWR': 106244, 'CMD': 35286, 'MOVX': 3984, 'MOVY': 5480, 'MVGO': 5480, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'FENCE': 1372, 'HALT': 1, 'LDC*': 644, 'XOP*': 36}
+  expected tokens  [2614, 314, 279, 369, 11751, 13]
+  mode             4-CHANNEL row-split (weights over DDR chans [0, 1, 2, 3], fetch on chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=4)
+  stream    0x9000000 .. 0x926b480  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc089a00  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 249 images, chans [0, 1, 2, 3])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 644 LDC records (32 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 4 EMB records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=READY
+  weight plan: 249 images match the stream's MVGO plan; 5480 MVGO WBASEs row-aligned inside them
+--- upload
+  weights   249 images, 3902 MiB -> 0x10000000..0x4d290000/0x4cf78000/0x4ce70000/0x4ce70000 (row-split over chans [0, 1, 2, 3], wid [248] chunk-INTERLEAVED (rung 4 S4))  [readback OK]
+  embedding 1940 MiB -> 0x60000000  [readback OK]
+  seqdata   563712 B -> 0xc000000  [readback OK]
+  stream    2536576 B (158536 records) -> 0x9000000  [readback OK]
+  state DN  24 MiB zeroed -> 0x380000000 (chan 3)  [8 witnesses zero]
+  state CV  24 conv image(s) -> 0x389800000  [readback OK]
+  5845 MiB written, 5845 MiB read back and compared, 45.7s
+--- run
+  scratch   65536 words zeroed via SPTR/SWIN and read back: 0 non-zero (0.2s)
+  EMBLOG2    13 (8192 B embedding rows)
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+  SEQ_BASE=0x9000000 LEN=158536 ENTRY=0 -> START
+    pc 1315/158536  (0.0s)
+    pc 4169/158536  (0.0s)
+    pc 9087/158536  (0.0s)
+    pc 12296/158536  (0.0s)
+    pc 17328/158536  (0.1s)
+    pc 20820/158536  (0.1s)
+    pc 25585/158536  (0.1s)
+    pc 29095/158536  (0.1s)
+    pc 33362/158536  (0.1s)
+    pc 38020/158536  (0.1s)
+    pc 41064/158536  (0.1s)
+    pc 45862/158536  (0.2s)
+    pc 49349/158536  (0.2s)
+    pc 53611/158536  (0.2s)
+    pc 58367/158536  (0.2s)
+    pc 61860/158536  (0.2s)
+    pc 66622/158536  (0.2s)
+    pc 70126/158536  (0.2s)
+    pc 74450/158536  (0.2s)
+    pc 77883/158536  (0.3s)
+    pc 81970/158536  (0.3s)
+    pc 86895/158536  (0.3s)
+    pc 90388/158536  (0.3s)
+    pc 95143/158536  (0.3s)
+    pc 98640/158536  (0.3s)
+    pc 102901/158536  (0.3s)
+    pc 107663/158536  (0.4s)
+    pc 111155/158536  (0.4s)
+    pc 115274/158536  (0.4s)
+    pc 118873/158536  (0.4s)
+    pc 122951/158536  (0.4s)
+    pc 127920/158536  (0.4s)
+    pc 131418/158536  (0.4s)
+    pc 136173/158536  (0.5s)
+    pc 139677/158536  (0.5s)
+    pc 144060/158536  (0.5s)
+    pc 147921/158536  (0.5s)
+    pc 152180/158536  (0.5s)
+    pc 155675/158536  (0.5s)
+    pc 119693/158536  (0.5s)
+    pc 123149/158536  (0.6s)
+    pc 127905/158536  (0.6s)
+    pc 131398/158536  (0.6s)
+    pc 136160/158536  (0.6s)
+    pc 139653/158536  (0.6s)
+    pc 143772/158536  (0.6s)
+    pc 147904/158536  (0.6s)
+    pc 152175/158536  (0.7s)
+    pc 155664/158536  (0.7s)
+    pc 119292/158536  (0.7s)
+    pc 123145/158536  (0.7s)
+    pc 127892/158536  (0.7s)
+    pc 131389/158536  (0.7s)
+    pc 135971/158536  (0.7s)
+    pc 139628/158536  (0.7s)
+    pc 144546/158536  (0.8s)
+    pc 147883/158536  (0.8s)
+    pc 152150/158536  (0.8s)
+    pc 155656/158536  (0.8s)
+  halted at pc=158535/158536 in 0.824s wall / 822.793 ms device
+  STATUS=0x00010004 err=False err_code=0x00 (no error)
+  perf: {'cyc': 205698212, 'rec': 237784, 'axil_wr': 287517, 'axil_rd': 9955419, 'fetch_starved_cyc': 95, 'xrf_ovf': False}
+  tokens: [2614, 314, 279, 369, 11751, 13]
+  TOKENS   IDENTICAL to the .seq.json (6 tokens)
+--- post-halt state vs tb/scripts/w9/model_9b_s1.e4.chip
+  golden    36886 state checks, ALL MATCH
+SEQ RUN: PASS
+report -> evidence/qwen9b/g6/010_model_9b_s1.json
+=== rc: 0
+=== end: 2026-09-09T19:40:17-06:00

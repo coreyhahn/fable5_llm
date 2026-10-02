@@ -45,7 +45,14 @@ module tb_vecnorm_diff;
     logic signed [5:0] cfg_k     = 6'sd0;
     logic              start = 1'b0;
     logic              w_we = 1'b0;
-    logic [9:0]        w_waddr = '0;
+    // 12 bits for rtl/vecnorm_unit.sv (4096 wbuf entries after G3.2); the
+    // frozen legacy copy keeps its 10-bit port and is fed the low quarter
+    // — this harness only ever runs n_log2 <= 10 (the legacy xbuf/wbuf are
+    // 1024 deep and that copy is frozen), so nothing is lost.  The depths
+    // ABOVE 1024 are covered by tb_vecnorm cases 5-8 against the golden
+    // vectors, not differentially: there is no legacy twin to diff at
+    // N=2048 or N=4096.
+    logic [11:0]       w_waddr = '0;
     logic [15:0]       w_wdata = '0;
 
     // ---- per-DUT stream handshakes ----
@@ -58,7 +65,7 @@ module tb_vecnorm_diff;
     vecnorm_legacy #(.RSQRT_ROM("../rtl/roms/rsqrt_rom.hex")) dut_r (
         .clk, .rstn, .cfg_mode, .cfg_nlog2, .cfg_inf, .cfg_outf,
         .cfg_eps, .cfg_k, .start, .busy(busy_r),
-        .w_we, .w_waddr, .w_wdata,
+        .w_we, .w_waddr(w_waddr[9:0]), .w_wdata,
         .s_valid(sv_r), .s_ready(sr_r), .s_data(sd_r),
         .m_valid(mv_r), .m_ready(mr_r), .m_data(md_r));
 
@@ -199,7 +206,7 @@ module tb_vecnorm_diff;
                                : 16'h4000;
         for (int i = 0; i < n; i++) begin
             @(negedge clk);
-            w_we = 1'b1; w_waddr = 10'(i); w_wdata = wv[i];
+            w_we = 1'b1; w_waddr = 12'(i); w_wdata = wv[i];
         end
         @(negedge clk);
         w_we = 1'b0;

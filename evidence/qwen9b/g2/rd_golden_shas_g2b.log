@@ -1,0 +1,32 @@
+=== host: snoke
+=== date: 2026-08-31T10:15:07-06:00
+=== tree: c9d2a2f
+=== cmd:  bash evidence/qwen2b/rd/rd_golden_shas.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=8 MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- the .chip goldens this gate compared against ---
+-rw-rw-r-- 1 cah cah 100667 Aug 11 19:34 tb/scripts/w4/model_v2_s1.e4.chip
+-rw-rw-r-- 1 cah cah 100667 Aug  9 09:27 tb/scripts/w4/model_v2_s1.e.chip
+-rw-rw-r-- 1 cah cah 229702 Aug 22 17:31 tb/scripts/w5/model_w8_2b_s1.e.chip
+
+15c39f54f75adcc3252d9fbfc35a91b3a8cda79fcb13a5a20fd0fa9711dd3fed  tb/scripts/w5/model_w8_2b_s1.e.chip
+e5436b72e93c3ada85653060ca0ddf571a7b4f0a3a3d8504ab2db78bace2cdf3  tb/scripts/w4/model_v2_s1.e4.chip
+7207d57bae31a7f99358f4d1b443d629ce42e610aaa046a9988ef5246189c1ec  tb/scripts/w4/model_v2_s1.e.chip
+
+--- MEM lines each one asserts (= the scratch half of the check count) ---
+  model_w8_2b_s1.e.chip                    MEM  16384   NREC 68503  PC 68502  EMBLOG2 12
+  model_v2_s1.e4.chip                      MEM   7168   NREC 68119  PC 68118  EMBLOG2 
+  model_v2_s1.e.chip                       MEM   7168   NREC 60495  PC 60494  EMBLOG2 
+
+NOTE the 2B golden's mtime postdates the artifact set: R-c regenerated
+it when wall 8 (the TB's missing EMBLOG2 write) was fixed — its own
+EMBLOG2 line above is that fix, and RC_GATE.md gate 40 is the run that
+accepted it.  The .seq/.seqdata/.emb/187-image shas are unchanged and
+are in hw_18_2b_artifact_shas.log.
+=== rc: 0
+=== end: 2026-08-31T10:15:07-06:00

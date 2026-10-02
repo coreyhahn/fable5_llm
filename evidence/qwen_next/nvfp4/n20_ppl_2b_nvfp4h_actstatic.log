@@ -1,0 +1,68 @@
+=== host: snoke  date: 2026-09-23T09:50:36-06:00
+=== tree: 7ce98e7
+=== cmd : env FABLE5_MODEL=2b /home/cah/.venv/bin/python ref/perplexity_eval.py --corpus ref/ppl_corpus_eval.txt --expect-corpus-sha256 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876 --window 512 --threads 6 --inject all:nvfp4h --act nvfp4h:static --act-calib ref/ppl_corpus_calib.txt --json-out evidence/qwen_next/nvfp4/n20_ppl_2b_nvfp4h_actstatic.json
+=== venv: 3.12.3 numpy 2.4.6
+corpus gate PASS: sha256 starts 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876 (checked before tokenizing)
+model      FABLE5_MODEL=2b  24 layers  H=2048  vocab=248320
+checkpoint /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+           header sha256 ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d
+lm_head    tied (a separate copy of embed_tokens)
+tokenizer  /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc
+corpus     ref/ppl_corpus_eval.txt
+           sha256 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876
+           24576 tokens, window=512, batch=4
+inject     all:nvfp4h
+host       snoke
+torch 2.12.0+cpu  threads=6
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+  model built + loaded in 343.0s
+    class    quant    mats   weights   packed  (ideal)   footprint   [packed = w4a8_ref.row_stride, beat padding included]
+    qkv      nvfp4h    18 mats    62.915 M  4.500 b/w ( 4.500)      33.8 MiB
+    o_proj   nvfp4h     6 mats    25.166 M  4.500 b/w ( 4.500)      13.5 MiB
+    gate_up  nvfp4h    48 mats   603.980 M  4.500 b/w ( 4.500)     324.0 MiB
+    down     nvfp4h    24 mats   301.990 M  4.500 b/w ( 4.500)     162.0 MiB
+    dn_in    nvfp4h    72 mats   303.170 M  4.500 b/w ( 4.500)     162.6 MiB
+    dn_out   nvfp4h    18 mats    75.497 M  4.500 b/w ( 4.500)      40.5 MiB
+    lm_head  nvfp4h     1 mats   508.559 M  4.500 b/w ( 4.500)     272.8 MiB
+    dn_conv  bf16      18 mats     0.442 M 16.000 b/w (16.000)       0.8 MiB
+    emb      bf16       1 mats   508.559 M 16.000 b/w (16.000)     970.0 MiB
+    _float   bf16     115 mats     0.106 M 16.000 b/w (16.000)       0.2 MiB
+    _total   bf16     321 mats  2390.384 M  6.949 b/w ( 6.949)    1980.2 MiB
+rht        seed 0: 97 input sites rotated (block 16, one sign vector per site)
+  window 4/64  tokens=2048  43.9s
+  window 8/64  tokens=4096  84.9s
+  window 12/64  tokens=6144  134.4s
+  window 16/64  tokens=8192  178.0s
+  window 20/64  tokens=10240  227.9s
+  window 24/64  tokens=12288  271.9s
+  window 28/64  tokens=14336  317.3s
+  window 32/64  tokens=16384  367.3s
+  window 36/64  tokens=18432  411.6s
+  window 40/64  tokens=20480  461.1s
+  window 44/64  tokens=22528  510.6s
+  window 48/64  tokens=24576  552.9s
+  window 52/64  tokens=26624  604.3s
+  window 56/64  tokens=28672  652.2s
+  window 60/64  tokens=30720  701.8s
+  window 64/64  tokens=32768  745.9s
+act calib  ref/ppl_corpus_calib.txt  sha256 522afbcaa928956d92d35dfd93741a8c795f750e22edc4ef2e00ed0df8478f2d
+           32768 tokens, 97 sites, 746.1s
+act        nvfp4h:static: 97 input sites hooked (187 matvecs incl. the head)
+  window 4/48  positions=2044  running PPL=11.4510  156.2s
+  window 8/48  positions=4088  running PPL=13.0117  300.6s
+  window 12/48  positions=6132  running PPL=13.5547  448.5s
+  window 16/48  positions=8176  running PPL=13.8486  592.2s
+  window 20/48  positions=10220  running PPL=14.2723  740.1s
+  window 24/48  positions=12264  running PPL=14.7259  889.7s
+  window 28/48  positions=14308  running PPL=13.9132  1039.3s
+  window 32/48  positions=16352  running PPL=13.4668  1189.8s
+  window 36/48  positions=18396  running PPL=14.2325  1348.9s
+  window 40/48  positions=20440  running PPL=14.3761  1509.5s
+  window 44/48  positions=22484  running PPL=14.4732  1676.3s
+  window 48/48  positions=24528  running PPL=15.1362  1829.9s
+
+nll_sum 66644.842493  positions 24528  nll/pos 2.717092  eval 1830.0s (build 344.1s)
+json -> evidence/qwen_next/nvfp4/n20_ppl_2b_nvfp4h_actstatic.json
+PPL 15.136248
+=== rc  : 0
+=== end : 2026-09-23T10:39:24-06:00

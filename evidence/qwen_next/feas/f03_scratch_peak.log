@@ -1,0 +1,95 @@
+=== host: snoke  date: 2026-08-25T07:35:45-06:00
+=== tree: 9a654e0+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/scratch_peak.py /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/scratch_peak.json
+=== venv: 3.12.3 numpy 2.4.6
+### VALIDATION — the corrected algebra must reproduce the committed 0.8B / 2B numbers exactly
+    0.8B  PEAK_DN    derived  16384  committed  16384  OK
+    0.8B  PEAK_ATTN  derived  15872  committed  15872  OK
+    0.8B  PEAK_MLP   derived  14848  committed  14848  OK
+    0.8B  PEAK       derived  16384  committed  16384  OK
+    0.8B  SCRATCH    derived  16384  committed  16384  OK
+    0.8B  STG        derived   4096  committed   4096  OK
+    0.8B  STG_SZ     derived   4096  committed   4096  OK
+    0.8B  BIG        derived   8192  committed   8192  OK
+    2B    PEAK_DN    derived  21504  committed  21504  OK
+    2B    PEAK_ATTN  derived  23552  committed  23552  OK
+    2B    PEAK_MLP   derived  25600  committed  25600  OK
+    2B    PEAK       derived  25600  committed  25600  OK
+    2B    SCRATCH    derived  32768  committed  32768  OK
+    2B    STG        derived   7168  committed   7168  OK
+    2B    STG_SZ     derived   6144  committed   6144  OK
+    2B    BIG        derived  13312  committed  13312  OK
+    VALIDATION: PASS
+
+### DERIVED GEOMETRY
+    field           0.8B        2B        4B        9B
+    H               1024      2048      2560      4096
+    FFN             3584      6144      9216     12288
+    NQ                 8         8        16        16
+    NKV                2         2         4         4
+    LNKH              16        16        16        16
+    LNVH              16        16        32        32
+    LKD             2048      2048      2048      2048
+    LVD             2048      2048      4096      4096
+    CONV_DIM        6144      6144      8192      8192
+    NQH             2048      2048      4096      4096
+    KVH              512       512      1024      1024
+    SCA_SZ           992       992      1056      1056
+    STGCH           2048      4096      4096      4096
+    STG             4096      7168      8736     13344
+    STG_SZ          4096      6144      8192      8192
+    BIG             8192     13312     16928     21536
+
+### SCRATCH PEAK vs THE 32,768-WORD ISA CEILING (ref/gen_layer_script.py:210 SCRATCH_MAX)
+    body            0.8B        2B        4B        9B
+    PEAK_DN        16384     21504     29216     33824
+    PEAK_ATTN      15872     23552     32288     37920
+    PEAK_MLP       14848     25600     36384     50208
+    PEAK           16384     25600     36384     50208
+    SCRATCH        16384     32768     65536     65536
+    fits ISA         YES       YES        NO        NO
+    over by            0         0      3616     17440
+    headroom       16384      7168         0         0
+
+### WHICH BODY BINDS, and the MLP driver STG + 3*FFN
+    0.8B  binds on DN   =  16384   (STG+3*FFN =  14848)
+    2B    binds on MLP  =  25600   (STG+3*FFN =  25600)
+    4B    binds on MLP  =  36384   (STG+3*FFN =  36384)
+    9B    binds on MLP  =  50208   (STG+3*FFN =  50208)
+
+### W-REF-2: the SCA scalar-tile collision at LNVH=32
+    0.8B  LNVH= 16  A16 needs  32 words in a 32-word slot -> fits; SCA_SZ as-built 992 -> corrected 992
+    2B    LNVH= 16  A16 needs  32 words in a 32-word slot -> fits; SCA_SZ as-built 992 -> corrected 992
+    4B    LNVH= 32  A16 needs  64 words in a 32-word slot -> COLLIDES; SCA_SZ as-built 992 -> corrected 1056
+    9B    LNVH= 32  A16 needs  64 words in a 32-word slot -> COLLIDES; SCA_SZ as-built 992 -> corrected 1056
+
+### W-REF-1: CONV_DIM under the as-built LKD = LNVH*LDK
+    0.8B  checkpoint CONV_DIM   6144   ref/layer_ref.py:38 would compute   6144   OK
+    2B    checkpoint CONV_DIM   6144   ref/layer_ref.py:38 would compute   6144   OK
+    4B    checkpoint CONV_DIM   8192   ref/layer_ref.py:38 would compute  12288   *** WRONG ***
+    9B    checkpoint CONV_DIM   8192   ref/layer_ref.py:38 would compute  12288   *** WRONG ***
+
+### MITIGATION — how many bodies must be restructured to fit 32,768
+    (the ISA cannot grow: docs/SEQ_ISA.md:769-778 — DNST ARG0 is
+     exactly full and ALU ARG2 has one spare bit already spent on
+     dst[14], so there is no home for a 16th scratch address bit.)
+    0.8B  FITS as-is (headroom 16384 words) — no restructuring
+    2B    FITS as-is (headroom 7168 words) — no restructuring
+    4B    over: MLP  (DN 29216, ATTN 32288, MLP 36384)
+          MLP in 2 chunks of  4608: gate/up  22560 | down-stage  24608 -> peak  24608 (down-stage binds)  fits, spare 8160
+          MLP in 3 chunks of  3072: gate/up  17952 | down-stage  21536 -> peak  21536 (down-stage binds)  fits, spare 11232
+          MLP in 4 chunks of  2304: gate/up  15648 | down-stage  20000 -> peak  20000 (down-stage binds)  fits, spare 12768
+    9B    over: DN, ATTN, MLP  (DN 33824, ATTN 37920, MLP 50208)
+          MLP in 2 chunks of  6144: gate/up  31776 | down-stage  33824 -> peak  33824 (down-stage binds)  OVER by 1056
+          MLP in 3 chunks of  4096: gate/up  25632 | down-stage  29728 -> peak  29728 (down-stage binds)  fits, spare 3040
+          MLP in 4 chunks of  3072: gate/up  22560 | down-stage  27680 -> peak  27680 (down-stage binds)  fits, spare 5088
+          ATTN peak 37920 is set by AT_ODST+H = 37920 / AT_GX8+NQH; it needs its own restructuring
+          DN peak 33824 = BIG + CONV_DIM + LVD = 21536 + 8192 + 4096; it needs its own restructuring
+
+### ATTN HEADROOM — thin margins worth stating
+    0.8B  PEAK_ATTN  15872  margin vs 32768 =  +16896
+    2B    PEAK_ATTN  23552  margin vs 32768 =   +9216
+    4B    PEAK_ATTN  32288  margin vs 32768 =    +480
+    9B    PEAK_ATTN  37920  margin vs 32768 =   -5152
+=== rc  : 0
+=== end : 2026-08-25T07:35:45-06:00

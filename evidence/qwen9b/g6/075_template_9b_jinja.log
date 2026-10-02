@@ -1,0 +1,37 @@
+=== host: snoke
+=== date: 2026-09-09T22:58:47-06:00
+=== tree: 432e6ab
+=== cmd:  /home/cah/.venv/bin/python -u evidence/qwen9b/g6/g6_template_9b.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== FABLE5_MODEL=9b  repo=models--Qwen--Qwen3.5-9B
+    snapshot     c202236235762e1c871ad0ccb60c8ee5ba337b9a
+    transformers 5.11.0
+    chat_template.jinja 7756 B  sha256 a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715
+    tokenizer_config.json chat_template key: present (the .jinja file above is what transformers loads)
+  [single] unset              17 ids  != DIFFERS
+             got  [248045, 846, 198, 3710, 369, 279, 6511, 314, 9338, 30, 248046, 198, 248045, 74455, 198, 248068, 198]
+             want [248045, 846, 198, 3710, 369, 279, 6511, 314, 9338, 30, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271]
+             first difference at index 16
+  [single] enable_thinking=0  19 ids  == the pinned reference
+  [system] unset              28 ids  != DIFFERS
+             got  [248045, 8678, 198, 2523, 513, 264, 10631, 17313, 13, 248046, 198, 248045, 846, 198, 3710, 369, 279, 6511, 314, 9338, 30, 248046, 198, 248045, 74455, 198, 248068, 198]
+             want [248045, 8678, 198, 2523, 513, 264, 10631, 17313, 13, 248046, 198, 248045, 846, 198, 3710, 369, 279, 6511, 314, 9338, 30, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271]
+             first difference at index 27
+  [system] enable_thinking=0  30 ids  == the pinned reference
+  [3msg  ] unset              33 ids  != DIFFERS
+             got  [248045, 846, 198, 3710, 369, 279, 6511, 314, 9338, 30, 248046, 198, 248045, 74455, 198, 57590, 13, 248046, 198, 248045, 846, 198, 2939, 314, 14898, 30, 248046, 198, 248045, 74455, 198, 248068, 198]
+             want [248045, 846, 198, 3710, 369, 279, 6511, 314, 9338, 30, 248046, 198, 248045, 74455, 198, 57590, 13, 248046, 198, 248045, 846, 198, 2939, 314, 14898, 30, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271]
+             first difference at index 32
+  [3msg  ] enable_thinking=0  35 ids  == the pinned reference
+  [chat_seq] ChatTemplate.turn_ids  19 ids  == HF_REF_SINGLE
+             [248045, 846, 198, 3710, 369, 279, 6511, 314, 9338, 30, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271]
+  ntok guidance  `--ntok >= 24` (docs/USAGE.md:241); evidence/qwen9b/g2/G2C_CHAIN.md §8.4 ruled it DOES NOT MOVE at 9B
+TEMPLATE_9B: PASS
+=== rc: 0
+=== end: 2026-09-09T22:58:55-06:00

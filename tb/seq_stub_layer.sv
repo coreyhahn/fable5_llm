@@ -69,15 +69,17 @@ module seq_stub_layer #(
     output logic        s_axil_rvalid,
     input  wire         s_axil_rready,
 
-    // ---- RUNG3 S6: AXI4 burst window (32b data / 16b addr, ID width 1) ----
-    // scratch word w at byte 4w, w = addr[15:2], w = 0..16383 — the WHOLE
-    // 64 KiB aperture is the window, so there is no out-of-window case here.
+    // ---- RUNG3 S6: AXI4 burst window (32b data / 18b addr, ID width 1) ----
+    // scratch word w at byte 4w, w = addr[17:2], w = 0..65535 — the WHOLE
+    // 256 KiB aperture is the window (R-b widened it with the scratchpad to
+    // 17b/32767/128 KiB, G3.1 again to 18b/65535/256 KiB), so there is no
+    // out-of-window case here.
     // READ consumes the same registered BRAM output the SWIN read does;
     // WRITE is the 4th leg on the scratch write mux.  Both are gated on
     // !busy: an access while busy answers SLVERR (S6/R8 — never a silent
     // drop), with the full beat count still returned / consumed.
     input  wire [0:0]   s_axib_awid,
-    input  wire [15:0]  s_axib_awaddr,
+    input  wire [17:0]  s_axib_awaddr,
     input  wire [7:0]   s_axib_awlen,
     input  wire [2:0]   s_axib_awsize,
     input  wire [1:0]   s_axib_awburst,
@@ -93,7 +95,7 @@ module seq_stub_layer #(
     output logic        s_axib_bvalid,
     input  wire         s_axib_bready,
     input  wire [0:0]   s_axib_arid,
-    input  wire [15:0]  s_axib_araddr,
+    input  wire [17:0]  s_axib_araddr,
     input  wire [7:0]   s_axib_arlen,
     input  wire [2:0]   s_axib_arsize,
     input  wire [1:0]   s_axib_arburst,
@@ -116,9 +118,9 @@ module seq_stub_layer #(
     output logic [17:0] xrf_sb_data
 );
 
-    logic signed [15:0] smem [16384];
+    logic signed [15:0] smem [65536];   // G3.1: 64K words
     logic signed [15:0] sa_q;
-    logic [13:0] sptr;
+    logic [15:0] sptr;
     logic [31:0] arg0, arg1, arg2;
     logic [15:0] cmd_cnt;
     logic        busy, err_op;
@@ -147,7 +149,7 @@ module seq_stub_layer #(
     localparam logic [1:0] WB_IDLE = 2'd0, WB_DATA = 2'd1, WB_RESP = 2'd2;
 
     logic  [1:0] rb_st, wb_st;
-    logic [13:0] rb_addr, wb_addr;
+    logic [15:0] rb_addr, wb_addr;
     logic  [8:0] rb_left;
     logic  [1:0] rb_wait;                      // BRAM latency bubble
     logic        rb_ok, wb_ok;                 // !busy at the AR / AW handshake
@@ -275,11 +277,11 @@ module seq_stub_layer #(
                     10'h002: arg0 <= wdata_q;
                     10'h003: arg1 <= wdata_q;
                     10'h004: arg2 <= wdata_q;
-                    10'h005: sptr <= wdata_q[13:0];
+                    10'h005: sptr <= wdata_q[15:0];
                     10'h006: begin                               // SWIN
                         if (busy) $fatal(1, "seq_stub_layer: SWIN write while busy");
                         smem[sptr] <= signed'(wdata_q[15:0]);
-                        sptr <= sptr + 14'd1;
+                        sptr <= sptr + 16'd1;
                     end
                     10'h00E: xrfi <= wdata_q[2:0];               // XRFI
                     10'h00F: xrf[xrfi] <= wdata_q[17:0];         // XRFD
@@ -301,11 +303,11 @@ module seq_stub_layer #(
                     10'h002: s_axil_rdata <= arg0;
                     10'h003: s_axil_rdata <= arg1;
                     10'h004: s_axil_rdata <= arg2;
-                    10'h005: s_axil_rdata <= {18'd0, sptr};
+                    10'h005: s_axil_rdata <= {16'd0, sptr};
                     10'h006: begin                               // SWIN read
                         if (busy) $fatal(1, "seq_stub_layer: SWIN read while busy");
                         s_axil_rdata <= {16'd0, unsigned'(sa_q)};
-                        sptr <= sptr + 14'd1;
+                        sptr <= sptr + 16'd1;
                     end
                     10'h007: s_axil_rdata <= {28'd0, eout_q};
                     10'h008: s_axil_rdata <= tcnt;
@@ -325,7 +327,7 @@ module seq_stub_layer #(
             case (rb_st)
                 RB_IDLE: if (s_axib_arvalid) begin
                     s_axib_rid <= s_axib_arid;
-                    rb_addr    <= s_axib_araddr[15:2];
+                    rb_addr    <= s_axib_araddr[17:2];
                     rb_left    <= {1'b0, s_axib_arlen} + 9'd1;
                     rb_ok      <= !busy;            // S6/R8: SLVERR while busy
                     rb_wait    <= 2'd2;
@@ -334,7 +336,7 @@ module seq_stub_layer #(
                 RB_WAIT: if (rb_wait == 2'd0) rb_st <= RB_DATA;
                          else rb_wait <= rb_wait - 2'd1;
                 RB_DATA: if (s_axib_rready) begin
-                    rb_addr <= rb_addr + 14'd1;
+                    rb_addr <= rb_addr + 16'd1;
                     rb_left <= rb_left - 9'd1;
                     if (rb_left == 9'd1) rb_st <= RB_IDLE;
                 end
@@ -345,13 +347,13 @@ module seq_stub_layer #(
             case (wb_st)
                 WB_IDLE: if (s_axib_awvalid) begin
                     s_axib_bid <= s_axib_awid;
-                    wb_addr    <= s_axib_awaddr[15:2];
+                    wb_addr    <= s_axib_awaddr[17:2];
                     wb_ok      <= !busy;
                     wb_st      <= WB_DATA;
                 end
                 WB_DATA: if (s_axib_wvalid) begin
                     if (wb_ok) smem[wb_addr] <= signed'(s_axib_wdata[15:0]);
-                    wb_addr <= wb_addr + 14'd1;
+                    wb_addr <= wb_addr + 16'd1;
                     if (s_axib_wlast) begin
                         s_axib_bvalid <= 1'b1;
                         s_axib_bresp  <= wb_ok ? 2'b00 : 2'b10;

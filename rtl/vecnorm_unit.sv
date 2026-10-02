@@ -8,7 +8,18 @@
 //
 // Structure: FILL (1 elem/cycle, accumulates sum of squares) -> RSQ (needs
 // the whole sum: inherently two-phase) -> OUT, a fully pipelined II=1
-// element loop (rung 2).  N = 2^n_log2 <= 1024.
+// element loop (rung 2).  N = 2^n_log2 <= 4096 (Qwen3.5-9B hidden size;
+// G3.2 widened the datapath up from the 2048 of Qwen3.5-2B).
+//
+// The element counters (cnt/n_total/oidx/ecnt) are 13 bits so that
+// n_total = 1 << 12 = 4096 is REPRESENTABLE.  A counter exactly as wide
+// as the largest n_log2 wraps to 0, which does not stall FILL (cnt+1
+// wraps identically) but leaves OUT's `issue` (oidx != n_total) false
+// forever: the unit swallows the whole vector and then emits nothing,
+// busy stuck high.  R-b found that deadlock at 11 bits / N = 2048 when it
+// widened 1024 -> 2048; G3.2 re-derives it one power of two up, at 12
+// bits / N = 4096.  cfg_nlog2 >= 13 is out of envelope for the same
+// reason and is a simulation $fatal below.
 //
 // ---- OUT pipeline (one element issued per cycle) ---------------------
 // Slot numbering: element i is in slot k during the cycle T+k, where T is
@@ -80,9 +91,10 @@ module vecnorm_unit #(
     input  wire               start,        // begin accepting N elements
     output logic              busy,
 
-    // weight preload (static; modes 0/1)
+    // weight preload (static; modes 0/1) — 12 bits: modes 0/1 at
+    // n_log2 = 12 need all 4096 wbuf entries reachable
     input  wire               w_we,
-    input  wire [9:0]         w_waddr,
+    input  wire [11:0]        w_waddr,
     input  wire [15:0]        w_wdata,
 
     input  wire               s_valid,
@@ -95,8 +107,8 @@ module vecnorm_unit #(
 );
     import fx_pkg::*;
 
-    logic signed [15:0] xbuf [1024];
-    logic signed [15:0] wbuf [1024];
+    logic signed [15:0] xbuf [4096];
+    logic signed [15:0] wbuf [4096];
     always_ff @(posedge clk) if (w_we) wbuf[w_waddr] <= signed'(w_wdata);
 
     typedef enum logic [3:0] {IDLE, FILL,
@@ -148,16 +160,20 @@ module vecnorm_unit #(
     logic [63:0] sc_sum;            // {32'b0,rs_r} + sc_rnd  (right numerator)
     logic [63:0] sc_lsh, sc_rsh;    // left / right shifted results
 
-    logic [10:0] cnt, n_total;
+    logic [12:0] cnt, n_total;      // 13 bits: n_total = 4096 must FIT
+    // DOES NOT WIDEN with the counters: 4096 * 32767^2 < 2^43, so the
+    // 48-bit accumulator still has 5 bits of head room at N = 4096.
     logic [47:0] ss_acc;
-    logic [10:0] oidx;              // OUT issue cursor (addresses presented)
-    logic [10:0] ecnt;              // OUT retire cursor (elements handshaked)
+    logic [12:0] oidx;              // OUT issue cursor (addresses presented)
+    logic [12:0] ecnt;              // OUT retire cursor (elements handshaked)
 
     // rsqrt engine
     logic        rs_start, rs_done;
     logic [31:0] rs_r;
     logic signed [7:0] rs_e;
     logic [47:0] rs_v;
+    // DOES NOT WIDEN either: rs_p carries 2*in_f + n_log2, at most
+    // 2*15 + 12 = 42, and 6 bits hold 63.
     logic [5:0]  rs_p;
     fx_rsqrt #(.ROM_FILE(RSQRT_ROM)) u_rsqrt (
         .clk, .rstn, .start(rs_start), .v(rs_v), .p_in(rs_p),
@@ -212,8 +228,8 @@ module vecnorm_unit #(
     always_ff @(posedge clk) if (pipe_adv) begin
         logic [63:0] p_f;
         // slot 0 -> 1 : BRAM dout registers
-        xq <= xbuf[oidx[9:0]];
-        wq <= wbuf[oidx[9:0]];
+        xq <= xbuf[oidx[11:0]];
+        wq <= wbuf[oidx[11:0]];
         // slot 1 -> 2 : capture stage (BRAM dout never feeds arithmetic)
         xc <= xq;
         wc <= wq;
@@ -266,12 +282,12 @@ module vecnorm_unit #(
                 IDLE: if (start) begin
                     cnt <= '0;
                     ss_acc <= '0;
-                    n_total <= 11'd1 << cfg_nlog2;
+                    n_total <= 13'd1 << cfg_nlog2;
                     busy <= 1'b1;
                     st <= FILL;
                 end
                 FILL: if (s_valid) begin
-                    xbuf[cnt[9:0]] <= s_data;
+                    xbuf[cnt[11:0]] <= s_data;
                     ss_acc <= ss_acc + 48'(32'(s_data) * 32'(s_data));
                     cnt <= cnt + 1'b1;
                     if (cnt + 1'b1 == n_total) st <= eps_on ? EPSC : RSQ;
@@ -403,6 +419,21 @@ module vecnorm_unit #(
             endcase
         end
     end
+
+    // ==================================================================
+    // Envelope: n_total is 13 bits, so 1 << cfg_nlog2 is representable only
+    // up to cfg_nlog2 = 12 (N = 4096).  At 13 and above n_total wraps to
+    // zero and OUT never issues an address — the unit would swallow the
+    // vector and hang with busy high.  The command decode owns the range;
+    // this is the simulation-side proof that nothing ever hands one over.
+    // ==================================================================
+`ifndef SYNTHESIS
+    always_ff @(posedge clk) begin
+        if (rstn && start && (st == IDLE) && (cfg_nlog2 >= 4'd13))
+            $fatal(1, "vecnorm_unit: cfg_nlog2 %0d unsupported (max 12, N=4096)",
+                   cfg_nlog2);
+    end
+`endif
 
 endmodule
 

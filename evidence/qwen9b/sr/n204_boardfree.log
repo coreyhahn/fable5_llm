@@ -1,0 +1,101 @@
+=== host: snoke  date: 2026-09-27T17:02:40-06:00
+=== tree: cceb282+dirty
+=== dirty:  M ref/seq_format.py
+=== dirty:  M sw/hwmap.py
+=== cmd : bash evidence/qwen2b/rd/rd_boardfree.sh
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== version constants in the tree ===
+seq_run.py:110:EXPECTED_SEQ_VERSION = 0xC973C18A  # build_041_ckr2_AltSpreadLogic_high (9B state
+infer.py:98:EXPECT_VERSION = 0xC973C18A  # build_041 (9B); read back at g6/003. Was 0x54443B9F
+
+=== make seq_selftest ===
+.venv/bin/python -u seq_run.py --selftest
+seq_run selftest (pure python, no board):
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py", line 3257, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py", line 3045, in main
+    raise SystemExit(0 if _selftest() else 1)
+                          ^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py", line 1930, in _selftest
+    cand.append(write_synth_repack_artifact(_tmp))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py", line 746, in write_synth_repack_artifact
+    SF.validate_stream(recs)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 647, in validate_stream
+    caps = HW.seq_caps_check(caps)
+           ^^^^^^^^^^^^^^^^^
+AttributeError: module 'hwmap' has no attribute 'seq_caps_check'
+make: *** [Makefile:89: seq_selftest] Error 1
+=== make serve_test ===
+.venv/bin/python -u serve.py --selftest
+serve.py selftest (no board):
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template OFF (--raw)
+  chat template (T4/T5/T8) in BoardBackend/MockBackend.encode:
+  rung 4 S4: the per-request nch assertion
+  sampling request fields, refusal path and telemetry (S5)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  chat_seq API the adapter depends on (/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py):
+    chat_seq.ChatSession                                       ok
+    chat_seq.SeqLock                                           ok
+    chat_seq.ChatSeqError                                      ok
+    chat_seq.load_tokenizer                                    ok
+    chat_seq.TEMPLATE_PREFIX                                   ok
+    chat_seq.T_MAX                                             ok
+    chat_seq.ChatTemplate                                      ok
+    chat_seq.CHAT_STOP_IDS                                     ok
+    chat_seq.TOK_IM_START                                      ok
+    chat_seq.TOK_IM_END                                        ok
+    chat_seq.TOK_THINK                                         ok
+    chat_seq.TOK_THINK_END                                     ok
+    chat_seq.HF_REF_SINGLE                                     ok
+    chat_seq.HF_REF_3MSG_INCR                                  ok
+    ChatTemplate.turn_ids(self, text, system=None, first=True, carry=None) ok
+    ChatTemplate.render(self, messages, add_generation_prompt=True) ok
+    ChatTemplate.visible(self, ids)                            ok
+    ChatSession.open_board(self)                               ok
+    ChatSession.bring_up(self)                                 ok
+    ChatSession.preamble(self)                                 ok
+    ChatSession.step(self, tok, lite)                          ok
+    ChatSession.plan_turn(self, ids, ntok)                     ok
+    ChatSession.attach_template(self, tk, log=<built-in function print>) ok
+    ChatSession.truncate_history(self, ids, ntok)              ok
+    SeqLock.acquire()                                          ok
+    SeqLock.release()                                          ok
+    args namespace covers chat_seq's args.* reads (missing: reorder, reorder_check) MISSING
+  backend API check: FAIL
+    FAIL chat_seq API is what BoardBackend calls: 
+  serve selftest: 84 passed, 1 failed
+make: *** [Makefile:130: serve_test] Error 1
+=== chat_seq --selftest ===
+  reorder    auto -> the shipped order (form B, the default, runs only at FABLE5_MODEL=9b --nch 4 on the shipped template; here FABLE5_MODEL=0.8b, --nch 1, template model_v2_s1.e)
+chat_seq selftest (pure python, NO board):
+  [1] template source, frozen sha256, spec slice indices
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6843, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6662, in main
+    raise SystemExit(0 if selftest(args) else 1)
+                          ^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 3985, in selftest
+    recs, blob, meta = load_template(args.template)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 474, in load_template
+    SF.validate_stream(recs)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_format.py", line 647, in validate_stream
+    caps = HW.seq_caps_check(caps)
+           ^^^^^^^^^^^^^^^^^
+AttributeError: module 'hwmap' has no attribute 'seq_caps_check'
+SELFTEST_RCS seq=2 serve=2 chat=1
+BOARDFREE_FAIL
+=== rc  : 0
+=== end : 2026-09-27T17:02:43-06:00

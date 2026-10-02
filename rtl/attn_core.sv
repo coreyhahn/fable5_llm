@@ -10,7 +10,15 @@
 //   acc[v] += rshr(p[t]*v8[t][v], 15 - ve[t] - QKV_F)
 //
 // KV memory external: addr {bank,t} bank0=K bank1=V, 2048b row + signed
-// 8b exponent, 2-cycle latency. T <= 512.
+// 8b exponent, 2-cycle latency. T <= 4096.
+//
+// S2 (spec 2026-09-04 state-spill A1.5): the T ceiling lives in FOUR
+// places and widening any subset is a silent wrap — cfg_t/kv_addr, the two
+// score-class memories sc_mem/es_mem, the `t, T` pair, and this contract
+// line.  All four move together here, 512 -> 4096 (10 -> 13 bits), because
+// a KV cache SLOT now holds one (layer, kvhead) at the full context length
+// instead of a 512-deep share of a banked array.  The ARITHMETIC PER ROW
+// IS UNTOUCHED: only widths and memory depths change.
 
 `timescale 1ns/1ps
 `default_nettype none
@@ -26,7 +34,7 @@ module attn_core #(
     output logic               busy,
     output logic               done,
 
-    input  wire [9:0]          cfg_t,        // cache length T
+    input  wire [12:0]         cfg_t,        // cache length T (<= 4096)
 
     // q preload (Q8 int16)
     input  wire                q_we,
@@ -34,7 +42,7 @@ module attn_core #(
     input  wire signed [15:0]  q_wdata,
 
     // KV memory
-    output logic [9:0]         kv_addr,      // {bank, t[8:0]}
+    output logic [12:0]        kv_addr,      // {bank, t[11:0]}
     input  wire [HD*8-1:0]     kv_data,      // valid 1 cycle after addr
     input  wire signed [7:0]   kv_exp,
 
@@ -65,9 +73,9 @@ module attn_core #(
     logic [35:0] erom [256];
     initial $readmemh(EXP2_ROM, erom);
 
-    // scratch BRAMs
-    logic signed [31:0] sc_mem [512];
-    logic [30:0]        es_mem [512];
+    // scratch BRAMs (S2: 4,096 deep — 4 RAMB36 each; S5 records them)
+    (* ram_style = "block" *) logic signed [31:0] sc_mem [4096];
+    (* ram_style = "block" *) logic [30:0]        es_mem [4096];
 
     // shared multiplier
     logic signed [32:0] mul_a, mul_b;
@@ -98,10 +106,10 @@ module attn_core #(
                               R_GO, R_WT,
                               P_RD, P_M1, P_P, P_PC1, P_PC2, P_VW, P_VW2, P_MUL,
                               P_SH, P_SH2, P_SH3, P_ACC,
-                              O_EMIT, O_EMITA, O_EMIT2} st_e;
+                              O_FILL, O_EMIT, O_EMITA, O_EMIT2} st_e;
     st_e st;
 
-    logic [9:0] t, T;
+    logic [12:0] t, T;
     logic signed [31:0] mx;
     logic signed [39:0] denom;
     logic signed [7:0]  ke_q, ve_q;
@@ -159,9 +167,11 @@ module attn_core #(
     logic [16:0] p_t;
     /* verilator lint_off UNUSEDSIGNAL */
     logic signed [39:0] o_sel;     // registered acc mux ([31:0] emitted)
-    logic signed [39:0] o_g4 [4];  // first mux level: 4x 64:1, registered
+    logic signed [39:0] o_g4 [4];  // second mux level: 4x 8:1, registered
+    logic signed [39:0] o_g8 [32]; // FIRST mux level: 32x 8:1 (stage D1)
     /* verilator lint_on UNUSEDSIGNAL */
     logic [8:0]  oi;
+    logic [2:0]  og_i;             // the low index o_g8 is gathering for
     logic [3:0]  shamt_q;          // 15-ve-8, registered (range [6,15])
     logic [14:0] vadd_q;           // 1 << (shamt_q-1), registered
     logic [5:0]  psh_q;            // 30-rc_e+15, registered (range [15,62])
@@ -230,6 +240,29 @@ module attn_core #(
                        + 34'(psum[i*4 + 2]) + 34'(psum[i*4 + 3]);
     end
 
+    // ---- stage D1: the output mux, split ----------------------------
+    // `oi -> o_g4` was ONE cycle over 256 40-bit accumulators spread across
+    // the die: 3 logic levels, 0.276 ns of logic against 3.882 ns of ROUTE,
+    // 891 failing endpoints on the ETO artifact and 1,679 on po2 — the
+    // largest failing family in the design (design note section 7.2).  The
+    // fix is a second mux level, so each cycle covers half the physical
+    // span: 32 x 8:1 over EIGHT ADJACENT lanes here, then 4 x 8:1 into
+    // o_g4 (O_EMIT), then the 4:1 into o_sel (O_EMITA).  The index is the
+    // same one: o_g8[h] is acc[h*8 + og_i], and o_g4[g] is
+    // o_g8[g*8 + oi[5:3]] = acc[g*64 + oi[5:0]] — the old expression.
+    //
+    // og_i LEADS oi by one emit iteration (set in O_EMIT2), so the drain
+    // loop keeps its 4-cycle period and the whole change costs exactly ONE
+    // cycle per ATTN command: O_FILL, which primes this register for
+    // oi = 0.  acc is stable for the whole drain (acc_en_r is st == P_SH3,
+    // aclr_r is IDLE && start), so the gather needs no enable — a
+    // state-decoded enable across 32 x 40 registers is what this module
+    // avoids everywhere else.
+    always_ff @(posedge clk) begin
+        for (int h = 0; h < 32; h++)
+            o_g8[h] <= signed'(acc[{5'(h), og_i}]);
+    end
+
     always_ff @(posedge clk) begin
         if (!rstn) begin
             st <= IDLE;
@@ -248,7 +281,7 @@ module attn_core #(
                     mx <= -32'sd2147483648;
                     denom <= '0;
                     busy <= 1'b1;
-                    kv_addr <= 10'b0;             // bank0, t0
+                    kv_addr <= 13'b0;             // bank0, t0
                     st <= K_RD;
                 end
                 // ---------- scores ----------
@@ -312,20 +345,20 @@ module attn_core #(
                     fin = ks_big  ? 32'd0
                         : ks_left ? lc2 : 32'(m2c >> ks_f2);
                     scv = dsgn ? -signed'(fin) : signed'(fin);
-                    sc_mem[t[8:0]] <= scv;
+                    sc_mem[t[11:0]] <= scv;
                     if (scv > mx) mx <= scv;
                     if (t + 1'b1 == T) begin
                         t <= '0;
                         st <= E_RD;
                     end else begin
                         t <= t + 1'b1;
-                        kv_addr <= {1'b0, t[8:0] + 9'd1};
+                        kv_addr <= {1'b0, t[11:0] + 12'd1};
                         st <= K_RD;
                     end
                 end
                 // ---------- exp ----------
                 E_RD: begin
-                    sc_t <= sc_mem[t[8:0]];
+                    sc_t <= sc_mem[t[11:0]];
                     st <= E_M1;
                     wcnt <= '0;
                 end
@@ -375,7 +408,7 @@ module attn_core #(
                     st <= E_I5;
                 end
                 E_I5: begin
-                    es_mem[t[8:0]] <= esv_q;
+                    es_mem[t[11:0]] <= esv_q;
                     denom <= denom + 40'(esv_q);
                     if (t + 1'b1 == T) begin
                         t <= '0;
@@ -394,12 +427,12 @@ module attn_core #(
                 R_WT: if (rc_done) begin
                     psh_q <= 6'(8'sd45 - rc_e);          // in [15,62]
                     padd_q <= 64'd1 << (6'(8'sd45 - rc_e) - 6'd1);
-                    kv_addr <= {1'b1, 9'd0};
+                    kv_addr <= {1'b1, 12'd0};
                     st <= P_RD;
                 end
                 // ---------- p*v ----------
                 P_RD: begin
-                    es_t <= es_mem[t[8:0]];
+                    es_t <= es_mem[t[11:0]];
                     st <= P_M1;
                     wcnt <= '0;
                 end
@@ -446,18 +479,23 @@ module attn_core #(
                 P_ACC: begin
                     if (t + 1'b1 == T) begin
                         oi <= '0;
-                        st <= O_EMIT;
+                        og_i <= '0;
+                        st <= O_FILL;
                     end else begin
                         t <= t + 1'b1;
-                        kv_addr <= {1'b1, t[8:0] + 9'd1};
+                        kv_addr <= {1'b1, t[11:0] + 12'd1};
                         st <= P_RD;
                     end
                 end
                 // ---------- output ----------
+                // O_FILL: one cycle, once per command — o_g8 gathers for
+                // oi = 0 (stage D1).  This is the ONE architecturally
+                // visible cycle the split costs: ATTN's LCYC +1.
+                O_FILL: st <= O_EMIT;
                 O_EMIT: begin
                     if (!m_valid) begin
-                        for (int g = 0; g < 4; g++)       // 4x 64:1 first
-                            o_g4[g] <= signed'(acc[{2'(g), oi[5:0]}]);
+                        for (int g = 0; g < 4; g++)       // 4x 8:1 second
+                            o_g4[g] <= o_g8[{2'(g), oi[5:3]}];
                         st <= O_EMITA;
                     end else if (m_ready) begin
                         m_valid <= 1'b0;
@@ -470,13 +508,14 @@ module attn_core #(
                     end
                 end
                 O_EMITA: begin
-                    o_sel <= o_g4[oi[7:6]];               // 4:1 second level
+                    o_sel <= o_g4[oi[7:6]];               // 4:1 third level
                     st <= O_EMIT2;
                 end
                 O_EMIT2: begin
                     m_data <= 32'(o_sel);
                     m_idx <= oi[7:0];
                     m_valid <= 1'b1;
+                    og_i <= oi[2:0] + 3'd1;   // lead the next gather (D1)
                     st <= O_EMIT;
                 end
                 default: st <= IDLE;

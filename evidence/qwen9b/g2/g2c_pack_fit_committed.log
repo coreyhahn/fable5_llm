@@ -1,0 +1,62 @@
+=== host: snoke
+=== date: 2026-08-31T19:21:33-06:00
+=== tree: 19bbfd6
+=== cmd:  /home/cah/.venv/bin/python -u evidence/qwen9b/g2/g2c_pack_fit.py --json-out /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g2/g2c_pack_fit_committed.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== G2c per-channel weight-pack fit (sw/hwmap.plan_weights is the authority) ===
+
+CONTROL — the derived manifest against the committed one
+
+  0.8b  PASS  187 committed wids, every nrows/k/ng/nbeats/stride/g/w8 field identical (/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.weights.json); non-wid keys []
+  2b    PASS  187 committed wids, every nrows/k/ng/nbeats/stride/g/w8 field identical (/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.weights.json); non-wid keys ['emb_row_bytes']
+  9b    no committed manifest for this geometry (none exists — no 9B artifact has ever been emitted)
+
+GEOMETRY
+
+  tag    layers      H   FFN   images  head wid  head shape            pack MiB    emb MiB
+  0.8b   24 (18DN+6GQA)  1024  3584    187      186   248320x1024        398.1      485.0
+  2b     24 (18DN+6GQA)  2048  6144    187      186   248320x2048       1847.2      970.0  [W8]
+  9b     32 (24DN+8GQA)  4096 12288    249      248   248320x4096       3902.2     1940.0
+
+FIT — bytes packed from W_BASE, per channel, against the 1280 MiB window below EMB_BASE
+
+  --- 0.8b W4 g128 ---
+    nch=1 nch-independent    tops 0x028e34000
+                             MiB      398.2   busiest 398.2 MiB = 31.1% — PASS
+    nch=4 nch-independent    tops 0x028e34000
+                             MiB      398.2   busiest 398.2 MiB = 31.1% — PASS
+    nch=4 REPACKED           tops 0x01645c000 0x016384000 0x01633c000 0x01633c000
+                             MiB      100.4      99.5      99.2      99.2   busiest 100.4 MiB = 7.8% — PASS
+    head image 143,032,320 B (136.4 MiB) at wid 186
+    channel-0 total = 256 (W_BASE) + 100.4 (pack, repacked) + 485.0 (emb) = 841.4 of 4096 MiB
+
+  --- 2b W8 ---
+    nch=1 nch-independent    tops 0x08374c000
+                             MiB     1847.3   busiest 1847.3 MiB = 144.3% — REFUSED by plan_weights (reaches EMB_BASE)
+    nch=4 nch-independent    tops 0x08374c000 0x08374c000 0x08374c000 0x08374c000
+                             MiB     1847.3    1847.3    1847.3    1847.3   busiest 1847.3 MiB = 144.3% — REFUSED by plan_weights (reaches EMB_BASE)
+    nch=4 REPACKED           tops 0x02d0c4000 0x02cdac000 0x02cca4000 0x02cca4000
+                             MiB      464.8     461.7     460.6     460.6   busiest 464.8 MiB = 36.3% — PASS
+    head image 524,451,840 B (500.2 MiB) at wid 186
+    channel-0 total = 256 (W_BASE) + 464.8 (pack, repacked) + 970.0 (emb) = 1690.8 of 4096 MiB
+
+  --- 9b W4 g128 ---
+    nch=1 nch-independent    tops 0x103e58000
+                             MiB     3902.3   busiest 3902.3 MiB = 304.9% — REFUSED by plan_weights (reaches EMB_BASE)
+    nch=4 nch-independent    tops 0x103e58000 0x103e58000 0x103e58000 0x103e58000
+                             MiB     3902.3    3902.3    3902.3    3902.3   busiest 3902.3 MiB = 304.9% — REFUSED by plan_weights (reaches EMB_BASE)
+    nch=4 REPACKED           tops 0x04d290000 0x04cf78000 0x04ce70000 0x04ce70000
+                             MiB      978.6     975.5     974.4     974.4   busiest 978.6 MiB = 76.5% — PASS
+    head image 524,451,840 B (500.2 MiB) at wid 248
+    channel-0 total = 256 (W_BASE) + 978.6 (pack, repacked) + 1940.0 (emb) = 3174.6 of 4096 MiB
+
+json -> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g2/g2c_pack_fit_committed.json
+G2C_PACK_FIT PASS
+=== rc: 0
+=== end: 2026-08-31T19:21:34-06:00

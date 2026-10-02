@@ -1,0 +1,1170 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date              : Sat Sep  5 18:22:02 2026
+| Host              : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command           : report_timing -to [get_cells -quiet -hier -filter {REF_NAME =~ URAM288* && NAME =~ *g_kv*}] -max_paths 20 -nworst 20 -setup -file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_exp_uram_s5fix_base/reports/kv_write_fanout_paths.rpt
+| Design            : layer_chan
+| Device            : xcvu9p-fsgd2104
+| Speed File        : -2L  PRODUCTION 1.28 03-30-2022
+| Design State      : Fully Placed
+| Temperature Grade : E
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.459ns  (required time - arrival time)
+  Source:                 dma_kvbit_reg/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_ADDR_A[12]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        3.947ns  (logic 0.392ns (9.932%)  route 3.555ns (90.068%))
+  Logic Levels:           2  (LUT4=1 URAM288=1)
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.028     0.028    aclk
+    SLICE_X79Y297        FDRE                                         r  dma_kvbit_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X79Y297        FDRE (Prop_BFF_SLICEL_C_Q)
+                                                      0.079     0.107 r  dma_kvbit_reg/Q
+                         net (fo=10, estimated)       1.354     1.461    u_attn/dma_kvbit
+    SLR Crossing[0->1]   
+    SLICE_X77Y396        LUT4 (Prop_A6LUT_SLICEL_I0_O)
+                                                      0.098     1.559 r  u_attn/g_kvslot[0].emem_reg_bram_1_i_2/O
+                         net (fo=30, estimated)       2.199     3.758    g_kvslot[0].ra[12]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_ADDR_A[12]_CAS_OUT_ADDR_A[12])
+                                                      0.215     3.973 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_ADDR_A[12]
+                         net (fo=1, estimated)        0.002     3.975    g_kvslot[0].mem_reg_uram_7_Cas_AddrA_1[12]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_ADDR_A[12]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         inter-SLR compensation      -0.010     4.054    
+                         clock uncertainty           -0.035     4.019    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_ADDR_A[12])
+                                                     -0.503     3.516    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.516    
+                         arrival time                          -3.975    
+  -------------------------------------------------------------------
+                         slack                                 -0.459    
+
+Slack (VIOLATED) :        -0.459ns  (required time - arrival time)
+  Source:                 dma_kvbit_reg/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_ADDR_A[12]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        3.947ns  (logic 0.392ns (9.932%)  route 3.555ns (90.068%))
+  Logic Levels:           2  (LUT4=1 URAM288=1)
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.028     0.028    aclk
+    SLICE_X79Y297        FDRE                                         r  dma_kvbit_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X79Y297        FDRE (Prop_BFF_SLICEL_C_Q)
+                                                      0.079     0.107 f  dma_kvbit_reg/Q
+                         net (fo=10, estimated)       1.354     1.461    u_attn/dma_kvbit
+    SLR Crossing[0->1]   
+    SLICE_X77Y396        LUT4 (Prop_A6LUT_SLICEL_I0_O)
+                                                      0.098     1.559 f  u_attn/g_kvslot[0].emem_reg_bram_1_i_2/O
+                         net (fo=30, estimated)       2.199     3.758    g_kvslot[0].ra[12]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_ADDR_A[12]_CAS_OUT_ADDR_A[12])
+                                                      0.215     3.973 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_ADDR_A[12]
+                         net (fo=1, estimated)        0.002     3.975    g_kvslot[0].mem_reg_uram_7_Cas_AddrA_1[12]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_ADDR_A[12]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         inter-SLR compensation      -0.010     4.054    
+                         clock uncertainty           -0.035     4.019    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_ADDR_A[12])
+                                                     -0.503     3.516    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.516    
+                         arrival time                          -3.975    
+  -------------------------------------------------------------------
+                         slack                                 -0.459    
+
+Slack (VIOLATED) :        -0.439ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[7]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.004ns  (logic 0.380ns (9.491%)  route 3.624ns (90.509%))
+  Logic Levels:           3  (LUT3=1 LUT5=1 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 r  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      0.508     1.138    u_dma/kv_dma_own
+    SLICE_X83Y359        LUT5 (Prop_H6LUT_SLICEL_I3_O)
+                                                      0.036     1.174 r  u_dma/g_kvslot[0].mem_reg_uram_0_i_73/O
+                         net (fo=261, estimated)      2.643     3.817    g_kvslot[0].we
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_BWE_B[7]_CAS_OUT_BWE_B[7])
+                                                      0.215     4.032 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_BWE_B[7]
+                         net (fo=1, estimated)        0.001     4.033    g_kvslot[0].mem_reg_uram_7_Cas_BEWB_1[7]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[7]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_BWE_B[7])
+                                                     -0.435     3.594    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.594    
+                         arrival time                          -4.033    
+  -------------------------------------------------------------------
+                         slack                                 -0.439    
+
+Slack (VIOLATED) :        -0.439ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[7]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.004ns  (logic 0.380ns (9.491%)  route 3.624ns (90.509%))
+  Logic Levels:           3  (LUT3=1 LUT5=1 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 f  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      0.508     1.138    u_dma/kv_dma_own
+    SLICE_X83Y359        LUT5 (Prop_H6LUT_SLICEL_I3_O)
+                                                      0.036     1.174 r  u_dma/g_kvslot[0].mem_reg_uram_0_i_73/O
+                         net (fo=261, estimated)      2.643     3.817    g_kvslot[0].we
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_BWE_B[7]_CAS_OUT_BWE_B[7])
+                                                      0.215     4.032 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_BWE_B[7]
+                         net (fo=1, estimated)        0.001     4.033    g_kvslot[0].mem_reg_uram_7_Cas_BEWB_1[7]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[7]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_BWE_B[7])
+                                                     -0.435     3.594    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.594    
+                         arrival time                          -4.033    
+  -------------------------------------------------------------------
+                         slack                                 -0.439    
+
+Slack (VIOLATED) :        -0.439ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[7]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.004ns  (logic 0.380ns (9.491%)  route 3.624ns (90.509%))
+  Logic Levels:           3  (LUT3=1 LUT5=1 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 r  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      0.508     1.138    u_dma/kv_dma_own
+    SLICE_X83Y359        LUT5 (Prop_H6LUT_SLICEL_I3_O)
+                                                      0.036     1.174 f  u_dma/g_kvslot[0].mem_reg_uram_0_i_73/O
+                         net (fo=261, estimated)      2.643     3.817    g_kvslot[0].we
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_BWE_B[7]_CAS_OUT_BWE_B[7])
+                                                      0.215     4.032 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_BWE_B[7]
+                         net (fo=1, estimated)        0.001     4.033    g_kvslot[0].mem_reg_uram_7_Cas_BEWB_1[7]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[7]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_BWE_B[7])
+                                                     -0.435     3.594    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.594    
+                         arrival time                          -4.033    
+  -------------------------------------------------------------------
+                         slack                                 -0.439    
+
+Slack (VIOLATED) :        -0.439ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[7]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.004ns  (logic 0.380ns (9.491%)  route 3.624ns (90.509%))
+  Logic Levels:           3  (LUT3=1 LUT5=1 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 f  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      0.508     1.138    u_dma/kv_dma_own
+    SLICE_X83Y359        LUT5 (Prop_H6LUT_SLICEL_I3_O)
+                                                      0.036     1.174 f  u_dma/g_kvslot[0].mem_reg_uram_0_i_73/O
+                         net (fo=261, estimated)      2.643     3.817    g_kvslot[0].we
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_BWE_B[7]_CAS_OUT_BWE_B[7])
+                                                      0.215     4.032 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_BWE_B[7]
+                         net (fo=1, estimated)        0.001     4.033    g_kvslot[0].mem_reg_uram_7_Cas_BEWB_1[7]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[7]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_BWE_B[7])
+                                                     -0.435     3.594    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.594    
+                         arrival time                          -4.033    
+  -------------------------------------------------------------------
+                         slack                                 -0.439    
+
+Slack (VIOLATED) :        -0.427ns  (required time - arrival time)
+  Source:                 dma_kvbit_reg/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_49/CAS_IN_ADDR_A[12]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        3.915ns  (logic 0.392ns (10.013%)  route 3.523ns (89.987%))
+  Logic Levels:           2  (LUT4=1 URAM288=1)
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.028     0.028    aclk
+    SLICE_X79Y297        FDRE                                         r  dma_kvbit_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X79Y297        FDRE (Prop_BFF_SLICEL_C_Q)
+                                                      0.079     0.107 r  dma_kvbit_reg/Q
+                         net (fo=10, estimated)       1.354     1.461    u_attn/dma_kvbit
+    SLR Crossing[0->1]   
+    SLICE_X77Y396        LUT4 (Prop_A6LUT_SLICEL_I0_O)
+                                                      0.098     1.559 r  u_attn/g_kvslot[0].emem_reg_bram_1_i_2/O
+                         net (fo=30, estimated)       2.167     3.726    g_kvslot[0].ra[12]
+    URAM288_X3Y140       URAM288 (Prop_URAM_288K_INST_URAM288_ADDR_A[12]_CAS_OUT_ADDR_A[12])
+                                                      0.215     3.941 r  g_kvslot[0].mem_reg_uram_48/CAS_OUT_ADDR_A[12]
+                         net (fo=1, estimated)        0.002     3.943    g_kvslot[0].mem_reg_uram_49_Cas_AddrA_1[12]
+    URAM288_X3Y141       URAM288                                      r  g_kvslot[0].mem_reg_uram_49/CAS_IN_ADDR_A[12]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y141       URAM288                                      r  g_kvslot[0].mem_reg_uram_49/CLK
+                         clock pessimism              0.000     4.064    
+                         inter-SLR compensation      -0.010     4.054    
+                         clock uncertainty           -0.035     4.019    
+    URAM288_X3Y141       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_ADDR_A[12])
+                                                     -0.503     3.516    g_kvslot[0].mem_reg_uram_49
+  -------------------------------------------------------------------
+                         required time                          3.516    
+                         arrival time                          -3.943    
+  -------------------------------------------------------------------
+                         slack                                 -0.427    
+
+Slack (VIOLATED) :        -0.427ns  (required time - arrival time)
+  Source:                 dma_kvbit_reg/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_49/CAS_IN_ADDR_A[12]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        3.915ns  (logic 0.392ns (10.013%)  route 3.523ns (89.987%))
+  Logic Levels:           2  (LUT4=1 URAM288=1)
+  Clock Path Skew:        0.036ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Inter-SLR Compensation: 0.010ns  (DCD * PF)
+    Destination Clock Delay (DCD):    0.064ns
+    Prorating Factor         (PF):    0.150
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.028     0.028    aclk
+    SLICE_X79Y297        FDRE                                         r  dma_kvbit_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X79Y297        FDRE (Prop_BFF_SLICEL_C_Q)
+                                                      0.079     0.107 f  dma_kvbit_reg/Q
+                         net (fo=10, estimated)       1.354     1.461    u_attn/dma_kvbit
+    SLR Crossing[0->1]   
+    SLICE_X77Y396        LUT4 (Prop_A6LUT_SLICEL_I0_O)
+                                                      0.098     1.559 f  u_attn/g_kvslot[0].emem_reg_bram_1_i_2/O
+                         net (fo=30, estimated)       2.167     3.726    g_kvslot[0].ra[12]
+    URAM288_X3Y140       URAM288 (Prop_URAM_288K_INST_URAM288_ADDR_A[12]_CAS_OUT_ADDR_A[12])
+                                                      0.215     3.941 f  g_kvslot[0].mem_reg_uram_48/CAS_OUT_ADDR_A[12]
+                         net (fo=1, estimated)        0.002     3.943    g_kvslot[0].mem_reg_uram_49_Cas_AddrA_1[12]
+    URAM288_X3Y141       URAM288                                      f  g_kvslot[0].mem_reg_uram_49/CAS_IN_ADDR_A[12]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y141       URAM288                                      r  g_kvslot[0].mem_reg_uram_49/CLK
+                         clock pessimism              0.000     4.064    
+                         inter-SLR compensation      -0.010     4.054    
+                         clock uncertainty           -0.035     4.019    
+    URAM288_X3Y141       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_ADDR_A[12])
+                                                     -0.503     3.516    g_kvslot[0].mem_reg_uram_49
+  -------------------------------------------------------------------
+                         required time                          3.516    
+                         arrival time                          -3.943    
+  -------------------------------------------------------------------
+                         slack                                 -0.427    
+
+Slack (VIOLATED) :        -0.424ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[44]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.113ns  (logic 0.534ns (12.983%)  route 3.579ns (87.017%))
+  Logic Levels:           4  (LUT2=1 LUT3=2 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 r  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      2.319     2.949    u_dma/kv_dma_own
+    SLICE_X119Y506       LUT2 (Prop_E6LUT_SLICEM_I0_O)
+                                                      0.052     3.001 r  u_dma/g_kvslot[0].mem_reg_uram_6_i_73/O
+                         net (fo=72, estimated)       0.358     3.359    u_dma/g_kvslot[0].mem_reg_uram_6_i_73_n_0
+    SLICE_X122Y506       LUT3 (Prop_E5LUT_SLICEL_I2_O)
+                                                      0.138     3.497 r  u_dma/g_kvslot[0].mem_reg_uram_6_i_28/O
+                         net (fo=1, estimated)        0.429     3.926    g_kvslot[0].wd[260]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_DIN_B[44]_CAS_OUT_DIN_B[44])
+                                                      0.215     4.141 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_DIN_B[44]
+                         net (fo=1, estimated)        0.001     4.142    g_kvslot[0].mem_reg_uram_7_Cas_DinB_1[44]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[44]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_DIN_B[44])
+                                                     -0.311     3.718    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.718    
+                         arrival time                          -4.142    
+  -------------------------------------------------------------------
+                         slack                                 -0.424    
+
+Slack (VIOLATED) :        -0.424ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[44]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.113ns  (logic 0.534ns (12.983%)  route 3.579ns (87.017%))
+  Logic Levels:           4  (LUT2=1 LUT3=2 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 f  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      2.319     2.949    u_dma/kv_dma_own
+    SLICE_X119Y506       LUT2 (Prop_E6LUT_SLICEM_I0_O)
+                                                      0.052     3.001 f  u_dma/g_kvslot[0].mem_reg_uram_6_i_73/O
+                         net (fo=72, estimated)       0.358     3.359    u_dma/g_kvslot[0].mem_reg_uram_6_i_73_n_0
+    SLICE_X122Y506       LUT3 (Prop_E5LUT_SLICEL_I2_O)
+                                                      0.138     3.497 r  u_dma/g_kvslot[0].mem_reg_uram_6_i_28/O
+                         net (fo=1, estimated)        0.429     3.926    g_kvslot[0].wd[260]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_DIN_B[44]_CAS_OUT_DIN_B[44])
+                                                      0.215     4.141 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_DIN_B[44]
+                         net (fo=1, estimated)        0.001     4.142    g_kvslot[0].mem_reg_uram_7_Cas_DinB_1[44]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[44]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_DIN_B[44])
+                                                     -0.311     3.718    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.718    
+                         arrival time                          -4.142    
+  -------------------------------------------------------------------
+                         slack                                 -0.424    
+
+Slack (VIOLATED) :        -0.424ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[44]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.113ns  (logic 0.534ns (12.983%)  route 3.579ns (87.017%))
+  Logic Levels:           4  (LUT2=1 LUT3=2 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 r  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      2.319     2.949    u_dma/kv_dma_own
+    SLICE_X119Y506       LUT2 (Prop_E6LUT_SLICEM_I0_O)
+                                                      0.052     3.001 r  u_dma/g_kvslot[0].mem_reg_uram_6_i_73/O
+                         net (fo=72, estimated)       0.358     3.359    u_dma/g_kvslot[0].mem_reg_uram_6_i_73_n_0
+    SLICE_X122Y506       LUT3 (Prop_E5LUT_SLICEL_I2_O)
+                                                      0.138     3.497 f  u_dma/g_kvslot[0].mem_reg_uram_6_i_28/O
+                         net (fo=1, estimated)        0.429     3.926    g_kvslot[0].wd[260]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_DIN_B[44]_CAS_OUT_DIN_B[44])
+                                                      0.215     4.141 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_DIN_B[44]
+                         net (fo=1, estimated)        0.001     4.142    g_kvslot[0].mem_reg_uram_7_Cas_DinB_1[44]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[44]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_DIN_B[44])
+                                                     -0.311     3.718    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.718    
+                         arrival time                          -4.142    
+  -------------------------------------------------------------------
+                         slack                                 -0.424    
+
+Slack (VIOLATED) :        -0.424ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[44]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.113ns  (logic 0.534ns (12.983%)  route 3.579ns (87.017%))
+  Logic Levels:           4  (LUT2=1 LUT3=2 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 f  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      2.319     2.949    u_dma/kv_dma_own
+    SLICE_X119Y506       LUT2 (Prop_E6LUT_SLICEM_I0_O)
+                                                      0.052     3.001 f  u_dma/g_kvslot[0].mem_reg_uram_6_i_73/O
+                         net (fo=72, estimated)       0.358     3.359    u_dma/g_kvslot[0].mem_reg_uram_6_i_73_n_0
+    SLICE_X122Y506       LUT3 (Prop_E5LUT_SLICEL_I2_O)
+                                                      0.138     3.497 f  u_dma/g_kvslot[0].mem_reg_uram_6_i_28/O
+                         net (fo=1, estimated)        0.429     3.926    g_kvslot[0].wd[260]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_DIN_B[44]_CAS_OUT_DIN_B[44])
+                                                      0.215     4.141 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_DIN_B[44]
+                         net (fo=1, estimated)        0.001     4.142    g_kvslot[0].mem_reg_uram_7_Cas_DinB_1[44]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[44]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_DIN_B[44])
+                                                     -0.311     3.718    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.718    
+                         arrival time                          -4.142    
+  -------------------------------------------------------------------
+                         slack                                 -0.424    
+
+Slack (VIOLATED) :        -0.413ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[28]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.071ns  (logic 0.509ns (12.503%)  route 3.562ns (87.497%))
+  Logic Levels:           4  (LUT2=1 LUT3=2 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 r  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      2.319     2.949    u_dma/kv_dma_own
+    SLICE_X119Y506       LUT2 (Prop_E6LUT_SLICEM_I0_O)
+                                                      0.052     3.001 r  u_dma/g_kvslot[0].mem_reg_uram_6_i_73/O
+                         net (fo=72, estimated)       0.494     3.495    u_dma/g_kvslot[0].mem_reg_uram_6_i_73_n_0
+    SLICE_X119Y533       LUT3 (Prop_E5LUT_SLICEM_I2_O)
+                                                      0.113     3.608 r  u_dma/g_kvslot[0].mem_reg_uram_6_i_44/O
+                         net (fo=1, estimated)        0.276     3.884    g_kvslot[0].wd[244]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_DIN_B[28]_CAS_OUT_DIN_B[28])
+                                                      0.215     4.099 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_DIN_B[28]
+                         net (fo=1, estimated)        0.001     4.100    g_kvslot[0].mem_reg_uram_7_Cas_DinB_1[28]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[28]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_DIN_B[28])
+                                                     -0.342     3.687    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.687    
+                         arrival time                          -4.100    
+  -------------------------------------------------------------------
+                         slack                                 -0.413    
+
+Slack (VIOLATED) :        -0.413ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[28]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.071ns  (logic 0.509ns (12.503%)  route 3.562ns (87.497%))
+  Logic Levels:           4  (LUT2=1 LUT3=2 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 f  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      2.319     2.949    u_dma/kv_dma_own
+    SLICE_X119Y506       LUT2 (Prop_E6LUT_SLICEM_I0_O)
+                                                      0.052     3.001 f  u_dma/g_kvslot[0].mem_reg_uram_6_i_73/O
+                         net (fo=72, estimated)       0.494     3.495    u_dma/g_kvslot[0].mem_reg_uram_6_i_73_n_0
+    SLICE_X119Y533       LUT3 (Prop_E5LUT_SLICEM_I2_O)
+                                                      0.113     3.608 r  u_dma/g_kvslot[0].mem_reg_uram_6_i_44/O
+                         net (fo=1, estimated)        0.276     3.884    g_kvslot[0].wd[244]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_DIN_B[28]_CAS_OUT_DIN_B[28])
+                                                      0.215     4.099 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_DIN_B[28]
+                         net (fo=1, estimated)        0.001     4.100    g_kvslot[0].mem_reg_uram_7_Cas_DinB_1[28]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[28]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_DIN_B[28])
+                                                     -0.342     3.687    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.687    
+                         arrival time                          -4.100    
+  -------------------------------------------------------------------
+                         slack                                 -0.413    
+
+Slack (VIOLATED) :        -0.413ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[28]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.071ns  (logic 0.509ns (12.503%)  route 3.562ns (87.497%))
+  Logic Levels:           4  (LUT2=1 LUT3=2 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 r  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      2.319     2.949    u_dma/kv_dma_own
+    SLICE_X119Y506       LUT2 (Prop_E6LUT_SLICEM_I0_O)
+                                                      0.052     3.001 r  u_dma/g_kvslot[0].mem_reg_uram_6_i_73/O
+                         net (fo=72, estimated)       0.494     3.495    u_dma/g_kvslot[0].mem_reg_uram_6_i_73_n_0
+    SLICE_X119Y533       LUT3 (Prop_E5LUT_SLICEM_I2_O)
+                                                      0.113     3.608 f  u_dma/g_kvslot[0].mem_reg_uram_6_i_44/O
+                         net (fo=1, estimated)        0.276     3.884    g_kvslot[0].wd[244]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_DIN_B[28]_CAS_OUT_DIN_B[28])
+                                                      0.215     4.099 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_DIN_B[28]
+                         net (fo=1, estimated)        0.001     4.100    g_kvslot[0].mem_reg_uram_7_Cas_DinB_1[28]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[28]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_DIN_B[28])
+                                                     -0.342     3.687    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.687    
+                         arrival time                          -4.100    
+  -------------------------------------------------------------------
+                         slack                                 -0.413    
+
+Slack (VIOLATED) :        -0.413ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[28]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.071ns  (logic 0.509ns (12.503%)  route 3.562ns (87.497%))
+  Logic Levels:           4  (LUT2=1 LUT3=2 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 f  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      2.319     2.949    u_dma/kv_dma_own
+    SLICE_X119Y506       LUT2 (Prop_E6LUT_SLICEM_I0_O)
+                                                      0.052     3.001 f  u_dma/g_kvslot[0].mem_reg_uram_6_i_73/O
+                         net (fo=72, estimated)       0.494     3.495    u_dma/g_kvslot[0].mem_reg_uram_6_i_73_n_0
+    SLICE_X119Y533       LUT3 (Prop_E5LUT_SLICEM_I2_O)
+                                                      0.113     3.608 f  u_dma/g_kvslot[0].mem_reg_uram_6_i_44/O
+                         net (fo=1, estimated)        0.276     3.884    g_kvslot[0].wd[244]
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_DIN_B[28]_CAS_OUT_DIN_B[28])
+                                                      0.215     4.099 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_DIN_B[28]
+                         net (fo=1, estimated)        0.001     4.100    g_kvslot[0].mem_reg_uram_7_Cas_DinB_1[28]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_DIN_B[28]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_DIN_B[28])
+                                                     -0.342     3.687    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.687    
+                         arrival time                          -4.100    
+  -------------------------------------------------------------------
+                         slack                                 -0.413    
+
+Slack (VIOLATED) :        -0.408ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[8]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.000ns  (logic 0.380ns (9.500%)  route 3.620ns (90.500%))
+  Logic Levels:           3  (LUT3=1 LUT5=1 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 r  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      0.508     1.138    u_dma/kv_dma_own
+    SLICE_X83Y359        LUT5 (Prop_H6LUT_SLICEL_I3_O)
+                                                      0.036     1.174 r  u_dma/g_kvslot[0].mem_reg_uram_0_i_73/O
+                         net (fo=261, estimated)      2.638     3.812    g_kvslot[0].we
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_BWE_B[8]_CAS_OUT_BWE_B[8])
+                                                      0.215     4.027 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_BWE_B[8]
+                         net (fo=1, estimated)        0.002     4.029    g_kvslot[0].mem_reg_uram_7_Cas_BEWB_1[8]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[8]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_BWE_B[8])
+                                                     -0.408     3.621    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.621    
+                         arrival time                          -4.029    
+  -------------------------------------------------------------------
+                         slack                                 -0.408    
+
+Slack (VIOLATED) :        -0.408ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[8]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.000ns  (logic 0.380ns (9.500%)  route 3.620ns (90.500%))
+  Logic Levels:           3  (LUT3=1 LUT5=1 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 f  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      0.508     1.138    u_dma/kv_dma_own
+    SLICE_X83Y359        LUT5 (Prop_H6LUT_SLICEL_I3_O)
+                                                      0.036     1.174 r  u_dma/g_kvslot[0].mem_reg_uram_0_i_73/O
+                         net (fo=261, estimated)      2.638     3.812    g_kvslot[0].we
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_BWE_B[8]_CAS_OUT_BWE_B[8])
+                                                      0.215     4.027 r  g_kvslot[0].mem_reg_uram_6/CAS_OUT_BWE_B[8]
+                         net (fo=1, estimated)        0.002     4.029    g_kvslot[0].mem_reg_uram_7_Cas_BEWB_1[8]
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[8]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_BWE_B[8])
+                                                     -0.408     3.621    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.621    
+                         arrival time                          -4.029    
+  -------------------------------------------------------------------
+                         slack                                 -0.408    
+
+Slack (VIOLATED) :        -0.408ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[8]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.000ns  (logic 0.380ns (9.500%)  route 3.620ns (90.500%))
+  Logic Levels:           3  (LUT3=1 LUT5=1 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 r  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 r  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      0.508     1.138    u_dma/kv_dma_own
+    SLICE_X83Y359        LUT5 (Prop_H6LUT_SLICEL_I3_O)
+                                                      0.036     1.174 f  u_dma/g_kvslot[0].mem_reg_uram_0_i_73/O
+                         net (fo=261, estimated)      2.638     3.812    g_kvslot[0].we
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_BWE_B[8]_CAS_OUT_BWE_B[8])
+                                                      0.215     4.027 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_BWE_B[8]
+                         net (fo=1, estimated)        0.002     4.029    g_kvslot[0].mem_reg_uram_7_Cas_BEWB_1[8]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[8]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_BWE_B[8])
+                                                     -0.408     3.621    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.621    
+                         arrival time                          -4.029    
+  -------------------------------------------------------------------
+                         slack                                 -0.408    
+
+Slack (VIOLATED) :        -0.408ns  (required time - arrival time)
+  Source:                 dma_kind_reg[0]_rep__13/C
+                            (rising edge-triggered cell FDRE clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[8]
+                            (rising edge-triggered cell URAM288 clocked by aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (aclk rise@4.000ns - aclk rise@0.000ns)
+  Data Path Delay:        4.000ns  (logic 0.380ns (9.500%)  route 3.620ns (90.500%))
+  Logic Levels:           3  (LUT3=1 LUT5=1 URAM288=1)
+  Clock Path Skew:        0.035ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.064ns = ( 4.064 - 4.000 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.029     0.029    aclk
+    SLICE_X77Y324        FDRE                                         r  dma_kind_reg[0]_rep__13/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X77Y324        FDRE (Prop_EFF_SLICEL_C_Q)
+                                                      0.079     0.108 f  dma_kind_reg[0]_rep__13/Q
+                         net (fo=51, estimated)       0.472     0.580    u_dma/x_kind_reg[0]_0
+    SLICE_X77Y351        LUT3 (Prop_G6LUT_SLICEL_I1_O)
+                                                      0.050     0.630 f  u_dma/g_kvslot[1].mem_reg_uram_0_i_100/O
+                         net (fo=130, estimated)      0.508     1.138    u_dma/kv_dma_own
+    SLICE_X83Y359        LUT5 (Prop_H6LUT_SLICEL_I3_O)
+                                                      0.036     1.174 f  u_dma/g_kvslot[0].mem_reg_uram_0_i_73/O
+                         net (fo=261, estimated)      2.638     3.812    g_kvslot[0].we
+    URAM288_X3Y142       URAM288 (Prop_URAM_288K_INST_URAM288_BWE_B[8]_CAS_OUT_BWE_B[8])
+                                                      0.215     4.027 f  g_kvslot[0].mem_reg_uram_6/CAS_OUT_BWE_B[8]
+                         net (fo=1, estimated)        0.002     4.029    g_kvslot[0].mem_reg_uram_7_Cas_BEWB_1[8]
+    URAM288_X3Y143       URAM288                                      f  g_kvslot[0].mem_reg_uram_7/CAS_IN_BWE_B[8]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       4.000     4.000 r  
+                                                      0.000     4.000 r  aclk (IN)
+                         net (fo=77951, unset)        0.064     4.064    aclk
+    URAM288_X3Y143       URAM288                                      r  g_kvslot[0].mem_reg_uram_7/CLK
+                         clock pessimism              0.000     4.064    
+                         clock uncertainty           -0.035     4.029    
+    URAM288_X3Y143       URAM288 (Setup_URAM_288K_INST_URAM288_CLK_CAS_IN_BWE_B[8])
+                                                     -0.408     3.621    g_kvslot[0].mem_reg_uram_7
+  -------------------------------------------------------------------
+                         required time                          3.621    
+                         arrival time                          -4.029    
+  -------------------------------------------------------------------
+                         slack                                 -0.408    
+
+
+
+

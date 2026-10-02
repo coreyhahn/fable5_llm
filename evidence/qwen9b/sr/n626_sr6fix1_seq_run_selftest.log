@@ -1,0 +1,55 @@
+=== host: snoke  date: 2026-09-27T20:11:50-06:00
+=== tree: 655cedd
+=== cmd : /home/cah/.venv/bin/python sw/seq_run.py --selftest
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--caps R1[,R2..]]
+                  [--lock LOCK] [--no-lock]
+seq_run.py: error: argument --expect-version: expect-version 0x9b588e79 is not a known sequencer bitstream (known: 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess
+seq_run selftest (pure python, no board):
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+      1987 records, 63360 B blob, 25 LDC (0 indirected), 44 MVGO, 0 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/tok2_s1.e
+      1080 records, 61568 B blob, 14 LDC (1 indirected), 26 MVGO, 3 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e
+      60495 records, 1007360 B blob, 538 LDC (24 indirected), 1592 MVGO, 6 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e4
+      68119 records, 1007360 B blob, 538 LDC (24 indirected), 3464 MVGO, 6 expected tokens
+  --- /tmp/fable5_rp_jrlledqr/rp.e
+      53 records, 2048 B blob, 1 LDC (0 indirected), 12 MVGO, 1 expected tokens
+  --- R-c: the emitter's placement-order guard
+  --- R-b: emb_row_bytes manifest key + EMBLOG2 CSR
+  --- BM1: the SEQ 0x100 idle-counter block is feature-detected
+  --- BM1-T4prep: --expect-version admits a NAMED sequencer bitstream
+  --- BM1-T4prep fix 1: strict hash parse; main refuses before DMA
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+  SEQ CSRs untouched: scripted: VERSION mismatch
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+  SEQ CSRs untouched: scripted: VERSION mismatch
+  capabilities     {}  (default (board-free: --dry-run never reads the SEQ window))
+--- SEQ stream: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+  artifacts base   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1
+  stream           1987 records, 31792 B (sha256 407429b498e92634) VALIDATED at capabilities {}
+  seqdata          63360 B (sha256 afd5bea218f7add4)
+  profile          epsnorm  dyn_ka=True  loop 0 steps (fewer than two decode steps)
+  opcodes          {'CSRWR': 1381, 'CMD': 460, 'MOVX': 30, 'MOVY': 44, 'MVGO': 44, 'HALT': 1, 'LDC*': 25, 'XOP*': 2}
+  expected tokens  []
+  mode             single-channel (engine chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=1)
+  stream    0x9000000 .. 0x9007c30  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc00f780  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 15 images, chans [0])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 25 LDC records (0 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 0 EMB records checked, delta +0x0
+  weight plan: 15 images match the stream's MVGO plan; 44 MVGO WBASEs row-aligned inside them
+--- upload
+  --- SR6: Dev.seq_caps / manifest_caps_check / --caps
+  --- S3: the DDR state region (plan, witnesses, bytes/token)
+  seq_run selftest: 2820 passed, 0 failed
+=== rc  : 0
+=== end : 2026-09-27T20:11:57-06:00

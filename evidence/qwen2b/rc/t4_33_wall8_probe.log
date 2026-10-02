@@ -1,0 +1,28 @@
+=== host: snoke  date: 2026-08-22T16:58:11-06:00
+=== tree: 6c2762c+dirty
+=== cmd : bash -c FABLE5_MODEL=2b /home/cah/.venv/bin/python evidence/qwen2b/rc/t4_wall8_probe.py
+=== venv: 3.12.3 numpy 2.4.6
+emb.bin: 508559360 int16 words, declared row = 4096 B = 2048 words, 248320 rows
+seq_unit EMBLOG2 reset = 11 -> 2048 B rows; this artifact needs 4096 B (EMBLOG2 12)
+
+wrong-stride view: 496638 rows of 2048 words, stride 1024 words (2048 B)
+  sanity: token 760 would read true row 380 instead of 760
+
+replaying the FULL 2B stream through seq_model:
+  correct stride (4096 B rows)       -> ['0x117', '0x13a', '0x117', '0x171', '0x2de7', '0xd']
+  EMBLOG2 stuck at 11 (2048 B)       -> ['0xd', '0xd', '0x2c', '0xdc', '0x8e', '0xdc']
+
+  .chip golden tokens : ['0x117', '0x13a', '0x117', '0x171', '0x2de7', '0xd']
+  RTL produced        : ['0xd', '0xd', '0x2c', '0xdc', '0x8e', '0xdc']
+
+correct-stride replay == the golden      : True
+wrong-stride  replay == what the RTL did : True
+
+VERDICT: PROVEN.  Feeding the golden executor an embedding table
+read at 2048 B rows reproduces the RTL's six wrong tokens
+EXACTLY.  Wall 8 is tb_seq_chip.sv never programming EMBLOG2 —
+a TESTBENCH host-BFM gap.  sw/seq_run.py does program it, so
+silicon/R-d is NOT exposed; ref/seq_model.py reads the stride
+from the artifact, which is why the golden was green.
+=== rc  : 0
+=== end : 2026-08-22T17:02:45-06:00

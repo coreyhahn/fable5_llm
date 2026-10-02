@@ -1,0 +1,121 @@
+=== host: snoke  date: 2026-09-27T18:23:07-06:00
+=== tree: 529e6b0+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/QWEN35_2BOARD_FEASIBILITY.md
+=== dirty:  M docs/QWEN35_NEXT_FEASIBILITY.md
+=== dirty:  M docs/SEQ_ISA.md
+=== dirty:  M docs/USAGE.md
+=== dirty:  M docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+=== dirty:  M docs/superpowers/plans/2026-08-16-qwen2b-v5-w8.md
+=== dirty:  M docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+=== dirty:  M docs/superpowers/plans/2026-09-04-qwen35-9b-state-spill.md
+=== dirty:  M docs/superpowers/plans/2026-09-27-seq-rtl-round.md
+=== dirty:  M docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+=== dirty:  M docs/superpowers/specs/2026-09-24-board-idle-counters-design.md
+=== dirty:  M docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md
+=== dirty:  M evidence/qwen2b/rb/seq_isa_ref_sweep.txt
+=== dirty:  M evidence/qwen9b/bm/BM1_T1_GATE.md
+=== dirty:  M evidence/qwen9b/bm/BM1_T3_BUILD.md
+=== dirty:  M evidence/qwen9b/bn/BN_CENSUS.md
+=== dirty:  M evidence/qwen9b/bn/bn_timeline.py
+=== dirty:  M evidence/qwen9b/g2/FINAL_BYTELOCK.md
+=== dirty:  M evidence/qwen9b/g2/G2A_HOST.md
+=== dirty:  M evidence/qwen9b/g3/G3_1_ISA.md
+=== dirty:  M evidence/qwen9b/g3/G3_3_MATVEC.md
+=== dirty:  M evidence/qwen9b/g3/G3_4_LAYER.md
+=== dirty:  M evidence/qwen9b/g4/G4A_REPLAY.md
+=== dirty:  M evidence/qwen9b/g4/tb_layer_census.sv
+=== dirty:  M evidence/qwen9b/g6/RD9_GATE.md
+=== dirty:  M evidence/qwen9b/g6/g6_emblog2.py
+=== dirty:  M evidence/qwen9b/ov/OV1_DEPENDENCY_CENSUS.md
+=== dirty:  M evidence/qwen9b/ov/SV1_S1_VERIFY.md
+=== dirty:  M evidence/qwen9b/ov/ov_census.py
+=== dirty:  M evidence/qwen9b/ov/sr0_clock_sens.py
+=== dirty:  M evidence/qwen9b/s3/S3_CHAIN.md
+=== dirty:  M evidence/qwen9b/s4/S4_REPLAY.md
+=== dirty:  M evidence/qwen9b/s4/census_nodrain_red.sh
+=== dirty:  M evidence/qwen9b/s4/emit_model_gated.sh
+=== dirty:  M evidence/qwen9b/sd/SD1_SCHEDULE_DELTA.md
+=== dirty:  M evidence/qwen9b/sr/SR2_ISA.md
+=== dirty:  M evidence/qwen_next/feas/addrmap_options.py
+=== dirty:  M ref/scripts/reorder_e4.py
+=== dirty:  M ref/seq_chat.py
+=== dirty:  M ref/seq_format.py
+=== dirty:  M ref/seq_model.py
+=== dirty:  M rtl/layer_chan.sv
+=== dirty:  M rtl/state_dma.sv
+=== dirty:  M sw/hwmap.py
+=== dirty:  M synth/exp_uram/rtl/layer_chan.sv
+=== dirty: ?? evidence/qwen9b/sr/sr3c_hand_repairs.py
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr3c_hand_repairs.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+OK  docs/superpowers/specs/2026-09-24-board-idle-counters-design.md:147  rtl/seq_movers.sv:812-814 -> rtl/seq_movers.sv:821-824
+      base  812 | // FENCE: drain every channel a no-wait MVGO left running
+      base  814 | // FENCE also drains the AXI-Lite write pipe: a run of CSRWRs
+      work  821 | // FENCE: drain every channel a no-wait MVGO left running that
+      work  824 | // FENCE also drains the AXI-Lite write pipe: a run of CSRWRs
+OK  docs/SEQ_ISA.md:1473  `rtl/seq_movers.sv:818` -> `rtl/seq_movers.sv:828`
+      base  818 | if (chan_pend[fence_chan]) begin
+      work  828 | if (chan_pend[fence_chan] && fmask_q[fence_chan]) begin
+OK  docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:103  rtl/seq_unit.sv:794-797 -> rtl/seq_unit.sv:806-813
+      base  794 | OP_FENCE, OP_HALT:
+      base  797 | begin v_bad=1; v_code=E_RSVD; end
+      work  806 | OP_FENCE:
+      work  813 | begin v_bad=1; v_code=E_RSVD; end
+OK  docs/superpowers/specs/2026-09-27-seq-rtl-round-design.md:136  rtl/seq_unit.sv:794-797 -> rtl/seq_unit.sv:806-813
+      base  794 | OP_FENCE, OP_HALT:
+      base  797 | begin v_bad=1; v_code=E_RSVD; end
+      work  806 | OP_FENCE:
+      work  813 | begin v_bad=1; v_code=E_RSVD; end
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:176  rtl/seq_unit.sv:794-797 -> rtl/seq_unit.sv:806-813
+      base  794 | OP_FENCE, OP_HALT:
+      base  797 | begin v_bad=1; v_code=E_RSVD; end
+      work  806 | OP_FENCE:
+      work  813 | begin v_bad=1; v_code=E_RSVD; end
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:190  rtl/seq_unit.sv:794-797 -> rtl/seq_unit.sv:806-813
+      base  794 | OP_FENCE, OP_HALT:
+      base  797 | begin v_bad=1; v_code=E_RSVD; end
+      work  806 | OP_FENCE:
+      work  813 | begin v_bad=1; v_code=E_RSVD; end
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:180  tb/Makefile:862 -> tb/Makefile:865
+      base  862 | SEQ_ERRS  := op ind chan jmp xopsgn csrsp rsvd env0 env97
+      work  865 | SEQ_ERRS  := op ind chan jmp xopsgn csrsp rsvd env0 env97 fmrsvd fmimm haltmask
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:180  tb/Makefile:870 -> tb/Makefile:875
+      base  870 | SEQ_DIRECTED := hiaddr embrow repack1 repack2 repack3 repack4
+      work  875 | SEQ_DIRECTED := hiaddr embrow repack1 repack2 repack3 repack4 \
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:61  tb/scripts/gen_seq_unit_vectors.py:282-283 -> tb/scripts/gen_seq_unit_vectors.py:306-320
+      base  282 | elif o == SF.OP_FENCE:
+      base  283 | self.pend = [False] * 4      # polls only -> no logged traffic
+      work  306 | elif o == SF.OP_FENCE:
+      work  320 | fp[1] |= hit
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:62  tb/scripts/gen_seq_unit_vectors.py:282-283 -> tb/scripts/gen_seq_unit_vectors.py:306-320
+      base  282 | elif o == SF.OP_FENCE:
+      base  283 | self.pend = [False] * 4      # polls only -> no logged traffic
+      work  306 | elif o == SF.OP_FENCE:
+      work  320 | fp[1] |= hit
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:178  tb/scripts/gen_seq_unit_vectors.py:282-283 -> tb/scripts/gen_seq_unit_vectors.py:306-320
+      base  282 | elif o == SF.OP_FENCE:
+      base  283 | self.pend = [False] * 4      # polls only -> no logged traffic
+      work  306 | elif o == SF.OP_FENCE:
+      work  320 | fp[1] |= hit
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:178  tb/scripts/gen_seq_unit_vectors.py:362-364 -> tb/scripts/gen_seq_unit_vectors.py:399-409
+      base  362 | elif o in (SF.OP_FENCE, SF.OP_HALT):
+      base  364 | return 0x06
+      work  399 | elif o == SF.OP_FENCE:
+      work  409 | return 0x06
+OK  docs/superpowers/plans/2026-09-27-seq-rtl-round.md:190  tb/scripts/gen_seq_unit_vectors.py:679 -> tb/scripts/gen_seq_unit_vectors.py:812
+      base  679 | SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B)
+      work  812 | SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B, caps=BUILD_CAPS)
+OK  evidence/qwen9b/g3/G3_4_LAYER.md:986  tb/scripts/gen_seq_unit_vectors.py:679 -> tb/scripts/gen_seq_unit_vectors.py:812
+      base  679 | SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B)
+      work  812 | SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B, caps=BUILD_CAPS)
+OK  evidence/qwen9b/g3/G3_4_LAYER.md:1286  tb/scripts/gen_seq_unit_vectors.py:679 -> tb/scripts/gen_seq_unit_vectors.py:812
+      base  679 | SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B)
+      work  812 | SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B, caps=BUILD_CAPS)
+OK  evidence/qwen9b/g4/G4A_REPLAY.md:216  tb/scripts/gen_seq_unit_vectors.py:679 -> tb/scripts/gen_seq_unit_vectors.py:812
+      base  679 | SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B)
+      work  812 | SF.validate_stream(recs, shape_isa=SF.SHAPE_ISA_9B, caps=BUILD_CAPS)
+SR3C_HAND_REPAIRS PASS (16 tokens, 0 bad)
+=== rc  : 0
+=== end : 2026-09-27T18:23:07-06:00

@@ -1,0 +1,51 @@
+=== host: snoke  date: 2026-08-22T13:07:52-06:00
+=== tree: 999df81+dirty
+=== cmd : bash -c cd ref && FABLE5_MODEL=2b /home/cah/.venv/bin/python -u fidelity_check.py --w8 --res-scale 4 --wire-group 128 --ntok 24 --free-ntok 24 --cache ../tb/scripts_scratch/golden_bf16_2b.npz --json-out ../evidence/qwen2b/rc/t4_fidelity_2b_w8.json
+=== venv: 3.12.3 numpy 2.4.6
+host: snoke
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+  header sha256 ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d (golden ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d)
+  loaded in 6.1s
+  LM head quantized (W8 rule=max|W_g|/127 g=128) e=-8 sh=10 (11.3s)
+
+=== config S=4 w8 ===
+    quantized 24 layers in 30.5s
+    emb table |q|max 202 of 32767 (7.3s)
+    config done in 4930.6s
+  --- S=4 w8 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 32, 13, 2912, 198, 33, 13, 3439, 271, 248068, 198, 90700, 8340, 25, 271, 16, 13, 220, 2972, 2014, 53983]  text=' is Paris.\nA. True\nB. False\n\n<think>\nThinking Process:\n\n1.  **Analyze'
+    fixed  argmax [279, 314, 279, 369, 11751, 13, 198, 760, 13, 2912, 198, 33, 13, 3439, 271, 248068, 198, 90700, 8340, 25, 271, 16, 13, 220, 2972, 2014, 53983]   top1=25/27  rank=[37, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  top5ovl=[0, 3, 4, 5, 5, 4, 5, 5, 4, 4, 3, 4, 4, 5, 3, 4, 4, 4, 3, 4, 3, 3, 3, 3, 2, 3, 4]
+    free-running gen=[369, 11751, 13, 198, 760, 6511, 314, 279, 3516, 4042, 369, 6312, 11, 414, 707, 13, 198, 760, 6511, 314, 279, 3516, 14634, 369] text=' is Paris.\nThe capital of the United States is Washington, D.C.\nThe capital of the United Kingdom is'
+  prompt 2 'Once upon a time'
+    golden argmax [5028, 264, 854, 11, 303, 264, 22960, 4128, 2512, 279, 14634, 314, 33565, 11, 1017, 11815, 264, 1809, 314, 1546, 3175, 4947, 13, 4081, 4947, 998, 2512]  text=', in a magical land called the Kingdom of Numbers, there lived a group of very special numbers. These numbers were called'
+    fixed  argmax [264, 264, 854, 11, 303, 264, 22960, 1814, 11, 279, 11098, 314, 4013, 11, 1017, 11815, 264, 1809, 314, 22610, 3175, 4627, 13, 4081, 4947, 998, 748]   top1=19/27  rank=[1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 0, 0, 0, 3]  top5ovl=[4, 3, 1, 5, 3, 4, 4, 5, 5, 2, 4, 4, 3, 3, 4, 4, 5, 4, 3, 4, 4, 4, 4, 3, 5, 3, 4]
+    free-running gen=[11, 303, 264, 22960, 1814, 11, 1017, 557, 264, 1546, 3175, 1925, 2512, 279, 328, 42099, 19379, 3158, 733, 411, 13245, 11, 1017, 557] text=', in a magical world, there was a very special place called the "Magic Forest". In this forest, there was'
+  prompt 3 'import numpy as np'
+    golden argmax [3473, 430, 2510, 198, 464, 16309, 22974, 430, 6313, 198, 1445, 17451, 56199, 1120, 2706, 62, 40561, 198, 1445, 17451, 3090, 22931, 1120, 5257, 4306, 16551, 198]  text='\nimport matplotlib.pyplot as plt\nfrom sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\n'
+    fixed  argmax [313, 430, 2510, 271, 1445, 16309, 22974, 430, 6313, 271, 464, 27180, 56199, 1120, 2706, 62, 40561, 198, 1445, 17451, 3090, 22931, 1120, 5257, 4306, 16551, 198]   top1=21/27  rank=[1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  top5ovl=[3, 4, 3, 5, 5, 3, 5, 5, 4, 4, 4, 4, 3, 5, 3, 4, 3, 4, 4, 4, 4, 3, 3, 4, 3, 4, 5]
+    free-running gen=[271, 727, 1423, 6144, 10620, 1590, 198, 262, 4071, 198, 262, 7145, 279, 6966, 869, 303, 264, 2574, 1287, 13, 198, 1031, 262, 13131] text='\n\ndef find_max(arr):\n    """\n    Find the maximum value in a given array.\n    \n    Parameters'
+  prompt 4 'Hello world! My'
+    golden argmax [11, 0, 353, 803, 369, 2972, 50, 4897, 159034, 353, 1044, 264, 2972, 45523, 4236, 27458, 332, 440, 888, 220, 16, 15, 1578, 314, 3039, 303, 279]  text=' name is **Sara**. I am a **Senior Software Engineer** with over 10 years of experience in the'
+    fixed  argmax [11, 11, 353, 803, 369, 2972, 50, 4897, 332, 353, 1044, 264, 2972, 45523, 4236, 27458, 332, 440, 888, 220, 16, 15, 1578, 314, 3039, 303, 279]   top1=25/27  rank=[0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  top5ovl=[3, 5, 4, 4, 4, 2, 5, 3, 4, 3, 4, 4, 2, 1, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 5, 4, 4]
+    free-running gen=[803, 369, 2972, 50, 4897, 332, 321, 353, 1044, 264, 2972, 45523, 4236, 27458, 332, 440, 888, 220, 16, 15, 1578, 314, 3039, 13] text=' name is **Sara** and I am a **Senior Software Engineer** with over 10 years of experience.'
+    block-float k histogram [dn]: {-14: 1458, -13: 2883, -12: 5019, -11: 6925, -10: 10875, -9: 12235, -8: 9130, -7: 5801, -6: 4192, -5: 2529, -4: 474, -3: 29, -2: 3, 0: 655}
+    block-float k histogram [attn]: {8: 101, 9: 671, 10: 292, 11: 213, 12: 17, 13: 2}
+    block-float saturation: m_q15 max raw 8192000, clipped 655 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      16x2048        |y|max=101558   clips=68/124416
+      2048x2048      |y|max=7148     clips=0/18579456
+      2048x6144      |y|max=20294    clips=0/10616832
+      4096x2048      |y|max=4837     clips=0/5308416
+      512x2048       |y|max=11796    clips=0/1327104
+      6144x2048      |y|max=61853    clips=4121/87588864
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=4 w8        90/108            0.0        37      3.79    28342      0      411
+
+-> ../evidence/qwen2b/rc/t4_fidelity_2b_w8.json
+=== rc  : 0
+=== end : 2026-08-22T14:30:21-06:00

@@ -1,0 +1,1139 @@
+=== host: snoke  date: 2026-09-27T22:10:21-06:00
+=== tree: 628fb3a
+=== cmd : bash -c source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh >/dev/null && cd /tmp && exec vivado -mode batch -nojournal -nolog -source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr10_mig_period.tcl
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Sun Sep 27 22:10:23 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr10_mig_period.tcl
+# set root  [file normalize [file join [file dirname [info script]] ../../..]]
+# set out   $root/synth/out_sr10_mig_probe
+# set csv   $root/synth/constraints/BLS4G4D240FSB.csv
+# if {[file exists $out]} {
+#     puts "MIGP_REFUSE: $out exists — out dirs are never reused"
+#     exit 2
+# }
+# file mkdir $out
+# puts "MIGP_OUT: $out"
+MIGP_OUT: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe
+# create_project sr10_mig_probe $out/proj -part xcvu9p-fsgd2104-2L-e
+create_project: Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 1500.355 ; gain = 124.918 ; free physical = 50996 ; free virtual = 364711
+# import_files -norecurse $csv
+# set csv_file [lindex [get_files */BLS4G4D240FSB.csv] 0]
+# puts "MIGP_CSV: $csv_file"
+MIGP_CSV: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv
+# set base 833
+# set ladder [list]
+# lappend ladder [list $base "baseline (DDR4-2400)" BLS4G4D240FSB-2400]
+# lappend ladder [list 834 "1 ps step" BLS4G4D240FSB-2400]
+# foreach pct {1 2 3 4 5} {
+#     set exact [expr {$base / (1.0 - $pct / 100.0)}]
+#     set p [expr {int(round($exact))}]
+#     puts [format "MIGP_CUT: %d % UI cut -> tCK %.3f ps -> integer %d ps (cut %.3f %)" \
+#             $pct $exact $p [expr {100.0 * (1.0 - double($base) / $p)}]]
+#     lappend ladder [list $p "${pct} % UI cut" BLS4G4D240FSB-2400]
+#     if {$pct == 5} {
+#         set pf [expr {int(floor($exact))}]
+#         lappend ladder [list $pf "5 % cut, floor (just under 5 %)" BLS4G4D240FSB-2400]
+#     }
+# }
+MIGP_CUT: 1 % UI cut -> tCK 841.414 ps -> integer 841 ps (cut 0.951 %)
+MIGP_CUT: 2 % UI cut -> tCK 850.000 ps -> integer 850 ps (cut 2.000 %)
+MIGP_CUT: 3 % UI cut -> tCK 858.763 ps -> integer 859 ps (cut 3.027 %)
+MIGP_CUT: 4 % UI cut -> tCK 867.708 ps -> integer 868 ps (cut 4.032 %)
+MIGP_CUT: 5 % UI cut -> tCK 876.842 ps -> integer 877 ps (cut 5.017 %)
+# foreach p {896 926} { lappend ladder [list $p "beyond 5 %" BLS4G4D240FSB-2400] }
+# lappend ladder [list 938  "next grade tCK (DDR4-2133), -2400 part" BLS4G4D240FSB-2400]
+# lappend ladder [list 938  "next grade, -2133 part row of the CSV"  BLS4G4D240FSB-2133]
+# lappend ladder [list 1071 "DDR4-1866 tCK, -2400 part" BLS4G4D240FSB-2400]
+# lappend ladder [list 1600 "CSV Max period of the -2400 row" BLS4G4D240FSB-2400]
+# lappend ladder [list 750  "CONTROL: faster than part min 833" BLS4G4D240FSB-2400]
+# lappend ladder [list 1700 "CONTROL: slower than part max 1600" BLS4G4D240FSB-2400]
+# proc msgcounts {} {
+#     set e 0; set c 0
+#     catch {set e [get_msg_config -count -severity ERROR]}
+#     catch {set c [get_msg_config -count -severity {CRITICAL WARNING}]}
+#     return [list $e $c]
+# }
+# proc readback {ip tag} {
+#     foreach p {CONFIG.C0.DDR4_TimePeriod CONFIG.C0.DDR4_InputClockPeriod
+#                CONFIG.C0.DDR4_Specify_MandD CONFIG.C0.DDR4_CLKFBOUT_MULT
+#                CONFIG.C0.DDR4_DIVCLK_DIVIDE CONFIG.C0.DDR4_CLKOUT0_DIVIDE
+#                CONFIG.C0.DDR4_PhyClockRatio CONFIG.C0.DDR4_MemoryPart
+#                CONFIG.C0.DDR4_isCustom CONFIG.C0.DDR4_CasLatency
+#                CONFIG.C0.DDR4_CasWriteLatency CONFIG.C0.DDR4_DataWidth} {
+#         set v "<none>"
+#         catch {set v [get_property $p $ip]}
+#         puts "MIGP_RB: $tag $p = {$v}"
+#     }
+# }
+# proc scan_generated {ip tag} {
+#     set d [get_property IP_DIR $ip]
+#     set gdir ""
+#     # output products land under <proj>.gen/sources_1/ip/<name>
+#     set cand [glob -nocomplain -types d [file join [get_property DIRECTORY [current_project]] *.gen sources_1 ip [get_property NAME $ip]]]
+#     if {[llength $cand]} { set gdir [lindex $cand 0] } else { set gdir $d }
+#     puts "MIGP_GENDIR: $tag $gdir"
+#     set files [list]
+#     foreach pat {*.sv *.v *.xdc par/*.xdc rtl/ip_top/*.sv rtl/clocking/*.sv} {
+#         foreach f [glob -nocomplain -types f [file join $gdir $pat]] { lappend files $f }
+#     }
+#     set n 0
+#     foreach f [lsort -unique $files] {
+#         if {[catch {set fh [open $f r]}]} continue
+#         set ln 0
+#         while {[gets $fh line] >= 0} {
+#             incr ln
+#             if {[string length $line] > 300} continue
+#             if {[regexp {CLKIN_PERIOD|CLKFBOUT_MULT|DIVCLK_DIVIDE|CLKOUT0_DIVIDE|create_clock|tCK\s|\stCK\s*=|UI_CLOCK|nCK_PER_CLK|MMCM_CLKOUT|CLKOUT0_PHASE} $line]} {
+#                 if {$n < 60} {
+#                     puts "MIGP_GEN: $tag [file tail $f]:$ln: [string trim $line]"
+#                 }
+#                 incr n
+#             }
+#         }
+#         close $fh
+#     }
+#     puts "MIGP_GENLINES: $tag $n"
+# }
+# set results [list]
+# set i 0
+# foreach row $ladder {
+#     lassign $row P why part
+#     foreach variant {noDIV asPROJ} {
+#         # the -2133 row and the controls: noDIV only; generate only for noDIV
+#         if {$variant eq "asPROJ" && ($part ne "BLS4G4D240FSB-2400" || [string match CONTROL* $why])} continue
+#         incr i
+#         set name [format "ddr4_p%d_%s_%02d" $P $variant $i]
+#         set tag  "$name"
+#         puts "MIGP_BEGIN: $tag period=$P part=$part variant=$variant why={$why}"
+#         lassign [msgcounts] e0 c0
+#         set ip [create_ip -name ddr4 -vendor xilinx.com -library ip -version 2.2 -module_name $name]
+#         set ip [get_ips $name]
+#         catch {set_property generate_synth_checkpoint false [get_files -of_objects $ip *.xci]}
+#         set cfg [list \
+#             CONFIG.C0.DDR4_TimePeriod $P \
+#             CONFIG.C0.DDR4_InputClockPeriod 3332 \
+#             CONFIG.C0.DDR4_CustomParts $csv_file \
+#             CONFIG.C0.DDR4_isCustom true \
+#             CONFIG.C0.DDR4_MemoryType UDIMMs \
+#             CONFIG.C0.DDR4_MemoryPart $part \
+#             CONFIG.C0.DDR4_DataWidth 64 \
+#             CONFIG.C0.DDR4_AxiSelection true]
+#         if {$variant eq "asPROJ"} { lappend cfg CONFIG.C0.DDR4_CLKOUT0_DIVIDE 5 }
+#         set setok 1
+#         if {[catch {set_property -dict $cfg $ip} err]} {
+#             set setok 0
+#             puts "MIGP_SETERR: $tag {[string map {\n " | "} $err]}"
+#         }
+#         readback $ip $tag
+#         set rbP 0; set rbI 0; set rbPart ""
+#         catch {set rbP [get_property CONFIG.C0.DDR4_TimePeriod $ip]}
+#         catch {set rbI [get_property CONFIG.C0.DDR4_InputClockPeriod $ip]}
+#         catch {set rbPart [get_property CONFIG.C0.DDR4_MemoryPart $ip]}
+#         set valok 1
+#         if {[catch {validate_ip $ip} err]} {
+#             set valok 0
+#             puts "MIGP_VALERR: $tag {[string map {\n " | "} $err]}"
+#         }
+#         set genok "-"
+#         if {$variant eq "noDIV" && $setok && $valok} {
+#             set genok 1
+#             if {[catch {generate_target {synthesis instantiation_template} $ip} err]} {
+#                 set genok 0
+#                 puts "MIGP_GENERR: $tag {[string map {\n " | "} $err]}"
+#             }
+#             if {$genok} { scan_generated $ip $tag }
+#         }
+#         lassign [msgcounts] e1 c1
+#         set de [expr {$e1 - $e0}]; set dc [expr {$c1 - $c0}]
+#         set held [expr {$rbP == $P && $rbI == 3332 && $rbPart eq $part}]
+#         set acc [expr {$setok && $valok && $held && $genok ne "0" && $de == 0}]
+#         set verdict [expr {$acc ? "ACCEPTED" : "REFUSED"}]
+#         set ui_mhz [expr {1.0e6 / (4.0 * $P)}]
+#         set cut [expr {100.0 * (1.0 - double($base) / $P)}]
+#         set line [format "MIGP_ROW: %-28s P=%4d cut=%6.3f% UI=%8.3fMHz part=%s set=%d validate=%d held(P,refclk,part)=%d gen=%s newERR=%d newCW=%d rbP=%s rbRef=%s => %s" \
+#                     $tag $P $cut $ui_mhz $part $setok $valok $held $genok $de $dc $rbP $rbI $verdict]
+#         puts $line
+#         lappend results $line
+#     }
+# }
+MIGP_BEGIN: ddr4_p833_noDIV_01 period=833 part=BLS4G4D240FSB-2400 variant=noDIV why={baseline (DDR4-2400)}
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip'.
+INFO: [Device 21-403] Loading part xcvu9p-fsgd2104-2L-e
+create_ip: Time (s): cpu = 00:00:23 ; elapsed = 00:00:25 . Memory (MB): peak = 2786.277 ; gain = 1285.922 ; free physical = 50205 ; free virtual = 363920
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+create_bd_cell: Time (s): cpu = 00:00:07 ; elapsed = 00:00:08 . Memory (MB): peak = 2919.871 ; gain = 46.234 ; free physical = 50514 ; free virtual = 364240
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_TimePeriod = {833}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_InputClockPeriod = {3332}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_CLKFBOUT_MULT = {5}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {5}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_MemoryPart = {BLS4G4D240FSB-2400}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_isCustom = {true}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_CasLatency = {16}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_CasWriteLatency = {12}
+MIGP_RB: ddr4_p833_noDIV_01 CONFIG.C0.DDR4_DataWidth = {64}
+INFO: [IP_Flow 19-1686] Generating 'Instantiation Template' target for IP 'ddr4_p833_noDIV_01'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'ddr4_p833_noDIV_01'...
+INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'ddr4_p833_noDIV_01'...
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+Exporting to file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p833_noDIV_01/bd_0/hw_handoff/ddr4_p833_noDIV_01_microblaze_mcs.hwh
+Generated Hardware Definition File /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p833_noDIV_01/bd_0/synth/ddr4_p833_noDIV_01_microblaze_mcs.hwdef
+generate_target: Time (s): cpu = 00:00:08 ; elapsed = 00:00:24 . Memory (MB): peak = 2966.309 ; gain = 5.938 ; free physical = 49867 ; free virtual = 363657
+MIGP_GENDIR: ddr4_p833_noDIV_01 /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p833_noDIV_01
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01.xdc:7: create_clock -period 3.332 [get_ports c0_sys_clk_p]
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:71: parameter CLKIN_PERIOD_MMCM     = 3750,// Input clock period
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:72: parameter CLKFBOUT_MULT_MMCM    = 4,   // write MMCM VCO multiplier
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:73: parameter DIVCLK_DIVIDE_MMCM    = 1,   // write MMCM VCO divisor
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:74: parameter CLKOUT0_DIVIDE_MMCM   = 4,   // VCO output divisor for MMCM clkout0
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:79: parameter CLKOUT6_DIVIDE_MMCM   = 2*CLKOUT0_DIVIDE_MMCM,   // VCO output divisor for MMCM clkout6
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:106: localparam real CLKIN_PERIOD_NS_MMCM  = CLKIN_PERIOD_MMCM / 1000.0;
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:232: .DIVCLK_DIVIDE        (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:233: .CLKFBOUT_MULT_F      (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:236: .CLKOUT0_DIVIDE_F     (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:237: .CLKOUT0_PHASE        (0.000),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:256: .CLKOUT5_DIVIDE       (CLKOUT0_DIVIDE_MMCM*4),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:264: .CLKIN1_PERIOD        (CLKIN_PERIOD_NS_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:315: .DIVCLK_DIVIDE        (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:316: .CLKFBOUT_MULT_F      (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:319: .CLKOUT0_DIVIDE_F     (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:320: .CLKOUT0_PHASE        (0.000),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:339: .CLKOUT5_DIVIDE       (CLKOUT0_DIVIDE_MMCM*4),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_v2_2_infrastructure.sv:347: .CLKIN1_PERIOD        (CLKIN_PERIOD_NS_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:122: PhyIP_CLKFBOUT_MULT = "5",
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:123: PhyIP_DIVCLK_DIVIDE = "1",
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:124: PhyIP_CLKOUT0_DIVIDE = "5",
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:153: PhyIP_tCK = 833,
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:192: parameter         tCK                     = 833,  // Memory clock period (DDR4 clock cycle)
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:195: parameter         tRTW                    = 10, // CL + (BL/2) - CWL + 2tCK In DDR4 clock cycles
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:236: parameter         nCK_PER_CLK             = 4,
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:241: parameter         CLKIN_PERIOD_MMCM        = 3332,
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:242: parameter         CLKFBOUT_MULT_MMCM       = 5,
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:243: parameter         DIVCLK_DIVIDE_MMCM       = 1,
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:244: parameter         CLKOUT0_DIVIDE_MMCM      = 5,
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:545: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_raw_not_ecc;
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:546: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_ecc_single_int;
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:547: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_ecc_multiple_int;
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:550: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_app_ecc_multiple_err;
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:556: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_app_raw_not_ecc;
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:596: .CLKIN_PERIOD_MMCM   (CLKIN_PERIOD_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:597: .CLKFBOUT_MULT_MMCM  (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:598: .DIVCLK_DIVIDE_MMCM  (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:599: .CLKOUT0_DIVIDE_MMCM (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:681: .tCK                   (tCK),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:725: .nCK_PER_CLK           (nCK_PER_CLK),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:800: .CLKFBOUT_MULT_MMCM     (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:801: .DIVCLK_DIVIDE_MMCM     (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:802: .CLKOUT0_DIVIDE_MMCM    (CLKOUT0_DIVIDE_MMCM)
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:941: .C_MC_nCK_PER_CLK              (nCK_PER_CLK),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4.sv:1021: assign c0_ddr4_app_raw_not_ecc    = {2*nCK_PER_CLK{1'b0}};
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:116: ,parameter         tCK                 = 938  // Memory clock period
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:170: ,parameter         nCK_PER_CLK         = 4
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:231: ,parameter         CLKIN_PERIOD_MMCM    = 3750
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:232: ,parameter         CLKFBOUT_MULT_MMCM   = 4        // write MMCM VCO multiplier
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:233: ,parameter         DIVCLK_DIVIDE_MMCM   = 1        // write MMCM VCO divisor
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:234: ,parameter         CLKOUT0_DIVIDE_MMCM  = 4        // VCO output divisor for MMCM clkout0
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:307: ,input [2*nCK_PER_CLK-1:0]       app_raw_not_ecc
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:308: ,output [2*nCK_PER_CLK-1:0]      app_ecc_multiple_err
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:374: ,output [2*nCK_PER_CLK-1:0]      eccSingle
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:375: ,output [2*nCK_PER_CLK-1:0]      eccMultiple
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:945: .nCK_PER_CLK                        (4),
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:1051: localparam CLKFBOUT_MULT_PLL  = (CLKOUTPHY_MODE == "VCO_2X") ?
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:1052: ((nCK_PER_CLK == 4) ? 4 : 2) :
+MIGP_GEN: ddr4_p833_noDIV_01 ddr4_p833_noDIV_01_ddr4_mem_intfc.sv:1054: ((nCK_PER_CLK == 4) ? 8 : 4)
+MIGP_GENLINES: ddr4_p833_noDIV_01 69
+MIGP_ROW: ddr4_p833_noDIV_01           P= 833 cut= 0.000% UI= 300.120MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=1 newERR=0 newCW=0 rbP=833 rbRef=3332 => ACCEPTED
+MIGP_BEGIN: ddr4_p833_asPROJ_02 period=833 part=BLS4G4D240FSB-2400 variant=asPROJ why={baseline (DDR4-2400)}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_TimePeriod = {833}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_InputClockPeriod = {3332}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_CLKFBOUT_MULT = {5}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {5}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_MemoryPart = {BLS4G4D240FSB-2400}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_isCustom = {true}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_CasLatency = {16}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_CasWriteLatency = {12}
+MIGP_RB: ddr4_p833_asPROJ_02 CONFIG.C0.DDR4_DataWidth = {64}
+MIGP_ROW: ddr4_p833_asPROJ_02          P= 833 cut= 0.000% UI= 300.120MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=- newERR=0 newCW=0 rbP=833 rbRef=3332 => ACCEPTED
+MIGP_BEGIN: ddr4_p834_noDIV_03 period=834 part=BLS4G4D240FSB-2400 variant=noDIV why={1 ps step}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p834_noDIV_03' . Valid values are - 14179, 14178, 14012, 14011, 13344, 13343, 12677, 12676, 12511, 12510, 12011, 12010, 12009, 11677, 11676, 11675, 11343, 11342, 10843, 10842, 10676, 10675, 10009, 10008, 10007, 9342, 9341, 9340, 9174, 9173, 8675, 8674, 8673, 8341, 8340, 8339, 8007, 8006, 7507, 7506, 7505, 7340, 7339, 7338, 7090, 7089, 7006, 7005, 6672, 6671, 6339, 6338, 6256, 6255, 6006, 6005, 6004, 5839, 5838, 5837, 5672, 5671, 5422, 5421, 5339, 5338, 5337, 5005, 5004, 5003, 4727, 4726, 4671, 4670, 4669, 4587, 4586, 4449, 4448, 4447, 4338, 4337, 4336, 4226, 4225, 4171, 4170, 4169, 4077, 4076, 4004, 4003, 3893, 3892, 3891, 3782, 3781, 3780, 3754, 3753, 3752, 3707, 3706, 3671, 3670, 3669, 3614, 3613, 3559, 3558, 3545, 3544, 3503, 3502, 3336, 3335, 3170, 3169, 3128, 3127, 3115, 3114, 3113, 3059, 3058, 3057, 3003, 3002, 3001, 2966, 2965, 2920, 2919, 2918, 2892, 2891, 2836, 2835, 2803, 2802, 2801, 2781, 2780, 2779, 2711, 2710, 2670, 2669, 2668, 2596, 2595, 2536, 2535, 2503, 2502, 2501, 2447, 2446, 2445, 2403, 2402, 2401, 2364, 2363, 2336, 2335, 2334, 2294, 2293, 2269, 2268, 2225, 2224, 2223, 2169, 2168, 2136, 2135, 2113, 2112, 2086, 2085, 2084, 2026, 2025, 2003, 2002, 2001, 1946, 1945, 1907, 1906, 1891, 1890, 1877, 1876, 1869, 1868, 1867, 1836, 1835, 1834, 1812, 1811, 1810, 1807, 1806, 1788, 1787, 1780, 1779, 1773, 1772, 1752, 1751, 1735, 1734, 1716, 1715, 1668, 1667, 1621, 1620, 1602, 1601, 1585, 1584, 1576, 1575, 1564, 1563, 1558, 1557, 1556, 1549, 1548, 1530, 1529, 1526, 1525, 1524, 1502, 1501, 1483, 1482, 1468, 1467, 1460, 1459, 1446, 1445, 1430, 1429, 1418, 1417, 1409, 1408, 1402, 1401, 1391, 1390, 1389, 1356, 1355, 1335, 1334, 1311, 1310, 1298, 1297
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p834_noDIV_03'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p834_noDIV_03 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p834_noDIV_03 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p834_noDIV_03           P= 834 cut= 0.120% UI= 299.760MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p834_asPROJ_04 period=834 part=BLS4G4D240FSB-2400 variant=asPROJ why={1 ps step}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+WARNING: [IP_Flow 19-3374] An attempt to modify the value of disabled parameter 'C0.DDR4_CLKOUT0_DIVIDE' from '4' to '5' has been ignored for IP 'ddr4_p834_asPROJ_04'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p834_asPROJ_04' . Valid values are - 14179, 14178, 14012, 14011, 13344, 13343, 12677, 12676, 12511, 12510, 12011, 12010, 12009, 11677, 11676, 11675, 11343, 11342, 10843, 10842, 10676, 10675, 10009, 10008, 10007, 9342, 9341, 9340, 9174, 9173, 8675, 8674, 8673, 8341, 8340, 8339, 8007, 8006, 7507, 7506, 7505, 7340, 7339, 7338, 7090, 7089, 7006, 7005, 6672, 6671, 6339, 6338, 6256, 6255, 6006, 6005, 6004, 5839, 5838, 5837, 5672, 5671, 5422, 5421, 5339, 5338, 5337, 5005, 5004, 5003, 4727, 4726, 4671, 4670, 4669, 4587, 4586, 4449, 4448, 4447, 4338, 4337, 4336, 4226, 4225, 4171, 4170, 4169, 4077, 4076, 4004, 4003, 3893, 3892, 3891, 3782, 3781, 3780, 3754, 3753, 3752, 3707, 3706, 3671, 3670, 3669, 3614, 3613, 3559, 3558, 3545, 3544, 3503, 3502, 3336, 3335, 3170, 3169, 3128, 3127, 3115, 3114, 3113, 3059, 3058, 3057, 3003, 3002, 3001, 2966, 2965, 2920, 2919, 2918, 2892, 2891, 2836, 2835, 2803, 2802, 2801, 2781, 2780, 2779, 2711, 2710, 2670, 2669, 2668, 2596, 2595, 2536, 2535, 2503, 2502, 2501, 2447, 2446, 2445, 2403, 2402, 2401, 2364, 2363, 2336, 2335, 2334, 2294, 2293, 2269, 2268, 2225, 2224, 2223, 2169, 2168, 2136, 2135, 2113, 2112, 2086, 2085, 2084, 2026, 2025, 2003, 2002, 2001, 1946, 1945, 1907, 1906, 1891, 1890, 1877, 1876, 1869, 1868, 1867, 1836, 1835, 1834, 1812, 1811, 1810, 1807, 1806, 1788, 1787, 1780, 1779, 1773, 1772, 1752, 1751, 1735, 1734, 1716, 1715, 1668, 1667, 1621, 1620, 1602, 1601, 1585, 1584, 1576, 1575, 1564, 1563, 1558, 1557, 1556, 1549, 1548, 1530, 1529, 1526, 1525, 1524, 1502, 1501, 1483, 1482, 1468, 1467, 1460, 1459, 1446, 1445, 1430, 1429, 1418, 1417, 1409, 1408, 1402, 1401, 1391, 1390, 1389, 1356, 1355, 1335, 1334, 1311, 1310, 1298, 1297
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p834_asPROJ_04'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p834_asPROJ_04 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p834_asPROJ_04 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p834_asPROJ_04          P= 834 cut= 0.120% UI= 299.760MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p841_noDIV_05 period=841 part=BLS4G4D240FSB-2400 variant=noDIV why={1 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p841_noDIV_05' . Valid values are - 14129, 14128, 13456, 13455, 12784, 12783, 12616, 12615, 12614, 12111, 12110, 12109, 11775, 11774, 11773, 11439, 11438, 11437, 10934, 10933, 10932, 10765, 10764, 10093, 10092, 10091, 9420, 9419, 9252, 9251, 9250, 8747, 8746, 8410, 8409, 8075, 8074, 8073, 7570, 7569, 7568, 7401, 7400, 7065, 7064, 6728, 6727, 6393, 6392, 6391, 6308, 6307, 6056, 6055, 6054, 5888, 5887, 5886, 5720, 5719, 5718, 5467, 5466, 5465, 5383, 5382, 5381, 5047, 5046, 5045, 4711, 4710, 4709, 4626, 4625, 4624, 4486, 4485, 4374, 4373, 4262, 4261, 4205, 4204, 4113, 4112, 4038, 4037, 4036, 3926, 3925, 3924, 3814, 3813, 3812, 3785, 3784, 3739, 3738, 3701, 3700, 3645, 3644, 3589, 3588, 3533, 3532, 3364, 3363, 3197, 3196, 3195, 3154, 3153, 3140, 3139, 3085, 3084, 3083, 3029, 3028, 3027, 2991, 2990, 2944, 2943, 2942, 2916, 2915, 2860, 2859, 2826, 2825, 2804, 2803, 2802, 2734, 2733, 2732, 2692, 2691, 2690, 2557, 2556, 2524, 2523, 2522, 2468, 2467, 2466, 2423, 2422, 2421, 2356, 2355, 2354, 2313, 2312, 2288, 2287, 2243, 2242, 2187, 2186, 2154, 2153, 2152, 2131, 2130, 2103, 2102, 2101, 2019, 2018, 1963, 1962, 1923, 1922, 1907, 1906, 1893, 1892, 1884, 1883, 1870, 1869, 1851, 1850, 1827, 1826, 1823, 1822, 1803, 1802, 1795, 1794, 1767, 1766, 1763, 1762, 1750, 1749, 1731, 1730, 1682, 1681, 1634, 1633, 1615, 1614, 1602, 1601, 1599, 1598, 1597, 1577, 1576, 1570, 1569, 1562, 1561, 1542, 1541, 1538, 1537, 1514, 1513, 1496, 1495, 1481, 1480, 1472, 1471, 1458, 1457, 1442, 1441, 1430, 1429, 1421, 1420, 1413, 1412, 1402, 1401, 1367, 1366, 1346, 1345, 1322, 1321, 1309, 1308
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p841_noDIV_05'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p841_noDIV_05 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p841_noDIV_05 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p841_noDIV_05           P= 841 cut= 0.951% UI= 297.265MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p841_asPROJ_06 period=841 part=BLS4G4D240FSB-2400 variant=asPROJ why={1 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p841_asPROJ_06' . Valid values are - 14129, 14128, 13456, 13455, 12784, 12783, 12616, 12615, 12614, 12111, 12110, 12109, 11775, 11774, 11773, 11439, 11438, 11437, 10934, 10933, 10932, 10765, 10764, 10093, 10092, 10091, 9420, 9419, 9252, 9251, 9250, 8747, 8746, 8410, 8409, 8075, 8074, 8073, 7570, 7569, 7568, 7401, 7400, 7065, 7064, 6728, 6727, 6393, 6392, 6391, 6308, 6307, 6056, 6055, 6054, 5888, 5887, 5886, 5720, 5719, 5718, 5467, 5466, 5465, 5383, 5382, 5381, 5047, 5046, 5045, 4711, 4710, 4709, 4626, 4625, 4624, 4486, 4485, 4374, 4373, 4262, 4261, 4205, 4204, 4113, 4112, 4038, 4037, 4036, 3926, 3925, 3924, 3814, 3813, 3812, 3785, 3784, 3739, 3738, 3701, 3700, 3645, 3644, 3589, 3588, 3533, 3532, 3364, 3363, 3197, 3196, 3195, 3154, 3153, 3140, 3139, 3085, 3084, 3083, 3029, 3028, 3027, 2991, 2990, 2944, 2943, 2942, 2916, 2915, 2860, 2859, 2826, 2825, 2804, 2803, 2802, 2734, 2733, 2732, 2692, 2691, 2690, 2557, 2556, 2524, 2523, 2522, 2468, 2467, 2466, 2423, 2422, 2421, 2356, 2355, 2354, 2313, 2312, 2288, 2287, 2243, 2242, 2187, 2186, 2154, 2153, 2152, 2131, 2130, 2103, 2102, 2101, 2019, 2018, 1963, 1962, 1923, 1922, 1907, 1906, 1893, 1892, 1884, 1883, 1870, 1869, 1851, 1850, 1827, 1826, 1823, 1822, 1803, 1802, 1795, 1794, 1767, 1766, 1763, 1762, 1750, 1749, 1731, 1730, 1682, 1681, 1634, 1633, 1615, 1614, 1602, 1601, 1599, 1598, 1597, 1577, 1576, 1570, 1569, 1562, 1561, 1542, 1541, 1538, 1537, 1514, 1513, 1496, 1495, 1481, 1480, 1472, 1471, 1458, 1457, 1442, 1441, 1430, 1429, 1421, 1420, 1413, 1412, 1402, 1401, 1367, 1366, 1346, 1345, 1322, 1321, 1309, 1308
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p841_asPROJ_06'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p841_asPROJ_06 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p841_asPROJ_06 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p841_asPROJ_06          P= 841 cut= 0.951% UI= 297.265MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p850_noDIV_07 period=850 part=BLS4G4D240FSB-2400 variant=noDIV why={2 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p850_noDIV_07' . Valid values are - 14281, 14280, 14279, 13601, 13600, 12920, 12919, 12751, 12750, 12749, 12240, 12239, 11901, 11900, 11899, 11561, 11560, 11051, 11050, 10880, 10879, 10201, 10200, 9521, 9520, 9351, 9350, 9349, 8841, 8840, 8839, 8501, 8500, 8499, 8161, 8160, 7651, 7650, 7649, 7481, 7480, 7141, 7140, 7139, 6801, 6800, 6460, 6459, 6376, 6375, 6374, 6121, 6120, 6119, 5951, 5950, 5949, 5781, 5780, 5526, 5525, 5441, 5440, 5439, 5101, 5100, 4761, 4760, 4676, 4675, 4674, 4534, 4533, 4532, 4421, 4420, 4419, 4307, 4306, 4251, 4250, 4249, 4156, 4155, 4081, 4080, 3968, 3967, 3966, 3854, 3853, 3852, 3826, 3825, 3824, 3779, 3778, 3741, 3740, 3684, 3683, 3682, 3627, 3626, 3571, 3570, 3569, 3401, 3400, 3230, 3229, 3188, 3187, 3174, 3173, 3118, 3117, 3116, 3061, 3060, 3059, 3023, 3022, 2976, 2975, 2974, 2948, 2947, 2946, 2891, 2890, 2857, 2856, 2834, 2833, 2763, 2762, 2721, 2720, 2719, 2585, 2584, 2583, 2551, 2550, 2494, 2493, 2449, 2448, 2447, 2381, 2380, 2338, 2337, 2313, 2312, 2267, 2266, 2211, 2210, 2209, 2177, 2176, 2175, 2154, 2153, 2126, 2125, 2124, 2041, 2040, 1984, 1983, 1943, 1942, 1927, 1926, 1913, 1912, 1905, 1904, 1890, 1889, 1871, 1870, 1846, 1845, 1842, 1841, 1822, 1821, 1814, 1813, 1786, 1785, 1784, 1782, 1781, 1769, 1768, 1749, 1748, 1701, 1700, 1652, 1651, 1633, 1632, 1631, 1620, 1619, 1615, 1614, 1594, 1593, 1587, 1586, 1579, 1578, 1559, 1558, 1555, 1554, 1530, 1529, 1512, 1511, 1497, 1496, 1495, 1488, 1487, 1474, 1473, 1458, 1457, 1446, 1445, 1436, 1435, 1429, 1428, 1417, 1416, 1382, 1381, 1361, 1360, 1359, 1336, 1335, 1323, 1322, 1299, 1298, 1293, 1292, 1291
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p850_noDIV_07'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p850_noDIV_07 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p850_noDIV_07 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p850_noDIV_07           P= 850 cut= 2.000% UI= 294.118MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p850_asPROJ_08 period=850 part=BLS4G4D240FSB-2400 variant=asPROJ why={2 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p850_asPROJ_08' . Valid values are - 14281, 14280, 14279, 13601, 13600, 12920, 12919, 12751, 12750, 12749, 12240, 12239, 11901, 11900, 11899, 11561, 11560, 11051, 11050, 10880, 10879, 10201, 10200, 9521, 9520, 9351, 9350, 9349, 8841, 8840, 8839, 8501, 8500, 8499, 8161, 8160, 7651, 7650, 7649, 7481, 7480, 7141, 7140, 7139, 6801, 6800, 6460, 6459, 6376, 6375, 6374, 6121, 6120, 6119, 5951, 5950, 5949, 5781, 5780, 5526, 5525, 5441, 5440, 5439, 5101, 5100, 4761, 4760, 4676, 4675, 4674, 4534, 4533, 4532, 4421, 4420, 4419, 4307, 4306, 4251, 4250, 4249, 4156, 4155, 4081, 4080, 3968, 3967, 3966, 3854, 3853, 3852, 3826, 3825, 3824, 3779, 3778, 3741, 3740, 3684, 3683, 3682, 3627, 3626, 3571, 3570, 3569, 3401, 3400, 3230, 3229, 3188, 3187, 3174, 3173, 3118, 3117, 3116, 3061, 3060, 3059, 3023, 3022, 2976, 2975, 2974, 2948, 2947, 2946, 2891, 2890, 2857, 2856, 2834, 2833, 2763, 2762, 2721, 2720, 2719, 2585, 2584, 2583, 2551, 2550, 2494, 2493, 2449, 2448, 2447, 2381, 2380, 2338, 2337, 2313, 2312, 2267, 2266, 2211, 2210, 2209, 2177, 2176, 2175, 2154, 2153, 2126, 2125, 2124, 2041, 2040, 1984, 1983, 1943, 1942, 1927, 1926, 1913, 1912, 1905, 1904, 1890, 1889, 1871, 1870, 1846, 1845, 1842, 1841, 1822, 1821, 1814, 1813, 1786, 1785, 1784, 1782, 1781, 1769, 1768, 1749, 1748, 1701, 1700, 1652, 1651, 1633, 1632, 1631, 1620, 1619, 1615, 1614, 1594, 1593, 1587, 1586, 1579, 1578, 1559, 1558, 1555, 1554, 1530, 1529, 1512, 1511, 1497, 1496, 1495, 1488, 1487, 1474, 1473, 1458, 1457, 1446, 1445, 1436, 1435, 1429, 1428, 1417, 1416, 1382, 1381, 1361, 1360, 1359, 1336, 1335, 1323, 1322, 1299, 1298, 1293, 1292, 1291
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p850_asPROJ_08'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p850_asPROJ_08 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p850_asPROJ_08 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p850_asPROJ_08          P= 850 cut= 2.000% UI= 294.118MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p859_noDIV_09 period=859 part=BLS4G4D240FSB-2400 variant=noDIV why={3 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p859_noDIV_09' . Valid values are - 13744, 13743, 13057, 13056, 12885, 12884, 12370, 12369, 12027, 12026, 12025, 11683, 11682, 11681, 11167, 11166, 10996, 10995, 10308, 10307, 9621, 9620, 9449, 9448, 8934, 8933, 8590, 8589, 8247, 8246, 8245, 7732, 7731, 7730, 7560, 7559, 7558, 6872, 6871, 6529, 6528, 6527, 6443, 6442, 6185, 6184, 6014, 6013, 6012, 5842, 5841, 5840, 5584, 5583, 5582, 5498, 5497, 5154, 5153, 4811, 4810, 4725, 4724, 4723, 4582, 4581, 4580, 4467, 4466, 4353, 4352, 4351, 4295, 4294, 4200, 4199, 4124, 4123, 4122, 4009, 4008, 3895, 3894, 3866, 3865, 3818, 3817, 3781, 3780, 3779, 3723, 3722, 3721, 3666, 3665, 3436, 3435, 3265, 3264, 3263, 3222, 3221, 3207, 3206, 3150, 3149, 3093, 3092, 3055, 3054, 3007, 3006, 3005, 2978, 2977, 2921, 2920, 2864, 2863, 2792, 2791, 2749, 2748, 2673, 2672, 2612, 2611, 2577, 2576, 2520, 2519, 2475, 2474, 2473, 2406, 2405, 2363, 2362, 2361, 2337, 2336, 2292, 2291, 2290, 2234, 2233, 2200, 2199, 2198, 2177, 2176, 2175, 2148, 2147, 2062, 2061, 2005, 2004, 1964, 1963, 1948, 1947, 1933, 1932, 1925, 1924, 1923, 1909, 1908, 1891, 1890, 1889, 1866, 1865, 1862, 1861, 1841, 1840, 1833, 1832, 1787, 1786, 1768, 1767, 1766, 1718, 1717, 1669, 1668, 1650, 1649, 1633, 1632, 1631, 1611, 1610, 1604, 1603, 1596, 1595, 1575, 1574, 1571, 1570, 1547, 1546, 1528, 1527, 1512, 1511, 1504, 1503, 1489, 1488, 1473, 1472, 1461, 1460, 1451, 1450, 1432, 1431, 1396, 1395, 1375, 1374, 1350, 1349, 1337, 1336, 1309, 1308, 1306, 1305, 1299, 1298
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p859_noDIV_09'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p859_noDIV_09 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p859_noDIV_09 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p859_noDIV_09           P= 859 cut= 3.027% UI= 291.036MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p859_asPROJ_10 period=859 part=BLS4G4D240FSB-2400 variant=asPROJ why={3 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p859_asPROJ_10' . Valid values are - 13744, 13743, 13057, 13056, 12885, 12884, 12370, 12369, 12027, 12026, 12025, 11683, 11682, 11681, 11167, 11166, 10996, 10995, 10308, 10307, 9621, 9620, 9449, 9448, 8934, 8933, 8590, 8589, 8247, 8246, 8245, 7732, 7731, 7730, 7560, 7559, 7558, 6872, 6871, 6529, 6528, 6527, 6443, 6442, 6185, 6184, 6014, 6013, 6012, 5842, 5841, 5840, 5584, 5583, 5582, 5498, 5497, 5154, 5153, 4811, 4810, 4725, 4724, 4723, 4582, 4581, 4580, 4467, 4466, 4353, 4352, 4351, 4295, 4294, 4200, 4199, 4124, 4123, 4122, 4009, 4008, 3895, 3894, 3866, 3865, 3818, 3817, 3781, 3780, 3779, 3723, 3722, 3721, 3666, 3665, 3436, 3435, 3265, 3264, 3263, 3222, 3221, 3207, 3206, 3150, 3149, 3093, 3092, 3055, 3054, 3007, 3006, 3005, 2978, 2977, 2921, 2920, 2864, 2863, 2792, 2791, 2749, 2748, 2673, 2672, 2612, 2611, 2577, 2576, 2520, 2519, 2475, 2474, 2473, 2406, 2405, 2363, 2362, 2361, 2337, 2336, 2292, 2291, 2290, 2234, 2233, 2200, 2199, 2198, 2177, 2176, 2175, 2148, 2147, 2062, 2061, 2005, 2004, 1964, 1963, 1948, 1947, 1933, 1932, 1925, 1924, 1923, 1909, 1908, 1891, 1890, 1889, 1866, 1865, 1862, 1861, 1841, 1840, 1833, 1832, 1787, 1786, 1768, 1767, 1766, 1718, 1717, 1669, 1668, 1650, 1649, 1633, 1632, 1631, 1611, 1610, 1604, 1603, 1596, 1595, 1575, 1574, 1571, 1570, 1547, 1546, 1528, 1527, 1512, 1511, 1504, 1503, 1489, 1488, 1473, 1472, 1461, 1460, 1451, 1450, 1432, 1431, 1396, 1395, 1375, 1374, 1350, 1349, 1337, 1336, 1309, 1308, 1306, 1305, 1299, 1298
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p859_asPROJ_10'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p859_asPROJ_10 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p859_asPROJ_10 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p859_asPROJ_10          P= 859 cut= 3.027% UI= 291.036MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p868_noDIV_11 period=868 part=BLS4G4D240FSB-2400 variant=noDIV why={4 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p868_noDIV_11' . Valid values are - 13889, 13888, 13194, 13193, 13020, 13019, 12500, 12499, 12498, 12153, 12152, 11805, 11804, 11285, 11284, 11111, 11110, 11109, 10417, 10416, 10415, 9722, 9721, 9548, 9547, 9028, 9027, 9026, 8334, 8333, 8332, 7812, 7811, 7639, 7638, 7637, 6945, 6944, 6597, 6596, 6510, 6509, 6250, 6249, 6077, 6076, 5903, 5902, 5901, 5643, 5642, 5556, 5555, 5554, 5209, 5208, 5207, 4861, 4860, 4774, 4773, 4630, 4629, 4515, 4514, 4513, 4398, 4397, 4341, 4340, 4339, 4244, 4243, 4167, 4166, 4165, 4051, 4050, 3935, 3934, 3906, 3905, 3858, 3857, 3820, 3819, 3818, 3762, 3761, 3704, 3703, 3473, 3472, 3299, 3298, 3297, 3255, 3254, 3241, 3240, 3183, 3182, 3125, 3124, 3087, 3086, 3039, 3038, 3010, 3009, 3008, 2952, 2951, 2950, 2893, 2892, 2822, 2821, 2779, 2778, 2777, 2701, 2700, 2639, 2638, 2605, 2604, 2603, 2547, 2546, 2545, 2500, 2499, 2431, 2430, 2429, 2387, 2386, 2361, 2360, 2315, 2314, 2258, 2257, 2256, 2223, 2222, 2221, 2199, 2198, 2170, 2169, 2084, 2083, 2082, 2026, 2025, 1985, 1984, 1983, 1968, 1967, 1953, 1952, 1945, 1944, 1929, 1928, 1910, 1909, 1885, 1884, 1881, 1880, 1861, 1860, 1853, 1852, 1851, 1806, 1805, 1786, 1785, 1737, 1736, 1687, 1686, 1667, 1666, 1650, 1649, 1628, 1627, 1621, 1620, 1612, 1611, 1592, 1591, 1588, 1587, 1563, 1562, 1544, 1543, 1528, 1527, 1520, 1519, 1505, 1504, 1488, 1487, 1476, 1475, 1467, 1466, 1465, 1447, 1446, 1411, 1410, 1390, 1389, 1388, 1365, 1364, 1351, 1350, 1320, 1319, 1312, 1311, 1303, 1302
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p868_noDIV_11'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p868_noDIV_11 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p868_noDIV_11 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p868_noDIV_11           P= 868 cut= 4.032% UI= 288.018MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p868_asPROJ_12 period=868 part=BLS4G4D240FSB-2400 variant=asPROJ why={4 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p868_asPROJ_12' . Valid values are - 13889, 13888, 13194, 13193, 13020, 13019, 12500, 12499, 12498, 12153, 12152, 11805, 11804, 11285, 11284, 11111, 11110, 11109, 10417, 10416, 10415, 9722, 9721, 9548, 9547, 9028, 9027, 9026, 8334, 8333, 8332, 7812, 7811, 7639, 7638, 7637, 6945, 6944, 6597, 6596, 6510, 6509, 6250, 6249, 6077, 6076, 5903, 5902, 5901, 5643, 5642, 5556, 5555, 5554, 5209, 5208, 5207, 4861, 4860, 4774, 4773, 4630, 4629, 4515, 4514, 4513, 4398, 4397, 4341, 4340, 4339, 4244, 4243, 4167, 4166, 4165, 4051, 4050, 3935, 3934, 3906, 3905, 3858, 3857, 3820, 3819, 3818, 3762, 3761, 3704, 3703, 3473, 3472, 3299, 3298, 3297, 3255, 3254, 3241, 3240, 3183, 3182, 3125, 3124, 3087, 3086, 3039, 3038, 3010, 3009, 3008, 2952, 2951, 2950, 2893, 2892, 2822, 2821, 2779, 2778, 2777, 2701, 2700, 2639, 2638, 2605, 2604, 2603, 2547, 2546, 2545, 2500, 2499, 2431, 2430, 2429, 2387, 2386, 2361, 2360, 2315, 2314, 2258, 2257, 2256, 2223, 2222, 2221, 2199, 2198, 2170, 2169, 2084, 2083, 2082, 2026, 2025, 1985, 1984, 1983, 1968, 1967, 1953, 1952, 1945, 1944, 1929, 1928, 1910, 1909, 1885, 1884, 1881, 1880, 1861, 1860, 1853, 1852, 1851, 1806, 1805, 1786, 1785, 1737, 1736, 1687, 1686, 1667, 1666, 1650, 1649, 1628, 1627, 1621, 1620, 1612, 1611, 1592, 1591, 1588, 1587, 1563, 1562, 1544, 1543, 1528, 1527, 1520, 1519, 1505, 1504, 1488, 1487, 1476, 1475, 1467, 1466, 1465, 1447, 1446, 1411, 1410, 1390, 1389, 1388, 1365, 1364, 1351, 1350, 1320, 1319, 1312, 1311, 1303, 1302
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p868_asPROJ_12'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p868_asPROJ_12 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p868_asPROJ_12 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p868_asPROJ_12          P= 868 cut= 4.032% UI= 288.018MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p877_noDIV_13 period=877 part=BLS4G4D240FSB-2400 variant=noDIV why={5 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_TimePeriod = {877}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_InputClockPeriod = {3332}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {4}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {5}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_MemoryPart = {BLS4G4D240FSB-2400}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_isCustom = {true}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_CasLatency = {16}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_CasWriteLatency = {12}
+MIGP_RB: ddr4_p877_noDIV_13 CONFIG.C0.DDR4_DataWidth = {64}
+INFO: [IP_Flow 19-1686] Generating 'Instantiation Template' target for IP 'ddr4_p877_noDIV_13'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'ddr4_p877_noDIV_13'...
+INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'ddr4_p877_noDIV_13'...
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+Exporting to file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p877_noDIV_13/bd_0/hw_handoff/ddr4_p877_noDIV_13_microblaze_mcs.hwh
+Generated Hardware Definition File /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p877_noDIV_13/bd_0/synth/ddr4_p877_noDIV_13_microblaze_mcs.hwdef
+generate_target: Time (s): cpu = 00:00:07 ; elapsed = 00:00:10 . Memory (MB): peak = 3739.902 ; gain = 0.000 ; free physical = 47250 ; free virtual = 361100
+MIGP_GENDIR: ddr4_p877_noDIV_13 /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p877_noDIV_13
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13.xdc:7: create_clock -period 3.332 [get_ports c0_sys_clk_p]
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:71: parameter CLKIN_PERIOD_MMCM     = 3750,// Input clock period
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:72: parameter CLKFBOUT_MULT_MMCM    = 4,   // write MMCM VCO multiplier
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:73: parameter DIVCLK_DIVIDE_MMCM    = 1,   // write MMCM VCO divisor
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:74: parameter CLKOUT0_DIVIDE_MMCM   = 4,   // VCO output divisor for MMCM clkout0
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:79: parameter CLKOUT6_DIVIDE_MMCM   = 2*CLKOUT0_DIVIDE_MMCM,   // VCO output divisor for MMCM clkout6
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:106: localparam real CLKIN_PERIOD_NS_MMCM  = CLKIN_PERIOD_MMCM / 1000.0;
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:232: .DIVCLK_DIVIDE        (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:233: .CLKFBOUT_MULT_F      (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:236: .CLKOUT0_DIVIDE_F     (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:237: .CLKOUT0_PHASE        (0.000),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:256: .CLKOUT5_DIVIDE       (CLKOUT0_DIVIDE_MMCM*4),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:264: .CLKIN1_PERIOD        (CLKIN_PERIOD_NS_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:315: .DIVCLK_DIVIDE        (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:316: .CLKFBOUT_MULT_F      (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:319: .CLKOUT0_DIVIDE_F     (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:320: .CLKOUT0_PHASE        (0.000),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:339: .CLKOUT5_DIVIDE       (CLKOUT0_DIVIDE_MMCM*4),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_v2_2_infrastructure.sv:347: .CLKIN1_PERIOD        (CLKIN_PERIOD_NS_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:122: PhyIP_CLKFBOUT_MULT = "19",
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:123: PhyIP_DIVCLK_DIVIDE = "4",
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:124: PhyIP_CLKOUT0_DIVIDE = "5",
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:153: PhyIP_tCK = 877,
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:192: parameter         tCK                     = 877,  // Memory clock period (DDR4 clock cycle)
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:195: parameter         tRTW                    = 10, // CL + (BL/2) - CWL + 2tCK In DDR4 clock cycles
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:236: parameter         nCK_PER_CLK             = 4,
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:241: parameter         CLKIN_PERIOD_MMCM        = 3332,
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:242: parameter         CLKFBOUT_MULT_MMCM       = 19,
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:243: parameter         DIVCLK_DIVIDE_MMCM       = 4,
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:244: parameter         CLKOUT0_DIVIDE_MMCM      = 5,
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:545: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_raw_not_ecc;
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:546: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_ecc_single_int;
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:547: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_ecc_multiple_int;
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:550: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_app_ecc_multiple_err;
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:556: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_app_raw_not_ecc;
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:596: .CLKIN_PERIOD_MMCM   (CLKIN_PERIOD_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:597: .CLKFBOUT_MULT_MMCM  (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:598: .DIVCLK_DIVIDE_MMCM  (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:599: .CLKOUT0_DIVIDE_MMCM (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:681: .tCK                   (tCK),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:725: .nCK_PER_CLK           (nCK_PER_CLK),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:800: .CLKFBOUT_MULT_MMCM     (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:801: .DIVCLK_DIVIDE_MMCM     (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:802: .CLKOUT0_DIVIDE_MMCM    (CLKOUT0_DIVIDE_MMCM)
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:941: .C_MC_nCK_PER_CLK              (nCK_PER_CLK),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4.sv:1021: assign c0_ddr4_app_raw_not_ecc    = {2*nCK_PER_CLK{1'b0}};
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:116: ,parameter         tCK                 = 938  // Memory clock period
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:170: ,parameter         nCK_PER_CLK         = 4
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:231: ,parameter         CLKIN_PERIOD_MMCM    = 3750
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:232: ,parameter         CLKFBOUT_MULT_MMCM   = 4        // write MMCM VCO multiplier
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:233: ,parameter         DIVCLK_DIVIDE_MMCM   = 1        // write MMCM VCO divisor
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:234: ,parameter         CLKOUT0_DIVIDE_MMCM  = 4        // VCO output divisor for MMCM clkout0
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:307: ,input [2*nCK_PER_CLK-1:0]       app_raw_not_ecc
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:308: ,output [2*nCK_PER_CLK-1:0]      app_ecc_multiple_err
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:374: ,output [2*nCK_PER_CLK-1:0]      eccSingle
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:375: ,output [2*nCK_PER_CLK-1:0]      eccMultiple
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:945: .nCK_PER_CLK                        (4),
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:1051: localparam CLKFBOUT_MULT_PLL  = (CLKOUTPHY_MODE == "VCO_2X") ?
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:1052: ((nCK_PER_CLK == 4) ? 4 : 2) :
+MIGP_GEN: ddr4_p877_noDIV_13 ddr4_p877_noDIV_13_ddr4_mem_intfc.sv:1054: ((nCK_PER_CLK == 4) ? 8 : 4)
+MIGP_GENLINES: ddr4_p877_noDIV_13 69
+MIGP_ROW: ddr4_p877_noDIV_13           P= 877 cut= 5.017% UI= 285.063MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=1 newERR=0 newCW=0 rbP=877 rbRef=3332 => ACCEPTED
+MIGP_BEGIN: ddr4_p877_asPROJ_14 period=877 part=BLS4G4D240FSB-2400 variant=asPROJ why={5 % UI cut}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_TimePeriod = {877}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_InputClockPeriod = {3332}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {4}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {5}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_MemoryPart = {BLS4G4D240FSB-2400}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_isCustom = {true}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_CasLatency = {16}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_CasWriteLatency = {12}
+MIGP_RB: ddr4_p877_asPROJ_14 CONFIG.C0.DDR4_DataWidth = {64}
+MIGP_ROW: ddr4_p877_asPROJ_14          P= 877 cut= 5.017% UI= 285.063MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=- newERR=0 newCW=0 rbP=877 rbRef=3332 => ACCEPTED
+MIGP_BEGIN: ddr4_p876_noDIV_15 period=876 part=BLS4G4D240FSB-2400 variant=noDIV why={5 % cut, floor (just under 5 %)}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p876_noDIV_15' . Valid values are - 14017, 14016, 13316, 13315, 13141, 13140, 12615, 12614, 12265, 12264, 12263, 11914, 11913, 11389, 11388, 11214, 11213, 11212, 10513, 10512, 10511, 9812, 9811, 9637, 9636, 9635, 9111, 9110, 9109, 8761, 8760, 8410, 8409, 7885, 7884, 7883, 7710, 7709, 7708, 7009, 7008, 6659, 6658, 6657, 6571, 6570, 6308, 6307, 6133, 6132, 6131, 5957, 5956, 5695, 5694, 5607, 5606, 5605, 5257, 5256, 5255, 4906, 4905, 4819, 4818, 4817, 4673, 4672, 4556, 4555, 4554, 4439, 4438, 4381, 4380, 4284, 4283, 4205, 4204, 4089, 4088, 3972, 3971, 3943, 3942, 3941, 3894, 3893, 3855, 3854, 3797, 3796, 3795, 3739, 3738, 3737, 3505, 3504, 3330, 3329, 3328, 3286, 3285, 3271, 3270, 3213, 3212, 3211, 3154, 3153, 3116, 3115, 3067, 3066, 3065, 3037, 3036, 2979, 2978, 2921, 2920, 2919, 2848, 2847, 2804, 2803, 2802, 2726, 2725, 2664, 2663, 2629, 2628, 2627, 2570, 2569, 2524, 2523, 2522, 2453, 2452, 2410, 2409, 2408, 2383, 2382, 2337, 2336, 2278, 2277, 2243, 2242, 2220, 2219, 2191, 2190, 2103, 2102, 2101, 2045, 2044, 2003, 2002, 1986, 1985, 1972, 1971, 1963, 1962, 1928, 1927, 1903, 1902, 1899, 1898, 1878, 1877, 1870, 1869, 1868, 1823, 1822, 1803, 1802, 1801, 1753, 1752, 1702, 1701, 1682, 1681, 1665, 1664, 1643, 1642, 1636, 1635, 1627, 1626, 1607, 1606, 1602, 1601, 1577, 1576, 1558, 1557, 1542, 1541, 1533, 1532, 1519, 1518, 1502, 1501, 1490, 1489, 1480, 1479, 1461, 1460, 1459, 1424, 1423, 1402, 1401, 1377, 1376, 1363, 1362, 1332, 1331, 1324, 1323, 1315, 1314, 1313, 1302, 1301
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p876_noDIV_15'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p876_noDIV_15 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p876_noDIV_15 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p876_noDIV_15           P= 876 cut= 4.909% UI= 285.388MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p876_asPROJ_16 period=876 part=BLS4G4D240FSB-2400 variant=asPROJ why={5 % cut, floor (just under 5 %)}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p876_asPROJ_16' . Valid values are - 14017, 14016, 13316, 13315, 13141, 13140, 12615, 12614, 12265, 12264, 12263, 11914, 11913, 11389, 11388, 11214, 11213, 11212, 10513, 10512, 10511, 9812, 9811, 9637, 9636, 9635, 9111, 9110, 9109, 8761, 8760, 8410, 8409, 7885, 7884, 7883, 7710, 7709, 7708, 7009, 7008, 6659, 6658, 6657, 6571, 6570, 6308, 6307, 6133, 6132, 6131, 5957, 5956, 5695, 5694, 5607, 5606, 5605, 5257, 5256, 5255, 4906, 4905, 4819, 4818, 4817, 4673, 4672, 4556, 4555, 4554, 4439, 4438, 4381, 4380, 4284, 4283, 4205, 4204, 4089, 4088, 3972, 3971, 3943, 3942, 3941, 3894, 3893, 3855, 3854, 3797, 3796, 3795, 3739, 3738, 3737, 3505, 3504, 3330, 3329, 3328, 3286, 3285, 3271, 3270, 3213, 3212, 3211, 3154, 3153, 3116, 3115, 3067, 3066, 3065, 3037, 3036, 2979, 2978, 2921, 2920, 2919, 2848, 2847, 2804, 2803, 2802, 2726, 2725, 2664, 2663, 2629, 2628, 2627, 2570, 2569, 2524, 2523, 2522, 2453, 2452, 2410, 2409, 2408, 2383, 2382, 2337, 2336, 2278, 2277, 2243, 2242, 2220, 2219, 2191, 2190, 2103, 2102, 2101, 2045, 2044, 2003, 2002, 1986, 1985, 1972, 1971, 1963, 1962, 1928, 1927, 1903, 1902, 1899, 1898, 1878, 1877, 1870, 1869, 1868, 1823, 1822, 1803, 1802, 1801, 1753, 1752, 1702, 1701, 1682, 1681, 1665, 1664, 1643, 1642, 1636, 1635, 1627, 1626, 1607, 1606, 1602, 1601, 1577, 1576, 1558, 1557, 1542, 1541, 1533, 1532, 1519, 1518, 1502, 1501, 1490, 1489, 1480, 1479, 1461, 1460, 1459, 1424, 1423, 1402, 1401, 1377, 1376, 1363, 1362, 1332, 1331, 1324, 1323, 1315, 1314, 1313, 1302, 1301
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p876_asPROJ_16'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p876_asPROJ_16 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p876_asPROJ_16 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/Reg'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /iomodule_0/SLMB/IO'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p876_asPROJ_16          P= 876 cut= 4.909% UI= 285.388MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p896_noDIV_17 period=896 part=BLS4G4D240FSB-2400 variant=noDIV why={beyond 5 %}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p896_noDIV_17' . Valid values are - 13620, 13619, 13440, 13439, 12903, 12902, 12545, 12544, 12543, 12187, 12186, 12185, 11649, 11648, 11470, 11469, 11468, 10753, 10752, 10751, 10036, 10035, 10034, 9857, 9856, 9855, 9319, 9318, 9317, 8961, 8960, 8959, 8602, 8601, 8065, 8064, 8063, 7885, 7884, 7169, 7168, 6810, 6809, 6720, 6719, 6452, 6451, 6273, 6272, 6271, 6094, 6093, 6092, 5825, 5824, 5735, 5734, 5733, 5377, 5376, 5375, 5019, 5018, 5017, 4929, 4928, 4927, 4660, 4659, 4658, 4541, 4540, 4539, 4481, 4480, 4479, 4381, 4380, 4301, 4300, 4182, 4181, 4180, 4063, 4062, 4061, 4033, 4032, 4031, 3943, 3942, 3883, 3882, 3824, 3823, 3822, 3585, 3584, 3405, 3404, 3360, 3359, 3346, 3345, 3344, 3286, 3285, 3226, 3225, 3186, 3185, 3137, 3136, 3135, 3107, 3106, 3047, 3046, 2988, 2987, 2986, 2913, 2912, 2868, 2867, 2866, 2789, 2788, 2724, 2723, 2689, 2688, 2629, 2628, 2627, 2581, 2580, 2510, 2509, 2508, 2465, 2464, 2463, 2438, 2437, 2390, 2389, 2330, 2329, 2294, 2293, 2271, 2270, 2269, 2241, 2240, 2239, 2151, 2150, 2091, 2090, 2032, 2031, 2030, 2017, 2016, 2015, 2008, 2007, 1972, 1971, 1946, 1945, 1942, 1941, 1921, 1920, 1912, 1911, 1864, 1863, 1844, 1843, 1793, 1792, 1741, 1740, 1721, 1720, 1703, 1702, 1680, 1679, 1673, 1672, 1664, 1663, 1643, 1642, 1639, 1638, 1613, 1612, 1593, 1592, 1577, 1576, 1569, 1568, 1567, 1554, 1553, 1536, 1535, 1524, 1523, 1514, 1513, 1494, 1493, 1457, 1456, 1434, 1433, 1408, 1407, 1394, 1393, 1362, 1361, 1355, 1354, 1353, 1345, 1344, 1332, 1331, 1315, 1314, 1295, 1294
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p896_noDIV_17'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p896_noDIV_17 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p896_noDIV_17 CONFIG.C0.DDR4_DataWidth = {8}
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_ilmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /dlmb_cntlr/SLMB/Mem'
+WARNING: [BD 5-699] No address segments matched 'get_bd_addr_segs -of_object /second_dlmb_cntlr/SLMB/Mem'
+INFO: [Common 17-14] Message 'BD 5-699' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p896_noDIV_17           P= 896 cut= 7.031% UI= 279.018MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p896_asPROJ_18 period=896 part=BLS4G4D240FSB-2400 variant=asPROJ why={beyond 5 %}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p896_asPROJ_18' . Valid values are - 13620, 13619, 13440, 13439, 12903, 12902, 12545, 12544, 12543, 12187, 12186, 12185, 11649, 11648, 11470, 11469, 11468, 10753, 10752, 10751, 10036, 10035, 10034, 9857, 9856, 9855, 9319, 9318, 9317, 8961, 8960, 8959, 8602, 8601, 8065, 8064, 8063, 7885, 7884, 7169, 7168, 6810, 6809, 6720, 6719, 6452, 6451, 6273, 6272, 6271, 6094, 6093, 6092, 5825, 5824, 5735, 5734, 5733, 5377, 5376, 5375, 5019, 5018, 5017, 4929, 4928, 4927, 4660, 4659, 4658, 4541, 4540, 4539, 4481, 4480, 4479, 4381, 4380, 4301, 4300, 4182, 4181, 4180, 4063, 4062, 4061, 4033, 4032, 4031, 3943, 3942, 3883, 3882, 3824, 3823, 3822, 3585, 3584, 3405, 3404, 3360, 3359, 3346, 3345, 3344, 3286, 3285, 3226, 3225, 3186, 3185, 3137, 3136, 3135, 3107, 3106, 3047, 3046, 2988, 2987, 2986, 2913, 2912, 2868, 2867, 2866, 2789, 2788, 2724, 2723, 2689, 2688, 2629, 2628, 2627, 2581, 2580, 2510, 2509, 2508, 2465, 2464, 2463, 2438, 2437, 2390, 2389, 2330, 2329, 2294, 2293, 2271, 2270, 2269, 2241, 2240, 2239, 2151, 2150, 2091, 2090, 2032, 2031, 2030, 2017, 2016, 2015, 2008, 2007, 1972, 1971, 1946, 1945, 1942, 1941, 1921, 1920, 1912, 1911, 1864, 1863, 1844, 1843, 1793, 1792, 1741, 1740, 1721, 1720, 1703, 1702, 1680, 1679, 1673, 1672, 1664, 1663, 1643, 1642, 1639, 1638, 1613, 1612, 1593, 1592, 1577, 1576, 1569, 1568, 1567, 1554, 1553, 1536, 1535, 1524, 1523, 1514, 1513, 1494, 1493, 1457, 1456, 1434, 1433, 1408, 1407, 1394, 1393, 1362, 1361, 1355, 1354, 1353, 1345, 1344, 1332, 1331, 1315, 1314, 1295, 1294
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p896_asPROJ_18'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p896_asPROJ_18 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p896_asPROJ_18 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p896_asPROJ_18          P= 896 cut= 7.031% UI= 279.018MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p926_noDIV_19 period=926 part=BLS4G4D240FSB-2400 variant=noDIV why={beyond 5 %}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p926_noDIV_19' . Valid values are - 14076, 14075, 14074, 13891, 13890, 13582, 13581, 13335, 13334, 13333, 12965, 12964, 12963, 12594, 12593, 12039, 12038, 11853, 11852, 11113, 11112, 11111, 10372, 10371, 10187, 10186, 10185, 9631, 9630, 9629, 8891, 8890, 8889, 8335, 8334, 8333, 8149, 8148, 7409, 7408, 7039, 7038, 7037, 6946, 6945, 6668, 6667, 6666, 6483, 6482, 6481, 6297, 6296, 6020, 6019, 5927, 5926, 5925, 5557, 5556, 5555, 5186, 5185, 5094, 5093, 5092, 4816, 4815, 4814, 4693, 4692, 4691, 4631, 4630, 4629, 4528, 4527, 4446, 4445, 4444, 4322, 4321, 4320, 4199, 4198, 4197, 4168, 4167, 4166, 4116, 4115, 4075, 4074, 4073, 4014, 4013, 4012, 3952, 3951, 3950, 3705, 3704, 3520, 3519, 3518, 3473, 3472, 3458, 3457, 3456, 3396, 3395, 3394, 3335, 3334, 3333, 3293, 3292, 3242, 3241, 3240, 3211, 3210, 3209, 3149, 3148, 3088, 3087, 3010, 3009, 2964, 2963, 2962, 2816, 2815, 2779, 2778, 2777, 2717, 2716, 2668, 2667, 2666, 2593, 2592, 2547, 2546, 2519, 2518, 2470, 2469, 2468, 2408, 2407, 2371, 2370, 2347, 2346, 2345, 2316, 2315, 2314, 2223, 2222, 2221, 2162, 2161, 2160, 2100, 2099, 2098, 2084, 2083, 2075, 2074, 2058, 2057, 2038, 2037, 2036, 2011, 2010, 2007, 2006, 1985, 1984, 1976, 1975, 1941, 1940, 1927, 1926, 1925, 1905, 1904, 1853, 1852, 1800, 1799, 1798, 1779, 1778, 1777, 1760, 1759, 1737, 1736, 1729, 1728, 1720, 1719, 1698, 1697, 1694, 1693, 1668, 1667, 1666, 1647, 1646, 1630, 1629, 1621, 1620, 1606, 1605, 1604, 1588, 1587, 1575, 1574, 1565, 1564, 1563, 1544, 1543, 1510, 1509, 1508, 1505, 1504, 1482, 1481, 1456, 1455, 1441, 1440, 1411, 1410, 1408, 1407, 1400, 1399, 1390, 1389, 1376, 1375, 1359, 1358, 1338, 1337, 1334, 1333, 1317, 1316, 1297, 1296
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p926_noDIV_19'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p926_noDIV_19 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p926_noDIV_19 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p926_noDIV_19           P= 926 cut=10.043% UI= 269.978MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p926_asPROJ_20 period=926 part=BLS4G4D240FSB-2400 variant=asPROJ why={beyond 5 %}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p926_asPROJ_20' . Valid values are - 14076, 14075, 14074, 13891, 13890, 13582, 13581, 13335, 13334, 13333, 12965, 12964, 12963, 12594, 12593, 12039, 12038, 11853, 11852, 11113, 11112, 11111, 10372, 10371, 10187, 10186, 10185, 9631, 9630, 9629, 8891, 8890, 8889, 8335, 8334, 8333, 8149, 8148, 7409, 7408, 7039, 7038, 7037, 6946, 6945, 6668, 6667, 6666, 6483, 6482, 6481, 6297, 6296, 6020, 6019, 5927, 5926, 5925, 5557, 5556, 5555, 5186, 5185, 5094, 5093, 5092, 4816, 4815, 4814, 4693, 4692, 4691, 4631, 4630, 4629, 4528, 4527, 4446, 4445, 4444, 4322, 4321, 4320, 4199, 4198, 4197, 4168, 4167, 4166, 4116, 4115, 4075, 4074, 4073, 4014, 4013, 4012, 3952, 3951, 3950, 3705, 3704, 3520, 3519, 3518, 3473, 3472, 3458, 3457, 3456, 3396, 3395, 3394, 3335, 3334, 3333, 3293, 3292, 3242, 3241, 3240, 3211, 3210, 3209, 3149, 3148, 3088, 3087, 3010, 3009, 2964, 2963, 2962, 2816, 2815, 2779, 2778, 2777, 2717, 2716, 2668, 2667, 2666, 2593, 2592, 2547, 2546, 2519, 2518, 2470, 2469, 2468, 2408, 2407, 2371, 2370, 2347, 2346, 2345, 2316, 2315, 2314, 2223, 2222, 2221, 2162, 2161, 2160, 2100, 2099, 2098, 2084, 2083, 2075, 2074, 2058, 2057, 2038, 2037, 2036, 2011, 2010, 2007, 2006, 1985, 1984, 1976, 1975, 1941, 1940, 1927, 1926, 1925, 1905, 1904, 1853, 1852, 1800, 1799, 1798, 1779, 1778, 1777, 1760, 1759, 1737, 1736, 1729, 1728, 1720, 1719, 1698, 1697, 1694, 1693, 1668, 1667, 1666, 1647, 1646, 1630, 1629, 1621, 1620, 1606, 1605, 1604, 1588, 1587, 1575, 1574, 1565, 1564, 1563, 1544, 1543, 1510, 1509, 1508, 1505, 1504, 1482, 1481, 1456, 1455, 1441, 1440, 1411, 1410, 1408, 1407, 1400, 1399, 1390, 1389, 1376, 1375, 1359, 1358, 1338, 1337, 1334, 1333, 1317, 1316, 1297, 1296
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p926_asPROJ_20'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p926_asPROJ_20 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p926_asPROJ_20 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p926_asPROJ_20          P= 926 cut=10.043% UI= 269.978MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p938_noDIV_21 period=938 part=BLS4G4D240FSB-2400 variant=noDIV why={next grade tCK (DDR4-2133), -2400 part}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p938_noDIV_21' . Valid values are - 14259, 14258, 14257, 14071, 14070, 13759, 13758, 13757, 13508, 13507, 13133, 13132, 13131, 12757, 12756, 12508, 12507, 12506, 12007, 12006, 11882, 11881, 11257, 11256, 11255, 10631, 10630, 10506, 10505, 10319, 10318, 10007, 10006, 10005, 9757, 9756, 9755, 9381, 9380, 9379, 9006, 9005, 9004, 8756, 8755, 8754, 8443, 8442, 8441, 8256, 8255, 8254, 8131, 8130, 8129, 7505, 7504, 7130, 7129, 7128, 7036, 7035, 6880, 6879, 6878, 6754, 6753, 6567, 6566, 6565, 6379, 6378, 6255, 6254, 6253, 6004, 6003, 5941, 5940, 5629, 5628, 5627, 5317, 5316, 5315, 5253, 5252, 5160, 5159, 5004, 5003, 5002, 4879, 4878, 4877, 4691, 4690, 4689, 4587, 4586, 4585, 4503, 4502, 4379, 4378, 4377, 4222, 4221, 4220, 4169, 4168, 4128, 4127, 4066, 4065, 4064, 3961, 3960, 3753, 3752, 3565, 3564, 3544, 3543, 3518, 3517, 3441, 3440, 3439, 3336, 3335, 3284, 3283, 3282, 3190, 3189, 3128, 3127, 3126, 3002, 3001, 2971, 2970, 2919, 2918, 2852, 2851, 2815, 2814, 2813, 2752, 2751, 2710, 2709, 2702, 2701, 2658, 2657, 2627, 2626, 2552, 2551, 2502, 2501, 2440, 2439, 2438, 2402, 2401, 2377, 2376, 2346, 2345, 2344, 2294, 2293, 2292, 2252, 2251, 2190, 2189, 2188, 2127, 2126, 2111, 2110, 2102, 2101, 2085, 2084, 2064, 2063, 2037, 2036, 2033, 2032, 2002, 2001, 1981, 1980, 1966, 1965, 1952, 1951, 1930, 1929, 1877, 1876, 1823, 1822, 1802, 1801, 1800, 1787, 1786, 1783, 1782, 1772, 1771, 1759, 1758, 1751, 1750, 1743, 1742, 1720, 1719, 1716, 1715, 1698, 1697, 1689, 1688, 1668, 1667, 1651, 1650, 1642, 1641, 1626, 1625, 1609, 1608, 1607, 1595, 1594, 1564, 1563, 1529, 1528, 1519, 1518, 1501, 1500, 1486, 1485, 1475, 1474, 1460, 1459, 1430, 1429, 1426, 1425, 1408, 1407, 1406, 1394, 1393, 1390, 1389, 1376, 1375, 1351, 1350, 1341, 1340, 1339, 1321, 1320, 1314, 1313, 1297, 1296
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p938_noDIV_21'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p938_noDIV_21 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p938_noDIV_21 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p938_noDIV_21           P= 938 cut=11.194% UI= 266.525MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p938_asPROJ_22 period=938 part=BLS4G4D240FSB-2400 variant=asPROJ why={next grade tCK (DDR4-2133), -2400 part}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p938_asPROJ_22' . Valid values are - 14259, 14258, 14257, 14071, 14070, 13759, 13758, 13757, 13508, 13507, 13133, 13132, 13131, 12757, 12756, 12508, 12507, 12506, 12007, 12006, 11882, 11881, 11257, 11256, 11255, 10631, 10630, 10506, 10505, 10319, 10318, 10007, 10006, 10005, 9757, 9756, 9755, 9381, 9380, 9379, 9006, 9005, 9004, 8756, 8755, 8754, 8443, 8442, 8441, 8256, 8255, 8254, 8131, 8130, 8129, 7505, 7504, 7130, 7129, 7128, 7036, 7035, 6880, 6879, 6878, 6754, 6753, 6567, 6566, 6565, 6379, 6378, 6255, 6254, 6253, 6004, 6003, 5941, 5940, 5629, 5628, 5627, 5317, 5316, 5315, 5253, 5252, 5160, 5159, 5004, 5003, 5002, 4879, 4878, 4877, 4691, 4690, 4689, 4587, 4586, 4585, 4503, 4502, 4379, 4378, 4377, 4222, 4221, 4220, 4169, 4168, 4128, 4127, 4066, 4065, 4064, 3961, 3960, 3753, 3752, 3565, 3564, 3544, 3543, 3518, 3517, 3441, 3440, 3439, 3336, 3335, 3284, 3283, 3282, 3190, 3189, 3128, 3127, 3126, 3002, 3001, 2971, 2970, 2919, 2918, 2852, 2851, 2815, 2814, 2813, 2752, 2751, 2710, 2709, 2702, 2701, 2658, 2657, 2627, 2626, 2552, 2551, 2502, 2501, 2440, 2439, 2438, 2402, 2401, 2377, 2376, 2346, 2345, 2344, 2294, 2293, 2292, 2252, 2251, 2190, 2189, 2188, 2127, 2126, 2111, 2110, 2102, 2101, 2085, 2084, 2064, 2063, 2037, 2036, 2033, 2032, 2002, 2001, 1981, 1980, 1966, 1965, 1952, 1951, 1930, 1929, 1877, 1876, 1823, 1822, 1802, 1801, 1800, 1787, 1786, 1783, 1782, 1772, 1771, 1759, 1758, 1751, 1750, 1743, 1742, 1720, 1719, 1716, 1715, 1698, 1697, 1689, 1688, 1668, 1667, 1651, 1650, 1642, 1641, 1626, 1625, 1609, 1608, 1607, 1595, 1594, 1564, 1563, 1529, 1528, 1519, 1518, 1501, 1500, 1486, 1485, 1475, 1474, 1460, 1459, 1430, 1429, 1426, 1425, 1408, 1407, 1406, 1394, 1393, 1390, 1389, 1376, 1375, 1351, 1350, 1341, 1340, 1339, 1321, 1320, 1314, 1313, 1297, 1296
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p938_asPROJ_22'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p938_asPROJ_22 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p938_asPROJ_22 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p938_asPROJ_22          P= 938 cut=11.194% UI= 266.525MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p938_noDIV_23 period=938 part=BLS4G4D240FSB-2133 variant=noDIV why={next grade, -2133 part row of the CSV}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p938_noDIV_23' . Valid values are - 14259, 14258, 14257, 14071, 14070, 13759, 13758, 13757, 13508, 13507, 13133, 13132, 13131, 12757, 12756, 12508, 12507, 12506, 12007, 12006, 11882, 11881, 11257, 11256, 11255, 10631, 10630, 10506, 10505, 10319, 10318, 10007, 10006, 10005, 9757, 9756, 9755, 9381, 9380, 9379, 9006, 9005, 9004, 8756, 8755, 8754, 8443, 8442, 8441, 8256, 8255, 8254, 8131, 8130, 8129, 7505, 7504, 7130, 7129, 7128, 7036, 7035, 6880, 6879, 6878, 6754, 6753, 6567, 6566, 6565, 6379, 6378, 6255, 6254, 6253, 6004, 6003, 5941, 5940, 5629, 5628, 5627, 5317, 5316, 5315, 5253, 5252, 5160, 5159, 5004, 5003, 5002, 4879, 4878, 4877, 4691, 4690, 4689, 4587, 4586, 4585, 4503, 4502, 4379, 4378, 4377, 4222, 4221, 4220, 4169, 4168, 4128, 4127, 4066, 4065, 4064, 3961, 3960, 3753, 3752, 3565, 3564, 3544, 3543, 3518, 3517, 3441, 3440, 3439, 3336, 3335, 3284, 3283, 3282, 3190, 3189, 3128, 3127, 3126, 3002, 3001, 2971, 2970, 2919, 2918, 2852, 2851, 2815, 2814, 2813, 2752, 2751, 2710, 2709, 2702, 2701, 2658, 2657, 2627, 2626, 2552, 2551, 2502, 2501, 2440, 2439, 2438, 2402, 2401, 2377, 2376, 2346, 2345, 2344, 2294, 2293, 2292, 2252, 2251, 2190, 2189, 2188, 2127, 2126, 2111, 2110, 2102, 2101, 2085, 2084, 2064, 2063, 2037, 2036, 2033, 2032, 2002, 2001, 1981, 1980, 1966, 1965, 1952, 1951, 1930, 1929, 1877, 1876, 1823, 1822, 1802, 1801, 1800, 1787, 1786, 1783, 1782, 1772, 1771, 1759, 1758, 1751, 1750, 1743, 1742, 1720, 1719, 1716, 1715, 1698, 1697, 1689, 1688, 1668, 1667, 1651, 1650, 1642, 1641, 1626, 1625, 1609, 1608, 1607, 1595, 1594, 1564, 1563, 1529, 1528, 1519, 1518, 1501, 1500, 1486, 1485, 1475, 1474, 1460, 1459, 1430, 1429, 1426, 1425, 1408, 1407, 1406, 1394, 1393, 1390, 1389, 1376, 1375, 1351, 1350, 1341, 1340, 1339, 1321, 1320, 1314, 1313, 1297, 1296
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p938_noDIV_23'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p938_noDIV_23 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p938_noDIV_23 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p938_noDIV_23           P= 938 cut=11.194% UI= 266.525MHz part=BLS4G4D240FSB-2133 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p1071_noDIV_24 period=1071 part=BLS4G4D240FSB-2400 variant=noDIV why={DDR4-1866 tCK, -2400 part}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_TimePeriod = {1071}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_InputClockPeriod = {3332}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_CLKFBOUT_MULT = {14}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {3}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {6}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_MemoryPart = {BLS4G4D240FSB-2400}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_isCustom = {true}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_CasLatency = {16}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_CasWriteLatency = {12}
+MIGP_RB: ddr4_p1071_noDIV_24 CONFIG.C0.DDR4_DataWidth = {64}
+INFO: [IP_Flow 19-1686] Generating 'Instantiation Template' target for IP 'ddr4_p1071_noDIV_24'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'ddr4_p1071_noDIV_24'...
+INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'ddr4_p1071_noDIV_24'...
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+Exporting to file /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p1071_noDIV_24/bd_0/hw_handoff/ddr4_p1071_noDIV_24_microblaze_mcs.hwh
+Generated Hardware Definition File /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p1071_noDIV_24/bd_0/synth/ddr4_p1071_noDIV_24_microblaze_mcs.hwdef
+generate_target: Time (s): cpu = 00:00:07 ; elapsed = 00:00:10 . Memory (MB): peak = 4447.473 ; gain = 0.000 ; free physical = 45930 ; free virtual = 359842
+MIGP_GENDIR: ddr4_p1071_noDIV_24 /home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.gen/sources_1/ip/ddr4_p1071_noDIV_24
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24.xdc:7: create_clock -period 3.332 [get_ports c0_sys_clk_p]
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:71: parameter CLKIN_PERIOD_MMCM     = 3750,// Input clock period
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:72: parameter CLKFBOUT_MULT_MMCM    = 4,   // write MMCM VCO multiplier
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:73: parameter DIVCLK_DIVIDE_MMCM    = 1,   // write MMCM VCO divisor
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:74: parameter CLKOUT0_DIVIDE_MMCM   = 4,   // VCO output divisor for MMCM clkout0
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:79: parameter CLKOUT6_DIVIDE_MMCM   = 2*CLKOUT0_DIVIDE_MMCM,   // VCO output divisor for MMCM clkout6
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:106: localparam real CLKIN_PERIOD_NS_MMCM  = CLKIN_PERIOD_MMCM / 1000.0;
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:232: .DIVCLK_DIVIDE        (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:233: .CLKFBOUT_MULT_F      (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:236: .CLKOUT0_DIVIDE_F     (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:237: .CLKOUT0_PHASE        (0.000),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:256: .CLKOUT5_DIVIDE       (CLKOUT0_DIVIDE_MMCM*4),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:264: .CLKIN1_PERIOD        (CLKIN_PERIOD_NS_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:315: .DIVCLK_DIVIDE        (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:316: .CLKFBOUT_MULT_F      (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:319: .CLKOUT0_DIVIDE_F     (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:320: .CLKOUT0_PHASE        (0.000),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:339: .CLKOUT5_DIVIDE       (CLKOUT0_DIVIDE_MMCM*4),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_v2_2_infrastructure.sv:347: .CLKIN1_PERIOD        (CLKIN_PERIOD_NS_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:122: PhyIP_CLKFBOUT_MULT = "14",
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:123: PhyIP_DIVCLK_DIVIDE = "3",
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:124: PhyIP_CLKOUT0_DIVIDE = "6",
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:153: PhyIP_tCK = 1071,
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:192: parameter         tCK                     = 1071,  // Memory clock period (DDR4 clock cycle)
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:195: parameter         tRTW                    = 10, // CL + (BL/2) - CWL + 2tCK In DDR4 clock cycles
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:236: parameter         nCK_PER_CLK             = 4,
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:241: parameter         CLKIN_PERIOD_MMCM        = 3332,
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:242: parameter         CLKFBOUT_MULT_MMCM       = 14,
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:243: parameter         DIVCLK_DIVIDE_MMCM       = 3,
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:244: parameter         CLKOUT0_DIVIDE_MMCM      = 6,
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:545: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_raw_not_ecc;
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:546: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_ecc_single_int;
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:547: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_ecc_multiple_int;
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:550: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_app_ecc_multiple_err;
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:556: wire [2*nCK_PER_CLK-1:0]               c0_ddr4_app_raw_not_ecc;
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:596: .CLKIN_PERIOD_MMCM   (CLKIN_PERIOD_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:597: .CLKFBOUT_MULT_MMCM  (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:598: .DIVCLK_DIVIDE_MMCM  (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:599: .CLKOUT0_DIVIDE_MMCM (CLKOUT0_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:681: .tCK                   (tCK),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:725: .nCK_PER_CLK           (nCK_PER_CLK),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:800: .CLKFBOUT_MULT_MMCM     (CLKFBOUT_MULT_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:801: .DIVCLK_DIVIDE_MMCM     (DIVCLK_DIVIDE_MMCM),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:802: .CLKOUT0_DIVIDE_MMCM    (CLKOUT0_DIVIDE_MMCM)
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:941: .C_MC_nCK_PER_CLK              (nCK_PER_CLK),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4.sv:1021: assign c0_ddr4_app_raw_not_ecc    = {2*nCK_PER_CLK{1'b0}};
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:116: ,parameter         tCK                 = 938  // Memory clock period
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:170: ,parameter         nCK_PER_CLK         = 4
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:231: ,parameter         CLKIN_PERIOD_MMCM    = 3750
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:232: ,parameter         CLKFBOUT_MULT_MMCM   = 4        // write MMCM VCO multiplier
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:233: ,parameter         DIVCLK_DIVIDE_MMCM   = 1        // write MMCM VCO divisor
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:234: ,parameter         CLKOUT0_DIVIDE_MMCM  = 4        // VCO output divisor for MMCM clkout0
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:307: ,input [2*nCK_PER_CLK-1:0]       app_raw_not_ecc
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:308: ,output [2*nCK_PER_CLK-1:0]      app_ecc_multiple_err
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:374: ,output [2*nCK_PER_CLK-1:0]      eccSingle
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:375: ,output [2*nCK_PER_CLK-1:0]      eccMultiple
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:945: .nCK_PER_CLK                        (4),
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:1051: localparam CLKFBOUT_MULT_PLL  = (CLKOUTPHY_MODE == "VCO_2X") ?
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:1052: ((nCK_PER_CLK == 4) ? 4 : 2) :
+MIGP_GEN: ddr4_p1071_noDIV_24 ddr4_p1071_noDIV_24_ddr4_mem_intfc.sv:1054: ((nCK_PER_CLK == 4) ? 8 : 4)
+MIGP_GENLINES: ddr4_p1071_noDIV_24 69
+MIGP_ROW: ddr4_p1071_noDIV_24          P=1071 cut=22.222% UI= 233.427MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=1 newERR=0 newCW=0 rbP=1071 rbRef=3332 => ACCEPTED
+MIGP_BEGIN: ddr4_p1071_asPROJ_25 period=1071 part=BLS4G4D240FSB-2400 variant=asPROJ why={DDR4-1866 tCK, -2400 part}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+WARNING: [IP_Flow 19-3374] An attempt to modify the value of disabled parameter 'C0.DDR4_CLKOUT0_DIVIDE' from '6' to '5' has been ignored for IP 'ddr4_p1071_asPROJ_25'
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+WARNING: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_TimePeriod = {1071}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_InputClockPeriod = {3332}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_CLKFBOUT_MULT = {14}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {3}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {6}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_MemoryPart = {BLS4G4D240FSB-2400}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_isCustom = {true}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_CasLatency = {16}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_CasWriteLatency = {12}
+MIGP_RB: ddr4_p1071_asPROJ_25 CONFIG.C0.DDR4_DataWidth = {64}
+MIGP_ROW: ddr4_p1071_asPROJ_25         P=1071 cut=22.222% UI= 233.427MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=- newERR=0 newCW=0 rbP=1071 rbRef=3332 => ACCEPTED
+MIGP_BEGIN: ddr4_p1600_noDIV_26 period=1600 part=BLS4G4D240FSB-2400 variant=noDIV why={CSV Max period of the -2400 row}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p1600_noDIV_26' . Valid values are - 14222, 14080, 14079, 13714, 13600, 13511, 13440, 13439, 12800, 12160, 12088, 12000, 11999, 11885, 11520, 11519, 11377, 11376, 11200, 10971, 10880, 10879, 10666, 10400, 10399, 10240, 10057, 9955, 9600, 9244, 9142, 8960, 8800, 8533, 8320, 8228, 8000, 7822, 7821, 7680, 7314, 7200, 7111, 7040, 7039, 6857, 6800, 6755, 6720, 6719, 6400, 6080, 6044, 6000, 5999, 5942, 5760, 5759, 5688, 5600, 5485, 5440, 5439, 5200, 5199, 5120, 5028, 4977, 4976, 4800, 4740, 4693, 4622, 4571, 4533, 4532, 4503, 4502, 4480, 4400, 4266, 4160, 4053, 4052, 4029, 4028, 4000, 3961, 3911, 3910, 3840, 3792, 3733, 3657, 3626, 3600, 3555, 3520, 3519, 3466, 3428, 3413, 3412, 3400, 3377, 3360, 3359, 3352, 3318, 3317, 3200, 3081, 3080, 3047, 3040, 3022, 3000, 2999, 2986, 2971, 2933, 2932, 2880, 2879, 2844, 2816, 2815, 2800, 2773, 2772, 2742, 2720, 2719, 2702, 2688, 2666, 2607, 2606, 2600, 2599, 2560, 2514, 2488, 2432, 2417, 2400, 2377, 2370, 2346, 2311, 2304, 2275, 2266, 2251, 2240, 2200, 2194, 2176, 2175, 2133, 2080, 2048, 2031, 2026, 2014, 2011, 2000, 1991, 1980, 1959, 1955, 1942, 1930, 1920, 1896, 1866, 1848, 1828, 1813, 1800, 1792, 1777, 1760, 1759, 1733, 1726, 1714, 1706, 1700, 1697, 1676, 1664, 1663, 1659, 1658, 1645, 1625, 1600
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p1600_noDIV_26'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p1600_noDIV_26 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p1600_noDIV_26 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p1600_noDIV_26          P=1600 cut=47.938% UI= 156.250MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p1600_asPROJ_27 period=1600 part=BLS4G4D240FSB-2400 variant=asPROJ why={CSV Max period of the -2400 row}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+WARNING: [IP_Flow 19-3374] An attempt to modify the value of disabled parameter 'C0.DDR4_CLKOUT0_DIVIDE' from '9' to '5' has been ignored for IP 'ddr4_p1600_asPROJ_27'
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p1600_asPROJ_27' . Valid values are - 14222, 14080, 14079, 13714, 13600, 13511, 13440, 13439, 12800, 12160, 12088, 12000, 11999, 11885, 11520, 11519, 11377, 11376, 11200, 10971, 10880, 10879, 10666, 10400, 10399, 10240, 10057, 9955, 9600, 9244, 9142, 8960, 8800, 8533, 8320, 8228, 8000, 7822, 7821, 7680, 7314, 7200, 7111, 7040, 7039, 6857, 6800, 6755, 6720, 6719, 6400, 6080, 6044, 6000, 5999, 5942, 5760, 5759, 5688, 5600, 5485, 5440, 5439, 5200, 5199, 5120, 5028, 4977, 4976, 4800, 4740, 4693, 4622, 4571, 4533, 4532, 4503, 4502, 4480, 4400, 4266, 4160, 4053, 4052, 4029, 4028, 4000, 3961, 3911, 3910, 3840, 3792, 3733, 3657, 3626, 3600, 3555, 3520, 3519, 3466, 3428, 3413, 3412, 3400, 3377, 3360, 3359, 3352, 3318, 3317, 3200, 3081, 3080, 3047, 3040, 3022, 3000, 2999, 2986, 2971, 2933, 2932, 2880, 2879, 2844, 2816, 2815, 2800, 2773, 2772, 2742, 2720, 2719, 2702, 2688, 2666, 2607, 2606, 2600, 2599, 2560, 2514, 2488, 2432, 2417, 2400, 2377, 2370, 2346, 2311, 2304, 2275, 2266, 2251, 2240, 2200, 2194, 2176, 2175, 2133, 2080, 2048, 2031, 2026, 2014, 2011, 2000, 1991, 1980, 1959, 1955, 1942, 1930, 1920, 1896, 1866, 1848, 1828, 1813, 1800, 1792, 1777, 1760, 1759, 1733, 1726, 1714, 1706, 1700, 1697, 1676, 1664, 1663, 1659, 1658, 1645, 1625, 1600
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p1600_asPROJ_27'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p1600_asPROJ_27 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p1600_asPROJ_27 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p1600_asPROJ_27         P=1600 cut=47.938% UI= 156.250MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p750_noDIV_28 period=750 part=BLS4G4D240FSB-2400 variant=noDIV why={CONTROL: faster than part min 833}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3478] Validation failed for parameter 'C0.DDR4 DataWidth(C0.DDR4_DataWidth)' with current value '64' for IP 'ddr4_p750_noDIV_28'. Selected DataWidth is supported only for a memory device interface speed between 833 and 1600
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p750_noDIV_28' . Valid values are - 14251, 14250, 14000, 13501, 13500, 13000, 12750, 12000, 11251, 11250, 11001, 11000, 10500, 10000, 9751, 9750, 9000, 8251, 8250, 8000, 7501, 7500, 7126, 7125, 7000, 6751, 6750, 6375, 6000, 5626, 5625, 5501, 5500, 5250, 5000, 4876, 4875, 4750, 4667, 4500, 4334, 4251, 4250, 4126, 4125, 4000, 3751, 3750, 3667, 3563, 3500, 3376, 3375, 3334, 3250, 3188, 3000, 2850, 2813, 2801, 2800, 2751, 2750, 2701, 2700, 2668, 2667, 2625, 2600, 2551, 2550, 2500, 2438, 2401, 2400, 2375, 2334, 2250, 2201, 2200, 2167, 2126, 2125, 2100, 2063, 2036, 2000, 1951, 1950, 1929, 1876, 1875, 1858, 1834, 1822, 1801, 1800, 1782, 1750, 1715, 1688, 1667, 1650, 1625, 1608, 1600, 1594, 1584, 1572, 1556, 1500, 1445, 1429, 1425, 1417, 1407, 1401, 1400, 1393, 1376, 1375, 1351, 1350, 1334, 1313, 1296
+ERROR: [IP_Flow 19-3478] Validation failed for parameter 'C0.DDR4 MemoryType(C0.DDR4_MemoryType)' with current value 'UDIMMs' for IP 'ddr4_p750_noDIV_28'. Selected memory type is supported only for a memory device interface speed between 833 and 1600
+ERROR: [IP_Flow 19-3478] Validation failed for parameter 'C0.DDR4 MemoryPart(C0.DDR4_MemoryPart)' with current value 'BLS4G4D240FSB-2400' for IP 'ddr4_p750_noDIV_28'. Selected memory part is supported only for a memory device interface speed between 833 and 1600
+ERROR: [IP_Flow 19-3478] Validation failed for parameter 'C0.DDR4 Slot(C0.DDR4_Slot)' with current value 'Single' for IP 'ddr4_p750_noDIV_28'. Selected Slot is supported only for a memory device interface speed between 833 and 1600
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p750_noDIV_28'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p750_noDIV_28 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p750_noDIV_28 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p750_noDIV_28           P= 750 cut=-11.067% UI= 333.333MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=5 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_BEGIN: ddr4_p1700_noDIV_29 period=1700 part=BLS4G4D240FSB-2400 variant=noDIV why={CONTROL: slower than part max 1600}
+WARNING: [Vivado 12-818] No files matched '*.xci'
+INFO: [IP_Flow 19-3484] Absolute path of file '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_sr10_mig_probe/proj/sr10_mig_probe.srcs/sources_1/imports/constraints/BLS4G4D240FSB.csv' provided. It will be converted relative to IP Instance files '../../imports/constraints/BLS4G4D240FSB.csv'
+ERROR: [IP_Flow 19-3478] Validation failed for parameter 'C0.DDR4 DataWidth(C0.DDR4_DataWidth)' with current value '64' for IP 'ddr4_p1700_noDIV_29'. Selected DataWidth is supported only for a memory device interface speed between 833 and 1600
+ERROR: [IP_Flow 19-3458] Validation failed for parameter 'C0.DDR4 TimePeriod(C0.DDR4_TimePeriod)' for IP 'ddr4_p1700_noDIV_29'. Value '1700' is out of the range (750,1600)
+ERROR: [IP_Flow 19-3461] Value '3332' is out of the range for parameter 'C0.DDR4 InputClockPeriod(C0.DDR4_InputClockPeriod)' for IP 'ddr4_p1700_noDIV_29' . Valid values are - 14251, 14250, 14000, 13501, 13500, 13000, 12750, 12000, 11251, 11250, 11001, 11000, 10500, 10000, 9751, 9750, 9000, 8251, 8250, 8000, 7501, 7500, 7126, 7125, 7000, 6751, 6750, 6375, 6000, 5626, 5625, 5501, 5500, 5250, 5000, 4876, 4875, 4750, 4667, 4500, 4334, 4251, 4250, 4126, 4125, 4000, 3751, 3750, 3667, 3563, 3500, 3376, 3375, 3334, 3250, 3188, 3000, 2850, 2813, 2801, 2800, 2751, 2750, 2701, 2700, 2668, 2667, 2625, 2600, 2551, 2550, 2500, 2438, 2401, 2400, 2375, 2334, 2250, 2201, 2200, 2167, 2126, 2125, 2100, 2063, 2036, 2000, 1951, 1950, 1929, 1876, 1875, 1858, 1834, 1822, 1801, 1800, 1782, 1750, 1715, 1688, 1667, 1650, 1625, 1608, 1600, 1594, 1584, 1572, 1556, 1500, 1445, 1429, 1425, 1417, 1407, 1401, 1400, 1393, 1376, 1375, 1351, 1350, 1334, 1313, 1296
+ERROR: [IP_Flow 19-3478] Validation failed for parameter 'C0.DDR4 MemoryType(C0.DDR4_MemoryType)' with current value 'UDIMMs' for IP 'ddr4_p1700_noDIV_29'. Selected memory type is supported only for a memory device interface speed between 833 and 1600
+ERROR: [IP_Flow 19-3478] Validation failed for parameter 'C0.DDR4 MemoryPart(C0.DDR4_MemoryPart)' with current value 'BLS4G4D240FSB-2400' for IP 'ddr4_p1700_noDIV_29'. Selected memory part is supported only for a memory device interface speed between 833 and 1600
+ERROR: [IP_Flow 19-3478] Validation failed for parameter 'C0.DDR4 Slot(C0.DDR4_Slot)' with current value 'Single' for IP 'ddr4_p1700_noDIV_29'. Selected Slot is supported only for a memory device interface speed between 833 and 1600
+INFO: [IP_Flow 19-3438] Customization errors found on 'ddr4_p1700_noDIV_29'. Restoring to previous valid configuration.
+INFO: [Common 17-17] undo 'set_property'
+MIGP_SETERR: ddr4_p1700_noDIV_29 {ERROR: [Common 17-39] 'set_property' failed due to earlier errors. | }
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_TimePeriod = {750}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_InputClockPeriod = {14251}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_Specify_MandD = {false}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_CLKFBOUT_MULT = {19}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_DIVCLK_DIVIDE = {1}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_CLKOUT0_DIVIDE = {4}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_PhyClockRatio = {4:1}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_MemoryPart = {MT40A512M8RH-075E}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_isCustom = {false}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_CasLatency = {18}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_CasWriteLatency = {14}
+MIGP_RB: ddr4_p1700_noDIV_29 CONFIG.C0.DDR4_DataWidth = {8}
+INFO: [xilinx.com:ip:microblaze:11.0-9] /microblaze_I: Setting C_BASE_VECTORS to 0x00000000.
+MIGP_ROW: ddr4_p1700_noDIV_29          P=1700 cut=51.000% UI= 147.059MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=6 newCW=0 rbP=750 rbRef=14251 => REFUSED
+# puts "MIGP_SUMMARY_BEGIN"
+MIGP_SUMMARY_BEGIN
+# foreach l $results { puts $l }
+MIGP_ROW: ddr4_p833_noDIV_01           P= 833 cut= 0.000% UI= 300.120MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=1 newERR=0 newCW=0 rbP=833 rbRef=3332 => ACCEPTED
+MIGP_ROW: ddr4_p833_asPROJ_02          P= 833 cut= 0.000% UI= 300.120MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=- newERR=0 newCW=0 rbP=833 rbRef=3332 => ACCEPTED
+MIGP_ROW: ddr4_p834_noDIV_03           P= 834 cut= 0.120% UI= 299.760MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p834_asPROJ_04          P= 834 cut= 0.120% UI= 299.760MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p841_noDIV_05           P= 841 cut= 0.951% UI= 297.265MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p841_asPROJ_06          P= 841 cut= 0.951% UI= 297.265MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p850_noDIV_07           P= 850 cut= 2.000% UI= 294.118MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p850_asPROJ_08          P= 850 cut= 2.000% UI= 294.118MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p859_noDIV_09           P= 859 cut= 3.027% UI= 291.036MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p859_asPROJ_10          P= 859 cut= 3.027% UI= 291.036MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p868_noDIV_11           P= 868 cut= 4.032% UI= 288.018MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p868_asPROJ_12          P= 868 cut= 4.032% UI= 288.018MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p877_noDIV_13           P= 877 cut= 5.017% UI= 285.063MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=1 newERR=0 newCW=0 rbP=877 rbRef=3332 => ACCEPTED
+MIGP_ROW: ddr4_p877_asPROJ_14          P= 877 cut= 5.017% UI= 285.063MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=- newERR=0 newCW=0 rbP=877 rbRef=3332 => ACCEPTED
+MIGP_ROW: ddr4_p876_noDIV_15           P= 876 cut= 4.909% UI= 285.388MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p876_asPROJ_16          P= 876 cut= 4.909% UI= 285.388MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p896_noDIV_17           P= 896 cut= 7.031% UI= 279.018MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p896_asPROJ_18          P= 896 cut= 7.031% UI= 279.018MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p926_noDIV_19           P= 926 cut=10.043% UI= 269.978MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p926_asPROJ_20          P= 926 cut=10.043% UI= 269.978MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p938_noDIV_21           P= 938 cut=11.194% UI= 266.525MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p938_asPROJ_22          P= 938 cut=11.194% UI= 266.525MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p938_noDIV_23           P= 938 cut=11.194% UI= 266.525MHz part=BLS4G4D240FSB-2133 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p1071_noDIV_24          P=1071 cut=22.222% UI= 233.427MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=1 newERR=0 newCW=0 rbP=1071 rbRef=3332 => ACCEPTED
+MIGP_ROW: ddr4_p1071_asPROJ_25         P=1071 cut=22.222% UI= 233.427MHz part=BLS4G4D240FSB-2400 set=1 validate=1 held(P,refclk,part)=1 gen=- newERR=0 newCW=0 rbP=1071 rbRef=3332 => ACCEPTED
+MIGP_ROW: ddr4_p1600_noDIV_26          P=1600 cut=47.938% UI= 156.250MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p1600_asPROJ_27         P=1600 cut=47.938% UI= 156.250MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=1 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p750_noDIV_28           P= 750 cut=-11.067% UI= 333.333MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=5 newCW=0 rbP=750 rbRef=14251 => REFUSED
+MIGP_ROW: ddr4_p1700_noDIV_29          P=1700 cut=51.000% UI= 147.059MHz part=BLS4G4D240FSB-2400 set=0 validate=1 held(P,refclk,part)=0 gen=- newERR=6 newCW=0 rbP=750 rbRef=14251 => REFUSED
+# puts "MIGP_SUMMARY_END"
+MIGP_SUMMARY_END
+# close_project
+# puts "MIGP_DONE"
+MIGP_DONE
+INFO: [Common 17-206] Exiting Vivado at Sun Sep 27 22:17:31 2026...
+=== rc  : 0
+=== end : 2026-09-27T22:17:32-06:00

@@ -1,0 +1,165 @@
+=== host: snoke  date: 2026-10-01T14:18:59-06:00
+=== tree: 0a0b156
+=== cmd : /home/cah/.venv/bin/python -u evidence/qwen9b/sr/r3_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+R3-6 host TDD — FABLE5_MODEL=9b FABLE5_RS_F=7
+=== setup: the words, the rows, the r3 streams
+  [setup] PASS seq_caps_word({R1,R2,R3}) is 0xFAB1CA07 and decodes back to {R1,R2,R3}  -- 0xfab1ca07
+  [setup] FAIL no SEQ_VERSIONS row reports 0xFAB1CA07 (the R3 row is R3-10's, only for a kept bitstream)  -- ['0x2e874592']
+  [setup] PASS the four r3 streams re-hash (FULL sha256) to R3-5's table and their manifests  -- {}
+=== (G) the identity gate: the REAL Dev._gate, scripted maps
+  [G] PASS the R3 VERSION (named) reporting 0xFAB1CA07 -> SEQ READY  -- ok
+  [G] PASS the R3 VERSION (named) reporting 0xFAB1CA03 -> REFUSED on SEQ_CAPS  -- SEQ_CAPS=0xfab1ca03 != expected 0xfab1ca07 for VERSION 0x3b3b3b3b (MOCK R1+R2+R3 (R3-6 test only)): the bitstream's capa
+  [G] PASS the R3 VERSION (named) reporting 0xFAB1CA01 -> REFUSED on SEQ_CAPS  -- SEQ_CAPS=0xfab1ca01 != expected 0xfab1ca07 for VERSION 0x3b3b3b3b (MOCK R1+R2+R3 (R3-6 test only)): the bitstream's capa
+  [G] PASS the R3 VERSION (named) reporting 0xDEADC0DE -> REFUSED on SEQ_CAPS  -- SEQ_CAPS=0xdeadc0de != expected 0xfab1ca07 for VERSION 0x3b3b3b3b (MOCK R1+R2+R3 (R3-6 test only)): the bitstream's capa
+  [G] PASS build_041 (the shipped VERSION, the default) reporting 0xFAB1CA07 -> REFUSED  -- SEQ_CAPS=0xfab1ca07 != expected 0xdeadc0de for VERSION 0xc973c18a (build_041_ckr2_AltSpreadLogic_high (shipped 9B; defau
+  [G] PASS the R2 VERSION (named) reporting 0xFAB1CA07 -> REFUSED  -- SEQ_CAPS=0xfab1ca07 != expected 0xfab1ca03 for VERSION 0x266e3ae7 (build_045_r2_incr (R2 XWIN/RES banks + R1 + BM1 count
+=== seq_run: an r3 stream on mock SEQ windows
+    r3 fixture: first broadcast record 3 (MOVX chan 0xF, window word 1536)
+    (a) r3 on 0xFAB1CA07: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [a] PASS the r3 fixture LOADS on the 0xFAB1CA07 mock  -- tripped upload
+  [a] PASS ... SEQ_CAPS read before the upload  -- ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+    (b) r3 on 0xFAB1CA03 (build_045_r2, {R1,R2}): outcome 'exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities [\'R1\', \'R2\']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capa'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1', 'R2']  (the device's SEQ_CAPS 0xfab1ca03)
+      |   SHAPE layout     isa=2  (the device's VERSION 0x266e3ae7)
+      | exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {
+  [b] PASS REFUSED on 0xFAB1CA03 (build_045_r2, {R1,R2}) before any DMA  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {
+  [b] PASS ... by the validator, naming the BROADCAST at rec 3  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {
+  [b] PASS ... device-keyed (SEQ_CAPS was read)  -- ['dev', 'seq_caps_read', 'seq_caps_read']
+    (c) r3 on 0xFAB1CA01 (build_044_r1, {R1}): outcome 'exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities [\'R1\']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabiliti'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xe3c2ff1e)
+      | exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} la
+  [c] PASS REFUSED on 0xFAB1CA01 (build_044_r1, {R1}) before any DMA  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} la
+  [c] PASS ... by the validator, naming the BROADCAST at rec 3  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} la
+  [c] PASS ... device-keyed (SEQ_CAPS was read)  -- ['dev', 'seq_caps_read', 'seq_caps_read']
+    (d) r3 on 0xDEADC0DE (build_041, {}): outcome 'exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities {}: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xc973c18a)
+      | exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities {}: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1,
+  [d] PASS REFUSED on 0xDEADC0DE (build_041, {}) before any DMA  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities {}: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1,
+  [d] PASS ... by the validator, naming the BROADCAST at rec 3  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities {}: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1,
+  [d] PASS ... device-keyed (SEQ_CAPS was read)  -- ['dev', 'seq_caps_read', 'seq_caps_read']
+  [e] PASS manifest caps [R1,R2]: REFUSED on 0xFAB1CA03 (build_045_r2, {R1,R2}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3r12/rp.e at capabilities ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs ca
+  [e] PASS manifest caps [R1,R2]: REFUSED on 0xFAB1CA01 (build_044_r1, {R1}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3r12/rp.e at capabilities ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabili
+  [e] PASS manifest caps [R1,R2]: REFUSED on 0xDEADC0DE (build_041, {}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3r12/rp.e at capabilities {}: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities
+  [e] PASS manifest caps [R1,R2]: LOADS on 0xFAB1CA07  -- tripped upload
+  [e] PASS manifest seq_isa 2.2: REFUSED on 0xFAB1CA03 (build_045_r2, {R1,R2}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3isa22/rp.e at capabilities ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs 
+  [e] PASS manifest seq_isa 2.2: REFUSED on 0xFAB1CA01 (build_044_r1, {R1}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3isa22/rp.e at capabilities ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabi
+  [e] PASS manifest seq_isa 2.2: REFUSED on 0xDEADC0DE (build_041, {}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3isa22/rp.e at capabilities {}: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabiliti
+  [e] PASS manifest seq_isa 2.2: LOADS on 0xFAB1CA07  -- tripped upload
+  [e] PASS manifest no claim: REFUSED on 0xFAB1CA03 (build_045_r2, {R1,R2}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3none/rp.e at capabilities ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs c
+  [e] PASS manifest no claim: REFUSED on 0xFAB1CA01 (build_044_r1, {R1}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3none/rp.e at capabilities ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabil
+  [e] PASS manifest no claim: REFUSED on 0xDEADC0DE (build_041, {}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3none/rp.e at capabilities {}: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilitie
+  [e] PASS manifest no claim: LOADS on 0xFAB1CA07  -- tripped upload
+  [f] PASS --dry-run --caps R1,R2 REFUSES the r3 fixture naming the broadcast  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3h/rp.e at capabilities ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {
+  [f] PASS --dry-run --caps R1,R2,R3 validates + relocates, uploads nothing, never reads SEQ_CAPS  -- exit 0 ['dev']
+    (r) model_9b_s1_reordB_r3 on 0xFAB1CA07 (1 s): outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 249 images match the stream's MVGO plan; 5480 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [r] PASS the REAL r3 stream (s1) LOADS on the 0xFAB1CA07 mock  -- tripped upload
+    (r) model_9b_s1_reordB_r3 on 0xFAB1CA03 (build_045_r2, {R1,R2}): outcome 'exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities [\'R1\', \'R2\']: rec 53: MOVX channel fie'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1', 'R2']  (the device's SEQ_CAPS 0xfab1ca03)
+      |   SHAPE layout     isa=2  (the device's VERSION 0x266e3ae7)
+      | exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities ['R1', 'R2']: rec 53: MOVX channel field 0xf is the BROADCAST (B17.3): it need
+  [r] PASS the REAL r3 stream is REFUSED on 0xFAB1CA03 (build_045_r2, {R1,R2}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities ['R1', 'R2']: rec 53: MOVX channel field 0xf is the BROADCAST (B17.3): it need
+    (r) model_9b_s1_reordB_r3 on 0xFAB1CA01 (build_044_r1, {R1}): outcome 'exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities [\'R1\']: rec 53: MOVX channel field 0xf'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1']  (the device's SEQ_CAPS 0xfab1ca01)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xe3c2ff1e)
+      | exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities ['R1']: rec 53: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capa
+  [r] PASS the REAL r3 stream is REFUSED on 0xFAB1CA01 (build_044_r1, {R1}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities ['R1']: rec 53: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capa
+    (r) model_9b_s1_reordB_r3 on 0xDEADC0DE (build_041, {}): outcome 'exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities {}: rec 53: MOVX channel field 0xf is '; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xc973c18a)
+      | exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities {}: rec 53: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabili
+  [r] PASS the REAL r3 stream is REFUSED on 0xDEADC0DE (build_041, {}) before any DMA, naming the broadcast  -- exit "REFUSING before any DMA: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r3.e4 at capabilities {}: rec 53: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabili
+=== keyless (SR13b's rule, unchanged at r3)
+    (K) keyless r3 on 0xFAB1CA07: outcome 'exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3k/rp.e at capabilities [\'R1\', \'R2\', \'R3\']: /tmp/r3h_fx_12iy6mm5/r3k/rp.e.seq.json: the manifest has no `sh'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     ['R1', 'R2', 'R3']  (the device's SEQ_CAPS 0xfab1ca07)
+      |   SHAPE layout     isa=2  (the device's VERSION 0x3b3b3b3b)
+      | exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3k/rp.e at capabilities ['R1', 'R2', 'R3']: /tmp/r3h_fx_12iy6mm5/r3k/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the strea
+  [K] PASS a keyless r3 artifact is REFUSED on 0xFAB1CA07 before any DMA, naming the missing shape_isa key  -- exit "REFUSING before any DMA: /tmp/r3h_fx_12iy6mm5/r3k/rp.e at capabilities ['R1', 'R2', 'R3']: /tmp/r3h_fx_12iy6mm5/r3k/rp.e.seq.json: the manifest has no `shape_isa` key (the SHAPE layout the stream is encoded in), required on a board ru
+  [K] PASS the four r3 manifests declare shape_isa 2  -- {'s1': 2, 's2': 2, 's3': 2, 's4': 2}
+  [K] PASS the frozen set is still the three build_035 streams, none an r3 stream  -- ['a69864d25b6b', 'e102e2df0835', 'fa8d9349cf1d']
+=== (m) serve: BoardBackend._args() still pins seq_rtl r0
+  [m] PASS serve's namespace pins seq_rtl = 'r0'  -- 'r0'
+=== chat_seq --seq-rtl r3: main() on mock SEQ windows (FABLE5_MODEL=9b)
+  [setup] PASS chat_seq imported at FABLE5_MODEL=9b  -- 9b
+    g: outcome 'exit 4' (10 s); events ["load_template(caps=['R1', 'R2', 'R3'])", "independent_step_images(caps=['R1', 'R2', 'R3'])", 'B6-stub', 'dev', 'seq_caps_read', 'seq_caps_read', "load_template(caps=['R1', 'R2'])", "independent_step_images(caps=['R1', 'R2'])"]
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x90983c0
+      |   board      MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf SEQ=READY
+      |   shape      SHAPE layout isa=2 (the device's VERSION 0x266e3ae7)
+      | *** REFUSED before any upload: image lite (--seq-rtl r3) at capabilities ['R1', 'R2'] (the device's SEQ_CAPS 0xfab1ca03): rec 17: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1, R2} 
+  [g] PASS `chat_seq --seq-rtl r3` on 0xFAB1CA03 (build_045_r2, {R1,R2}) REFUSES (exit 4) at open_board, before any upload  -- exit 4
+  [g] PASS ... device-keyed (SEQ_CAPS read) and naming the broadcast
+    h: outcome 'exit 4' (9 s); events ["load_template(caps=['R1', 'R2', 'R3'])", "independent_step_images(caps=['R1', 'R2', 'R3'])", 'B6-stub', 'dev', 'seq_caps_read', 'seq_caps_read', "load_template(caps=['R1'])", "independent_step_images(caps=['R1'])"]
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x90983c0
+      |   board      MAGIC=0xfab1e001 VERSION=0xe3c2ff1e CALIB=0xf SEQ=READY
+      |   shape      SHAPE layout isa=2 (the device's VERSION 0xe3c2ff1e)
+      | *** REFUSED before any upload: image lite (--seq-rtl r3) at capabilities ['R1'] (the device's SEQ_CAPS 0xfab1ca01): rec 17: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} lack R2, R
+  [h] PASS `chat_seq --seq-rtl r3` on 0xFAB1CA01 (build_044_r1, {R1}) REFUSES (exit 4) at open_board, before any upload  -- exit 4
+  [h] PASS ... device-keyed (SEQ_CAPS read) and naming the broadcast
+    i: outcome 'exit 4' (9 s); events ["load_template(caps=['R1', 'R2', 'R3'])", "independent_step_images(caps=['R1', 'R2', 'R3'])", 'B6-stub', 'dev', 'seq_caps_read', 'seq_caps_read', 'load_template(caps=[])', 'independent_step_images(caps=[])']
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x90983c0
+      |   board      MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf SEQ=READY
+      |   shape      SHAPE layout isa=2 (the device's VERSION 0xc973c18a)
+      | *** REFUSED before any upload: image lite (--seq-rtl r3) at capabilities {} (the device's SEQ_CAPS 0xdeadc0de): rec 17: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1, R2, R3 
+  [i] PASS `chat_seq --seq-rtl r3` on 0xDEADC0DE (build_041, {}) REFUSES (exit 4) at open_board, before any upload  -- exit 4
+  [i] PASS ... device-keyed (SEQ_CAPS read) and naming the broadcast
+    j: outcome 'tripped bring_up' (9 s); events ["load_template(caps=['R1', 'R2', 'R3'])", "independent_step_images(caps=['R1', 'R2', 'R3'])", 'B6-stub', 'dev', 'seq_caps_read', 'seq_caps_read', "load_template(caps=['R1', 'R2', 'R3'])", "independent_step_images(caps=['R1', 'R2', 'R3'])", 'bring_up']
+      |   relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x90983c0
+      |   board      MAGIC=0xfab1e001 VERSION=0x3b3b3b3b CALIB=0xf SEQ=READY
+      |   shape      SHAPE layout isa=2 (the device's VERSION 0x3b3b3b3b)
+      |   caps       ['R1', 'R2', 'R3'] from the device's SEQ_CAPS 0xfab1ca07; template, slices and the 3 images (--seq-rtl r3) validated at it (1.0 s)
+  [j] PASS `chat_seq --seq-rtl r3` LOADS on the 0xFAB1CA07 mock (reaches bring_up, the first upload)  -- tripped bring_up
+  [j] PASS the device's caps {R1,R2,R3} reach load_template and independent_step_images after open_board read them  -- ['seq_caps_read', ('load_template', frozenset({'R1', 'R3', 'R2'})), ('independent_step_images', frozenset({'R1', 'R3', 'R2'})), 'bring_up']
+      broadcasts per image {'lite': 128, 'full': 129}; lower-set verdicts {('lite', ('R1', 'R2')): 'BCAST', ('lite', ('R1',)): 'BCAST', ('lite', ()): 'BCAST', ('full', ('R1', 'R2')): 'BCAST', ('full', ('R1',)): 'BCAST', ('full', ()): 'BCAST'}; session caps ['R1', 'R2', 'R3']
+  [j] PASS the lite/full images carry broadcasts  -- {'lite': 128, 'full': 129}
+  [j] PASS ... and are REFUSED at {R1,R2}, {R1} and {} naming the broadcast  -- {('lite', ('R1', 'R2')): 'BCAST', ('lite', ('R1',)): 'BCAST', ('lite', ()): 'BCAST', ('full', ('R1', 'R2')): 'BCAST', ('full', ('R1',)): 'BCAST', ('full', ()): 'BCAST'}
+  [j] PASS its lite/full images equal the r3 pins
+  [j] PASS the session's validation caps are the device's {R1,R2,R3}
+  [j] PASS no manifest is involved: chat images carry none (the session never read a caps claim)
+    kA: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r3 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder A -- run --seq-rtl r0 for the shipped RTL level
+  [k] PASS refused before the board: ['--seq-rtl', 'r3', '--reorder', 'A'] -> exit 4 naming --seq-rtl  -- exit 4; ['*** --seq-rtl r3 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder A -- run --seq-rtl r0 for the shipped RTL level']
+    koff: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r3 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level
+  [k] PASS refused before the board: ['--seq-rtl', 'r3', '--reorder', 'off'] -> exit 4 naming --seq-rtl  -- exit 4; ['*** --seq-rtl r3 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level']
+    kenv: outcome 'exit 4' (0 s); events []
+      | *** --seq-rtl r3 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level
+  [k] PASS refused before the board: {'FABLE5_SEQ_RTL': 'r3', 'FABLE5_REORDER': 'off'} -> exit 4 naming --seq-rtl  -- exit 4; ['*** --seq-rtl r3 needs --reorder B (the per-image form-B lineage, pinned per level in REORDER_B_PINS_BY_RTL); got --reorder off -- run --seq-rtl r0 for the shipped RTL level']
+  [k] PASS FABLE5_SEQ_RTL=R3 parses to r3  -- 'r3'
+  [k] PASS the model-aware default (auto, 9B --nch 4, shipped template) -> B, and check_seq_rtl passes at r2  -- ('B', 'r2')
+  [k] PASS the model-aware default (auto, 9B --nch 4, shipped template) -> B, and check_seq_rtl passes at r3  -- ('B', 'r3')
+      B6 SeqExec caps (r3 session): [frozenset(), frozenset(), frozenset(), frozenset({'R1', 'R3', 'R2'}), frozenset({'R1', 'R3', 'R2'}), frozenset({'R1', 'R3', 'R2'})]; verifier: [frozenset({'R1', 'R3', 'R2'})]
+  [l] PASS B6 at r3: shipped side at the empty set, reordered side at {R1,R2,R3}  -- [frozenset(), frozenset(), frozenset(), frozenset({'R1', 'R3', 'R2'}), frozenset({'R1', 'R3', 'R2'}), frozenset({'R1', 'R3', 'R2'})]
+  [l] PASS SeqModelVerifier at r3 runs SeqExec at {R1,R2,R3}  -- [frozenset({'R1', 'R3', 'R2'})]
+=== (n) the identity expectation at R3 (bm1_ident.judge, scripted)
+  [n] PASS judge(): --want-caps R1,R2,R3 PASSES on 0xFAB1CA07
+  [n] PASS judge(): --want-caps R1,R2,R3 FAILS on 0xFAB1CA03
+      | PASS  R3 board, --want-version 3b3b3b3b --want-caps R1,R2,R3: judge -> PASS (want PASS)
+      | PASS  R3 VERSION reporting the R1+R2 word 0xFAB1CA03: judge -> FAIL (want FAIL)
+      | PASS  R3 VERSION reporting the R1 word 0xFAB1CA01: judge -> FAIL (want FAIL)
+      | PASS  R3 VERSION reporting 0xDEADC0DE (a pre-round read): judge -> FAIL (want FAIL)
+      | PASS  R3 VERSION without the BM1 block (BM_IDENT 0xDEADC0DE): judge -> FAIL (want FAIL)
+      | PASS  the R2 bitstream (VERSION 266e3ae7) named as R3: judge -> FAIL (want FAIL)
+      | PASS  the R1 bitstream (VERSION e3c2ff1e) named as R3: judge -> FAIL (want FAIL)
+      | PASS  control: the R1 bitstream judged as R1 (unchanged by the R3 row): judge -> PASS (want PASS)
+      | SR14_IDENT_EXPECT: 8 passed, 0 failed -> PASS
+  [n] PASS sr14_ident_expect.py --want-version 3b3b3b3b --want-caps R1,R2,R3: exit 0; the R3 board judged PASS; the R3 VERSION reporting 0xFAB1CA03 judged FAIL  -- exit 0
+=== (p) the pins
+  [p] PASS the r0 / r1 / r2 pins are unchanged
+  [p] PASS REORDER_B_PINS_BY_RTL has r3, from evidence/qwen9b/sr/n2801_r3_6_pins.log  -- ({'lite': ('8a226ca17f197073c5eb6074990311477032883d5eef2c639ec6cb7e88fb09cd', 38930), 'full': ('fdfc6d0c7cd04bbd499512a75eb8fea3934a7e2af41991b9f6d11453b3243ede', 39786)}, 'evidence/qwen9b/sr/n2801_r
+  [p] PASS ... and its lite / full pins = the log's PIN r3 lines  -- {'lite': ('8a226ca17f197073c5eb6074990311477032883d5eef2c639ec6cb7e88fb09cd', 38930), 'full': ('fdfc6d0c7cd04bbd499512a75eb8fea3934a7e2af41991b9f6d11453b3243ede', 39786)}
+=== (x) XPTR: no SEQ-driving host tool expects it
+  [x] PASS seq_run / chat_seq / serve never read or expect XPTR (B17.3: a broadcast leaves all four unchanged)  -- {'sw/seq_run.py': 0, 'sw/chat_seq.py': 0, 'sw/serve.py': 0}
+  [setup] FAIL the injected mock row is gone after the run (no 0xFAB1CA07 row, no 0x3B3B3B3B key in any table)
+per case: (setup) 3/5  (G) 6/6  (a) 2/2  (b) 3/3  (c) 3/3  (d) 3/3  (e) 12/12  (f) 2/2  (r) 4/4  (K) 3/3  (m) 1/1  (g) 2/2  (h) 2/2  (i) 2/2  (j) 7/7  (k) 6/6  (l) 2/2  (n) 3/3  (p) 3/3  (x) 1/1
+R3_HOST_TDD: 70 passed, 2 failed (45 s) -> FAIL
+=== rc  : 1
+=== end : 2026-10-01T14:19:44-06:00

@@ -1,0 +1,41 @@
+=== host: snoke  date: 2026-08-22T15:24:38-06:00
+=== tree: 29c00f7+dirty
+=== cmd : bash -c FABLE5_MODEL=2b /home/cah/.venv/bin/python evidence/qwen2b/rc/t4_wall2_probe.py
+=== venv: 3.12.3 numpy 2.4.6
+scratch depth 32768 words
+staging windows: [[7168, 23552]]
+  0x5c00 (ML_DDST, the reported address) staging? False   <- must be False (it IS checked)
+  0x1c00 (= 0x5c00 & 0x3FFF, what a 14-bit index reads) staging? True   <- if True, the TB is comparing against a word licensed to differ
+
+  k  TB got  mem[0x1c00+k]      TB exp  mem[0x5c00+k]
+  0   ffdf           ffdf ==     ff93           ff93 ==
+  1   fed1           fed1 ==     0139           0139 ==
+  2   ffe5           ffe5 ==     0050           0050 ==
+  3   0032           0032 ==     00e2           00e2 ==
+  4   fffe           fffe ==     0095           0095 ==
+  5   009f           009f ==     0015           0015 ==
+  6   0045           0045 ==     014c           014c ==
+  7   00a5           00a5 ==     fe88           fe88 ==
+  8   000a           000a ==     00b1           00b1 ==
+  9   fff3           fff3 ==     00a8           00a8 ==
+ 10   0201           0201 ==     ff4c           ff4c ==
+ 11   ffc4           ffc4 ==     ff3f           ff3f ==
+ 12   fffd           fffd ==     01d2           01d2 ==
+ 13   00f0           00f0 ==     ff3f           ff3f ==
+ 14   fffb           fffb ==     fea2           fea2 ==
+ 15   0000           0000 ==     fea2           fea2 ==
+ 16   ffff           ffff ==     ffc6           ffc6 ==
+ 17   fff7           fff7 ==     000b           000b ==
+ 18   ffb3           ffb3 ==     ff1a           ff1a ==
+ 19   fff1           fff1 ==     012b           012b ==
+ 20   0016           0016 ==     0078           0078 ==
+
+TB 'got'      == seq_model mem[0x1c00+k] : 21/21
+TB 'expected' == seq_model mem[0x5c00+k] : 21/21
+
+VERDICT: the RTL scratch is CORRECT at the aliased address and
+the golden is correct at the real one — tb_seq_chip.sv read the
+WRONG WORD.  Wall 2 is a TESTBENCH indexing bug (14-bit index
+into a 32K array), not an RTL or golden defect.
+=== rc  : 0
+=== end : 2026-08-22T15:24:41-06:00

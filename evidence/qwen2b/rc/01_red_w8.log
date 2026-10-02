@@ -1,0 +1,100 @@
+=== TDD RED: W8 vector dirs against HEAD (172aaaa) rtl/matvec_engine.sv + tb/tb_matvec.sv
+=== HEAD RTL has no cfg_w8: SHAPE bit 29 does not exist, so a 64-byte beat is
+=== parsed as 128 nibbles -> wrong y32 on EVERY row, and the row stream desyncs
+=== (the engine consumes ng+1 beats/row where the W8 image has 2*ng+sb).
+=== build: make tb_matvec_build MVDIR=obj_dir_tb_matvec_red MVBIN=tb_matvec_red
+
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 1 +vecdir=vecv2/w11_w8
+[26000] case vecv2/w11_w8: K=128 NG=1 SH=6 NROWS=23 BPR=3 G64=0
+[193000] FAIL: row 0: y32=000de342 golden=000ef6ef
+[216000] FAIL: row 1: y32=000061b1 golden=0027c000
+[233000] FAIL: row 2: y32=fff9809a golden=ffd0d965
+   ... (24 FAIL lines total)
+Aborting...
+timeout: the monitored command dumped core
+rc=134
+
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 1 +vecdir=vecv2/w21_w8
+[26000] case vecv2/w21_w8: K=512 NG=4 SH=8 NROWS=17 BPR=9 G64=0
+[526000] FAIL: row 0: y32=000dda8b golden=00083b52
+[546000] FAIL: row 1: y32=fffb7e59 golden=0000e201
+[570000] FAIL: row 2: y32=fff769e9 golden=fff874d7
+   ... (18 FAIL lines total)
+Aborting...
+timeout: the monitored command dumped core
+rc=134
+
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 2 +vecdir=vecv2/w12_w8
+[26000] case vecv2/w12_w8: K=128 NG=1 SH=6 NROWS=23 BPR=3 G64=0
+[193000] FAIL: row 0: y32=00031665 golden=0013af3f
+[216000] FAIL: row 1: y32=000002e6 golden=000b1d21
+[233000] FAIL: row 2: y32=fffbab9b golden=0000a32e
+   ... (24 FAIL lines total)
+Aborting...
+timeout: the monitored command dumped core
+rc=134
+
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 2 +vecdir=vecv2/w22_w8
+[26000] case vecv2/w22_w8: K=512 NG=4 SH=8 NROWS=17 BPR=9 G64=0
+[526000] FAIL: row 0: y32=0003377e golden=000945a8
+[546000] FAIL: row 1: y32=000d771b golden=fff6231f
+[570000] FAIL: row 2: y32=000df1e9 golden=fff9220b
+   ... (18 FAIL lines total)
+Aborting...
+timeout: the monitored command dumped core
+rc=134
+
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 3 +vecdir=vecv2/w13_w8
+[26000] case vecv2/w13_w8: K=128 NG=1 SH=6 NROWS=23 BPR=3 G64=0
+[193000] FAIL: row 0: y32=fffa33b2 golden=000433c9
+[216000] FAIL: row 1: y32=ffffed20 golden=00078e0a
+[233000] FAIL: row 2: y32=0005fd4d golden=ffee9c35
+   ... (24 FAIL lines total)
+Aborting...
+timeout: the monitored command dumped core
+rc=134
+
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 3 +vecdir=vecv2/w23_w8
+[26000] case vecv2/w23_w8: K=512 NG=4 SH=8 NROWS=17 BPR=9 G64=0
+[526000] FAIL: row 0: y32=fff61d42 golden=fff410da
+[546000] FAIL: row 1: y32=fffb1a2a golden=000fe724
+[570000] FAIL: row 2: y32=fffa7b59 golden=fffdbdbf
+   ... (18 FAIL lines total)
+Aborting...
+timeout: the monitored command dumped core
+rc=134
+
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 4 +vecdir=vecv2/w14_w8
+[26000] case vecv2/w14_w8: K=128 NG=1 SH=6 NROWS=23 BPR=3 G64=0
+[193000] FAIL: row 0: y32=ffe4018b golden=ffd0031f
+[216000] FAIL: row 1: y32=fff98d56 golden=ffd4ca95
+[233000] FAIL: row 2: y32=fffdb3e4 golden=fffb0ccf
+   ... (24 FAIL lines total)
+Aborting...
+timeout: the monitored command dumped core
+rc=134
+
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 4 +vecdir=vecv2/w24_w8
+[26000] case vecv2/w24_w8: K=512 NG=4 SH=8 NROWS=17 BPR=9 G64=0
+[526000] FAIL: row 0: y32=0004c6f9 golden=0014c5a4
+[546000] FAIL: row 1: y32=ffffb89a golden=00165361
+[570000] FAIL: row 2: y32=fff7391d golden=fff877b7
+   ... (18 FAIL lines total)
+Aborting...
+timeout: the monitored command dumped core
+rc=134
+
+
+=== full tail of one RED run (the terminating fault, shown once) ===
+--- obj_dir_tb_matvec_red/tb_matvec_red --seed 1 +vecdir=vecv2/w11_w8
+[633000] FAIL: row 22: y32=fffe2298 golden=ffe82ccc
+[200000000000] %Fatal: tb_matvec.sv:379: Assertion failed in TOP.tb_matvec: TB_MATVEC FAIL: global watchdog
+%Error: tb_matvec.sv:379: Verilog $stop
+Aborting...
+timeout: the monitored command dumped core
+rc=134 (SIGABRT from $fatal)
+
+Every row of every W8 shape/seed is wrong and the stream never completes:
+HEAD's engine consumes cfg_ng+scale beats per row (2 or 5 here) while the
+W8 image supplies 2*cfg_ng+scale (3 or 9), so the input side runs dry and
+the 200 ms watchdog is what ends the run.  This is the RED the W8 mode fixes.

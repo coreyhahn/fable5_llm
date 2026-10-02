@@ -72,6 +72,7 @@ import seq_format as SF                                         # noqa: E402
 import seq_model as SM                                          # noqa: E402
 import seq_chat as SC                                           # noqa: E402
 import hwmap as HW                                              # noqa: E402
+import gen_layer_script as GLS                                  # noqa: E402
 
 ALIGN = 4096
 
@@ -146,9 +147,11 @@ def main():
         print(f"  {wimg}: {os.path.getsize(wimg)} B (reused)")
 
     embf = a.base + ".emb.bin"
-    nrow = os.path.getsize(embf) // 2048
-    emb = np.memmap(embf, dtype="<i2", mode="r").reshape(nrow, 1024)
-    W = SM.DDRWeights.from_files(a.base, meta["weights"])
+    # R-b: the row stride comes from the manifest (2*H), not a literal
+    rb = HW.load_weights_manifest(a.base)[1]["emb_row_bytes"]
+    nrow = os.path.getsize(embf) // rb
+    emb = np.memmap(embf, dtype="<i2", mode="r").reshape(nrow, rb // 2)
+    W = SM.DDRWeights.from_files(a.base, meta["weights"], meta)
     print(f"  {embf}: {nrow} rows")
 
     # ---------------- the compiler, in the ratified ldc position mode -----
@@ -293,7 +296,24 @@ def main():
           f"(rec offsets {[L['rec_off'] for L in launches]})")
 
     # ---------------- the multi-launch golden ----------------------------
-    stage = np.zeros(16384, dtype=bool)
+    # D-STAGE (spec 9).  This mask was the bare literal 16384 where its
+    # sibling derives it.  It is CORRECT TODAY at the 0.8B default this
+    # generator runs at, and the harm is UNDER-COVERAGE rather than a false
+    # pass: `keep` below cannot name a word at or above the mask's length, so
+    # a staging window in the upper half would go unchecked rather than
+    # mis-checked.
+    #
+    # DERIVED FROM `GLS.SCRATCH`, NOT FROM `sw/hwmap.SCRATCH_WORDS`, and the
+    # difference is load-bearing.  The mask indexes `L["mem"]`, which is
+    # `gen_layer_script.Mach.mem` — depth `GLS.SCRATCH`, the emitter's
+    # power-of-two scratch depth FOR THIS GEOMETRY (16384 at 0.8B).
+    # `sw/hwmap.SCRATCH_WORDS` is the depth of the HARDWARE array, which G2a
+    # moved to 65,536; masking with that produces `keep` entries past the end
+    # of `L["mem"]` and the writer below dies with an IndexError.  Measured,
+    # not reasoned: it did exactly that on the first attempt.  The sibling
+    # that already had this right is `ref/seq_model.py:1200`, which also uses
+    # `GLS.SCRATCH`.
+    stage = np.zeros(GLS.SCRATCH, dtype=bool)
     for (lo, hi) in meta.get("staging_words", []):
         stage[lo:hi] = True
     keep = np.nonzero(~stage)[0]

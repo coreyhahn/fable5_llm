@@ -1,0 +1,231 @@
+=== local set B (re-run after width fixes) 2026-08-13T07:07:35-06:00 ===
+--------- make tb_vec_alu ---------
+seq vectors: seed=1 -> vecseq/s1  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=2 -> vecseq/s2  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=3 -> vecseq/s3  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+seq vectors: seed=4 -> vecseq/s4  dynq16=446 (k -14..17), probe8=24, epsnorm=68, vecnorm N=2048 (rmsnorm + l2norm)
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_alu -o tb_alu \
+  --top-module tb_vec_alu \
+  ../rtl/fx_pkg.sv ../rtl/vec_alu.sv tb_vec_alu.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_alu'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+/usr/bin/python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtb_vec_alu.cpp Vtb_vec_alu___024root__DepSet_he9c87036__0.cpp Vtb_vec_alu___024root__DepSet_he539a2bf__0.cpp Vtb_vec_alu__main.cpp Vtb_vec_alu___024root__Slow.cpp Vtb_vec_alu___024root__DepSet_he9c87036__0__Slow.cpp Vtb_vec_alu___024root__DepSet_he539a2bf__0__Slow.cpp Vtb_vec_alu__Syms.cpp > Vtb_vec_alu__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o Vtb_vec_alu__ALL.o Vtb_vec_alu__ALL.cpp
+echo "" > Vtb_vec_alu__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_vec_alu__ALL.a Vtb_vec_alu__ALL.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_vec_alu__ALL.a    -pthread -lpthread -latomic   -o tb_alu
+rm Vtb_vec_alu__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_alu'
+obj_dir_tb_alu/tb_alu --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:474: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 2 +vecdir=vectors/s2 +seqdir=vecseq/s2
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:474: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 3 +vecdir=vectors/s3 +seqdir=vecseq/s3
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:474: Verilog $finish
+obj_dir_tb_alu/tb_alu --seed 4 +vecdir=vectors/s4 +seqdir=vecseq/s4
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 13 AMAX32 commands, 2033 elements, 2033 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:474: Verilog $finish
+-- RUNG4 S5: the >2^18 element chain (am_g wrap) on one seed --
+obj_dir_tb_alu/tb_alu --seed 1 +vecdir=vectors/s1 +seqdir=vecseq/s1 +amaxlong
+  DYNQ16: 446 cases bit-exact (k -14..17, 223 clamp0) | op8 probe: 24 cases (maxp + k_a + legacy-output regression)
+  S5 export: 533 AMAX32 commands, 268273 elements, 268273 bundle pulses, head==amax every command, 0 stray pulses
+TB_VEC_ALU PASS: 10 ops bit-exact
+- tb_vec_alu.sv:474: Verilog $finish
+tb_vec_alu_EXIT=0
+--------- make tb_seq ---------
+mkdir -p scripts/seqvec
+for s in 1 2 3 4; do \
+  python3 scripts/gen_seq_unit_vectors.py scripts/seqvec $s || exit 1; done
+seq_u_s1: 58 records, 827 writes, 165 reads (159 with the XRF sideband), 664 scratch words, 3 tokens
+seq_m_csrwr: 2001 records, 2000 writes, 0 reads
+seq_m_cmd: 801 records, 800 writes, 0 reads
+seq_m_movx: 3 records, 5123 writes, 4096 reads
+seq_m_movy16: 4 records, 2073 writes, 2112 reads
+seq_m_movy32: 4 records, 4121 writes, 2112 reads
+seq_m_ldc: 2 records, 4097 writes, 0 reads
+seq_f_of24: 121 records, 24 tokens
+seq_f_of64: 321 records, 64 tokens
+seq_f_of80: 401 records, 80 tokens
+seq_e_op: expects err_code 0x01
+seq_e_ind: expects err_code 0x02
+seq_e_chan: expects err_code 0x05
+seq_e_jmp: expects err_code 0x08
+seq_e_xopsgn: expects err_code 0x0a
+seq_e_csrsp: expects err_code 0x07
+seq_e_rsvd: expects err_code 0x06
+seq_u_s2: 58 records, 804 writes, 191 reads (184 with the XRF sideband), 604 scratch words, 4 tokens
+seq_u_s3: 58 records, 835 writes, 261 reads (255 with the XRF sideband), 616 scratch words, 3 tokens
+seq_u_s4: 58 records, 845 writes, 381 reads (373 with the XRF sideband), 600 scratch words, 5 tokens
+verilator --binary --timing -j 4 -Wall \
+  --Mdir obj_dir_tb_seq -o tb_seq \
+  --top-module tb_seq_unit ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_seq'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+/usr/bin/python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtb_seq_unit.cpp Vtb_seq_unit___024root__DepSet_hbc3af788__0.cpp Vtb_seq_unit___024root__DepSet_hc6d95493__0.cpp Vtb_seq_unit__main.cpp Vtb_seq_unit__ConstPool_0.cpp Vtb_seq_unit___024root__Slow.cpp Vtb_seq_unit___024root__DepSet_hbc3af788__0__Slow.cpp Vtb_seq_unit___024root__DepSet_hc6d95493__0__Slow.cpp Vtb_seq_unit__Syms.cpp > Vtb_seq_unit__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o Vtb_seq_unit__ALL.o Vtb_seq_unit__ALL.cpp
+echo "" > Vtb_seq_unit__ALL.verilator_deplist.tmp
+Archive ar -rcs Vtb_seq_unit__ALL.a Vtb_seq_unit__ALL.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_seq_unit__ALL.a    -pthread -lpthread -latomic   -o tb_seq
+rm Vtb_seq_unit__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_seq'
+for s in 1 2 3 4; do \
+  obj_dir_tb_seq/tb_seq +vec=scripts/seqvec/seq_u_s$s || exit 1; done
+SEQ scripts/seqvec/seq_u_s1: 58 records, 2779 cycles (47.91 cyc/rec, 5.218 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 143)
+  layer cmds 9, engine runs 0/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (728 beats), 8 read bursts (156 beats), busy_wr 1308 busy_rd 260, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s1 (writes 827, reads 165, scratch 664, tokens 3)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_u_s2: 58 records, 3136 cycles (54.07 cyc/rec, 4.624 Mrec/s @250MHz)
+  axil writes 116
+  axil reads  34  (of which 23 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 152)
+  layer cmds 10, engine runs 1/1/0/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 14 write bursts (688 beats), 10 read bursts (180 beats), busy_wr 1344 busy_rd 310, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s2 (writes 804, reads 191, scratch 604, tokens 4)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_u_s3: 58 records, 2857 cycles (49.26 cyc/rec, 5.075 Mrec/s @250MHz)
+  axil writes 99
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 141)
+  layer cmds 9, engine runs 3/0/0/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 12 write bursts (736 beats), 8 read bursts (252 beats), busy_wr 1386 busy_rd 356, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s3 (writes 835, reads 261, scratch 616, tokens 3)
+- tb_seq_unit.sv:872: Verilog $finish
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts/seqvec/seq_u_s4: 58 records, 3631 cycles (62.60 cyc/rec, 3.993 Mrec/s @250MHz)
+  axil writes 133
+  axil reads  40  (of which 27 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 153)
+  layer cmds 11, engine runs 4/0/1/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (712 beats), 12 read bursts (368 beats), busy_wr 1520 busy_rd 524, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_u_s4 (writes 845, reads 381, scratch 600, tokens 5)
+- tb_seq_unit.sv:872: Verilog $finish
+for e in op ind chan jmp xopsgn csrsp rsvd; do \
+  obj_dir_tb_seq/tb_seq +vec=scripts/seqvec/seq_e_$e || exit 1; done
+SEQ scripts/seqvec/seq_e_op: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_op (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_e_ind: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_ind (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_e_chan: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_chan (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_e_jmp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_jmp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_e_xopsgn: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_xopsgn (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_e_csrsp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_csrsp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_e_rsvd: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_e_rsvd (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+for m in csrwr cmd movx movy16 movy32 ldc; do \
+  obj_dir_tb_seq/tb_seq +vec=scripts/seqvec/seq_m_$m || exit 1; done
+SEQ scripts/seqvec/seq_m_csrwr: 2001 records, 6046 cycles (3.02 cyc/rec, 82.741 Mrec/s @250MHz)
+  axil writes 2000
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2001)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_m_cmd: 801 records, 8821 cycles (11.01 cyc/rec, 22.702 Mrec/s @250MHz)
+  axil writes 800
+  axil reads  276  (of which 276 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 801)
+  layer cmds 200, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_m_movx: 3 records, 8935 cycles (2978.33 cyc/rec, 0.084 Mrec/s @250MHz)
+  axil writes 3
+  axil reads  2  (of which 2 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 515)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 20 write bursts (5120 beats), 16 read bursts (4096 beats), busy_wr 8833 busy_rd 4169, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_m_movy16: 4 records, 2434 cycles (608.50 cyc/rec, 0.411 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 9 write bursts (2064 beats), 9 read bursts (2112 beats), busy_wr 2194 busy_rd 2166, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_m_movy32: 4 records, 4486 cycles (1121.50 cyc/rec, 0.223 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (4112 beats), 9 read bursts (2112 beats), busy_wr 4244 busy_rd 4120, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+SEQ scripts/seqvec/seq_m_ldc: 2 records, 4705 cycles (2352.50 cyc/rec, 0.106 Mrec/s @250MHz)
+  axil writes 1
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 514)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (4096 beats), 0 read bursts (0 beats), busy_wr 4652 busy_rd 0, decerr 0 non-OK 0
+SEQ PASS: scripts/seqvec/seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+- tb_seq_unit.sv:872: Verilog $finish
+tb_seq_EXIT=0
+=== done 2026-08-13T07:07:53-06:00 ===

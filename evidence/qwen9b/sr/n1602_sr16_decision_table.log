@@ -1,0 +1,98 @@
+=== host: snoke  date: 2026-09-29T06:42:47-06:00
+=== tree: 6a022f6
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr16_decision_table.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+== A. the ladder, MEASURED (tok/s) beside the MODEL (spec §3.1, form B)
+| rung | chat511 full ms | chat full tok/s | stream ms/token | stream tok/s | MODEL tok/s | stream / MODEL |
+|---|---|---|---|---|---|---|
+| shipped | 147.7088 | 6.770 | 137.1195 | 7.293 | 7.292 | 1.0001 |
+| S1-B | 131.2479 | 7.619 | 120.5367 | 8.296 | 8.356 | 0.9928 |
+| R1 | 126.1135 | 7.929 | 114.3885 | 8.742 | 8.811 | 0.9922 |
+| R2 | 122.2175 | 8.182 | 110.4066 | 9.057 | 9.144 | 0.9905 |
+  step shipped -> S1-B: chat full x1.1254, stream x1.1376, MODEL x1.1459
+  step S1-B -> R1: chat full x1.0407, stream x1.0537, MODEL x1.0545
+  step R1 -> R2: chat full x1.0319, stream x1.0361, MODEL x1.0378
+
+== B. where the step goes, per token (stream census) and per full chat launch; % of PERF_CYC (ms)
+-- stream
+| counter | shipped | S1-B | R1 | R2 |
+|---|---|---|---|---|
+| step ms | 137.120 | 120.537 | 114.389 | 110.407 |
+| MVANY (C0, weight path busy) | 42.19 % (57.845) | 48.40 % (58.338) | 56.44 % (64.561) | 55.37 % (61.135) |
+| weight path idle (PERF - C0) | 57.81 % (79.274) | 51.60 % (62.199) | 43.56 % (49.828) | 44.63 % (49.271) |
+| FENCE wait (C5) | 41.96 % (57.538) | 38.50 % (46.409) | 35.12 % (40.169) | 32.78 % (36.196) |
+| mover work (C6) | 24.23 % (33.219) | 20.79 % (25.059) | 21.91 % (25.059) | 22.70 % (25.058) |
+|   MOVX (C6 split) | 15.45 % (21.179) | 10.80 % (13.019) | 11.38 % (13.018) | 11.79 % (13.018) |
+|   MOVY (C6 split) | 8.43 % (11.562) | 9.59 % (11.562) | 10.11 % (11.562) | 10.47 % (11.561) |
+|   MVGO issue (C6 - MOVX - MOVY) | 0.35 % (0.478) | 0.40 % (0.478) | 0.42 % (0.479) | 0.43 % (0.478) |
+| mover work, no engine busy (C6 - C7) | 23.96 % (32.855) | 20.49 % (24.695) | 13.02 % (14.896) | 13.24 % (14.615) |
+| mover busy (C5 + C6) | 66.19 % (90.756) | 59.29 % (71.467) | 57.02 % (65.228) | 55.48 % (61.254) |
+| issue FSM in I_MOVER (C8) | 66.21 % (90.789) | 59.31 % (71.496) | 57.06 % (65.265) | 55.51 % (61.291) |
+| layer lane L_LCYC | 30.33 % (41.588) | 34.60 % (41.711) | 36.53 % (41.790) | 37.85 % (41.790) |
+| state DMA L_SDMA | 3.74 % (5.125) | 4.41 % (5.312) | 4.78 % (5.464) | 4.95 % (5.462) |
+-- chat full
+| counter | S1-B | R1 | R2 |
+|---|---|---|---|
+| step ms | 131.248 | 126.114 | 122.218 |
+| MVANY (C0, weight path busy) | 44.54 % (58.463) | 51.61 % (65.090) | 49.98 % (61.086) |
+| weight path idle (PERF - C0) | 55.46 % (72.785) | 48.39 % (61.024) | 50.02 % (61.132) |
+| FENCE wait (C5) | 35.45 % (46.534) | 31.89 % (40.222) | 29.73 % (36.330) |
+| mover work (C6) | 19.09 % (25.058) | 19.87 % (25.059) | 20.50 % (25.058) |
+|   MOVX (C6 split) | 9.92 % (13.019) | 10.32 % (13.018) | 10.65 % (13.018) |
+|   MOVY (C6 split) | 8.81 % (11.562) | 9.17 % (11.562) | 9.46 % (11.561) |
+|   MVGO issue (C6 - MOVX - MOVY) | 0.36 % (0.478) | 0.38 % (0.479) | 0.39 % (0.479) |
+| mover work, no engine busy (C6 - C7) | 18.82 % (24.695) | 11.72 % (14.780) | 12.16 % (14.861) |
+| mover busy (C5 + C6) | 54.55 % (71.592) | 51.76 % (65.280) | 50.23 % (61.388) |
+| issue FSM in I_MOVER (C8) | 54.57 % (71.621) | 51.79 % (65.317) | 50.26 % (61.425) |
+| layer lane L_LCYC | 39.83 % (52.281) | 42.37 % (53.439) | 43.72 % (53.438) |
+| state DMA L_SDMA | 5.20 % (6.829) | 5.67 % (7.155) | 5.85 % (7.152) |
+  control R1: n15xx vs SR8 FENCE 35.12 % vs 35.12 %, MOVX 11.38 % vs 11.38 %
+  control S1-B: n15xx vs SR8 FENCE 38.50 % vs 38.50 %, MOVX 10.80 % vs 10.80 %
+  per-rung change, stream, ms/token (FENCE, MOVX, MOVY, MVGO issue, L_LCYC, step):
+    shipped -> S1-B: FENCE -11.129, MOVX -8.160, MOVY -0.000, MVGO -0.000, L_LCYC +0.123, step -16.583
+    S1-B -> R1: FENCE -6.240, MOVX -0.000, MOVY -0.000, MVGO +0.001, L_LCYC +0.079, step -6.148
+    R1 -> R2: FENCE -3.973, MOVX +0.000, MOVY -0.001, MVGO -0.000, L_LCYC +0.000, step -3.982
+
+== C. each rung's saving, board vs chip TB (per token, whole 6-token run / 6)
+  shipped -> S1-B: board 4,145,717 cyc = 16.5829 ms; TB 4,162,584 cyc = 16.6503 ms; board/TB 0.9959; board ratio x1.1376 vs TB x1.1454
+  S1-B -> R1: board 1,537,038 cyc = 6.1482 ms; TB 1,460,700 cyc = 5.8428 ms; board/TB 1.0523; board ratio x1.0537 vs TB x1.0538
+  R1 -> R2: board 995,482 cyc = 3.9819 ms; TB 992,702 cyc = 3.9708 ms; board/TB 1.0028; board ratio x1.0361 vs TB x1.0379
+  board step / TB step at S1-B: 1.0528 (board - TB = 6.049 ms/token)
+  board step / TB step at R1: 1.0529 (board - TB = 5.744 ms/token)
+  board step / TB step at R2: 1.0548 (board - TB = 5.733 ms/token)
+  chat full S1-B -> R1: board 5.1343 ms vs TB/static 5.7840 ms: board/TB 0.8877
+  chat full R1 -> R2: board 3.8960 ms vs TB/static 4.0173 ms: board/TB 0.9698
+  lowest absolute retention on any rung, either workload: 0.8877
+
+== D. R3 expected, three ways (MODEL-derived; base = the MEASURED R2 row)
+  board/TB: MOVX 3,254,609 / 3,237,088 = 1.0054; FENCE 9,049,045 / model lane idle on stream 8,982,101 = 1.0075
+  board sibling MOVX (3/4 of MOVX; every live matvec has 4, n1600) = 2,440,957 cyc = 9.764 ms/token (the hard ceiling on R3's saving)
+-- R3(a): MODEL saving 8.1766 ms TB/token, MODEL ratio x1.0848 (board-scaled MODEL 9.144 -> 9.920)
+   component-scaled saving (lane removed x MOVX board/TB - idle rise x FENCE board/TB) = 8.2178 ms
+   stream    base 110.4066 ms = 9.057 tok/s | (i) ratio 9.826 (x R2's kept gain 0.9507: 9.788) | (ii) absolute 9.782 (at the lowest retention 0.8877: 9.695) | (iii) census-share 9.786 | MOVX scale 1.0000
+   chat full base 122.2175 ms = 8.182 tok/s | (i) ratio 8.876 (x R2's kept gain 0.9507: 8.842) | (ii) absolute 8.769 (at the lowest retention 0.8877: 8.699) | (iii) census-share 8.772 | MOVX scale 1.0000
+   chat lite base 108.7087 ms = 9.199 tok/s | (i) ratio 9.979 (x R2's kept gain 0.9507: 9.941) | (ii) absolute 9.943 (at the lowest retention 0.8877: 9.853) | (iii) census-share 9.947 | MOVX scale 0.9948
+   stream shares after R3(a) (census-share form): FENCE 32.78 % -> 36.93 % (37.742 ms); MOVX 11.79 % -> 3.18 % (3.255 ms); step 102.189 ms
+-- R3(b): MODEL saving 6.2672 ms TB/token, MODEL ratio x1.0637 (board-scaled MODEL 9.144 -> 9.727)
+   component-scaled saving (lane removed x MOVX board/TB - idle rise x FENCE board/TB) = 6.2990 ms
+   stream    base 110.4066 ms = 9.057 tok/s | (i) ratio 9.635 (x R2's kept gain 0.9507: 9.606) | (ii) absolute 9.603 (at the lowest retention 0.8877: 9.538) | (iii) census-share 9.605 | MOVX scale 1.0000
+   chat full base 122.2175 ms = 8.182 tok/s | (i) ratio 8.704 (x R2's kept gain 0.9507: 8.678) | (ii) absolute 8.624 (at the lowest retention 0.8877: 8.572) | (iii) census-share 8.627 | MOVX scale 1.0000
+   chat lite base 108.7087 ms = 9.199 tok/s | (i) ratio 9.785 (x R2's kept gain 0.9507: 9.756) | (ii) absolute 9.759 (at the lowest retention 0.8877: 9.692) | (iii) census-share 9.762 | MOVX scale 0.9948
+   stream shares after R3(b) (census-share form): FENCE 32.78 % -> 35.75 % (37.220 ms); MOVX 11.79 % -> 5.47 % (5.696 ms); step 104.108 ms
+-- the band (low = absolute at the lowest retention; mid = census-share; high = max of the three forms)
+   BAND R3(a) stream   : 9.695 .. 9.786 .. 9.826 tok/s  = x1.0704 .. x1.0804 .. x1.0848 over R2 measured
+   BAND R3(a) chat full: 8.699 .. 8.772 .. 8.876 tok/s  = x1.0631 .. x1.0721 .. x1.0848 over R2 measured
+   BAND R3(a) chat lite: 9.853 .. 9.947 .. 9.979 tok/s  = x1.0711 .. x1.0813 .. x1.0848 over R2 measured
+   BAND R3(b) stream   : 9.538 .. 9.605 .. 9.635 tok/s  = x1.0531 .. x1.0605 .. x1.0637 over R2 measured
+   BAND R3(b) chat full: 8.572 .. 8.627 .. 8.704 tok/s  = x1.0477 .. x1.0543 .. x1.0637 over R2 measured
+   BAND R3(b) chat lite: 9.692 .. 9.762 .. 9.785 tok/s  = x1.0536 .. x1.0612 .. x1.0637 over R2 measured
+
+== E. ceilings (what is left after R2)
+  stream: if EVERY FENCE wait vanished and nothing else moved: 110.407 - 36.196 = 74.210 ms = 13.475 tok/s (x1.4878)
+  chat full: if EVERY FENCE wait vanished and nothing else moved: 122.218 - 36.330 = 85.888 ms = 11.643 tok/s (x1.4230)
+  MODEL dependency critical path (unlimited lanes, R2 buffers, elision; n06:832): 86.733 ms TB = 90.690 ms board-scaled = 11.027 tok/s; R3(a) MODEL makespan 96.411 ms TB is 90.0 % of the way (floor/makespan)
+  MODEL R2 -> floor: 17.854 ms TB/token; R3(a) takes 8.177 of it (45.8 %)
+SR16_DECISION_TABLE: DONE
+=== rc  : 0
+=== end : 2026-09-29T06:42:47-06:00

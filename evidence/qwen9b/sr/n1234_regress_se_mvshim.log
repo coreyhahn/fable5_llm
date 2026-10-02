@@ -1,0 +1,26 @@
+=== host: snoke  date: 2026-09-28T07:46:11-06:00
+=== tree: f4c1fb7+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/USAGE.md
+=== cmd : bash -c cd tb && XLIB="-f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt" && verilator --binary --timing -j 16 -Wall --Mdir obj_dir_tb_se_sr12 -o tb_se --top-module tb_streamer_engine ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv tb_streamer_engine.sv > /dev/null && for s in 1 2 3 4; do obj_dir_tb_se_sr12/tb_se --seed $s +vecdir=vec_s$s || exit 1; done && verilator --binary --timing -j 16 -Wall $XLIB --Mdir obj_dir_tb_mvshim_b_sr12 -o tb_mvshim_b --top-module tb_mvshim_b mvshim_b_stubs.sv ../rtl/matvec_chan.sv tb_mvshim_b.sv > /dev/null && obj_dir_tb_mvshim_b_sr12/tb_mvshim_b --seed 1 +seed=1 +verilator+rand+reset+2 && obj_dir_tb_mvshim_b_sr12/tb_mvshim_b --seed 2 +seed=2 +verilator+rand+reset+2 && obj_dir_tb_mvshim_b_sr12/tb_mvshim_b --seed 3 +seed=3 +verilator+rand+reset+2 +slowui && obj_dir_tb_mvshim_b_sr12/tb_mvshim_b --seed 4 +seed=4 +verilator+rand+reset+2 +slowui && if obj_dir_tb_mvshim_b_sr12/tb_mvshim_b --seed 1 +seed=1 +sabotage > /dev/null 2>&1; then echo SABOTAGE NOT CAUGHT; exit 1; else echo sabotage self-test tripped; fi
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+perf: 576 beats in 700 cycles (82.3% bus util)
+TB_STREAMER_ENGINE PASS: 64 rows bit-exact (K=1024)
+- tb_streamer_engine.sv:226: Verilog $finish
+perf: 928 beats in 1138 cycles (81.5% bus util)
+TB_STREAMER_ENGINE PASS: 32 rows bit-exact (K=3584)
+- tb_streamer_engine.sv:226: Verilog $finish
+perf: 384 beats in 471 cycles (81.5% bus util)
+TB_STREAMER_ENGINE PASS: 128 rows bit-exact (K=256)
+- tb_streamer_engine.sv:226: Verilog $finish
+perf: 272 beats in 330 cycles (82.4% bus util)
+TB_STREAMER_ENGINE PASS: 16 rows bit-exact (K=2048)
+- tb_streamer_engine.sv:226: Verilog $finish
+[160000] FAIL: T1 SHAPE round-trip (got 7fabc123 exp 1fabc123)
+[259736000] %Fatal: tb_mvshim_b.sv:705: Assertion failed in TOP.tb_mvshim_b: tb_mvshim_b: 1 ERRORS
+%Error: tb_mvshim_b.sv:705: Verilog $stop
+Aborting...
+bash: line 1: 560346 Aborted                 (core dumped) obj_dir_tb_mvshim_b_sr12/tb_mvshim_b --seed 1 +seed=1 +verilator+rand+reset+2
+=== rc  : 134
+=== end : 2026-09-28T07:46:31-06:00

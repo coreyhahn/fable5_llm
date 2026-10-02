@@ -1,0 +1,54 @@
+=== host: snoke  date: 2026-09-27T18:48:34-06:00
+=== tree: 9ac0260
+=== cmd : /home/cah/.venv/bin/python ref/scripts/reorder_e4.py --in tb/scripts/w9/model_9b_s4.e4 --out tb/scripts/w9/model_9b_s4_reordB_r1.e4 --form B --cost csv --rtl r1 --stats
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== input tb/scripts/w9/model_9b_s4.e4.seq sha256 3483d82ab9116456 MATCH, 158536 records, form B, cost csv, rtl r1
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+--- segment 0 static 39..39662: records 39624 -> 40171
+    MOVX 996 -> 516  ELIDED 480;  FENCE 343 -> 1370 (scheduler fenced 0); fences DEFERRED past independent work: 424
+      (heuristic bl: 27121551 cyc = 108.486 ms; POSTCHECK 57203 edges + 1126149 checks)
+    schedule rule bl: 27121551 cyc = 108.486 ms  (program order, measured: 32771865 cyc = 131.087 ms)
+    replay of the EMITTED order: 27121551 cyc = 108.486 ms  (replay - scheduler = +0 cyc; the JMP window is 0: the scheduler may place the JMP early, the stream cannot)
+    POSTCHECK on the emitted order: 57203 edges + 1126149 channel/lane checks, 0 violations;  ARG values checked on 8821 CMDs
+    FENCE masks (target[3:0] -> count): 0001 x343, 0010 x343, 0100 x342, 1000 x342
+--- segment 1 static 39663..79285: records 39623 -> 40170
+    MOVX 996 -> 516  ELIDED 480;  FENCE 343 -> 1370 (scheduler fenced 0); fences DEFERRED past independent work: 417
+      (heuristic bl: 27128540 cyc = 108.514 ms; POSTCHECK 57202 edges + 1126148 checks)
+    schedule rule bl: 27128540 cyc = 108.514 ms  (program order, measured: 32776832 cyc = 131.107 ms)
+    replay of the EMITTED order: 27128540 cyc = 108.514 ms  (replay - scheduler = +0 cyc; the JMP window is 0: the scheduler may place the JMP early, the stream cannot)
+    POSTCHECK on the emitted order: 57202 edges + 1126148 channel/lane checks, 0 violations;  ARG values checked on 8821 CMDs
+    FENCE masks (target[3:0] -> count): 0001 x343, 0010 x343, 0100 x342, 1000 x342
+--- segment 2 static 79286..118910: records 39625 -> 40172
+    MOVX 996 -> 516  ELIDED 480;  FENCE 343 -> 1370 (scheduler fenced 0); fences DEFERRED past independent work: 424
+      (heuristic bl: 27129666 cyc = 108.519 ms; POSTCHECK 57203 edges + 1126150 checks)
+    schedule rule bl: 27129666 cyc = 108.519 ms  (program order, measured: 32782160 cyc = 131.129 ms)
+    replay of the EMITTED order: 27129666 cyc = 108.519 ms  (replay - scheduler = +0 cyc; the JMP window is 0: the scheduler may place the JMP early, the stream cannot)
+    POSTCHECK on the emitted order: 57203 edges + 1126150 channel/lane checks, 0 violations;  ARG values checked on 8821 CMDs
+    FENCE masks (target[3:0] -> count): 0001 x343, 0010 x343, 0100 x342, 1000 x342
+--- segment 3 static 118911..158534 (LOOP BODY): records 39624 -> 40171
+    MOVX 996 -> 516  ELIDED 480;  FENCE 343 -> 1370 (scheduler fenced 0); fences DEFERRED past independent work: 420
+      (heuristic bl: 27136513 cyc = 108.546 ms; POSTCHECK 66023 edges + 1126149 checks)
+    schedule rule bl: 27136513 cyc = 108.546 ms  (program order, measured: 32786868 cyc = 131.147 ms)
+    replay of the EMITTED order: 27136513 cyc = 108.546 ms  (replay - scheduler = +0 cyc; the JMP window is 39: the scheduler may place the JMP early, the stream cannot)
+    POSTCHECK on the emitted order: 66023 edges + 1126149 channel/lane checks, 0 violations;  ARG values checked on 8821 CMDs
+    FENCE masks (target[3:0] -> count): 0001 x343, 0010 x343, 0100 x342, 1000 x342
+=== OUTPUT hazard assert: PASS over the whole stream (MOVX 2064, MVGO 5480, MOVY 5480, FENCE 5480; none on a pending channel, none pending at JMP/HALT)
+=== checkpoints: 1572 carried, 674 not at their own record's new position
+=== r1: FENCE masks over the stream (target[3:0] -> count): 0001 x1372, 0010 x1372, 0100 x1368, 1000 x1368
+=== r1: validated at caps ['R1']; refused at the empty set: True
+=== r1: replay makespan of the emitted order per segment: seg0 27121551, seg1 27128540, seg2 27129666, seg3 27136513; LOOP BODY 27136513 cyc (scheduler 27136513)
+=== output 160724 records (input 158536); checkpoints 1572
+=== wrote tb/scripts/w9/model_9b_s4_reordB_r1.e4.seq sha256 492e0def197b635b9e64b01e2ff1637bc4f1eda4db0899961e994160274e6c95
+=== wrote tb/scripts/w9/model_9b_s4_reordB_r1.e4.seqdata.bin (copy), tb/scripts/w9/model_9b_s4_reordB_r1.e4.seq.json
+=== rc  : 0
+=== end : 2026-09-27T18:48:54-06:00

@@ -1,0 +1,32 @@
+=== host: snoke  date: 2026-08-25T00:33:03-06:00
+=== tree: 1f53a39+dirty
+=== cmd : /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_census.py tb/scripts/w5/model_w8_2b_s1.e --four-chan --tag 2b
+=== venv: 3.12.3 numpy 2.4.6
+  LCYC cleared -> 0
+  run: --prefix tb/scripts/w5/model_w8_2b_s1.e --zero-scratch --out /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/census_2b.json --four-chan
+   |  weights   0x10000000 ..            (plan_weights, 187 images, chans [0, 1, 2, 3])
+   |  weights   187 images, 1847 MiB -> 0x10000000..0x2d0c4000/0x2cdac000/0x2cca4000/0x2cca4000 (row-split over chans [0, 1, 2, 3], wid [186] chunk-INTERLEAVED (rung 4 S4))  [readback OK]
+   |  scratch   32768 words zeroed via SPTR/SWIN and read back: 0 non-zero (0.1s)
+   |  EMBLOG2    12 (4096 B embedding rows)
+   |  halted at pc=68502/68503 in 0.374s wall / 371.768 ms device
+   |  STATUS=0x00010004 err=False err_code=0x00 (no error)
+   |  perf: {'cyc': 92942091, 'rec': 101991, 'axil_wr': 132968, 'axil_rd': 4548278, 'fetch_starved_cyc': 96, 'xrf_ovf': False}
+   |  tokens: [279, 314, 279, 369, 11751, 13]
+   |  TOKENS   IDENTICAL to the .seq.json (6 tokens)
+   |  golden    16404 state checks, ALL MATCH
+   |SEQ RUN: PASS
+
+=== census: model_w8_2b_s1.e  (6 tokens)
+  device            371.768 ms   92,942,091 cycles (371.768 ms at 250 MHz)
+  per token         61.9613 ms  ->  16.139 tok/s   (gate convention, device/ntok)
+  steady-state      60.5162 ms  ->  16.525 tok/s   (device - 8.671 ms session preamble)
+  LAYER busy        26,940,149 cycles = 107.761 ms  (17.9601 ms/token, 29.0% of device)
+  weight bytes/tok  1,936,920,576 B = 1847.2 MiB -> 31.26 GB/s aggregate over the whole run
+  per-channel engine counters (each latches that engine's LAST MVGO):
+    ch0  SHAPE 0x20800290  BEATS   67584  CYC     72641  93.04% beats/cyc
+    ch1  SHAPE 0x20200290  BEATS   16896  CYC     18238  92.64% beats/cyc
+    ch2  SHAPE 0x20800290  BEATS   67584  CYC     72667  93.01% beats/cyc
+    ch3  SHAPE 0x20800290  BEATS   67584  CYC     72790  92.85% beats/cyc
+CENSUS_OK
+=== rc  : 0
+=== end : 2026-08-25T00:33:27-06:00

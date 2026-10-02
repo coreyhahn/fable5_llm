@@ -1,0 +1,1137 @@
+=== host: snoke  date: 2026-09-29T20:45:35-06:00
+=== tree: 5d52639+dirty
+=== dirty: ?? evidence/qwen9b/sr/R3_5_PASS.md
+=== cmd : bash evidence/qwen9b/g4/run_g4b_ooc.sh r3_mv_r3 matvec_chan
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== G4b OOC structure run: r3_mv_r3 ===
+host      : snoke
+date      : 2026-09-29T20:45:35-06:00
+tree      : 5d52639b 22 dirty files
+vivado    : /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/vivado
+params    : top=matvec_chan dn_pipe=-1 (-1 = the RTL's own default)
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Tue Sep 29 20:45:38 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /home/cah/r2d2/code/fpga/fable5_llm/synth/scripts/ooc_9b.tcl
+# if {[llength $argv] < 2} {
+#     puts "FATAL: need <out_dir> <top> \[dn_pipe\]"
+#     exit 1
+# }
+# set OutDir [lindex $argv 0]
+# set Top    [lindex $argv 1]
+# set DnPipe [expr {[llength $argv] > 2 ? [lindex $argv 2] : -1}]
+# if {$DnPipe >= 0} {
+#     puts "FATAL: the dn_pipe argument is retired (S2) — layer_chan has no\
+#           such parameter any more; drop the third tclarg"
+#     exit 1
+# }
+# set ScriptDir [file dirname [file normalize [info script]]]
+# set RepoRoot  [file normalize "$ScriptDir/../.."]
+# set Rtl       "$RepoRoot/rtl"
+# set Part xcvu9p-fsgd2104-2L-e
+# if {[string compare [version -short] "2024.2"] != 0} {
+#     puts "FATAL: this script expects Vivado 2024.2, got [version -short]"; exit 1
+# }
+# proc must {script} {
+#     if {[catch {uplevel 1 $script} err]} { puts "FATAL: $err"; exit 1 }
+# }
+# file mkdir $OutDir/reports
+# set_param general.maxThreads 8
+# puts "OOC9B_TOP: $Top"
+OOC9B_TOP: matvec_chan
+# puts "OOC9B_PART: $Part"
+OOC9B_PART: xcvu9p-fsgd2104-2L-e
+# puts "OOC9B_VIVADO: [version -short]"
+OOC9B_VIVADO: 2024.2
+# puts "OOC9B_DNPIPE_ARG: $DnPipe"
+OOC9B_DNPIPE_ARG: -1
+# switch -- $Top {
+#     layer_chan {
+#         # S5 fix round 1 (2026-09-05): state_dma joins the list.  layer_chan
+#         # instantiates it (`state_dma u_dma`, rtl/layer_chan.sv:705), so a file
+#         # list without it elaborates the DMA as a BLACK BOX -- Vivado says so
+#         # only in a warning, while every LUT/FF number comes out silently
+#         # short.  synth/exp_uram/scripts/exp_ooc.tcl:164-165 carries the same
+#         # list, and tb/Makefile's LAYER_RTL is the third copy.
+#         set Files {fx_pkg fx_rsqrt fx_recip fx_silu vecnorm_unit rope_unit
+#                    conv4_silu dn_step attn_core gate_unit vec_alu state_dma
+#                    layer_chan}
+#         set Clocks {aclk}
+#     }
+#     matvec_chan {
+#         set Files {matvec_engine ddr_rd_streamer matvec_chan}
+#         set Clocks {aclk ui_clk}
+#     }
+#     seq_unit {
+#         set Files {seq_movers seq_unit}
+#         set Clocks {aclk}
+#     }
+#     default { puts "FATAL: unknown top '$Top'"; exit 1 }
+# }
+# foreach f $Files { must {read_verilog -sv $Rtl/$f.sv} }
+read_verilog: Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 1500.656 ; gain = 97.918 ; free physical = 41258 ; free virtual = 359946
+# if {[string equal $Top layer_chan]} {
+#     foreach r {rsqrt_rom sigmoid_pair_rom softplus_pair_rom exp2_pair_rom recip_rom} {
+#         if {![file exists $OutDir/$r.hex]} {
+#             puts "FATAL: $OutDir/$r.hex missing — evidence/qwen9b/g4/run_g4b_ooc.sh must stage rtl/roms"
+#             exit 1
+#         }
+#     }
+# }
+# set xdc $OutDir/ooc_9b.xdc
+# set fh [open $xdc w]
+# foreach c $Clocks {
+#     puts $fh "create_clock -period 4.000 -name $c \[get_ports $c\]"
+# }
+# close $fh
+# must {read_xdc $xdc}
+# set generics {}
+# set t0 [clock seconds]
+# must {eval synth_design -top $Top -part $Part -mode out_of_context $generics}
+Command: synth_design -top matvec_chan -part xcvu9p-fsgd2104-2L-e -mode out_of_context
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xcvu9p'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xcvu9p'
+INFO: [Device 21-403] Loading part xcvu9p-fsgd2104-2L-e
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 1519500
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2861.516 ; gain = 322.770 ; free physical = 38911 ; free virtual = 357650
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'matvec_chan' [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_chan.sv:119]
+INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_async' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:2173]
+	Parameter FIFO_MEMORY_TYPE bound to: distributed - type: string 
+	Parameter FIFO_WRITE_DEPTH bound to: 32 - type: integer 
+	Parameter WRITE_DATA_WIDTH bound to: 44 - type: integer 
+	Parameter USE_ADV_FEATURES bound to: 0000 - type: string 
+	Parameter READ_MODE bound to: fwft - type: string 
+	Parameter FIFO_READ_LATENCY bound to: 0 - type: integer 
+	Parameter READ_DATA_WIDTH bound to: 44 - type: integer 
+	Parameter CDC_SYNC_STAGES bound to: 2 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_base' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:53]
+INFO: [Synth 8-6157] synthesizing module 'xpm_memory_base' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:54]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_memory_base' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:54]
+INFO: [Synth 8-6157] synthesizing module 'xpm_cdc_gray' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:283]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_cdc_gray' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:283]
+INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_reg_vec' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1905]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_reg_vec' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1905]
+INFO: [Synth 8-6157] synthesizing module 'xpm_cdc_gray__parameterized0' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:283]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_cdc_gray__parameterized0' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:283]
+INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_reg_vec__parameterized0' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1905]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_reg_vec__parameterized0' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1905]
+INFO: [Synth 8-6157] synthesizing module 'xpm_cdc_gray__parameterized1' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:283]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_cdc_gray__parameterized1' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:283]
+INFO: [Synth 8-226] default block is never used [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1220]
+INFO: [Synth 8-226] default block is never used [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1287]
+INFO: [Synth 8-226] default block is never used [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1309]
+INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_reg_bit' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1927]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_reg_bit' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1927]
+INFO: [Synth 8-6157] synthesizing module 'xpm_counter_updn' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_counter_updn' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
+INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_rst' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1639]
+INFO: [Synth 8-6157] synthesizing module 'xpm_cdc_sync_rst' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:1059]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_cdc_sync_rst' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:1059]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_rst' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1639]
+INFO: [Synth 8-6157] synthesizing module 'xpm_counter_updn__parameterized0' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_counter_updn__parameterized0' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
+INFO: [Synth 8-6157] synthesizing module 'xpm_counter_updn__parameterized1' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_counter_updn__parameterized1' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
+INFO: [Synth 8-6157] synthesizing module 'xpm_counter_updn__parameterized2' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_counter_updn__parameterized2' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_base' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:53]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_async' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:2173]
+INFO: [Synth 8-6157] synthesizing module 'ddr_rd_streamer' [/home/cah/r2d2/code/fpga/fable5_llm/rtl/ddr_rd_streamer.sv:14]
+	Parameter ADDR_W bound to: 32'sb00000000000000000000000000100010 
+INFO: [Synth 8-6155] done synthesizing module 'ddr_rd_streamer' (0#1) [/home/cah/r2d2/code/fpga/fable5_llm/rtl/ddr_rd_streamer.sv:14]
+INFO: [Synth 8-6157] synthesizing module 'matvec_engine' [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:141]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][0]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][1]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][2]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][3]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][4]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][5]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][6]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][7]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][8]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][9]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][10]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][11]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][12]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][13]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][14]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][15]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][16]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][17]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][18]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][19]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][20]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][21]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][22]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][23]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][24]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][25]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][26]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][27]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][28]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][29]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][30]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][31]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][32]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][33]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][34]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][35]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][36]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][37]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][38]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][39]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][40]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][41]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][42]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][43]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][44]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][45]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][46]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][47]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][48]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][49]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][50]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][51]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][52]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][53]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][54]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][55]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][56]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][57]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][58]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][59]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][60]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][61]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][62]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][63]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][64]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][65]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][66]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][67]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][68]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][69]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][70]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][71]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][72]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][73]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][74]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][75]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][76]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][77]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][78]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][79]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][80]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][81]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][82]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][83]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][84]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][85]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][86]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][87]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][88]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][89]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][90]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][91]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][92]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][93]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][94]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[0][95]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[1][0]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[1][1]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[1][2]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'x_mem[1][3]' is not inferred as ram due to incorrect usage [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:219]
+INFO: [Common 17-14] Message 'Synth 8-7186' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-6155] done synthesizing module 'matvec_engine' (0#1) [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:141]
+INFO: [Synth 8-6157] synthesizing module 'xpm_memory_tdpram' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:9050]
+	Parameter MEMORY_SIZE bound to: 131072 - type: integer 
+	Parameter MEMORY_PRIMITIVE bound to: block - type: string 
+	Parameter CLOCKING_MODE bound to: independent_clock - type: string 
+	Parameter USE_MEM_INIT bound to: 0 - type: integer 
+	Parameter WRITE_DATA_WIDTH_A bound to: 32 - type: integer 
+	Parameter READ_DATA_WIDTH_A bound to: 32 - type: integer 
+	Parameter ADDR_WIDTH_A bound to: 12 - type: integer 
+	Parameter READ_LATENCY_A bound to: 1 - type: integer 
+	Parameter WRITE_MODE_A bound to: no_change - type: string 
+	Parameter WRITE_DATA_WIDTH_B bound to: 32 - type: integer 
+	Parameter READ_DATA_WIDTH_B bound to: 32 - type: integer 
+	Parameter ADDR_WIDTH_B bound to: 12 - type: integer 
+	Parameter READ_LATENCY_B bound to: 2 - type: integer 
+	Parameter WRITE_MODE_B bound to: no_change - type: string 
+INFO: [Synth 8-6157] synthesizing module 'xpm_memory_base__parameterized0' [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:54]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_memory_base__parameterized0' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:54]
+INFO: [Synth 8-6155] done synthesizing module 'xpm_memory_tdpram' (0#1) [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:9050]
+INFO: [Synth 8-6155] done synthesizing module 'matvec_chan' (0#1) [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_chan.sv:119]
+WARNING: [Synth 8-6014] Unused sequential element gen_rd_b.gen_doutb_pipe.enb_pipe_reg[0] was removed.  [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:3077]
+WARNING: [Synth 8-6014] Unused sequential element dest_out_bin_ff_reg was removed.  [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:417]
+WARNING: [Synth 8-6014] Unused sequential element dest_out_bin_ff_reg was removed.  [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:417]
+WARNING: [Synth 8-6014] Unused sequential element dest_out_bin_ff_reg was removed.  [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:417]
+WARNING: [Synth 8-6014] Unused sequential element gen_fwft.empty_fwft_fb_reg was removed.  [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1404]
+WARNING: [Synth 8-6014] Unused sequential element gen_rd_b.gen_doutb_pipe.enb_pipe_reg[0] was removed.  [/home/cah/r2d2/sc2data/tools/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:3077]
+WARNING: [Synth 8-6014] Unused sequential element wstrb_q_reg was removed.  [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_chan.sv:332]
+WARNING: [Synth 8-7129] Port sleep in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port regcea in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectsbiterra in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectdbiterra in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectsbiterrb in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectdbiterrb in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port sleep in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rsta in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port regcea in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectsbiterra in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectdbiterra in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port web[0] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[43] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[42] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[41] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[40] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[39] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[38] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[37] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[36] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[35] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[34] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[33] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[32] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[31] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[30] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[29] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[28] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[27] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[26] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[25] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[24] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[23] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[22] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[21] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[20] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[19] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[18] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[17] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[16] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[15] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[14] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[13] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[12] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[11] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[10] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[9] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[8] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[7] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[6] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[5] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[4] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[3] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[2] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[1] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port dinb[0] in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectsbiterrb in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectdbiterrb in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_awaddr[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_awaddr[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[3] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[2] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_wstrb[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_araddr[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axil_araddr[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awaddr[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awaddr[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awlen[7] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awlen[6] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awlen[5] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awlen[4] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awlen[3] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awlen[2] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awlen[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awlen[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awsize[2] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awsize[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awsize[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awburst[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_awburst[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_wstrb[3] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_wstrb[2] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_wstrb[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_wstrb[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_araddr[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_araddr[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_arsize[2] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_arsize[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_arsize[0] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_arburst[1] in module matvec_chan is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_axib_arburst[0] in module matvec_chan is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:15 ; elapsed = 00:00:16 . Memory (MB): peak = 3137.625 ; gain = 598.879 ; free physical = 37660 ; free virtual = 356458
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:16 ; elapsed = 00:00:17 . Memory (MB): peak = 3137.625 ; gain = 598.879 ; free physical = 37653 ; free virtual = 356452
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:16 ; elapsed = 00:00:17 . Memory (MB): peak = 3137.625 ; gain = 598.879 ; free physical = 37653 ; free virtual = 356452
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.5 ; elapsed = 00:00:00.5 . Memory (MB): peak = 3137.625 ; gain = 0.000 ; free physical = 37644 ; free virtual = 356465
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_mv_r3/ooc_9b.xdc]
+create_clock: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 3285.781 ; gain = 0.000 ; free physical = 36391 ; free virtual = 355345
+Finished Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_mv_r3/ooc_9b.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3285.781 ; gain = 0.000 ; free physical = 36400 ; free virtual = 355354
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.69 ; elapsed = 00:00:00.26 . Memory (MB): peak = 3285.781 ; gain = 0.000 ; free physical = 36354 ; free virtual = 355311
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:40 ; elapsed = 00:00:41 . Memory (MB): peak = 3285.781 ; gain = 747.035 ; free physical = 35996 ; free virtual = 354979
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xcvu9p-fsgd2104-2L-e
+INFO: [Synth 8-6742] Reading net delay rules and data
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:41 ; elapsed = 00:00:41 . Memory (MB): peak = 3293.785 ; gain = 755.039 ; free physical = 35989 ; free virtual = 354971
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:41 ; elapsed = 00:00:41 . Memory (MB): peak = 3293.785 ; gain = 755.039 ; free physical = 35980 ; free virtual = 354963
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'gen_rst_ic.curr_wrst_state_reg' in module 'xpm_fifo_rst'
+INFO: [Synth 8-802] inferred FSM for state register 'gen_rst_ic.curr_rrst_state_reg' in module 'xpm_fifo_rst'
+INFO: [Synth 8-802] inferred FSM for state register 'gen_fwft.curr_fwft_state_reg' in module 'xpm_fifo_base'
+INFO: [Synth 8-802] inferred FSM for state register 'wstate_reg' in module 'matvec_chan'
+INFO: [Synth 8-5552] Implemented safe state 'default_state' for state register 'gen_rst_ic.curr_wrst_state_reg' in module 'xpm_fifo_rst'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+*
+               WRST_IDLE |                            00001 |                              000
+                 WRST_IN |                            00010 |                              010
+                WRST_OUT |                            00100 |                              111
+               WRST_EXIT |                            01000 |                              110
+            WRST_GO2IDLE |                            10000 |                              100
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'gen_rst_ic.curr_wrst_state_reg' using encoding 'one-hot' in module 'xpm_fifo_rst'
+INFO: [Synth 8-5552] Implemented safe state 'default_state' for state register 'gen_rst_ic.curr_rrst_state_reg' in module 'xpm_fifo_rst'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+*
+               RRST_IDLE |                               00 |                               00
+                 RRST_IN |                               01 |                               10
+                RRST_OUT |                               10 |                               11
+               RRST_EXIT |                               11 |                               01
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'gen_rst_ic.curr_rrst_state_reg' using encoding 'sequential' in module 'xpm_fifo_rst'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 invalid |                               00 |                               00
+            stage1_valid |                               01 |                               10
+       both_stages_valid |                               10 |                               11
+            stage2_valid |                               11 |                               01
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'gen_fwft.curr_fwft_state_reg' using encoding 'sequential' in module 'xpm_fifo_base'
+INFO: [Synth 8-6904] The RAM "matvec_engine:/ofifo_reg" of size (depth=4 x width=48) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-3971] The signal "xpm_memory_base__parameterized0:/gen_wr_b.gen_word_narrow.mem_reg" was recognized as a true dual port RAM template.
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                              001 |                               00
+                  W_DATA |                              010 |                               01
+                  W_RESP |                              100 |                               10
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'wstate_reg' using encoding 'one-hot' in module 'matvec_chan'
+INFO: [Synth 8-6904] The RAM "matvec_chan/rf_mem_reg" of size (depth=4 x width=34) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:51 ; elapsed = 00:00:52 . Memory (MB): peak = 3293.785 ; gain = 755.039 ; free physical = 35741 ; free virtual = 354740
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   48 Bit       Adders := 1     
+	   3 Input   48 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 2     
+	   2 Input   18 Bit       Adders := 2     
+	   4 Input   17 Bit       Adders := 4     
+	   2 Input   16 Bit       Adders := 2     
+	   2 Input   12 Bit       Adders := 5     
+	   4 Input   10 Bit       Adders := 1     
+	   3 Input   10 Bit       Adders := 1     
+	   2 Input    9 Bit       Adders := 8     
+	   3 Input    9 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 1     
+	   2 Input    7 Bit       Adders := 5     
+	   3 Input    7 Bit       Adders := 1     
+	   4 Input    6 Bit       Adders := 2     
+	   2 Input    6 Bit       Adders := 3     
+	   4 Input    5 Bit       Adders := 3     
+	   4 Input    4 Bit       Adders := 1     
+	   2 Input    4 Bit       Adders := 1     
+	   4 Input    3 Bit       Adders := 3     
+	   2 Input    3 Bit       Adders := 8     
+	   4 Input    2 Bit       Adders := 1     
+	   3 Input    2 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 2     
++---XORs : 
+	   2 Input     48 Bit         XORs := 1     
+	   2 Input      6 Bit         XORs := 2     
+	   2 Input      5 Bit         XORs := 2     
+	   2 Input      1 Bit         XORs := 19    
++---Registers : 
+	              512 Bit    Registers := 1     
+	               48 Bit    Registers := 2     
+	               44 Bit    Registers := 5     
+	               34 Bit    Registers := 2     
+	               32 Bit    Registers := 8     
+	               18 Bit    Registers := 384   
+	               17 Bit    Registers := 6     
+	               16 Bit    Registers := 106   
+	               15 Bit    Registers := 16    
+	               12 Bit    Registers := 4     
+	               10 Bit    Registers := 2     
+	                9 Bit    Registers := 3     
+	                8 Bit    Registers := 1     
+	                7 Bit    Registers := 9     
+	                6 Bit    Registers := 13    
+	                5 Bit    Registers := 11    
+	                4 Bit    Registers := 128   
+	                3 Bit    Registers := 7     
+	                2 Bit    Registers := 10    
+	                1 Bit    Registers := 71    
++---RAMs : 
+	             128K Bit	(256 X 512 bit)          RAMs := 1     
+	             128K Bit	(4096 X 32 bit)          RAMs := 1     
+	              192 Bit	(4 X 48 bit)          RAMs := 1     
+	              136 Bit	(4 X 34 bit)          RAMs := 1     
++---Muxes : 
+	   2 Input   44 Bit        Muxes := 2     
+	   2 Input   34 Bit        Muxes := 2     
+	   2 Input   32 Bit        Muxes := 2     
+	   2 Input   18 Bit        Muxes := 192   
+	   2 Input   16 Bit        Muxes := 6     
+	   2 Input   12 Bit        Muxes := 8     
+	   9 Input   12 Bit        Muxes := 1     
+	  13 Input   12 Bit        Muxes := 1     
+	   3 Input   12 Bit        Muxes := 1     
+	   2 Input    9 Bit        Muxes := 3     
+	   2 Input    8 Bit        Muxes := 1     
+	   2 Input    7 Bit        Muxes := 2     
+	   2 Input    6 Bit        Muxes := 1     
+	   6 Input    5 Bit        Muxes := 1     
+	   2 Input    5 Bit        Muxes := 8     
+	   2 Input    3 Bit        Muxes := 2     
+	   5 Input    2 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 34    
+	   4 Input    2 Bit        Muxes := 7     
+	   2 Input    1 Bit        Muxes := 50    
+	   6 Input    1 Bit        Muxes := 2     
+	   5 Input    1 Bit        Muxes := 3     
+	   4 Input    1 Bit        Muxes := 2     
+	   9 Input    1 Bit        Muxes := 8     
+	  13 Input    1 Bit        Muxes := 1     
+	   3 Input    1 Bit        Muxes := 6     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 6840 (col length:120)
+BRAMs: 4320 (col length: RAMB18 360 RAMB36 180)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+WARNING: [Synth 8-3936] Found unconnected internal register 'xline_q_reg' and it is trimmed from '1024' to '8' bits. [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:329]
+WARNING: [Synth 8-3936] Found unconnected internal register 'beat_q_reg' and it is trimmed from '512' to '4' bits. [/home/cah/r2d2/code/fpga/fable5_llm/rtl/matvec_engine.sv:320]
+DSP Report: Generating DSP pa_q_reg, operation Mode is: (A2*B2)'.
+DSP Report: register pa_q_reg is absorbed into DSP pa_q_reg.
+DSP Report: register mac_lo_q_reg is absorbed into DSP pa_q_reg.
+DSP Report: register pa_q_reg is absorbed into DSP pa_q_reg.
+DSP Report: operator pa_q0 is absorbed into DSP pa_q_reg.
+DSP Report: Generating DSP ps_q_reg, operation Mode is: (PCIN+(A2*B2)')'.
+DSP Report: register ps_q_reg is absorbed into DSP ps_q_reg.
+DSP Report: register mac_hi_q_reg is absorbed into DSP ps_q_reg.
+DSP Report: register ps_q_reg is absorbed into DSP ps_q_reg.
+DSP Report: register pb_q_reg is absorbed into DSP ps_q_reg.
+DSP Report: operator ps_q0 is absorbed into DSP ps_q_reg.
+DSP Report: operator pb_q0 is absorbed into DSP ps_q_reg.
+INFO: [Synth 8-6904] The RAM "u_engine/ofifo_reg" of size (depth=4 x width=48) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+INFO: [Synth 8-6904] The RAM "matvec_chan/rf_mem_reg" of size (depth=4 x width=34) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+WARNING: [Synth 8-3917] design matvec_chan has port s_axib_rresp[0] driven by constant 0
+WARNING: [Synth 8-7129] Port regcea in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectsbiterra in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectdbiterra in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectsbiterrb in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectdbiterrb in module xpm_memory_base__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rsta in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port regcea in module xpm_memory_base is either unconnected or has no load
+WARNING: [Synth 8-7129] Port injectsbiterra in module xpm_memory_base is either unconnected or has no load
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-6904] The RAM "u_engine/ofifo_reg" of size (depth=4 x width=48) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+WARNING: [Synth 8-6014] Unused sequential element gen_wr_b.gen_word_narrow.mem_reg was removed. 
+INFO: [Synth 8-6904] The RAM "matvec_chan/rf_mem_reg" of size (depth=4 x width=34) is automatically implemented using LUTRAM. BRAM implementation would be inefficient 
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[20][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[20][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[20][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[20][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[20][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[20][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[20][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[20][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[46][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[46][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[46][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[46][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[46][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[46][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[46][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[46][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[24][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[24][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[24][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[24][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[24][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[24][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[24][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[24][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[54][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[54][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[54][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[54][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[54][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[54][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[54][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[54][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[28][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[28][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[28][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[28][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[28][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[28][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[28][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[28][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[62][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[62][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[62][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[62][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[62][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[62][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[62][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[62][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[16][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[16][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[16][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[16][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[16][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[16][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[16][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[16][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[38][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[38][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[38][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[38][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[38][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[38][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[38][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[38][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[4][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[4][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[4][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[4][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[4][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[4][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[4][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[4][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[14][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[14][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[14][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[14][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[14][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[14][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[14][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[14][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[8][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[8][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[8][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[8][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[8][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[8][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[8][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[8][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[22][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[22][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[22][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[22][-1111111107]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[22][-1111111108]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[22][-1111111109]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[22][-1111111110]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (prod_q_reg[22][-1111111111]__0) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[12][-1111111104]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[12][-1111111105]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[12][-1111111106]) is unused and will be removed from module matvec_engine.
+WARNING: [Synth 8-3332] Sequential element (sum64_q_reg[12][-1111111107]) is unused and will be removed from module matvec_engine.
+INFO: [Common 17-14] Message 'Synth 8-3332' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:01:24 ; elapsed = 00:01:26 . Memory (MB): peak = 3293.785 ; gain = 755.039 ; free physical = 34553 ; free virtual = 353889
+---------------------------------------------------------------------------------
+ Sort Area is  pa_q_reg_0 : 0 0 : 2437 5019 : Used 1 time 0
+ Sort Area is  pa_q_reg_0 : 0 1 : 2582 5019 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++--------------------------------+----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+-----------------+
+|Module Name                     | RTL Object                       | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | Cascade Heights | 
++--------------------------------+----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+-----------------+
+|\u_resram/xpm_memory_base_inst  | gen_wr_a.gen_word_narrow.mem_reg | 4 K x 32(NO_CHANGE)    | W | R | 4 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 4      | 2,1,1           | 
++--------------------------------+----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+-----------------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++---------------------------------------------------------------------------------+----------------------------------+----------------+----------------------+----------------+
+|Module Name                                                                      | RTL Object                       | Inference      | Size (Depth x Width) | Primitives     | 
++---------------------------------------------------------------------------------+----------------------------------+----------------+----------------------+----------------+
+|u_xfifo/\gnuram_async_fifo.xpm_fifo_base_inst /\gen_sdpram.xpm_memory_base_inst  | gen_wr_a.gen_word_narrow.mem_reg | User Attribute | 32 x 44              | RAM32M16 x 4   | 
+|matvec_chan                                                                      | u_streamer/fifo_reg              | Implied        | 256 x 512            | RAM64M8 x 296  | 
+|u_engine                                                                         | ofifo_reg                        | Implied        | 4 x 48               | RAM32M16 x 4   | 
+|u_engine                                                                         | x_mem_reg[11][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[10][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[13][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[12][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[15][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[14][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[9][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[8][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[3][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[2][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[5][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[4][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[7][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[6][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[1][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[0][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[27][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[26][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[29][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[28][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[31][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[30][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[25][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[24][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[19][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[18][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[21][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[20][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[23][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[22][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[17][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[16][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|matvec_chan                                                                      | rf_mem_reg                       | Implied        | 4 x 34               | RAM32M16 x 3   | 
+|matvec_chan                                                                      | xp_mem_reg                       | Implied        | 8 x 44               | RAM32M16 x 4   | 
++---------------------------------------------------------------------------------+----------------------------------+----------------+----------------------+----------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++--------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name   | DSP Mapping      | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++--------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|matvec_engine | (A2*B2)'         | 18     | 17     | -      | -      | 35     | 1    | 1    | -    | -    | -     | 1    | 0    | 
+|matvec_engine | (PCIN+(A2*B2)')' | 18     | 17     | -      | -      | 36     | 1    | 1    | -    | -    | -     | 1    | 1    | 
++--------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:37 ; elapsed = 00:01:38 . Memory (MB): peak = 3595.301 ; gain = 1056.555 ; free physical = 36676 ; free virtual = 356020
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+INFO: [Synth 8-5556] The block RAM "\u_resram/xpm_memory_base_inst/gen_wr_a.gen_word_narrow.mem_reg " may be mapped as a cascade chain, because it is not timing critical.
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:01:46 ; elapsed = 00:01:48 . Memory (MB): peak = 3673.793 ; gain = 1135.047 ; free physical = 36700 ; free virtual = 356053
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++--------------------------------+----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+-----------------+
+|Module Name                     | RTL Object                       | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | Cascade Heights | 
++--------------------------------+----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+-----------------+
+|\u_resram/xpm_memory_base_inst  | gen_wr_a.gen_word_narrow.mem_reg | 4 K x 32(NO_CHANGE)    | W | R | 4 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 4      | 2,1,1           | 
++--------------------------------+----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+-----------------+
+
+
+Distributed RAM: Final Mapping Report
++---------------------------------------------------------------------------------+----------------------------------+----------------+----------------------+----------------+
+|Module Name                                                                      | RTL Object                       | Inference      | Size (Depth x Width) | Primitives     | 
++---------------------------------------------------------------------------------+----------------------------------+----------------+----------------------+----------------+
+|u_xfifo/\gnuram_async_fifo.xpm_fifo_base_inst /\gen_sdpram.xpm_memory_base_inst  | gen_wr_a.gen_word_narrow.mem_reg | User Attribute | 32 x 44              | RAM32M16 x 4   | 
+|matvec_chan                                                                      | u_streamer/fifo_reg              | Implied        | 256 x 512            | RAM64M8 x 296  | 
+|u_engine                                                                         | ofifo_reg                        | Implied        | 4 x 48               | RAM32M16 x 4   | 
+|u_engine                                                                         | x_mem_reg[11][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[10][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[13][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[12][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[15][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[14][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[9][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[8][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[3][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[2][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[5][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[4][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[7][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[6][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[1][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[0][0]                  | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[27][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[26][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[29][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[28][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[31][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[30][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[25][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[24][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[19][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[18][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[21][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[20][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[23][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[22][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[17][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|u_engine                                                                         | x_mem_reg[16][0]                 | User Attribute | 128 x 32             | RAM64M8 x 10   | 
+|matvec_chan                                                                      | rf_mem_reg                       | Implied        | 4 x 34               | RAM32M16 x 3   | 
+|matvec_chan                                                                      | xp_mem_reg                       | Implied        | 8 x 44               | RAM32M16 x 4   | 
++---------------------------------------------------------------------------------+----------------------------------+----------------+----------------------+----------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:02:00 ; elapsed = 00:02:03 . Memory (MB): peak = 3768.887 ; gain = 1230.141 ; free physical = 32132 ; free virtual = 351716
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:02:08 ; elapsed = 00:02:10 . Memory (MB): peak = 3841.699 ; gain = 1302.953 ; free physical = 33378 ; free virtual = 353030
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:02:08 ; elapsed = 00:02:10 . Memory (MB): peak = 3841.699 ; gain = 1302.953 ; free physical = 33351 ; free virtual = 353003
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:02:10 ; elapsed = 00:02:13 . Memory (MB): peak = 3841.699 ; gain = 1302.953 ; free physical = 33230 ; free virtual = 352883
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:02:10 ; elapsed = 00:02:13 . Memory (MB): peak = 3841.699 ; gain = 1302.953 ; free physical = 33230 ; free virtual = 352883
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:02:11 ; elapsed = 00:02:14 . Memory (MB): peak = 3841.699 ; gain = 1302.953 ; free physical = 33228 ; free virtual = 352881
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:02:11 ; elapsed = 00:02:14 . Memory (MB): peak = 3841.699 ; gain = 1302.953 ; free physical = 33228 ; free virtual = 352881
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Static Shift Register Report:
++------------+----------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+|Module Name | RTL Name             | Length | Width | Reset Signal | Pull out first Reg | Pull out last Reg | SRL16E | SRLC32E | 
++------------+----------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+|matvec_chan | u_engine/g5_q_reg[6] | 5      | 7     | NO           | NO                 | YES               | 7      | 0       | 
+|matvec_chan | u_engine/b5_q_reg    | 5      | 1     | NO           | NO                 | YES               | 1      | 0       | 
++------------+----------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++--------------+-----------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name   | DSP Mapping     | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++--------------+-----------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|matvec_engine | (A'*B')'        | 30     | 16     | -      | -      | 0      | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|matvec_engine | (PCIN+(A'*B)')' | 30     | 0      | -      | -      | 36     | 1    | 0    | -    | -    | -     | 1    | 1    | 
++--------------+-----------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+----------------+------+
+|      |Cell            |Count |
++------+----------------+------+
+|1     |CARRY8          |   773|
+|2     |DSP_ALU         |     2|
+|4     |DSP_A_B_DATA    |     2|
+|6     |DSP_C_DATA      |     2|
+|8     |DSP_MULTIPLIER  |     2|
+|9     |DSP_M_DATA      |     2|
+|11    |DSP_OUTPUT      |     2|
+|12    |DSP_PREADD      |     2|
+|13    |DSP_PREADD_DATA |     2|
+|14    |LUT1            |   151|
+|15    |LUT2            |  2185|
+|16    |LUT3            |  2688|
+|17    |LUT4            |   921|
+|18    |LUT5            |  1312|
+|19    |LUT6            |  5132|
+|20    |MUXF7           |  1072|
+|21    |MUXF8           |   496|
+|22    |RAM32M          |     2|
+|23    |RAM32M16        |    11|
+|24    |RAM32X1D        |     4|
+|25    |RAM64M8         |   612|
+|26    |RAM64X1D        |     4|
+|27    |RAMB36E2        |     4|
+|30    |SRL16E          |     8|
+|31    |FDRE            | 14168|
+|32    |FDSE            |    12|
++------+----------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:02:11 ; elapsed = 00:02:14 . Memory (MB): peak = 3841.699 ; gain = 1302.953 ; free physical = 33228 ; free virtual = 352881
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 347 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:01:56 ; elapsed = 00:02:00 . Memory (MB): peak = 3841.699 ; gain = 1154.797 ; free physical = 33282 ; free virtual = 352936
+Synthesis Optimization Complete : Time (s): cpu = 00:02:12 ; elapsed = 00:02:14 . Memory (MB): peak = 3841.699 ; gain = 1302.953 ; free physical = 33275 ; free virtual = 352929
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.36 ; elapsed = 00:00:00.37 . Memory (MB): peak = 3841.699 ; gain = 0.000 ; free physical = 33382 ; free virtual = 353044
+INFO: [Netlist 29-17] Analyzing 2976 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'matvec_chan' is not ideal for floorplanning, since the cellview 'matvec_engine' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_mv_r3/ooc_9b.xdc]
+create_clock: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 3858.086 ; gain = 0.000 ; free physical = 34505 ; free virtual = 354177
+Finished Parsing XDC File [/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_mv_r3/ooc_9b.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3858.086 ; gain = 0.000 ; free physical = 34577 ; free virtual = 354250
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 635 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 2 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 2 instances
+  RAM32M16 => RAM32M16 (RAMD32(x14), RAMS32(x2)): 11 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 4 instances
+  RAM64M8 => RAM64M8 (RAMD64E(x8)): 612 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 4 instances
+
+Synth Design complete | Checksum: 45164a82
+INFO: [Common 17-83] Releasing license: Synthesis
+79 Infos, 313 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:02:46 ; elapsed = 00:02:46 . Memory (MB): peak = 3858.086 ; gain = 2357.430 ; free physical = 34531 ; free virtual = 354204
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 3006.066; main = 2805.777; forked = 236.078
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4758.758; main = 3858.090; forked = 917.055
+# puts "OOC9B_SYNTH_S: [expr {[clock seconds]-$t0}]"
+OOC9B_SYNTH_S: 166
+# must {report_utilization -file $OutDir/reports/util_synth.rpt}
+# must {report_utilization -hierarchical -file $OutDir/reports/util_synth_hier.rpt}
+# must {write_checkpoint -force $OutDir/post_synth.dcp}
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.25 ; elapsed = 00:00:00.07 . Memory (MB): peak = 3929.742 ; gain = 0.000 ; free physical = 35467 ; free virtual = 355147
+INFO: [Common 17-1381] The checkpoint '/home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_r3_mv_r3/post_synth.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:20 ; elapsed = 00:00:17 . Memory (MB): peak = 3929.742 ; gain = 71.656 ; free physical = 35455 ; free virtual = 355171
+# proc ncells {pat} { return [llength [get_cells -quiet -hier -filter "REF_NAME =~ $pat"]] }
+# set uram   [ncells URAM288*]
+# set bram36 [ncells RAMB36*]
+# set bram18 [ncells RAMB18*]
+# set dsp    [ncells DSP48E2*]
+# puts "OOC9B_URAM: $uram"
+OOC9B_URAM: 0
+# puts "OOC9B_BRAM: RAMB36=$bram36 RAMB18=$bram18 tiles=[expr {$bram36 + $bram18 / 2.0}]"
+OOC9B_BRAM: RAMB36=4 RAMB18=0 tiles=4.0
+# puts "OOC9B_DSP: $dsp"
+OOC9B_DSP: 2
+# proc util_row {rpt name} {
+#     set fh [open $rpt r]; set data [read $fh]; close $fh
+#     foreach line [split $data \n] {
+#         if {[regexp "^\\|\\s*[string map {* \\*} $name]\\s*\\|\\s*(\[0-9.\]+)\\s*\\|" $line -> v]} {
+#             return $v
+#         }
+#     }
+#     return "n/a"
+# }
+# set R $OutDir/reports/util_synth.rpt
+# set lut  [util_row $R "CLB LUTs*"]
+# set lutl [util_row $R "LUT as Logic"]
+# set lutm [util_row $R "LUT as Memory"]
+# set ff   [util_row $R "CLB Registers"]
+# set c8   [util_row $R "CARRY8"]
+# puts "OOC9B_LUT: $lut (logic $lutl, memory $lutm)"
+OOC9B_LUT: 15012 (logic 9996, memory 5016)
+# puts "OOC9B_FF: $ff"
+OOC9B_FF: 14180
+# puts "OOC9B_CARRY8: $c8"
+OOC9B_CARRY8: 773
+# if {[string equal $Top layer_chan]} {
+#     # THE STOP CONDITION (brief Step 1), RESTATED FOR THE STATE-SPILL DESIGN
+#     # (S5 fix round 1, 2026-09-05).  What stood here was the study's 24 DN
+#     # banks x 29 URAM288 + 8 KV banks x 29 = 928, which Track P PLACED at the
+#     # same geometry (PLACE_EXP.md 3.1).  S2 retired the banked arrays: each
+#     # kind now keeps two CACHE SLOTS and the rest of the state lives in DDR
+#     # (spec 2026-09-04 state-spill 3).  A URAM288 is 4096 x 72 b, so a W-bit
+#     # row costs ceil(W/72) of them SIDE BY SIDE and a D-row memory ceil(D/4096)
+#     # DEEP.  DERIVED below by the same proc synth/exp_uram/scripts/exp_ooc.tcl
+#     # uses (its :115-121), so the two harnesses cannot disagree by a typo:
+#     #   DN slot  4096 rows x 2048 b                  -> 29
+#     #   KV slot  8192 rows x 2048 b                  -> 58, plus an 8192 x 8 b
+#     #            exponent memory that is BLOCK RAM BY DESIGN (`emem` carries no
+#     #            ram_style, rtl/layer_chan.sv:837) and predicts 0 URAM here
+#     #   CV slot  8192 x 64 b weights + 8192 x 48 b state -> 2 + 2 = 4
+#     #   total    N_SLOT x (29 + 58 + 4) = 2 x 91     = 182
+#     # The geometry is MAINTAINED here, not read out of the RTL
+#     # (rtl/layer_chan.sv:361-365 LNH/N_DN/N_KV/NKVH/CVD, N_SLOT at :382), so
+#     # this stays a prediction the measurement can contradict.  A disagreement
+#     # is news, not a number to reconcile: S5's first count read 174 because the
+#     # conv slots carried no ram_style and inferred block RAM instead
+#     # (evidence/qwen9b/s5/011_mem_census.log).
+#     proc uram_of {depth width} {
+#         return [expr {int(ceil($width / 72.0)) * int(ceil($depth / 4096.0))}]
+#     }
+#     set N_SLOT 2
+#     set PRED [expr {$N_SLOT * ([uram_of 4096 2048] + [uram_of 8192 2048] +
+#                                [uram_of 8192 64] + [uram_of 8192 48])}]
+#     puts "OOC9B_URAM_PREDICT: $PRED (2 slots x (DN 29 + KV 58 + CV 2 + 2))"
+#     if {$uram == $PRED} {
+#         puts "OOC9B_URAM_MATCH: YES"
+#     } else {
+#         puts "OOC9B_URAM_MATCH: NO — inferred $uram, predicted $PRED"
+#     }
+#     # Any SLOT memory that fell OUT of URAM is the "maps to something worse"
+#     # failure mode; name it rather than leaving it to a reader of the table.
+#     # S5 fix round 1 widened this from DN-only to all three kinds: a DN-only
+#     # probe read 0 on the very netlist whose conv slots had gone to block RAM.
+#     # The KV filter excludes `emem`, which is block RAM BY DESIGN
+#     # (rtl/layer_chan.sv:813, :837) and would otherwise read as a defect.
+#     proc nonuram {sel} {
+#         return [llength [get_cells -quiet -hier -filter \
+#             "($sel) && (REF_NAME =~ RAMB* || REF_NAME =~ RAMD* || REF_NAME =~ RAMS*)"]]
+#     }
+#     set dn_nonuram [nonuram {NAME =~ *g_dnslot*}]
+#     set kv_nonuram [nonuram {NAME =~ *g_kvslot* && NAME !~ *emem*}]
+#     set cv_nonuram [nonuram {NAME =~ *g_cvslot*}]
+#     puts "OOC9B_DN_NONURAM_CELLS: $dn_nonuram"
+#     puts "OOC9B_SLOT_NONURAM_CELLS: dn=$dn_nonuram kv=$kv_nonuram cv=$cv_nonuram"
+#     # and the split, so 58/116/8 is checked and not just the total.  The
+#     # generate-block names are the S2 slot names (`g_dnslot`, `g_kvslot`,
+#     # `g_cvslot` -- rtl/layer_chan.sv:766, :829, :882); the retired banked
+#     # array's `g_dn`/`g_kv`/`g_cv` patterns are gone with it.
+#     set dn_uram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ URAM288* && NAME =~ *g_dnslot*}]]
+#     set kv_uram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ URAM288* && NAME =~ *g_kvslot*}]]
+#     set cv_uram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ URAM288* && NAME =~ *g_cvslot*}]]
+#     puts "OOC9B_URAM_SPLIT: dn=$dn_uram kv=$kv_uram cv=$cv_uram other=[expr {$uram - $dn_uram - $kv_uram - $cv_uram}]"
+#     # the block-RAM consumers this design is judged on: the scratchpad, the KV
+#     # exponent memories (block RAM by design), and the conv slots -- which MUST
+#     # now read 0, since spec 3 puts them in URAM.
+#     set scr_bram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ RAMB36* && (NAME =~ *smem_a* || NAME =~ *smem_b*)}]]
+#     set cv_bram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ RAMB36* && NAME =~ *g_cvslot*}]]
+#     set kvx_bram [llength [get_cells -quiet -hier \
+#         -filter {REF_NAME =~ RAMB36* && NAME =~ *g_kvslot*emem*}]]
+#     puts "OOC9B_BRAM_SPLIT: scratch=$scr_bram conv=$cv_bram kvexp=$kvx_bram"
+# }
+# puts "OOC9B_DONE"
+OOC9B_DONE
+INFO: [Common 17-206] Exiting Vivado at Tue Sep 29 20:49:01 2026...
+=== exit: 2 OOC9B_DONE marker(s) ===
+=== G4b OOC structure run: r3_mv_r3 ===
+host      : snoke
+date      : 2026-09-29T20:45:35-06:00
+tree      : 5d52639b 22 dirty files
+vivado    : /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/vivado
+params    : top=matvec_chan dn_pipe=-1 (-1 = the RTL's own default)
+OOC9B_TOP: matvec_chan
+OOC9B_PART: xcvu9p-fsgd2104-2L-e
+OOC9B_VIVADO: 2024.2
+OOC9B_DNPIPE_ARG: -1
+OOC9B_SYNTH_S: 166
+OOC9B_URAM: 0
+OOC9B_BRAM: RAMB36=4 RAMB18=0 tiles=4.0
+OOC9B_DSP: 2
+OOC9B_LUT: 15012 (logic 9996, memory 5016)
+OOC9B_FF: 14180
+OOC9B_CARRY8: 773
+OOC9B_DONE
+=== exit: 2 OOC9B_DONE marker(s) ===
+=== rc  : 0
+=== end : 2026-09-29T20:49:28-06:00

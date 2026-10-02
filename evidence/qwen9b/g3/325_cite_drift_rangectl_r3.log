@@ -1,0 +1,22 @@
+=== host: snoke
+=== date: 2026-09-02T20:59:23-06:00
+=== tree: 6b1f24d
+=== cmd:  /home/cah/.venv/bin/python evidence/qwen9b/o3/o3_cite_drift.py --range-control
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+o3 citation-drift gate  [range negative control]
+  both endpoints live                  '`sw/chat_seq.py:10-30`'     -> '`sw/chat_seq.py:20-40`'     ok
+  the END was deleted                  '`sw/chat_seq.py:10-30`'     -> '`sw/chat_seq.py:10-30`'     ok
+  the START was deleted                '`sw/chat_seq.py:10-30`'     -> '`sw/chat_seq.py:10-30`'     ok
+  a bare continuation, END deleted     'see `sw/chat_seq.py` at `:10-30`' -> 'see `sw/chat_seq.py` at `:10-30`' ok
+  the END is PAST the base file's end  '`sw/chat_seq.py:10-99`'     -> '`sw/chat_seq.py:10-99`'     ok
+  the START is PAST the base file's end '`sw/chat_seq.py:99-30`'     -> '`sw/chat_seq.py:99-30`'     ok
+  a SINGLE line past the base file's end '`sw/chat_seq.py:99`'        -> '`sw/chat_seq.py:99`'        ok
+O3_RANGE_CONTROL: PASS — a half-mapped range is never rewritten (0 problem(s))
+=== rc: 0
+=== end: 2026-09-02T20:59:23-06:00

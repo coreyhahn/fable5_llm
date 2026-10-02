@@ -1,0 +1,24 @@
+=== host: snoke  date: 2026-09-29T06:55:45-06:00
+=== tree: af00f46+dirty
+=== dirty:  M docs/HISTORY.md
+=== cmd : /home/cah/.venv/bin/python -c 
+# SR16 fix round 1: band midpoints from n1602 inputs (bases n1602:73-80, savings n1602:71-72,77-78, lowest retention n1602:66)
+B={"chat full":122.2175,"stream":110.4066}
+S={"(a)":(8.1766,8.2178),"(b)":(6.2672,6.2990)}
+LO=0.8877
+for f,(sv,cp) in S.items():
+  for w,b in B.items():
+    lo=1e3/(b-sv*LO); ii=1e3/(b-sv); iii=1e3/(b-cp)
+    print(f"{f} {w}: low (ii-prime) {lo:.4f}, absolute (ii) {ii:.4f}, census-share (iii) {iii:.4f}; chat-band midpoint (low+iii)/2 {(lo+iii)/2:.4f}; gain over R2 at iii {iii-1e3/b:.4f}, at low {lo-1e3/b:.4f}")
+c=(27135354-26168056)/250e3
+print(f"R2 chat full saving, SR13b corrected static (n901:12): {c:.4f} ms; measured 3.8960 (n1602:65): retention {3.8960/c:.4f} (vs 0.9698 on the uncorrected 4.0173)")
+
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+(a) chat full: low (ii-prime) 8.6987, absolute (ii) 8.7688, census-share (iii) 8.7720; chat-band midpoint (low+iii)/2 8.7353; gain over R2 at iii 0.5898, at low 0.5166
+(a) stream: low (ii-prime) 9.6948, absolute (ii) 9.7819, census-share (iii) 9.7858; chat-band midpoint (low+iii)/2 9.7403; gain over R2 at iii 0.7284, at low 0.6374
+(b) chat full: low (ii-prime) 8.5724, absolute (ii) 8.6244, census-share (iii) 8.6268; chat-band midpoint (low+iii)/2 8.5996; gain over R2 at iii 0.4446, at low 0.3902
+(b) stream: low (ii-prime) 9.5381, absolute (ii) 9.6025, census-share (iii) 9.6054; chat-band midpoint (low+iii)/2 9.5717; gain over R2 at iii 0.5480, at low 0.4806
+R2 chat full saving, SR13b corrected static (n901:12): 3.8692 ms; measured 3.8960 (n1602:65): retention 1.0069 (vs 0.9698 on the uncorrected 4.0173)
+=== rc  : 0
+=== end : 2026-09-29T06:55:45-06:00

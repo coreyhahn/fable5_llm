@@ -1,0 +1,67 @@
+=== host: snoke  date: 2026-09-29T06:39:33-06:00
+=== tree: 8e4d6aa
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr16_r3_census.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== stream /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq
+    sha256 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  manifest 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  MATCH
+=== loop body: static pc 118911..158534 (39624 records); EMB records at [39, 39663, 79286, 118911]; JMP(flags 1) at 158534 -> 118911
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (4, 5, 6): tok4=39624, tok5=39624, tok6=39625
+=== body window sum (token 4): 32786868 cyc = 131.147 ms  (OV1 n15: 131.147 ms)
+
+=== live-MOVX census at R2 (form B edges, elision on)
+  MOVX records 996: window sum 5260768 cyc = 21.043 ms TB
+  redundant (elided) 480: 2023680 cyc = 8.095 ms TB (OV1 n06:29: 480 of 996, 2023680)
+  live 516: 3237088 cyc = 12.948 ms TB
+  matvecs 249; live MOVX per matvec: 0 x120, 4 x129
+  broadcast carriers (first live MOVX) 129: 809272 cyc = 3.237 ms TB
+  SIBLINGS R3 zeroes: 387 MOVX, 2427816 cyc = 9.711 ms TB = 75.00 % of live MOVX window
+
+=== form B: per-channel FENCE, one lane, elision, r = 0 (TB cycles)
+  B:R2     makespan  26146927 cyc =  104.588 ms TB; board-scaled (uniform, MODEL)  109.359 ms =  9.144 tok/s  n120 26146927 MATCH
+      lane work 17164826 cyc = 68.659 ms; lane idle stream 8982101 cyc = 35.928 ms; idle total 8982101; tail 0
+      post-check 66267 edges + 1126149 checks, 0 violations
+  B:R3     makespan  24102767 cyc =   96.411 ms TB; board-scaled (uniform, MODEL)  100.810 ms =  9.920 tok/s  n120 24102767 MATCH
+      lane work 14737010 cyc = 58.948 ms; lane idle stream 9365757 cyc = 37.463 ms; idle total 9365757; tail 0
+      post-check 66267 edges + 1126149 checks, 0 violations
+  B:R3buf  makespan  24580127 cyc =   98.321 ms TB; board-scaled (uniform, MODEL)  102.806 ms =  9.727 tok/s  n120 24580127 MATCH
+      lane work 15344012 cyc = 61.376 ms; lane idle stream 9236115 cyc = 36.944 ms; idle total 9236115; tail 0
+      post-check 66267 edges + 1126149 checks, 0 violations
+  B:R3lat  makespan  24102767 cyc =   96.411 ms TB; board-scaled (uniform, MODEL)  100.810 ms =  9.920 tok/s
+      lane work 14737010 cyc = 58.948 ms; lane idle stream 9365757 cyc = 37.463 ms; idle total 9365757; tail 0
+      post-check 68160 edges + 1126149 checks, 0 violations
+  --- form B: against R2
+  SAVE B:R3      2044160 cyc = 8.177 ms TB/token; x1.0848 vs R2; lane work removed 2427816 cyc = 9.711 ms; lane idle change +383656 cyc = +1.535 ms (on stream +383656 = +1.535 ms)
+  SAVE B:R3buf   1566800 cyc = 6.267 ms TB/token; x1.0637 vs R2; lane work removed 1820814 cyc = 7.283 ms; lane idle change +254014 cyc = +1.016 ms (on stream +254014 = +1.016 ms)
+  SAVE B:R3lat   2044160 cyc = 8.177 ms TB/token; x1.0848 vs R2; lane work removed 2427816 cyc = 9.711 ms; lane idle change +383656 cyc = +1.535 ms (on stream +383656 = +1.535 ms)
+  SHARE B:R2     lane idle on stream 34.35 % of makespan; lane work 65.65 %
+  SHARE B:R3     lane idle on stream 38.86 % of makespan; lane work 61.14 %
+  SHARE B:R3buf  lane idle on stream 37.58 % of makespan; lane work 62.42 %
+  SHARE B:R3lat  lane idle on stream 38.86 % of makespan; lane work 61.14 %
+
+=== form A: per-channel FENCE, one lane, elision, r = 0 (TB cycles)
+  A:R2     makespan  27056949 cyc =  108.228 ms TB; board-scaled (uniform, MODEL)  113.166 ms =  8.837 tok/s  n120 27056949 MATCH
+      lane work 17164826 cyc = 68.659 ms; lane idle stream 9892123 cyc = 39.568 ms; idle total 9892123; tail 0
+      post-check 55246 edges + 1126149 checks, 0 violations
+  A:R3     makespan  25012789 cyc =  100.051 ms TB; board-scaled (uniform, MODEL)  104.616 ms =  9.559 tok/s  n120 25012789 MATCH
+      lane work 14737010 cyc = 58.948 ms; lane idle stream 10275779 cyc = 41.103 ms; idle total 10275779; tail 0
+      post-check 55246 edges + 1126149 checks, 0 violations
+  A:R3buf  makespan  25498597 cyc =  101.994 ms TB; board-scaled (uniform, MODEL)  106.648 ms =  9.377 tok/s  n120 25498597 MATCH
+      lane work 15344012 cyc = 61.376 ms; lane idle stream 10154585 cyc = 40.618 ms; idle total 10154585; tail 0
+      post-check 55246 edges + 1126149 checks, 0 violations
+  A:R3lat  makespan  25012789 cyc =  100.051 ms TB; board-scaled (uniform, MODEL)  104.616 ms =  9.559 tok/s
+      lane work 14737010 cyc = 58.948 ms; lane idle stream 10275779 cyc = 41.103 ms; idle total 10275779; tail 0
+      post-check 57139 edges + 1126149 checks, 0 violations
+  --- form A: against R2
+  SAVE A:R3      2044160 cyc = 8.177 ms TB/token; x1.0817 vs R2; lane work removed 2427816 cyc = 9.711 ms; lane idle change +383656 cyc = +1.535 ms (on stream +383656 = +1.535 ms)
+  SAVE A:R3buf   1558352 cyc = 6.233 ms TB/token; x1.0611 vs R2; lane work removed 1820814 cyc = 7.283 ms; lane idle change +262462 cyc = +1.050 ms (on stream +262462 = +1.050 ms)
+  SAVE A:R3lat   2044160 cyc = 8.177 ms TB/token; x1.0817 vs R2; lane work removed 2427816 cyc = 9.711 ms; lane idle change +383656 cyc = +1.535 ms (on stream +383656 = +1.535 ms)
+  SHARE A:R2     lane idle on stream 36.56 % of makespan; lane work 63.44 %
+  SHARE A:R3     lane idle on stream 41.08 % of makespan; lane work 58.92 %
+  SHARE A:R3buf  lane idle on stream 39.82 % of makespan; lane work 60.18 %
+  SHARE A:R3lat  lane idle on stream 41.08 % of makespan; lane work 58.92 %
+SR16_R3_CENSUS: DONE
+=== rc  : 0
+=== end : 2026-09-29T06:39:40-06:00

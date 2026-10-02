@@ -1,0 +1,21 @@
+=== host: snoke
+=== date: 2026-09-05T07:18:05-06:00
+=== tree: 0fe1407
+=== cmd:  bash -c cd /home/cah/r2d2/code/fpga/fable5_llm/tb && for s in 1 2 3 4; do ( t0=$(date +%s); make seq_chip_vectors_9b W9_BASE=scripts/w9/model_9b_s$s VECPY=/home/cah/.venv/bin/python > /var/tmp/s4_vec_s$s.out 2>&1; rc=$?; t1=$(date +%s); echo "SEED $s rc=$rc wall=$((t1-t0))s"; ) & done; wait; for s in 1 2 3 4; do echo "--- model_9b_s$s"; grep -E "^.chip:|^BASES|Traceback|Error" /var/tmp/s4_vec_s$s.out | sed "s/^/    /"; done
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+SEED 3 rc=0 wall=973s
+SEED 4 rc=0 wall=980s
+SEED 2 rc=0 wall=986s
+SEED 1 rc=0 wall=988s
+--- model_9b_s1
+--- model_9b_s2
+--- model_9b_s3
+--- model_9b_s4
+=== rc: 0
+=== end: 2026-09-05T07:34:33-06:00

@@ -1,0 +1,56 @@
+=== host: snoke
+=== date: 2026-09-05T16:49:56-06:00
+=== tree: ad66aef+dirty
+=== cmd:  python3 evidence/qwen9b/s5/s5_superlatives.py --negative-control
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+S5SUP_VARIANTS: 3  (base 1slr 1slr-alt)
+
+S5SUP_TABLE column                                    best        runner-up
+S5SUP_COL WNS                                                  base   -0.136    1slr-alt -0.166
+S5SUP_COL TNS                                                  base   -5.205    1slr-alt -28.215
+S5SUP_COL failing endpoints                                    base   145.0     1slr-alt 843.0
+S5SUP_COL DN write fan-out, absolute                           1slr-alt 0.214     base   0.192
+S5SUP_COL DN write fan-out gain vs own same-directive baseline 1slr   -0.026    -      -
+S5SUP_COL KV write fan-out                                     1slr-alt 0.048     base   0.008
+S5SUP_COL conv slot write (CV_SLOT)                            1slr-alt 0.533     1slr   0.302
+S5SUP_COL attn DSP lanes                                       base   -0.057    1slr-alt -0.166
+S5SUP_COL state DMA engine (SDMA)                              base   0.023     1slr-alt 0.006
+S5SUP_COL scratchpad (SCRATCH)                                 1slr-alt 0.426     base   0.361
+S5SUP_COL SLR crossings (SLLs)                                 1slr   0.0       1slr-alt 0.0
+
+S5SUP_CONTROL: planted 'best WNS' on 1slr, which is the WORST (-0.245)
+S5SUP_SCOPED S5_STRUCT.md:343  The KV write fan-out is positive on two of the three runs and −0.110 on the third.
+    full ranking of DN write fan-out, absolute: 1slr-alt 0.214  base 0.192  1slr 0.166
+S5SUP_SCOPED S5_STRUCT.md:376  **`ATTN_DSP` is the worst family on all three runs**, and on both one-SLR runs it IS the design's WNS.
+    full ranking of attn DSP lanes: base -0.057  1slr-alt -0.166  1slr -0.245
+S5SUP_CHECKED: 3 superlative sentence(s) machine-checked
+S5SUP_FAIL S5_STRUCT.md:687
+    NEGATIVE CONTROL: 1slr has the best WNS of the three.
+    column WNS: the extremum is base (-0.136), the sentence names 1slr
+S5SUP_QUOTED_TOTAL: 0 sentence(s) restating a superseded claim
+S5SUP_SCOPED_TOTAL: 2 sentence(s) true over a stated subset, printed beside the full ranking
+S5SUP_UNCHECKED: 15 sentence(s) the script cannot attribute
+S5SUP_UNCHECKED S5_STRUCT.md:32  * a **failure here is DEFINITIVE** — the in-context problem is strictly harder; * a **success here is NECESSARY BUT NOT SUFFICIENT
+S5SUP_UNCHECKED S5_STRUCT.md:59  Both were written into this document's draft before the runs came back, and you have only this sentence for that; the thresholds t
+S5SUP_UNCHECKED S5_STRUCT.md:95  * **`DN_PIPE` and `DN_BPG` no longer exist**, as `-generic`s or as positional arguments; `layer_chan`'s only non-ROM parameter is 
+S5SUP_UNCHECKED S5_STRUCT.md:220  ✅ * **LUT as Distributed RAM, +3,856.** `u_dma` is **4,096 LUTRAM cells** (T, `MEM_ROW SDMA … 4096`) — the 256-beat × 512-bit burs
+S5SUP_UNCHECKED S5_STRUCT.md:220  * **Total LUTs, only +2,737** even though `u_dma` is 15,051 LUTs: the 24-bank DN array's address decode, bank muxes and 2048-bit r
+S5SUP_UNCHECKED S5_STRUCT.md:299  First, §0's rule: the OOC success is necessary, not sufficient — Task 14 adds XDMA at fixed sites, four MIGs, four mvchans and a s
+S5SUP_UNCHECKED S5_STRUCT.md:323  `s5_family_census.tcl` on each run's own `post_place.dcp`: the worst setup path into each family's endpoint cells, and the family 
+S5SUP_UNCHECKED S5_STRUCT.md:395  Its worst paths are inside the burst FIFO (`u_dma/f_wp_reg[…]/C -> u_dma/fmem_reg_…`) and the beat accumulator.
+S5SUP_UNCHECKED S5_STRUCT.md:400  It is the reason S5's census script names the worst OTHER path instead of leaving a bucket unexplained.
+S5SUP_UNCHECKED S5_STRUCT.md:434  The banners are comment-only and appended at the END so that citations into those files keep their line numbers (`evidence/qwen9b/
+S5SUP_UNCHECKED S5_STRUCT.md:450  S4's DMA-lane figure is MODELLED and is not a board number (`evidence/qwen9b/s4/S4_REPLAY.md`); S5 measures structure and placemen
+S5SUP_UNCHECKED S5_STRUCT.md:551  `046_superlatives.log` is the PASS on the repaired document (`S5SUP: PASS`, 2 sentences machine-checked, 2 SCOPED, 12 UNCHECKED) a
+S5SUP_UNCHECKED S5_STRUCT.md:576  All twelve are hand-verified in the S5 report, and none of them ranks S5's variants: they are the reading rule quoted from `eviden
+S5SUP_UNCHECKED S5_STRUCT.md:645  They are committed in a separate, citation-repair-only commit; `git diff --stat` over `rtl/layer_chan.sv` shows one line changed, 
+S5SUP_UNCHECKED S5_STRUCT.md:665  A bare basename resolves only if it sits beside the citing document; for a file anywhere else it is not a citation at all, just a 
+S5SUP_CONTROL: CAUGHT — the checker is live
+=== rc: 0
+=== end: 2026-09-05T16:49:56-06:00

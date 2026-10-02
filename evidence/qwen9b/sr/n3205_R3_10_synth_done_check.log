@@ -1,0 +1,78 @@
+=== host: snoke  date: 2026-10-01T09:49:06-06:00
+=== tree: 2e87459+dirty
+=== dirty: ?? evidence/qwen9b/sr/r3_push_probe.tcl
+=== cmd : bash -c O=synth/out_build_046_r3; echo "SD build.log:"; sed "s/^/SD   /" $O/build.log | grep -E "create_project|OK|SYNTH|DONE|FATAL"; echo "SD build_run.log SYNTH_OK: $(grep -n ^SYNTH_OK $O/build_run.log | cut -c1-250)"; echo "SD build_run.log impl_1 mentions: $(grep -c impl_1 $O/build_run.log)  launch_runs lines:"; grep -n "^# *launch_runs\|launch_runs" $O/build_run.log | cut -c1-160 | sed "s/^/SD   /"; echo "SD runs dirs:"; ls -la $O/proj/stage1.runs/ | sed "s/^/SD   /"; echo "SD impl_1 contents: $(ls -A $O/proj/stage1.runs/impl_1 2>/dev/null | wc -l) entries"; ls -A $O/proj/stage1.runs/impl_1 2>/dev/null | sed "s/^/SD   /"; echo "SD .bit files under the out dir: $(find $O -name "*.bit" | wc -l)"; echo "SD synth_1 markers:"; ls -a $O/proj/stage1.runs/synth_1/ | grep -E "^\.vivado|\.dcp$" | sed "s/^/SD   /"; ls -la --time-style=full-iso $O/proj/stage1.runs/synth_1/bd_wrapper.dcp | sed "s/^/SD   /"; echo "SD synth_1 ERROR lines: $(grep -c ^ERROR $O/proj/stage1.runs/synth_1/runme.log)  CRITICAL WARNING: $(grep -c "^CRITICAL WARNING" $O/proj/stage1.runs/synth_1/runme.log)"; echo "SD proj_busy:"; bash synth/scripts/proj_busy.sh $O/proj | sed "s/^/SD   /"; echo "SD launch_incr check-only:"; LAUNCH_INCR_CHECK_ONLY=1 bash synth/scripts/launch_incr.sh build_046_r3 build_046_r3_incr AltSpreadLogic_high /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp TimingClosure /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_clockroot_9b.xdc 2>&1 | sed "s/^/SD   /"; echo "SD n3201 tail:"; tail -3 evidence/qwen9b/sr/n3201_launch_build_046_r3.log | sed "s/^/SD   /"
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SD build.log:
+SD   === create_project (2e874592) ===
+SD   # puts "CREATE_PROJECT_OK"
+SD   CREATE_PROJECT_OK
+SD   SYNTH_OK: synth_1 100% (synth_only: impl_1 NOT launched, no bitstream) checkpoint: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_046_r3/proj/stage1.runs/synth_1/bd_wrapper.dcp
+SD   === SYNTH DONE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_046_r3 ===
+SD build_run.log SYNTH_OK: 2041:SYNTH_OK: synth_1 100% (synth_only: impl_1 NOT launched, no bitstream) checkpoint: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_046_r3/proj/stage1.runs/synth_1/bd_wrapper.dcp
+SD build_run.log impl_1 mentions: 2  launch_runs lines:
+SD   60:# must {launch_runs synth_1 -jobs 16}
+SD   253:launch_runs: Time (s): cpu = 00:02:15 ; elapsed = 00:02:30 . Memory (MB): peak = 3699.938 ; gain = 2040.609 ; free physical = 31058 ; free virtual = 358337
+SD runs dirs:
+SD   total 661
+SD   drwxrwxr-x 41 cah cah 41 Oct  1 09:31 .
+SD   drwxrwxr-x  8 cah cah  9 Oct  1 09:31 ..
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:38 bd_axil_slice_0_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:38 bd_axil_slice_1_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:38 bd_axil_slice_2_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:39 bd_axil_slice_3_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:33 bd_axil_slice_4_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:34 bd_axil_slice_5_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:34 bd_axil_slice_6_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:41 bd_axil_smc_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:40 bd_axi_smc_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:33 bd_burst_slice_0_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:34 bd_burst_slice_1_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:34 bd_burst_slice_2_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:34 bd_burst_slice_3_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:33 bd_burst_slice_4_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:38 bd_burst_smc_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:39 bd_csr_0_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:39 bd_ddr4_0_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:39 bd_ddr4_1_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:39 bd_ddr4_2_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:39 bd_ddr4_3_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:33 bd_ddr4_c0_reset_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:34 bd_ddr4_c1_reset_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:35 bd_ddr4_c2_reset_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:35 bd_ddr4_c3_reset_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:42 bd_layer_0_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:37 bd_mvchan_0_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:37 bd_mvchan_1_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:38 bd_mvchan_2_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:39 bd_mvchan_3_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:33 bd_perst_inv_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:33 bd_refclk_buf_0_synth_1
+SD   drwxrwxr-x  3 cah cah 22 Oct  1 09:34 bd_seq_0_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:37 bd_smc_ch0_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:39 bd_smc_ch1_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:40 bd_smc_ch2_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:40 bd_smc_ch3_0_synth_1
+SD   drwxrwxr-x  3 cah cah 23 Oct  1 09:39 bd_xdma_0_0_synth_1
+SD   drwxrwxr-x  2 cah cah  3 Oct  1 09:31 .jobs
+SD   drwxrwxr-x  3 cah cah 24 Oct  1 09:45 synth_1
+SD impl_1 contents: 0 entries
+SD .bit files under the out dir: 0
+SD synth_1 markers:
+SD   bd_wrapper.dcp
+SD   .vivado.begin.rst
+SD   .vivado.end.rst
+SD   -rw-rw-r-- 1 cah cah 612768 2026-10-01 09:44:58.692031619 -0600 synth/out_build_046_r3/proj/stage1.runs/synth_1/bd_wrapper.dcp
+SD synth_1 ERROR lines: 0  CRITICAL WARNING: 0
+SD proj_busy:
+SD   PROJ_IDLE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_046_r3/proj
+SD launch_incr check-only:
+SD   PROJ_IDLE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_046_r3/proj
+SD   CHECK_ONLY: arguments and source OK, nothing launched
+SD n3201 tail:
+SD   === SYNTH DONE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_046_r3 ===
+SD   === rc  : 0
+SD   === end : 2026-10-01T09:45:25-06:00
+=== rc  : 0
+=== end : 2026-10-01T09:49:08-06:00

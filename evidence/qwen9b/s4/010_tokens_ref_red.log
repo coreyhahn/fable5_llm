@@ -1,0 +1,63 @@
+=== host: snoke
+=== date: 2026-09-05T03:39:59-06:00
+=== tree: 7609072
+=== cmd:  bash evidence/qwen9b/s4/tokens_ref_red.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+TOKENS_REF_RED: the fabricated documents live in /tmp/s4_tokref_red.fHhcFN and are deleted on exit
+TOKENS_REF_RED: G4A_REPLAY.md records [2380,6362] for tok9b_s1
+--- /tmp/s4_tokref_red.fHhcFN/ambiguous.md
+    # fabricated RED 3 — the document CONTRADICTS ITSELF
+    | `tok9b_s1` | IDENTICAL `[2380,6362]` |
+    | `tok9b_s1` | IDENTICAL `[2381, 6362]` |
+--- /tmp/s4_tokref_red.fHhcFN/silent.md
+    # fabricated RED 2 — a document that records NOTHING for this stem
+    | `some_other_stream` | IDENTICAL `[1, 2]` |
+--- /tmp/s4_tokref_red.fHhcFN/wrong.md
+    # fabricated RED 1 — the same stem, DIFFERENT tokens
+    | `tok9b_s1` | IDENTICAL `[2381, 6362]` |
+
+=== green: --tokens-ref G4A_REPLAY.md, expecting rc 0 and 'TOKENS IDENTICAL TO G4A'
+    === tokens-ref /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g4/G4A_REPLAY.md
+        TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4 (launches 1, 3893746 cycles total, scratch 36864/launch, tokens 2, tcnt 8)
+        TOKENS measured  [2380,6362]
+        TOKENS record    [2380,6362]  (G4A_REPLAY.md)
+        TOKENS IDENTICAL TO G4A
+    --- TOKENS IDENTICAL TO G4A on 1 of 1 seed(s)
+    G4A_REPLAY tok9b_s: ALL PASS
+    rc=0
+
+=== red_wrong: --tokens-ref wrong.md, expecting rc 1 and 'TOKENS DIFFER FROM G4A'
+        TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4 (launches 1, 3893746 cycles total, scratch 36864/launch, tokens 2, tcnt 8)
+        TOKENS measured  [2380,6362]
+        TOKENS record    [2381,6362]  (wrong.md)
+        TOKENS DIFFER FROM G4A — step 0: measured 2380, record 2381
+    --- TOKENS IDENTICAL TO G4A on 0 of 1 seed(s)
+    G4A_REPLAY tok9b_s: FAIL
+    rc=1
+
+=== red_silent: --tokens-ref silent.md, expecting rc 1 and 'TOKENS NO RECORD'
+        TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4 (launches 1, 3893746 cycles total, scratch 36864/launch, tokens 2, tcnt 8)
+        TOKENS measured  [2380,6362]
+        TOKENS NO RECORD in silent.md for tok9b_s1 — a stem
+    --- TOKENS IDENTICAL TO G4A on 0 of 1 seed(s)
+    G4A_REPLAY tok9b_s: FAIL
+    rc=1
+
+=== red_ambig: --tokens-ref ambiguous.md, expecting rc 1 and 'TOKENS RECORD IS AMBIGUOUS'
+        TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/tok9b_s1.e4 (launches 1, 3893746 cycles total, scratch 36864/launch, tokens 2, tcnt 8)
+        TOKENS measured  [2380,6362]
+        TOKENS RECORD IS AMBIGUOUS — ambiguous.md carries
+    --- TOKENS IDENTICAL TO G4A on 0 of 1 seed(s)
+    G4A_REPLAY tok9b_s: FAIL
+    rc=1
+
+TOKENS_REF_RED: PASS — the token compare agrees when it should and
+  REFUSES on a wrong record, a MISSING record and an AMBIGUOUS one
+=== rc: 0
+=== end: 2026-09-05T03:52:28-06:00

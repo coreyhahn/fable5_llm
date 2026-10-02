@@ -1,0 +1,24 @@
+=== host: snoke  date: 2026-09-27T18:45:59-06:00
+=== tree: 9ac0260
+=== cmd : /home/cah/.venv/bin/python sw/chat_seq.py --nch 4 --reorder B --reorder-check
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  reorder    form B: PER IMAGE on the shipped template (static costs at position 0); pins lite c9efdf35175d55d4 full 7119833ca6ed7d1f
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  reorder    form B lite: 38858 -> 38378 records == pin c9efdf35175d55d4; MOVX elided 480, fences deferred 200; hazard assert PASS {'MOVX': 512, 'MVGO': 1248, 'MOVY': 1248, 'FENCE': 312}; postcheck 56205 edges
+  reorder    form B full: 39626 -> 39146 records == pin 7119833ca6ed7d1f; MOVX elided 480, fences deferred 200; hazard assert PASS {'MOVX': 516, 'MVGO': 1370, 'MOVY': 1370, 'FENCE': 343}; postcheck 57194 edges
+  reorder    form B images built in 6.1 s
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38378, full:39146  (7.5s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9096140
+    [B6 shipped] preamble tok=0 pos=0: out [] (0 s)
+    [B6 shipped] lite tok=760 pos=0: out [] (129 s)
+    [B6 shipped] full tok=2614 pos=1: out [513] (148 s)
+    [B6 reordered] preamble tok=0 pos=0: out [] (0 s)
+    [B6 reordered] lite tok=760 pos=0: out [] (123 s)
+    [B6 reordered] full tok=2614 pos=1: out [513] (146 s)
+  B6 model gate: PASS — tokens [[], [], [513]] vs [[], [], [513]]; state diff []; 548.9 s
+REORDER CHECK: PASS
+=== rc  : 0
+=== end : 2026-09-27T18:55:17-06:00

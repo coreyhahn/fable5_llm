@@ -1,0 +1,139 @@
+=== host: snoke  date: 2026-09-27T09:27:02-06:00
+=== tree: 910a4a4+dirty
+=== dirty:  M evidence/qwen9b/bm/bm1_reorder_tdd.py
+=== dirty:  M evidence/qwen9b/ov/s1p_compare.py
+=== dirty:  M evidence/qwen9b/ov/s1p_formB_tdd.py
+=== dirty:  M ref/seq_cost.py
+=== dirty:  M sw/chat_seq.py
+=== dirty: ?? evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bmtl/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_control/
+=== dirty: ?? evidence/qwen9b/ov/s1p_reorderA_nocsv.py
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/ov/s1p_compare.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH its manifest, 158536 records
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+
+=== model_9b_s1 form B  (per segment; csv | static)
+  seg 0 39..39662: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 200 | 200 (both 200, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 28597062 cyc = 114.388 ms | static 28595941 = 114.384 ms (-0.004 %) | static ORDER at csv costs 28597062 = 114.388 ms (+0.000 %; postcheck 57203 edges, 0 violations);  program order csv 32771865 static 32771288
+  seg 1 39663..79285: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 200 | 200 (both 200, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 28601957 cyc = 114.408 ms | static 28600929 = 114.404 ms (-0.004 %) | static ORDER at csv costs 28601957 = 114.408 ms (+0.000 %; postcheck 57202 edges, 0 violations);  program order csv 32776832 static 32776276
+  seg 2 79286..118910: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 200 | 200 (both 200, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 28607197 cyc = 114.429 ms | static 28605925 = 114.424 ms (-0.004 %) | static ORDER at csv costs 28607197 = 114.429 ms (+0.000 %; postcheck 57203 edges, 0 violations);  program order csv 32782160 static 32781274
+  seg 3 118911..158534 BODY: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 200 | 200 (both 200, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 28612019 cyc = 114.448 ms | static 28610952 = 114.444 ms (-0.004 %) | static ORDER at csv costs 28612019 = 114.448 ms (+0.000 %; postcheck 66023 edges, 0 violations);  program order csv 32786868 static 32786299
+  WHOLE RUN (x3 body, outside 15360 cyc): csv 171657633 cyc = 114.438 ms/token | static 171651011 = 114.434 ms/token (-0.004 %) | static order at csv costs 171657633 = 114.438 ms/token (+0.000 %)
+  vs the committed SV1 prediction 114.438 ms/token: static -0.004 ms (-0.003 %); static order at csv costs +0.000 %
+  totals over 4 segments: MOVX elided 1920 | 1920;  deferred 800 | 800 (both 800, only csv 0, only static 0)
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  whole-stream reorder, cost csv: 156616 records, sha256 57ec3051a0d6e68e, hazard assert PASS {'MOVX': 2064, 'MVGO': 5480, 'MOVY': 5480, 'FENCE': 1372}
+  whole-stream reorder, cost static: 156616 records, sha256 57ec3051a0d6e68e, hazard assert PASS {'MOVX': 2064, 'MVGO': 5480, 'MOVY': 5480, 'FENCE': 1372}
+  output streams IDENTICAL (60 s)
+  PIN model_9b_s1_reordB: 57ec3051a0d6e68ee689859bc020b44001bcce6323b8d5c78415055853bee4da  csv == static == pin: PASS
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+
+=== model_9b_s1 form A  (per segment; csv | static)
+  seg 0 39..39662: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 216 | 216 (both 216, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 29471154 cyc = 117.885 ms | static 29470032 = 117.880 ms (-0.004 %) | static ORDER at csv costs 29471154 = 117.885 ms (+0.000 %; postcheck 55002 edges, 0 violations);  program order csv 32771865 static 32771288
+  seg 1 39663..79285: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 216 | 216 (both 216, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 29476071 cyc = 117.904 ms | static 29475020 = 117.900 ms (-0.004 %) | static ORDER at csv costs 29476071 = 117.904 ms (+0.000 %; postcheck 55001 edges, 0 violations);  program order csv 32776832 static 32776276
+  seg 2 79286..118910: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 216 | 216 (both 216, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 29481300 cyc = 117.925 ms | static 29480018 = 117.920 ms (-0.004 %) | static ORDER at csv costs 29481300 = 117.925 ms (+0.000 %; postcheck 55003 edges, 0 violations);  program order csv 32782160 static 32781274
+  seg 3 118911..158534 BODY: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 216 | 216 (both 216, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 29486120 cyc = 117.944 ms | static 29485043 = 117.940 ms (-0.004 %) | static ORDER at csv costs 29486120 = 117.944 ms (+0.000 %; postcheck 55002 edges, 0 violations);  program order csv 32786868 static 32786299
+  WHOLE RUN (x3 body, outside 15360 cyc): csv 176902245 cyc = 117.935 ms/token | static 176895559 = 117.930 ms/token (-0.004 %) | static order at csv costs 176902245 = 117.935 ms/token (+0.000 %)
+  vs the committed SV1 prediction 117.935 ms/token: static -0.005 ms (-0.004 %); static order at csv costs -0.000 %
+  totals over 4 segments: MOVX elided 1920 | 1920;  deferred 864 | 864 (both 864, only csv 0, only static 0)
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  whole-stream reorder, cost csv: 156616 records, sha256 b6ced3f92d3fe8c3, hazard assert PASS {'MOVX': 2064, 'MVGO': 5480, 'MOVY': 5480, 'FENCE': 1372}
+  whole-stream reorder, cost static: 156616 records, sha256 b6ced3f92d3fe8c3, hazard assert PASS {'MOVX': 2064, 'MVGO': 5480, 'MOVY': 5480, 'FENCE': 1372}
+  output streams IDENTICAL (59 s)
+  PIN model_9b_s1_reordA: b6ced3f92d3fe8c3fbb1bd02a3eda3b561478e4733ffd40a25ce1bd862ab319d  csv == static == pin: PASS
+=== model_9b_s2.e4.seq sha256 dae5873430562646 MATCH its manifest, 79289 records
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39663) <- template tok3 (79286..118910) windows
+    segment 1 (39664..79287) <- template tok4 (118911..158534) windows
+
+=== model_9b_s2 form B  (per segment; csv | static)
+  seg 0 39..39663: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 200 | 200 (both 200, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 28607197 cyc = 114.429 ms | static 28595941 = 114.384 ms (-0.039 %) | static ORDER at csv costs 28607197 = 114.429 ms (+0.000 %; postcheck 57203 edges, 0 violations);  program order csv 32782160 static 32771290
+  seg 1 39664..79287 BODY: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 200 | 200 (both 200, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 28612019 cyc = 114.448 ms | static 28600968 = 114.404 ms (-0.039 %) | static ORDER at csv costs 28612019 = 114.448 ms (+0.000 %; postcheck 66023 edges, 0 violations);  program order csv 32786868 static 32776315
+  WHOLE RUN (x5 body, outside -8830 cyc): csv 171658462 cyc = 114.439 ms/token | static 171591951 = 114.395 ms/token (-0.039 %) | static order at csv costs 171658462 = 114.439 ms/token (+0.000 %)
+  totals over 2 segments: MOVX elided 960 | 960;  deferred 400 | 400 (both 400, only csv 0, only static 0)
+    segment 0 (39..39663) <- template tok3 (79286..118910) windows
+    segment 1 (39664..79287) <- template tok4 (118911..158534) windows
+  whole-stream reorder, cost csv: 78329 records, sha256 e883a016e1ee5e2b, hazard assert PASS {'MOVX': 1032, 'MVGO': 2740, 'MOVY': 2740, 'FENCE': 686}
+  whole-stream reorder, cost static: 78329 records, sha256 e883a016e1ee5e2b, hazard assert PASS {'MOVX': 1032, 'MVGO': 2740, 'MOVY': 2740, 'FENCE': 686}
+  output streams IDENTICAL (29 s)
+  PIN model_9b_s2_reordB: e883a016e1ee5e2bf2608b72747e6a9dbaa4e6149ee712241de1b5221ce7790b  csv == static == pin: PASS
+    segment 0 (39..39663) <- template tok3 (79286..118910) windows
+    segment 1 (39664..79287) <- template tok4 (118911..158534) windows
+
+=== model_9b_s2 form A  (per segment; csv | static)
+  seg 0 39..39663: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 216 | 216 (both 216, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 29481300 cyc = 117.925 ms | static 29470034 = 117.880 ms (-0.038 %) | static ORDER at csv costs 29481300 = 117.925 ms (+0.000 %; postcheck 55003 edges, 0 violations);  program order csv 32782160 static 32771290
+  seg 1 39664..79287 BODY: MOVX elided 480 | 480;  fences 343 | 343 (same drained sets: True);  DEFERRED 216 | 216 (both 216, only csv 0, only static 0);  same emitted order: True
+      makespan: csv 29486120 cyc = 117.944 ms | static 29475059 = 117.900 ms (-0.038 %) | static ORDER at csv costs 29486120 = 117.944 ms (+0.000 %; postcheck 55002 edges, 0 violations);  program order csv 32786868 static 32776315
+  WHOLE RUN (x5 body, outside -8830 cyc): csv 176903070 cyc = 117.935 ms/token | static 176836499 = 117.891 ms/token (-0.038 %) | static order at csv costs 176903070 = 117.935 ms/token (+0.000 %)
+  totals over 2 segments: MOVX elided 960 | 960;  deferred 432 | 432 (both 432, only csv 0, only static 0)
+    segment 0 (39..39663) <- template tok3 (79286..118910) windows
+    segment 1 (39664..79287) <- template tok4 (118911..158534) windows
+  whole-stream reorder, cost csv: 78329 records, sha256 fcc508f5b8e284ea, hazard assert PASS {'MOVX': 1032, 'MVGO': 2740, 'MOVY': 2740, 'FENCE': 686}
+  whole-stream reorder, cost static: 78329 records, sha256 fcc508f5b8e284ea, hazard assert PASS {'MOVX': 1032, 'MVGO': 2740, 'MOVY': 2740, 'FENCE': 686}
+  output streams IDENTICAL (29 s)
+  PIN model_9b_s2_reordA: fcc508f5b8e284ea1cfd8bdd1d56c36043bae213ae02a09cb9054541f961e3aa  csv == static == pin: PASS
+
+=== chat step images (shipped template, pos_mode ldc, emitter space)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+  lite (38858 records): csv path REFUSES — ReorderError: segment 0 (3..38856) matches no template segment's skeleton — no measured windows for it
+  lite form B: static path reorders it — 38378 records, MOVX elided 480, fences 312 deferred 200, program order 30209477 cyc = 120.838 ms -> 26034134 = 104.137 ms (x1.1604); hazard PASS
+  lite form A: static path reorders it — 38378 records, MOVX elided 480, fences 312 deferred 216, program order 30209477 cyc = 120.838 ms -> 26908221 = 107.633 ms (x1.1227); hazard PASS
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+  full (39626 records): csv path REFUSES — ReorderError: segment 0 (3..39624) matches no template segment's skeleton — no measured windows for it
+  full form B: static path reorders it — 39146 records, MOVX elided 480, fences 343 deferred 200, program order 32771280 cyc = 131.085 ms -> 28595937 = 114.384 ms (x1.1460); hazard PASS
+  full form A: static path reorders it — 39146 records, MOVX elided 480, fences 343 deferred 216, program order 32771280 cyc = 131.085 ms -> 29470024 = 117.880 ms (x1.1120); hazard PASS
+
+S1P_COMPARE: DONE
+=== rc  : 0
+=== end : 2026-09-27T09:30:20-06:00

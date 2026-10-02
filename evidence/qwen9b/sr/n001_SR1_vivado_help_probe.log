@@ -1,0 +1,1313 @@
+=== host: snoke  date: 2026-09-27T16:20:24-06:00
+=== tree: 45deebf
+=== cmd : bash -c source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh >/dev/null && cd /tmp/sr1_help_VhTB && exec vivado -mode batch -nolog -nojournal -source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr1_help_probe.tcl -tclargs /tmp/sr1_help_VhTB
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Sun Sep 27 16:20:26 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/sr1_help_probe.tcl
+# set sd [lindex $argv 0]
+# foreach c {read_checkpoint place_design route_design phys_opt_design report_incremental_reuse} {
+#     puts "SRH ================ help $c"
+#     puts [help $c]
+# }
+SRH ================ help read_checkpoint
+read_checkpoint
+
+Description: 
+Read a design checkpoint
+
+Syntax: 
+read_checkpoint  [-cell <arg>] [-incremental] [-directive <arg>]
+                 [-auto_incremental] [-fix_objects <args>]
+                 [-dcp_cell_list <args>] [-force_incr] [-quiet] [-verbose]
+                 [<file>]
+
+Usage: 
+  Name                 Description
+  --------------------------------
+  [-cell]              Replace this cell with the checkpoint. The cell must 
+                       be a black box.
+  [-incremental]       Input design checkpoint file to be used for re-using 
+                       implementation.
+  [-directive]         Mode of behavior (directive) for this command. Please 
+                       refer to Arguments section of this help for values for
+                       this option.
+                       Default: RuntimeOptimized
+  [-auto_incremental]  Enters automatic mode for incremental compile. This is
+                       less aggressive than the standard incremental mode and
+                       will readily switch from incremental algorithms to the
+                       default algorithms if results might not be maintained.
+                       Should not be used with -reuse_objects.
+  [-fix_objects]       Fix only given list of cells, clock regions, SLRs or 
+                       Design
+  [-dcp_cell_list]     A list of cell/dcp pairs, e.g. {<cell1> <dcp1> <cell2>
+                       <dcp2>}. The option value should be in curly braces.
+  [-force_incr]        Force switch to forcefully run incremental flow 
+                       irrespective of rule/ML based criteria
+  [-quiet]             Ignore command errors
+  [-verbose]           Suspend message limits during command execution
+  [<file>]             Design checkpoint file
+
+Categories: 
+FileIO
+
+Description:
+
+  Reads a design checkpoint file (DCP) that contains the netlist,
+  constraints, and may optionally have the placement and routing information
+  of an implemented design. You can save design checkpoints at any stage in
+  the design using the write_checkpoint command.
+
+  The read_checkpoint command simply reads the associated checkpoint file,
+  without opening a design or project in-memory. To create a project from the
+  imported checkpoint, use the open_checkpoint command instead of
+  read_checkpoint, or use the link_design command after read_checkpoint to
+  open the in-memory design from the checkpoint or checkpoint files currently
+  read.
+
+  Note: When multiple design checkpoints are open in the AMD Vivado Design
+  Suite, you must use the current_project command to switch between the
+  open designs. You can use current_design to check which checkpoint is the
+  active design.
+
+  Important: The -incremental switch is not intended to merge two DCP files
+  into a single design. It applies the placement and routing of the
+  incremental checkpoint to the netlist objects in the current design.
+
+  After loading an incremental design checkpoint, you can use the
+  report_incremental_reuse command to determine the percentage of physical
+  data reused from the incremental checkpoint, in the current design. The
+  place_design and route_design commands will run incremental place and
+  route, preserving reused placement and routing information and
+  incorporating it into the design solution.
+
+  Reading a design checkpoint with -incremental, loads the physical data into
+  the current in-memory design. To clear out the incremental design data, you
+  must either reload the current design, using open_run to open the synthesis
+  run for instance, or read a new incremental checkpoint to overwrite the one
+  previously loaded.
+
+Arguments:
+
+  -cell <arg> - (Optional) Specifies a black box cell in the current design
+  to populate with the netlist data from the checkpoint file being read. This
+  option cannot be used with -incremental, or any of its related options.
+
+  -auto_incremental - (Optional) Enables incremental algorithms only when the
+  quality of the reference checkpoint is high. This allows a user to set this
+  option and let the tool decide whether to run default or incremental
+  algorithms.
+
+  -incremental - (Optional) Load a checkpoint file into an already open
+  design to enable the incremental implementation design flow, where <file>
+  specifies the path and filename of the incremental design checkpoint (DCP)
+  file. In the incremental implementation flow, the placement and routing
+  from the incremental DCP is applied to matching netlist objects in the
+  current design to reuse existing placement and routing. Refer to the Vivado
+  Design Suite User Guide: Implementation (UG904) for more information on
+  incremental implementation.
+
+  -directive [ RuntimeOptimized | TimingClosure | Quick ] - (Optional)
+  Specifies a directive, or mode of operation for the -incremental process.
+
+   *  RuntimeOptimized: The target WNS is the referenced from the incremental
+      DCP. By default, more reuse from the reference checkpoint is
+      encouraged.
+
+   *  TimingClosure: The target WNS is 0. This mode attempts to meet timing
+      at the expense of runtime. Paths not meeting timing will be ripped up
+      and the incremental algorithms will be applied to fix timing on the
+      paths.
+
+   *  Quick: Specifies a low effort, non-timing-driven incremental
+      implementation mode with the fastest runtime.
+
+  -fix_objects - (Optional) When -incremental is specified, mark the
+  placement location of specifed cells as fixed (IS_LOC_FIXED) to prevent
+  changes by the place_design command. This option will fix the placement of
+  the specified list of cells, clock regions, SLRs or the current_design.
+
+  -dcp_cell_list <arg> - (Optional) Lets you specify a list of cell/dcp
+  pairs. This lets you read in multiple DCP files for specified cells in a
+  single run of the read_checkpoint command. The format is specified as a
+  list of cell/DCP pairs enclosed in curly braces: {<cell1> <dcp1> <cell2>
+  <dcp2>}.
+
+  -force_incr - (Optional) When -incremental is specified, forces the
+  incremental flow irrespective of the incremental criteria checks. When
+  -incremental is not specified the incremental flow may exit and continue in
+  non-incremental flow.
+
+  Note: force_incr is only used along with the -incremental switch.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+  <file> - (Required) The path and filename of the checkpoint file to read.
+
+  Note: If the path is not specified as part of the file name, the tool will
+  search for the specified file in the current working directory and then in
+  the directory from which the tool was launched.
+
+Examples:
+
+  The following example imports the specified checkpoint file into the tool,
+  and then links the various design elements to create an in-memory design of
+  the specified name:
+
+    read_checkpoint C:/Data/checkpoint.dcp
+    link_design -name Test1
+
+  This example reads a design checkpoint on top of the current design for
+  incremental place and route of the design:
+
+    read_checkpoint -incremental C:/Data/routed.dcp
+
+  This example reads a design checkpoint. Incremental algorithms will be used
+  only if the timing is nearly met and if there is a high reuse:
+
+    read_checkpoint -auto_incremental C:/Data/routed.dcp
+
+Related Information:
+
+   *  all_dsps
+   *  config_implementation
+   *  current_design
+   *  current_project
+   *  get_cells
+   *  link_design
+   *  open_checkpoint
+   *  report_config_implementation
+   *  write_checkpoint
+
+SRH ================ help place_design
+place_design
+
+Description: 
+Automatically place ports and leaf-level instances
+
+Syntax: 
+place_design  [-directive <arg>] [-subdirective <args>] [-no_timing_driven]
+              [-eco] [-timing_summary] [-unplace] [-post_place_opt] [-no_psip]
+              [-sll_align_opt] [-clock_vtree_type <arg>] [-no_bufg_opt]
+              [-ultrathreads] [-no_noc_opt] [-net_delay_weight <arg>] [-quiet]
+              [-verbose]
+
+Usage: 
+  Name                 Description
+  --------------------------------
+  [-directive]         Mode of behavior (directive) for this command. Please 
+                       refer to Arguments section of this help for values for
+                       this option.
+                       Default: Default
+  [-subdirective]      (Advanced Flow) Mode of behavior (subdirective) for 
+                       this command. Please refer to Arguments section of 
+                       this help for values for this option.
+  [-no_timing_driven]  Do not run in timing driven mode
+  [-eco]               (Advanced Flow) Run placer in ECO mode
+  [-timing_summary]    Enable accurate post-placement timing summary.
+  [-unplace]           Unplace all the instances which are not locked by 
+                       Constraints.
+  [-post_place_opt]    (Not applicable for Advanced Flow) Run only the post 
+                       commit optimizer
+  [-no_psip]           Disable PSIP (Physical Synthesis In Placer) 
+                       optimization during placement.
+  [-sll_align_opt]     (Not applicable for Advanced Flow) Run only the sll 
+                       alignment optimizer in PCO
+  [-clock_vtree_type]  Specify v-tree template to be used in place_design, 
+                       valid values are balanced, intraSLR, interSLR. For the
+                       Advanced Flow, the default is balanced; otherwise, 
+                       default is interSLR.
+  [-no_bufg_opt]       (Not applicable for Advanced Flow) Disable global 
+                       buffer insertion during placement
+  [-ultrathreads]      (Not applicable for Advanced Flow) Enable 
+                       ultra-threads mode to speed up place_design
+  [-no_noc_opt]        To result in better NoC QoS during place_design
+  [-net_delay_weight]  Specify net delay weight to be used, valid options are
+                       low, medium, high
+                       Default: low
+  [-quiet]             Ignore command errors
+  [-verbose]           Suspend message limits during command execution
+
+Categories: 
+Tools
+
+Description:
+
+  Place the specified ports and logic cells in the current design, or all
+  ports and logic cells, onto device resources on the target part. The tool
+  optimizes placement to minimize negative timing slack and reduce overall
+  wire length, while also attempting to spread out placement to reduce
+  routing congestion.
+
+  Placement is one step of the complete design implementation process, which
+  can be run automatically through the use of the launch_runs command when
+  running the Vivado Advanced Flow tools in Project Mode.
+
+  In Non-Project Mode, the implementation process must be run manually with
+  the individual commands: opt_design, place_design, phys_opt_design and
+  route_design. Refer to the Vivado Design Suite User Guide: Design Flows 
+  Overview (UG892) for a complete description of Project Mode and Non-Project 
+  Mode.
+ 
+  Tip: The place_design can be multi-threaded to speed the process. Refer to
+  the set_param command for more information on setting the
+  general.maxThreads parameter.
+
+  You can manually place some elements of the design using place_ports,
+  or by setting LOC properties on the cell, and then automatically place the
+  remainder of the design using place_design.
+
+  This command requires an open synthesized design, and it is recommended
+  that you run the opt_design command prior to running place_design to avoid
+  placing a suboptimal netlist.
+
+Arguments:
+
+  -directive <arg> - (Optional) Direct placement to achieve specific design
+  objectives. Only one directive can be specified for a single place_design
+  command, and values are case-sensitive. Supported values include:
+
+   *  Explore - Increased placer effort in detail placement and
+      post-placement optimization.
+
+   *  AggressiveExplore - Attempt to improve QoR at the expense of runtime.
+      The placer runtime may be significantly higher compared to the Explore
+      directive because the placer uses more aggressive optimization goals
+      to attempt to meet timing requirements.
+
+   *  RuntimeOptimized - Run fewest iterations, trade higher design
+      performance for faster runtime.
+
+   *  Quick - Absolute, fastest runtime, non-timing-driven, performs the
+      minimum required placement for a legal design.
+   
+   *  Default - Run place_design with default settings.
+
+  Important: The -directive option controls the overall placement strategy,
+  and is not compatible with some place_design options. It can be used with
+  -no_psip, -net_delay_weight, -quiet and -verbose. Refer to the Vivado Design Suite User 
+  Guide: Implementation (UG904) for more information on placement strategies
+  and the use of the -directive option.
+
+  -subdirective <args> - (Optional) Affects specific placer phases. The following 
+   placer phases can be controlled with subdirectives:
+
+        floorplanning, global placer, detailed placer
+
+   More than one subdirective may be used at a time. The subdirective option 
+   is incompatible with other options with the exception of -directive, 
+   -no_psip, -net_delay_weight, -clock_vtree_type, -quiet and -verbose.
+
+   The subdirective option has the following format:
+
+       * For available values of low, med and high:
+             <phase>.<sub-directive>.<low|med|high>
+
+       * For all others values, specifying the phase and sub-directive enables 
+         the optimization:
+             <phase>.<sub-directive>
+
+   The supported phase names are Floorplan for the floorplanning phase, GPlace
+   for the global placer phase, and DPlace for the detailed pacer phase. Multiple 
+   sub-directives can be specified through a Tcl list.
+   Supported subdirectives are:
+
+   *  RuntimeOptimized
+         Supported phases: Floorplan, Gplace, Dplace
+         Values: Using option indicates optimization is enabled
+         Improves runtime at the expense of design performance.
+
+   *  ExtraTimingUpdate
+         Supported phases: Floorplan, Gplace, Dplace
+         Values: Using option indicates optimization is enabled
+         Increases the number of timing updates to improve
+         design performance.
+
+   *  ExtraTimingOpt
+         Supported phases: Floorplan, Gplace, Dplace
+         Values: low (default), med, high
+         Improves design performance at the expense
+         of runtime.
+
+   *  BalancedSLR
+         Supported phases: Floorplan
+         Values: low, med (default), high
+         Partitions across SLRs to balance number of cells
+         between SLRs.
+
+   *  ForceSpreading
+         Supported phases: Floorplan, Gplace
+         Values: low (default), med, high
+         Spreads the placement by lowering the target utilization
+         for all block types
+
+   * ReduceCongestion
+         Supported phases: Gplace
+         Values: low (default), med, high
+         Reduces global and pin congestion at the expense of other
+         metrics.
+
+   * WLDrivenBlockPlacement
+         Supported phases: Floorplan, Gplace
+         Values: Using option indicates optimization is enabled
+         Wirelength-driven placement of RAM and DSP blocks.
+         Overrides timing-driven placement by directing the placer
+         to minimize the distance of connections to and from blocks.
+         This directive can improve timing to and from RAM and DSP blocks.
+
+   * ReducePinDensity
+         Supported phases: Dplace
+         Values: low (default), med, high
+         Detail placer tries to reduce pin congestion for CLBs to
+         improve overall router convergence.
+
+   * EarlyBlockPlacement
+         Supported phases: GPlace
+         Values: Using option indicates optimization is enabled
+         The placement of the DSP and BRAM blocks will be fixed
+         earlier in the placer flow.
+
+  -no_timing_driven - (Optional) Disables the default timing driven placement
+  algorithm. This results in a faster placement based on wire lengths, but
+  ignores any timing constraints during the placement process.
+
+  -timing_summary - (Optional) Report the post-placement worst negative slack
+  (WNS) using results from static timing analysis. The WNS value is identical
+  to that of report_timing_summary when run on the post-placement design. By
+  default the placer reports an estimated WNS based on incremental placement
+  updates during the design implementation. The -timing_summary option incurs
+  additional runtime to run a full timing analysis.
+
+  -unplace - (Optional) Unplace all the instances which are not locked by
+  constraints. Cells with fixed placement (IS_LOC_FIXED set to TRUE), are not
+  affected.
+
+  Tip: Use the set_property to change IS_LOC_FIXED to FALSE prior to
+  unplacing fixed cells.
+
+  -no_psip - (Optional) Disable PSIP (Physical Synthesis In Placer)
+  optimization during placement. By default, to improve delay the Vivado 
+  Advanced Flow placer performs optimizations such as replicating drivers of 
+  high-fanout nets and drivers of loads that are far-apart. This option 
+  disables those optimizations.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example directs the Vivado Advanced Flow placer to try different 
+  placement algorithms to achieve a better placement result:
+
+    place_design -directive Explore
+
+  The following example uses the Default directive but enables wirelength
+  driven placement of RAM and DSP blocks during floorplanning.
+
+    place_design -subdirective Floorplan.WLDrivenBlockPlacement
+
+  The following example uses the Default directive but sets instructs the
+  placer to use high effort for SLR balancing in floorplan, reducing congestion
+  in global place and reducing pin density in detailed place.
+
+    place_design -subdirective {Floorplan.BalancedSLR.high GPlace.ReduceCongestion.high DPlace.ReducePinDensity.high}
+
+  This example unplaces the current design:
+
+    place_design -unplace
+
+SRH ================ help route_design
+route_design
+
+Description: 
+Route the current design
+
+Syntax: 
+route_design  [-unroute] [-release_memory] [-nets <args>] [-physical_nets]
+              [-pins <arg>] [-directive <arg>] [-tns_cleanup]
+              [-no_timing_driven] [-preserve] [-delay] [-auto_delay]
+              -max_delay <arg> -min_delay <arg> [-timing_summary] [-finalize]
+              [-ultrathreads] [-eco] [-no_psir] [-quiet] [-verbose]
+
+Usage: 
+  Name                 Description
+  --------------------------------
+  [-unroute]           Unroute whole design or the given nets/pins if used 
+                       with -nets or -pins.
+  [-release_memory]    Release Router memory. Not compatible with any other 
+                       options.
+  [-nets]              Operate on the given nets.
+  [-physical_nets]     Operate on all physical nets.
+  [-pins]              Operate on the given pins.
+  [-directive]         Mode of behavior (directive) for this command. Please 
+                       refer to Arguments section of this help for values for
+                       this option.
+                       Default: Default
+  [-tns_cleanup]       Do optional TNS clean up.
+  [-no_timing_driven]  Do not run in timing driven mode.
+  [-preserve]          Preserve existing routing.
+  [-delay]             Use with -nets or -pins option to route in delay 
+                       driven mode.
+  [-auto_delay]        Use with -nets or -pins option to route in constraint 
+                       driven mode.
+  -max_delay           Use with -pins option to specify the max_delay 
+                       constraint on the pins.When specified -delay is 
+                       implicit.
+  -min_delay           Use with -pins option to specify the max_delay 
+                       constraint on the pins.When specified -delay is 
+                       implicit.
+  [-timing_summary]    Enable post-router signoff timing summary.
+  [-finalize]          finalize route_design in interactive mode.
+  [-ultrathreads]      Enable Turbo mode routing.
+  [-eco]               runs incremental router if there was eco modification 
+                       on routed netlist.
+  [-no_psir]           skips Physical Synthesis in Router phase.
+  [-quiet]             Ignore command errors
+  [-verbose]           Suspend message limits during command execution
+
+Categories: 
+Tools
+
+Description:
+
+  Route the nets in the current design to complete logic connections on the
+  target part.
+
+  Predefined routing strategies can be quickly selected using the
+  route_design -directive command, or specific route options can be
+  configured to define your own routing strategy.
+
+  Routing can be completed automatically with route_design, or can be
+  completed iteratively using the various options of the route_design command
+  to achieve route completion and timing closure. Iterative routing provides
+  you some control over the routing process to route critical nets first and
+  then route less critical nets, and to control the level of effort and the
+  timing algorithms for these various route passes.
+
+  Routing is one step of the complete design implementation process, which
+  can be run automatically through the use of the launch_runs command when
+  running the Vivado tools in Project Mode.
+
+  In Non-Project Mode, the implementation process must be run manually with
+  the individual commands: opt_design, place_design, phys_opt_design,
+  power_opt_design, and route_design. Refer to the Vivado Design Suite User
+  Guide: Design Flows Overview (UG892) for a complete description of Project
+  Mode and Non-Project Mode.
+
+  Tip: The route_design can be multi-threaded to speed the process. Refer to
+  the set_param command for more information on setting the
+  general.maxThreads parameter.
+
+  Both placement and routing can be completed incrementally, based on prior
+  results stored in a Design Checkpoint file (DCP), using the incremental
+  implementation flow. Refer to the read_checkpoint command, or to Vivado
+  Design Suite User Guide: Implementation (UG904) for more information on
+  incremental place and route.
+
+  This command requires a placed design, and it is recommended that you have
+  optimized the design with opt_design prior to placement.
+
+Arguments:
+
+  -unroute <arg> - (Optional) Unroute nets in the design. If no arguments are
+  specified, all nets in the design are unrouted. The route_design command
+  will not route any nets when the -unroute option is specified.
+
+   *  Combine with the -nets option to limit unrouting to a list of nets.
+
+   *  Combine with the -pins option to unroute from a specified pin to the
+      nearest branch of the net.
+
+   *  Combine with the -physical_nets option to unroute all logic 1 and logic
+      0 nets.
+
+  -release_memory - (Optional) Free router memory resources for subsequent
+  route passes. This option does not run route passes, but only releases
+  memory held by the router to reduce router initialization. The router will
+  need to reload design data for subsequent route passes.
+
+  -nets <args> - (Optional) Route or unroute only the specified net objects.
+  Net objects must be specified using the get_nets command.
+
+  Tip: The router uses a quick route approach to find a routing solution for
+  the specified nets, ignoring timing delays, when routing with -nets,
+  -physical_nets, or -pins specified. Use -delay to find a route with the
+  shortest delay.
+
+  -physical_nets - (Optional) Route or unroute only logic zero and logic one
+  nets.
+
+  -pins <args> - (Optional) Route or unroute to the specified pins, which
+  must be input pins. If a specified pin is driven by a multiple fanout net,
+  only the route segment between the net and pin is affected.
+
+  -directive <arg> - (Optional) Direct routing to achieve specific design
+  objectives. Only one directive can be specified for a single route_design
+  command, and values are case-sensitive. Supported values are:
+
+   *  Explore - Causes the Vivado router to explore different critical path
+      routes based on timing, after an initial route.
+
+   *  AggressiveExplore - Directs the router to further expand its
+      exploration of critical path routes while maintaining original timing
+      budgets. The router runtime might be significantly higher compared to
+      the Explore directive as the router uses more aggressive optimization
+      thresholds to attempt to meet timing constraints.
+
+   *  NoTimingRelaxation - Prevents the router from relaxing timing to
+      complete routing. If the router has difficulty meeting timing, it will
+      run longer to try to meet the original timing constraints.
+
+   *  MoreGlobalIterations - Uses detailed timing analysis throughout all
+      stages instead of just the final stages, and will run more global
+      iterations even when timing improves only slightly.
+
+   *  HigherDelayCost - Adjusts the router`s internal cost functions to
+      emphasize delay over iterations, allowing a trade-off of runtime for
+      better performance.
+
+   *  AdvancedSkewModeling - Uses more accurate skew modeling throughout all
+      routing stages which may improve design performance on higher-skew
+      clock networks.
+
+   *  AlternateCLBRouting - (UltraScale only) Chooses alternate routing
+      algorithms that require extra runtime but may help resolve routing
+      congestion.
+
+   *  RuntimeOptimized - Run fewest iterations, trade higher design
+      performance for faster runtime.
+
+   *  Quick - Absolute fastest runtime, non-timing-driven, performs the
+      minimum required routing for a legal design.
+
+   *  Default - Run route_design with default settings.
+
+  Important: The -directive option controls the overall routing strategy, and
+  is not compatible with any specific route_design options, except -preserve
+  and -tns_cleanup. It can also be used with -quiet and -verbose. Only the
+  Explore, Quick, and Default directives are compatible with high reuse
+  designs and the incremental implementation flow as defined by
+  read_checkpoint -incremental. Refer to the Vivado Design Suite User Guide:
+  Implementation (UG904) for more information on the use of the -directive
+  option.
+
+  -tns_cleanup - (Optional) By default, to reduce runtime, the router focuses
+  on optimizing the Worst Negative Slack (WNS) path as opposed to Total
+  Negative Slack (TNS) paths. This option invokes an optional phase at the
+  end of routing where the router attempts to fix the TNS paths, those
+  failing paths other than the WNS path. This option may reduce TNS at the
+  cost of added runtime, but will not affect WNS. The -tns_cleanup option is
+  recommended when using post-route phys_opt_design to ensure that
+  optimization focuses on the WNS path and does not waste effort on TNS paths
+  that can be fixed by the router. This option can be used in combination
+  with -directive.
+
+  -no_timing_driven - (Optional) Disables the default timing driven routing
+  algorithm. This results in faster routing results, but ignores any timing
+  constraints during the routing process.
+
+  -preserve - (Optional) Existing completed routes will be preserved and not
+  subject to the rip-up and reroute phase. This does not apply to routing
+  that is fixed using the IS_ROUTE_FIXED or FIXED_ROUTE properties, which is
+  not subject to being rerouted. Routing is preserved only for the current
+  route_design command.
+
+  Tip: Partially routed nets are subject to rerouting to complete the
+  connection. If you want to preserve the routing of a partially routed net,
+  you should apply the FIXED_ROUTE property to the portion of the route you
+  want to preserve.
+
+  -delay - (Optional) Can only be used in combination with the -nets or -pins
+  options. By default nets are routed to achieve the fastest routing runtime,
+  ignoring timing constraints, when using -nets and -pins options. The -delay
+  option directs the router to try to achieve the shortest routed
+  interconnect delay, but still ignores timing constraints.
+
+  Important: You can specify multiple nets to route at the same time using
+  the -delay option, but this can result in conflicts for routing resources.
+  The Vivado router may create node overlap errors if the nets are in close
+  proximity to each other because the -delay option will reuse routing
+  resources to achieve the shortest routes for all specified nets. Therefore
+  it is recommended to route nets and pins individually using the -delay
+  option, beginning with the most critical.
+
+  -auto_delay - (Optional) Can only be used in combination with the -nets or
+  -pins options. It is recommended to use the -auto_delay option on a placed
+  design, and limit the specified number of nets or pins to less than 100.
+  The -auto_delay option directs the router to prioritize setup and hold
+  critical paths using the defined timing constraints.
+
+  -max_delay <arg> - (Optional) Can only be used with -pins. Directs the
+  router to try to achieve an interconnect delay less than or equal to the
+  specified delay given in picoseconds. When this options is specified, the
+  -delay option is implied.
+
+  Note: The -max_delay and -min_delay options specify the delay limits for
+  the interconnect only, not the logic or intra-site delay. The router
+  attempts to satisfy the delay restrictions on the interconnect.
+
+  -min_delay <arg> - (Optional) Can only be used with -pins. Directs the
+  router to try to achieve an interconnect delay greater than or equal to the
+  specified delay given in picoseconds. When this option is specified, the
+  -delay option is implied.
+
+  -timing_summary - (Optional) By default, the router outputs a final timing
+  summary to the log, based on Vivado router internal estimated timing which
+  might differ slightly from the actual routed timing due to pessimism in the
+  delay estimates. The -timing_summary option forces the router to launch the
+  Vivado static timing analyzer to report the timing summary based on actual
+  routed delays, but incurs additional run time for the static timing
+  analysis. The timing summary consists of the Worst Negative Slack (WNS),
+  Total Negative Slack (TNS), Worst Hold Slack (WHS), and Total Hold Slack
+  (THS). The values are identical to that of report_timing_summary when run
+  on the post-route design.
+
+  Tip: The Vivado static timing analyzer is also launched by the -directive
+  Explore option.
+
+  -finalize - (Optional) When routing interactively you can specify
+  route_design -finalize to complete any partially routed connections.
+
+  -ultrathreads - (Optional) Reduces router runtime at the expense of
+  repeatability. This option enables the router to run faster, but there will
+  be some variation in routing results between otherwise identical runs.
+
+  -eco - (Optional) Run router in incremental mode when there is an eco
+  modification. When in incremental mode, as well as routing new nets, the
+  router can modify existing nets to improve routability and the ability to
+  meet timing. This option can be called by itself, or it can be used with
+  the -no_timing_driven switch or the Quick directive. These options run the
+  router with timing off for a faster result.
+
+  -no_psir - (Optional) Disables Physical Synthesis In Router (PSIR)
+  optimization during route. By default, Vivado router performs interconnect
+  retiming and clock, critical pin, LUT restructure, placement, and routing
+  optimizations to improve delay.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  Route the entire design, and direct the router to try multiple algorithms
+  for improving critical path delay:
+
+    route_design -directive Explore
+
+  The following example routes the set of timing critical nets,
+  $criticalNets, to the shortest interconnect delay, marks the nets as fixed
+  using the IS_ROUTE_FIXED property, and then routes the rest of the design
+  using a low effort directive for fast results:
+
+    route_design -delay -nets $criticalNets
+    set_property IS_ROUTE_FIXED 1 $criticalNets
+    route_design -directive RuntimeOptimized
+
+  Route the specified nets using the fastest runtime:
+
+    route_design -nets [get_nets ctrl0/ctr*]
+
+  Route the specified nets to get the shortest interconnect delays:
+
+    route_design -nets [get_nets ctrl0/ctr*] -delay
+
+  Route to the specified pins:
+
+    route_design -pins [get_pins ctrl0/reset_reg/D ctrl0/ram0/ADDRARDADDR]
+
+  Route to a particular pin, try to achieve less than 500 ps delay:
+
+    route_design -pins [get_pins ctrl0/reset_reg/D] -max_delay 500
+
+  Route to a particular pin, try to achieve more than 200 ps delay:
+
+    route_design -pins [get_pins ctrl0/ram0/ADDRARDADDR] -min_delay 200
+
+See Also:
+
+   *  get_nets
+   *  get_pins
+   *  launch_runs
+   *  opt_design
+   *  phys_opt_design
+   *  place_design
+   *  power_opt_design
+   *  read_checkpoint
+   *  set_property
+   *  write_checkpoint
+
+SRH ================ help phys_opt_design
+phys_opt_design
+
+Description: 
+Optimize the current placed netlist.
+
+Syntax: 
+phys_opt_design  [-fanout_opt] [-placement_opt] [-routing_opt]
+                 [-slr_crossing_opt] [-insert_negative_edge_ffs]
+                 [-restruct_opt] [-interconnect_retime] [-lut_opt] [-casc_opt]
+                 [-cell_group_opt] [-critical_cell_opt] [-dsp_register_opt]
+                 [-bram_register_opt] [-uram_register_opt] [-bram_enable_opt]
+                 [-shift_register_opt] [-hold_fix] [-aggressive_hold_fix]
+                 [-retime] [-force_replication_on_nets <args>]
+                 [-directive <arg>] [-critical_pin_opt] [-clock_opt]
+                 [-path_groups <args>] [-tns_cleanup] [-sll_reg_hold_fix]
+                 [-memory_rewire_opt] [-quiet] [-verbose]
+
+Usage: 
+  Name                          Description
+  -----------------------------------------
+  [-fanout_opt]                 Do cell-duplication based optimization on 
+                                high-fanout timing critical nets
+  [-placement_opt]              Do placement based optimization on timing 
+                                critical nets
+  [-routing_opt]                Do routing based optimization on timing 
+                                critical nets
+  [-slr_crossing_opt]           Do placement optimization of SLR-crossing 
+                                timing critical nets
+  [-insert_negative_edge_ffs]   Insert negative edge triggered FFs for hold 
+                                optimization
+  [-restruct_opt]               Do LUT restructuring optimization
+  [-interconnect_retime]        Do interconnect retiming optimization
+  [-lut_opt]                    Do single LUT replacement/replication 
+                                optimization
+  [-casc_opt]                   Do LUT cascade placement/replication 
+                                optimization
+  [-cell_group_opt]             Do critical cell group optimization
+  [-critical_cell_opt]          Do cell-duplication based optimization on 
+                                timing critical nets
+  [-dsp_register_opt]           Do DSP register optimization
+  [-bram_register_opt]          Do BRAM register optimization
+  [-uram_register_opt]          Do UltraRAM register optimization
+  [-bram_enable_opt]            Do BRAM enable optimization
+  [-shift_register_opt]         Do Shift register optimization
+  [-hold_fix]                   Attempt to improve slack of high hold 
+                                violators
+  [-aggressive_hold_fix]        Attempt to aggressively improve slack of high
+                                hold violators
+  [-retime]                     Do retiming optimization
+  [-force_replication_on_nets]  Force replication optimization on nets
+  [-directive]                  Mode of behavior (directive) for this 
+                                command. Please refer to Arguments section of
+                                this help for values for this option
+                                Default: Default
+  [-critical_pin_opt]           Do pin-swapping based optimization on timing 
+                                critical nets
+  [-clock_opt]                  Do clock skew optimization in post-route 
+                                optimization
+  [-path_groups]                Work only on specified path groups
+  [-tns_cleanup]                Work on all nets in the design that meet 
+                                criteria for the specified optimizations to 
+                                improve design tns
+  [-sll_reg_hold_fix]           Do hold fixing on SLL Tx-Rx paths
+  [-memory_rewire_opt]          Do memory pin-swapping based optimization on 
+                                timing critical nets
+  [-quiet]                      Ignore command errors
+  [-verbose]                    Suspend message limits during command 
+                                execution
+
+Categories: 
+Tools
+
+Description:
+
+  Performs timing-driven optimization on the negative-slack paths of a
+  design. A path should have negative slack near the worst negative slack
+  (WNS) to be considered for optimization. Optimization will not be performed
+  on designs without negative slack.
+
+  This optional command can be run for post-place or post-route optimizations.
+
+  Note: Because physical optimization requires timing data that is only
+  available after placement, the command cannot be run prior to placement.
+  However, the write_iphys_opt_tcl and read_iphys_opt_tcl commands let you
+  write out the physical optimizations performed on the post-placed design,
+  and then apply those optimizations to the design netlist prior to
+  placement. Refer to the Vivado Design Suite User Guide: Implementation
+  (UG904) for more information on interactive physical optimization.
+
+  Post-place phys_opt_design performs the following optimizations by default:
+
+   *  high-fanout optimization
+
+   *  placement-based optimization of critical paths
+
+   *  LUT restructure optimization
+
+   *  critical-cell optimization
+
+   *  DSP register optimization
+
+   *  Block RAM register optimization
+
+   *  URAM register optimization
+
+   *  a final fanout optimization
+
+  Tip: Using command-line options for specific optimizations results in
+  phys_opt_design performing only the specified optimizations and disabling
+  all others, even the ones that are usually performed by default.
+
+  Post-route phys_opt_design performs the following optimizations by default:
+
+   *  placement-based optimization of critical paths
+
+   *  routing optimization
+
+   *  LUT restructure optimization
+
+   *  critical-cell optimization
+
+  Physical optimizations involve replication, re-timing, hold fixing, and
+  placement improvement. The phys_opt_design command automatically performs
+  all necessary netlist and placement changes.
+
+  To perform re-timing you must specify the -retime option, or the -directive
+  AddRetime option.
+
+  To perform hold fixing you must specify the -hold_fix option, or the
+  -directive ExploreWithHoldFix option.
+
+  If the phys_opt_design command is used iteratively, the subsequent run
+  optimizes the results of the prior run.
+
+  Tip: The phys_opt_design can be multi-threaded to speed the process. Refer
+  to the set_param command for more information on setting the
+  general.maxThreads parameter.
+
+  The command reports each net processed, a summary of any optimizations
+  performed, and the WNS before and after optimization. Replicated objects
+  are named by appending _replica to the original object name, followed by
+  the replicated object count.
+
+Arguments:
+
+  -fanout_opt - (Optional) Performs delay-driven optimization on high-fanout
+  timing critical nets, by replicating drivers to reduce delay. This is not
+  applicable for Versal adaptive SoC devices.
+
+  Note: The -fanout_opt argument is optional, as are the other optimizations.
+  However this optimization is run by default unless explicitly overridden by
+  another optimization.
+
+  -placement_opt - (Optional) Moves cells to reduce delay on timing-critical
+  nets. This is not applicable for Versal adaptive SoC devices.
+
+  -memory_rewire_opt - (Optional) Performs rewiring of critical signals to
+  faster pins of BRAM/URAM. Not applicable for cascaded and ECC enabled
+  memories. This is applicable to Versal adaptive SoC devices only.
+
+  -routing_opt - (Optional) Performs routing optimization on timing-critical
+  nets to reduce delay.
+
+  -slr_crossing_opt - (Optional) Performs post-place or post-route
+  optimizations to improve the path delay of inter-SLR connections. The
+  optimization adjusts the locations of the driver, load, or both along the
+  SLR crossing after potential replication. For use with UltraScale and
+  UltraScale+ devices.
+
+  -restruct_opt - (Optional) Advanced LUT restructure optimization to reduce
+  logic levels and reduce delay on critical signals.
+
+  -insert_negative_edge_ffs - (Optional) Inserts negative edge triggered FFs
+  for hold optimization. This is not applicable for the Advanced Flow.
+
+  -interconnect_retime - (Optional) Performs interconnect retiming to improve
+  critical path timing by movement or replication of a FF or LUT-FF pair.
+  This is applicable to Versal adaptive SoC devices only.
+
+  -lut_opt - (Optional) Performs LUT movement/replication to improve critical
+  path timing. This is applicable to Versal adaptive SoC devices only.
+
+  -casc_opt- (Optional) Performs LUT cascade optimization for creating new
+  LUT cascades or moving existing LUT cascades to improve critical path
+  timing. This is applicable to Versal adaptive SoC devices only.
+
+  -critical_cell_opt - (Optional) Replicates cells on timing critical nets to
+  reduce delays. This is not applicable for Versal adaptive SoC devices.
+
+  -dsp_register_opt - (Optional) Improves critical path delay by moving
+  registers from slices to DSP blocks, or from DSP blocks to slices.
+
+  -bram_register_opt - (Optional) Improves critical path delay by moving
+  registers from slices to block RAMs, or from block RAMs to slices.
+
+  -uram_register_opt - (Optional) Improves critical path delay by moving
+  registers across the URAM cell boundary, from slices into URAMs, or from
+  URAMs to slices.
+
+  -bram_enable_opt - (Optional) The block RAM enable optimization improves
+  timing on critical paths involving power-optimized block RAMs.
+  Pre-placement block RAM power optimization restructures the logic driving
+  block RAM read and write enable inputs to reduce dynamic power consumption.
+  After placement the restructured logic may become timing-critical. The
+  block RAM enable optimization reverses the enable-logic optimization to
+  improve the slack on the critical enable-logic paths. This is not
+  applicable for Advanced flow.
+
+  -shift_register_opt - (Optional) Performs shift register optimization to
+  improve timing on negative slack paths between shift register cells (SRLs)
+  and other logic cells. If there are timing violations to or from shift
+  register cells (SRL16E or SRLC32E), the optimization extracts a register
+  from the beginning or end of the SRL register chain and places it into the
+  logic fabric to improve timing. The optimization shortens the wire length
+  of the original critical path. Refer to the Vivado Design Suite User Guide:
+  Implementation (UG904) for more information.
+
+  -hold_fix - (Optional) Performs optimizations to insert data path delay to
+  fix hold time violations.
+
+  -aggressive_hold_fix - (Optional) Performs optimizations to insert data
+  path delay to fix hold time violations. Considers significantly more hold
+  violations than the standard hold fix algorithm.
+
+  -retime - (Optional) Re-time registers forward through combinational logic
+  to balance path delays. This is a property-driven optimization.
+
+  -force_replication_on_nets <args> - (Optional) Forces the drivers of the
+  specified net objects to be replicated, regardless of timing slack. This
+  option requires the use of the get_nets command to specify net objects.
+  Replication is based on load placements and requires manual analysis to
+  determine if replication is sufficient. If further replication is required,
+  nets can be replicated repeatedly by successive commands. This is not
+  applicable for Advanced Flow.
+
+  -directive <arg> - (Optional) Directs the mode of physical optimization
+  with specific design objectives. Only one directive can be specified for a
+  single phys_opt_design command and the values are case-sensitive. Supported
+  values include:
+
+   *  Explore - Run different algorithms in multiple passes of optimization,
+      including replication for very high fanout nets.
+
+   *  ExploreWithHoldFix - Run different algorithms in multiple passes of
+      optimization, including hold violation fixing and replication for very
+      high fanout nets.
+
+   *  ExploreWithAggressiveHoldFix - Run different algorithms in multiple
+      passes of optimization, including aggressive hold violation fixing and
+      replication for very high fanout nets.
+
+   *  AggressiveExplore - Similar to Explore but with different optimization
+      algorithms and more aggressive goals.
+
+   *  AlternateReplication - Use different algorithms for performing critical
+      cell replication. This is not applicable for Advanced Flow.
+
+   *  AggressiveFanoutOpt - Uses different algorithms for fanout-related
+      optimizations with more aggressive goals. This is not applicable for
+      Advanced Flow.
+
+   *  AlternateFlowWithRetiming - Perform more aggressive replication and DSP
+      and Block RAM optimizations, and enable register re-timing. This is not
+      applicable for Advanced Flow.
+
+   *  AddRetime - Performs the default phys_opt_design flow and adds
+      re-timing. This is not applicable for Advanced Flow.
+
+   *  RuntimeOptimized - Provides a reduced set of physical optimizations
+      with the shortest runtime. Use this directive when compile time
+      reduction is more important than design performance. RuntimeOptimized
+      includes fanout_opt, critical_cell_opt, placement_opt, and
+      bram_enable_opt.
+
+   *  RQS - Instructs phys_opt_design to select the phys_opt_design directive
+      specified by the report_qor_suggestion strategy suggestion. Requires an
+      RQS file with a strategy suggestion to be read in prior to calling this
+      directive. This is not applicable for Advanced Flow. See
+      report_qor_suggestions -help for more details.
+
+   *  Default - Run phys_opt_design with default settings.
+
+  Refer to the Vivado Design Suite User Guide: Implementation (UG904) for
+  more information on the effects of each directive.
+
+  Note: The -directive option controls the overall optimization strategy, and
+  is not compatible with any specific optimization options. It can only be
+  used with -quiet and -verbose.
+
+  -critical_pin_opt - For LUT inputs, this optimization performs remapping of
+  logical pins to physical pins, also known as pin-swapping, to improve
+  critical path timing. A critical path traversing a logical pin that has
+  been mapped to a slow physical pin, such as A1 or A2, is reassigned to a
+  faster physical pin, such as A6 or A5 if it improves timing.
+
+  Note: A cell with a LOCK_PINS property will be skipped and the cell will
+  retain the pin mapping specified by LOCK_PINS. Logical-to-physical pin
+  mapping can be obtained with get_site_pins for a selected logical pin
+  object.
+
+  -clock_opt - (Optional) Perform clock skew optimization during post-route
+  optimization. Insert global clock buffers to delay destination clocks to
+  improve setup on critical paths. Optimization will modify CLK_MOD delays
+  for Versal devices.
+
+  -path_groups <args> - (Optional) Perform optimizations on the specified
+  path groups only.
+
+  -tns_cleanup - (Optional) This option can be used with the
+  -slr_crossing_opt option. This performs a Total Negative Slack (TNS)
+  cleanup, which supports optimizing SLR crossing paths while allowing some
+  slack degradation on other paths, as long as the overall WNS does not
+  degrade. This is applicable to UltraScale and UltraScale+ devices.
+
+  -sll_reg_hold_fix - (Optional) Performs SLL register hold fix optimization.
+  You can use this option when the router is having trouble resolving hold
+  violations on SLR crossing paths. This is not applicable for Versal
+  adaptive SoC devices.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example performs a physical optimization of the current
+  post-placement design, and then writes the iphys_opt Tcl script for use
+  before placement:
+
+    phys_opt_design
+    write_iphys_opt_tcl C:/Data/my_iphys_opt.tcl
+
+  This example sets the LOCK_PINS property on the specified cell, then
+  performs physical optimizations including register re-timing, optimization
+  of registers across DSP blocks and block RAMs, and pin swapping (excluding
+  the locked pins) to improve timing:
+
+    set_property LOCK_PINS {I3:A1 I2:A4} [get_cell cpuEngine/qmem_dack_reg_i_1]
+    phys_opt_design -retime -dsp_register_opt -bram_register_opt \
+       -critical_pin_opt
+
+  This example directs phys_opt_design to run more iterations, with hold
+  violation fixing, to achieve potentially better results:
+
+    phys_opt_design -directive ExploreWithHoldFix
+
+  This example directs phys_opt_design to consider more nets for replication:
+
+    phys_opt_design -directive AggressiveFanoutOpt
+
+See Also:
+
+   *  get_pins
+   *  get_site_pins
+   *  opt_design
+   *  place_design
+   *  power_opt_design
+   *  read_iphys_opt_tcl
+   *  route_design
+   *  write_iphys_opt_tcl
+
+SRH ================ help report_incremental_reuse
+report_incremental_reuse
+
+Description: 
+Compute achievable incremental reuse for the given design-checkpoint and report
+
+Syntax: 
+report_incremental_reuse  [-file <arg>] [-append] [-cells <args>]
+                          [-hierarchical] [-hierarchical_depth <arg>]
+                          [-return_string] [-quiet] [-verbose]
+
+Usage: 
+  Name                   Description
+  ----------------------------------
+  [-file]                Filename to output results to. (send output to 
+                         console if -file is not used)
+  [-append]              Append to existing file
+  [-cells]               Report incremental reuse of given list of cells
+  [-hierarchical]        Generates text-based hierarchical incremental reuse 
+                         report.
+  [-hierarchical_depth]  Specifies the depth level for textual hierachical 
+                         incremental reuse report
+                         Default: 0
+  [-return_string]       Return report as string
+  [-quiet]               Ignore command errors
+  [-verbose]             Suspend message limits during command execution
+
+Categories: 
+Report
+
+Description:
+
+  For use with the incremental implementation flow, this command reports on
+  the amount of design overlap between the current design and an incremental
+  checkpoint loaded using the read_checkpoint -incremental command.
+
+  This report analyzes the loaded incremental checkpoint against the current
+  design to see if the two are sufficiently correlated to drive incremental
+  placement and routing. A low correlation between the current design and the
+  checkpoint should discourage using the checkpoint as a basis for
+  incremental place and route. Refer to the Vivado Design Suite User Guide:
+  Implementation (UG904) for more information on incremental place and route.
+
+  If there is a low correlation of reuse between the current design and the
+  loaded incremental checkpoint, you will need to restore the original design
+  using open_run or read_checkpoint. Alternatively, you can overload the
+  incremental checkpoint in the current design by issuing the read_checkpoint
+  -incremental command again to specify a new incremental checkpoint.
+
+  For Dynamic Function eXchange (DFX) designs, the % of cells matching in
+  Reconfigurable Modules (RM) are reported, the % of cells reused in RMs, and
+  the % of cells fixed in RMs are also reported. There is also a
+  Reconfigurable Modules Summary table added to the report.
+
+Arguments:
+
+  -file <arg> - (Optional) Write the report into the specified file. The
+  specified file will be overwritten if one already exists, unless -append is
+  also specified. By default, the report will be written to the Tcl console.
+
+  Note: If the path is not specified as part of the file name, the file will
+  be written into the current working directory, or the directory from which
+  the tool was launched.
+
+  -append - (Optional) Append the output of the command to the specified file
+  rather than overwriting it.
+
+  Note: The -append option can only be used with the -file option.
+
+  -cells <args> - (Optional) Specifies the cells to use from the DCP file.
+
+  -hierarchical - (Optional) Generate a text-based hierarchical incremental
+  reuse report.
+
+  -hierarchical_depth <arg> - (Optional) Specifies the depth level for the
+  text-based hierarchical incremental reuse report. The default is 0.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. The Tcl string can be captured by a variable
+  definition and parsed or otherwise processed.
+
+  Note: This argument cannot be used with the -file option.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example loads an incremental checkpoint into the current
+  design, and then reports the correlation of the loaded incremental
+  checkpoint to the current design:
+
+    read_checkpoint -incremental C:/Data/reuse_checkpoint1.dcp
+    report_incremental_reuse
+
+See Also:
+
+   *  open_run
+   *  place_design
+   *  read_checkpoint
+   *  route_design
+
+# create_project -force srh_probe $sd/srh_probe -part xcvu9p-fsgd2104-2L-e
+create_project: Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 1500.926 ; gain = 73.910 ; free physical = 119701 ; free virtual = 374564
+# set r [get_runs impl_1]
+# puts "SRH ================ list_property impl_1 (INCREMENTAL / AUTO / DIRECTIVE / PHYS_OPT rows)"
+SRH ================ list_property impl_1 (INCREMENTAL / AUTO / DIRECTIVE / PHYS_OPT rows)
+# foreach p [lsort [list_property $r]] {
+#     if {[regexp -nocase {INCREMENTAL|AUTO_INCR|DIRECTIVE|PHYS_OPT|PLACE_DESIGN\.ARGS|ROUTE_DESIGN\.ARGS} $p]} {
+#         puts [format "SRH_PROP %-60s = '%s'" $p [get_property $p $r]]
+#     }
+# }
+SRH_PROP AUTO_INCREMENTAL_CHECKPOINT                                  = '0'
+SRH_PROP AUTO_INCREMENTAL_CHECKPOINT.DIRECTORY                        = '/tmp/sr1_help_VhTB/srh_probe/srh_probe.srcs/utils_1/imports/impl_1'
+SRH_PROP INCREMENTAL_CHECKPOINT                                       = ''
+SRH_PROP INCREMENTAL_CHECKPOINT.DIRECTIVE                             = ''
+SRH_PROP INCREMENTAL_CHECKPOINT.MORE_OPTIONS                          = ''
+SRH_PROP STEPS.OPT_DESIGN.ARGS.DIRECTIVE                              = 'Default'
+SRH_PROP STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE                         = 'Default'
+SRH_PROP STEPS.PHYS_OPT_DESIGN.ARGS.MORE OPTIONS                      = ''
+SRH_PROP STEPS.PHYS_OPT_DESIGN.IS_ENABLED                             = '1'
+SRH_PROP STEPS.PHYS_OPT_DESIGN.REPORTS                                = 'impl_1_phys_opt_report_timing_summary_0'
+SRH_PROP STEPS.PHYS_OPT_DESIGN.TCL.POST                               = ''
+SRH_PROP STEPS.PHYS_OPT_DESIGN.TCL.PRE                                = ''
+SRH_PROP STEPS.PLACE_DESIGN.ARGS.DIRECTIVE                            = 'Default'
+SRH_PROP STEPS.PLACE_DESIGN.ARGS.MORE OPTIONS                         = ''
+SRH_PROP STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE              = 'Default'
+SRH_PROP STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.MORE OPTIONS           = ''
+SRH_PROP STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED                  = '0'
+SRH_PROP STEPS.POST_ROUTE_PHYS_OPT_DESIGN.REPORTS                     = 'impl_1_post_route_phys_opt_report_timing_summary_0 impl_1_post_route_phys_opt_report_bus_skew_0'
+SRH_PROP STEPS.POST_ROUTE_PHYS_OPT_DESIGN.TCL.POST                    = ''
+SRH_PROP STEPS.POST_ROUTE_PHYS_OPT_DESIGN.TCL.PRE                     = ''
+SRH_PROP STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE                            = 'Default'
+SRH_PROP STEPS.ROUTE_DESIGN.ARGS.MORE OPTIONS                         = ''
+# puts "SRH ================ report_property impl_1 INCREMENTAL rows"
+SRH ================ report_property impl_1 INCREMENTAL rows
+# foreach p [lsort [list_property $r]] {
+#     if {[regexp -nocase {INCREMENTAL} $p]} { puts "SRH_PROPDOC $p : [report_property -all $r $p -return_string]" }
+# }
+SRH_PROPDOC AUTO_INCREMENTAL_CHECKPOINT : Property                     Type  Read-only  Value
+AUTO_INCREMENTAL_CHECKPOINT  bool  false      0
+SRH_PROPDOC AUTO_INCREMENTAL_CHECKPOINT.DIRECTORY : Property                               Type    Read-only  Value
+AUTO_INCREMENTAL_CHECKPOINT.DIRECTORY  string  false      /tmp/sr1_help_VhTB/srh_probe/srh_probe.srcs/utils_1/imports/impl_1
+SRH_PROPDOC INCREMENTAL_CHECKPOINT : Property                Type  Read-only  Value
+INCREMENTAL_CHECKPOINT  file  false      
+SRH_PROPDOC INCREMENTAL_CHECKPOINT.DIRECTIVE : Property                          Type    Read-only  Value
+INCREMENTAL_CHECKPOINT.DIRECTIVE  string  false      
+SRH_PROPDOC INCREMENTAL_CHECKPOINT.MORE_OPTIONS : Property                             Type    Read-only  Value
+INCREMENTAL_CHECKPOINT.MORE_OPTIONS  string  false      
+# close_project
+# puts "SRH_DONE"
+SRH_DONE
+INFO: [Common 17-206] Exiting Vivado at Sun Sep 27 16:20:47 2026...
+=== rc  : 0
+=== end : 2026-09-27T16:20:48-06:00

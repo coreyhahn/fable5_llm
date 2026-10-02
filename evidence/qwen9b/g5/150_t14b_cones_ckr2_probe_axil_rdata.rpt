@@ -1,0 +1,102 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date              : Mon Sep  7 21:28:54 2026
+| Host              : snoke running 64-bit Ubuntu 24.04.4 LTS
+| Command           : report_timing -of_objects {{{bd_i/layer_0/inst/u_core/smem_a_reg_bram_10/CLKBWRCLK --> bd_i/layer_0/inst/u_core/s_axil_rdata_reg[5]/D}}} -path_type full_clock_expanded -input_pins -file evidence/qwen9b/g5/150_t14b_cones_ckr2_probe_axil_rdata.rpt
+| Design            : bd_wrapper
+| Device            : xcvu9p-fsgd2104
+| Speed File        : -2L  PRODUCTION 1.28 03-30-2022
+| Design State      : Physopt postRoute
+| Temperature Grade : E
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.244ns  (required time - arrival time)
+  Source:                 bd_i/layer_0/inst/u_core/smem_a_reg_bram_10/CLKBWRCLK
+                            (rising edge-triggered cell RAMB36E2 clocked by xdma_0_axi_aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Destination:            bd_i/layer_0/inst/u_core/s_axil_rdata_reg[5]/D
+                            (rising edge-triggered cell FDRE clocked by xdma_0_axi_aclk  {rise@0.000ns fall@2.000ns period=4.000ns})
+  Path Group:             xdma_0_axi_aclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            4.000ns  (xdma_0_axi_aclk rise@4.000ns - xdma_0_axi_aclk rise@0.000ns)
+  Data Path Delay:        3.547ns  (logic 1.794ns (50.585%)  route 1.753ns (49.415%))
+  Logic Levels:           6  (LUT5=1 LUT6=3 MUXF7=1 RAMB36E2=1)
+  Clock Path Skew:        -0.188ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.144ns = ( 8.144 - 4.000 ) 
+    Source Clock Delay      (SCD):    4.707ns
+    Clock Pessimism Removal (CPR):    0.376ns
+  Clock Uncertainty:      0.046ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.060ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      4.492ns (routing 2.689ns, distribution 1.803ns)
+  Clock Net Delay (Destination): 3.952ns (routing 2.437ns, distribution 1.515ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock xdma_0_axi_aclk rise edge)
+                                                      0.000     0.000 r  
+    GTYE4_CHANNEL_X1Y35  GTYE4_CHANNEL                0.000     0.000 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[32].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK
+                         net (fo=7, routed)           0.085     0.085    bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/GT_TXOUTCLK[0]
+    BUFG_GT_X1Y198                                                    r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/I
+    BUFG_GT_X1Y198       BUFG_GT (Prop_BUFG_GT_I_O)
+                                                      0.130     0.215 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O
+    X2Y2 (CLOCK_ROOT)    net (fo=149573, routed)      4.492     4.707    bd_i/layer_0/inst/u_core/aclk
+    SLR Crossing[1->0]   
+    RAMB36_X3Y34         RAMB36E2                                     r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_10/CLKBWRCLK
+  -------------------------------------------------------------------    -------------------
+    RAMB36_X3Y34         RAMB36E2 (Prop_RAMB36E2_RAMB36_CLKBWRCLK_CASDOUTB[0])
+                                                      1.179     5.886 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_10/CASDOUTB[0]
+                         net (fo=1, routed)           0.028     5.914    bd_i/layer_0/inst/u_core/smem_a_reg_bram_10_n_67
+    RAMB36_X3Y35                                                      r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_11/CASDINB[0]
+    RAMB36_X3Y35         RAMB36E2 (Prop_RAMB36E2_RAMB36_CASDINB[0]_DOUTBDOUT[0])
+                                                      0.117     6.031 r  bd_i/layer_0/inst/u_core/smem_a_reg_bram_11/DOUTBDOUT[0]
+                         net (fo=35, routed)          0.926     6.957    bd_i/layer_0/inst/u_core/sa_q[5]
+    SLICE_X37Y142                                                     r  bd_i/layer_0/inst/u_core/s_axil_rdata[5]_i_10/I0
+    SLICE_X37Y142        LUT5 (Prop_G6LUT_SLICEL_I0_O)
+                                                      0.149     7.106 r  bd_i/layer_0/inst/u_core/s_axil_rdata[5]_i_10/O
+                         net (fo=1, routed)           0.244     7.350    bd_i/layer_0/inst/u_core/s_axil_rdata[5]_i_10_n_0
+    SLICE_X37Y142                                                     r  bd_i/layer_0/inst/u_core/s_axil_rdata[5]_i_7/I0
+    SLICE_X37Y142        LUT6 (Prop_D6LUT_SLICEL_I0_O)
+                                                      0.146     7.496 r  bd_i/layer_0/inst/u_core/s_axil_rdata[5]_i_7/O
+                         net (fo=1, routed)           0.009     7.505    bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[5]_i_4_0
+    SLICE_X37Y142                                                     r  bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata_reg[5]_i_5/I0
+    SLICE_X37Y142        MUXF7 (Prop_F7MUX_CD_SLICEL_I0_O)
+                                                      0.063     7.568 r  bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata_reg[5]_i_5/O
+                         net (fo=1, routed)           0.358     7.926    bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata_reg[5]_i_5_n_0
+    SLICE_X39Y142                                                     r  bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[5]_i_4/I0
+    SLICE_X39Y142        LUT6 (Prop_H6LUT_SLICEL_I0_O)
+                                                      0.090     8.016 r  bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[5]_i_4/O
+                         net (fo=1, routed)           0.140     8.156    bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[5]_i_4_n_0
+    SLICE_X39Y146                                                     r  bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[5]_i_1/I4
+    SLICE_X39Y146        LUT6 (Prop_G6LUT_SLICEL_I4_O)
+                                                      0.050     8.206 r  bd_i/layer_0/inst/u_core/u_alu/s_axil_rdata[5]_i_1/O
+                         net (fo=1, routed)           0.048     8.254    bd_i/layer_0/inst/u_core/u_alu_n_128
+    SLICE_X39Y146        FDRE                                         r  bd_i/layer_0/inst/u_core/s_axil_rdata_reg[5]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock xdma_0_axi_aclk rise edge)
+                                                      4.000     4.000 r  
+    GTYE4_CHANNEL_X1Y35  GTYE4_CHANNEL                0.000     4.000 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/bd_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.bd_xdma_0_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[32].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[3].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK
+                         net (fo=7, routed)           0.078     4.078    bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/GT_TXOUTCLK[0]
+    BUFG_GT_X1Y198                                                    r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/I
+    BUFG_GT_X1Y198       BUFG_GT (Prop_BUFG_GT_I_O)
+                                                      0.114     4.192 r  bd_i/xdma_0/inst/pcie4_ip_i/inst/bd_xdma_0_0_pcie4_ip_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O
+    X2Y2 (CLOCK_ROOT)    net (fo=149573, routed)      3.952     8.144    bd_i/layer_0/inst/u_core/aclk
+    SLR Crossing[1->0]   
+    SLICE_X39Y146        FDRE                                         r  bd_i/layer_0/inst/u_core/s_axil_rdata_reg[5]/C
+                         clock pessimism              0.376     8.519    
+                         clock uncertainty           -0.046     8.473    
+    SLICE_X39Y146        FDRE (Setup_GFF_SLICEL_C_D)
+                                                      0.025     8.498    bd_i/layer_0/inst/u_core/s_axil_rdata_reg[5]
+  -------------------------------------------------------------------
+                         required time                          8.498    
+                         arrival time                          -8.254    
+  -------------------------------------------------------------------
+                         slack                                  0.244    
+
+
+
+

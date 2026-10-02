@@ -1,0 +1,70 @@
+=== host: snoke  date: 2026-09-29T19:40:49-06:00
+=== tree: 8a8776b+dirty
+=== dirty:  M evidence/qwen9b/sr/r3_2_gate_compare.sh
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr14_ident_expect.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+expected words: SEQ_CAPS 0xfab1ca03  BM_IDENT 0xfab1b301  SHAPE isa 2
+PASS  R2 board, --want-version 266e3ae7 --want-caps R1,R2: judge -> PASS (want PASS)
+        MAGIC        0xfab1e001  want 0xfab1e001  OK
+        VERSION      0x266e3ae7  want 0x266e3ae7  OK
+        CALIB        0x0000000f  want 0x0000000f  OK
+        LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+        SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+        TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+        BM_IDENT     0xfab1b301  want 0xfab1b301  OK
+        SEQ_CAPS     0xfab1ca03  decoded {R1,R2}  want {R1,R2}  OK
+      IDENT: PASS
+PASS  R2 VERSION reporting the R1 word 0xFAB1CA01: judge -> FAIL (want FAIL)
+        MAGIC        0xfab1e001  want 0xfab1e001  OK
+        VERSION      0x266e3ae7  want 0x266e3ae7  OK
+        CALIB        0x0000000f  want 0x0000000f  OK
+        LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+        SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+        TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+        BM_IDENT     0xfab1b301  want 0xfab1b301  OK
+        SEQ_CAPS     0xfab1ca01  decoded {R1}  want {R1,R2}  MISMATCH
+      IDENT: FAIL
+PASS  R2 VERSION reporting 0xDEADC0DE (a pre-round read): judge -> FAIL (want FAIL)
+        MAGIC        0xfab1e001  want 0xfab1e001  OK
+        VERSION      0x266e3ae7  want 0x266e3ae7  OK
+        CALIB        0x0000000f  want 0x0000000f  OK
+        LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+        SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+        TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+        BM_IDENT     0xfab1b301  want 0xfab1b301  OK
+        SEQ_CAPS     0xdeadc0de  decoded {none}  want {R1,R2}  MISMATCH
+      IDENT: FAIL
+PASS  R2 VERSION without the BM1 block (BM_IDENT 0xDEADC0DE): judge -> FAIL (want FAIL)
+        MAGIC        0xfab1e001  want 0xfab1e001  OK
+        VERSION      0x266e3ae7  want 0x266e3ae7  OK
+        CALIB        0x0000000f  want 0x0000000f  OK
+        LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+        SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+        TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+        BM_IDENT     0xdeadc0de  want 0xfab1b301  MISMATCH
+        SEQ_CAPS     0xfab1ca03  decoded {R1,R2}  want {R1,R2}  OK
+      IDENT: FAIL
+PASS  the R1 bitstream (VERSION e3c2ff1e) named as R2: judge -> FAIL (want FAIL)
+        MAGIC        0xfab1e001  want 0xfab1e001  OK
+        VERSION      0xe3c2ff1e  want 0x266e3ae7  MISMATCH
+        CALIB        0x0000000f  want 0x0000000f  OK
+        LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+        SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+        TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+        BM_IDENT     0xfab1b301  want 0xfab1b301  OK
+        SEQ_CAPS     0xfab1ca01  decoded {R1}  want {R1,R2}  MISMATCH
+      IDENT: FAIL
+PASS  control: the R1 bitstream judged as R1 (unchanged by the R2 row): judge -> PASS (want PASS)
+        MAGIC        0xfab1e001  want 0xfab1e001  OK
+        VERSION      0xe3c2ff1e  want 0xe3c2ff1e  OK
+        CALIB        0x0000000f  want 0x0000000f  OK
+        LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+        SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+        TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+        BM_IDENT     0xfab1b301  want 0xfab1b301  OK
+        SEQ_CAPS     0xfab1ca01  decoded {R1}  want {R1}  OK
+      IDENT: PASS
+SR14_IDENT_EXPECT: 6 passed, 0 failed -> PASS
+=== rc  : 0
+=== end : 2026-09-29T19:40:49-06:00

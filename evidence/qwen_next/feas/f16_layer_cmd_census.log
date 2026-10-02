@@ -1,0 +1,85 @@
+=== host: snoke  date: 2026-08-25T07:33:30-06:00
+=== tree: 9a654e0+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/layer_cmd_census.py /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/layer_cmd_census.json
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+A. CENSUS of the committed 0.8B stream  tb/scripts/model_v2_s1.txt
+==============================================================================
+    22,350 layer commands in the whole file (the file is a MULTI-token script; per-token figures below)
+    op          count       sum of n
+    VN          4,110        835,584
+    VNW           366        319,488
+    CONVW          36              0
+    ROPE          360              0
+    KVAP           72              0
+    ATTN          108              0
+    CONV          108              0
+    DNST        1,728              0
+    GATE           72              0
+    EMB           288              0
+    ALU        14,814      7,950,720
+    AMAX          288              0
+
+    VN lengths seen: {128: 3456, 256: 360, 1024: 294}
+    ALU lengths seen: {128: 10368, 2048: 2130, 1024: 870, 256: 576, 1536: 432, 16: 216}
+
+    DNST commands 1,728 / (18 DN x 16 heads) = 6.0000 tokens' worth
+
+==============================================================================
+B. the ANALYTIC model, checked against that census (per token)
+==============================================================================
+    op      analytic/tok   census/tok    ratio
+    VN               625        685.0    0.912
+    VNW               49         61.0    0.803
+    CONVW              0          6.0    0.000
+    ROPE               6         60.0    0.100
+    KVAP               6         12.0    0.500
+    ATTN               6         18.0    0.333
+    CONV              18         18.0    1.000
+    DNST             288        288.0    1.000
+    GATE              18         12.0    1.500
+    EMB                0         48.0    0.000
+    ALU              991       2469.0    0.401
+    AMAX               1         48.0    0.021
+
+    The DNST row is the one this study now depends on, and it is
+    EXACT by construction: 288 per token = 18 DN layers x 16 heads.
+
+==============================================================================
+C. PER-HEAD DeltaNet work — how it scales, per token
+==============================================================================
+    model   DN layers   heads  DNST cmds   x0.8B  per-head VN/ALU cmds
+    0.8B           18      16        288   1.000                 1,440
+    2B             18      16        288   1.000                 1,440
+    4B             24      32        768   2.667                 3,840
+    9B             24      32        768   2.667                 3,840
+
+    dn_step is ONE instance at ~1300 cycles/head (rtl/dn_step.sv:14),
+    so this column is a SERIAL cost: 4B/9B pay 2.667x the 0.8B/2B
+    DeltaNet recurrence, with no lane headroom to hide it.
+    At 1300 cyc/head and 250 MHz that alone is 1.498 ms/token at 0.8B/2B and 3.994 ms/token at 4B/9B.
+=== rc  : 0
+=== end : 2026-08-25T07:33:33-06:00
+
+=== CORRECTION 2026-08-25 (re-review N1) — appended, log body NOT rewritten
+Line 6 of this log and the script header above call tb/scripts/model_v2_s1.txt
+"the committed 0.8B stream".  It is NOT committed: `.gitignore:13`
+(`tb/scripts/model_*`) excludes it, because it is ~45 MB of a ~950 MB artifact
+set, and `git ls-files` does not know it.
+
+The accurate label is stronger than the wrong one, which is why this is a
+correction and not a retraction of the census:
+
+  * the file is GITIGNORED, on disk only; but
+  * `ref/scripts/regen_gate.sh` BYTE-LOCKS exactly this artifact.  It re-emits
+    from committed sources, checks sha256(model_v2_s1.e.seq) against the frozen
+    GOLD_SEQ_SHA=a69864d25b6b129a4d6c74b3c78dfcbedf1edce219d32cc05d05bc54f444aaf1
+    (regen_gate.sh:5, :38-40), and then runs
+        cmp $TMP/model_v2_s1.txt ../tb/scripts/model_v2_s1.txt
+    (regen_gate.sh:41), failing REGEN_GATE_FAIL_TXT on any difference.
+
+So from a clean checkout, `make -C tb model_script_s1` (or the gate itself)
+reproduces this exact input byte-for-byte, and the gate PROVES it did.  The
+census numbers below — 288 DNST commands per token = 18 DN layers x 16 heads,
+576 length-128 VN = 18 x 16 x 2 — are unchanged and are reproducible from
+committed sources.

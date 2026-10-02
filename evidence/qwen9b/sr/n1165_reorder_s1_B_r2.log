@@ -1,0 +1,61 @@
+=== host: snoke  date: 2026-09-28T11:46:58-06:00
+=== tree: e2095f6+dirty
+=== dirty:  M NEXT_SESSION.md
+=== cmd : env FABLE5_MODEL=9b /home/cah/.venv/bin/python ref/scripts/reorder_e4.py --in tb/scripts/w9/model_9b_s1.e4 --out tb/scripts/w9/model_9b_s1_reordB_r2.e4 --form B --cost csv --rtl r2 --stats
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== input tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH, 158536 records, form B, cost csv, rtl r2
+=== cost source: CSV (BN1 timeline of model_9b_s1, skeleton-matched)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 0 (39..39662) <- template tok1 (39..39662) windows
+    segment 1 (39663..79285) <- template tok2 (39663..79285) windows
+    segment 2 (79286..118910) <- template tok3 (79286..118910) windows
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+--- segment 0 static 39..39662: records 39624 -> 40171
+    MOVX 996 -> 516  ELIDED 480;  FENCE 343 -> 1370 (scheduler fenced 0); fences DEFERRED past independent work: 571
+      (heuristic bl: 26131969 cyc = 104.528 ms; POSTCHECK 57447 edges + 1126149 checks)
+    schedule rule bl: 26131969 cyc = 104.528 ms  (program order, measured: 32771865 cyc = 131.087 ms)
+    replay of the EMITTED order: 26131969 cyc = 104.528 ms  (replay - scheduler = +0 cyc; the JMP window is 0: the scheduler may place the JMP early, the stream cannot)
+    POSTCHECK on the emitted order: 57447 edges + 1126149 channel/lane checks, 0 violations;  ARG values checked on 8821 CMDs
+    FENCE masks (target[3:0] -> count): 0001 x343, 0010 x343, 0100 x342, 1000 x342
+--- segment 1 static 39663..79285: records 39623 -> 40170
+    MOVX 996 -> 516  ELIDED 480;  FENCE 343 -> 1370 (scheduler fenced 0); fences DEFERRED past independent work: 578
+      (heuristic bl: 26136876 cyc = 104.548 ms; POSTCHECK 57446 edges + 1126148 checks)
+    schedule rule bl: 26136876 cyc = 104.548 ms  (program order, measured: 32776832 cyc = 131.107 ms)
+    replay of the EMITTED order: 26136876 cyc = 104.548 ms  (replay - scheduler = +0 cyc; the JMP window is 0: the scheduler may place the JMP early, the stream cannot)
+    POSTCHECK on the emitted order: 57446 edges + 1126148 channel/lane checks, 0 violations;  ARG values checked on 8821 CMDs
+    FENCE masks (target[3:0] -> count): 0001 x343, 0010 x343, 0100 x342, 1000 x342
+--- segment 2 static 79286..118910: records 39625 -> 40172
+    MOVX 996 -> 516  ELIDED 480;  FENCE 343 -> 1370 (scheduler fenced 0); fences DEFERRED past independent work: 599
+      (heuristic bl: 26142157 cyc = 104.569 ms; POSTCHECK 57447 edges + 1126150 checks)
+    schedule rule bl: 26142157 cyc = 104.569 ms  (program order, measured: 32782160 cyc = 131.129 ms)
+    replay of the EMITTED order: 26142157 cyc = 104.569 ms  (replay - scheduler = +0 cyc; the JMP window is 0: the scheduler may place the JMP early, the stream cannot)
+    POSTCHECK on the emitted order: 57447 edges + 1126150 channel/lane checks, 0 violations;  ARG values checked on 8821 CMDs
+    FENCE masks (target[3:0] -> count): 0001 x343, 0010 x343, 0100 x342, 1000 x342
+--- segment 3 static 118911..158534 (LOOP BODY): records 39624 -> 40171
+    MOVX 996 -> 516  ELIDED 480;  FENCE 343 -> 1370 (scheduler fenced 0); fences DEFERRED past independent work: 580
+      (heuristic bl: 26146927 cyc = 104.588 ms; POSTCHECK 66267 edges + 1126149 checks)
+    schedule rule bl: 26146927 cyc = 104.588 ms  (program order, measured: 32786868 cyc = 131.147 ms)
+    replay of the EMITTED order: 26146927 cyc = 104.588 ms  (replay - scheduler = +0 cyc; the JMP window is 39: the scheduler may place the JMP early, the stream cannot)
+    POSTCHECK on the emitted order: 66267 edges + 1126149 channel/lane checks, 0 violations;  ARG values checked on 8821 CMDs
+    FENCE masks (target[3:0] -> count): 0001 x343, 0010 x343, 0100 x342, 1000 x342
+=== OUTPUT hazard assert: PASS over the whole stream (MOVX 2064, MVGO 5480, MOVY 5480, FENCE 5480; none on a pending channel, none pending at JMP/HALT)
+=== checkpoints: 1572 carried, 674 not at their own record's new position
+=== r2: FENCE masks over the stream (target[3:0] -> count): 0001 x1372, 0010 x1372, 0100 x1368, 1000 x1368
+=== r2: validated at caps ['R1', 'R2']; refused at the empty set: True
+=== r2: replay makespan of the emitted order per segment: seg0 26131969, seg1 26136876, seg2 26142157, seg3 26146927; LOOP BODY 26146927 cyc (scheduler 26146927)
+=== r2: refused at caps ['R1']: True; bank fields in the stream (MOVX target / SHAPE 29-30 / MOVY target[15:4] non-zero): 7664
+=== r2: seg0 banks MOVX word 0 320, MOVX word 1536 196, MOVY row 0 684, MOVY row 2048 686, MVGO 1370, RBANK 686, XBANK 698
+=== r2: seg1 banks MOVX word 0 320, MOVX word 1536 196, MOVY row 0 684, MOVY row 2048 686, MVGO 1370, RBANK 686, XBANK 698
+=== r2: seg2 banks MOVX word 0 320, MOVX word 1536 196, MOVY row 0 684, MOVY row 2048 686, MVGO 1370, RBANK 686, XBANK 698
+=== r2: seg3 banks MOVX word 0 320, MOVX word 1536 196, MOVY row 0 684, MOVY row 2048 686, MVGO 1370, RBANK 686, XBANK 698
+=== r2: CORRECTED prediction (seq_cost FENCE_REC / TAIL1 / CMD_RESID_FRAC) per segment: seg0 26168585, seg1 26173555, seg2 26178551, seg3 26183590; LOOP BODY 26183590 cyc (lane 26164282 + CMD residual 19308; classes labelled True)
+=== output 160724 records (input 158536); checkpoints 1572
+=== wrote tb/scripts/w9/model_9b_s1_reordB_r2.e4.seq sha256 117ed8b061d5662517d67f905ff1b5900520ba39eff680548e8af9a7efc17d19
+=== wrote tb/scripts/w9/model_9b_s1_reordB_r2.e4.seqdata.bin (copy), tb/scripts/w9/model_9b_s1_reordB_r2.e4.seq.json
+=== rc  : 0
+=== end : 2026-09-28T11:47:17-06:00

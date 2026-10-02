@@ -1,0 +1,79 @@
+=== host: snoke
+=== date: 2026-09-10T04:20:08-06:00
+=== tree: a8a93e6+dirty
+=== cmd:  bash /home/cah/r2d2/code/fpga/.preship_clockroot_scratch/g4b_green.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== GREEN for triage (b)16 (#190) and (b)17 (#122)
+
+############ (b)16 — g4b_layer_term.py against the S4 census ############
+=== baselines now:
+57:T10 = {"control RLAT=2 P2_WAIT=0": 1799,      # 14-A; G3's pre-14-A was 1798
+58:       "option (i)  RLAT=6 P2_WAIT=1": 1931,  # 14-A; pre-14-A 1930
+59:       "option (ii) RLAT=6 P2_WAIT=0": 1803}  # 14-A; pre-14-A 1802
+=== the option (ii) re-measurement this chore ran (g4/089):
+DN_CYCLES RLAT=6 P2W=0 cycles_per_head=1803
+TB_DN_STEP PASS: 128 outputs + 16384 state entries bit-exact
+
+=== run against evidence/qwen9b/s4/census_t14a.txt (the 14-A census):
+LAYERTERM ==== per-DNST cycles, measured ====
+LAYERTERM cfg       DN_PIPE RLAT P2W  DNST cmds  cyc/DNST  min  max
+LAYERTERM shipped         -    2   0       4608      2959   2959   2959
+LAYERTERM comparator rtl/dn_step.sv:14 estimate   : 1300 cycles/head
+LAYERTERM comparator tb_dn_step ON THE 14-A RTL control RLAT=2 P2_WAIT=0: 1799 cycles/head
+LAYERTERM comparator tb_dn_step ON THE 14-A RTL option (i)  RLAT=6 P2_WAIT=1: 1931 cycles/head
+LAYERTERM comparator tb_dn_step ON THE 14-A RTL option (ii) RLAT=6 P2_WAIT=0: 1803 cycles/head
+
+LAYERTERM ==== the LAYER TERM per token ====
+LAYERTERM cfg        step  commands   busy_cyc      ms@250MHz  vs model 47.00 ms
+LAYERTERM shipped        1      9429     11406354       45.625     0.971x
+LAYERTERM shipped        2      9429     11411494       45.646     0.971x
+LAYERTERM shipped        3      9429     11416767       45.667     0.972x
+LAYERTERM shipped        4      9429     11421998       45.688     0.972x
+LAYERTERM shipped        5      9429     11427241       45.709     0.973x
+LAYERTERM shipped        6      9429     11432506       45.730     0.973x
+
+LAYERTERM ==== the preamble (step 0), reported separately ====
+LAYERTERM   MEASURED contents: 120 CONVW + 768 DNZ = 888 commands,
+LAYERTERM   and NOTHING else -- the once-per-launch conv weight/state
+=== per-step rows parsed: 6 (RED had 0)
+=== the DNST row is read
+
+=== BACKWARDS COMPATIBILITY: the Task-12 censuses must still parse
+LAYERTERM ==== per-DNST cycles, measured ====
+LAYERTERM cfg       DN_PIPE RLAT P2W  DNST cmds  cyc/DNST  min  max
+LAYERTERM shipped         2    6   1        768      3090   3090   3090
+LAYERTERM optii           2    6   0        768      2962   2962   2962
+LAYERTERM comparator rtl/dn_step.sv:14 estimate   : 1300 cycles/head
+LAYERTERM comparator tb_dn_step ON THE 14-A RTL control RLAT=2 P2_WAIT=0: 1799 cycles/head
+LAYERTERM comparator tb_dn_step ON THE 14-A RTL option (i)  RLAT=6 P2_WAIT=1: 1931 cycles/head
+LAYERTERM comparator tb_dn_step ON THE 14-A RTL option (ii) RLAT=6 P2_WAIT=0: 1803 cycles/head
+
+############ (b)17 — both Task-12 runners must REFUSE #################
+=== run_g4b_census.sh
+SUPERSEDED 2026-09-10: run_g4b_census.sh was written for the PRE-SPILL layer
+  (Task 12, before spec 0b A1/A2 added the SLD/SST DMA lane and the slot
+  caches).  It measures a layer that is not on the bitstream.
+  USE INSTEAD: evidence/qwen9b/s4/run_s4_census.sh
+  (see evidence/qwen9b/s4/S4_REPLAY.md; #122, triage (b)17)
+REFUSING to run.
+=== run_g4b_census.sh rc: 2 (must be 2)
+=== run_g4b_census_control.sh
+SUPERSEDED 2026-09-10: run_g4b_census_control.sh was written for the PRE-SPILL layer
+  (Task 12, before spec 0b A1/A2 added the SLD/SST DMA lane and the slot
+  caches).  It measures a layer that is not on the bitstream.
+  USE INSTEAD: evidence/qwen9b/s4/run_s4_census.sh
+  (see evidence/qwen9b/s4/S4_REPLAY.md; #122, triage (b)17)
+REFUSING to run.
+=== run_g4b_census_control.sh rc: 2 (must be 2)
+=== no obj_dir was created:
+ls: cannot access '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layer_census_redprobe': No such file or directory
+
+G4B_LAYERTERM_CENSUS_GREEN: PASS
+=== rc: 0
+=== end: 2026-09-10T04:20:10-06:00

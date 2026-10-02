@@ -1,0 +1,12 @@
+REFUSING: FABLE5_MODEL=4b has H=2560, which is NOT a power of two.
+  The fixed-point normalizer (layer_fixed.rmsnorm_fx, mirroring
+  rtl/vecnorm_unit.sv:277,323-325) produces N only by shifting
+  `cfg_nlog2` and folds 1/N into the rsqrt binary point, so there
+  is no representation for N=2560.
+  This is docs/QWEN35_NEXT_FEASIBILITY.md §2.3 (wall 2): supporting it
+  needs a reciprocal multiply in the normalizer datapath — an RTL
+  decision on the layer critical path, not a host patch.
+  Scoring it by normalizing over 2048 or 4096 instead would measure a
+  machine nobody has proposed, so this harness refuses rather than guesses.
+  (The float PPL ladder, ref/perplexity_eval.py, is unaffected: it uses
+   the torch model's own normalizer and scores WEIGHT damage only.)

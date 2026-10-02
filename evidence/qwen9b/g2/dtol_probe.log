@@ -1,0 +1,98 @@
+=== host  : snoke
+=== date  : 2026-08-29T20:40:54.170549-06:00
+=== python: 3.12.3   numpy 2.5.2
+=== ref-dir: /tmp/dtol_head2/ref
+=== reads : fixedpoint.py ea56f7a3ebff6a08631c4933bf03134f
+===         w4a8_ref.py   cd42ad17c3c8370ae00f0e602c3c5a96
+===         qwen3_5_0.8b_config.json ecf8ac7abc585771b05a5b8eb63b43c4
+===         qwen3_5_2b_config.json 285681fde797c4198e59e3befd37998c
+===         qwen3_5_4b_config.json e570efc2ec15635866fc1a5adfc45cb0
+===         qwen3_5_9b_config.json 2e192fd99869a21124dc413cd3d4ec90
+===         dtol_probe.py 74843d45efd52fee5cfeaba87214b216  (this script)
+=== QKV_F : 8   (ref/layer_fixed.py `QKV_F = 8`, transcribed here)
+
+== geom: the block's arithmetic inputs, per geometry ==
+   (T is the literal 48 in `T, HD = 48, LR.HD`; every other
+    quantity below is read from the committed config JSON)
+    tag      H    HD   NQ  NKV  LNH  LNKH  LDK    T
+   0.8b   1024   256    8    2   16    16  128   48
+     2b   2048   256    8    2   16    16  128   48
+     4b   2560   256   16    4   32    16  128   48
+     9b   4096   256   16    4   32    16  128   48
+  -> HD identical across all four geometries: {256} YES
+  -> T  identical across all four geometries: {48} YES
+  -> the block indexes ONE head with a literal T; NQ/NKV/LNH/LNKH
+     never enter it.  H moves, and H is not an input to the block.
+
+== replay: _selftest's draw sequence, H the only free parameter ==
+   prefix draws before the attn block (the rmsnorm1p, rope and
+   l2norm checks that precede it in _selftest):
+     rng.normal(0,2,H)  rng.normal(0,0.1,H)  rng.normal(0,1,HD)  rng.normal(0,1.5,LDK)
+  H=1024  (0.8b)  rel=2.666e-02
+  H=2048  (  2b)  rel=3.288e-02
+  H=2560  (  4b)  rel=4.041e-02
+  H=4096  (  9b)  rel=3.918e-02
+  -> reproduces the committed 0.8b/2b values exactly: YES
+  -> the block's code, shapes and seed are identical; only the
+     RNG stream OFFSET differs (2*H normals consumed upstream).
+
+== mc: distribution of the rel statistic over 40000 draws of the IDENTICAL block ==
+  seed 1: n=10000 mean=3.303e-02 max=6.749e-02 P(>=3e-2)=0.664
+  seed 2: n=10000 mean=3.309e-02 max=6.610e-02 P(>=3e-2)=0.662
+  seed 3: n=10000 mean=3.297e-02 max=6.681e-02 P(>=3e-2)=0.660
+  seed 4: n=10000 mean=3.303e-02 max=6.498e-02 P(>=3e-2)=0.664
+  pooled n=40000  mean=3.3030e-02  sd=6.681e-03  min=1.213e-02  max=6.749e-02
+  quantiles: p1=1.906e-02  p5=2.282e-02  p25=2.841e-02  p50=3.258e-02  p75=3.715e-02  p90=4.175e-02  p95=4.470e-02  p99=5.078e-02  p99.9=5.842e-02
+  P(rel >= 3e-02) = 0.6626   <- the 3e-02 bound's ACTUAL false-failure rate
+  mean+6sd = 7.312e-02
+
+== attrib: which fixed-point stage owns the error (400 draws) ==
+  full  (as shipped)           mean=3.3307e-02  p99=4.830e-02  max=5.244e-02
+  acc rounding ONLY            mean=3.0565e-02  p99=4.678e-02  max=5.636e-02
+  V int8 cache ONLY            mean=9.1050e-03  p99=1.430e-02  max=1.783e-02
+  K int8 cache ONLY            mean=8.7818e-03  p99=1.731e-02  max=1.976e-02
+  fixed softmax ONLY           mean=9.5285e-04  p99=1.349e-03  max=1.519e-03
+  everything but acc round     mean=1.3048e-02  p99=2.090e-02  max=2.685e-02
+  quadrature sum of the four isolated means = 3.3093e-02   vs full = 3.3307e-02
+
+== law: the closed form vs measurement (600 draws) ==
+  measured/predicted ratio: mean=1.015 sd=0.169  p5=0.769 p95=1.322
+  order-statistic factor, numerator  max|err|/sd = 3.041 (sd 0.361)
+  order-statistic factor, denominator max|ref|/sd = 3.035 (sd 0.357)
+  -> the two order-statistic factors agree, so they cancel in the
+     ratio: the statistic is HD-independent by construction.
+
+== damage: does a loosened bound still catch real defects? (3000 draws each) ==
+  trunc      mean=1.492e-01  min=6.836e-02  max=2.524e-01   PV accumulation truncates instead of rounding (>> vs rshr)
+  acc_f_m1   mean=6.146e-02  min=2.699e-02  max=1.205e-01   accumulator carries one fewer fraction bit (QKV_F-1)
+  no_maxsub  mean=6.352e-01  min=2.565e-01  max=1.196e+00   softmax forgets the running-max subtraction
+  scale_hd   mean=7.073e-01  min=3.355e-01  max=1.277e+00   score scale is 1/HD instead of 1/sqrt(HD)
+  p_shift    mean=5.000e-01  min=4.652e-01  max=5.344e-01   off-by-one in the Q15 probability shift
+  HEALTHY    mean=3.299e-02  min=1.412e-02  max=6.197e-02   no defect
+
+  detection probability P(rel >= bound), by candidate bound:
+        3e-02      5e-02      6e-02      7e-02      8e-02      1e-01   defect
+       1.0000     1.0000     1.0000     0.9993     0.9953     0.9690   trunc
+       0.9970     0.8137     0.5323     0.2360     0.0750     0.0043   acc_f_m1
+       1.0000     1.0000     1.0000     1.0000     1.0000     1.0000   no_maxsub
+       1.0000     1.0000     1.0000     1.0000     1.0000     1.0000   scale_hd
+       1.0000     1.0000     1.0000     1.0000     1.0000     1.0000   p_shift
+       0.6523     0.0147     0.0010     0.0000     0.0000     0.0000   HEALTHY   <- this row is the FALSE-FAILURE rate
+
+== scale: how the statistic moves with T and with HD ==
+  T=4    HD=256  mean=1.0853e-02  max=2.725e-02  mean/sqrt(T)=5.4266e-03
+  T=8    HD=256  mean=1.2736e-02  max=2.031e-02  mean/sqrt(T)=4.5030e-03
+  T=16   HD=256  mean=1.6696e-02  max=2.922e-02  mean/sqrt(T)=4.1741e-03
+  T=32   HD=256  mean=2.3525e-02  max=3.798e-02  mean/sqrt(T)=4.1586e-03
+  T=48   HD=256  mean=3.4011e-02  max=5.196e-02  mean/sqrt(T)=4.9091e-03
+  T=64   HD=256  mean=4.1922e-02  max=6.754e-02  mean/sqrt(T)=5.2403e-03
+  T=128  HD=256  mean=7.4578e-02  max=1.103e-01  mean/sqrt(T)=6.5918e-03
+  T=256  HD=256  mean=1.4568e-01  max=2.319e-01  mean/sqrt(T)=9.1053e-03
+  T=48   HD=64    mean=3.3567e-02  max=6.225e-02
+  T=48   HD=128   mean=3.4350e-02  max=5.044e-02
+  T=48   HD=256   mean=3.4011e-02  max=5.196e-02
+  T=48   HD=512   mean=3.3803e-02  max=5.083e-02
+
+json -> /tmp/dtol_head2/dtol_probe.json
+DTOL_PROBE OK
+=== rc: 0

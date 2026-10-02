@@ -1,0 +1,75 @@
+=== host: darthplagueis
+=== date: 2026-09-03T20:20:29-06:00
+=== tree: 5ee5f0e
+=== cmd:  ssh snoke echo '=== ROUND 1: all three XDCs read into ONE session (dngrp + dnslr + layer0) ==='; grep -E '^CHK_|12-1433' /home/cah/r2d2/code/fpga/fable5_llm/synth/out_g5_pbcheck/run.log | head -20; echo; echo '=== the CRITICAL WARNINGs round 1 raised (rq_p_reg?0? matched nothing) ==='; grep -c '12-1433' /home/cah/r2d2/code/fpga/fable5_llm/synth/out_g5_pbcheck/run.log; echo; for d in dngrp dnslr l0slr; do echo "=== ROUND 2 ($d): one XDC SET per session, patterns rewritten from the measured names ==="; grep -E '^CHK_' /home/cah/r2d2/code/fpga/fable5_llm/synth/out_g5_chk_$d/run.log; echo "CRITICAL WARNING 12-1433 count: $(grep -c 12-1433 /home/cah/r2d2/code/fpga/fable5_llm/synth/out_g5_chk_$d/run.log)"; done
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== ROUND 1: all three XDCs read into ONE session (dngrp + dnslr + layer0) ===
+CHK_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_layer_p2/post_synth.dcp
+CHK_TOP: layer_chan
+CHK_CELLS_TOTAL: 241103
+CHK_URAM_TOTAL: 928
+CHK_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_dngrp.xdc
+CRITICAL WARNING: [Vivado 12-1433] Expecting a non-empty list of cells to be added to the pblock.  Please verify the correctness of the <cells> argument. [/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_dngrp.xdc:69]
+CRITICAL WARNING: [Vivado 12-1433] Expecting a non-empty list of cells to be added to the pblock.  Please verify the correctness of the <cells> argument. [/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_dngrp.xdc:80]
+CRITICAL WARNING: [Vivado 12-1433] Expecting a non-empty list of cells to be added to the pblock.  Please verify the correctness of the <cells> argument. [/home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_dngrp.xdc:91]
+CHK_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_dnslr.xdc
+CHK_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_layer0.xdc
+CHK_PBLOCK pb_dn_grp0     cells=0       uram=0    range={CLOCKREGION_X0Y0:CLOCKREGION_X5Y4}
+CHK_PBLOCK pb_dn_grp1     cells=0       uram=0    range={CLOCKREGION_X0Y5:CLOCKREGION_X5Y9}
+CHK_PBLOCK pb_dn_grp2     cells=0       uram=0    range={CLOCKREGION_X0Y10:CLOCKREGION_X5Y14}
+CHK_PBLOCK pb_dn_slr0     cells=0       uram=0    range={CLOCKREGION_X0Y0:CLOCKREGION_X5Y4}
+CHK_PBLOCK pb_dn_slr1     cells=0       uram=0    range={CLOCKREGION_X0Y5:CLOCKREGION_X5Y9}
+CHK_PBLOCK pb_dn_slr2     cells=0       uram=0    range={CLOCKREGION_X0Y10:CLOCKREGION_X5Y14}
+CHK_PBLOCK pb_layer0      cells=63029   uram=928  range={CLOCKREGION_X0Y0:CLOCKREGION_X4Y14}
+CHK_EMPTY_PBLOCKS: 6
+CHK_DONE
+
+=== the CRITICAL WARNINGs round 1 raised (rq_p_reg?0? matched nothing) ===
+3
+
+=== ROUND 2 (dngrp): one XDC SET per session, patterns rewritten from the measured names ===
+CHK_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_layer_p2/post_synth.dcp
+CHK_TOP: layer_chan
+CHK_CELLS_TOTAL: 241103
+CHK_URAM_TOTAL: 928
+CHK_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_dngrp.xdc
+CHK_PBLOCK pb_dn_grp0     cells=10510   uram=232  range={CLOCKREGION_X0Y0:CLOCKREGION_X5Y4}
+CHK_PBLOCK pb_dn_grp1     cells=10510   uram=232  range={CLOCKREGION_X0Y5:CLOCKREGION_X5Y9}
+CHK_PBLOCK pb_dn_grp2     cells=10510   uram=232  range={CLOCKREGION_X0Y10:CLOCKREGION_X5Y14}
+CHK_EMPTY_PBLOCKS: 0
+CHK_DONE
+CRITICAL WARNING 12-1433 count: 0
+=== ROUND 2 (dnslr): one XDC SET per session, patterns rewritten from the measured names ===
+CHK_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_layer_p2/post_synth.dcp
+CHK_TOP: layer_chan
+CHK_CELLS_TOTAL: 241103
+CHK_URAM_TOTAL: 928
+CHK_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_dnslr.xdc
+CHK_PBLOCK pb_dn_slr0     cells=232     uram=232  range={CLOCKREGION_X0Y0:CLOCKREGION_X5Y4}
+CHK_PBLOCK pb_dn_slr1     cells=232     uram=232  range={CLOCKREGION_X0Y5:CLOCKREGION_X5Y9}
+CHK_PBLOCK pb_dn_slr2     cells=232     uram=232  range={CLOCKREGION_X0Y10:CLOCKREGION_X5Y14}
+CHK_EMPTY_PBLOCKS: 0
+CHK_DONE
+CRITICAL WARNING 12-1433 count: 0
+=== ROUND 2 (l0slr): one XDC SET per session, patterns rewritten from the measured names ===
+CHK_DCP: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_ooc9b_layer_p2/post_synth.dcp
+CHK_TOP: layer_chan
+CHK_CELLS_TOTAL: 241103
+CHK_URAM_TOTAL: 928
+CHK_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_layer0.xdc
+CHK_XDC: /home/cah/r2d2/code/fpga/fable5_llm/synth/constraints/fable5_floorplan_9b_dnslr.xdc
+CHK_PBLOCK pb_dn_slr0     cells=232     uram=232  range={CLOCKREGION_X0Y0:CLOCKREGION_X5Y4}
+CHK_PBLOCK pb_dn_slr1     cells=232     uram=232  range={CLOCKREGION_X0Y5:CLOCKREGION_X5Y9}
+CHK_PBLOCK pb_dn_slr2     cells=232     uram=232  range={CLOCKREGION_X0Y10:CLOCKREGION_X5Y14}
+CHK_PBLOCK pb_layer0      cells=62333   uram=232  range={CLOCKREGION_X0Y0:CLOCKREGION_X4Y14}
+CHK_EMPTY_PBLOCKS: 0
+CHK_DONE
+CRITICAL WARNING 12-1433 count: 0
+=== rc: 0
+=== end: 2026-09-03T20:20:29-06:00

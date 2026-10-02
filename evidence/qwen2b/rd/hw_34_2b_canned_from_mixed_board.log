@@ -1,0 +1,39 @@
+=== host: snoke  date: 2026-08-25T00:13:59-06:00
+=== tree: bc9ae59+dirty
+=== cmd : /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_chat2b.sh canned_from_mixed --canned
+=== venv: 3.12.3 numpy 2.4.6
+--- session bring-up
+  nch=4      model_w8_2b_s1.e: 68503 records, body 16742 full / 15974 lite; head image(s) [186] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_w8_2b_s1.e -> preamble:1526, lite:15978, full:16746  (0.5s)
+  blob       1884928 B = 1098496 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x9044640
+  board      MAGIC=0xfab1e001 VERSION=0x54443b9f CALIB=0xf SEQ=READY
+  EMBLOG2    12 (4096 B embedding rows)
+  residency  756 witness blocks (748 weight + 8 emb, 3024 KiB) in 23 ms -> 193 MISS
+  upload     186 weight image(s) + the embedding table: 2317 MiB readback-verified in 11.8s
+  residency  756 witness blocks (748 weight + 8 emb, 3024 KiB) in 23 ms -> 0 MISS
+  upload     const blob + 3 images: 2376 KiB readback-verified in 0.0s
+  tokenizer  15852e8c16360a2fea060d615a32b45270f8a8fc: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  sampling   greedy (--temp 0): the chip's argmax, bit-exact  |  source chip-topk: ready  |  capture k=32
+--- preamble
+  preamble   8.7 ms device / 10.3 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 15978 rec | full 16746 rec
+  patch      pos_mode='ldc': 72 B in 7 write(s) per launch
+  prefill    full  |  --ntok 32  |  --max-ctx 500 of KV depth 512
+  template   ON: 5*messages+7 wrapper ids, closed-empty think block, incremental with carry
+  decode     greedy (--temp 0): the chip's argmax, bit-exact  |  the LM head + argmax run ON-CHIP every step
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+--- canned gate B1: prompt [760, 6511, 314, 9338] -> feed [760, 6511, 314, 9338, 369, 11751], expect [279, 314, 279, 369, 11751, 13]
+  step 0  tok=760    pos=0  -> 42805  (committed 279)  60.5 ms device   *** DIFFERS
+  tokens     [42805]
+  committed  [279, 314, 279, 369, 11751, 13]
+  -> MISMATCH
+report -> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/chat2b_canned_from_mixed.json
+=== rc  : 1
+=== end : 2026-08-25T00:14:15-06:00

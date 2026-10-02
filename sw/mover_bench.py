@@ -22,6 +22,7 @@ Usage (snoke): .venv/bin/python mover_bench.py --out ../evidence/rung3/mover_ben
 import argparse, json, struct, time
 
 import numpy as np
+import board_lock as BL
 import seq_run as SR
 import hwmap as HW
 import sys, os
@@ -79,7 +80,21 @@ def main():
     ap.add_argument("--out", default=None)
     ap.add_argument("-n", type=int, default=20000, help="reps for cheap recs")
     ap.add_argument("--nmv", type=int, default=64, help="reps for MVGO/mover")
+    # O3: the device was hard-coded here too (see cycle_census.py).
+    ap.add_argument("--dev", default="/dev/xdma0")
+    ap.add_argument("--chan", type=int, default=0)
+    BL.add_lock_args(ap)                        # O3: --lock / --no-lock
     args = ap.parse_args()
+
+    # O3: this tool CLOBBERS the chat-resident stream images at
+    # 0x0900_0000 and, until now, took no lock at all — the sharpest
+    # single case in docs/USAGE.md §5's old "does NOT take the lock"
+    # column.  It takes it first, before the donor stream is even read.
+    try:
+        _lock = BL.from_args(args, tool="mover_bench.py").acquire()
+    except BL.BoardLockError as e:
+        print("*** %s" % e)
+        raise SystemExit(4)
 
     buf = open(PREFIX + ".seq", "rb").read()
     recs = SF.unpack_stream(buf)
@@ -105,7 +120,7 @@ def main():
     def stream(rec16, n):
         return rec16 * n + halt, n + 1
 
-    dev = SR.Dev("/dev/xdma0", chan=0, allow_seq=True)
+    dev = SR.Dev(args.dev, chan=args.chan, allow_seq=True)
     if not dev.seq_ok:
         raise SystemExit("SEQ refused: " + dev.seq_why)
     print(f"  board VERSION={dev.ident['version']:#010x}")

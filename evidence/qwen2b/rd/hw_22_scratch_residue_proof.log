@@ -1,0 +1,37 @@
+=== host: snoke  date: 2026-08-25T01:02:58-06:00
+=== tree: 01b9f0f+dirty
+=== cmd : /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_scratch_residue.py
+=== venv: 3.12.3 numpy 2.4.6
+dump A (post-0.8B nch=4): (32768,) uint16
+dump B (post-2B)        : (32768,) uint16
+0.8B staging words: [('0x1000', '0x3400')]
+2B   staging words: [('0x1c00', '0x5c00')]
+2B golden .chip: 16384 checked scratch words
+
+dump B vs the 2B golden: 63 differing words of 16384
+  address span: 0x1810 .. 0x1bff
+  inside the 2B stream's OWN staging window : 0 of 63
+  inside the 0.8B stream's staging window   : 63 of 63
+  values IDENTICAL in dump A and dump B     : 63 of 63   <- the 2B run never wrote them
+
+  first 8 disputed words   addr   dumpA   dumpB   golden
+    0x1810   0xb183  0xb183  0x0000
+    0x1811   0xfffc  0xfffc  0x0000
+    0x1812   0x328c  0x328c  0x0000
+    0x1813   0xfff8  0xfff8  0x0000
+    0x1814   0x355a  0x355a  0x0000
+    0x1815   0xfffc  0xfffc  0x0000
+    0x1816   0x193e  0x193e  0x0000
+    0x1817   0xfffe  0xfffe  0x0000
+
+mirror check — dump A vs the 0.8B golden: 62 differing of 7168   (the run itself is hw_21a)
+  span 0xc10 .. 0xfff; inside 0.8B's own staging: 0; inside the 2B's staging: 0
+  in the 2B golden's checked set: 62 of 62; the 2B golden expects NON-ZERO at 62; the board holds EXACTLY the 2B golden's value at 62 of 62
+    0x0c10  0.8B golden wants 0x0000  2B golden wants 0x0124  board holds 0x0124
+    0x0c11  0.8B golden wants 0x0000  2B golden wants 0xff3e  board holds 0xff3e
+    0x0c12  0.8B golden wants 0x0000  2B golden wants 0x0046  board holds 0x0046
+    0x0c13  0.8B golden wants 0x0000  2B golden wants 0xff88  board holds 0xff88
+
+RESIDUE_PROVEN
+=== rc  : 0
+=== end : 2026-08-25T01:02:58-06:00

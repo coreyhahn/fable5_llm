@@ -1,0 +1,95 @@
+=== host: snoke
+=== date: 2026-09-10T01:03:00-06:00
+=== tree: e8e35a0
+=== cmd:  nice -n 5 bash evidence/qwen9b/g6/g6_i2_green.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] sw/chat_seq.py --selftest  (FABLE5_MODEL unset = 0.8b)
+  [1] template source, frozen sha256, spec slice indices
+  [2] image assembly: agent A vs my own spec slices
+  [3] position blob (gate A2 in host form) + const blob
+  [4] the per-launch patch (agent A) in both position modes
+  [5] DDR plan, image placement, one-shot relocation
+  [6] context guard T+(P-1)+N < 512 and history truncation
+  [7] residency witness manifest + sha256 probe
+  [8] launch protocol against the offline seq_unit model
+  [9] turn bookkeeping: schedule, prefill-lite, EOS, --ntok, reset
+  [9b] canned schedule reconstruction (the always-seed rule)
+  [10] tokenizer (infer.py BpeTok) + stop ids
+  [11] the shared board lock (O3) — exclusivity and its PATH
+  [12] chat template G1: HF id equality, incremental multi-turn, T7
+  [13] sampling: dequant, temperature/top-k/top-p, seeded draws
+  [14] candidate sources: chip stub, fixture, refusal path
+  [15] the full step path over a fixture + a fake board
+  [16] --verify-head against a fake head + fake scratchpad
+  [17] S7 layout: the LM head never overwrites x8 (0x800..0xBFF)
+  [18] sw/head_cache.py: exact integer path + cache discipline
+  [19] rung 4 S4: nch sessions, derived geometry, weight placement
+  [19c] rung 4 S6: OUT FIFO depth 64, 7-bit count, sticky of_ovf
+  [20] rung 4 S8: TOPK-32 STATUS decode + PTR auto-increment
+  [21] S3: conv-image witnesses + the session-reset DN memset
+  [22] S3/9B: the state region in the verifier, the session and the residency split
+  [23] E: T_MAX = the TARGET NETLIST's KV depth, the position blob, the FROZEN path's footprint, and pos_mode geometry
+  chat_seq selftest: 408 passed, 0 failed
+   rc=0
+
+########## [2] ref/seq_chat.py --selftest
+    [ok] emb geometry at FABLE5_MODEL=9b [EMB GEOMETRY SELFTEST: PASS  (H=4096)]
+SELFTEST: PASS
+seq_chat: PASS
+   rc=0
+
+########## [3] the untouched controls
+  --- S3: the DDR state region (plan, witnesses, bytes/token)
+  seq_run selftest: 2785 passed, 0 failed
+   rc=0
+HWMAP SHAPE_WORD SELFTEST PASS: isa=1 pinned to RD_GATE 0x20800290/0x20200290 (+ the 0.8B W4 control), g64=0x1000d1e0 w8=0x2000d1e0, w8+g64 refused; isa=2 ng[28:22] nrows[21:6] sh[5:0] round-trips at ng 1/32/64/96 x nrows 0/1/4096/65535 x sh 0/1/63, spare [31:29] zero, g64/w8/over-wide fields and ng outside 1..MAX_NG all refused; an UNKNOWN VERSION refuses (034/035 isa=1, 041 0xc973c18a isa=2)
+   rc=0
+
+########## [4] the frozen --nch 1 footprint at HEAD
+=== FABLE5_MODEL=0.8b  template=model_v2_s1.e  (--nch 1, the frozen path)
+  T_MAX      chat_seq 512  seq_chat 512  compiling at 512
+  stride     POS_STRIDE 1536 B/pos  POSBLOB_BYTES 786432
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_v2_s1.e -> preamble:1526, lite:14010, full:14744  (0.3s)
+  blob       1784576 B = 998144 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x903cb40
+------------------------------------------------------------------------
+  const blob 1784576 B  sha c59d9fe3c46bb09101c47f67d04c257f
+  plan.blob_bytes   0x1b3b00  (1784576)
+  plan.chan         0x0  (0)
+  plan.data_base    0xc000000  (201326592)
+  plan.data_delta   -0x74000000  (-1946157056)
+  plan.ddr_off      0x0  (0)
+  plan.emb_base     0x60000000  (1610612736)
+  plan.emb_delta    0x0  (0)
+  plan.nch          0x1  (1)
+  plan.seq_base     0x9000000  (150994944)
+  plan.stream_base  0x9000000  (150994944)
+  plan.stream_bytes 0x764c0  (484544)
+  image preamble  base 0x9000000    1526 recs     24416 B  sha babfe7db5fbeac167607ab1b5dab6aad
+  image lite      base 0x9005f80   14010 recs    224160 B  sha 753f32bc1208b57a612a4d57d3f6d1f1
+  image full      base 0x903cb40   14744 recs    235904 B  sha a1a4a9222fa165a9990284edd003015c
+  FOOTPRINT  c59d9fe3c46bb091/babfe7db5fbeac16/753f32bc1208b57a/a1a4a9222fa165a9
+FROZEN FOOTPRINT: PRINTED
+   rc=0
+
+########## [5] T_MAX at both selections
+  FABLE5_MODEL=0.8b  seq_chat.T_MAX=  512  POS_STRIDE=1536  pool=786432 B  XRF_POS_MAX=85
+  FABLE5_MODEL=2b    seq_chat.T_MAX=  512  POS_STRIDE=1536  pool=786432 B  XRF_POS_MAX=85
+  FABLE5_MODEL=9b    seq_chat.T_MAX= 4096  POS_STRIDE=2048  pool=8388608 B  XRF_POS_MAX=63
+   rc=0
+
+########## [6] m15: the per-context-reset cost of state_region()
+  image      model_9b_s1.state.bin  162529280 B = 155.0 MiB  (on NFS)
+  reset 1    verify_state_image   0.56s  StateRegion.load   0.27s  total   0.84s  (310 MiB read)
+  reset 2    verify_state_image   0.56s  StateRegion.load   0.27s  total   0.84s  (310 MiB read)
+M15 COST: PRINTED
+   rc=0
+=== rc: 0
+=== end: 2026-09-10T01:03:48-06:00

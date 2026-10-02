@@ -91,14 +91,14 @@ module tb_topk;
         .s_axil_arready(arready),
         .s_axil_rdata(rdata), .s_axil_rresp(rresp), .s_axil_rvalid(rvalid),
         .s_axil_rready(rready),
-        .s_axib_awid(1'b0), .s_axib_awaddr(16'd0), .s_axib_awlen(8'd0),
+        .s_axib_awid(1'b0), .s_axib_awaddr(18'd0), .s_axib_awlen(8'd0),
         .s_axib_awsize(3'd2), .s_axib_awburst(2'b01),
         .s_axib_awvalid(1'b0), .s_axib_awready(bawready),
         .s_axib_wdata(32'd0), .s_axib_wstrb(4'd0), .s_axib_wlast(1'b0),
         .s_axib_wvalid(1'b0), .s_axib_wready(bwready),
         .s_axib_bid(bbid), .s_axib_bresp(bbresp), .s_axib_bvalid(bbvalid),
         .s_axib_bready(1'b1),
-        .s_axib_arid(1'b0), .s_axib_araddr(16'd0), .s_axib_arlen(8'd0),
+        .s_axib_arid(1'b0), .s_axib_araddr(18'd0), .s_axib_arlen(8'd0),
         .s_axib_arsize(3'd2), .s_axib_arburst(2'b01),
         .s_axib_arvalid(1'b0), .s_axib_arready(barready),
         .s_axib_rid(brid), .s_axib_rdata(brdata), .s_axib_rresp(brresp),
@@ -214,7 +214,7 @@ module tb_topk;
     task automatic amax32(input int srca, input int len, input bit fresh,
                           input bit watch_complete);
         cmd_go(32'd10 | (32'(len) << 4), 32'(srca),
-               (fresh ? 32'd1 : 32'd0) | (32'(SDST) << 17), watch_complete);
+               (fresh ? 32'd1 : 32'd0) | (32'(SDST) << 16), watch_complete);
     endtask
 
     task automatic cmd_other(input logic [31:0] op);   // non-ALU opcode
@@ -442,18 +442,18 @@ module tb_topk;
         chk(snap_cnt == NENT, "T9 setup: expected a full list");
 
         // (a) a DIFFERENT ALU op — ADD (4), 64 elements, dst well clear
-        cmd_go(32'd4 | (32'd64 << 4), 32'd0 | (32'd64 << 14),
-               32'd0 | (32'(SDST) << 17), 1'b0);
+        cmd_go(32'd4 | (32'd64 << 4), 32'd0 | (32'd64 << 16),
+               32'd0 | (32'(SDST) << 16), 1'b0);
         expect_unchanged("ALU op 4 (ADD)");
 
         // (b) ALU DYNQ8 (op 0) — the other scan op, and it writes the XRF
         cmd_go(32'd0 | (32'd64 << 4), 32'd0,
-               32'd0 | (32'(SDST) << 17), 1'b0);
+               32'd0 | (32'(SDST) << 16), 1'b0);
         expect_unchanged("ALU op 0 (DYNQ8)");
 
         // (c) ALU DYNQ16 (op 12) — the other running-scan op
         cmd_go(32'd12 | (32'd64 << 4), 32'd0,
-               32'd0 | (32'(SDST) << 17), 1'b0);
+               32'd0 | (32'(SDST) << 16), 1'b0);
         expect_unchanged("ALU op 12 (DYNQ16)");
 
         // (d) a NON-ALU command: DNZ (opcode 12) zeroes DeltaNet state

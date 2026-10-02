@@ -9,12 +9,16 @@
 //   seq_unit.m_axil -> seq_fabric_model -> matvec_chan x NMV @0x1000..
 //                                       -> layer_chan       @0x5000
 //   seq_unit.m_axib -> seq_burst_fabric -> matvec_chan.s_axib @0x1_0000..
-//                      (RUNG3 S2/S4)    -> layer_chan.s_axib  @0x5_0000
+//                      (RUNG3 S2/S4)    -> layer_chan.s_axib  @0x6_0000 (R-b)
 //   seq_unit.m_axi  -> seq_mem_file 128b: <p>.seq   @ SEQ_STREAM_BASE
 //                                         <p>.seqdata.bin @ SEQ_DATA_BASE
 //                                         <b>.emb.bin     @ EMB_BASE
 //   matvec_chan.m_axi -> seq_mem_file 512b: <b>.wimg.bin  @ W_BASE
-//                        (the REAL packed W4 images, ui_clk domain)
+//                        (the REAL packed W4/W8 images, ui_clk domain)
+//                        WIMGPC=1: <b>.wimg<c>.bin, one region PER CHANNEL —
+//                        a REPACKED stream (SEQ_REPACK=1, R-c) gives each
+//                        channel its own address space at W_BASE, so channel
+//                        c must not be able to see another channel's bytes.
 //   seq_unit.s_axil <- the TB acting as the host
 //
 // GOLDEN.  tb/scripts/gen_seq_chip_vectors.py runs ref/seq_model.py over the
@@ -64,11 +68,32 @@ module tb_seq_chip #(
     parameter int DDRLAT   = 32,       // record/LDC/EMB first-word latency
     parameter int WLAT     = 40,       // weight-image first-word latency
     parameter int NMV      = 1,        // REAL matvec_chan instances
+    parameter bit WIMGPC   = 1'b0,     // R-c: one weight region PER CHANNEL
     parameter int RESGAP   = 3         // retired by rung 3 (kept for compat)
 );
     localparam int NSLV  = 8;
     localparam int NBSLV = 5;          // burst fabric MIs (RUNG3 S2)
-    localparam int MAXMEM = 16384;
+    localparam int MAXMEM = 65536;   // G3.1: 64K-word scratchpad
+    // R-c: the width used to INDEX layer_chan's smem_a, derived from MAXMEM
+    // rather than written out, because writing it out is exactly how this
+    // went wrong: R-b widened the scratchpad 16K -> 32K and set MAXMEM, but
+    // the two `smem_a[..._mem_a[i][13:0]]` reads below kept the 16K slice.
+    // Every checked address >= 16384 then aliased down by 16K — invisible at
+    // 0.8B (whose map IS 16,384 words, so the slice was exact) and, at 2B,
+    // landing squarely inside the y32 staging window, i.e. comparing a
+    // golden word against one the .seq run is licensed to leave different.
+    // See evidence/qwen2b/rc/RC_GATE.md section 5b.
+    localparam int MEMAW  = $clog2(MAXMEM);
+    // R-c wall 8: seq_unit keeps the EMB row stride in CSR 0x60 EMBLOG2,
+    // reset 11 (2048 B rows).  On silicon sw/seq_run.py:1762 programs it
+    // before any EMB record runs; this host BFM did not, so a 2B artifact
+    // (4096 B rows, EMBLOG2 12) had every embedding fetched from
+    // EMB_BASE + tok*2048 and every generated token came out wrong.  The
+    // value now travels in the .chip file's EMBLOG2 line, generator-derived
+    // like BASES; ABSENT means 11, so every .chip written before this — all
+    // of them 0.8B, where 11 is already correct — is unaffected.
+    localparam int unsigned EMBLOG2_DEFAULT = 11;
+    int unsigned exp_emblog2 = EMBLOG2_DEFAULT;
 
     // DDR plan — ref/seq_format.py + sw/hwmap.py (asserted against the
     // BASES line of the .chip file, so a generator change cannot drift).
@@ -78,7 +103,7 @@ module tb_seq_chip #(
     localparam longint W_BASE          = 64'h0000_0000_1000_0000;
 
     logic clk = 1'b0;
-    logic ui_clk = 1'b0;
+    logic ui_clk = 1'b0; logic [3:0] xph_l = 4'd0; wire [3:0] ui_clk_c = {4{ui_clk}} & ~xph_l;   // R3-8: per-channel ui_clk, gated only by +xp_hold (R3 block)
     logic rstn = 1'b0;
     logic ui_rstn = 1'b0;
     /* verilator lint_off BLKSEQ */
@@ -115,7 +140,9 @@ module tb_seq_chip #(
     logic        mb_rvalid, mb_rready, mb_rlast;
 
     logic [NBSLV-1:0][0:0]  g_awid, g_arid, g_bid, g_rid;
-    logic [NBSLV-1:0][15:0] g_awaddr, g_araddr;
+    // R-b: MI4 (layer_0) is a 128 KiB window -> 17-bit MI address bus;
+    // the four mvchan MIs take its low 16 bits.
+    logic [NBSLV-1:0][17:0] g_awaddr, g_araddr;   // G3.1: MAW = 18
     logic [NBSLV-1:0][7:0]  g_awlen, g_arlen;
     logic [NBSLV-1:0][2:0]  g_awsize, g_arsize;
     logic [NBSLV-1:0][1:0]  g_awburst, g_arburst, g_bresp, g_rresp;
@@ -144,8 +171,21 @@ module tb_seq_chip #(
     logic [1:0]  h_bresp, h_rresp;
 
     logic seq_busy, seq_halted, seq_err;
+    // BM1: matvec_chan c -> seq_unit engine-busy nets, mirroring the block
+    // design (synth/scripts/create_project.tcl); unbuilt slots tie 0.
+    logic [3:0]  mvb_bm;
     logic [63:0] w_nbeats [4];
     logic [63:0] w_nmiss  [4];
+    // S3: the read-only seq_mem_file instances still have to NAME the write
+    // channel's outputs (-Wall refuses an empty pin connection).
+    /* verilator lint_off UNUSEDSIGNAL */
+    wire        nc_dawr, nc_dwr, nc_dbv;
+    wire [1:0]  nc_dbresp;
+    wire [63:0] nc_dwb;
+    wire [3:0]  nc_wawr, nc_wwr, nc_wbv;
+    wire [1:0]  nc_wbresp [4];
+    wire [63:0] nc_wwb [4];
+    /* verilator lint_on UNUSEDSIGNAL */
     /* verilator lint_on UNUSEDSIGNAL */
 
     // ==================================================================
@@ -196,6 +236,7 @@ module tb_seq_chip #(
         .m_axib_rvalid(mb_rvalid), .m_axib_rready(mb_rready),
 
         .xrf_sb_we(1'b0), .xrf_sb_idx(3'd0), .xrf_sb_data(18'd0),
+        .mv_busy_bm(mvb_bm), .xpush_valid(xpv), .xpush_idx(xpi), .xpush_data(xpd), .xpush_room(xpr), .xpush_busy(xpb),   // R3-8: the x-push bus
         .seq_busy(seq_busy), .seq_halted(seq_halted), .seq_err(seq_err)
     );
 
@@ -272,7 +313,13 @@ module tb_seq_chip #(
         .araddr(d_araddr), .arlen(d_arlen), .arsize(d_arsize),
         .arburst(d_arburst), .arvalid(d_arvalid), .arready(d_arready),
         .rdata(d_rdata), .rresp(d_rresp), .rlast(d_rlast), .rvalid(d_rvalid),
-        .rready(d_rready), .n_beats(d_nbeats), .n_miss(d_nmiss)
+        .rready(d_rready), .n_beats(d_nbeats), .n_miss(d_nmiss),
+        // S3: read-only instance -- no window, write channel tied idle
+        .win_base(34'd0), .win_len(34'd0),
+        .awaddr(34'd0), .awlen(8'd0), .awvalid(1'b0), .awready(nc_dawr),
+        .wdata(128'd0), .wstrb(16'd0), .wlast(1'b0), .wvalid(1'b0),
+        .wready(nc_dwr), .bresp(nc_dbresp), .bvalid(nc_dbv), .bready(1'b0),
+        .n_wbeats(nc_dwb)
     );
 
     // slave 0 (csr_block) and 6/7 plus every unbuilt matvec slot: sinks
@@ -290,6 +337,14 @@ module tb_seq_chip #(
     end
 
     // ---------------- REAL matvec channels ----------------
+    // R-c: a repacked stream packs each channel's rows in ITS OWN address
+    // space from W_BASE, so each engine gets its own region file.  With
+    // WIMGPC=0 (the default, and every artifact frozen before R-c) all NMV
+    // engines share <base>.wimg.bin exactly as before.
+    function automatic string wimg_sfx(input int ch);
+        return WIMGPC ? $sformatf(".wimg%0d.bin", ch) : ".wimg.bin";
+    endfunction
+
     for (genvar c = 0; c < NMV; c++) begin : g_mv
         logic [33:0]  w_araddr;
         logic [7:0]   w_arlen;
@@ -309,7 +364,7 @@ module tb_seq_chip #(
             .s_axil_arready(f_arready[c+1]), .s_axil_rdata(f_rdata[c+1]),
             .s_axil_rresp(f_rresp[c+1]), .s_axil_rvalid(f_rvalid[c+1]),
             .s_axil_rready(f_rready[c+1]),
-            .s_axib_awid(g_awid[c]), .s_axib_awaddr(g_awaddr[c]),
+            .s_axib_awid(g_awid[c]), .s_axib_awaddr(g_awaddr[c][15:0]),
             .s_axib_awlen(g_awlen[c]), .s_axib_awsize(g_awsize[c]),
             .s_axib_awburst(g_awburst[c]), .s_axib_awvalid(g_awvalid[c]),
             .s_axib_awready(g_awready[c]), .s_axib_wdata(g_wdata[c]),
@@ -317,14 +372,15 @@ module tb_seq_chip #(
             .s_axib_wvalid(g_wvalid[c]), .s_axib_wready(g_wready[c]),
             .s_axib_bid(g_bid[c]), .s_axib_bresp(g_bresp[c]),
             .s_axib_bvalid(g_bvalid[c]), .s_axib_bready(g_bready[c]),
-            .s_axib_arid(g_arid[c]), .s_axib_araddr(g_araddr[c]),
+            .s_axib_arid(g_arid[c]), .s_axib_araddr(g_araddr[c][15:0]),
             .s_axib_arlen(g_arlen[c]), .s_axib_arsize(g_arsize[c]),
             .s_axib_arburst(g_arburst[c]), .s_axib_arvalid(g_arvalid[c]),
             .s_axib_arready(g_arready[c]), .s_axib_rid(g_rid[c]),
             .s_axib_rdata(g_rdata[c]), .s_axib_rresp(g_rresp[c]),
             .s_axib_rlast(g_rlast[c]), .s_axib_rvalid(g_rvalid[c]),
             .s_axib_rready(g_rready[c]),
-            .ui_clk(ui_clk), .ui_rstn(ui_rstn),
+            .mv_busy_bm(mvb_bm[c]), .xpush_valid(xpv[c]), .xpush_idx(xpi[12*c +: 12]), .xpush_data(xpd[32*c +: 32]), .xpush_room(xpr[c]), .xpush_busy(xpb[c]),   // R3-8: as create_project.tcl wires it
+            .ui_clk(ui_clk_c[c]), .ui_rstn(ui_rstn),
             .m_axi_araddr(w_araddr), .m_axi_arlen(w_arlen),
             .m_axi_arsize(w_arsize), .m_axi_arburst(w_arburst),
             .m_axi_arvalid(w_arvalid), .m_axi_arready(w_arready),
@@ -335,20 +391,70 @@ module tb_seq_chip #(
 
         seq_mem_file #(.ADDR_W(34), .DATA_W(512), .LAT(WLAT), .NREG(1),
                        .QD(4),
-                       .A0("base"), .S0(".wimg.bin"), .B0(W_BASE)) u_wmem (
-            .aclk(ui_clk), .aresetn(ui_rstn),
+                       .A0("base"), .S0(wimg_sfx(c)), .B0(W_BASE)) u_wmem (
+            .aclk(ui_clk_c[c]), .aresetn(ui_rstn),
             .araddr(w_araddr), .arlen(w_arlen), .arsize(w_arsize),
             .arburst(w_arburst), .arvalid(w_arvalid), .arready(w_arready),
             .rdata(w_rdata), .rresp(w_rresp), .rlast(w_rlast),
             .rvalid(w_rvalid), .rready(w_rready),
-            .n_beats(w_nbeats[c]), .n_miss(w_nmiss[c])
+            .n_beats(w_nbeats[c]), .n_miss(w_nmiss[c]),
+            // S3: the weight images stay READ-ONLY (spec 8.3); the state
+            // window is its own instance, u_smem, below.
+            .win_base(34'd0), .win_len(34'd0),
+            .awaddr(34'd0), .awlen(8'd0), .awvalid(1'b0),
+            .awready(nc_wawr[c]),
+            .wdata(512'd0), .wstrb(64'd0), .wlast(1'b0), .wvalid(1'b0),
+            .wready(nc_wwr[c]), .bresp(nc_wbresp[c]), .bvalid(nc_wbv[c]),
+            .bready(1'b0), .n_wbeats(nc_wwb[c])
         );
 
     end
     for (genvar c = NMV; c < 4; c++) begin : g_mv_off
         assign w_nbeats[c] = 64'd0;
         assign w_nmiss[c]  = 64'd0;
+        assign mvb_bm[c]   = 1'b0; assign xpr[c] = 1'b1; assign xpb[c] = 1'b0;   // R3-8: an unbuilt slot has room and is never busy
     end
+
+    // ==================================================================
+    // S3: the DDR STATE REGION the layer's own AXI4 master reads and writes
+    // ==================================================================
+    // `tb/seq_mem_file.sv` was read-only until S3; the write window is its
+    // extension, and ONE instance owns it (spec 8.3).  It is a SEPARATE
+    // 512-bit instance from the per-channel weight models above, not a
+    // shared one, because a single AXI4 slave cannot serve two masters
+    // without an arbiter this testbench does not need: the layer never
+    // addresses the weight pack (every access outside [win_base, win_base +
+    // win_len) is a $fatal in the model) and matvec_chan never addresses
+    // the state region (the planner puts it 2 GiB above EMB_BASE on the
+    // last channel, sw/hwmap.plan_state_base).  The window's address comes
+    // from the artifact, through the .chip golden's SBASE line.
+    logic [33:0] sm_araddr, sm_awaddr;
+    logic [7:0]  sm_arlen, sm_awlen;
+    logic        sm_arvalid, sm_arready, sm_rlast, sm_rvalid, sm_rready;
+    logic [1:0]  sm_rresp, sm_bresp;
+    logic [511:0] sm_rdata, sm_wdata;
+    logic [63:0] sm_wstrb;
+    logic        sm_awvalid, sm_awready, sm_wlast, sm_wvalid, sm_wready;
+    logic        sm_bvalid, sm_bready;
+    logic [63:0] sm_nbeats, sm_nmiss, sm_nwbeats;
+    logic [33:0] win_base, win_len;
+
+    seq_mem_file #(.ADDR_W(34), .DATA_W(512), .LAT(WLAT), .NREG(0),
+                   .QD(4), .WR(1'b1),
+                   .AS("base"), .SS(".state.bin")) u_smem (
+        .aclk(clk), .aresetn(rstn),
+        .araddr(sm_araddr), .arlen(sm_arlen), .arsize(3'b110),
+        .arburst(2'b01), .arvalid(sm_arvalid), .arready(sm_arready),
+        .rdata(sm_rdata), .rresp(sm_rresp), .rlast(sm_rlast),
+        .rvalid(sm_rvalid), .rready(sm_rready),
+        .win_base(win_base), .win_len(win_len),
+        .awaddr(sm_awaddr), .awlen(sm_awlen), .awvalid(sm_awvalid),
+        .awready(sm_awready),
+        .wdata(sm_wdata), .wstrb(sm_wstrb), .wlast(sm_wlast),
+        .wvalid(sm_wvalid), .wready(sm_wready),
+        .bresp(sm_bresp), .bvalid(sm_bvalid), .bready(sm_bready),
+        .n_beats(sm_nbeats), .n_miss(sm_nmiss), .n_wbeats(sm_nwbeats)
+    );
 
     // ---------------- the REAL layer engine ----------------
     layer_chan #(
@@ -382,7 +488,23 @@ module tb_seq_chip #(
         .s_axib_arready(g_arready[4]), .s_axib_rid(g_rid[4]),
         .s_axib_rdata(g_rdata[4]), .s_axib_rresp(g_rresp[4]),
         .s_axib_rlast(g_rlast[4]), .s_axib_rvalid(g_rvalid[4]),
-        .s_axib_rready(g_rready[4])
+        .s_axib_rready(g_rready[4]),
+        // S3: the state DMA's 512-bit master (rtl/state_dma.sv).  ARSIZE /
+        // ARBURST / the IDs are tied constant in rtl/layer_chan_ipi.v and
+        // are therefore not ports here; the model is given the same
+        // constants.
+        .m_axis_awaddr(sm_awaddr), .m_axis_awlen(sm_awlen),
+        .m_axis_awvalid(sm_awvalid), .m_axis_awready(sm_awready),
+        .m_axis_wdata(sm_wdata), .m_axis_wstrb(sm_wstrb),
+        .m_axis_wlast(sm_wlast), .m_axis_wvalid(sm_wvalid),
+        .m_axis_wready(sm_wready),
+        .m_axis_bresp(sm_bresp), .m_axis_bvalid(sm_bvalid),
+        .m_axis_bready(sm_bready),
+        .m_axis_araddr(sm_araddr), .m_axis_arlen(sm_arlen),
+        .m_axis_arvalid(sm_arvalid), .m_axis_arready(sm_arready),
+        .m_axis_rdata(sm_rdata), .m_axis_rresp(sm_rresp),
+        .m_axis_rlast(sm_rlast), .m_axis_rvalid(sm_rvalid),
+        .m_axis_rready(sm_rready)
     );
 
     // ==================================================================
@@ -412,9 +534,44 @@ module tb_seq_chip #(
     int unsigned exp_xrf [8];
     int unsigned exp_tok [4096];
     int unsigned n_exp_tok;
-    int unsigned exp_tcnt0 [6];
-    int unsigned exp_tcnt1 [6];
+    // G4a: the golden holders for the banked KV append counters.  These
+    // were `[6]` — the PRE-G3.4 six-bank geometry — while
+    // `rtl/layer_chan.sv`'s `tcnt_bank` is `[N_KV][NKVH]` = [8][4] since
+    // G3.4, and the `.chip` golden writes one TCNT line per bank.  The
+    // parser indexed them with `a[2:0]`, so a 9B artifact's TCNT lines for
+    // kv slots 6 and 7 were written OUT OF BOUNDS and dropped while
+    // `n_exp_tcnt` still counted them; the compare below then read an
+    // out-of-bounds ZERO and reported the RTL's CORRECT 6/6 as
+    // "expected 0/0".  Measured on the first full 9B replay,
+    // evidence/qwen9b/g4/016_full_model_replay.log — the golden file itself
+    // says `TCNT 6 6 6` and `TCNT 7 6 6`, so neither the RTL nor the
+    // reference was wrong; the checker could not hold the answer.
+    //
+    // This is the same class the MEM parser's own comment names below — "a
+    // golden the checker cannot index is a broken gate, not a mismatch" —
+    // and it gets the same two-part repair: size the holders from the DUT's
+    // bank count, and REFUSE a golden line that does not fit instead of
+    // truncating its index.
+    // G4a fix round 1 (I6): and the SECOND dimension too.  The holders were
+    // a pair of 1-D arrays that could only ever carry kvheads 0 and 1, so
+    // kvheads 2 and 3 were never in the golden and never compared -- the
+    // other half of the same geometry, invisible because the golden did not
+    // carry the columns rather than because the checker dropped them.
+    localparam int TB_KV_NB = 8;          // == rtl/layer_chan.sv N_KV
+    localparam int TB_KVH   = 4;          // == rtl/layer_chan.sv NKVH
+    int unsigned exp_tcnt  [TB_KV_NB][TB_KVH];
     int unsigned n_exp_tcnt;
+    // S3: the DDR state region's golden.  One SMEM record per block the
+    // launch STORED -- `SMEM <hex addr> <hex len> <hex fnv1a64>`, the
+    // grammar tb/scripts/gen_seq_chip_vectors.py writes.  FNV-1a 64 is the
+    // TRANSPORT (a golden that carried 155 MiB of bytes would be
+    // unreadable); byte equality is the check, and `seq_mem_file.win_fnv`
+    // computes the hash in the TB exactly as the generator does in Python.
+    localparam int NSMEM = 512;
+    longint      smem_a [NSMEM];
+    longint      smem_n [NSMEM];
+    logic [63:0] smem_h [NSMEM];
+    int unsigned n_smem;
     int unsigned exp_eout, exp_amaxi, exp_amaxv, exp_pc, exp_nrec;
     int unsigned have_eout, have_amax;
 
@@ -422,9 +579,35 @@ module tb_seq_chip #(
     int unsigned prev_mem_a [MAXMEM];
     int unsigned prev_mem_v [MAXMEM];
     int unsigned n_prev_mem;
-    int unsigned prev_tcnt0 [6];
-    int unsigned prev_tcnt1 [6];
+    int unsigned prev_tcnt [TB_KV_NB][TB_KVH];
     int unsigned n_prev_tcnt;
+    // ...and the mirror is checked against the DUT ITSELF, not tied by a
+    // parser: a testbench cannot read another module's localparam, but this
+    // file already uses hierarchical references into `u_layer` everywhere,
+    // so `$size` on the real array is the strongest form available.  If
+    // `layer_chan` ever re-banks, this fires instead of the holders quietly
+    // going one geometry stale again.
+    // A `{"...", "..."}` CONCATENATION IS NOT A FORMAT STRING.  Verilator
+    // takes the concatenation as a packed VALUE and prints it as a decimal,
+    // so the refusal arrives as a 200-digit number and the reader learns
+    // nothing.  Measured, not reasoned: the round-1 RED control
+    // (evidence/qwen9b/g4/042_red_two_column_chip.log) refused correctly and
+    // printed exactly that.  Long messages therefore go in a `$display` and
+    // `$fatal` carries ONE literal.
+    initial begin
+        if ($size(u_layer.tcnt_bank) != TB_KV_NB) begin
+            $display("tb_seq_chip: a .chip TCNT line for a bank past the end would be DROPPED");
+            $fatal(1, "layer_chan has %0d KV banks, TCNT golden holders sized %0d",
+                   $size(u_layer.tcnt_bank), TB_KV_NB);
+        end
+        // ...and BOTH dimensions, because pinning only the first is how
+        // kvheads 2/3 went unchecked for a whole geometry (I6).
+        if ($size(u_layer.tcnt_bank[0]) != TB_KVH) begin
+            $display("tb_seq_chip: the kvheads past the holder would never be compared");
+            $fatal(1, "layer_chan has %0d kvheads per bank, TCNT golden holders carry %0d",
+                   $size(u_layer.tcnt_bank[0]), TB_KVH);
+        end
+    end
 
     // per-launch descriptor
     int unsigned cur_off, cur_nrec, cur_idx, n_launch_exp;
@@ -444,6 +627,34 @@ module tb_seq_chip #(
     int    wdog_ms;
 
     // ------------------------------------------------------------------
+    // BM1 (spec docs/superpowers/specs/2026-09-24-board-idle-counters-
+    // design.md §3): the SEQ 0x100 idle-counter block (docs/SEQ_ISA.md
+    // B16), read at HALT through the DUT's real AXI-Lite slave.  GATED by
+    // +bm: absent it, none of this reads, prints or checks anything, and
+    // the host BFM issues exactly the transactions it always did.
+    //   +bm                  read + print the block after every launch, and
+    //                        check every counter against the testbench's
+    //                        OWN negedge sampler below (exact; $fatal on
+    //                        any difference)
+    //   +bm_expect=<file>    also check against the census's totals
+    //                        ("NAME VALUE" lines, evidence/qwen9b/bm/
+    //                        bm1_expect.py); single-launch streams only
+    // The sampler is the census's method (tb/seq_timeline.svh): negedge,
+    // while dut.busy_r, the same DUT signals.  Its counts are monotone since
+    // t=0 (only the sampler advances them); a launch's figure is the
+    // difference from the snapshot the host loop takes just before its
+    // START, so the host loop never writes a sampler count.
+    // ------------------------------------------------------------------
+    localparam int BM_NSH = 17;
+    localparam int BM_NEXP = 32;
+    bit      bm_en = 1'b0;
+    int      bm_nexp = 0;
+    string   bm_exp_name [BM_NEXP];
+    longint  bm_exp_val  [BM_NEXP];
+    longint  bm_sh  [BM_NSH];      // written ONLY by the sampler
+    longint  bm_sh0 [BM_NSH];      // written ONLY by the host loop
+
+    // ------------------------------------------------------------------
     // read ONE launch section out of the (already open) .chip file.
     // A single-launch .chip has no LAUNCH/ENDL keys at all: it is simply
     // one section terminated by END, with NREC standing in for the
@@ -455,6 +666,7 @@ module tb_seq_chip #(
         string key;
         begin
             n_exp_mem = 0; n_exp_tok = 0; n_exp_tcnt = 0; n_rw = 0;
+            n_smem = 0;
             exp_pc = 0; exp_eout = 0; exp_amaxi = 0; exp_amaxv = 0;
             have_eout = 0; have_amax = 0;
             for (int i = 0; i < 8; i++) exp_xrf[i] = 0;
@@ -491,8 +703,27 @@ module tb_seq_chip #(
                     r = $fscanf(chip_fd, "%h", d);
                     exp_tok[n_exp_tok] = d; n_exp_tok++;
                 end else if (key == "TCNT") begin
-                    r = $fscanf(chip_fd, "%d %d %d", a, b, d);
-                    exp_tcnt0[a[2:0]] = b; exp_tcnt1[a[2:0]] = d;
+                    r = $fscanf(chip_fd, "%d", a);
+                    // G4a: refuse, do not truncate.  `a[2:0]` silently
+                    // aliased a kv slot the holder could not reach.
+                    if (a >= TB_KV_NB)
+                        $fatal(1, "TCNT kv slot %0d does not fit the %0d-bank golden holder",
+                               a, TB_KV_NB);
+                    // G4a fix round 1 (I6): read ALL TB_KVH columns, and
+                    // REFUSE a golden that carries fewer.  A stale two-column
+                    // .chip is a build product from before this change, and
+                    // half-checking it silently is exactly the class this
+                    // whole block exists to stop -- `make -C tb
+                    // seq_chip_vectors*` regenerates it.
+                    for (int h = 0; h < TB_KVH; h++) begin
+                        r = $fscanf(chip_fd, "%d", b);
+                        if (r != 1) begin
+                            $display("regenerate the .chip golden: make -C tb seq_chip_vectors*");
+                            $fatal(1, "TCNT kv slot %0d carries fewer than %0d counters",
+                                   a, TB_KVH);
+                        end
+                        exp_tcnt[a][h] = b;
+                    end
                     if (a >= n_exp_tcnt) n_exp_tcnt = a + 1;
                 end else if (key == "RDWIN") begin
                     r = $fscanf(chip_fd, "%h %h %d %d", a, b, d, e);
@@ -503,8 +734,43 @@ module tb_seq_chip #(
                 end else if (key == "MEM") begin
                     r = $fscanf(chip_fd, "%h %h", a, d);
                     if (n_exp_mem >= MAXMEM) $fatal(1, "too many MEM lines");
+                    // ... and the COUNT was already guarded; the ADDRESS was
+                    // not, which is what let a silently-truncated index read
+                    // the wrong word for a whole simulation.  A golden the
+                    // checker cannot index is a broken gate, not a mismatch.
+                    if (a >= MAXMEM)
+                        $fatal(1, "MEM address %0h does not fit the %0d-word scratchpad (%0d-bit checker index)",
+                               a, MAXMEM, MEMAW);
                     exp_mem_a[n_exp_mem] = a; exp_mem_v[n_exp_mem] = d;
                     n_exp_mem++;
+                end else if (key == "SMEM") begin
+                    longint sa, sn;
+                    logic [63:0] sh;
+                    r = $fscanf(chip_fd, "%h %h %h", sa, sn, sh);
+                    if (r != 3) $fatal(1, "bad SMEM line");
+                    if (n_smem >= NSMEM) $fatal(1, "too many SMEM lines");
+                    smem_a[n_smem] = sa; smem_n[n_smem] = sn;
+                    smem_h[n_smem] = sh; n_smem++;
+                end else if (key == "SBASE") begin
+                    // the DDR state region, in 64 KiB units:
+                    // SB_DN / SB_KV / SB_CV and the region's length.  The
+                    // PROGRAM writes the three CSRs itself (the S record of
+                    // the .txt, three CSRWRs in the .seq); this line is what
+                    // the TB's DDR model needs to know WHERE the window is.
+                    r = $fscanf(chip_fd, "%h %h %h %h", a, b, d, e);
+                    if (r != 4) $fatal(1, "bad SBASE line");
+                    win_base = {2'd0, a} << 16;
+                    win_len  = {2'd0, e} << 16;
+                    if (({2'd0, b} << 16) < win_base
+                        || ({2'd0, d} << 16) < win_base)
+                        $fatal(1, "SBASE: KV/CV below the DN base");
+                    nkey--;                     // a file header, not a section
+                end else if (key == "EMBLOG2") begin
+                    r = $fscanf(chip_fd, "%d", a);
+                    if (a < 8 || a > 13)
+                        $fatal(1, "EMBLOG2 %0d outside seq_unit's legal 8..13", a);
+                    exp_emblog2 = a;
+                    nkey--;                     // a file header, not a section
                 end else if (key == "BASES") begin
                     // stream / blob / emb / weights — checked against the
                     // localparams above so a generator change cannot drift
@@ -601,6 +867,7 @@ module tb_seq_chip #(
         nerr = 0; li = 0; tot_tok = 0; tot_cyc = 0;
         cur_off = 0; cur_nrec = 0; cur_idx = 0; cur_kind = "-";
         n_launch_exp = 1; n_prev_mem = 0; n_prev_tcnt = 0;
+        n_smem = 0; win_base = 34'd0; win_len = 34'd0;
         for (int k = 0; k < NRW; k++) begin
             rw_lo[k] = '0; rw_hi[k] = '0;
             rw_min[k] = 0; rw_max[k] = 0;
@@ -630,27 +897,30 @@ module tb_seq_chip #(
             read_section(got, last);
             if (!got) break;
 
-            $display("tb_seq_chip: launch %0d [%s] rec_off %0d, %0d records, %0d tokens, %0d scratch words, NMV=%0d LAT=%0d DDRLAT=%0d WLAT=%0d",
+            $display("tb_seq_chip: launch %0d [%s] rec_off %0d, %0d records, %0d tokens, %0d scratch words, NMV=%0d WIMGPC=%0d LAT=%0d DDRLAT=%0d WLAT=%0d",
                      li, cur_kind, cur_off, cur_nrec,
-                     n_exp_tok, n_exp_mem, NMV, LAT, DDRLAT, WLAT);
+                     n_exp_tok, n_exp_mem, NMV, WIMGPC, LAT, DDRLAT, WLAT);
 
             // ---- the previous launch's state must still be there -------
             if (li != 0) begin
                 int unsigned ncarry;
                 ncarry = 0;
                 for (int s = 0; s < int'(n_prev_tcnt); s++) begin
-                    if ({22'd0, u_layer.tcnt_bank[s][0]} !== prev_tcnt0[s]
-                        || {22'd0, u_layer.tcnt_bank[s][1]} !== prev_tcnt1[s])
-                        begin
-                        $display("CARRY TCNT[%0d] = %0d/%0d, expected %0d/%0d",
-                                 s, u_layer.tcnt_bank[s][0],
-                                 u_layer.tcnt_bank[s][1],
-                                 prev_tcnt0[s], prev_tcnt1[s]);
-                        nerr++;
-                    end else ncarry++;
+                    bit ok;
+                    ok = 1'b1;
+                    for (int h = 0; h < TB_KVH; h++)
+                        if ({22'd0, u_layer.tcnt_bank[s][h]}
+                            !== prev_tcnt[s][h]) begin
+                            $display("CARRY TCNT[%0d][kvhead %0d] = %0d, expected %0d",
+                                     s, h, u_layer.tcnt_bank[s][h],
+                                     prev_tcnt[s][h]);
+                            nerr++;
+                            ok = 1'b0;
+                        end
+                    if (ok) ncarry++;
                 end
                 for (int i = 0; i < int'(n_prev_mem); i++) begin
-                    v = {16'd0, u_layer.smem_a[prev_mem_a[i][13:0]]}
+                    v = {16'd0, u_layer.smem_a[prev_mem_a[i][MEMAW-1:0]]}
                         & 32'hFFFF;
                     if (v !== (prev_mem_v[i] & 32'hFFFF)) begin
                         $display("CARRY MEM[%04h] = %04h, expected %04h",
@@ -680,11 +950,21 @@ module tb_seq_chip #(
             hwr(32'h10, cur_nrec);
             hwr(32'h24, 32'h0);                      // ENTRY
             hwr(32'h20, 32'd0);                      // TCNT_SEQ
+            // R-c wall 8: the EMB row stride, mirroring sw/seq_run.py's
+            // program_emblog2().  Written unconditionally and read back, so
+            // a stream whose geometry the DUT cannot serve fails loudly here
+            // instead of silently fetching the wrong embedding row.
+            hwr(32'h60, exp_emblog2);
+            hrd(32'h60, v);
+            if (v !== exp_emblog2)
+                $fatal(1, "EMBLOG2 readback %0d != %0d (seq_unit rejected the row stride this artifact needs)",
+                       v, exp_emblog2);
             for (int i = 0; i < 8; i++) hwr(32'h40 + 4 * i, 32'd0);
 
             @(negedge clk); rw_clr = 1'b1;
             @(negedge clk); rw_clr = 1'b0;
             @(negedge clk);
+            if (bm_en) bm_snap();            // BM1: the sampler baseline
             cyc_start = int'($time / 4);
             hwr(32'h00, 32'h1);                      // START
 
@@ -759,12 +1039,14 @@ module tb_seq_chip #(
             // 0x1C EOUT -> eout_q, 0x28/0x2C AMAXI/AMAXV ->
             // alu_amax_idx/val).
             for (int s = 0; s < int'(n_exp_tcnt); s++) begin
-                if ({22'd0, u_layer.tcnt_bank[s][0]} !== exp_tcnt0[s]
-                    || {22'd0, u_layer.tcnt_bank[s][1]} !== exp_tcnt1[s]) begin
-                    $display("TCNT[kv %0d] = %0d/%0d, expected %0d/%0d", s,
-                             u_layer.tcnt_bank[s][0], u_layer.tcnt_bank[s][1],
-                             exp_tcnt0[s], exp_tcnt1[s]);
-                    nerr++;
+                for (int h = 0; h < TB_KVH; h++) begin
+                    if ({22'd0, u_layer.tcnt_bank[s][h]} !== exp_tcnt[s][h])
+                        begin
+                        $display("TCNT[kv %0d][kvhead %0d] = %0d, expected %0d",
+                                 s, h, u_layer.tcnt_bank[s][h],
+                                 exp_tcnt[s][h]);
+                        nerr++;
+                    end
                 end
             end
             if (have_eout != 0) begin
@@ -789,7 +1071,7 @@ module tb_seq_chip #(
 
             // ---------------- final scratchpad ----------------
             for (int i = 0; i < int'(n_exp_mem); i++) begin
-                v = {16'd0, u_layer.smem_a[exp_mem_a[i][13:0]]} & 32'hFFFF;
+                v = {16'd0, u_layer.smem_a[exp_mem_a[i][MEMAW-1:0]]} & 32'hFFFF;
                 if (v !== (exp_mem_v[i] & 32'hFFFF)) begin
                     $display("MEM[%04h] = %04h, expected %04h",
                              exp_mem_a[i], v, exp_mem_v[i] & 32'hFFFF);
@@ -818,11 +1100,28 @@ module tb_seq_chip #(
             // ---------------- keep this launch's state as the carry ----
             n_prev_tcnt = n_exp_tcnt;
             for (int s = 0; s < int'(n_exp_tcnt); s++) begin
-                prev_tcnt0[s] = exp_tcnt0[s]; prev_tcnt1[s] = exp_tcnt1[s];
+                for (int h = 0; h < TB_KVH; h++)
+                    prev_tcnt[s][h] = exp_tcnt[s][h];
             end
             n_prev_mem = n_exp_mem;
             for (int i = 0; i < int'(n_exp_mem); i++) begin
                 prev_mem_a[i] = exp_mem_a[i]; prev_mem_v[i] = exp_mem_v[i];
+            end
+
+            // ---------------- the DDR state region ----------------
+            // Every block this launch stored, hashed out of the TB's own
+            // DDR model and compared with the reference executor's
+            // (`ref/seq_model.StateRegion` -> gen_seq_chip_vectors).  A
+            // store that never happened, or happened to the wrong block, is
+            // caught HERE and not only by the token compare (spec 8.3).
+            for (int i = 0; i < int'(n_smem); i++) begin
+                logic [63:0] got;
+                got = u_smem.win_fnv(smem_a[i], smem_n[i]);
+                if (got !== smem_h[i]) begin
+                    $display("SMEM %012h+%0h fnv1a64 %016h, expected %016h",
+                             smem_a[i], smem_n[i], got, smem_h[i]);
+                    nerr++;
+                end
             end
 
             // ---------------- performance ----------------
@@ -832,9 +1131,10 @@ module tb_seq_chip #(
             $display("SEQ-CHIP %s launch %0d [%s]: %0d records, %0d cycles (%0.2f cyc/rec, %0.3f ms @250MHz, PERF_CYC %0d)",
                      seqp, li, cur_kind, cur_nrec, lcyc, cyc / recs,
                      cyc / 250000.0, v);
-            $display("LAUNCH %0d PASS: [%s] pc %0d, tokens %0d, tcnt %0d, scratch %0d",
+            if (bm_en) bm_readout(int'(li));   // BM1 (+bm only)
+            $display("LAUNCH %0d PASS: [%s] pc %0d, tokens %0d, tcnt %0d, scratch %0d, smem %0d",
                      li, cur_kind, exp_pc, n_exp_tok,
-                     n_exp_tcnt, n_exp_mem);
+                     n_exp_tcnt, n_exp_mem, n_smem);
             li++;
             if (last) break;
         end
@@ -848,10 +1148,34 @@ module tb_seq_chip #(
             $display("record/const/emb DDR served %0d UNMAPPED beats", d_nmiss);
             nerr++;
         end
+        // S3: the state region.  A read the window did not cover is an
+        // address the layer's DMA computed wrong, and it must not be
+        // reported as zeros.
+        $display("  state: %0d read beats, %0d write beats, %0d unmapped",
+                 sm_nbeats, sm_nwbeats, sm_nmiss);
+        if (sm_nmiss != 0) begin
+            $display("state DDR served %0d UNMAPPED beats (outside [%h, %h))",
+                     sm_nmiss, win_base,
+                     {30'd0, win_base} + {30'd0, win_len});
+            nerr++;
+        end
         if (nerr != 0) $fatal(1, "%0d comparison failures", nerr);
 
         hrd(32'h34, v); $display("  axil writes %0d", v);
         hrd(32'h38, v); $display("  axil reads  %0d", v);
+        // SR13a: the SEQ_CAPS word (docs/SEQ_ISA.md v2.3 B17.0, SEQ 0x64),
+        // read AFTER every launch and after the two AXI-Lite counters
+        // above, so it cannot move a measured cycle or a printed count.
+        // +caps_expect=<hex> makes a different word a failure.
+        begin
+            int unsigned caps_exp;
+            hrd(32'h64, v); $display("  SEQ_CAPS %08h", v);
+            if ($value$plusargs("caps_expect=%h", caps_exp)) begin
+                if (v !== caps_exp)
+                    $fatal(1, "SEQ_CAPS %08h != +caps_expect %08h", v, caps_exp);
+                $display("  SEQ_CAPS %08h == +caps_expect %08h", v, caps_exp);
+            end
+        end
         $display("  burst: %0d write bursts (%0d beats), %0d read bursts (%0d beats), busy_wr %0d busy_rd %0d, decerr %0d non-OK %0d, BLAT=%0d",
                  bf_nwr, bf_nwbeat, bf_nrd, bf_nrbeat, bf_bwr, bf_brd,
                  bf_ndec, bf_nslv, BLAT);
@@ -863,8 +1187,22 @@ module tb_seq_chip #(
         if (bf_nidm != 32'd0)
             $fatal(1, "%0d burst id-echo mismatches", bf_nidm);
         hrd(32'h3C, v); $display("  fetch-empty stall cycles %0d", v[31:1]);
-        $display("  ddr beats %0d (miss %0d), weight beats %0d (miss %0d)",
-                 d_nbeats, d_nmiss, w_nbeats[0], w_nmiss[0]);
+        // R-c: weight beats are per-CHANNEL counters and this line used to
+        // print only channel 0, which reads as a fabric total and is not one.
+        // Sum across the elaborated channels and show the split.
+        begin
+            longint unsigned wb_tot, wm_tot;
+            string wb_split;
+            wb_tot = 0; wm_tot = 0; wb_split = "";
+            for (int c = 0; c < NMV; c++) begin
+                wb_tot += w_nbeats[c];
+                wm_tot += w_nmiss[c];
+                wb_split = {wb_split, $sformatf("%s%0d", (c == 0) ? "" : "/",
+                                                w_nbeats[c])};
+            end
+            $display("  ddr beats %0d (miss %0d), weight beats %0d total across %0d chan (miss %0d) [%s]",
+                     d_nbeats, d_nmiss, wb_tot, NMV, wm_tot, wb_split);
+        end
         $display("  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)");
         // n_prev_* hold the LAST launch's checked counts (the exp_* arrays
         // were cleared by the terminating read_section call).
@@ -883,6 +1221,356 @@ module tb_seq_chip #(
                  wd_ms, seq_busy, seq_halted, seq_err);
         $fatal(1, "tb_seq_chip: watchdog");
     end
+
+    // ==================================================================
+    // BM1: the idle-counter readout and its testbench-side reference.
+    // See the declaration block above for the plusargs.  Sampler indices:
+    //   0 busy cycles (= PERF_CYC)   1 any engine busy   2..5 engine c busy
+    //   6 mover on FENCE   7 mover on MOVX/MVGO/MOVY   8 (7) AND any engine
+    //   9 ist == I_MOVER  10 OP_EMB records latched   11 mover on MOVX
+    //  12 mover on MOVY   13 mover busy (census MOVER)
+    //  14 MOVER & no R beat & any engine   (the census's 013 I-2 quantity)
+    //  15 mover on FENCE & any engine & no R beat
+    //  16 mover on work & any engine & an R beat
+    // (14 = 8 - 16 + 15 exactly: the census's I-2 and the spec's C7 differ
+    // by the FENCE cycles with an engine busy but no beat, and the work
+    // cycles with a beat — both are counted so the difference is explained,
+    // not assumed.)
+    // ==================================================================
+    localparam logic [31:0] BM_IDENT_EXP = 32'hFAB1_B301;
+    logic [3:0]  bm_mvb;
+    logic [63:0] bm_wbprev [4];
+    for (genvar bc = 0; bc < 4; bc++) begin : g_bm_mvb
+        if (bc < NMV) begin : g_on
+            assign bm_mvb[bc] = g_mv[bc].u_mv.cdc_sync_stat[0];
+        end else begin : g_off
+            assign bm_mvb[bc] = 1'b0;
+        end
+    end
+
+    initial begin
+        string path, nm;
+        int    fd, r;
+        longint val;
+        string line;
+        for (int k = 0; k < BM_NSH; k++) bm_sh[k] = 64'd0;
+        for (int c = 0; c < 4; c++) bm_wbprev[c] = 64'd0;
+        if ($test$plusargs("bm")) bm_en = 1'b1;
+        if ($value$plusargs("bm_expect=%s", path)) begin
+            fd = $fopen(path, "r");
+            if (fd == 0) begin
+                $display("tb_seq_chip: +bm_expect path was %s", path);
+                $fatal(1, "tb_seq_chip: cannot open the BM1 expect file");
+            end
+            while (!$feof(fd)) begin
+                line = "";
+                r = $fgets(line, fd);
+                if (r == 0 || line.len() == 0 || line.substr(0, 0) == "#")
+                    continue;
+                r = $sscanf(line, "%s %d", nm, val);
+                if (r != 2) continue;
+                if (bm_nexp >= BM_NEXP)
+                    $fatal(1, "tb_seq_chip: too many BM1 expect lines");
+                bm_exp_name[bm_nexp] = nm;
+                bm_exp_val[bm_nexp]  = val;
+                bm_nexp++;
+            end
+            $fclose(fd);
+            $display("tb_seq_chip: BM1 counters ON, %0d expected values from %s",
+                     bm_nexp, path);
+        end else if (bm_en) begin
+            $display("tb_seq_chip: BM1 counters ON (no expect file)");
+        end
+    end
+
+    /* verilator lint_off BLKSEQ */
+    always @(negedge clk) if (bm_en && rstn && dut.busy_r) begin
+        bit str, any, mb, fen;
+        str = 1'b0;
+        for (int c = 0; c < 4; c++) begin
+            if (w_nbeats[c] != bm_wbprev[c]) str = 1'b1;
+            bm_wbprev[c] = w_nbeats[c];
+        end
+        any = |bm_mvb;
+        mb  = dut.mv_busy;
+        fen = (dut.mv_op == 2'd3);
+        bm_sh[0] += 64'd1;
+        if (any) bm_sh[1] += 64'd1;
+        for (int c = 0; c < 4; c++) if (bm_mvb[c]) bm_sh[2 + c] += 64'd1;
+        if (mb && fen)          bm_sh[6] += 64'd1;
+        if (mb && !fen)         bm_sh[7] += 64'd1;
+        if (mb && !fen && any)  bm_sh[8] += 64'd1;
+        if (int'(dut.ist) == 17) bm_sh[9] += 64'd1;
+        if (dut.rec_valid && (dut.r_op == 8'h06)) bm_sh[10] += 64'd1;
+        if (mb && (dut.mv_op == 2'd0)) bm_sh[11] += 64'd1;
+        if (mb && (dut.mv_op == 2'd2)) bm_sh[12] += 64'd1;
+        if (mb)                         bm_sh[13] += 64'd1;
+        if (mb && !str && any)          bm_sh[14] += 64'd1;
+        if (mb && fen && any && !str)   bm_sh[15] += 64'd1;
+        if (mb && !fen && any && str)   bm_sh[16] += 64'd1;
+    end
+    /* verilator lint_on BLKSEQ */
+
+    task automatic bm_snap();
+        for (int k = 0; k < BM_NSH; k++) bm_sh0[k] = bm_sh[k];
+    endtask
+
+    // one counter: RTL register vs its reference, printed on one line
+    task automatic bm_cmp(input int li, input string name,
+                          input longint rtl, input longint ref_v,
+                          input string what, inout int nbad);
+        $display("BM1 L%0d %s rtl %0d %s %0d %s", li, name, rtl, what,
+                 ref_v, (rtl == ref_v) ? "OK" : "MISMATCH");
+        if (rtl != ref_v) nbad++;
+    endtask
+
+    task automatic bm_readout(input int li);
+        int unsigned r [14];
+        int unsigned pcyc, hi, out;
+        longint d [BM_NSH];
+        longint rv, xv;
+        longint mx, sm;
+        int nbad;
+        bit found;
+        string nm;
+        nbad = 0;
+        for (int i = 0; i < 14; i++) hrd(32'h100 + 4 * i, r[i]);
+        hrd(32'h1FC, hi);
+        hrd(32'h200, out);
+        hrd(32'h2C, pcyc);
+        for (int k = 0; k < BM_NSH; k++) d[k] = bm_sh[k] - bm_sh0[k];
+        $display("BM1 L%0d BEGIN  (0x100..0x134 read after HALT; ref = the testbench's negedge sampler)", li);
+        bm_cmp(li, "BM_IDENT", longint'(r[0]), longint'(BM_IDENT_EXP), "const", nbad);
+        bm_cmp(li, "PERF_CYC", longint'(pcyc), d[0], "ref", nbad);
+        bm_cmp(li, "BM_MVANY", longint'(r[1]), d[1], "ref", nbad);
+        bm_cmp(li, "BM_MV0", longint'(r[2]), d[2], "ref", nbad);
+        bm_cmp(li, "BM_MV1", longint'(r[3]), d[3], "ref", nbad);
+        bm_cmp(li, "BM_MV2", longint'(r[4]), d[4], "ref", nbad);
+        bm_cmp(li, "BM_MV3", longint'(r[5]), d[5], "ref", nbad);
+        bm_cmp(li, "BM_FENCE", longint'(r[6]), d[6], "ref", nbad);
+        bm_cmp(li, "BM_MVWORK", longint'(r[7]), d[7], "ref", nbad);
+        bm_cmp(li, "BM_MVWORK_ANY", longint'(r[8]), d[8], "ref", nbad);
+        bm_cmp(li, "BM_IMOVER", longint'(r[9]), d[9], "ref", nbad);
+        bm_cmp(li, "BM_STEPS", longint'(r[10]), d[10], "ref", nbad);
+        bm_cmp(li, "RSVD_12C", longint'(r[11]), 64'd0, "const", nbad);
+        bm_cmp(li, "BM_MOVX", longint'(r[12]), d[11], "ref", nbad);
+        bm_cmp(li, "BM_MOVY", longint'(r[13]), d[12], "ref", nbad);
+        bm_cmp(li, "RSVD_1FC", longint'(hi), 64'd0, "const", nbad);
+        bm_cmp(li, "OUTSIDE_200", longint'(out), 64'hDEAD_C0DE, "const", nbad);
+        $display("BM1 L%0d INFO   MVGO work (MVWORK-MOVX-MOVY) %0d  ref MOVER %0d  ref I2 %0d  ref FENCE&ANY&!STR %0d  ref WORK&ANY&STR %0d  L_LCYC %0d",
+                 li, longint'(r[7]) - longint'(r[12]) - longint'(r[13]),
+                 d[13], d[14], d[15], d[16], u_layer.lcyc);
+        // the spec's §3.3 D identities, on the RTL registers themselves
+        mx = 0; sm = 0;
+        for (int c = 0; c < 4; c++) begin
+            if (longint'(r[2 + c]) > mx) mx = longint'(r[2 + c]);
+            sm += longint'(r[2 + c]);
+        end
+        bm_cmp(li, "ID_FENCE+WORK", longint'(r[6]) + longint'(r[7]), d[13],
+               "MOVER", nbad);
+        bm_cmp(li, "ID_WORK>=W_ANY", (r[7] >= r[8]) ? 64'd1 : 64'd0, 64'd1, "want", nbad);
+        bm_cmp(li, "ID_MAX<=ANY<=S",
+               ((mx <= longint'(r[1])) && (longint'(r[1]) <= sm)) ? 64'd1 : 64'd0, 64'd1,
+               "want", nbad);
+        bm_cmp(li, "ID_MOVX+MOVY<=W",
+               (longint'(r[12]) + longint'(r[13]) <= longint'(r[7])) ? 64'd1 : 64'd0, 64'd1,
+               "want", nbad);
+        bm_cmp(li, "ID_I2=C7-WS+FN", d[14], d[8] - d[16] + d[15], "ref", nbad);
+        // the census's own totals, when given
+        if (bm_nexp != 0) begin
+            if (li != 0)
+                $fatal(1, "tb_seq_chip: +bm_expect covers single-launch streams only");
+            for (int e = 0; e < bm_nexp; e++) begin
+                nm = bm_exp_name[e];
+                xv = bm_exp_val[e];
+                found = 1'b1;
+                case (nm)
+                    "PERF_CYC":      rv = longint'(pcyc);
+                    "BM_MVANY":      rv = longint'(r[1]);
+                    "BM_MV0":        rv = longint'(r[2]);
+                    "BM_MV1":        rv = longint'(r[3]);
+                    "BM_MV2":        rv = longint'(r[4]);
+                    "BM_MV3":        rv = longint'(r[5]);
+                    "BM_FENCE":      rv = longint'(r[6]);
+                    "BM_MVWORK":     rv = longint'(r[7]);
+                    "BM_MVWORK_ANY": rv = longint'(r[8]);
+                    "BM_IMOVER":     rv = longint'(r[9]);
+                    "BM_STEPS":      rv = longint'(r[10]);
+                    "BM_MOVX":       rv = longint'(r[12]);
+                    "BM_MOVY":       rv = longint'(r[13]);
+                    "L_LCYC":        rv = longint'(u_layer.lcyc);
+                    "CENSUS_I2":     rv = d[14];
+                    default:         found = 1'b0;
+                endcase
+                if (!found) begin
+                    $display("tb_seq_chip: unknown BM1 expect name %s", nm);
+                    $fatal(1, "tb_seq_chip: bad BM1 expect file");
+                end
+                bm_cmp(li, {"EXP_", nm}, rv, xv, "census", nbad);
+            end
+        end
+        if (nbad != 0) begin
+            $display("BM1 L%0d FAIL: %0d check(s) differ", li, nbad);
+            $fatal(1, "tb_seq_chip: BM1 counter check FAILED");
+        end
+        $display("BM1 L%0d PASS: every counter equals its reference%s", li,
+                 (bm_nexp != 0) ? " and the census total" : "");
+    endtask
+
+    // ==================================================================
+    // BN1: the whole-token TIMELINE CENSUS — a READ-ONLY instrument,
+    // gated by +timeline=<csv>.  Absent the plusarg it does nothing and
+    // this testbench is behaviourally unchanged (that is BN1's control).
+    // It drives no DUT signal; it samples at NEGEDGE like everything else
+    // here.  See tb/seq_timeline.svh's header for the classification.
+    // ==================================================================
+`include "seq_timeline.svh"
+
+
+    // ==================================================================
+    // R3-8 (docs/SEQ_ISA.md v2.3 B17.3): THE X-PUSH BUS, wired between
+    // seq_unit and the NMV real matvec_chan instances exactly as
+    // synth/scripts/create_project.tcl wires seq_0 and mvchan_0..3 (per
+    // channel c: valid, idx[12c +: 12], data[32c +: 32] forward; room, busy
+    // back); an unbuilt slot ties room = 1 and busy = 0 (line 415).  The
+    // first chip-TB TOP change of the round — R3-9a's rung 1 (shipped / r1 /
+    // r2 streams cycle-identical on this top) is its STOP gate.  Appended
+    // below every cited line; the connections ride on lines 239, 382, 415
+    // and the per-channel ui_clk on lines 106, 111, 383, 395.
+    //
+    // +xp_hold=<chan>:<start>:<cycles> (DEFAULT OFF) — the TB-only
+    // per-channel ui_clk hold for R3-9a's back-pressure case: channel
+    // <chan>'s ui_clk (its matvec engine, its XWIN FIFO's read side and its
+    // weight memory) is held LOW for <cycles> aclk cycles from aclk cycle
+    // <start> (counted from reset release), so its XWIN FIFO fills, its
+    // skid's room drops and a broadcast must stall all four channels.
+    // ui_clk_c[c] = ui_clk & ~xph_l[c] (line 106), the ORIGINAL generator
+    // untouched (line 111); xph_l is an ICG-style enable latched on ui_clk's
+    // NEGEDGE, so it changes only while ui_clk is low and the gated clock
+    // cannot glitch.  With the plusarg absent xph_l stays 0 and every
+    // ui_clk_c[c] is ui_clk.  (A first cut toggled a 4-bit clock vector bit
+    // by bit in one delay process; its channels never saw the doorbell and
+    // the smoke hung, n3030 / n3037 — the single-generator form is the one
+    // proven cycle-identical, n3036.)
+    //
+    // Sim-only checks, end to end (the commit contract across the real
+    // flops, BD-equivalent wiring and both modules):
+    //   * the ONE parameter set: seq_movers' XP_FWD_STAGES / XP_RET_STAGES
+    //     equal every built matvec_chan's (XP_RT and XP_INFLIGHT are derived
+    //     from them);
+    //   * at every broadcast's retire (seq_movers `done` with bcast_q), each
+    //     built channel's push-leg XWIN FIFO writes equal the words the bus
+    //     carried to it — every word is in the FIFO when the MOVX retires;
+    //   * a push-leg FIFO write AFTER that retire (before the next push) is
+    //     a $fatal: no word may land after its broadcast retired.
+    // ==================================================================
+    /* verilator lint_off UNUSEDSIGNAL */
+    logic [3:0]   xpv, xpr, xpb;
+    logic [47:0]  xpi;
+    logic [127:0] xpd;
+    /* verilator lint_on UNUSEDSIGNAL */
+    logic [3:0]   xph_on = 4'd0;
+    always @(negedge ui_clk) xph_l <= xph_on;   // the gate enable, changed only while ui_clk is low
+    int           xph_chan = -1;
+    int unsigned  xph_start = 0, xph_len = 0, xph_cyc = 0, xph_held = 0;
+    int unsigned  xp_sent [4], xp_land [4];
+    bit   [3:0]   xp_closed = 4'hF;
+    int unsigned  xp_nretire = 0, xp_nwords = 0;
+    // R3-9a (the R3-8 review's I-1): the X_END-exit check's own state
+    int unsigned  xp_cyc [4], xp_lastland [4];
+    int           xp_minmargin = -1;
+    int unsigned  xp_nexit = 0;
+
+    initial begin
+        string sa;
+        int unsigned a0, a1, a2;
+        for (int c = 0; c < 4; c++) begin xp_sent[c] = 0; xp_land[c] = 0; xp_cyc[c] = 0; xp_lastland[c] = 0; end
+        if ($value$plusargs("xp_hold=%s", sa)) begin
+            if ($sscanf(sa, "%d:%d:%d", a0, a1, a2) != 3 || a0 >= 32'(NMV))
+                $fatal(1, "+xp_hold=<built chan>:<start aclk cycle>:<cycles>, got '%s' (NMV=%0d)",
+                       sa, NMV);
+            xph_chan = int'(a0); xph_start = a1; xph_len = a2;
+            $display("tb_seq_chip: +xp_hold: channel %0d ui_clk held low for %0d aclk cycles from cycle %0d",
+                     xph_chan, xph_len, xph_start);
+        end
+        if ((g_mv[0].u_mv.XP_FWD_STAGES != dut.u_mov.XP_FWD_STAGES)
+            || (g_mv[0].u_mv.XP_RET_STAGES != dut.u_mov.XP_RET_STAGES))
+            $fatal(1, "R3-8: the x-push register stages disagree: seq_movers %0d/%0d, matvec_chan %0d/%0d",
+                   dut.u_mov.XP_FWD_STAGES, dut.u_mov.XP_RET_STAGES,
+                   g_mv[0].u_mv.XP_FWD_STAGES, g_mv[0].u_mv.XP_RET_STAGES);
+    end
+
+    /* verilator lint_off BLKSEQ */
+    always @(negedge clk) begin
+        if (rstn) begin
+            xph_cyc++;
+            if ((xph_chan >= 0) && (xph_cyc >= xph_start)
+                && (xph_cyc < xph_start + xph_len)) begin
+                xph_on = 4'd1 << xph_chan;
+                xph_held++;
+            end else xph_on = 4'd0;
+        end
+    end
+
+    // the end-to-end commit contract (sampled at NEGEDGE: xf_push_p is the
+    // push leg's combinational FIFO write of this cycle)
+    for (genvar c = 0; c < NMV; c++) begin : g_xpchk
+        always @(negedge clk) if (rstn) begin
+            if (xpv[c]) begin
+                xp_sent[c]++;
+                xp_closed[c] = 1'b0;
+                if (c == 0) xp_nwords++;
+            end
+            if (g_mv[c].u_mv.xf_push_p) begin
+                if (xp_closed[c])
+                    $fatal(1, "R3-8 COMMIT: channel %0d: a push-leg word (idx %0d) entered the XWIN FIFO after its broadcast retired",
+                           c, g_mv[c].u_mv.xf_din_p[43:32]);
+                xp_land[c]++;
+                xp_lastland[c] = xp_cyc[c];
+            end
+            // R3-9a (the R3-8 review's I-1 RULING): landed == sent AT THE
+            // X_END EXIT — the cycle seq_movers leaves X_END for X_STAT
+            // (rtl/seq_movers.sv, X_END: wr_idle && bw_idle && xp_done), i.e.
+            // the cycle the push leg's commit wait (XP_RT, then all four busy
+            // inputs low) declares every word committed.  The `done` compare
+            // below comes four STATUS round trips later and cannot see an
+            // XP_RT that is too short; this one can.  Counted: the words the
+            // bus carried to channel c (xpv[c]) and the push-leg XWIN FIFO
+            // writes (xf_push_p, this cycle's write included: it commits on
+            // the same edge the mover leaves X_END).  The margin is the exit
+            // cycle minus the last word's FIFO-write cycle.
+            if (dut.u_mov.bcast_q && (dut.u_mov.st == dut.u_mov.X_END)
+                && dut.u_mov.wr_idle && dut.u_mov.bw_idle && dut.u_mov.xp_done) begin
+                if (xp_land[c] != xp_sent[c])
+                    $fatal(1, "R3-9a COMMIT AT X_END EXIT: channel %0d: the mover left X_END with %0d of %0d pushed words in the XWIN FIFO (XP_RT too short)",
+                           c, xp_land[c], xp_sent[c]);
+                if ((xp_sent[c] != 0) && ((xp_minmargin < 0)
+                    || (int'(xp_cyc[c] - xp_lastland[c]) < xp_minmargin)))
+                    xp_minmargin = int'(xp_cyc[c] - xp_lastland[c]);
+                if (c == 0) xp_nexit++;
+            end
+            xp_cyc[c]++;
+            if (dut.u_mov.done && dut.u_mov.bcast_q) begin
+                if (xp_land[c] != xp_sent[c])
+                    $fatal(1, "R3-8 COMMIT: channel %0d: the broadcast retired with %0d of %0d pushed words in the XWIN FIFO",
+                           c, xp_land[c], xp_sent[c]);
+                xp_closed[c] = 1'b1;
+                if (c == 0) xp_nretire++;
+            end
+        end
+    end
+    /* verilator lint_on BLKSEQ */
+
+    final
+        if ((xp_nretire != 0) || (xph_chan >= 0))
+            $display("tb_seq_chip R3-8: %0d broadcasts retired, %0d words pushed per channel, every one in its XWIN FIFO at retire%s",
+                     xp_nretire, xp_nwords,
+                     (xph_chan >= 0) ? $sformatf("; +xp_hold channel %0d held %0d cycles",
+                                                 xph_chan, xph_held) : "");
+    final
+        if (xp_nexit != 0)
+            $display("tb_seq_chip R3-9a: %0d broadcast X_END exits checked, landed == sent on every built channel at each; min margin (exit cycle - last push-leg FIFO write) %0d cycles",
+                     xp_nexit, xp_minmargin);
 
 endmodule
 

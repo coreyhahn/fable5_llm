@@ -1,0 +1,47 @@
+=== host: snoke  date: 2026-09-29T02:48:49-06:00
+=== tree: 940ad6f
+=== cmd : bash -c I=synth/out_build_045_r2_incr/proj/stage1.runs/impl_1
+echo "ID artifacts (mtime, size):"; ls -la --time-style=full-iso $I/bd_wrapper.bit $I/bd_wrapper.mmi $I/bd_wrapper_routed.dcp $I/bd_wrapper_postroute_physopt.dcp | awk '{print "ID   " $6, $7, $5, $9}'
+echo "ID sha256:"; sha256sum $I/bd_wrapper.bit $I/bd_wrapper_postroute_physopt.dcp $I/bd_wrapper.mmi | sed 's/^/ID   /'
+echo "ID launch tree of the synthesised source: $(head -1 synth/out_build_045_r2/build.log)"
+echo "ID git rev-parse --short=8 266e3ae: $(git rev-parse --short=8 266e3ae)"
+echo "ID route status:"; ls $I/*route_status.rpt 2>/dev/null | sed 's/^/ID   /'; grep -hE "routing errors|fully routed|# of (nets|logical)" $I/bd_wrapper_route_status.rpt | tr -s ' ' | sed 's/^/ID   /'
+echo "ID expected identity words (sw/hwmap.py):"
+/home/cah/.venv/bin/python -c "import sys; sys.path.insert(0,'sw'); import hwmap as H; print('ID   seq_caps_word({R1,R2}) = 0x%08X' % H.seq_caps_word({'R1','R2'})); print('ID   SEQ_BM_IDENT = 0x%08X' % H.SEQ_BM_IDENT); print('ID   seq_caps_set(0xFAB1CA03) =', sorted(H.seq_caps_set(0xFAB1CA03)))"
+echo "ID RTL literals (rtl/seq_unit.sv):"; grep -nE "localparam logic \[31:0\] (SEQ_CAPS|BM_IDENT)|1'b1 /\*r2\*/" rtl/seq_unit.sv | sed 's/^/ID   /'
+echo "ID the source build's seq_0 IP carries the same seq_unit.sv (sha256 of the rtl file vs HEAD's blob):"
+echo "ID   rtl/seq_unit.sv worktree $(sha256sum rtl/seq_unit.sv | cut -c1-16)  HEAD blob $(git show HEAD:rtl/seq_unit.sv | sha256sum | cut -c1-16)  266e3ae blob $(git show 266e3ae:rtl/seq_unit.sv | sha256sum | cut -c1-16)"
+echo "ID   rtl/ delta 266e3ae..HEAD: $(git diff --stat 266e3ae HEAD -- rtl | wc -l) lines of stat"
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+ID artifacts (mtime, size):
+ID   2026-09-29 02:06:37.210052893 53080061 synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper.bit
+ID   2026-09-29 01:55:56.433474648 29668 synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper.mmi
+ID   2026-09-29 01:55:45.537985271 288942161 synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+ID   2026-09-29 01:52:18.393644486 288944909 synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper_routed.dcp
+ID sha256:
+ID   c4caeb096b298206c207facca031652a904962a0b0f8a27e98233342af8b4dcb  synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper.bit
+ID   abb6a2d5f0621d79679d2ad02e8ee046fc049893877aab0e18f93bc76cd014a5  synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+ID   c647a5560d1687430f9bbac116e8cffeaacf2acac3fd78ea5e0672cf831d9a6d  synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper.mmi
+ID launch tree of the synthesised source: === create_project (266e3ae7) ===
+ID git rev-parse --short=8 266e3ae: 266e3ae7
+ID route status:
+ID   synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper_route_status.rpt
+ID    # of logical nets.......................... : 2498588 :
+ID    # of nets not needing routing.......... : 1837632 :
+ID    # of nets with no loads............ : 266896 :
+ID    # of fully routed nets............. : 660956 :
+ID    # of nets with routing errors.......... : 0 :
+ID expected identity words (sw/hwmap.py):
+ID   seq_caps_word({R1,R2}) = 0xFAB1CA03
+ID   SEQ_BM_IDENT = 0xFAB1B301
+ID   seq_caps_set(0xFAB1CA03) = ['R1', 'R2']
+ID RTL literals (rtl/seq_unit.sv):
+ID   338:    localparam logic [31:0] SEQ_CAPS = {24'hFAB1CA, 5'd0,
+ID   339:                                        1'b0 /*r3*/, 1'b1 /*r2*/, 1'b1 /*r1*/};
+ID   1380:    localparam logic [31:0] BM_IDENT = 32'hFAB1_B301;
+ID the source build's seq_0 IP carries the same seq_unit.sv (sha256 of the rtl file vs HEAD's blob):
+ID   rtl/seq_unit.sv worktree a9cd485c98d71975  HEAD blob a9cd485c98d71975  266e3ae blob a9cd485c98d71975
+ID   rtl/ delta 266e3ae..HEAD: 0 lines of stat
+=== rc  : 0
+=== end : 2026-09-29T02:48:50-06:00

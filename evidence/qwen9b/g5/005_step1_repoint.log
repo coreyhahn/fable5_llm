@@ -1,0 +1,87 @@
+=== host: darthplagueis
+=== date: 2026-09-03T20:20:58-06:00
+=== tree: 5ee5f0e
+=== cmd:  bash /tmp/step1_proof.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== OPTION TAKEN: the experiment TCL is POINTED AT rtl/ directly.
+=== The copy under synth/exp_uram/rtl/ was NOT refreshed — see below for why.
+
+--- (1) exp_ooc.tcl's RTL root and file list ---
+24:# that has to be kept in step.  Every file it reads is echoed as EXP_RTL_SRC.
+57:set Rtl       "$RepoRoot/rtl"
+123:puts "EXP_RTL_DIR: $Rtl"
+124:foreach f {fx_pkg fx_rsqrt fx_recip fx_silu vecnorm_unit rope_unit conv4_silu
+126:    puts "EXP_RTL_SRC: $Rtl/$f.sv"
+
+--- (2) what each of the seven runs actually read (from the run logs) ---
+g5_v1a: EXP_RTL_DIR: /home/cah/r2d2/code/fpga/fable5_llm/rtl  files=12  EXP_GENERICS: DN_PIPE=2 DN_BPG=8 (the module's only parameters)
+g5_v1b: EXP_RTL_DIR: /home/cah/r2d2/code/fpga/fable5_llm/rtl  files=12  EXP_GENERICS: DN_PIPE=2 DN_BPG=8 (the module's only parameters)
+g5_v2: EXP_RTL_DIR: /home/cah/r2d2/code/fpga/fable5_llm/rtl  files=12  EXP_GENERICS: DN_PIPE=2 DN_BPG=8 (the module's only parameters)
+g5_v2alt: EXP_RTL_DIR: /home/cah/r2d2/code/fpga/fable5_llm/rtl  files=12  EXP_GENERICS: DN_PIPE=2 DN_BPG=8 (the module's only parameters)
+g5_v3: EXP_RTL_DIR: /home/cah/r2d2/code/fpga/fable5_llm/rtl  files=12  EXP_GENERICS: DN_PIPE=2 DN_BPG=1 (the module's only parameters)
+g5_v4a: EXP_RTL_DIR: /home/cah/r2d2/code/fpga/fable5_llm/rtl  files=12  EXP_GENERICS: DN_PIPE=2 DN_BPG=8 (the module's only parameters)
+g5_v4b: EXP_RTL_DIR: /home/cah/r2d2/code/fpga/fable5_llm/rtl  files=12  EXP_GENERICS: DN_PIPE=2 DN_BPG=8 (the module's only parameters)
+
+--- (3) every EXP_RTL_SRC path from one run, in full ---
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/fx_pkg.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/fx_rsqrt.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/fx_recip.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/fx_silu.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/vecnorm_unit.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/rope_unit.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/conv4_silu.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/dn_step.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/attn_core.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/gate_unit.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/vec_alu.sv
+EXP_RTL_SRC: /home/cah/r2d2/code/fpga/fable5_llm/rtl/layer_chan.sv
+
+--- (4) the RTL those paths name is the COMMITTED, UNMODIFIED shipping rtl/ ---
+  (no DIRTY lines above = rtl/ is clean at 5ee5f0e)
+  rtl/layer_chan.sv sha1: bb69a2cd12b147261673289c74e67d0a91de7d54  == HEAD blob: bb69a2cd12b147261673289c74e67d0a91de7d54
+
+--- (5) WHY the copy was not refreshed: a refresh breaks live citations ---
+  synth/exp_uram/rtl/ is Track P's MEASURED ARTIFACT and documents cite it by line.
+  o3_cite_drift.py --plan over a tree in which the 12 files had been refreshed:
+    evidence/qwen9b/g3/G3_4_LAYER.md   REPAIR 7  COLLATERAL 1
+    rtl/layer_chan.sv                  REPAIR 1  COLLATERAL 0
+    O3_FIX_PLAN: UNSAFE
+  The refresh was applied, the plan run, and the refresh REVERTED (git checkout).
+  Re-running the same plan on the tree as committed, with only the two scripts edited:
+    o3 citation-drift gate  [plan — dry run, nothing is written]
+      code base  HEAD~1
+      files      2 edited file(s)
+      TOTAL      REPAIR 0  COLLATERAL 0
+    O3_FIX_PLAN: SAFE — every rewrite repairs a citation --verify reports stale
+
+  synth/exp_uram/rtl/ vs HEAD (must be empty — the copy is untouched):
+  (empty above = untouched)
+
+--- (6) the copy IS still stale, and by how much (recorded, not fixed) ---
+    fx_pkg            12 diff lines vs rtl/
+    fx_rsqrt          12 diff lines vs rtl/
+    fx_recip          12 diff lines vs rtl/
+    fx_silu           12 diff lines vs rtl/
+    vecnorm_unit      68 diff lines vs rtl/
+    rope_unit         12 diff lines vs rtl/
+    conv4_silu        18 diff lines vs rtl/
+    dn_step           77 diff lines vs rtl/
+    attn_core         12 diff lines vs rtl/
+    gate_unit         50 diff lines vs rtl/
+    vec_alu          116 diff lines vs rtl/
+    layer_chan       950 diff lines vs rtl/
+
+--- (7) known citation drift this task did NOT fix (outside its commit path) ---
+    evidence/qwen_next/place_exp/PLACE_EXP.md:672 cites 'exp_ooc.tcl:78-81'
+    for the read_verilog file order.  That bare-filename form is invisible to
+    o3_cite_drift.py, it was ALREADY off before this task (the order was at
+    :74-77 in the pre-G5a script), and the file list now sits at :124-128.
+    672:# imports it or Verilator fails with PKGNODECL.  Same order as exp_ooc.tcl:78-81.
+=== rc: 0
+=== end: 2026-09-03T20:21:00-06:00

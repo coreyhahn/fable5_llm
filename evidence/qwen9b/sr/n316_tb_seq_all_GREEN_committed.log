@@ -1,0 +1,697 @@
+=== host: snoke  date: 2026-09-27T17:45:10-06:00
+=== tree: 5c369c2
+=== cmd : make -C tb tb_seq_all SEQ_OBJ=obj_dir_seq_unit_sr3 SEQ_VEC=scripts_scratch/seqvec_sr3 VECPY=/home/cah/.venv/bin/python JOBS=16
+=== env : FABLE5_MODEL=9b
+=== venv: VECPY=/home/cah/.venv/bin/python (named in cmd): evidence/qwen9b/sr/sr_run.sh: line 65: VECPY=/home/cah/.venv/bin/python: No such file or directory
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+verilator --lint-only -Wall --timing ../rtl/seq_unit.sv ../rtl/seq_movers.sv --top-module seq_unit
+verilator --lint-only -Wall --timing seq_fabric_model.sv
+verilator --lint-only -Wall --timing seq_burst_fabric.sv
+verilator --lint-only -Wall --timing seq_ddr_model.sv
+verilator --lint-only -Wall --timing seq_stub_layer.sv
+verilator --lint-only -Wall --timing seq_stub_mvchan.sv
+mkdir -p scripts_scratch/seqvec_sr3
+for s in 1 2 3 4; do \
+  /home/cah/.venv/bin/python scripts/gen_seq_unit_vectors.py scripts_scratch/seqvec_sr3 $s || exit 1; done
+seq_u_s1: 63 records, 921 writes, 303 reads (296 with the XRF sideband), 680 scratch words, 4 tokens
+seq_h_hiaddr: 16 records, 8320 scratch words (8192 above word 16383)
+seq_h_embrow: 7 records, 3136 scratch words at EMBLOG2=12 (4096 B rows)
+seq_m_csrwr: 2001 records, 2000 writes, 0 reads
+seq_m_cmd: 801 records, 800 writes, 0 reads
+seq_m_movx: 3 records, 5123 writes, 4096 reads
+seq_m_movy16: 4 records, 2073 writes, 2112 reads
+seq_m_movy32: 4 records, 4121 writes, 2112 reads
+seq_m_ldc: 2 records, 4097 writes, 0 reads
+seq_f_of24: 121 records, 24 tokens
+seq_f_of64: 321 records, 64 tokens
+seq_f_of80: 401 records, 80 tokens
+seq_e_op: expects err_code 0x01
+seq_e_ind: expects err_code 0x02
+seq_e_chan: expects err_code 0x05
+seq_e_jmp: expects err_code 0x08
+seq_e_xopsgn: expects err_code 0x0a
+seq_e_csrsp: expects err_code 0x07
+seq_e_rsvd: expects err_code 0x06
+seq_e_env0: expects err_code 0x0d
+seq_e_env97: expects err_code 0x0d
+seq_e_fmrsvd: expects err_code 0x06
+seq_e_fmimm: expects err_code 0x06
+seq_e_haltmask: expects err_code 0x06
+seq_h_fmask: 26 records, 6 FENCEs, perm [0, 1, 2, 3], poll sets 7:2 9:5 14:8 18:0 21:4 23:2
+seq_h_repack1: 18 records, 5 MVGOs at per-channel bases (nch=2 depth=16 ilv=[0]), 1096 scratch words
+seq_u_s2: 63 records, 906 writes, 253 reads (245 with the XRF sideband), 660 scratch words, 5 tokens
+seq_h_fmask2: 26 records, 6 FENCEs, perm [3, 2, 1, 0], poll sets 7:4 9:a 14:1 18:0 21:2 23:4
+seq_h_repack2: 39 records, 12 MVGOs at per-channel bases (nch=4 depth=16 ilv=[0, 2]), 1188 scratch words
+seq_u_s3: 63 records, 878 writes, 213 reads (205 with the XRF sideband), 628 scratch words, 5 tokens
+seq_h_fmask3: 26 records, 6 FENCEs, perm [2, 3, 0, 1], poll sets 7:8 9:5 14:2 18:0 21:1 23:8
+seq_h_repack3: 24 records, 7 MVGOs at per-channel bases (nch=3 depth=32 ilv=[0]), 1161 scratch words
+seq_u_s4: 63 records, 836 writes, 245 reads (239 with the XRF sideband), 636 scratch words, 3 tokens
+seq_h_fmask4: 26 records, 6 FENCEs, perm [1, 0, 3, 2], poll sets 7:1 9:a 14:4 18:0 21:8 23:1
+seq_h_repack4: 54 records, 17 MVGOs at per-channel bases (nch=4 depth=8 ilv=[1]), 1177 scratch words
+verilator --binary --timing -j 16 -Wall \
+  --Mdir obj_dir_seq_unit_sr3 -o tb_seq \
+  --top-module tb_seq_unit ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3'
+for s in 1 2 3 4; do \
+  obj_dir_seq_unit_sr3/tb_seq +vec=scripts_scratch/seqvec_sr3/seq_u_s$s || exit 1; done
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_u_s1: 63 records, 3433 cycles (54.49 cyc/rec, 4.588 Mrec/s @250MHz)
+  axil writes 121
+  axil reads  36  (of which 25 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 163)
+  layer cmds 11, engine runs 1/0/1/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 15 write bursts (800 beats), 10 read bursts (292 beats), busy_wr 1583 busy_rd 422, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s1 (writes 921, reads 303, scratch 680, tokens 4)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr3/seq_u_s2: 63 records, 3739 cycles (59.35 cyc/rec, 4.212 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  42  (of which 29 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 176)
+  layer cmds 12, engine runs 5/1/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (768 beats), 12 read bursts (240 beats), busy_wr 1571 busy_rd 396, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s2 (writes 906, reads 253, scratch 660, tokens 5)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr3/seq_u_s3: 63 records, 3685 cycles (58.49 cyc/rec, 4.274 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  42  (of which 29 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 174)
+  layer cmds 12, engine runs 1/0/1/4, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (740 beats), 12 read bursts (200 beats), busy_wr 1517 busy_rd 356, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s3 (writes 878, reads 213, scratch 628, tokens 5)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_u_s4: 63 records, 2950 cycles (46.83 cyc/rec, 5.339 Mrec/s @250MHz)
+  axil writes 104
+  axil reads  30  (of which 21 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 146)
+  layer cmds 10, engine runs 0/3/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (732 beats), 8 read bursts (236 beats), busy_wr 1419 busy_rd 340, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s4 (writes 836, reads 245, scratch 636, tokens 3)
+- tb_seq_unit.sv:1046: Verilog $finish
+for e in op ind chan jmp xopsgn csrsp rsvd env0 env97 fmrsvd fmimm haltmask; do \
+  obj_dir_seq_unit_sr3/tb_seq +vec=scripts_scratch/seqvec_sr3/seq_e_$e || exit 1; done
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_op: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_op (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_ind: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_ind (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_chan: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_chan (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_jmp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_jmp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_xopsgn: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_xopsgn (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_csrsp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_csrsp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_rsvd: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_rsvd (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_env0: 4 records, 295 cycles (73.75 cyc/rec, 3.390 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_env0 (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_env97: 4 records, 295 cycles (73.75 cyc/rec, 3.390 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_env97 (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_fmrsvd: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_fmrsvd (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_fmimm: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_fmimm (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_e_haltmask: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_e_haltmask (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+for m in csrwr cmd movx movy16 movy32 ldc; do \
+  obj_dir_seq_unit_sr3/tb_seq +vec=scripts_scratch/seqvec_sr3/seq_m_$m || exit 1; done
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_csrwr: 2001 records, 6046 cycles (3.02 cyc/rec, 82.741 Mrec/s @250MHz)
+  axil writes 2000
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2001)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_cmd: 801 records, 8821 cycles (11.01 cyc/rec, 22.702 Mrec/s @250MHz)
+  axil writes 800
+  axil reads  276  (of which 276 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 801)
+  layer cmds 200, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movx: 3 records, 8935 cycles (2978.33 cyc/rec, 0.084 Mrec/s @250MHz)
+  axil writes 3
+  axil reads  2  (of which 2 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 515)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 20 write bursts (5120 beats), 16 read bursts (4096 beats), busy_wr 8833 busy_rd 4169, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movy16: 4 records, 2434 cycles (608.50 cyc/rec, 0.411 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 9 write bursts (2064 beats), 9 read bursts (2112 beats), busy_wr 2194 busy_rd 2166, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movy32: 4 records, 4486 cycles (1121.50 cyc/rec, 0.223 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (4112 beats), 9 read bursts (2112 beats), busy_wr 4244 busy_rd 4120, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_ldc: 2 records, 4705 cycles (2352.50 cyc/rec, 0.106 Mrec/s @250MHz)
+  axil writes 1
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 514)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (4096 beats), 0 read bursts (0 beats), busy_wr 4652 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+for d in hiaddr embrow repack1 repack2 repack3 repack4 fmask fmask2 fmask3 fmask4; do \
+  obj_dir_seq_unit_sr3/tb_seq +vec=scripts_scratch/seqvec_sr3/seq_h_$d || exit 1; done
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_hiaddr: 16 records, 21949 cycles (1371.81 cyc/rec, 0.182 Mrec/s @250MHz)
+  axil writes 34
+  axil reads  7  (of which 7 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 920)
+  layer cmds 0, engine runs 1/1/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 49 write bursts (12032 beats), 48 read bursts (12160 beats), busy_wr 21284 busy_rd 12848, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_hiaddr (writes 12066, reads 12160, scratch 8320, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_embrow: 7 records, 3736 cycles (533.71 cyc/rec, 0.468 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 399)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (3136 beats), 0 read bursts (0 beats), busy_wr 3660 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_embrow (writes 3145, reads 0, scratch 3136, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_repack1: 18 records, 5947 cycles (330.39 cyc/rec, 0.757 Mrec/s @250MHz)
+  axil writes 46
+  axil reads  11  (of which 11 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 146)
+  layer cmds 0, engine runs 3/2/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 14 write bursts (1928 beats), 19 read bursts (3400 beats), busy_wr 4916 busy_rd 3566, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_repack1 (writes 1974, reads 3400, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_repack2: 39 records, 11674 cycles (299.33 cyc/rec, 0.835 Mrec/s @250MHz)
+  axil writes 109
+  axil reads  25  (of which 25 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 167)
+  layer cmds 0, engine runs 4/4/2/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 28 write bursts (2980 beats), 42 read bursts (7332 beats), busy_wr 9283 busy_rd 7716, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_repack2 (writes 3089, reads 7332, scratch 1188, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_repack3: 24 records, 8062 cycles (335.92 cyc/rec, 0.744 Mrec/s @250MHz)
+  axil writes 64
+  axil reads  15  (of which 15 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 152)
+  layer cmds 0, engine runs 3/2/2/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 18 write bursts (2377 beats), 26 read bursts (5001 beats), busy_wr 6643 busy_rd 5231, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_repack3 (writes 2441, reads 5001, scratch 1161, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_repack4: 54 records, 16537 cycles (306.24 cyc/rec, 0.816 Mrec/s @250MHz)
+  axil writes 154
+  axil reads  35  (of which 35 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 182)
+  layer cmds 0, engine runs 5/4/4/4, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 38 write bursts (3865 beats), 61 read bursts (10905 beats), busy_wr 13177 busy_rd 11455, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_repack4 (writes 4019, reads 10905, scratch 1177, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 6 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_fmask: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 1/2/2/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_fmask (writes 1247, reads 456, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 6 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_fmask2: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 1/2/2/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_fmask2 (writes 1247, reads 456, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 6 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_fmask3: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 2/1/1/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_fmask3 (writes 1247, reads 456, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 6 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_fmask4: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 2/1/1/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_fmask4 (writes 1247, reads 456, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+verilator --binary --timing -j 16 -Wall -Wno-UNUSEDPARAM \
+  +define+SYNTHESIS \
+  --Mdir obj_dir_seq_unit_sr3_syn -o tb_seq_syn \
+  --top-module tb_seq_unit ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3_syn'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3_syn'
+obj_dir_seq_unit_sr3_syn/tb_seq_syn +vec=scripts_scratch/seqvec_sr3/seq_h_embrow \
+  +emblog2bad=7
+SEQ scripts_scratch/seqvec_sr3/seq_h_embrow: will write ILLEGAL EMBLOG2 7 after 12 (guard control)
+SEQ scripts_scratch/seqvec_sr3/seq_h_embrow: illegal EMBLOG2 7 rejected, register still 12
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_embrow: 7 records, 3736 cycles (533.71 cyc/rec, 0.468 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 399)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (3136 beats), 0 read bursts (0 beats), busy_wr 3660 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_embrow (writes 3145, reads 0, scratch 3136, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+obj_dir_seq_unit_sr3_syn/tb_seq_syn +vec=scripts_scratch/seqvec_sr3/seq_h_embrow \
+  +emblog2bad=14
+SEQ scripts_scratch/seqvec_sr3/seq_h_embrow: will write ILLEGAL EMBLOG2 14 after 12 (guard control)
+SEQ scripts_scratch/seqvec_sr3/seq_h_embrow: illegal EMBLOG2 14 rejected, register still 12
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_h_embrow: 7 records, 3736 cycles (533.71 cyc/rec, 0.468 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 399)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (3136 beats), 0 read bursts (0 beats), busy_wr 3660 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_h_embrow (writes 3145, reads 0, scratch 3136, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+--- and the same write in a NORMAL build must raise $error:
+OK: illegal EMBLOG2 write is loud in simulation
+for L in 0 8; do \
+  verilator --binary --timing -j 16 -Wall \
+    --Mdir obj_dir_seq_unit_sr3_l$L -o tb_seq_l$L -GLAT=$L \
+    --top-module tb_seq_unit ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv || exit 1; \
+  for s in 1 2 3 4; do \
+    obj_dir_seq_unit_sr3_l$L/tb_seq_l$L +vec=scripts_scratch/seqvec_sr3/seq_u_s$s || exit 1; \
+  done; \
+  for m in csrwr cmd movx movy16 movy32 ldc; do \
+    obj_dir_seq_unit_sr3_l$L/tb_seq_l$L +vec=scripts_scratch/seqvec_sr3/seq_m_$m || exit 1; \
+  done; \
+done
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3_l0'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3_l0'
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_u_s1: 63 records, 2914 cycles (46.25 cyc/rec, 5.405 Mrec/s @250MHz)
+  axil writes 121
+  axil reads  51  (of which 40 were status polls)
+  fetch-empty stall cycles 50  (ddr beats 163)
+  layer cmds 11, engine runs 1/0/1/3, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 15 write bursts (800 beats), 10 read bursts (292 beats), busy_wr 1583 busy_rd 422, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s1 (writes 921, reads 303, scratch 680, tokens 4)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr3/seq_u_s2: 63 records, 3136 cycles (49.78 cyc/rec, 5.022 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  59  (of which 46 were status polls)
+  fetch-empty stall cycles 68  (ddr beats 176)
+  layer cmds 12, engine runs 5/1/0/0, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (768 beats), 12 read bursts (240 beats), busy_wr 1571 busy_rd 396, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s2 (writes 906, reads 253, scratch 660, tokens 5)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr3/seq_u_s3: 63 records, 3082 cycles (48.92 cyc/rec, 5.110 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  59  (of which 46 were status polls)
+  fetch-empty stall cycles 68  (ddr beats 174)
+  layer cmds 12, engine runs 1/0/1/4, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (740 beats), 12 read bursts (200 beats), busy_wr 1517 busy_rd 356, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s3 (writes 878, reads 213, scratch 628, tokens 5)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_u_s4: 63 records, 2518 cycles (39.97 cyc/rec, 6.255 Mrec/s @250MHz)
+  axil writes 104
+  axil reads  43  (of which 34 were status polls)
+  fetch-empty stall cycles 33  (ddr beats 146)
+  layer cmds 10, engine runs 0/3/1/0, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (732 beats), 8 read bursts (236 beats), busy_wr 1419 busy_rd 340, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s4 (writes 836, reads 245, scratch 636, tokens 3)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_csrwr: 2001 records, 6046 cycles (3.02 cyc/rec, 82.741 Mrec/s @250MHz)
+  axil writes 2000
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 15  (ddr beats 2001)
+  layer cmds 0, engine runs 0/0/0/0, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_cmd: 801 records, 6472 cycles (8.08 cyc/rec, 30.941 Mrec/s @250MHz)
+  axil writes 800
+  axil reads  566  (of which 566 were status polls)
+  fetch-empty stall cycles 15  (ddr beats 801)
+  layer cmds 200, engine runs 0/0/0/0, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movx: 3 records, 8911 cycles (2970.33 cyc/rec, 0.084 Mrec/s @250MHz)
+  axil writes 3
+  axil reads  2  (of which 2 were status polls)
+  fetch-empty stall cycles 15  (ddr beats 515)
+  layer cmds 0, engine runs 0/0/0/0, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 20 write bursts (5120 beats), 16 read bursts (4096 beats), busy_wr 8833 busy_rd 4169, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movy16: 4 records, 2380 cycles (595.00 cyc/rec, 0.420 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 15  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 9 write bursts (2064 beats), 9 read bursts (2112 beats), busy_wr 2194 busy_rd 2166, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movy32: 4 records, 4429 cycles (1107.25 cyc/rec, 0.226 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 15  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (4112 beats), 9 read bursts (2112 beats), busy_wr 4244 busy_rd 4120, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_ldc: 2 records, 4705 cycles (2352.50 cyc/rec, 0.106 Mrec/s @250MHz)
+  axil writes 1
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 15  (ddr beats 514)
+  layer cmds 0, engine runs 0/0/0/0, LAT=0 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (4096 beats), 0 read bursts (0 beats), busy_wr 4652 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3_l8'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3_l8'
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_u_s1: 63 records, 3961 cycles (62.87 cyc/rec, 3.976 Mrec/s @250MHz)
+  axil writes 121
+  axil reads  33  (of which 22 were status polls)
+  fetch-empty stall cycles 42  (ddr beats 163)
+  layer cmds 11, engine runs 1/0/1/3, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 15 write bursts (800 beats), 10 read bursts (292 beats), busy_wr 1583 busy_rd 422, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s1 (writes 921, reads 303, scratch 680, tokens 4)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr3/seq_u_s2: 63 records, 4342 cycles (68.92 cyc/rec, 3.627 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  38  (of which 25 were status polls)
+  fetch-empty stall cycles 60  (ddr beats 176)
+  layer cmds 12, engine runs 5/1/0/0, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (768 beats), 12 read bursts (240 beats), busy_wr 1571 busy_rd 396, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s2 (writes 906, reads 253, scratch 660, tokens 5)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr3/seq_u_s3: 63 records, 4288 cycles (68.06 cyc/rec, 3.673 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  38  (of which 25 were status polls)
+  fetch-empty stall cycles 60  (ddr beats 174)
+  layer cmds 12, engine runs 1/0/1/4, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (740 beats), 12 read bursts (200 beats), busy_wr 1517 busy_rd 356, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s3 (writes 878, reads 213, scratch 628, tokens 5)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_u_s4: 63 records, 3403 cycles (54.02 cyc/rec, 4.628 Mrec/s @250MHz)
+  axil writes 104
+  axil reads  28  (of which 19 were status polls)
+  fetch-empty stall cycles 25  (ddr beats 146)
+  layer cmds 10, engine runs 0/3/1/0, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (732 beats), 8 read bursts (236 beats), busy_wr 1419 busy_rd 340, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s4 (writes 836, reads 245, scratch 636, tokens 3)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_csrwr: 2001 records, 6046 cycles (3.02 cyc/rec, 82.741 Mrec/s @250MHz)
+  axil writes 2000
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 7  (ddr beats 2001)
+  layer cmds 0, engine runs 0/0/0/0, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_cmd: 801 records, 11047 cycles (13.79 cyc/rec, 18.127 Mrec/s @250MHz)
+  axil writes 800
+  axil reads  201  (of which 201 were status polls)
+  fetch-empty stall cycles 7  (ddr beats 801)
+  layer cmds 200, engine runs 0/0/0/0, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movx: 3 records, 8959 cycles (2986.33 cyc/rec, 0.084 Mrec/s @250MHz)
+  axil writes 3
+  axil reads  2  (of which 2 were status polls)
+  fetch-empty stall cycles 7  (ddr beats 515)
+  layer cmds 0, engine runs 0/0/0/0, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 20 write bursts (5120 beats), 16 read bursts (4096 beats), busy_wr 8833 busy_rd 4169, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movy16: 4 records, 2491 cycles (622.75 cyc/rec, 0.401 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 7  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 9 write bursts (2064 beats), 9 read bursts (2112 beats), busy_wr 2194 busy_rd 2166, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_movy32: 4 records, 4540 cycles (1135.00 cyc/rec, 0.220 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 7  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (4112 beats), 9 read bursts (2112 beats), busy_wr 4244 busy_rd 4120, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 0 fences
+SEQ scripts_scratch/seqvec_sr3/seq_m_ldc: 2 records, 4705 cycles (2352.50 cyc/rec, 0.106 Mrec/s @250MHz)
+  axil writes 1
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 7  (ddr beats 514)
+  layer cmds 0, engine runs 0/0/0/0, LAT=8 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (4096 beats), 0 read bursts (0 beats), busy_wr 4652 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1046: Verilog $finish
+verilator --binary --timing -j 16 -Wall \
+  --Mdir obj_dir_seq_unit_sr3_sb -o tb_seq_sb "-GSIDEBAND=1'b1" \
+  --top-module tb_seq_unit ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3_sb'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_unit_sr3_sb'
+for s in 1 2 3 4; do \
+  obj_dir_seq_unit_sr3_sb/tb_seq_sb +vec=scripts_scratch/seqvec_sr3/seq_u_s$s || exit 1; done
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_u_s1: 63 records, 3304 cycles (52.44 cyc/rec, 4.767 Mrec/s @250MHz)
+  axil writes 118
+  axil reads  29  (of which 25 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 163)
+  layer cmds 11, engine runs 1/0/1/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=1
+  burst: 15 write bursts (800 beats), 10 read bursts (292 beats), busy_wr 1583 busy_rd 422, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s1 (writes 918, reads 296, scratch 680, tokens 4)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr3/seq_u_s2: 63 records, 3598 cycles (57.11 cyc/rec, 4.377 Mrec/s @250MHz)
+  axil writes 135
+  axil reads  34  (of which 29 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 176)
+  layer cmds 12, engine runs 5/1/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=1
+  burst: 17 write bursts (768 beats), 12 read bursts (240 beats), busy_wr 1571 busy_rd 396, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s2 (writes 903, reads 245, scratch 660, tokens 5)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr3/seq_u_s3: 63 records, 3544 cycles (56.25 cyc/rec, 4.444 Mrec/s @250MHz)
+  axil writes 135
+  axil reads  34  (of which 29 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 174)
+  layer cmds 12, engine runs 1/0/1/4, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=1
+  burst: 17 write bursts (740 beats), 12 read bursts (200 beats), busy_wr 1517 busy_rd 356, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s3 (writes 875, reads 205, scratch 628, tokens 5)
+- tb_seq_unit.sv:1046: Verilog $finish
+TB_SEQ_FMASK PASS: 1 fences
+SEQ scripts_scratch/seqvec_sr3/seq_u_s4: 63 records, 2833 cycles (44.97 cyc/rec, 5.559 Mrec/s @250MHz)
+  axil writes 101
+  axil reads  24  (of which 21 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 146)
+  layer cmds 10, engine runs 0/3/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=1
+  burst: 13 write bursts (732 beats), 8 read bursts (236 beats), busy_wr 1419 busy_rd 340, decerr 0 non-OK 0
+SEQ_CAPS fab1ca01 == hwmap fab1ca01
+SEQ PASS: scripts_scratch/seqvec_sr3/seq_u_s4 (writes 833, reads 239, scratch 636, tokens 3)
+- tb_seq_unit.sv:1046: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc  : 0
+=== end : 2026-09-27T17:45:19-06:00

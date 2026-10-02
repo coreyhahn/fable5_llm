@@ -1,0 +1,116 @@
+=== host: snoke  date: 2026-09-28T17:22:35-06:00
+=== tree: 9924bf0
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr13a_derive.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== PREDICTIONS AND BANDS (written before any r2 chip run)
+  s1 token-4 body window prediction 26183590 cyc = 104.734 ms (SR11b corrected, ADDITIVE form; n1165:56, n1182)
+  placement band (the 17,212-cyc DMA stall absorbed or not): 26166378 .. 26183590
+  uncorrected reference beside it: 26146927 cyc = 104.588 ms (n120:18 census R1+R2 = n1165:50); corrected - census +36663
+  model: x shipped (body) 1.2522; x R1 measured window 1.0374; board tok/s (MODEL) 9.131 (band to 9.137)
+  BAND held  +-0.5 %: 26052672.1 .. 26314507.9 cyc (+-130917.9)
+  BAND loose +-2 %  : 25659918.2 .. 26707261.8 cyc (+-523671.8)
+  outside +-2 % = STOP; outside +-0.5 % inside +-2 % = attribute by class (SR5b §7) before calling it a miss
+  s2..s4: whole-run r2/R1 < 1 and within +-0.5 % of s1's r2/R1; r2/shipped within +-0.5 % of s1's; outside +-0.5 % attribute, outside +-2 % STOP
+  R1 whole-run references (T, SR5b n560-n563 = SR13a n1314-n1317): s1 162967117, s2 162965710, s3 162965710, s4 162967195
+  shipped whole-run references (T, S4_REPLAY:398-401): s1 196706821, s2 196707670, s3 196707670, s4 196706833
+  informational whole-run model (SV1's method on the r2 segments' corrected predictions; NO band):
+    s1: segments [(32771865, 26168585), (32776832, 26173555), (32782160, 26178551), (32786868, 26183590)]; body x3; token windows 196691461, outside 15360; PREDICTED whole run 157086821 cyc = 104.725 ms/token; x shipped 1.2522; r2/R1 0.96392; r2/shipped 0.79858
+    s2: segments [(32782160, 26178551), (32786868, 26183590)]; body x5; token windows 196716500, outside -8830; PREDICTED whole run 157087671 cyc = 104.725 ms/token; x shipped 1.2522; r2/R1 0.96393; r2/shipped 0.79858
+    s3: segments [(32782160, 26178551), (32786868, 26183590)]; body x5; token windows 196716500, outside -8830; PREDICTED whole run 157087671 cyc = 104.725 ms/token; x shipped 1.2522; r2/R1 0.96393; r2/shipped 0.79858
+    s4: segments [(32771865, 26168585), (32776832, 26173555), (32782160, 26178551), (32786868, 26183590)]; body x3; token windows 196691461, outside 15372; PREDICTED whole run 157086833 cyc = 104.725 ms/token; x shipped 1.2522; r2/R1 0.96392; r2/shipped 0.79858
+
+=== MEASURED (the chip-TB runs on SR13a's binary)
+  s1: MEASURED 157010908 cyc = 104.674 ms/token; x shipped 1.2528; x R1 1.0379; r2/R1 0.963451; r2/shipped 0.798198; vs the informational whole-run model -75913 cyc = -0.048 %; tokens IDENTICAL; runner PASS; wall 7420 s; n1349a_sr13a_chip_s1_r2.log
+  s1: board-scaled (uniform, MODEL) 109.450 ms/token = 9.137 tok/s (shipped 7.293, R1 8.803)
+  s2: MEASURED 157011556 cyc = 104.674 ms/token; x shipped 1.2528; x R1 1.0379; r2/R1 0.963464; r2/shipped 0.798197; vs the informational whole-run model -76115 cyc = -0.048 %; tokens IDENTICAL; runner PASS; wall 7362 s; n1349b_sr13a_chip_s2_r2.log
+  s2: board-scaled (uniform, MODEL) 109.450 ms/token = 9.137 tok/s (shipped 7.293, R1 8.803)
+  s3: MEASURED 157011490 cyc = 104.674 ms/token; x shipped 1.2528; x R1 1.0379; r2/R1 0.963463; r2/shipped 0.798197; vs the informational whole-run model -76181 cyc = -0.048 %; tokens IDENTICAL; runner PASS; wall 7449 s; n1349c_sr13a_chip_s3_r2.log
+  s3: board-scaled (uniform, MODEL) 109.450 ms/token = 9.137 tok/s (shipped 7.293, R1 8.803)
+  s4: MEASURED 157010986 cyc = 104.674 ms/token; x shipped 1.2528; x R1 1.0379; r2/R1 0.963451; r2/shipped 0.798198; vs the informational whole-run model -75847 cyc = -0.048 %; tokens IDENTICAL; runner PASS; wall 7567 s; n1349d_sr13a_chip_s4_r2.log
+  s4: board-scaled (uniform, MODEL) 109.450 ms/token = 9.137 tok/s (shipped 7.293, R1 8.803)
+
+=== s1 timeline run n1349e_sr13a_chip_s1_r2_timeline.log: whole run 157010908 cyc; = the control (157010908): YES; tokens IDENTICAL
+  per token (cycles): shipped (BN1 003) / R1 (SR5b n564) / r2
+    token 0: 211 / 17197 / 17197 = 0.069 ms; x shipped 0.0123; x R1 1.0000
+    token 1: 32771865 / 27146851 / 26154132 = 104.617 ms; x shipped 1.2530; x R1 1.0380
+    token 2: 32776832 / 27155684 / 26160898 = 104.644 ms; x shipped 1.2529; x R1 1.0380
+    token 3: 32782160 / 27156626 / 26166039 = 104.664 ms; x shipped 1.2529; x R1 1.0379
+    token 4: 32786868 / 27163998 / 26171253 = 104.685 ms; x shipped 1.2528; x R1 1.0379
+    token 5: 32792031 / 27169211 / 26176557 = 104.706 ms; x shipped 1.2527; x R1 1.0379
+    token 6: 32796845 / 27157543 / 26164824 = 104.659 ms; x shipped 1.2535; x R1 1.0379
+  s1 TOKEN-4 BODY WINDOW 26171253 cyc = 104.685 ms vs prediction 26183590: -12337 cyc = -0.047 % -> s1 HELD (within +-0.5 %); inside the placement band 26166378..26183590: True; vs the uncorrected 26146927: +24326 = +0.093 %
+  s1 token-4: x shipped body 1.2528; x R1 token-4 1.0379; board-scaled (MODEL) 9.136 tok/s vs the model's 9.131
+
+=== s2..s4 whole-run ratios against s1's (r2/R1 0.963451, r2/shipped 0.798198)
+  s2: r2/R1 0.963464 (< 1: True; vs s1 +0.0013 %); r2/shipped 0.798197 (vs s1 -0.0000 %) -> s2 HELD (within +-0.5 %)
+  s3: r2/R1 0.963463 (< 1: True; vs s1 +0.0012 %); r2/shipped 0.798197 (vs s1 -0.0001 %) -> s3 HELD (within +-0.5 %)
+  s4: r2/R1 0.963451 (< 1: True; vs s1 +0.0000 %); r2/shipped 0.798198 (vs s1 +0.0000 %) -> s4 HELD (within +-0.5 %)
+
+=== BAND VERDICT, every stream
+  s1: HELD (within +-0.5 %)
+  s2: HELD (within +-0.5 %)
+  s3: HELD (within +-0.5 %)
+  s4: HELD (within +-0.5 %)
+  tokens IDENTICAL and runner PASS: 4/4 control runs
+
+=== per-class attribution, token 4, s1 r2; CSV sha256 f2e24609eaa90023 MATCH (committed f2e24609eaa90023)
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  model: body 118911..158534; census replay 26146927 (= 26146927: True); corrected predict() 26183590 (= 26183590: True); lane 26164282, residual 19308
+  emitted body == the r2 stream's body 120552..160722: 40171/40171 records identical (the JMP by opcode)
+  measured token 4: rows 26171253; SEQ_TIMELINE tcyc 4 = 26171253 (+0 = the launch edge)
+  model total 26183590 (= 26183590: True); measured - model -12337 cyc
+  BY CLASS (token 4): records | model | measured | measured - model | share of the gap
+    (CMD resid)       0 |     19308 |         0 |   -19308 = -0.0737 % | +156.5 %
+    CMD+ARG       35284 |  10710770 |  10730078 |   +19308 = +0.0737 % | -156.5 %
+    FENCE          1370 |   8999456 |   8987848 |   -11608 = -0.0443 % | +94.1 %
+    LDC             161 |    320718 |    320125 |     -593 = -0.0023 % | +4.8 %
+    MVGO           1370 |     43928 |     43840 |      -88 = -0.0003 % | +0.7 %
+    EMB               1 |      4710 |      4662 |      -48 = -0.0002 % | +0.4 %
+    JMP               1 |        39 |        39 |       +0 = +0.0000 % | -0.0 %
+    MOVY           1370 |   2847256 |   2847256 |       +0 = +0.0000 % | -0.0 %
+    CSRWR            88 |       264 |       264 |       +0 = +0.0000 % | -0.0 %
+    (lane tail)       0 |         0 |         0 |       +0 = +0.0000 % | -0.0 %
+    AMAXL             1 |        17 |        17 |       +0 = +0.0000 % | -0.0 %
+    XOP               9 |        36 |        36 |       +0 = +0.0000 % | -0.0 %
+    MOVX            516 |   3237088 |   3237088 |       +0 = +0.0000 % | -0.0 %
+  FENCE records in the body: 1370; single-channel masks: True
+    zero-wait in the model (23 cyc): 914; measured 21022 (min 23, max 23); measured - model +0
+    waiting in the model: 456; model 8978434, measured 8966826, measured - model -11608 (-25.46 per FENCE)
+    FENCE windows by the class drained (n, model, measured, measured - model, cyc):
+      DN   dn_out       96    197381    186095   -11286
+      DN   mlp_down     96   1639810   1640207     +397
+      DN   mlp_up      192   1106484   1106179     -305
+      DN   in_b         96      2451      2208     -243
+      DN   mlp_gate    192   1387090   1386875     -215
+      GQA  mlp_down     32    548456    548608     +152
+      GQA  mlp_up       64    370158    370061      -97
+      HEAD lm_head     122   1003596   1003676      +80
+      GQA  mlp_gate     64    461212    461139      -73
+      DN   in_z         96    466748    466698      -50
+      GQA  q_proj       32    347737    347784      +47
+      GQA  o_proj       32     90816     90800      -16
+      DN   in_qkv       96   1373837   1373838       +1
+      DN   in_a         96      2208      2208       +0
+      GQA  k_proj       32       736       736       +0
+      GQA  v_proj       32       736       736       +0
+  lane work by opcode, token 4 (cyc): R1 measured (SR5b CSV, sha MATCH) -> r2 measured (delta)
+    AMAXL          17 ->         17 (+0)
+    CMD      10650689 ->   10650689 (+0)
+    CSRWR       79653 ->      79653 (+0)
+    EMB          4662 ->       4662 (+0)
+    FENCE     9980593 ->    8987848 (-992745)
+    JMP            39 ->         39 (+0)
+    LDC        320125 ->     320125 (+0)
+    MOVX      3237088 ->    3237088 (+0)
+    MOVY      2847256 ->    2847256 (+0)
+    MVGO        43840 ->      43840 (+0)
+    XOP            36 ->         36 (+0)
+SR13A_DERIVE: DONE
+=== rc  : 0
+=== end : 2026-09-28T17:22:41-06:00

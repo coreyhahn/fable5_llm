@@ -1,0 +1,194 @@
+=== host: snoke  date: 2026-09-30T19:50:27-06:00
+=== tree: 5952bc7
+=== cmd : bash tb/scripts_scratch/r3_9a/mutrun.sh bc0 bcast
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+----- driver text:
+#!/usr/bin/env bash
+# R3-9a resume: ONE chip mutant over 4 seeds of its broadcast coverage stream;
+# every run MUST FAIL.  Scratch driver; its text is printed into the log.
+#   mutrun.sh <set> <kind> [hold]   (K = the set's obj_dir tag, r3_8_mutants.sh --meta)
+set -u
+cd /home/cah/r2d2/code/fpga/fable5_llm || exit 1
+echo "----- driver text:"; cat "$0"; echo "----- end driver text"
+R=evidence/qwen9b/sr; SET=$1; KIND=$2; HOLD=${3:-}
+META=$(bash $R/r3_8_mutants.sh --meta "$SET") || exit 2
+TAG=$(echo "$META" | cut -d" " -f1); export K=$TAG
+echo "=== set $SET: meta '$META' -> K=$K"
+echo "=== n3140's recorded sha: $(awk -v s="$SET" '/^######## set /{on=($3==s)} on && /binary sha256/{print $NF; exit}' $R/n3140_r3_9a_mut_builds.log)"
+echo "=== re-hash now        : $(sha256sum tb/obj_dir_seq_chip_sr$K/tb_seq_chip_9b_sr$K | cut -d" " -f1)"
+CAUGHT=0
+for s in 1 2 3 4; do
+  st=r3_9a_${KIND}_s$s
+  args=(--plusarg +caps_expect=fab1ca07)
+  [ -n "$HOLD" ] && args+=(--plusarg +xp_hold=$HOLD --logtag hold)
+  echo "######## $SET on $st ${HOLD:+(+xp_hold=$HOLD)} — MUST FAIL"
+  if bash $R/run_sr_chip.sh "$st" "$st" control "${args[@]}"; then
+    echo "    MUTANT $SET PASSED on $st — VACUOUS"
+  else
+    CAUGHT=$((CAUGHT + 1)); sl=$R/sr${K}_seed_${st}_control${HOLD:+_hold}.log
+    echo "    MUTANT $SET FAILED on $st, first failure lines of $sl:"
+    grep -m3 -E "%Fatal|MEM\[|%Error|WATCHDOG" "$sl" | sed 's/^/      /'
+  fi
+done
+echo "R3_9A_MUTANT $SET on $KIND: $CAUGHT of 4 seeds CAUGHT"
+[ "$CAUGHT" = 4 ]
+----- end driver text
+=== set bc0: meta 'r3b_mbc0 1 seq_movers.sv' -> K=r3b_mbc0
+=== n3140's recorded sha: 4d5d76d15ec274e2cb5fb91079c537c63712e5a38263fef585aa1be89d3a089a
+=== re-hash now        : 4d5d76d15ec274e2cb5fb91079c537c63712e5a38263fef585aa1be89d3a089a
+######## bc0 on r3_9a_bcast_s1  — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mbc0/tb_seq_chip_9b_srr3b_mbc0
+=== built    2026-09-30T03:10:25-06:00  sha256 4d5d76d15ec274e2cb5fb91079c537c63712e5a38263fef585aa1be89d3a089a
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1.e4  (.seq sha256 afcfab6de542ab1f, .chip sha256 914f4569cc39e0ed)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s1   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_mbc0_seed_r3_9a_bcast_s1_control.log
+=== plusargs +caps_expect=fab1ca07
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1710441 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     32s   rc=134
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [2912460000] %Fatal: tb_seq_chip.sv:1079: Assertion failed in TOP.tb_seq_chip.unnamedblk6.unnamedblk19: too many scratch mismatches
+    %Error: /tmp/sr_src_3f38efd_srr3b_mbc0/tb/tb_seq_chip.sv:1079: Verilog $stop
+    NO PASS LINE — last 15 lines:
+      MEM[8209] = 0000, expected 00df
+      MEM[820a] = 0000, expected f87d
+      MEM[820b] = 0000, expected 03c4
+      MEM[820c] = 0000, expected 0180
+      MEM[820d] = 0000, expected ff34
+      MEM[820e] = 0000, expected 0a47
+      MEM[820f] = 0000, expected 0b0f
+      MEM[8210] = 0000, expected 0171
+      MEM[8211] = 0000, expected 0086
+      MEM[8212] = 0000, expected 03ce
+      MEM[8213] = 0000, expected fe21
+      MEM[8214] = 0000, expected 0f76
+      [2912460000] %Fatal: tb_seq_chip.sv:1079: Assertion failed in TOP.tb_seq_chip.unnamedblk6.unnamedblk19: too many scratch mismatches
+      %Error: /tmp/sr_src_3f38efd_srr3b_mbc0/tb/tb_seq_chip.sv:1079: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 32s
+SR_CHIP r3_9a_bcast_s1 control: FAIL
+    MUTANT bc0 FAILED on r3_9a_bcast_s1, first failure lines of evidence/qwen9b/sr/srr3b_mbc0_seed_r3_9a_bcast_s1_control.log:
+      MEM[8200] = 0000, expected 04a2
+      MEM[8201] = 0000, expected ebf1
+      MEM[8202] = 0000, expected f4c6
+######## bc0 on r3_9a_bcast_s2  — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mbc0/tb_seq_chip_9b_srr3b_mbc0
+=== built    2026-09-30T03:10:25-06:00  sha256 4d5d76d15ec274e2cb5fb91079c537c63712e5a38263fef585aa1be89d3a089a
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2.e4  (.seq sha256 ad543c8275fc8393, .chip sha256 cfaab2dc5ac89604)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s2   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_mbc0_seed_r3_9a_bcast_s2_control.log
+=== plusargs +caps_expect=fab1ca07
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1711830 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     31s   rc=134
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [2912460000] %Fatal: tb_seq_chip.sv:1079: Assertion failed in TOP.tb_seq_chip.unnamedblk6.unnamedblk19: too many scratch mismatches
+    %Error: /tmp/sr_src_3f38efd_srr3b_mbc0/tb/tb_seq_chip.sv:1079: Verilog $stop
+    NO PASS LINE — last 15 lines:
+      MEM[8209] = 0000, expected 1a88
+      MEM[820a] = 0000, expected 193d
+      MEM[820b] = 0000, expected faf6
+      MEM[820c] = 0000, expected 0f53
+      MEM[820d] = 0000, expected 0510
+      MEM[820e] = 0000, expected f12f
+      MEM[820f] = 0000, expected 06d0
+      MEM[8210] = 0000, expected 1d6d
+      MEM[8211] = 0000, expected 191b
+      MEM[8212] = 0000, expected 2499
+      MEM[8213] = 0000, expected fdc8
+      MEM[8214] = 0000, expected fed7
+      [2912460000] %Fatal: tb_seq_chip.sv:1079: Assertion failed in TOP.tb_seq_chip.unnamedblk6.unnamedblk19: too many scratch mismatches
+      %Error: /tmp/sr_src_3f38efd_srr3b_mbc0/tb/tb_seq_chip.sv:1079: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 31s
+SR_CHIP r3_9a_bcast_s2 control: FAIL
+    MUTANT bc0 FAILED on r3_9a_bcast_s2, first failure lines of evidence/qwen9b/sr/srr3b_mbc0_seed_r3_9a_bcast_s2_control.log:
+      MEM[8200] = 0000, expected 02db
+      MEM[8201] = 0000, expected 1537
+      MEM[8202] = 0000, expected c1c6
+######## bc0 on r3_9a_bcast_s3  — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mbc0/tb_seq_chip_9b_srr3b_mbc0
+=== built    2026-09-30T03:10:25-06:00  sha256 4d5d76d15ec274e2cb5fb91079c537c63712e5a38263fef585aa1be89d3a089a
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3.e4  (.seq sha256 88f35e81e7108f02, .chip sha256 1aff13b396507b86)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s3   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_mbc0_seed_r3_9a_bcast_s3_control.log
+=== plusargs +caps_expect=fab1ca07
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1711964 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     32s   rc=134
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [2912460000] %Fatal: tb_seq_chip.sv:1079: Assertion failed in TOP.tb_seq_chip.unnamedblk6.unnamedblk19: too many scratch mismatches
+    %Error: /tmp/sr_src_3f38efd_srr3b_mbc0/tb/tb_seq_chip.sv:1079: Verilog $stop
+    NO PASS LINE — last 15 lines:
+      MEM[8209] = 0000, expected ebee
+      MEM[820a] = 0000, expected ffb0
+      MEM[820b] = 0000, expected 1c93
+      MEM[820c] = 0000, expected 1816
+      MEM[820d] = 0000, expected f549
+      MEM[820e] = 0000, expected f160
+      MEM[820f] = 0000, expected e6d9
+      MEM[8210] = 0000, expected e385
+      MEM[8211] = 0000, expected 12cb
+      MEM[8212] = 0000, expected fdb8
+      MEM[8213] = 0000, expected 0bc9
+      MEM[8214] = 0000, expected 1ec2
+      [2912460000] %Fatal: tb_seq_chip.sv:1079: Assertion failed in TOP.tb_seq_chip.unnamedblk6.unnamedblk19: too many scratch mismatches
+      %Error: /tmp/sr_src_3f38efd_srr3b_mbc0/tb/tb_seq_chip.sv:1079: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 32s
+SR_CHIP r3_9a_bcast_s3 control: FAIL
+    MUTANT bc0 FAILED on r3_9a_bcast_s3, first failure lines of evidence/qwen9b/sr/srr3b_mbc0_seed_r3_9a_bcast_s3_control.log:
+      MEM[8200] = 0000, expected eed4
+      MEM[8201] = 0000, expected 03a1
+      MEM[8202] = 0000, expected 17e3
+######## bc0 on r3_9a_bcast_s4  — MUST FAIL
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mbc0/tb_seq_chip_9b_srr3b_mbc0
+=== built    2026-09-30T03:10:25-06:00  sha256 4d5d76d15ec274e2cb5fb91079c537c63712e5a38263fef585aa1be89d3a089a
+=== seq      /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4.e4  (.seq sha256 7afe12eafff067ef, .chip sha256 ed5a110894631a67)
+=== base     /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/r3_9a_bcast_s4   mode: control
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/srr3b_mbc0_seed_r3_9a_bcast_s4_control.log
+=== plusargs +caps_expect=fab1ca07
+evidence/qwen9b/sr/run_sr_chip.sh: line 142: 1712182 Aborted                 (core dumped) "$BIN" +seq=$W9/$SEQ.e4 +base=$W9/$BASE +watchdog_ms=$WD ${CSV:+ +timeline=$CSV} $PLUS > "$LOG" 2>&1
+=== wall     32s   rc=134
+--- verdict lines
+    tb_seq_chip: launch 0 [-] rec_off 0, 67 records, 0 tokens, 65536 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    [2912460000] %Fatal: tb_seq_chip.sv:1079: Assertion failed in TOP.tb_seq_chip.unnamedblk6.unnamedblk19: too many scratch mismatches
+    %Error: /tmp/sr_src_3f38efd_srr3b_mbc0/tb/tb_seq_chip.sv:1079: Verilog $stop
+    NO PASS LINE — last 15 lines:
+      MEM[8209] = 0000, expected f873
+      MEM[820a] = 0000, expected 1a92
+      MEM[820b] = 0000, expected f075
+      MEM[820c] = 0000, expected 2e28
+      MEM[820d] = 0000, expected fd22
+      MEM[820e] = 0000, expected f960
+      MEM[820f] = 0000, expected e320
+      MEM[8210] = 0000, expected fcbe
+      MEM[8211] = 0000, expected 0b42
+      MEM[8212] = 0000, expected 15b4
+      MEM[8213] = 0000, expected f771
+      MEM[8214] = 0000, expected fb51
+      [2912460000] %Fatal: tb_seq_chip.sv:1079: Assertion failed in TOP.tb_seq_chip.unnamedblk6.unnamedblk19: too many scratch mismatches
+      %Error: /tmp/sr_src_3f38efd_srr3b_mbc0/tb/tb_seq_chip.sv:1079: Verilog $stop
+      Aborting...
+    CYCLES measured  
+    CONTROL: no SEQ_TIMELINE block, as required
+--- wall 32s
+SR_CHIP r3_9a_bcast_s4 control: FAIL
+    MUTANT bc0 FAILED on r3_9a_bcast_s4, first failure lines of evidence/qwen9b/sr/srr3b_mbc0_seed_r3_9a_bcast_s4_control.log:
+      MEM[8200] = 0000, expected 028a
+      MEM[8201] = 0000, expected f58a
+      MEM[8202] = 0000, expected 1bdc
+R3_9A_MUTANT bc0 on bcast: 4 of 4 seeds CAUGHT
+=== rc  : 0
+=== end : 2026-09-30T19:52:35-06:00

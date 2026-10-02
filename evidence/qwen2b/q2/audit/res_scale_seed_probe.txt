@@ -1,0 +1,36 @@
+########## FABLE5_MODEL=0.8b ##########
+model               : 0.8b  (models--Qwen--Qwen3.5-0.8B)
+checkpoint          : /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-0.8B/snapshots/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors
+header sha256       : c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083
+embed_tokens        : (248320, 1024)  RS_F=8
+max |emb| (float)   : 0.230469
+rms  emb  (float)   : 0.019697
+
+S    | seed = clip16(round(emb*S*2^RS_F))            | peak LSB / 32767 | util%   | clipped (gen_model_script:425 asserts 0) | rel RMS err
+-----+-----------------------------------------------+------------------+---------+----------------------------------------+------------
+1    | Q7.8 effective                         |       59 /32767 |  0.180% |          0 / 254279680              |   5.7307%
+2    | Q6.9 effective                         |      118 /32767 |  0.360% |          0 / 254279680              |   2.8724%
+4    | Q5.10 effective                         |      236 /32767 |  0.720% |          0 / 254279680              |   1.4506%
+8    | Q4.11 effective                         |      472 /32767 |  1.440% |          0 / 254279680              |   0.7497%
+16   | Q3.12 effective                         |      944 /32767 |  2.881% |          0 / 254279680              |   0.3723%
+
+NOTE the rmsnorm probe of section 4 is scale-invariant (rmsnorm_fx normalises), so S moves ONLY the seed resolution / clip count above.
+
+########## FABLE5_MODEL=2b ##########
+model               : 2b  (models--Qwen--Qwen3.5-2B)
+checkpoint          : /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+header sha256       : ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d
+embed_tokens        : (248320, 2048)  RS_F=8
+max |emb| (float)   : 0.197266
+rms  emb  (float)   : 0.015008
+
+S    | seed = clip16(round(emb*S*2^RS_F))            | peak LSB / 32767 | util%   | clipped (gen_model_script:425 asserts 0) | rel RMS err
+-----+-----------------------------------------------+------------------+---------+----------------------------------------+------------
+1    | Q7.8 effective                         |       50 /32767 |  0.153% |          0 / 508559360              |   7.5177%
+2    | Q6.9 effective                         |      101 /32767 |  0.308% |          0 / 508559360              |   3.7646%
+4    | Q5.10 effective                         |      202 /32767 |  0.616% |          0 / 508559360              |   1.8931%
+8    | Q4.11 effective                         |      404 /32767 |  1.233% |          0 / 508559360              |   0.9672%
+16   | Q3.12 effective                         |      808 /32767 |  2.466% |          0 / 508559360              |   0.4980%
+
+NOTE the rmsnorm probe of section 4 is scale-invariant (rmsnorm_fx normalises), so S moves ONLY the seed resolution / clip count above.
+

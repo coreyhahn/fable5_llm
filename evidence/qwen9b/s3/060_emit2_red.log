@@ -1,0 +1,38 @@
+=== host: darthplagueis
+=== date: 2026-09-05T00:49:19-06:00
+=== tree: 0c58be2+dirty
+=== cmd:  ssh snoke cd /home/cah/r2d2/code/fpga/fable5_llm/tb && FABLE5_MODEL=9b FABLE5_RS_F=7 make w9_9b_emit2_red MODELPY=/home/cah/.venv/bin/python
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+RED: the second emission is perturbed; EMIT_REPEAT must FAIL
+EMIT2_FORCE_FAIL=1 EMIT_SEQ_ENV="FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1" MODELPY=/home/cah/.venv/bin/python \
+REF_PREFIX=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1 \
+  sh ../evidence/qwen9b/s3/emit_repeat.sh 1 /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/red \
+  1 2 \
+  && { echo "EMIT2_RED: NOT CAUGHT — the gate is blind"; exit 1; } \
+  || echo "EMIT2_RED: CAUGHT (the gate refused a perturbed emission)"
+emit_repeat: n=1 gen=gen_layer_script.py args='1 2'  host=snoke
+  MODELPY = /home/cah/.venv/bin/python
+  python  = 3.12.3 numpy 2.4.6
+  out     = /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/red
+  run 1  [EMIT2_FORCE_FAIL: seed perturbed to 2]
+SEQ: 4091 records (65456 B) + 51136 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/emit2/red/rep1.e4.seq  [profile=epsnorm loop_steps=0]
+  run 1  5d451ffb465de442 b6ba7d8dcbadd11d 34fd8dd3ff2c7dcb bae8b4e4262104d1
+  .txt  1 distinct sha over 1 run(s)   5d451ffb465de4425a2b0c0ad476e355de42b7a23d344c68c8ede83a8374ef63
+  .e4.seq  1 distinct sha over 1 run(s)   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  1 distinct sha over 1 run(s)   34fd8dd3ff2c7dcba369d2f94342fb39ea42aac4def0b018f02d3c76dffe49bd
+  .state_final.bin  1 distinct sha over 1 run(s)   bae8b4e4262104d1233f1e8597ec14ca9972d2c4884448cba07c40f2296c687f
+  --- against the reference emission /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/lay9b_s1
+  .txt  DIFFERS  got 5d451ffb465de4425a2b0c0ad476e355de42b7a23d344c68c8ede83a8374ef63  ref 2fab6e5d042c3cbbf766d6ac07e43edba06c698e8c636c7e95080b1c97b6297e
+  .e4.seq  IDENTICAL   b6ba7d8dcbadd11d23070f23f3fc3419320c751324da6173951dd4c12d8fd9ce
+  .e4.seqdata.bin  DIFFERS  got 34fd8dd3ff2c7dcba369d2f94342fb39ea42aac4def0b018f02d3c76dffe49bd  ref bfbc0c00bfcdccf6fa074d9a4fd4f8ad8f09b003ce9a2f1656d2fa142a0f3d5b
+  .state_final.bin  DIFFERS  got bae8b4e4262104d1233f1e8597ec14ca9972d2c4884448cba07c40f2296c687f  ref ca6e6e7f1fb21d4e98c0ba430ad604f1bc1f5b92d740903d9c53d70023ed5bfd
+EMIT_REPEAT: FAIL
+EMIT2_RED: CAUGHT (the gate refused a perturbed emission)
+=== rc: 0
+=== end: 2026-09-05T00:52:14-06:00

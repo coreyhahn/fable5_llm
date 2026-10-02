@@ -1,0 +1,47 @@
+=== host: snoke
+=== date: 2026-09-10T00:41:46-06:00
+=== tree: 2762662
+=== cmd:  nice -n 10 /home/cah/.venv/bin/python -u evidence/qwen9b/g6/g6_longctx_lockstep.py --selfcheck --limit 1
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+  selfcheck  the two per-step arms and the three verdicts, rendered with dummy values:
+  step   0 lite tok=760     pos=0   ref -> no token  chip -> no token  ==   [131.2s  eta 19.3h]   
+  step 501 lite tok=13      pos=501 ref -> no token  chip -> no token  !! DIVERGENCE   [131.2s  eta  0.9h]   
+  step 502 full tok=13      pos=502 ref ->      760  chip -> 760  ==   [149.3s  eta  0.9h]   'The'
+  step 525 full tok=11      pos=525 ref ->       12  chip -> 11  !! DIVERGENCE   [149.3s  eta  0.0h]   ','
+             LONGCTX_LOCKSTEP: PASS 526/526
+             LONGCTX_LOCKSTEP: FAIL at step 502
+             LONGCTX_LOCKSTEP: PARTIAL 1/526 (--limit 1)
+=== the board run being replayed: evidence/qwen9b/g6/083_longctx_chat.json
+  argv       --nch 4 --max-ctx 700 --ntok 24 --prompt <2433 chars>
+  chip       527 launches, context 526, greedy decode
+  chip ids   [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751, 13538, 494, 264, 16576, 383, 449, 12552, 303, 279, 181474, 11, 321, 1141, 13959, 11]   (24 tok)
+=== FABLE5_MODEL=9b  template=tb/scripts/w9/model_9b_s1.e4  nrec=158536  T_MAX=4096
+  nch=4      model_9b_s1.e4: 158536 records, body 39622 full / 38854 lite; head image(s) [248] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=4096) on model_9b_s1.e4 -> preamble:39, lite:38858, full:39626  (1.3s)
+  blob       8940032 B = 551424 B constants + 4096 positions x 2048 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  session    built in 2.5s  (pos_mode=ldc, t_max=4096)
+  tokenizer  c202236235762e1c871ad0ccb60c8ee5ba337b9a: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  templated  503 ids (12 wrapper + 491 body); feed 503; steps 526 = 502 prefill (lite) + 24 decode (full); auto-reset False
+  verifier   built in 0.8s; region PRESENT {'dn': 15032385536, 'kv': 15057551360, 'cv': 15191769088, 'end': 15194914816}
+  preamble   replayed in 0.0s
+------------------------------------------------------------------------
+  replaying 1 of 526 steps; 502 prefill then 24 decode.  A prefill step's verdict is that BOTH sides emit no token (the lite body has no LM head); the decode steps are the token-for-token comparison.
+------------------------------------------------------------------------
+  step   0 lite tok=248045  pos=0   ref -> no token  chip -> no token  ==   [118.4s  eta  0.0h]   
+------------------------------------------------------------------------
+  replayed   1 of 526 steps in 0.03 h (118.4 s/step)
+  ref ids    []
+  chip ids   [760, 20438, 18253, 5134, 421, 279, 3177, 314, 11751, 13538, 494, 264, 16576, 383, 449, 12552, 303, 279, 181474, 11, 321, 1141, 13959, 11]
+  decode     0/24 of the chip's tokens reproduced (0 decode steps replayed)
+LONGCTX_LOCKSTEP: PARTIAL 1/526 (--limit 1)
+=== rc: 0
+=== end: 2026-09-10T00:43:50-06:00

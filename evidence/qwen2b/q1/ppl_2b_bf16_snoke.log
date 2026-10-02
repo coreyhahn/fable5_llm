@@ -1,0 +1,40 @@
+model      FABLE5_MODEL=2b  24 layers  H=2048  vocab=248320
+checkpoint /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+           header sha256 ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d
+tokenizer  /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc
+corpus     ref/ppl_corpus_eval.txt
+           sha256 6bf4f8677a3b3fff178c6915e2a55b7326e534f6e54650067e33b056e4c27876
+           24576 tokens, window=512, batch=4
+inject     (none — bf16 anchor)
+host       snoke
+torch 2.12.0+cpu  threads=6
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+  model built + loaded in 44.8s
+    class    quant    mats   weights   packed  (ideal)   footprint   [packed = w4a8_ref.row_stride, beat padding included]
+    qkv      bf16      18 mats    62.915 M 16.000 b/w (16.000)     120.0 MiB
+    o_proj   bf16       6 mats    25.166 M 16.000 b/w (16.000)      48.0 MiB
+    gate_up  bf16      48 mats   603.980 M 16.000 b/w (16.000)    1152.0 MiB
+    down     bf16      24 mats   301.990 M 16.000 b/w (16.000)     576.0 MiB
+    dn_in    bf16      72 mats   303.170 M 16.000 b/w (16.000)     578.2 MiB
+    dn_out   bf16      18 mats    75.497 M 16.000 b/w (16.000)     144.0 MiB
+    lm_head  bf16       1 mats   508.559 M 16.000 b/w (16.000)     970.0 MiB
+    dn_conv  bf16      18 mats     0.442 M 16.000 b/w (16.000)       0.8 MiB
+    emb      bf16       1 mats   508.559 M 16.000 b/w (16.000)     970.0 MiB
+    _float   bf16     115 mats     0.106 M 16.000 b/w (16.000)       0.2 MiB
+    _total   bf16     321 mats  2390.384 M 16.000 b/w (16.000)    4559.3 MiB
+  window 4/48  positions=2044  running PPL=9.3794  33.7s
+  window 8/48  positions=4088  running PPL=10.9086  65.1s
+  window 12/48  positions=6132  running PPL=11.1859  95.2s
+  window 16/48  positions=8176  running PPL=11.2979  124.7s
+  window 20/48  positions=10220  running PPL=11.6073  154.4s
+  window 24/48  positions=12264  running PPL=11.9379  183.7s
+  window 28/48  positions=14308  running PPL=11.3351  216.1s
+  window 32/48  positions=16352  running PPL=10.9739  245.6s
+  window 36/48  positions=18396  running PPL=11.5919  286.1s
+  window 40/48  positions=20440  running PPL=11.7387  320.0s
+  window 44/48  positions=22484  running PPL=11.8214  363.9s
+  window 48/48  positions=24528  running PPL=12.3463  404.9s
+
+nll_sum 61647.602117  positions 24528  nll/pos 2.513356  eval 404.9s (build 45.9s)
+json -> evidence/qwen2b/q1/ppl_2b_bf16_snoke.json
+PPL 12.346298

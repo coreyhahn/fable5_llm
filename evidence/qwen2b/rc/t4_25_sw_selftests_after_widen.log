@@ -1,0 +1,36 @@
+=== host: snoke  date: 2026-08-22T15:12:21-06:00
+=== tree: 0455999+dirty
+=== cmd : bash evidence/qwen2b/rc/t3_sw_selftests.sh
+=== venv: 3.12.3 numpy 2.4.6
+=== t3 sw selftests: 2026-08-22T15:12:21-06:00  host=snoke
+  python = /usr/bin/python3.12
+  tree   = 045599957e6b400cc9bc3accfe711e913040d512 +dirty
+
+--- make seq_selftest  (sw/seq_run.py --selftest)
+.venv/bin/python -u seq_run.py --selftest
+seq_run selftest (pure python, no board):
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+      1987 records, 63360 B blob, 25 LDC (0 indirected), 44 MVGO, 0 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/tok2_s1.e
+      1080 records, 61568 B blob, 14 LDC (1 indirected), 26 MVGO, 3 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e
+      60495 records, 1007360 B blob, 538 LDC (24 indirected), 1592 MVGO, 6 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e4
+      68119 records, 1007360 B blob, 538 LDC (24 indirected), 3464 MVGO, 6 expected tokens
+  --- /tmp/fable5_rp_yuilhoe0/rp.e
+      53 records, 2048 B blob, 1 LDC (0 indirected), 12 MVGO, 1 expected tokens
+  --- R-c: the emitter's placement-order guard
+  --- R-b: emb_row_bytes manifest key + EMBLOG2 CSR
+  seq_run selftest: 2735 passed, 0 failed
+
+--- make serve_test    (sw/serve.py --selftest)
+    args namespace covers chat_seq's args.* reads              ok
+  backend API check: PASS
+  serve selftest: 85 passed, 0 failed
+
+--- chat_seq.py --selftest
+  [19c] rung 4 S6: OUT FIFO depth 64, 7-bit count, sticky of_ovf
+  [20] rung 4 S8: TOPK-32 STATUS decode + PTR auto-increment
+  chat_seq selftest: 337 passed, 0 failed
+=== rc  : 0
+=== end : 2026-08-22T15:12:52-06:00

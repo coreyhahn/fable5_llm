@@ -1,0 +1,37 @@
+=== host: snoke  date: 2026-09-24T20:13:56-06:00
+=== tree: 3ef556d+dirty
+=== dirty: ?? evidence/qwen9b/ov/n24_gate_shipped_s1_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n25_gate_shipped_s2_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n26_gate_shipped_s3_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n27_gate_shipped_s4_refusal.log
+=== dirty: ?? evidence/qwen9b/ov/n33_gate_s1_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n41_gate_s2_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n42_gate_s3_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n43_gate_s4_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n44_chipvec_s1_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n45_chipvec_s2_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n46_chipvec_s3_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n47_chipvec_s4_reordB.log
+=== cmd : make -C tb lint_bm1 W9_NCH=4
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+verilator --lint-only -Wall --timing ../rtl/seq_unit.sv ../rtl/seq_movers.sv --top-module seq_unit
+verilator --lint-only -Wall --timing ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/seq_unit_ipi.v \
+  --top-module seq_unit_ipi
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module matvec_chan \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module matvec_chan_ipi \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv \
+  ../rtl/matvec_chan_ipi.v
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt -I/home/cah/r2d2/code/fpga/fable5_llm/tb \
+  -GNMV=4 -GWIMGPC=1 --top-module tb_seq_chip ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv seq_fabric_model.sv seq_burst_fabric.sv seq_mem_file.sv tb_seq_chip.sv
+verilator --lint-only -Wall --timing --top-module tb_seq_unit \
+  ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module tb_matvec_chan \
+  ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv tb_matvec_chan.sv
+verilator --lint-only -Wall --timing -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt --top-module tb_mvshim_b \
+  mvshim_b_stubs.sv ../rtl/matvec_chan.sv tb_mvshim_b.sv
+LINT_BM1 OK: -Wall clean (seq_unit, seq_unit_ipi, matvec_chan, matvec_chan_ipi, tb_seq_chip NMV=4, tb_seq_unit, tb_matvec_chan, tb_mvshim_b)
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc  : 0
+=== end : 2026-09-24T20:14:03-06:00

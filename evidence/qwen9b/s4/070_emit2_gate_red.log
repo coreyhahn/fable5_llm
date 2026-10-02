@@ -1,0 +1,87 @@
+=== host: snoke
+=== date: 2026-09-05T12:03:00-06:00
+=== tree: 8f89870
+=== cmd:  bash evidence/qwen9b/s4/emit2_gate_red.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+EMIT2_GATE_RED: host snoke
+  shim      = evidence/qwen9b/s4/emit_shim.py
+  artifacts = tb/scripts/w9/shim/ (gitignored build area)
+  make      = GNU Make 4.3
+
+=== green   env: <none>   W9_BASE=scripts/w9/shim/green_s1
+    W9_EMIT2 GATE: emitter rc=1, output kept in scripts/w9/emit2/green_s1.emit.out
+    W9_EMIT2 GATE: rc 1 is the KNOWN deliberate range-audit failure (no --allow-clip); the artifacts were written
+      run 1  rc 1 = the KNOWN deliberate range audit (no --allow-clip); artifacts written
+      run 1  4e0da38ae499e1d7 7db1f4cab602a829 bfc00917d783bc98 29a8b964056eb370
+      .txt  1 distinct sha over 1 run(s)   4e0da38ae499e1d77f6d851872fbfd73d1a7695e7e27ace0842c26e769854c45
+      .e4.seq  1 distinct sha over 1 run(s)   7db1f4cab602a82996782d5536566253ae79d466eab80ca8ee932cb679c83c9d
+      .e4.seqdata.bin  1 distinct sha over 1 run(s)   bfc00917d783bc9827d646e412c29cd6511edc775ed9fdce9090d147caee7f83
+      .state_final.bin  1 distinct sha over 1 run(s)   29a8b964056eb370fc634d11d12ddd629c447229cf2071f76d59da2719deb9f6
+      .txt  IDENTICAL   4e0da38ae499e1d77f6d851872fbfd73d1a7695e7e27ace0842c26e769854c45
+      .e4.seq  IDENTICAL   7db1f4cab602a82996782d5536566253ae79d466eab80ca8ee932cb679c83c9d
+      .e4.seqdata.bin  IDENTICAL   bfc00917d783bc9827d646e412c29cd6511edc775ed9fdce9090d147caee7f83
+      .state_final.bin  IDENTICAL   29a8b964056eb370fc634d11d12ddd629c447229cf2071f76d59da2719deb9f6
+    EMIT_REPEAT: PASS 1 identical emission(s)
+    make: *** [Makefile:1392: w9_9b_model_script] Error 1
+    make rc=2  wall=0s
+    ok   the recipe recognised the by-design audit rc
+    ok   the emit-twice block was REACHED and PASSED
+    ok     \.txt compared IDENTICAL
+    ok     \.e4\.seq compared IDENTICAL
+    ok     \.e4\.seqdata\.bin compared IDENTICAL
+    ok     \.state_final\.bin compared IDENTICAL
+    ok   make rc = 2
+
+=== red1_force_fail   env: EMIT2_FORCE_FAIL=1   W9_BASE=scripts/w9/shim/red1_s1
+    W9_EMIT2 GATE: emitter rc=1, output kept in scripts/w9/emit2/red1_s1.emit.out
+    W9_EMIT2 GATE: rc 1 is the KNOWN deliberate range-audit failure (no --allow-clip); the artifacts were written
+      run 1  [EMIT2_FORCE_FAIL: seed perturbed to 2]
+      run 1  rc 1 = the KNOWN deliberate range audit (no --allow-clip); artifacts written
+      run 1  3ae5e50cb3ac5a1d d14bcb737f32f84b 59346189180828f0 81f3099f9abf011e
+      .txt  1 distinct sha over 1 run(s)   3ae5e50cb3ac5a1d1d50d5b132c1b43a83666e3bcb9a799b3138e001a56799a7
+      .e4.seq  1 distinct sha over 1 run(s)   d14bcb737f32f84bf2c276592f6cb8def0f48386bd97112f71868624852a1237
+      .e4.seqdata.bin  1 distinct sha over 1 run(s)   59346189180828f0249e23df8451c7717df3d64ac6cfb554612d542a484eacad
+      .state_final.bin  1 distinct sha over 1 run(s)   81f3099f9abf011e065e4b827dee77fc554f921d50b8c07d536354b4f3cd5e7a
+      .txt  DIFFERS  got 3ae5e50cb3ac5a1d1d50d5b132c1b43a83666e3bcb9a799b3138e001a56799a7  ref 4e0da38ae499e1d77f6d851872fbfd73d1a7695e7e27ace0842c26e769854c45
+      .e4.seq  DIFFERS  got d14bcb737f32f84bf2c276592f6cb8def0f48386bd97112f71868624852a1237  ref 7db1f4cab602a82996782d5536566253ae79d466eab80ca8ee932cb679c83c9d
+      .e4.seqdata.bin  DIFFERS  got 59346189180828f0249e23df8451c7717df3d64ac6cfb554612d542a484eacad  ref bfc00917d783bc9827d646e412c29cd6511edc775ed9fdce9090d147caee7f83
+      .state_final.bin  DIFFERS  got 81f3099f9abf011e065e4b827dee77fc554f921d50b8c07d536354b4f3cd5e7a  ref 29a8b964056eb370fc634d11d12ddd629c447229cf2071f76d59da2719deb9f6
+    EMIT_REPEAT: FAIL
+    make: *** [Makefile:1392: w9_9b_model_script] Error 1
+    make rc=2  wall=1s
+    ok   the second emission was perturbed
+    ok   the comparison CAUGHT the difference
+    ok   the block REFUSED the artifact
+    ok   and did not also pass
+    ok   the target exited non-zero (2)
+
+=== red2_no_audit   env: SHIM_MODE=no_audit   W9_BASE=scripts/w9/shim/red2_s1
+    W9_EMIT2 GATE: emitter rc=1, output kept in scripts/w9/emit2/red2_s1.emit.out
+    W9_EMIT2 GATE: ABORT -- rc 1 is NOT the known range-audit failure; the emit-twice block is SKIPPED
+    make: *** [Makefile:1392: w9_9b_model_script] Error 1
+    make rc=2  wall=0s
+    ok   the recipe ABORTED on an unknown rc
+    ok   the emit-twice block was NOT reached
+    ok   the target exited non-zero (2)
+
+=== red3_traceback   env: SHIM_MODE=traceback   W9_BASE=scripts/w9/shim/red3_s1
+    W9_EMIT2 GATE: emitter rc=1, output kept in scripts/w9/emit2/red3_s1.emit.out
+    W9_EMIT2 GATE: ABORT -- rc 1 is NOT the known range-audit failure; the emit-twice block is SKIPPED
+    make: *** [Makefile:1392: w9_9b_model_script] Error 1
+    make rc=2  wall=0s
+    ok   the recipe ABORTED on the traceback
+    ok   the emit-twice block was NOT reached
+    ok   the target exited non-zero (2)
+
+EMIT2_GATE_RED: PASS — the model target's emit-twice block is REACHED
+  on the by-design audit rc and PASSES; it REFUSES a perturbed second
+  emission; and it is NOT reached when the emitter fails for any other
+  reason (no audit line, or a traceback)
+=== rc: 0
+=== end: 2026-09-05T12:03:01-06:00

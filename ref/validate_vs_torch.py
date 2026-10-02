@@ -9,7 +9,7 @@ single-token DECODE loop. Per-position hidden states must agree to fp32
 tolerance. This is an algorithm-level cross-check: chunked-vs-recurrent
 DeltaNet and masked-prefill-vs-cached-decode attention.
 
-Run on snoke (needs torch CPU + transformers). Captures PASS/FAIL.
+Run on darthplagueis system python3 (torch CPU + transformers; snoke has NO torch). Captures PASS/FAIL.
 """
 import json
 import os
@@ -20,14 +20,14 @@ import torch
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import layer_ref as LR
+from model_select import CONFIG_JSON
 
 from transformers.models.qwen3_5 import Qwen3_5TextConfig, Qwen3_5TextModel
 
 T = 12
 torch.manual_seed(7)
 
-cfgd = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                   "qwen3_5_0.8b_config.json")))["text_config"]
+cfgd = json.load(open(CONFIG_JSON))["text_config"]
 cfgd = dict(cfgd)
 cfgd.update(num_hidden_layers=2,
             layer_types=["linear_attention", "full_attention"],

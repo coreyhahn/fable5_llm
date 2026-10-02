@@ -1,0 +1,155 @@
+=== host: snoke  date: 2026-09-28T11:29:18-06:00
+=== tree: e7e8023
+=== cmd : env FABLE5_MODEL=9b /home/cah/.venv/bin/python evidence/qwen9b/ov/sr0_clock_sens.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== stream /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq
+    sha256 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  manifest 9760899df53b3b4216d517d042a1dd7c9477b4f0cb7e6639320a5fd6d480719b  MATCH
+=== loop body: static pc 118911..158534 (39624 records); EMB records at [39, 39663, 79286, 118911]; JMP(flags 1) at 158534 -> 118911
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (4, 5, 6): tok4=39624, tok5=39624, tok6=39625
+=== body window sum (token 4): 32786868 cyc = 131.147 ms  (OV1 n15: 131.147 ms)
+
+=== r = 0: reproduce OV1 (TB cyc, both forms)
+  REPRO B:shipped         32786868 cyc =  131.147 ms TB
+  REPRO B:S1              28612019 cyc =  114.448 ms TB
+  REPRO B:R1              27136513 cyc =  108.546 ms TB
+  REPRO B:R1+R2           26146927 cyc =  104.588 ms TB
+  REPRO B:R1+R2+R3        24102767 cyc =   96.411 ms TB
+  REPRO B:R1+R2+R3(buf)   24580127 cyc =   98.321 ms TB
+  REPRO A:shipped         32786868 cyc =  131.147 ms TB
+  REPRO A:S1              29486120 cyc =  117.944 ms TB
+  REPRO A:R1              27732131 cyc =  110.929 ms TB
+  REPRO A:R1+R2           27056949 cyc =  108.228 ms TB
+  REPRO A:R1+R2+R3        25012789 cyc =  100.051 ms TB
+  REPRO A:R1+R2+R3(buf)   25498597 cyc =  101.994 ms TB
+
+=== split convention calibration against the board (n84)
+  CALIB shipped split 134.8549 ms vs board n72 137.1195 (-1.652 %); uniform 137.1309
+  CALIB S1-A    split 121.3918 ms vs board n73 123.5655 (-1.759 %); uniform 123.3255
+
+=== GRID scenario K (aclk cut), board convention uni, form B: board tok/s
+  option            r= 0%    r= 5%    r=10%    r=15%    r=20%  
+  GRID K uni   B shipped           7.292    7.074    6.847    6.609    6.361
+  GRID K uni   B S1                8.356    8.117    7.866    7.603    7.329
+  GRID K uni   B R1                8.811    8.579    8.335    8.078    7.809
+  GRID K uni   B R1+R2             9.144    8.910    8.650    8.400    8.114
+  GRID K uni   B R1+R2+R3          9.920    9.690    9.447    9.175    8.912
+  GRID K uni   B R1+R2+R3(buf)     9.727    9.497    9.253    8.982    8.718
+
+=== GRID scenario K (aclk cut), board convention uni, form A: board tok/s
+  option            r= 0%    r= 5%    r=10%    r=15%    r=20%  
+  GRID K uni   A shipped           7.292    7.074    6.847    6.609    6.361
+  GRID K uni   A S1                8.109    7.873    7.628    7.371    7.102
+  GRID K uni   A R1                8.621    8.392    8.154    7.901    7.633
+  GRID K uni   A R1+R2             8.837    8.608    8.369    8.108    7.840
+  GRID K uni   A R1+R2+R3          9.559    9.331    9.092    8.828    8.557
+  GRID K uni   A R1+R2+R3(buf)     9.377    9.148    8.909    8.649    8.360
+
+=== GRID scenario K (aclk cut), board convention split, form B: board tok/s
+  option            r= 0%    r= 5%    r=10%    r=15%    r=20%  
+  GRID K split B shipped           7.415    7.199    6.972    6.735    6.488
+  GRID K split B S1                8.486    8.248    8.000    7.739    7.465
+  GRID K split B R1                8.926    8.698    8.458    8.204    7.937
+  GRID K split B R1+R2             9.257    9.030    8.786    8.516    8.254
+  GRID K split B R1+R2+R3         10.021    9.797    9.559    9.307    9.021
+  GRID K split B R1+R2+R3(buf)     9.832    9.606    9.368    9.115    8.829
+
+=== GRID scenario K (aclk cut), board convention split, form A: board tok/s
+  option            r= 0%    r= 5%    r=10%    r=15%    r=20%  
+  GRID K split A shipped           7.415    7.199    6.972    6.735    6.488
+  GRID K split A S1                8.238    8.005    7.761    7.505    7.237
+  GRID K split A R1                8.735    8.511    8.275    8.027    7.763
+  GRID K split A R1+R2             8.948    8.726    8.490    8.242    7.968
+  GRID K split A R1+R2+R3          9.660    9.440    9.205    8.957    8.680
+  GRID K split A R1+R2+R3(buf)     9.481    9.259    9.025    8.776    8.502
+
+=== GRID scenario U (MIG UI / DDR4 cut), board convention uni, form B: board tok/s
+  option            r= 0%    r= 5%    r=10%    r=15%    r=20%  
+  GRID U uni   B shipped           7.292    7.137    6.971    6.796    6.608
+  GRID U uni   B S1                8.356    8.168    7.968    7.755    7.527
+  GRID U uni   B R1                8.811    8.591    8.359    8.114    7.851
+  GRID U uni   B R1+R2             9.144    8.906    8.656    8.393    8.113
+  GRID U uni   B R1+R2+R3          9.920    9.641    9.348    9.042    8.717
+  GRID U uni   B R1+R2+R3(buf)     9.727    9.458    9.177    8.882    8.568
+
+=== GRID scenario U (MIG UI / DDR4 cut), board convention uni, form A: board tok/s
+  option            r= 0%    r= 5%    r=10%    r=15%    r=20%  
+  GRID U uni   A shipped           7.292    7.137    6.971    6.796    6.608
+  GRID U uni   A S1                8.109    7.928    7.736    7.533    7.317
+  GRID U uni   A R1                8.621    8.405    8.181    7.944    7.690
+  GRID U uni   A R1+R2             8.837    8.608    8.373    8.122    7.858
+  GRID U uni   A R1+R2+R3          9.559    9.292    9.019    8.729    8.424
+  GRID U uni   A R1+R2+R3(buf)     9.377    9.120    8.857    8.571    8.282
+
+=== GRID scenario U (MIG UI / DDR4 cut), board convention split, form B: board tok/s
+  option            r= 0%    r= 5%    r=10%    r=15%    r=20%  
+  GRID U split B shipped           7.415    7.252    7.079    6.895    6.699
+  GRID U split B S1                8.486    8.288    8.079    7.855    7.616
+  GRID U split B R1                8.926    8.697    8.455    8.197    7.924
+  GRID U split B R1+R2             9.257    9.010    8.750    8.474    8.183
+  GRID U split B R1+R2+R3         10.021    9.732    9.430    9.110    8.774
+  GRID U split B R1+R2+R3(buf)     9.832    9.553    9.262    8.953    8.628
+
+=== GRID scenario U (MIG UI / DDR4 cut), board convention split, form A: board tok/s
+  option            r= 0%    r= 5%    r=10%    r=15%    r=20%  
+  GRID U split A shipped           7.415    7.252    7.079    6.895    6.699
+  GRID U split A S1                8.238    8.048    7.848    7.636    7.410
+  GRID U split A R1                8.735    8.514    8.280    8.030    7.766
+  GRID U split A R1+R2             8.948    8.716    8.470    8.209    7.934
+  GRID U split A R1+R2+R3          9.660    9.390    9.105    8.804    8.488
+  GRID U split A R1+R2+R3(buf)     9.481    9.221    8.946    8.655    8.350
+
+=== BREAK-EVEN r* (option at r* == S1 at r = 0; same scenario, convention, form), bisection to 1e-4
+  BREAKEVEN K uni   B R1             r* =   9.57 %  (clock  226.07 MHz; S1@0 = 8.356 tok/s)
+  BREAKEVEN K uni   B R1+R2          r* =  15.80 %  (clock  210.51 MHz; S1@0 = 8.356 tok/s)
+  BREAKEVEN K uni   B R1+R2+R3       r* =  28.62 %  (clock  178.44 MHz; S1@0 = 8.356 tok/s)
+  BREAKEVEN K uni   B R1+R2+R3(buf)  r* =  25.83 %  (clock  185.42 MHz; S1@0 = 8.356 tok/s)
+  BREAKEVEN K uni   A R1             r* =  10.89 %  (clock  222.78 MHz; S1@0 = 8.109 tok/s)
+  BREAKEVEN K uni   A R1+R2          r* =  14.99 %  (clock  212.52 MHz; S1@0 = 8.109 tok/s)
+  BREAKEVEN K uni   A R1+R2+R3       r* =  27.40 %  (clock  181.50 MHz; S1@0 = 8.109 tok/s)
+  BREAKEVEN K uni   A R1+R2+R3(buf)  r* =  24.24 %  (clock  189.40 MHz; S1@0 = 8.109 tok/s)
+  BREAKEVEN K split B R1             r* =   9.44 %  (clock  226.40 MHz; S1@0 = 8.486 tok/s)
+  BREAKEVEN K split B R1+R2          r* =  15.96 %  (clock  210.10 MHz; S1@0 = 8.486 tok/s)
+  BREAKEVEN K split B R1+R2+R3       r* =  28.95 %  (clock  177.62 MHz; S1@0 = 8.486 tok/s)
+  BREAKEVEN K split B R1+R2+R3(buf)  r* =  26.02 %  (clock  184.96 MHz; S1@0 = 8.486 tok/s)
+  BREAKEVEN K split A R1             r* =  10.78 %  (clock  223.06 MHz; S1@0 = 8.238 tok/s)
+  BREAKEVEN K split A R1+R2          r* =  15.08 %  (clock  212.29 MHz; S1@0 = 8.238 tok/s)
+  BREAKEVEN K split A R1+R2+R3       r* =  27.65 %  (clock  180.88 MHz; S1@0 = 8.238 tok/s)
+  BREAKEVEN K split A R1+R2+R3(buf)  r* =  24.77 %  (clock  188.08 MHz; S1@0 = 8.238 tok/s)
+  BREAKEVEN U uni   B R1             r* =  10.05 %  (clock  269.86 MHz; S1@0 = 8.356 tok/s)
+  BREAKEVEN U uni   B R1+R2          r* =  15.68 %  (clock  252.97 MHz; S1@0 = 8.356 tok/s)
+  BREAKEVEN U uni   B R1+R2+R3       r* =  25.26 %  (clock  224.21 MHz; S1@0 = 8.356 tok/s)
+  BREAKEVEN U uni   B R1+R2+R3(buf)  r* =  23.23 %  (clock  230.32 MHz; S1@0 = 8.356 tok/s)
+  BREAKEVEN U uni   A R1             r* =  11.55 %  (clock  265.35 MHz; S1@0 = 8.109 tok/s)
+  BREAKEVEN U uni   A R1+R2          r* =  15.29 %  (clock  254.14 MHz; S1@0 = 8.109 tok/s)
+  BREAKEVEN U uni   A R1+R2+R3       r* =  24.90 %  (clock  225.29 MHz; S1@0 = 8.109 tok/s)
+  BREAKEVEN U uni   A R1+R2+R3(buf)  r* =  22.82 %  (clock  231.53 MHz; S1@0 = 8.109 tok/s)
+  BREAKEVEN U split B R1             r* =   9.39 %  (clock  271.83 MHz; S1@0 = 8.486 tok/s)
+  BREAKEVEN U split B R1+R2          r* =  14.80 %  (clock  255.59 MHz; S1@0 = 8.486 tok/s)
+  BREAKEVEN U split B R1+R2+R3       r* =  27.14 %  (clock  218.57 MHz; S1@0 = 8.486 tok/s)
+  BREAKEVEN U split B R1+R2+R3(buf)  r* =  22.12 %  (clock  233.63 MHz; S1@0 = 8.486 tok/s)
+  BREAKEVEN U split A R1             r* =  10.86 %  (clock  267.43 MHz; S1@0 = 8.238 tok/s)
+  BREAKEVEN U split A R1+R2          r* =  14.46 %  (clock  256.62 MHz; S1@0 = 8.238 tok/s)
+  BREAKEVEN U split A R1+R2+R3       r* =  23.79 %  (clock  228.62 MHz; S1@0 = 8.238 tok/s)
+  BREAKEVEN U split A R1+R2+R3(buf)  r* =  21.76 %  (clock  234.71 MHz; S1@0 = 8.238 tok/s)
+
+=== scenario U at the DDR4 speed grades (UI clock = data rate/8)
+  DDR4-2400 tCK 833 ps UI 300.00 MHz r=0.00 % (form B, uni): S1 8.356, R1 8.811, R1+R2 9.144, R1+R2+R3 9.920
+  DDR4-2133 tCK 938 ps UI 266.62 MHz r=11.12 % (form B, uni): S1 7.921, R1 8.305, R1+R2 8.598, R1+R2+R3 9.281
+  DDR4-1866 tCK 1071 ps UI 233.25 MHz r=22.25 % (form B, uni): S1 7.419, R1 7.728, R1+R2 7.981, R1+R2+R3 8.565
+
+=== the clock a roll's WNS would need: f = 1/(T + |WNS|)
+  NEED aclk T=4.000 WNS=-0.124 ->  242.48 MHz (cut  3.01 %)  [BM1 best roll, u_attn gather]
+  NEED aclk T=4.000 WNS=-0.384 ->  228.10 MHz (cut  8.76 %)  [BM1 END_high aclk worst, u_alu]
+  NEED aclk T=4.000 WNS=-0.370 ->  228.83 MHz (cut  8.47 %)  [BM1 ASL_low aclk worst, u_alu]
+  NEED aclk T=4.000 WNS=-0.507 ->  221.88 MHz (cut 11.25 %)  [BM1 EBP, u_dn lane DSP]
+  NEED ui   T=3.332 WNS=-0.010 ->  299.22 MHz (cut  0.30 %)  [BM1 best roll, mvchan_0 streamer]
+  NEED ui   T=3.332 WNS=-0.408 ->  267.38 MHz (cut 10.91 %)  [BM1 ASL_low, mvchan_3 scales_q CE]
+  NEED ui   T=3.332 WNS=-0.554 ->  257.33 MHz (cut 14.26 %)  [BM1 END_high, mvchan_3 xline_q0]
+
+=== ALU op-stage: +1 aclk cycle per ALU command x 4843/token = 4843 cyc = 0.0194 ms/token = 0.0148 % of the shipped token
+SR0_CLOCK_SENS: DONE
+=== rc  : 0
+=== end : 2026-09-28T11:38:38-06:00

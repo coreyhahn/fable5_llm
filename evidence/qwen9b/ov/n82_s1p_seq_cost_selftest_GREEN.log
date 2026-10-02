@@ -1,0 +1,46 @@
+=== host: snoke  date: 2026-09-27T08:24:01-06:00
+=== tree: 641cb3c+dirty
+=== dirty: ?? evidence/qwen9b/bm/bm1_timeline_model_9b_s1.csv
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_bmtl/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s1_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s2_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s3_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_model_9b_s4_control/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_bm/
+=== dirty: ?? evidence/qwen9b/bm/seedlogs_tok9b_s1_control/
+=== dirty: ?? evidence/qwen9b/ov/s1p_cost_fit.py
+=== dirty: ?? ref/seq_cost.py
+=== cmd : /home/cah/.venv/bin/python ref/seq_cost.py --selftest
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+(a) anchors — the table at the CSV's measured means
+  [PASS] EMB x4096 = 4699  (4699, 0)
+  [PASS] VN rmsnorm0 x4096 node = 8281  (8281, 0)
+  [PASS] MOVX x4096 = 4216  (4216, 0)
+  [PASS] MVGO 67584 beats: issue 32, S 57247  (32, 57247)
+  [PASS] MOVY int16 x2048 = 2155  (2155, 0)
+  [PASS] ALU DYNQ16 x128 node = 327  (327, 0)
+  [PASS] ATTN at pos 3 node = 2015  (2015, 0)
+  [PASS] LDC x4096 = 4667  (4667, 0)
+  [PASS] MOVX 12288 -> 12507  12507
+  [PASS] MOVY 1024 -> 2148  2148
+  [PASS] MVGO 25952256 -> (32, 85853)  (32, 85853)
+  [PASS] MVGO 67584 -> (32, 260)  (32, 260)
+(b) the rows feed ov_census.build_nodes / stream_durations
+  [PASS] VN node (ARGs merged) = 8281  8281
+  [PASS] four streams of S 57247
+  [PASS] one group, tau = 47, no leak  [47] leak 0
+  [PASS] DMA run: 5 x 39 then the 6th waits 17251; a compute CMD resets the run  [39, 39, 39, 39, 39, 17251, 39]
+  [PASS] VNW x4096 node = 12324  12324
+  [PASS] an arbitrary segment is priced (no template match)  {1: (6, 0, 4699, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 2: (1, 4699, 3, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 3: (1, 4702, 3, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 4: (1, 4705, 3, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 5: (2, 4708, 8272, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])}
+(c) refusals
+  [PASS] refuses DNZ (never measured)  no static cost for layer command ('DNZ',)
+  [PASS] refuses CONV x4096 (only x8192 measured)  no static cost for layer command ('CONV', 4096)
+  [PASS] refuses EMB x1024 (only x4096 measured)  no static cost for EMB x1024
+SEQ_COST SELFTEST: PASS
+=== rc  : 0
+=== end : 2026-09-27T08:24:02-06:00

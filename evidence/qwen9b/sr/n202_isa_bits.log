@@ -1,0 +1,52 @@
+=== host: snoke  date: 2026-09-27T17:02:40-06:00
+=== tree: cceb282+dirty
+=== dirty:  M ref/seq_format.py
+=== dirty:  M sw/hwmap.py
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/g3/isa_bits.py
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== isa_bits: rtl/layer_chan.sv is SEQ_ISA v2.x, ISA_SADDR_MAX=65536, SCRATCH_MAX=65536
+
+--- 1. bit budget (M: widths read out of the RTL; S: 96 = three 32-bit ARG CSRs) ---
+command  ARG0  ARG1  ARG2  used  spare  fields
+VN         14    32     4    50     46  vn_mode:2, vn_nlog2:4, vn_inf:4, vn_outf:4, vn_eps:1, vn_xrfk:3, a1_lo:16, a1_hi:16
+VNW        13    16     0    29     67  vnw_n:13, a1_lo:16
+ROPET       0    16     0    16     80  a1_lo:16
+ROPE        0    32     0    32     64  a1_lo:16, a1_hi:16
+CONVW      30    16     0    46     50  convw_sel:2, convw_first:14, convw_nch:14, a1_lo:16
+CONV       28    32     0    60     36  conv_first:14, conv_nch:14, a1_lo:16, a1_hi:16
+GATE       16    32    32    80     16  gate_dst:16, a1_lo:16, a1_hi:16, a2_lo:16, a2_hi:16
+KVAP        7    32     0    39     57  kvhead:2, kv_expbias:5, a1_lo:16, a1_hi:16
+ATTN        2    32     0    34     62  kvhead:2, a1_lo:16, a1_hi:16
+ALU        19    32    32    83     13  alu_op:4, alu_len:14, alu_p0:17, alu_srca:16, alu_srcb:16, alu_dst:16
+DNST        5    32    32    69     27  dn_head:5, a1_lo:16, a1_hi:16, a2_lo:16, a2_hi:16
+DNZ         5     0     0     5     91  dn_head:5
+
+--- 2. emitter CEILINGS vs the RTL SLICES that carry them ---
+  a1_lo        16 b  >= ISA_SADDR_MAX-1 = 65535
+  a1_hi        16 b  >= ISA_SADDR_MAX-1 = 65535
+  a2_lo        16 b  >= ISA_SADDR_MAX-1 = 65535
+  a2_hi        16 b  >= ISA_SADDR_MAX-1 = 65535
+  gate_dst     16 b  >= ISA_SADDR_MAX-1 = 65535
+  alu_srca     16 b  >= ISA_SADDR_MAX-1 = 65535
+  alu_srcb     16 b  >= ISA_SADDR_MAX-1 = 65535
+  alu_dst      16 b  >= ISA_SADDR_MAX-1 = 65535
+  vnw_n        13 b  >= VNW_ISA_MAX = 4096
+  conv_first   14 b  >= CONV_FIELD_MAX = 16383
+  conv_nch     14 b  >= CONV_FIELD_MAX = 16383
+  convw_first  14 b  >= CONV_FIELD_MAX = 16383
+  convw_nch    14 b  >= CONV_FIELD_MAX = 16383
+  alu_len      14 b  >= ALU_LEN_MAX = 16383
+  dn_head       5 b  >= 2**ARG0_HEAD_BITS-1 = 31
+  kvhead        2 b  >= 2**ARG0_KVH_BITS-1 = 3
+  kv_expbias    5 b  >= KVAP_EXPB_MAX = 31
+  ALU_LEN_MAX twins agree: 16383
+
+--- 3. encoder <-> decoder equivalence, three independent implementations ---
+boundary addresses: [0, 1, 32767, 32768, 65535]  (ISA_SADDR_MAX=65536)
+random addresses:   24 @ seed 20260901
+  FAIL (assert) ATTN: KV slot 0 is COLD (E_DMA_COLD)
+
+ISA_BITS: FAIL
+=== rc  : 1
+=== end : 2026-09-27T17:02:40-06:00

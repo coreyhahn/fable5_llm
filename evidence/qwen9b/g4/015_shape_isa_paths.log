@@ -1,0 +1,29 @@
+=== host: snoke
+=== date: 2026-09-03T00:46:08-06:00
+=== tree: c42f593+dirty
+=== cmd:  /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g3/g34_shape_isa_paths.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+G3.4 SHAPE-layout paths — who states isa, and on whose authority
+  artifact  tb/scripts/w3/lay_s1.e  (1987 records), meta declares shape_isa = None
+  1 GREEN   meta-driven      -> ACCEPTED (frozen isa=1 stream, envelope off)
+  2 RED     stated isa=2     -> REFUSED: rec 108: MVGO SHAPE ng 0 outside the engine envelope 1..96 (imm32=0x00010148)
+  3 ARMING  meta says isa=2  -> REFUSED (the check arms itself when an artifact declares the layout)
+  artifact  tb/scripts/w3/tok2_s1.e  (1080 records), meta declares shape_isa = None
+  1 GREEN   meta-driven      -> ACCEPTED (frozen isa=1 stream, envelope off)
+  2 RED     stated isa=2     -> REFUSED: rec 112: MVGO SHAPE ng 0 outside the engine envelope 1..96 (imm32=0x00010148)
+  3 ARMING  meta says isa=2  -> REFUSED (the check arms itself when an artifact declares the layout)
+  4 SITE    ref/seq_chat.py                    1 site(s) take the layout from the artifact
+  4 SITE    ref/seq_model.py                   1 site(s) take the layout from the artifact
+  4 SITE    tb/scripts/gen_seq_chip_vectors.py 1 site(s) take the layout from the artifact
+  4 SITE    tb/scripts/gen_seq_unit_vectors.py STATES isa=2 (it builds the stream in memory)
+  5 EMIT     sw/hwmap.shape_word asserts 1 <= ng <= SHAPE_MAX_NG[isa] for every word it packs
+  GAP       9 of 22 artifact metas declare shape_isa (no emitter writes it yet — Task 11)
+SHAPE_ISA_PATHS: PASS (0 problem(s))
+=== rc: 0
+=== end: 2026-09-03T00:46:08-06:00

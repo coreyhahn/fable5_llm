@@ -1,0 +1,30 @@
+=== host: snoke  date: 2026-09-27T18:46:07-06:00
+=== tree: 9ac0260
+=== cmd : /home/cah/.venv/bin/python sw/chat_seq.py --selftest
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  reorder    auto -> the shipped order (form B, the default, runs only at FABLE5_MODEL=9b --nch 4 on the shipped template; here --nch 1, template model_v2_s1.e)
+chat_seq selftest (pure python, NO board):
+  [1] template source, frozen sha256, spec slice indices
+  [2] image assembly: agent A vs my own spec slices
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6843, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6662, in main
+    raise SystemExit(0 if selftest(args) else 1)
+                          ^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 4016, in selftest
+    tc = SC.TurnCompiler(args.template, t_max=T_MAX, pos_mode="xrf")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 533, in __init__
+    self.T = Templates(prefix, verify_sha=verify_sha)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 384, in __init__
+    self._verify()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 464, in _verify
+    need(r[R_POSADV].opcode == SF.EXT_XOP
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 412, in need
+    raise ChatSeqError("template check failed: " + msg)
+seq_chat.ChatSeqError: template check failed: rec 60492 is XOP*   XRF[4:pos] = +XRF[4:pos] +1536, expected XOP XRF[4] += 2048
+=== rc  : 1
+=== end : 2026-09-27T18:46:08-06:00

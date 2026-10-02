@@ -37,20 +37,20 @@ Emits alongside the script: <prefix>_w{wid}.bin + <prefix>.weights.json
 runner and TB depend on it).
 """
 import json
-import os
 import sys
 
 import numpy as np
 
+import gen_layer_script as GLS
 from gen_layer_script import (Mach, dn_token, attn_token, X0, STG, I64)
 import layer_ref as LR
 import layer_fixed as LF
 from layer_fixed import RS_F
+from model_select import CONFIG_JSON
 
 
 def load_layer_types(nlayers):
-    cfg = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                      "qwen3_5_0.8b_config.json")))
+    cfg = json.load(open(CONFIG_JSON))
     types = cfg["text_config"]["layer_types"]
     assert nlayers <= len(types), \
         f"nlayers={nlayers} exceeds config layer_types ({len(types)})"
@@ -80,6 +80,8 @@ def main():
     rng = np.random.default_rng(seed)
 
     layer_types = load_layer_types(nlayers)
+    n_dn = sum(1 for t in layer_types if t != "full_attention")
+    kv_pf = GLS.sched_kv_prefetch(layer_types)
     slots = assign_slots(layer_types)
 
     # ---- weights + caches (RNG consumed in layer order 0..nlayers-1) ----
@@ -97,34 +99,36 @@ def main():
     with open(outfile, "w") as f:
         M = Mach(f)
 
-        # ---- static preamble: prime each layer's banked state once ----
-        for (lt, qw, cache, dn_slot, kv_slot) in layers:
-            M.layer(dn_slot, kv_slot)
-            if lt == "full_attention":
-                M.Treset()                       # zero this kv_slot's TCNT
-            else:
-                qd = qw["dn"]
-                for c in range(0, LR.CONV_DIM, 2048):
-                    M.W(STG, qd["conv_w"][c:c + 2048].reshape(-1))
-                    M.convw(c, 2048, STG)
-                M.convz(0, LR.CONV_DIM)
-                for h in range(LR.LNH):
-                    M.dnz(h)
+        # ---- S3: the DDR state image, and the 6.4 preamble ----
+        # `tb_chain` was RETIRED FOR GOOD at G4a (evidence/qwen9b/g4/
+        # G4A_REPLAY.md 5.5) and the frozen chain artifacts are not
+        # regenerated, so this generator is a TOOLS-VALID path (G3.3's
+        # convention): it is carried to v2.1 so that it still RUNS and still
+        # emits a legal stream, not because anything replays its output.
+        for (lt, qw, cache, dn_l, kv_l) in layers:
+            if lt != "full_attention":
+                M.seed_conv(dn_l, qw["dn"]["conv_w"])
+        GLS.sched_preamble(M, layer_types)
 
         # ---- decode: residual flows layer->layer within each token ----
         for t in range(ntok):
             x = x_seeds[t]
             M.W(X0, x)                           # residual entering layer 0
-            for (lt, qw, cache, dn_slot, kv_slot) in layers:
-                M.layer(dn_slot, kv_slot)
-                gold = LF.layer_decode_fx(x, qw, cache, t)
+            for i, (lt, qw, cache, dn_l, kv_l) in enumerate(layers):
                 if lt == "full_attention":
+                    M.layer(dn_l % 2, 0, dn_l % 2, kv_l)
+                    gold = LF.layer_decode_fx(x, qw, cache, t)
                     attn_token(M, qw["attn"], qw["ln1"], qw["ln2"],
                                qw["mlp"], t, gold)
                 else:
+                    GLS.sched_dn_pair(M, dn_l, n_dn, kv_pf[i])
+                    GLS.sched_cv_pair(M, dn_l, n_dn)
+                    M.layer(dn_l % 2, 0, dn_l % 2, kv_l)
+                    gold = LF.layer_decode_fx(x, qw, cache, t)
                     dn_token(M, qw["dn"], qw["ln1"], qw["ln2"],
                              qw["mlp"], gold)
                 x = gold                         # feeds the next layer
+            GLS.sched_token_end(M, n_dn)
 
         print("Q", file=f)
 

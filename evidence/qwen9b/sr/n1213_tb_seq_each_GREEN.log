@@ -1,0 +1,618 @@
+=== host: snoke  date: 2026-09-28T07:40:26-06:00
+=== tree: 9c69419+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/USAGE.md
+=== dirty:  M evidence/qwen9b/g3/isa_bits.py
+=== dirty:  M rtl/matvec_chan.sv
+=== dirty:  M rtl/matvec_engine.sv
+=== dirty:  M rtl/seq_movers.sv
+=== dirty:  M rtl/seq_unit.sv
+=== dirty:  M tb/Makefile
+=== dirty:  M tb/mvshim_b_stubs.sv
+=== dirty:  M tb/scripts/gen_seq_unit_vectors.py
+=== dirty:  M tb/seq_stub_mvchan.sv
+=== dirty:  M tb/tb_matvec.sv
+=== dirty:  M tb/tb_matvec_chan.sv
+=== dirty:  M tb/tb_seq_unit.sv
+=== dirty:  M tb/tb_streamer_engine.sv
+=== dirty: ?? evidence/qwen9b/sr/sr12_golden_same.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_mv_each.sh
+=== dirty: ?? evidence/qwen9b/sr/sr12_rtl_copies.sh
+=== cmd : bash evidence/qwen9b/sr/sr3_tb_each.sh obj_dir_seq_unit_sr12_green scripts_scratch/seqvec_sr12_green ../rtl
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SR3 lists: seeds [1 2 3 4] errs [op ind chan jmp xopsgn csrsp rsvd env0 env97 fmrsvd fmimm haltmask mxrsvd mxstart mxrange myrange] micro [csrwr cmd movx movy16 movy32 ldc] directed [hiaddr embrow repack1 repack2 repack3 repack4 fmask fmask2 fmask3 fmask4 bank bank2 bank3 bank4]
+mkdir -p scripts_scratch/seqvec_sr12_green
+for s in 1 2 3 4; do \
+  /home/cah/.venv/bin/python scripts/gen_seq_unit_vectors.py scripts_scratch/seqvec_sr12_green $s || exit 1; done
+seq_u_s1: 63 records, 921 writes, 303 reads (296 with the XRF sideband), 680 scratch words, 4 tokens
+seq_h_hiaddr: 16 records, 8320 scratch words (8192 above word 16383)
+seq_h_embrow: 7 records, 3136 scratch words at EMBLOG2=12 (4096 B rows)
+seq_m_csrwr: 2001 records, 2000 writes, 0 reads
+seq_m_cmd: 801 records, 800 writes, 0 reads
+seq_m_movx: 3 records, 5123 writes, 4096 reads
+seq_m_movy16: 4 records, 2073 writes, 2112 reads
+seq_m_movy32: 4 records, 4121 writes, 2112 reads
+seq_m_ldc: 2 records, 4097 writes, 0 reads
+seq_f_of24: 121 records, 24 tokens
+seq_f_of64: 321 records, 64 tokens
+seq_f_of80: 401 records, 80 tokens
+seq_e_op: expects err_code 0x01
+seq_e_ind: expects err_code 0x02
+seq_e_chan: expects err_code 0x05
+seq_e_jmp: expects err_code 0x08
+seq_e_xopsgn: expects err_code 0x0a
+seq_e_csrsp: expects err_code 0x07
+seq_e_rsvd: expects err_code 0x06
+seq_e_env0: expects err_code 0x0d
+seq_e_env97: expects err_code 0x0d
+seq_e_fmrsvd: expects err_code 0x06
+seq_e_fmimm: expects err_code 0x06
+seq_e_haltmask: expects err_code 0x06
+seq_e_mxrsvd: expects err_code 0x06
+seq_e_mxstart: expects err_code 0x06
+seq_e_mxrange: expects err_code 0x06
+seq_e_myrange: expects err_code 0x06
+seq_h_fmask: 26 records, 6 FENCEs, perm [0, 1, 2, 3], poll sets 7:2 9:5 14:8 18:0 21:4 23:2
+seq_h_bank: 22 records, perm [0, 1, 2, 3], 8 MOVX / 6 MOVY windows, non-zero starts X0@1536 Y0@2048 Y0@2050 X1@1536 Y1@4095 Y1@3048 X2@5 X2@1020 X2@3071 Y2@7
+seq_h_repack1: 18 records, 5 MVGOs at per-channel bases (nch=2 depth=16 ilv=[0]), 1096 scratch words
+seq_u_s2: 63 records, 906 writes, 253 reads (245 with the XRF sideband), 660 scratch words, 5 tokens
+seq_h_fmask2: 26 records, 6 FENCEs, perm [3, 2, 1, 0], poll sets 7:4 9:a 14:1 18:0 21:2 23:4
+seq_h_bank2: 22 records, perm [3, 2, 1, 0], 8 MOVX / 6 MOVY windows, non-zero starts X3@1536 Y3@2048 Y3@2050 X2@1536 Y2@4095 Y2@3048 X1@5 X1@1020 X1@3071 Y1@7
+seq_h_repack2: 39 records, 12 MVGOs at per-channel bases (nch=4 depth=16 ilv=[0, 2]), 1188 scratch words
+seq_u_s3: 63 records, 878 writes, 213 reads (205 with the XRF sideband), 628 scratch words, 5 tokens
+seq_h_fmask3: 26 records, 6 FENCEs, perm [2, 3, 0, 1], poll sets 7:8 9:5 14:2 18:0 21:1 23:8
+seq_h_bank3: 22 records, perm [2, 3, 0, 1], 8 MOVX / 6 MOVY windows, non-zero starts X2@1536 Y2@2048 Y2@2050 X3@1536 Y3@4095 Y3@3048 X0@5 X0@1020 X0@3071 Y0@7
+seq_h_repack3: 24 records, 7 MVGOs at per-channel bases (nch=3 depth=32 ilv=[0]), 1161 scratch words
+seq_u_s4: 63 records, 836 writes, 245 reads (239 with the XRF sideband), 636 scratch words, 3 tokens
+seq_h_fmask4: 26 records, 6 FENCEs, perm [1, 0, 3, 2], poll sets 7:1 9:a 14:4 18:0 21:8 23:1
+seq_h_bank4: 22 records, perm [1, 0, 3, 2], 8 MOVX / 6 MOVY windows, non-zero starts X1@1536 Y1@2048 Y1@2050 X0@1536 Y0@4095 Y0@3048 X3@5 X3@1020 X3@3071 Y3@7
+seq_h_repack4: 54 records, 17 MVGOs at per-channel bases (nch=4 depth=8 ilv=[1]), 1177 scratch words
+SR3 RTL: ../rtl/seq_unit.sv sha256 a9cd485c98d71975, ../rtl/seq_movers.sv sha256 9a0d254555049c10
+verilator --binary --timing -j 16 -Wall \
+  --Mdir obj_dir_seq_unit_sr12_green -o tb_seq \
+  --top-module tb_seq_unit ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_seq_unit__pch.h -o Vtb_seq_unit__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_seq_unit__pch.h -o Vtb_seq_unit__pch.h.slow.gch
+echo "" > Vtb_seq_unit__ALL.verilator_deplist.tmp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit.o Vtb_seq_unit.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit___024root__DepSet_hbc3af788__0.o Vtb_seq_unit___024root__DepSet_hbc3af788__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit___024root__DepSet_hbc3af788__1.o Vtb_seq_unit___024root__DepSet_hbc3af788__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit___024root__DepSet_hc6d95493__0.o Vtb_seq_unit___024root__DepSet_hc6d95493__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit__main.o Vtb_seq_unit__main.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit__ConstPool_0.o Vtb_seq_unit__ConstPool_0.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit___024root__Slow.o Vtb_seq_unit___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit___024root__DepSet_hbc3af788__0__Slow.o Vtb_seq_unit___024root__DepSet_hbc3af788__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit___024root__DepSet_hc6d95493__0__Slow.o Vtb_seq_unit___024root__DepSet_hc6d95493__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit__Syms.o Vtb_seq_unit__Syms.cpp
+Archive ar -rcs Vtb_seq_unit__ALL.a Vtb_seq_unit.o Vtb_seq_unit___024root__DepSet_hbc3af788__0.o Vtb_seq_unit___024root__DepSet_hbc3af788__1.o Vtb_seq_unit___024root__DepSet_hc6d95493__0.o Vtb_seq_unit__main.o Vtb_seq_unit__ConstPool_0.o Vtb_seq_unit___024root__Slow.o Vtb_seq_unit___024root__DepSet_hbc3af788__0__Slow.o Vtb_seq_unit___024root__DepSet_hc6d95493__0__Slow.o Vtb_seq_unit__Syms.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_seq_unit__ALL.a    -pthread -lpthread -latomic   -o tb_seq
+rm Vtb_seq_unit__ALL.verilator_deplist.tmp
+----- SR3VEC seq_u_s1
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 5 MOVX windows (52 XWIN beats), 5 MOVY windows (84 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_u_s1: 63 records, 3433 cycles (54.49 cyc/rec, 4.588 Mrec/s @250MHz)
+  axil writes 121
+  axil reads  36  (of which 25 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 163)
+  layer cmds 11, engine runs 1/0/1/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 15 write bursts (800 beats), 10 read bursts (292 beats), busy_wr 1583 busy_rd 422, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_u_s1 (writes 921, reads 303, scratch 680, tokens 4)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_u_s1 PASS rc=0
+----- SR3VEC seq_u_s2
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 6 MOVX windows (40 XWIN beats), 6 MOVY windows (80 RES beats) at their B17.2 addresses
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr12_green/seq_u_s2: 63 records, 3739 cycles (59.35 cyc/rec, 4.212 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  42  (of which 29 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 176)
+  layer cmds 12, engine runs 5/1/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (768 beats), 12 read bursts (240 beats), busy_wr 1571 busy_rd 396, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_u_s2 (writes 906, reads 253, scratch 660, tokens 5)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_u_s2 PASS rc=0
+----- SR3VEC seq_u_s3
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 6 MOVX windows (32 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_sr12_green/seq_u_s3: 63 records, 3685 cycles (58.49 cyc/rec, 4.274 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  42  (of which 29 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 174)
+  layer cmds 12, engine runs 1/0/1/4, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (740 beats), 12 read bursts (200 beats), busy_wr 1517 busy_rd 356, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_u_s3 (writes 878, reads 213, scratch 628, tokens 5)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_u_s3 PASS rc=0
+----- SR3VEC seq_u_s4
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 4 MOVX windows (40 XWIN beats), 4 MOVY windows (76 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_u_s4: 63 records, 2950 cycles (46.83 cyc/rec, 5.339 Mrec/s @250MHz)
+  axil writes 104
+  axil reads  30  (of which 21 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 146)
+  layer cmds 10, engine runs 0/3/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (732 beats), 8 read bursts (236 beats), busy_wr 1419 busy_rd 340, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_u_s4 (writes 836, reads 245, scratch 636, tokens 3)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_u_s4 PASS rc=0
+----- SR3VEC seq_e_op
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_op: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_op (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_op PASS rc=0
+----- SR3VEC seq_e_ind
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_ind: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_ind (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_ind PASS rc=0
+----- SR3VEC seq_e_chan
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_chan: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_chan (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_chan PASS rc=0
+----- SR3VEC seq_e_jmp
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_jmp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_jmp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_jmp PASS rc=0
+----- SR3VEC seq_e_xopsgn
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_xopsgn: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_xopsgn (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_xopsgn PASS rc=0
+----- SR3VEC seq_e_csrsp
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_csrsp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_csrsp (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_csrsp PASS rc=0
+----- SR3VEC seq_e_rsvd
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_rsvd: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_rsvd (writes 0, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_rsvd PASS rc=0
+----- SR3VEC seq_e_env0
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_env0: 4 records, 295 cycles (73.75 cyc/rec, 3.390 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_env0 (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_env0 PASS rc=0
+----- SR3VEC seq_e_env97
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_env97: 4 records, 295 cycles (73.75 cyc/rec, 3.390 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_env97 (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_env97 PASS rc=0
+----- SR3VEC seq_e_fmrsvd
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_fmrsvd: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_fmrsvd (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_fmrsvd PASS rc=0
+----- SR3VEC seq_e_fmimm
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_fmimm: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_fmimm (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_fmimm PASS rc=0
+----- SR3VEC seq_e_haltmask
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_haltmask: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_haltmask (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_haltmask PASS rc=0
+----- SR3VEC seq_e_mxrsvd
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_mxrsvd: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_mxrsvd (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_mxrsvd PASS rc=0
+----- SR3VEC seq_e_mxstart
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_mxstart: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_mxstart (writes 23, reads 64, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_mxstart PASS rc=0
+----- SR3VEC seq_e_mxrange
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 2 MOVX windows (88 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_mxrange: 6 records, 631 cycles (105.17 cyc/rec, 2.377 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  6  (of which 6 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 6)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 2 write bursts (88 beats), 3 read bursts (352 beats), busy_wr 406 busy_rd 382, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_mxrange (writes 97, reads 352, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_mxrange PASS rc=0
+----- SR3VEC seq_e_myrange
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 1 MOVY windows (96 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_e_myrange: 7 records, 535 cycles (76.43 cyc/rec, 3.271 Mrec/s @250MHz)
+  axil writes 14
+  axil reads  6  (of which 6 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 7)
+  layer cmds 0, engine runs 2/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 2 write bursts (112 beats), 2 read bursts (160 beats), busy_wr 214 busy_rd 186, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_e_myrange (writes 126, reads 160, scratch 96, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_e_myrange PASS rc=0
+----- SR3VEC seq_m_csrwr
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_m_csrwr: 2001 records, 6046 cycles (3.02 cyc/rec, 82.741 Mrec/s @250MHz)
+  axil writes 2000
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2001)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_m_csrwr (writes 2000, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_m_csrwr PASS rc=0
+----- SR3VEC seq_m_cmd
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_m_cmd: 801 records, 8821 cycles (11.01 cyc/rec, 22.702 Mrec/s @250MHz)
+  axil writes 800
+  axil reads  276  (of which 276 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 801)
+  layer cmds 200, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_m_cmd (writes 800, reads 0, scratch 0, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_m_cmd PASS rc=0
+----- SR3VEC seq_m_movx
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (1024 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_m_movx: 3 records, 8935 cycles (2978.33 cyc/rec, 0.084 Mrec/s @250MHz)
+  axil writes 3
+  axil reads  2  (of which 2 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 515)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 20 write bursts (5120 beats), 16 read bursts (4096 beats), busy_wr 8833 busy_rd 4169, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_m_movx (writes 5123, reads 4096, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_m_movx PASS rc=0
+----- SR3VEC seq_m_movy16
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 1 MOVY windows (2048 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_m_movy16: 4 records, 2434 cycles (608.50 cyc/rec, 0.411 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 9 write bursts (2064 beats), 9 read bursts (2112 beats), busy_wr 2194 busy_rd 2166, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_m_movy16 (writes 2073, reads 2112, scratch 2048, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_m_movy16 PASS rc=0
+----- SR3VEC seq_m_movy32
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 1 MOVY windows (2048 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_m_movy32: 4 records, 4486 cycles (1121.50 cyc/rec, 0.223 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (4112 beats), 9 read bursts (2112 beats), busy_wr 4244 busy_rd 4120, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_m_movy32 (writes 4121, reads 2112, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_m_movy32 PASS rc=0
+----- SR3VEC seq_m_ldc
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_m_ldc: 2 records, 4705 cycles (2352.50 cyc/rec, 0.106 Mrec/s @250MHz)
+  axil writes 1
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 514)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (4096 beats), 0 read bursts (0 beats), busy_wr 4652 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_m_ldc (writes 4097, reads 0, scratch 4096, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_m_ldc PASS rc=0
+----- SR3VEC seq_h_hiaddr
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 3 MOVX windows (2624 XWIN beats), 3 MOVY windows (1664 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_hiaddr: 16 records, 21949 cycles (1371.81 cyc/rec, 0.182 Mrec/s @250MHz)
+  axil writes 34
+  axil reads  7  (of which 7 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 920)
+  layer cmds 0, engine runs 1/1/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 49 write bursts (12032 beats), 48 read bursts (12160 beats), busy_wr 21284 busy_rd 12848, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_hiaddr (writes 12066, reads 12160, scratch 8320, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_hiaddr PASS rc=0
+----- SR3VEC seq_h_embrow
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_embrow: 7 records, 3736 cycles (533.71 cyc/rec, 0.468 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 399)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (3136 beats), 0 read bursts (0 beats), busy_wr 3660 busy_rd 0, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_embrow (writes 3145, reads 0, scratch 3136, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_embrow PASS rc=0
+----- SR3VEC seq_h_repack1
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 5 MOVX windows (832 XWIN beats), 5 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_repack1: 18 records, 5947 cycles (330.39 cyc/rec, 0.757 Mrec/s @250MHz)
+  axil writes 46
+  axil reads  11  (of which 11 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 146)
+  layer cmds 0, engine runs 3/2/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 14 write bursts (1928 beats), 19 read bursts (3400 beats), busy_wr 4916 busy_rd 3566, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_repack1 (writes 1974, reads 3400, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_repack1 PASS rc=0
+----- SR3VEC seq_h_repack2
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 12 MOVX windows (1792 XWIN beats), 12 MOVY windows (164 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_repack2: 39 records, 11674 cycles (299.33 cyc/rec, 0.835 Mrec/s @250MHz)
+  axil writes 109
+  axil reads  25  (of which 25 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 167)
+  layer cmds 0, engine runs 4/4/2/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 28 write bursts (2980 beats), 42 read bursts (7332 beats), busy_wr 9283 busy_rd 7716, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_repack2 (writes 3089, reads 7332, scratch 1188, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_repack2 PASS rc=0
+----- SR3VEC seq_h_repack3
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 7 MOVX windows (1216 XWIN beats), 7 MOVY windows (137 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_repack3: 24 records, 8062 cycles (335.92 cyc/rec, 0.744 Mrec/s @250MHz)
+  axil writes 64
+  axil reads  15  (of which 15 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 152)
+  layer cmds 0, engine runs 3/2/2/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 18 write bursts (2377 beats), 26 read bursts (5001 beats), busy_wr 6643 busy_rd 5231, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_repack3 (writes 2441, reads 5001, scratch 1161, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_repack3 PASS rc=0
+----- SR3VEC seq_h_repack4
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XWA PASS: 17 MOVX windows (2688 XWIN beats), 17 MOVY windows (153 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_repack4: 54 records, 16537 cycles (306.24 cyc/rec, 0.816 Mrec/s @250MHz)
+  axil writes 154
+  axil reads  35  (of which 35 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 182)
+  layer cmds 0, engine runs 5/4/4/4, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 38 write bursts (3865 beats), 61 read bursts (10905 beats), busy_wr 13177 busy_rd 11455, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_repack4 (writes 4019, reads 10905, scratch 1177, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_repack4 PASS rc=0
+----- SR3VEC seq_h_fmask
+TB_SEQ_FMASK PASS: 6 fences
+TB_SEQ_XWA PASS: 6 MOVX windows (96 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_fmask: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 1/2/2/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_fmask (writes 1247, reads 456, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_fmask PASS rc=0
+----- SR3VEC seq_h_fmask2
+TB_SEQ_FMASK PASS: 6 fences
+TB_SEQ_XWA PASS: 6 MOVX windows (96 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_fmask2: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 1/2/2/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_fmask2 (writes 1247, reads 456, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_fmask2 PASS rc=0
+----- SR3VEC seq_h_fmask3
+TB_SEQ_FMASK PASS: 6 fences
+TB_SEQ_XWA PASS: 6 MOVX windows (96 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_fmask3: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 2/1/1/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_fmask3 (writes 1247, reads 456, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_fmask3 PASS rc=0
+----- SR3VEC seq_h_fmask4
+TB_SEQ_FMASK PASS: 6 fences
+TB_SEQ_XWA PASS: 6 MOVX windows (96 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_fmask4: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 2/1/1/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_fmask4 (writes 1247, reads 456, scratch 1096, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_fmask4 PASS rc=0
+----- SR3VEC seq_h_bank
+TB_SEQ_FMASK PASS: 2 fences
+TB_SEQ_XWA PASS: 8 MOVX windows (1775 XWIN beats), 6 MOVY windows (1103 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_bank: 22 records, 16735 cycles (760.68 cyc/rec, 0.329 Mrec/s @250MHz)
+  axil writes 49
+  axil reads  13  (of which 13 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 790)
+  layer cmds 0, engine runs 2/1/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 48 write bursts (9046 beats), 41 read bursts (8200 beats), busy_wr 15682 busy_rd 8490, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_bank (writes 9095, reads 8200, scratch 7271, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_bank PASS rc=0
+----- SR3VEC seq_h_bank2
+TB_SEQ_FMASK PASS: 2 fences
+TB_SEQ_XWA PASS: 8 MOVX windows (1775 XWIN beats), 6 MOVY windows (1103 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_bank2: 22 records, 16735 cycles (760.68 cyc/rec, 0.329 Mrec/s @250MHz)
+  axil writes 49
+  axil reads  13  (of which 13 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 790)
+  layer cmds 0, engine runs 0/1/1/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 48 write bursts (9046 beats), 41 read bursts (8200 beats), busy_wr 15682 busy_rd 8490, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_bank2 (writes 9095, reads 8200, scratch 7271, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_bank2 PASS rc=0
+----- SR3VEC seq_h_bank3
+TB_SEQ_FMASK PASS: 2 fences
+TB_SEQ_XWA PASS: 8 MOVX windows (1775 XWIN beats), 6 MOVY windows (1103 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_bank3: 22 records, 16735 cycles (760.68 cyc/rec, 0.329 Mrec/s @250MHz)
+  axil writes 49
+  axil reads  13  (of which 13 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 790)
+  layer cmds 0, engine runs 1/0/2/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 48 write bursts (9046 beats), 41 read bursts (8200 beats), busy_wr 15682 busy_rd 8490, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_bank3 (writes 9095, reads 8200, scratch 7271, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_bank3 PASS rc=0
+----- SR3VEC seq_h_bank4
+TB_SEQ_FMASK PASS: 2 fences
+TB_SEQ_XWA PASS: 8 MOVX windows (1775 XWIN beats), 6 MOVY windows (1103 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_sr12_green/seq_h_bank4: 22 records, 16735 cycles (760.68 cyc/rec, 0.329 Mrec/s @250MHz)
+  axil writes 49
+  axil reads  13  (of which 13 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 790)
+  layer cmds 0, engine runs 1/2/0/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 48 write bursts (9046 beats), 41 read bursts (8200 beats), busy_wr 15682 busy_rd 8490, decerr 0 non-OK 0
+SEQ_CAPS fab1ca03 == hwmap fab1ca03
+SEQ PASS: scripts_scratch/seqvec_sr12_green/seq_h_bank4 (writes 9095, reads 8200, scratch 7271, tokens 0)
+- tb_seq_unit.sv:1146: Verilog $finish
+SR3VEC seq_h_bank4 PASS rc=0
+SR3 SUMMARY: 40 PASS, 0 FAIL:
+=== rc  : 0
+=== end : 2026-09-28T07:40:43-06:00

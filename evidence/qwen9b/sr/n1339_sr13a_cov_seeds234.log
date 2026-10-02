@@ -1,0 +1,402 @@
+=== host: snoke  date: 2026-09-28T12:32:21-06:00
+=== tree: 13c6eba+dirty
+=== dirty:  M evidence/qwen9b/sr/SR11b_R2_PASS.md
+=== cmd : bash -c set -e; for s in 2 3 4; do for k in xbank:1 rbank:2 overlap:3; do kk=${k%:*}; seed=${s}30${k#*:}; st=tb/scripts/w9/sr13a_cov_${kk}_s$s; echo "######## $kk seed $seed -> $st"; /home/cah/.venv/bin/python evidence/qwen9b/sr/sr13a_cov.py $kk $st --seed $seed | grep -v "^ *[0-9]*  [A-Z]"; /home/cah/.venv/bin/python tb/scripts/gen_seq_chip_vectors.py $st.e4 --base $st --caps R1,R2; sha256sum $st.e4.chip $st.wimg?.bin; done; done; echo SR13A_COV_SEEDS234: ALL PASS
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+######## xbank seed 2301 -> tb/scripts/w9/sr13a_cov_xbank_s2
+=== sr13a_cov xbank -> tb/scripts/w9/sr13a_cov_xbank_s2  seed 2301  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  41 records {'LDC*': 8, 'MOVX': 8, 'MVGO': 12, 'MOVY': 12, 'HALT': 1}; 16 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 8, 'MOVY': 12, 'MVGO': 12, 'LDC': 8}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [32768+ 512]   512 of  512 differ  ch0 ng32 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [33280+ 512]     0 of  512 differ  ch0 ng32 bank-0 MVGO (xA)
+    [33792+ 256]   256 of  256 differ  ch0 ng32 XBANK|RBANK rows 2048..2304
+    [34048+ 512]   511 of  512 differ  ch1 ng48 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [34560+ 512]     0 of  512 differ  ch1 ng48 bank-0 MVGO (xA)
+    [35072+ 256]   256 of  256 differ  ch1 ng48 XBANK|RBANK rows 2048..2304
+    [35328+ 512]   512 of  512 differ  ch2 ng48 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [35840+ 512]     0 of  512 differ  ch2 ng48 bank-0 MVGO (xA)
+    [36352+ 256]   256 of  256 differ  ch2 ng48 XBANK|RBANK rows 2048..2304
+    [36608+ 512]   512 of  512 differ  ch3 ng32 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [37120+ 512]     0 of  512 differ  ch3 ng32 bank-0 MVGO (xA)
+    [37632+ 256]   256 of  256 differ  ch3 ng32 XBANK|RBANK rows 2048..2304
+  8 of 12 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 1d51fafe82bed4718ffd10b2ef6346c1830b7ec36a4c76f553d4f9ecf560e11f  tb/scripts/w9/sr13a_cov_xbank_s2.e4.seq
+  sha256 329827893971b1af3ef3e72afe0d2b98a68b6b273ae73bf42b225116e348207c  tb/scripts/w9/sr13a_cov_xbank_s2.e4.seqdata.bin
+  sha256 260007686f742a156b822e7e96ae6638fdb5efc44a73062f783c7b8f97c76549  tb/scripts/w9/sr13a_cov_xbank_s2.e4.seq.json
+  sha256 0f704b7c0962e429410483f235e490444d3c5d6555573024b5e3e24c58be16d7  tb/scripts/w9/sr13a_cov_xbank_s2.weights.json
+  sha256 f41c2f30ea81f5045225203b6b0992745918db523497cfa6a2a9e7c5730d24e8  tb/scripts/w9/sr13a_cov_xbank_s2_w0.bin
+  sha256 f82bb1fbd04c44e6561e14b62c5f4f72de8bff876d60503c44d2d0b84e52465f  tb/scripts/w9/sr13a_cov_xbank_s2_w1.bin
+SR13A_COV xbank: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (271155200, 271155200, 271155200, 271155200)
+  tb/scripts/w9/sr13a_cov_xbank_s2.wimg0.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s2.wimg1.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s2.wimg2.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s2.wimg3.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_xbank_s2.e4.chip: 41 records, pc 40, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 8, 'MOVY': 12, 'MVGO': 12, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+424a5585091f99cbb58f41b50abd9cbc4a8a231aa4cee43ae9799b3cc34a837c  tb/scripts/w9/sr13a_cov_xbank_s2.e4.chip
+4cb05b097064ae4017f6b4f4698d7d63f2bb607c309ae55204c7c5c66a578df8  tb/scripts/w9/sr13a_cov_xbank_s2.wimg0.bin
+65cd0831803ac0d980c435f1fa1c023bbf571d17590c0c3e83918974fe58742c  tb/scripts/w9/sr13a_cov_xbank_s2.wimg1.bin
+e575ce766c9b79f70945af1fd2cbfbfcb73cc0efef848068cbeb7d3c171ddce7  tb/scripts/w9/sr13a_cov_xbank_s2.wimg2.bin
+301ca2ce55c30c815decb5676f30cc4e2fd5c18e69e3696da7300df060fa22ee  tb/scripts/w9/sr13a_cov_xbank_s2.wimg3.bin
+######## rbank seed 2302 -> tb/scripts/w9/sr13a_cov_rbank_s2
+=== sr13a_cov rbank -> tb/scripts/w9/sr13a_cov_rbank_s2  seed 2302  FABLE5_MODEL=9b
+  wid 0: K 8192 ng 64 sh 8 nrows 8192 (2048/chan) stride 4224 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 12288 ng 96 sh 9 nrows 8192 (2048/chan) stride 6336 bases ['0x10840000', '0x10840000', '0x10840000', '0x10840000']
+  pack top per channel ['0x114a0000', '0x114a0000', '0x114a0000', '0x114a0000']
+  41 records {'LDC*': 8, 'MOVX': 8, 'MVGO': 10, 'MOVY': 14, 'HALT': 1}; 18 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 8, 'MOVY': 14, 'MVGO': 10, 'LDC': 8}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [24576+2048]  2048 of 2048 differ  ch0 ng64 bank 0 (2048 rows)
+    [26624+2048]     0 of 2048 differ  ch0 ng64 RBANK bank 1 (2048 rows, ends at 4096)
+    [28672+2048]  2048 of 2048 differ  ch1 ng96 bank 0 (2048 rows)
+    [30720+2048]     0 of 2048 differ  ch1 ng96 RBANK bank 1 (2048 rows, ends at 4096)
+    [32768+ 100]   100 of  100 differ  ch2 ng64 RBANK rows 3000..3100
+    [32868+  96]    96 of   96 differ  ch2 ng64 RBANK rows 4000..4096
+    [32964+ 128]     0 of  128 differ  ch2 ng64 RBANK rows 2048.. pairs32
+    [33092+  48]    48 of   48 differ  ch2 ng64 bank-0 rows 1000..1048
+    [33140+ 512]     0 of  512 differ  ch2 ng64 RBANK 512-row run
+    [33652+ 100]   100 of  100 differ  ch3 ng96 RBANK rows 3000..3100
+    [33752+  96]    96 of   96 differ  ch3 ng96 RBANK rows 4000..4096
+    [33848+ 128]     0 of  128 differ  ch3 ng96 RBANK rows 2048.. pairs32
+    [33976+  48]    48 of   48 differ  ch3 ng96 bank-0 rows 1000..1048
+    [34024+ 512]     0 of  512 differ  ch3 ng96 RBANK 512-row run
+  8 of 14 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 3b66239c04dcf4a979993cc7b735a278d36deac71f4659510358e1e289aee842  tb/scripts/w9/sr13a_cov_rbank_s2.e4.seq
+  sha256 6779a56cd30442c5c78829ab1dfb8cfcdd63541f6b6804a017b817ea558230b8  tb/scripts/w9/sr13a_cov_rbank_s2.e4.seqdata.bin
+  sha256 f12cde66679d3c3b6109dc7913501e6a5d4fc6687d5b6ac308d3a1acd931e317  tb/scripts/w9/sr13a_cov_rbank_s2.e4.seq.json
+  sha256 07a7c4a6b01a25d6f563c7d608a03fa39118bea6383d989349cef44c4e0ca677  tb/scripts/w9/sr13a_cov_rbank_s2.weights.json
+  sha256 a81d53cdaf0bba4d7599d7d7e6449d670e995bbfd2ec436c8537562a20d6c0c0  tb/scripts/w9/sr13a_cov_rbank_s2_w0.bin
+  sha256 51245a0c49a239fabb6085876d34a4dcc3148ede9184724d3d72fef02c4adca7  tb/scripts/w9/sr13a_cov_rbank_s2_w1.bin
+SR13A_COV rbank: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (290062336, 290062336, 290062336, 290062336)
+  tb/scripts/w9/sr13a_cov_rbank_s2.wimg0.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s2.wimg1.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s2.wimg2.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s2.wimg3.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_rbank_s2.e4.chip: 41 records, pc 40, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 8, 'MOVY': 14, 'MVGO': 10, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+e1a3efb27f1b4ee4b61877b115106287c26c312c967a5dd2999248d2da59ef45  tb/scripts/w9/sr13a_cov_rbank_s2.e4.chip
+be21d762251ff1a4d20ab0a83c895d4be1d84eef814052795c357045d544ac6c  tb/scripts/w9/sr13a_cov_rbank_s2.wimg0.bin
+6a4215f698883155bdad8641794dbcfde498ed1541f5a03d90ef31b24d26e5ad  tb/scripts/w9/sr13a_cov_rbank_s2.wimg1.bin
+48fe72175fbde038322f4292e725278e93dd3c096d0743b80176755201945e09  tb/scripts/w9/sr13a_cov_rbank_s2.wimg2.bin
+a74909784433f679f499505b8061d3e2c4ed6f6447517d58cf019e5b4da4e7f7  tb/scripts/w9/sr13a_cov_rbank_s2.wimg3.bin
+######## overlap seed 2303 -> tb/scripts/w9/sr13a_cov_overlap_s2
+=== sr13a_cov overlap -> tb/scripts/w9/sr13a_cov_overlap_s2  seed 2303  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  45 records {'LDC*': 8, 'MOVX': 10, 'MVGO': 10, 'MOVY': 12, 'FENCE': 4, 'HALT': 1}; 10 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 10, 'MOVY': 12, 'MVGO': 10, 'FENCE': 4, 'LDC': 8, 'MVGO_NOWAIT': 6}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [32768+ 512]   512 of  512 differ  ch0 ng32 row 2048 drained during a bank-0 run
+    [33280+ 512]     0 of  512 differ  ch0 ng32 bank 0 after the masked FENCE
+    [33792+ 512]   512 of  512 differ  ch0 ng32 bank 0 read during an RBANK run
+    [34304+ 512]     0 of  512 differ  ch0 ng32 XBANK|RBANK result
+    [34816+ 512]     0 of  512 differ  ch1 ng32 the other channel's run
+    [35328+ 512]     0 of  512 differ  ch0 ng32 bank 0 = the MOVX made mid-run
+    [35840+ 512]   512 of  512 differ  ch2 ng48 row 2048 drained during a bank-0 run
+    [36352+ 512]     0 of  512 differ  ch2 ng48 bank 0 after the masked FENCE
+    [36864+ 512]   512 of  512 differ  ch2 ng48 bank 0 read during an RBANK run
+    [37376+ 512]     0 of  512 differ  ch2 ng48 XBANK|RBANK result
+    [37888+ 512]     0 of  512 differ  ch3 ng48 the other channel's run
+    [38400+ 512]     0 of  512 differ  ch2 ng48 bank 0 = the MOVX made mid-run
+  4 of 12 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 77571b7935b25a849bc7139348e9ea16eb251e0af032d191165c32d3b6b52d8f  tb/scripts/w9/sr13a_cov_overlap_s2.e4.seq
+  sha256 1c71fb36707b11fa509dc083c1a9c1ba7ae6fa00c75bc9f37aa5cbef3d197b7d  tb/scripts/w9/sr13a_cov_overlap_s2.e4.seqdata.bin
+  sha256 25dfde7b5f01d9cd0157aad4794b763ed35b43ac28de1fff40b9cba692d2e91b  tb/scripts/w9/sr13a_cov_overlap_s2.e4.seq.json
+  sha256 7df9b867b3984096d23b4fac72d3486ce608df6ae5c16eb896f9351889ff2dfb  tb/scripts/w9/sr13a_cov_overlap_s2.weights.json
+  sha256 0055f2f2b718084bd6278d80dccb3b22a3b9df8038e986901fea0983840d1e96  tb/scripts/w9/sr13a_cov_overlap_s2_w0.bin
+  sha256 b5fb067370ce525671c9c2c149c4d5c525261388bab611e4455dcf1a9e4ca9a2  tb/scripts/w9/sr13a_cov_overlap_s2_w1.bin
+SR13A_COV overlap: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (271155200, 271155200, 271155200, 271155200)
+  tb/scripts/w9/sr13a_cov_overlap_s2.wimg0.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s2.wimg1.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s2.wimg2.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s2.wimg3.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_overlap_s2.e4.chip: 45 records, pc 44, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 10, 'MOVY': 12, 'MVGO': 10, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 4, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 6}
+ea3d30ca51b05ba46bad01686e00a951fa942b02412cb8d81e6a75592f2cdb93  tb/scripts/w9/sr13a_cov_overlap_s2.e4.chip
+37d52f22e951e3a1ae3b6cb9716adc649fdfaa77e3a3000ae8b2f15688be40d1  tb/scripts/w9/sr13a_cov_overlap_s2.wimg0.bin
+9a7f22cd2a533c7de4de2d630d34d6ccddef29b0c6863f75830dcee23e4b5309  tb/scripts/w9/sr13a_cov_overlap_s2.wimg1.bin
+682db4752498c6b101527a018c773b0c09256f2b14419f33c9e7f58436a33ad8  tb/scripts/w9/sr13a_cov_overlap_s2.wimg2.bin
+c19f6227075551e00329993922150cf16a96dfdffab22362b40f008e6ae40396  tb/scripts/w9/sr13a_cov_overlap_s2.wimg3.bin
+######## xbank seed 3301 -> tb/scripts/w9/sr13a_cov_xbank_s3
+=== sr13a_cov xbank -> tb/scripts/w9/sr13a_cov_xbank_s3  seed 3301  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  41 records {'LDC*': 8, 'MOVX': 8, 'MVGO': 12, 'MOVY': 12, 'HALT': 1}; 16 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 8, 'MOVY': 12, 'MVGO': 12, 'LDC': 8}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [32768+ 512]   512 of  512 differ  ch0 ng32 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [33280+ 512]     0 of  512 differ  ch0 ng32 bank-0 MVGO (xA)
+    [33792+ 256]   256 of  256 differ  ch0 ng32 XBANK|RBANK rows 2048..2304
+    [34048+ 512]   512 of  512 differ  ch1 ng48 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [34560+ 512]     0 of  512 differ  ch1 ng48 bank-0 MVGO (xA)
+    [35072+ 256]   256 of  256 differ  ch1 ng48 XBANK|RBANK rows 2048..2304
+    [35328+ 512]   512 of  512 differ  ch2 ng48 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [35840+ 512]     0 of  512 differ  ch2 ng48 bank-0 MVGO (xA)
+    [36352+ 256]   256 of  256 differ  ch2 ng48 XBANK|RBANK rows 2048..2304
+    [36608+ 512]   512 of  512 differ  ch3 ng32 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [37120+ 512]     0 of  512 differ  ch3 ng32 bank-0 MVGO (xA)
+    [37632+ 256]   256 of  256 differ  ch3 ng32 XBANK|RBANK rows 2048..2304
+  8 of 12 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 1d70e487acc283ebc1a5bb9789cce1adb47ff1cf04514a8186646fefb5bc0c3f  tb/scripts/w9/sr13a_cov_xbank_s3.e4.seq
+  sha256 1d818ae34b32c87f4bf025a8114658bbe25929c975341cb8968d94679c53221a  tb/scripts/w9/sr13a_cov_xbank_s3.e4.seqdata.bin
+  sha256 8df9ad88f00f05fc0eb233fdbc14cda2bf3189ad2a2598a10709b86668de3b91  tb/scripts/w9/sr13a_cov_xbank_s3.e4.seq.json
+  sha256 f487d03c5b21e527dad9f843864b6835b2d51653670fd401e9f270f9be23b822  tb/scripts/w9/sr13a_cov_xbank_s3.weights.json
+  sha256 46ced406e2f60a5e7663773c032f3177d37abec91851ec957f1c10563bf38893  tb/scripts/w9/sr13a_cov_xbank_s3_w0.bin
+  sha256 0e1073153b2b8d15bd6728542b19b253bd87cc0fffffb596e3f6d553b412c919  tb/scripts/w9/sr13a_cov_xbank_s3_w1.bin
+SR13A_COV xbank: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (271155200, 271155200, 271155200, 271155200)
+  tb/scripts/w9/sr13a_cov_xbank_s3.wimg0.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s3.wimg1.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s3.wimg2.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s3.wimg3.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_xbank_s3.e4.chip: 41 records, pc 40, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 8, 'MOVY': 12, 'MVGO': 12, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+980e5c5189130c726179aa033cf0400cf5b7da394e41cd810990c528226b9d09  tb/scripts/w9/sr13a_cov_xbank_s3.e4.chip
+1ac23204de68341eb379db8ed53e8a98958cae6780d0c2c2947587029dd6df8a  tb/scripts/w9/sr13a_cov_xbank_s3.wimg0.bin
+523b139ca7d0e5b8bb595c5a9d39c988eea99e58ff17d32c7f421e8229b78274  tb/scripts/w9/sr13a_cov_xbank_s3.wimg1.bin
+9c5bda3a4e051653670b499378c316d2bae390e5523523746a19495c512f6ecb  tb/scripts/w9/sr13a_cov_xbank_s3.wimg2.bin
+3be16a6c3547a64ce065996e16ee1da845d9d07a555ca038a364bfcb0f1f9295  tb/scripts/w9/sr13a_cov_xbank_s3.wimg3.bin
+######## rbank seed 3302 -> tb/scripts/w9/sr13a_cov_rbank_s3
+=== sr13a_cov rbank -> tb/scripts/w9/sr13a_cov_rbank_s3  seed 3302  FABLE5_MODEL=9b
+  wid 0: K 8192 ng 64 sh 8 nrows 8192 (2048/chan) stride 4224 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 12288 ng 96 sh 9 nrows 8192 (2048/chan) stride 6336 bases ['0x10840000', '0x10840000', '0x10840000', '0x10840000']
+  pack top per channel ['0x114a0000', '0x114a0000', '0x114a0000', '0x114a0000']
+  41 records {'LDC*': 8, 'MOVX': 8, 'MVGO': 10, 'MOVY': 14, 'HALT': 1}; 18 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 8, 'MOVY': 14, 'MVGO': 10, 'LDC': 8}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [24576+2048]  2047 of 2048 differ  ch0 ng64 bank 0 (2048 rows)
+    [26624+2048]     0 of 2048 differ  ch0 ng64 RBANK bank 1 (2048 rows, ends at 4096)
+    [28672+2048]  2048 of 2048 differ  ch1 ng96 bank 0 (2048 rows)
+    [30720+2048]     0 of 2048 differ  ch1 ng96 RBANK bank 1 (2048 rows, ends at 4096)
+    [32768+ 100]   100 of  100 differ  ch2 ng64 RBANK rows 3000..3100
+    [32868+  96]    96 of   96 differ  ch2 ng64 RBANK rows 4000..4096
+    [32964+ 128]     0 of  128 differ  ch2 ng64 RBANK rows 2048.. pairs32
+    [33092+  48]    48 of   48 differ  ch2 ng64 bank-0 rows 1000..1048
+    [33140+ 512]     0 of  512 differ  ch2 ng64 RBANK 512-row run
+    [33652+ 100]   100 of  100 differ  ch3 ng96 RBANK rows 3000..3100
+    [33752+  96]    96 of   96 differ  ch3 ng96 RBANK rows 4000..4096
+    [33848+ 128]     0 of  128 differ  ch3 ng96 RBANK rows 2048.. pairs32
+    [33976+  48]    48 of   48 differ  ch3 ng96 bank-0 rows 1000..1048
+    [34024+ 512]     0 of  512 differ  ch3 ng96 RBANK 512-row run
+  8 of 14 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 1c54466d2181bf5938f8d4a51ab7b4ce645f3298ccb41ee369b5ef3e64908b3f  tb/scripts/w9/sr13a_cov_rbank_s3.e4.seq
+  sha256 c71af18eb8f17fc51ea84f47f4d5a2da93c225bf3bd433dafe63913d0ec6f00d  tb/scripts/w9/sr13a_cov_rbank_s3.e4.seqdata.bin
+  sha256 6416f2d99e3d78e797ced45c781a263ee76338c29d8a4ac807bae7d384fd78f5  tb/scripts/w9/sr13a_cov_rbank_s3.e4.seq.json
+  sha256 fc9ba5af982b0d7544cfa18b3e1228c4a2bb35ed9b315f872f4879ffa22c7fb6  tb/scripts/w9/sr13a_cov_rbank_s3.weights.json
+  sha256 31e97fc4f359ffaba5dd606ded98a6618996db58cf6df7ad165e95454a89ce5c  tb/scripts/w9/sr13a_cov_rbank_s3_w0.bin
+  sha256 3309138fe6abea1efec03c57eafceede76961217a31b8d9fa9b2eaf94678c2f3  tb/scripts/w9/sr13a_cov_rbank_s3_w1.bin
+SR13A_COV rbank: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (290062336, 290062336, 290062336, 290062336)
+  tb/scripts/w9/sr13a_cov_rbank_s3.wimg0.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s3.wimg1.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s3.wimg2.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s3.wimg3.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_rbank_s3.e4.chip: 41 records, pc 40, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 8, 'MOVY': 14, 'MVGO': 10, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+dfab3d254fce9a3d61030ce78f97c1bf0372f1b800343e57a6b87b039e3d55b7  tb/scripts/w9/sr13a_cov_rbank_s3.e4.chip
+46657e5ffd81fe982a50e7b0287a3b5515289ad314fe9b4017e6e81f356f924b  tb/scripts/w9/sr13a_cov_rbank_s3.wimg0.bin
+e41939d82df8a8ef7d0db5ea44ca54629f2417a3918b87862106440f65a892ab  tb/scripts/w9/sr13a_cov_rbank_s3.wimg1.bin
+35d7b8c117e2aeee9f1d6305f5ffdea8cebfa03115bb84d8ef718a2df2099a51  tb/scripts/w9/sr13a_cov_rbank_s3.wimg2.bin
+99b801ec99d36fd10d8010e3207bb7de0faa928aedfc82376a6fb2e66f267ed7  tb/scripts/w9/sr13a_cov_rbank_s3.wimg3.bin
+######## overlap seed 3303 -> tb/scripts/w9/sr13a_cov_overlap_s3
+=== sr13a_cov overlap -> tb/scripts/w9/sr13a_cov_overlap_s3  seed 3303  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  45 records {'LDC*': 8, 'MOVX': 10, 'MVGO': 10, 'MOVY': 12, 'FENCE': 4, 'HALT': 1}; 10 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 10, 'MOVY': 12, 'MVGO': 10, 'FENCE': 4, 'LDC': 8, 'MVGO_NOWAIT': 6}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [32768+ 512]   512 of  512 differ  ch0 ng32 row 2048 drained during a bank-0 run
+    [33280+ 512]     0 of  512 differ  ch0 ng32 bank 0 after the masked FENCE
+    [33792+ 512]   512 of  512 differ  ch0 ng32 bank 0 read during an RBANK run
+    [34304+ 512]     0 of  512 differ  ch0 ng32 XBANK|RBANK result
+    [34816+ 512]     0 of  512 differ  ch1 ng32 the other channel's run
+    [35328+ 512]     0 of  512 differ  ch0 ng32 bank 0 = the MOVX made mid-run
+    [35840+ 512]   512 of  512 differ  ch2 ng48 row 2048 drained during a bank-0 run
+    [36352+ 512]     0 of  512 differ  ch2 ng48 bank 0 after the masked FENCE
+    [36864+ 512]   512 of  512 differ  ch2 ng48 bank 0 read during an RBANK run
+    [37376+ 512]     0 of  512 differ  ch2 ng48 XBANK|RBANK result
+    [37888+ 512]     0 of  512 differ  ch3 ng48 the other channel's run
+    [38400+ 512]     0 of  512 differ  ch2 ng48 bank 0 = the MOVX made mid-run
+  4 of 12 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 1562fae1419c91e9ca989178aeea45f0ded8178c7ea6be72b2731d63c7b33ab9  tb/scripts/w9/sr13a_cov_overlap_s3.e4.seq
+  sha256 936cd0864a1086a1309aa37a40b13d6f866ff6f506cc9dbae859bf876497b8f4  tb/scripts/w9/sr13a_cov_overlap_s3.e4.seqdata.bin
+  sha256 5866b062c4a9908da4e58e27bd4a30c31ed1174f82bb54b849c45d1136e07319  tb/scripts/w9/sr13a_cov_overlap_s3.e4.seq.json
+  sha256 e37b552ef4486b66e7bfb33d7015469b23f03a41ee06a7a82451632a6f64575c  tb/scripts/w9/sr13a_cov_overlap_s3.weights.json
+  sha256 6c3f36d8bf1b19ad48bdc6a778eb301ba036f52d5ac5e75f33fe4f16632b8ac4  tb/scripts/w9/sr13a_cov_overlap_s3_w0.bin
+  sha256 fa51c64b2d2899d94ad46bf14257f6635a0c5d7f4c6901287b5d13c9854c19da  tb/scripts/w9/sr13a_cov_overlap_s3_w1.bin
+SR13A_COV overlap: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (271155200, 271155200, 271155200, 271155200)
+  tb/scripts/w9/sr13a_cov_overlap_s3.wimg0.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s3.wimg1.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s3.wimg2.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s3.wimg3.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_overlap_s3.e4.chip: 45 records, pc 44, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 10, 'MOVY': 12, 'MVGO': 10, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 4, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 6}
+4a0978bca1388bff21f045b106e4e1f51c5642db91a34aaac3217e88b9d24a49  tb/scripts/w9/sr13a_cov_overlap_s3.e4.chip
+0c3977483773aaea77043b2497b08e8518200d87c8046f3577ae191f6c0879c1  tb/scripts/w9/sr13a_cov_overlap_s3.wimg0.bin
+4675fdc3c8256d69462ddf0de6c63d1222acdcb7cdd5162f10a5b403aa57048a  tb/scripts/w9/sr13a_cov_overlap_s3.wimg1.bin
+0da51503e6486bb6f30efee9e5070d31842011fae7cf762135deed9588966c83  tb/scripts/w9/sr13a_cov_overlap_s3.wimg2.bin
+7bfcc5f099d01201234e2c915600575712226763dfd82910355e692ca0efe39c  tb/scripts/w9/sr13a_cov_overlap_s3.wimg3.bin
+######## xbank seed 4301 -> tb/scripts/w9/sr13a_cov_xbank_s4
+=== sr13a_cov xbank -> tb/scripts/w9/sr13a_cov_xbank_s4  seed 4301  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  41 records {'LDC*': 8, 'MOVX': 8, 'MVGO': 12, 'MOVY': 12, 'HALT': 1}; 16 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 8, 'MOVY': 12, 'MVGO': 12, 'LDC': 8}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [32768+ 512]   512 of  512 differ  ch0 ng32 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [33280+ 512]     0 of  512 differ  ch0 ng32 bank-0 MVGO (xA)
+    [33792+ 256]   256 of  256 differ  ch0 ng32 XBANK|RBANK rows 2048..2304
+    [34048+ 512]   512 of  512 differ  ch1 ng48 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [34560+ 512]     0 of  512 differ  ch1 ng48 bank-0 MVGO (xA)
+    [35072+ 256]   256 of  256 differ  ch1 ng48 XBANK|RBANK rows 2048..2304
+    [35328+ 512]   512 of  512 differ  ch2 ng48 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [35840+ 512]     0 of  512 differ  ch2 ng48 bank-0 MVGO (xA)
+    [36352+ 256]   256 of  256 differ  ch2 ng48 XBANK|RBANK rows 2048..2304
+    [36608+ 512]   511 of  512 differ  ch3 ng32 XBANK rows 0..512 (xB, after the bank-0 MOVX)
+    [37120+ 512]     0 of  512 differ  ch3 ng32 bank-0 MVGO (xA)
+    [37632+ 256]   255 of  256 differ  ch3 ng32 XBANK|RBANK rows 2048..2304
+  8 of 12 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 f44547ca84126280953d85d24e31cb5b1bf55b7971316157ff1ee0db66643dc8  tb/scripts/w9/sr13a_cov_xbank_s4.e4.seq
+  sha256 c39a5c2315df41deb40d16efa178a7bf5bac456cacd00e2e011133e620422e50  tb/scripts/w9/sr13a_cov_xbank_s4.e4.seqdata.bin
+  sha256 607f9d7d32b9657ea2731bb70ff55fa8575b542a2efbc51e4dbb50933e9343d8  tb/scripts/w9/sr13a_cov_xbank_s4.e4.seq.json
+  sha256 8580068fb4ba25e841dd5176ccdd689c3b91271dc147c9f27ff6c43b3baf76b3  tb/scripts/w9/sr13a_cov_xbank_s4.weights.json
+  sha256 74fa739468243af288a4f400263ba938534b99bddd08255fc9cfdbecf1ac0aa1  tb/scripts/w9/sr13a_cov_xbank_s4_w0.bin
+  sha256 e371e0209fc93f06e8eac3742923ea8413a34bad2db07ac63ab073002b9e6fb6  tb/scripts/w9/sr13a_cov_xbank_s4_w1.bin
+SR13A_COV xbank: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (271155200, 271155200, 271155200, 271155200)
+  tb/scripts/w9/sr13a_cov_xbank_s4.wimg0.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s4.wimg1.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s4.wimg2.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_xbank_s4.wimg3.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_xbank_s4.e4.chip: 41 records, pc 40, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 8, 'MOVY': 12, 'MVGO': 12, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+9c634f8c2b85d9644dba1fcb354d57acaa24a9892a2caebcf05ceb51ddcd7219  tb/scripts/w9/sr13a_cov_xbank_s4.e4.chip
+42aa9fd2fec6e0d803b01504dd1967cbd8845484cd4fafbbc9a05b9c5dbaecd6  tb/scripts/w9/sr13a_cov_xbank_s4.wimg0.bin
+ba24d2a0ce9cfe401e0747cb4e3113d1b216905b2dc681edf6cca940c9895753  tb/scripts/w9/sr13a_cov_xbank_s4.wimg1.bin
+400a59b9cc602785c0bfff6532d8773e5d159aadd21c7fb99fa0a9b59a95a66a  tb/scripts/w9/sr13a_cov_xbank_s4.wimg2.bin
+9bebebb3c4b152aff6a49af45b53f5c8b4136116b67d4f3ba1891471706b6b31  tb/scripts/w9/sr13a_cov_xbank_s4.wimg3.bin
+######## rbank seed 4302 -> tb/scripts/w9/sr13a_cov_rbank_s4
+=== sr13a_cov rbank -> tb/scripts/w9/sr13a_cov_rbank_s4  seed 4302  FABLE5_MODEL=9b
+  wid 0: K 8192 ng 64 sh 8 nrows 8192 (2048/chan) stride 4224 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 12288 ng 96 sh 9 nrows 8192 (2048/chan) stride 6336 bases ['0x10840000', '0x10840000', '0x10840000', '0x10840000']
+  pack top per channel ['0x114a0000', '0x114a0000', '0x114a0000', '0x114a0000']
+  41 records {'LDC*': 8, 'MOVX': 8, 'MVGO': 10, 'MOVY': 14, 'HALT': 1}; 18 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 8, 'MOVY': 14, 'MVGO': 10, 'LDC': 8}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [24576+2048]  2048 of 2048 differ  ch0 ng64 bank 0 (2048 rows)
+    [26624+2048]     0 of 2048 differ  ch0 ng64 RBANK bank 1 (2048 rows, ends at 4096)
+    [28672+2048]  2048 of 2048 differ  ch1 ng96 bank 0 (2048 rows)
+    [30720+2048]     0 of 2048 differ  ch1 ng96 RBANK bank 1 (2048 rows, ends at 4096)
+    [32768+ 100]   100 of  100 differ  ch2 ng64 RBANK rows 3000..3100
+    [32868+  96]    96 of   96 differ  ch2 ng64 RBANK rows 4000..4096
+    [32964+ 128]     0 of  128 differ  ch2 ng64 RBANK rows 2048.. pairs32
+    [33092+  48]    48 of   48 differ  ch2 ng64 bank-0 rows 1000..1048
+    [33140+ 512]     0 of  512 differ  ch2 ng64 RBANK 512-row run
+    [33652+ 100]   100 of  100 differ  ch3 ng96 RBANK rows 3000..3100
+    [33752+  96]    96 of   96 differ  ch3 ng96 RBANK rows 4000..4096
+    [33848+ 128]     0 of  128 differ  ch3 ng96 RBANK rows 2048.. pairs32
+    [33976+  48]    48 of   48 differ  ch3 ng96 bank-0 rows 1000..1048
+    [34024+ 512]     0 of  512 differ  ch3 ng96 RBANK 512-row run
+  8 of 14 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 3b66239c04dcf4a979993cc7b735a278d36deac71f4659510358e1e289aee842  tb/scripts/w9/sr13a_cov_rbank_s4.e4.seq
+  sha256 07430c9b25ad1120b4ec4deff70ecb9d100956953416b82e67940c10097c18d9  tb/scripts/w9/sr13a_cov_rbank_s4.e4.seqdata.bin
+  sha256 ee34c73c699c31607bcedf10ac5bd3bf28e71eaaa32b7204ceb7061eb75b4c97  tb/scripts/w9/sr13a_cov_rbank_s4.e4.seq.json
+  sha256 4f30fa6ade19a9c0f6ff0bab4de7548f9670b0455b9c4ce2d8a84e2c264bb1f1  tb/scripts/w9/sr13a_cov_rbank_s4.weights.json
+  sha256 f1b0e67937517c64305222955a70325f372e2753322139b874c6cf23c57665ed  tb/scripts/w9/sr13a_cov_rbank_s4_w0.bin
+  sha256 33d05c9bd437dbfde5a1e6ca8fa7e59f61441234ff74ec000a98c27e6ee6f172  tb/scripts/w9/sr13a_cov_rbank_s4_w1.bin
+SR13A_COV rbank: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (290062336, 290062336, 290062336, 290062336)
+  tb/scripts/w9/sr13a_cov_rbank_s4.wimg0.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s4.wimg1.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s4.wimg2.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_rbank_s4.wimg3.bin: 21626880 B (20.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_rbank_s4.e4.chip: 41 records, pc 40, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 8, 'MOVY': 14, 'MVGO': 10, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+62d5c166c0229e1cddf742562632c3e280e8c447ff4e72f333751cde93ce389c  tb/scripts/w9/sr13a_cov_rbank_s4.e4.chip
+796c6ed9b13c3b57072b5427c23770369a3be2ab93774bb4f4f76cf3b91259be  tb/scripts/w9/sr13a_cov_rbank_s4.wimg0.bin
+15a1acb502db68d5cdd3f93b87ad338bc15d7dc600c3b4de81da517feb9183d0  tb/scripts/w9/sr13a_cov_rbank_s4.wimg1.bin
+6a8bb2e0b4c28e5f51e05afefd0201130e9ea93c868415d589497198c62341d7  tb/scripts/w9/sr13a_cov_rbank_s4.wimg2.bin
+99166c8de4e4ce3bdd0614793ad59f5d2f51874e4e514b564d7a7438d3c3dd45  tb/scripts/w9/sr13a_cov_rbank_s4.wimg3.bin
+######## overlap seed 4303 -> tb/scripts/w9/sr13a_cov_overlap_s4
+=== sr13a_cov overlap -> tb/scripts/w9/sr13a_cov_overlap_s4  seed 4303  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  45 records {'LDC*': 8, 'MOVX': 10, 'MVGO': 10, 'MOVY': 12, 'FENCE': 4, 'HALT': 1}; 10 records carry a bank field
+  ref/seq_model at ['R1', 'R2']: ran to HALT, stats {'MOVX': 10, 'MOVY': 12, 'MVGO': 10, 'FENCE': 4, 'LDC': 8, 'MVGO_NOWAIT': 6}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+    [32768+ 512]   512 of  512 differ  ch0 ng32 row 2048 drained during a bank-0 run
+    [33280+ 512]     0 of  512 differ  ch0 ng32 bank 0 after the masked FENCE
+    [33792+ 512]   512 of  512 differ  ch0 ng32 bank 0 read during an RBANK run
+    [34304+ 512]     0 of  512 differ  ch0 ng32 XBANK|RBANK result
+    [34816+ 512]     0 of  512 differ  ch1 ng32 the other channel's run
+    [35328+ 512]     0 of  512 differ  ch0 ng32 bank 0 = the MOVX made mid-run
+    [35840+ 512]   512 of  512 differ  ch2 ng48 row 2048 drained during a bank-0 run
+    [36352+ 512]     0 of  512 differ  ch2 ng48 bank 0 after the masked FENCE
+    [36864+ 512]   512 of  512 differ  ch2 ng48 bank 0 read during an RBANK run
+    [37376+ 512]     0 of  512 differ  ch2 ng48 XBANK|RBANK result
+    [37888+ 512]     0 of  512 differ  ch3 ng48 the other channel's run
+    [38400+ 512]     0 of  512 differ  ch2 ng48 bank 0 = the MOVX made mid-run
+  4 of 12 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  sha256 2bcfb733f4a0eefd31fd3ccd4ab24da7fc1e3b52c1f2532bbe263270f2186fcb  tb/scripts/w9/sr13a_cov_overlap_s4.e4.seq
+  sha256 b94607a4b69b490c998d170ef5ba461b3f0b41c87f17fb62ccff119a6a3e809f  tb/scripts/w9/sr13a_cov_overlap_s4.e4.seqdata.bin
+  sha256 69d097d0fba27acd1590c0d69e7208ea268860674720d181d4b085e888edbadc  tb/scripts/w9/sr13a_cov_overlap_s4.e4.seq.json
+  sha256 b32ce2d25e3077ac0bac3d3cacbea76f70d859c490b1bf8c0c012ae1b4768720  tb/scripts/w9/sr13a_cov_overlap_s4.weights.json
+  sha256 8db2a245e13b01d6194572f8933b69e43e1c77c6ba70860924e2b2dd77881eb6  tb/scripts/w9/sr13a_cov_overlap_s4_w0.bin
+  sha256 9cb8293b81fdb02b35d685d239964383bfc58f80ca3e3675a1980eddf8abd752  tb/scripts/w9/sr13a_cov_overlap_s4_w1.bin
+SR13A_COV overlap: PASS
+  caps ['R1', 'R2'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (271155200, 271155200, 271155200, 271155200)
+  tb/scripts/w9/sr13a_cov_overlap_s4.wimg0.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s4.wimg1.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s4.wimg2.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  tb/scripts/w9/sr13a_cov_overlap_s4.wimg3.bin: 2719744 B (2.6 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/sr13a_cov_overlap_s4.e4.chip: 45 records, pc 44, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 10, 'MOVY': 12, 'MVGO': 10, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 4, 'LDC': 8, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 6}
+a0917170e507aa2f88dfa0c32446eb6da94d1018aa6efec5e7ea469e432be39f  tb/scripts/w9/sr13a_cov_overlap_s4.e4.chip
+2bb4f4fe568885979e6773bf70ffdfdc4ebd69d0f2fd5764cf0b50420afbd871  tb/scripts/w9/sr13a_cov_overlap_s4.wimg0.bin
+db8df31709dd8e3a5a69d67edcaf9663503f25261dd6346a98daa4247642194a  tb/scripts/w9/sr13a_cov_overlap_s4.wimg1.bin
+2c6458bd3afc456dfc5eeb1f9837ddc2d6beaa2a2e370f378adfa1c9cfb456ef  tb/scripts/w9/sr13a_cov_overlap_s4.wimg2.bin
+d5e7d983b36d2b0cd203b623a6f98bbfd13b370ab2cf15b2882d92f486ed115c  tb/scripts/w9/sr13a_cov_overlap_s4.wimg3.bin
+SR13A_COV_SEEDS234: ALL PASS
+=== rc  : 0
+=== end : 2026-09-28T12:33:30-06:00

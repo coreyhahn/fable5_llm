@@ -1,0 +1,29 @@
+=== host: snoke  date: 2026-09-28T12:24:32-06:00
+=== tree: 3f74fec+dirty
+=== dirty: ?? evidence/qwen9b/sr/sr13a_cov.py
+=== cmd : env FABLE5_MODEL=9b /home/cah/.venv/bin/python ref/scripts/reorder_e4.py --selftest
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+[A] out: CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+[A] checkpoints [[5, 1024, 4], [10, 1024, 4], [13, 1280, 4]] -> [[1, 1024, 4], [10, 1024, 4], [11, 1280, 4]]
+[A] refused: stream: record 4 MOVX on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between); its range (0, 32) overlaps the pending x words (0, 32)
+[A] refused: stream: record 4 MVGO on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[A] refused: stream: record 8 MOVY on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between); its range (0, 4) overlaps the pending RES rows (0, 4)
+[A] fence deferred True; MOVX elided True; JMP -> body start True; replay 2503 - schedule 2500 <= JMP window 3, < program order 3118: True; checkpoints True; hazards refused 3/3 -> PASS
+[B] out: CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+[B] checkpoints [[5, 1024, 4], [10, 1024, 4], [13, 1280, 4]] -> [[1, 1024, 4], [10, 1024, 4], [11, 1280, 4]]
+[B] refused: stream: record 4 MOVX on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between); its range (0, 32) overlaps the pending x words (0, 32)
+[B] refused: stream: record 4 MVGO on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between)
+[B] refused: stream: record 8 MOVY on mv0 while the no-wait MVGO at record 3 is still pending (no FENCE between); its range (0, 4) overlaps the pending RES rows (0, 4)
+[B] fence deferred True; MOVX elided True; JMP -> body start True; replay 2503 - schedule 2500 <= JMP window 3, < program order 3118: True; checkpoints True; hazards refused 3/3 -> PASS
+  [static] [PASS] --cost defaults to static  static
+=== cost source: STATIC ref/seq_cost.py (segment k priced at position 0 + k; no CSV read)
+  [static] [PASS] form A: fence deferred past the VN, MOVX elided, no CSV read  CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+  [static] [PASS] form B: fence deferred past the VN, MOVX elided, no CSV read  CSRWR EMB MOVX MVGO CSRWR CSRWR CSRWR CMD FENCE MOVY MVGO FENCE MOVY JMP HALT
+=== cost source: STATIC ref/seq_cost.py (segment k priced at position 0 + k; no CSV read)
+  [static] [PASS] an unpriceable stream is refused  no static cost for EMB x128
+[r2 A] MOVX words [1536]; MVGO (XBANK, RBANK) [(1, 1), (1, 0)]; MOVY rows [2048, 0]; refused at {R1} True, at {} True; replay r2 2453 <= r1 2503; predicted 2476 -> PASS
+[r2 B] MOVX words [1536]; MVGO (XBANK, RBANK) [(1, 1), (1, 0)]; MOVY rows [2048, 0]; refused at {R1} True, at {} True; replay r2 2453 <= r1 2503; predicted 2476 -> PASS
+REORDER_E4 SELFTEST: PASS
+=== rc  : 0
+=== end : 2026-09-28T12:24:33-06:00

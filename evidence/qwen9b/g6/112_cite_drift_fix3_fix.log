@@ -1,0 +1,91 @@
+=== host: snoke
+=== date: 2026-09-10T01:58:12-06:00
+=== tree: 23b4296
+=== cmd:  bash /tmp/g6_drift3.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [1] the plan, with the three documents excluded
+o3 citation-drift gate  [plan — dry run, nothing is written]
+  code base  47e07cd
+  files      2 edited file(s)
+  docs/ARCHITECTURE.md                                           REPAIR  2  COLLATERAL   0
+  docs/QWEN35_NEXT_FEASIBILITY.md                                REPAIR  3  COLLATERAL   0
+  docs/USAGE.md                                                  REPAIR  1  COLLATERAL   0
+  docs/superpowers/plans/2026-08-12-qwen2b-track-r.md            REPAIR  1  COLLATERAL   0
+  docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md       REPAIR 18  COLLATERAL   1
+      collateral  `:1647` -> `:1651`
+  docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md REPAIR 27  COLLATERAL   4
+      collateral  sw/chat_seq.py:1587 -> sw/chat_seq.py:1591
+      collateral  sw/chat_seq.py:1589 -> sw/chat_seq.py:1593
+      collateral  `:1583-1584` -> `:1587-1588`
+      collateral  `:1593` -> `:1597`
+  evidence/qwen9b/g2/G2C_CHAIN.md                                REPAIR  7  COLLATERAL   0
+  evidence/qwen9b/g3/G3_1_ISA.md                                 REPAIR  4  COLLATERAL   1
+      collateral  sw/chat_seq.py:236-300 -> sw/chat_seq.py:236-304
+  evidence/qwen9b/g3/G3_4_LAYER.md                               REPAIR  1  COLLATERAL   0
+  evidence/qwen9b/g4/G4A_REPLAY.md                               REPAIR  2  COLLATERAL   0
+  evidence/qwen9b/g6/g6_pack_rung.sh                             REPAIR  1  COLLATERAL   0
+  evidence/qwen9b/g6/g6_residency.py                             REPAIR  3  COLLATERAL   0
+  evidence/qwen9b/o3/BOARD_LOCK.md                               REPAIR 14  COLLATERAL   2
+      collateral  `:1589` -> `:1593`
+      collateral  `:1589` -> `:1593`
+  evidence/qwen9b/s3/S3_CHAIN.md                                 REPAIR  2  COLLATERAL   0
+  EXCLUDED   evidence/qwen9b/g6/RD9_GATE.md
+  EXCLUDED   evidence/qwen9b/g6/g6_longctx_lockstep.py
+  EXCLUDED   evidence/qwen9b/o3/o3_cite_drift.py
+  TOTAL      REPAIR 86  COLLATERAL 8
+O3_FIX_PLAN: UNSAFE — 8 of 94 rewrites would move a citation that is already correct; repair the 86 stale one(s) BY HAND or --exclude the document
+   rc=1
+
+########## [2] the fix (ONE pass; this tool is not idempotent)
+o3 citation-drift gate  [fix]
+  code base  47e07cd
+  doc base   23b4296
+  files      2 edited files
+  citations  182 distinct (file, line) pairs
+  unmoved    63
+  half-ranges 1 (one endpoint unresolved — NEVER rewritten)
+  EXCLUDED   evidence/qwen9b/g6/RD9_GATE.md (written in post-fix coordinates)
+  EXCLUDED   evidence/qwen9b/g6/g6_longctx_lockstep.py (written in post-fix coordinates)
+  EXCLUDED   evidence/qwen9b/o3/o3_cite_drift.py (written in post-fix coordinates)
+  fixed      docs/ARCHITECTURE.md
+  fixed      docs/QWEN35_NEXT_FEASIBILITY.md
+  fixed      docs/USAGE.md
+  fixed      docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+  fixed      docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+  fixed      docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+  fixed      evidence/qwen9b/g2/G2C_CHAIN.md
+  fixed      evidence/qwen9b/g3/G3_1_ISA.md
+  fixed      evidence/qwen9b/g3/G3_4_LAYER.md
+  fixed      evidence/qwen9b/g4/G4A_REPLAY.md
+  fixed      evidence/qwen9b/g6/g6_pack_rung.sh
+  fixed      evidence/qwen9b/g6/g6_residency.py
+  fixed      evidence/qwen9b/o3/BOARD_LOCK.md
+  fixed      evidence/qwen9b/s3/S3_CHAIN.md
+  FIXED      113 citation(s) in 14 document(s)
+O3_CITE_DRIFT FIX APPLIED — now run --verify
+   rc=0
+
+########## [3] what moved
+2	2	docs/ARCHITECTURE.md
+2	2	docs/QWEN35_NEXT_FEASIBILITY.md
+1	1	docs/USAGE.md
+1	1	docs/superpowers/plans/2026-08-12-qwen2b-track-r.md
+14	14	docs/superpowers/plans/2026-08-29-qwen35-9b-migration.md
+12	12	docs/superpowers/specs/2026-08-29-qwen35-9b-migration-design.md
+7	7	evidence/qwen9b/g2/G2C_CHAIN.md
+4	4	evidence/qwen9b/g3/G3_1_ISA.md
+1	1	evidence/qwen9b/g3/G3_4_LAYER.md
+2	2	evidence/qwen9b/g4/G4A_REPLAY.md
+1	1	evidence/qwen9b/g6/g6_pack_rung.sh
+3	3	evidence/qwen9b/g6/g6_residency.py
+9	9	evidence/qwen9b/o3/BOARD_LOCK.md
+1	1	evidence/qwen9b/s3/S3_CHAIN.md
+   rc=0
+=== rc: 0
+=== end: 2026-09-10T01:58:20-06:00

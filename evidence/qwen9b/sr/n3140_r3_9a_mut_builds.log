@@ -1,0 +1,114 @@
+=== host: snoke  date: 2026-09-30T03:06:15-06:00
+=== tree: 9919b92
+=== cmd : bash -c echo --- pgrep snoke $(date -Is); pgrep -af "obj_dir_seq_chip_srr3b_|tb_seq_chip_9b_srr3b_" | grep -v -e pgrep -e sr_run -e "bash -c" || echo "(none: no user of any srr3b_m* obj_dir)"; cat tb/scripts_scratch/r3_9a/pgrep_premut.txt; F=0; for s in m1 m2 bc0 room0 xprt0; do echo "######## set $s"; bash evidence/qwen9b/sr/sr13a_mut_build.sh 3f38efd $s 2>&1 | grep -v -e "^g++ " -e "^Archive " || F=1; done; [ $F = 0 ] && echo R3_9A_MUT_BUILDS: 5 BUILT || echo R3_9A_MUT_BUILDS: FAIL
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+--- pgrep snoke 2026-09-30T03:06:15-06:00
+(none: no user of any srr3b_m* obj_dir)
+--- kyloren 2026-09-30T03:06:14-06:00
+(none)
+--- darthplagueis 2026-09-30T03:06:14-06:00
+(none)
+######## set m1
+=== mutation set m1: obj_dir tag r3b_m1, 1 changed line(s) in seq_movers.sv
+=== mutant of 3f38efd, diff vs the commit (must be exactly the 1 changed line(s)):
+    <                      && (&xp_room_q);
+    >                      && (&(xp_room_q | 4'hF));
+=== SR13A MUTANT (set m1): 1 changed lines
+    differs from 3f38efd: rtl/seq_movers.sv
+make: Entering directory '/tmp/sr_src_3f38efd_srr3b_m1/tb'
+verilator --binary --timing -j 16 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt -I/tmp/sr_src_3f38efd_srr3b_m1/tb \
+  --Mdir /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m1 -o tb_seq_chip_9b_srr3b_m1 \
+  -GNMV=4 -GWIMGPC=1 \
+  --top-module tb_seq_chip ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv seq_fabric_model.sv seq_burst_fabric.sv seq_mem_file.sv tb_seq_chip.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m1'
+echo "" > Vtb_seq_chip__ALL.verilator_deplist.tmp
+rm Vtb_seq_chip__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m1'
+make: Leaving directory '/tmp/sr_src_3f38efd_srr3b_m1/tb'
+=== build wall 85s
+=== binary sha256 e9d46019b65a0167c5ab7467185224ca801521f8f2922a797cfa7da511606884
+=== built from the MUTANT snapshot of 3f38efd
+######## set m2
+=== mutation set m2: obj_dir tag r3b_m2, 1 changed line(s) in matvec_chan.sv
+=== mutant of 3f38efd, diff vs the commit (must be exactly the 1 changed line(s)):
+    <     localparam int XP_INFLIGHT   = XP_FWD_STAGES + XP_RET_STAGES + 1;
+    >     localparam int XP_INFLIGHT   = 1;
+=== SR13A MUTANT (set m2): 1 changed lines
+    differs from 3f38efd: rtl/matvec_chan.sv
+make: Entering directory '/tmp/sr_src_3f38efd_srr3b_m2/tb'
+verilator --binary --timing -j 16 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt -I/tmp/sr_src_3f38efd_srr3b_m2/tb \
+  --Mdir /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m2 -o tb_seq_chip_9b_srr3b_m2 \
+  -GNMV=4 -GWIMGPC=1 \
+  --top-module tb_seq_chip ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv seq_fabric_model.sv seq_burst_fabric.sv seq_mem_file.sv tb_seq_chip.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m2'
+echo "" > Vtb_seq_chip__ALL.verilator_deplist.tmp
+rm Vtb_seq_chip__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_m2'
+make: Leaving directory '/tmp/sr_src_3f38efd_srr3b_m2/tb'
+=== build wall 82s
+=== binary sha256 51983281453afb4ac9b1cb28b5a37b9565c312fb4824554a16575f16ed7c84aa
+=== built from the MUTANT snapshot of 3f38efd
+######## set bc0
+=== mutation set bc0: obj_dir tag r3b_mbc0, 1 changed line(s) in seq_movers.sv
+=== mutant of 3f38efd, diff vs the commit (must be exactly the 1 changed line(s)):
+    <             xp_v_q    <= {4{xp_fire}};
+    >             xp_v_q    <= {3'd0, xp_fire};
+=== SR13A MUTANT (set bc0): 1 changed lines
+    differs from 3f38efd: rtl/seq_movers.sv
+make: Entering directory '/tmp/sr_src_3f38efd_srr3b_mbc0/tb'
+verilator --binary --timing -j 16 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt -I/tmp/sr_src_3f38efd_srr3b_mbc0/tb \
+  --Mdir /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mbc0 -o tb_seq_chip_9b_srr3b_mbc0 \
+  -GNMV=4 -GWIMGPC=1 \
+  --top-module tb_seq_chip ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv seq_fabric_model.sv seq_burst_fabric.sv seq_mem_file.sv tb_seq_chip.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mbc0'
+echo "" > Vtb_seq_chip__ALL.verilator_deplist.tmp
+rm Vtb_seq_chip__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mbc0'
+make: Leaving directory '/tmp/sr_src_3f38efd_srr3b_mbc0/tb'
+=== build wall 80s
+=== binary sha256 4d5d76d15ec274e2cb5fb91079c537c63712e5a38263fef585aa1be89d3a089a
+=== built from the MUTANT snapshot of 3f38efd
+######## set room0
+=== mutation set room0: obj_dir tag r3b_mroom0, 1 changed line(s) in seq_movers.sv
+=== mutant of 3f38efd, diff vs the commit (must be exactly the 1 changed line(s)):
+    <                      && (&xp_room_q);
+    >                      && (&(xp_room_q | 4'hE));
+=== SR13A MUTANT (set room0): 1 changed lines
+    differs from 3f38efd: rtl/seq_movers.sv
+make: Entering directory '/tmp/sr_src_3f38efd_srr3b_mroom0/tb'
+verilator --binary --timing -j 16 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt -I/tmp/sr_src_3f38efd_srr3b_mroom0/tb \
+  --Mdir /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mroom0 -o tb_seq_chip_9b_srr3b_mroom0 \
+  -GNMV=4 -GWIMGPC=1 \
+  --top-module tb_seq_chip ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv seq_fabric_model.sv seq_burst_fabric.sv seq_mem_file.sv tb_seq_chip.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mroom0'
+echo "" > Vtb_seq_chip__ALL.verilator_deplist.tmp
+rm Vtb_seq_chip__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mroom0'
+make: Leaving directory '/tmp/sr_src_3f38efd_srr3b_mroom0/tb'
+=== build wall 84s
+=== binary sha256 f85d01f099211b5704ac319aa2b2763d367197c5b415e063496e18a95ba48646
+=== built from the MUTANT snapshot of 3f38efd
+######## set xprt0
+=== mutation set xprt0: obj_dir tag r3b_mxprt0, 1 changed line(s) in seq_movers.sv
+=== mutant of 3f38efd, diff vs the commit (must be exactly the 1 changed line(s)):
+    <     localparam int XP_RT         = XP_FWD_STAGES + XP_RET_STAGES;
+    >     localparam int XP_RT         = (XP_FWD_STAGES + XP_RET_STAGES) * 0;
+=== SR13A MUTANT (set xprt0): 1 changed lines
+    differs from 3f38efd: rtl/seq_movers.sv
+make: Entering directory '/tmp/sr_src_3f38efd_srr3b_mxprt0/tb'
+verilator --binary --timing -j 16 -Wall -f /home/cah/r2d2/code/verilator_lib/verilator_lib.f /home/cah/r2d2/code/verilator_lib/verilator_xilinx.vlt -I/tmp/sr_src_3f38efd_srr3b_mxprt0/tb \
+  --Mdir /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mxprt0 -o tb_seq_chip_9b_srr3b_mxprt0 \
+  -GNMV=4 -GWIMGPC=1 \
+  --top-module tb_seq_chip ../rtl/seq_unit.sv ../rtl/seq_movers.sv ../rtl/fx_pkg.sv ../rtl/fx_rsqrt.sv ../rtl/fx_recip.sv ../rtl/fx_silu.sv ../rtl/vecnorm_unit.sv ../rtl/rope_unit.sv ../rtl/conv4_silu.sv ../rtl/dn_step.sv ../rtl/attn_core.sv ../rtl/gate_unit.sv ../rtl/vec_alu.sv ../rtl/state_dma.sv ../rtl/layer_chan.sv ../rtl/matvec_engine.sv ../rtl/ddr_rd_streamer.sv ../rtl/matvec_chan.sv seq_fabric_model.sv seq_burst_fabric.sv seq_mem_file.sv tb_seq_chip.sv
+make[1]: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mxprt0'
+echo "" > Vtb_seq_chip__ALL.verilator_deplist.tmp
+rm Vtb_seq_chip__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_srr3b_mxprt0'
+make: Leaving directory '/tmp/sr_src_3f38efd_srr3b_mxprt0/tb'
+=== build wall 78s
+=== binary sha256 9a61d5b569a7d017eb3492d76ad4ee391b804d6f2dc92cc5b66c827c55466cc6
+=== built from the MUTANT snapshot of 3f38efd
+R3_9A_MUT_BUILDS: 5 BUILT
+=== rc  : 0
+=== end : 2026-09-30T03:13:09-06:00

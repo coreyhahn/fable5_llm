@@ -1,0 +1,125 @@
+=== host: snoke  date: 2026-09-28T17:34:05-06:00
+=== tree: 266e3ae
+=== cmd : bash -c R=/home/cah/r2d2/code/fpga/fable5_llm
+echo "PF HEAD: $(git rev-parse HEAD)  short8: $(git rev-parse --short=8 HEAD)"
+echo "PF HEAD descends from 222f80a: $(git merge-base --is-ancestor 222f80a HEAD && echo yes || echo NO)"
+echo "PF git status --porcelain lines: $(git status --porcelain | wc -l)"; git status --porcelain | sed "s/^/PF   /"
+echo "PF rtl/ delta 9eeaacb..HEAD (SR12 R2 RTL commit; comment-only expected):"; git diff 9eeaacb HEAD --stat -- rtl | sed "s/^/PF   /"
+echo "PF rtl/ non-comment changed lines 9eeaacb..HEAD: $(git diff -U0 9eeaacb HEAD -- rtl | grep -E "^[+-][^+-]" | grep -vE "^[+-][[:space:]]*//" | wc -l)"
+echo "PF rtl/ file sha256 at HEAD (the build's RTL identity):"; for f in $(git ls-files rtl); do echo "PF   $(sha256sum $f)"; done
+echo "PF SEQ_CAPS / BM_IDENT literals in rtl/seq_unit.sv:"; grep -nE "FAB1_?CA0|FAB1_?B301" rtl/seq_unit.sv | cut -c1-200 | sed "s/^/PF   /"
+echo "PF csr_static_xbank/rbank in rtl/matvec_chan.sv:"; grep -nE "csr_static_(x|r)bank" rtl/matvec_chan.sv | cut -c1-200 | sed "s/^/PF   /"
+echo "PF CDC false path (fable5_cdc.xdc):"; grep -n "csr_static" synth/constraints/fable5_cdc.xdc | sed "s/^/PF   /"
+echo "PF SR7 verdict:"; grep -n "^## 0. Verdict" evidence/qwen9b/sr/SR7_R1_BUILD.md | sed "s/^/PF   /"
+echo "PF SR13a verdict:"; grep -n -m3 -iE "^## 0|GREEN" evidence/qwen9b/sr/SR13a_R2_CHIP.md | cut -c1-200 | sed "s/^/PF   /"
+echo "PF launcher guard wired:"; grep -n "proj_busy" synth/scripts/launch_incr.sh | sed "s/^/PF   /"
+echo "PF other Vivado jobs (non-MCP):"; pgrep -af vivado | grep -v -e mcp -e pgrep -e "bash -c" | cut -c1-200 | sed "s/^/PF   /" || true; echo "PF   (end)"
+echo "PF load: $(cat /proc/loadavg)  nproc: $(nproc)"; free -g | sed "s/^/PF   /"; df -h $R | sed "s/^/PF   /"
+echo "PF out dirs (must be free):"; for d in build_045_r2 build_045_r2_incr; do [ -e synth/out_$d ] && echo "PF   synth/out_$d EXISTS" || echo "PF   synth/out_$d free"; done
+echo "PF highest build: $(ls -d synth/out_build_0* | sed "s|synth/out_build_||" | cut -c1-3 | sort -n | tail -1)"
+echo "PF reference (R1 signed-off routed checkpoint, SR7_R1_BUILD.md §4):"
+REF=synth/out_build_044_r1_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+ls -la --time-style=full-iso $REF | sed "s/^/PF   /"; sha256sum $REF | sed "s/^/PF   sha256 /"
+echo "PF reference project idle:"; bash synth/scripts/proj_busy.sh synth/out_build_044_r1_incr/proj | sed "s/^/PF   /"
+echo "PF clock-root XDC:"; sha256sum synth/constraints/fable5_clockroot_9b.xdc | sed "s/^/PF   /"
+echo "PF scripts sha256:"; sha256sum synth/scripts/launch_build.sh synth/scripts/launch_incr.sh synth/scripts/incr_impl.tcl synth/scripts/proj_busy.sh synth/scripts/create_project.tcl synth/scripts/build.tcl synth/constraints/fable5_cdc.xdc | sed "s/^/PF   /"
+echo "PF MIG period line:"; sed -n 168p synth/scripts/create_project.tcl | sed "s/^/PF   /"
+source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh >/dev/null 2>&1; echo "PF tool: $(vivado -version | head -1)"
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+PF HEAD: 266e3ae75b7ac6c4eeb1d6d707d630c71502d82b  short8: 266e3ae7
+PF HEAD descends from 222f80a: yes
+PF git status --porcelain lines: 1
+PF   ?? evidence/qwen9b/sr/n1400_SR14_preflight.log
+PF rtl/ delta 9eeaacb..HEAD (SR12 R2 RTL commit; comment-only expected):
+PF    rtl/layer_chan.sv    | 2 +-
+PF    rtl/matvec_engine.sv | 6 +++---
+PF    rtl/state_dma.sv     | 4 ++--
+PF    3 files changed, 6 insertions(+), 6 deletions(-)
+PF rtl/ non-comment changed lines 9eeaacb..HEAD: 0
+PF rtl/ file sha256 at HEAD (the build's RTL identity):
+PF   93a70bc06224560c9fd18a1347d7a520b07d8ce1bc8f54dbc86fd495c4176557  rtl/attn_core.sv
+PF   997a8cf33f0b6c235892e4a984f84821c0fd8696ff786010aad17585ffce2cb9  rtl/conv4_silu.sv
+PF   3c20627856abeff7f381b24b234740e758c6291a2f238234f51496b0d68c2c24  rtl/csr_block.sv
+PF   6cf34b5475e494b3d3d9f99549fd6e8bfb0a53258992f08a81d4713396666971  rtl/csr_block_ipi.v
+PF   55b7619571da4ac0f35d9b8a7c61d51eb178b53a2c52a5451cb88658db3bfaa9  rtl/ddr_rd_streamer.sv
+PF   9cc2e3babefc4dc472d518a7b904d2ef5567473541e3a9120de6d44273f0e4d4  rtl/dn_step.sv
+PF   035f802f8505cd1feb2a52e594b1650b5ac7c4ed3cf417b92b488cd920a9cab6  rtl/fx_pkg.sv
+PF   faa2997d6b3083651f80c3485d8e2953c9d67ecfed51e8f42d2fee4b7fae3378  rtl/fx_recip.sv
+PF   9f6f091e098ba0e67487184be60304db46a07e28017533d6d37760c06a2ffe5d  rtl/fx_rsqrt.sv
+PF   5fa5d0c31ed38708603364e28bc279c7a8f714010e734fedac4414ade2bf10c1  rtl/fx_silu.sv
+PF   7884d9f791d541c8473fad6be65417714f68d47c6befab15769270d0a765b0f1  rtl/gate_unit.sv
+PF   20ef8c66b99ea4eb0be9b63aafa5370024f28d7c41bed3e902551b1763ee39e0  rtl/layer_chan.sv
+PF   aab3be0801f7e68bdcee1bf3084ff69003b7fddf1720df306009c5c8a9217921  rtl/layer_chan_ipi.v
+PF   ac7f68ecf9e3dd398b2e2f29c8faa0656fe8cb8d5e8c9aaadf78627ea4425712  rtl/matvec_chan.sv
+PF   781314cb2e551837a7c270c5473b76dd6ed29dbe410ab2b4f4849b22980fdc8c  rtl/matvec_chan_ipi.v
+PF   a655cc754e47c0a133c387f986f46f095dba58fb741a31d1fabbf3819e5920d1  rtl/matvec_engine.sv
+PF   1ad926b4bc061013a4c530ab0caef1d655d2348903ead75a8f40450a15d30499  rtl/roms/exp2_pair_rom.hex
+PF   c4ca58af924327d91f8fb782e40871b37fbb3f36419c378a5b97a7cb911b6a74  rtl/roms/exp2_rom.hex
+PF   6acfec8f3354f27f0365a54acff1eac140c49308e073dec91ff59487f6c2b467  rtl/roms/recip_rom.hex
+PF   a297c1e880d10befae4e7d2dbfc32ac383c91a391daca04147afb845b84fe9cb  rtl/roms/rsqrt_rom.hex
+PF   584a9c7d1490acdd74deda77a73b33c8c4b8b7134f89ef205c6ad90b2a52bc6e  rtl/roms/sigmoid_pair_rom.hex
+PF   020d13a5d25399ca2bcfb0e0a1b6aced7918f4986c0d79ba0592bfbe4623afe4  rtl/roms/sigmoid_rom.hex
+PF   e2ce408eddebfb47b2fe5037527c084610419d8174fbce32d2d615550ba4311c  rtl/roms/softplus_pair_rom.hex
+PF   2807f9eb1c2dfb6e039c0246c2063aeebf97e491f803778bd91604b175bc9c25  rtl/roms/softplus_rom.hex
+PF   8f3429f4cca0ada73a15bca749497ea83bafde192cafde0b0611ef718a9abb2d  rtl/rope_unit.sv
+PF   9a0d254555049c102482e7cd472aca47e12b0c1fe28b68b2562497cefe872f4a  rtl/seq_movers.sv
+PF   a9cd485c98d719752bf3b64e19cbcd8c4757666d23795a871866b2b97b6dc5e9  rtl/seq_unit.sv
+PF   01b37b8cb5557a725476a1b8538fde328d7ccdbd51acd2024db0f48688fef6bb  rtl/seq_unit_ipi.v
+PF   753e5b4d5bcda59e53b68ce19ed5f20d14faa6f549a6278cf81f2fdbda3dd247  rtl/state_dma.sv
+PF   fb5263532d61149ed3ee91886d430526f0f853bc01b9f256b5b58ce15aced1da  rtl/vec_alu.sv
+PF   8ce91af54dafb19c6ff0e0a69f83b1b7182baf7c82c67eb0d4756519717b74bd  rtl/vecnorm_unit.sv
+PF SEQ_CAPS / BM_IDENT literals in rtl/seq_unit.sv:
+PF   57://                 BM_IDENT 0xFAB1B301, 0x104..0x128 and 0x130/0x134 the
+PF   335:    // copy of sw/hwmap.py's seq_caps_word({"R1", "R2"}) = 0xFAB1CA03 since
+PF   336:    // SR12 (R1 alone was 0xFAB1CA01); the unit TB reads it back against the
+PF   1380:    localparam logic [31:0] BM_IDENT = 32'hFAB1_B301;
+PF csr_static_xbank/rbank in rtl/matvec_chan.sv:
+PF   24://                     are latched into csr_static_xbank / csr_static_rbank
+PF   231:    logic        csr_static_xbank;   // SR12 (SEQ_ISA B17.2): SHAPE bit 29, XBANK
+PF   232:    logic        csr_static_rbank;   // SR12 (SEQ_ISA B17.2): SHAPE bit 30, RBANK
+PF   324:            csr_static_xbank <= 1'b0; csr_static_rbank <= 1'b0;
+PF   345:                        csr_static_xbank <= wdata_q[29];  // SR12: B17.2
+PF   346:                        csr_static_rbank <= wdata_q[30];  // bit 31 dropped
+PF   446:        .cfg_xbank(csr_static_xbank), .cfg_rbank(csr_static_rbank),   // SR12: B17.2
+PF CDC false path (fable5_cdc.xdc):
+PF   14:set_false_path -from [get_cells -hierarchical -filter {NAME =~ */csr_static_*_reg*}] \
+PF SR7 verdict:
+PF   8:## 0. Verdict: SIGNED OFF (rung 1, the incremental run) — pending its own load ruling (Q9)
+PF SR13a verdict:
+PF   18:**GREEN. The model held. There is nothing to STOP on.**
+PF   41:**GREEN on every item run (handed back as DONE_STEPS_2_3).**
+PF launcher guard wired:
+PF   19:"$SCRIPT_DIR/proj_busy.sh" "$SRC_DIR/proj" || { echo "FATAL: $SRC_DIR/proj has a Vivado run in flight — wait for it to finish (the base build's '=== DONE'), then launch" >&2; exit 1; }
+PF other Vivado jobs (non-MCP):
+PF   (end)
+PF load: 2.00 1.89 3.23 2/1276 843686  nproc: 48
+PF                  total        used        free      shared  buff/cache   available
+PF   Mem:             247           5          58           0         185         242
+PF   Swap:            127           0         127
+PF   Filesystem          Size  Used Avail Use% Mounted on
+PF   r2d2:/tank12t/code   22T  1.3T   20T   6% /home/cah/r2d2/code
+PF out dirs (must be free):
+PF   synth/out_build_045_r2 free
+PF   synth/out_build_045_r2_incr free
+PF highest build: 044
+PF reference (R1 signed-off routed checkpoint, SR7_R1_BUILD.md §4):
+PF   -rw-rw-r-- 1 cah cah 290607708 2026-09-28 09:41:18.277862920 -0600 synth/out_build_044_r1_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+PF   sha256 5d8a699795efab1a6aeb6bd5d381ff7f3db6fd8e88bf4c389a2b66d36ad9e332  synth/out_build_044_r1_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+PF reference project idle:
+PF   PROJ_IDLE: /home/cah/r2d2/code/fpga/fable5_llm/synth/out_build_044_r1_incr/proj
+PF clock-root XDC:
+PF   72c3d197454235d602f82a60c06109c07b14f29f187018f87833276a787165e1  synth/constraints/fable5_clockroot_9b.xdc
+PF scripts sha256:
+PF   62fe4c5aefa2f1225b6cf0627cade94f9ca38a931ac36f200d646a791ff27606  synth/scripts/launch_build.sh
+PF   9638038c49e637507ecf006988db7c5c65c63b07ab0f376e1448bf8a9220e988  synth/scripts/launch_incr.sh
+PF   d44220c36c1eeed72829b5f9be3445eea0fae427b20791d65f440dc97063e178  synth/scripts/incr_impl.tcl
+PF   5d8fdaae6e218e7cbd3b6a6747681523f8347694ce62ccd9cd69849dbb34c618  synth/scripts/proj_busy.sh
+PF   4b13468783149036741b1c63ee7d9b33216a20e97edc4d04735f6fb8867edf55  synth/scripts/create_project.tcl
+PF   c4f8435ba28098f1646aa3af35870ae729d630ea6d7dbfaaffc1f4ea2fcc5f3d  synth/scripts/build.tcl
+PF   5cc27c98ede8f23bf1ef44a816189d07451343a70159dcfcfa330f0507cc3e2c  synth/constraints/fable5_cdc.xdc
+PF MIG period line:
+PF           CONFIG.C0.DDR4_TimePeriod {833} \
+PF tool: vivado v2024.2 (64-bit)
+=== rc  : 0
+=== end : 2026-09-28T17:34:09-06:00

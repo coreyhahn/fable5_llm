@@ -1,0 +1,139 @@
+=== host: snoke  date: 2026-09-28T10:37:51-06:00
+=== tree: e9be616+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M docs/USAGE.md
+=== dirty:  M sw/hwmap.py
+=== dirty:  M sw/seq_run.py
+=== cmd : bash evidence/qwen2b/rd/rd_boardfree.sh
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== version constants in the tree ===
+seq_run.py:123:EXPECTED_SEQ_VERSION = 0xC973C18A  # build_041_ckr2_AltSpreadLogic_high (9B state
+infer.py:98:EXPECT_VERSION = 0xC973C18A  # build_041 (9B); read back at g6/003. Was 0x54443B9F
+
+=== make seq_selftest ===
+.venv/bin/python -u seq_run.py --selftest
+seq_run selftest (pure python, no board):
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+      1987 records, 63360 B blob, 25 LDC (0 indirected), 44 MVGO, 0 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/tok2_s1.e
+      1080 records, 61568 B blob, 14 LDC (1 indirected), 26 MVGO, 3 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e
+      60495 records, 1007360 B blob, 538 LDC (24 indirected), 1592 MVGO, 6 expected tokens
+  --- /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e4
+      68119 records, 1007360 B blob, 538 LDC (24 indirected), 3464 MVGO, 6 expected tokens
+  --- /tmp/fable5_rp_op5vk4gs/rp.e
+      53 records, 2048 B blob, 1 LDC (0 indirected), 12 MVGO, 1 expected tokens
+  --- R-c: the emitter's placement-order guard
+  --- R-b: emb_row_bytes manifest key + EMBLOG2 CSR
+  --- BM1: the SEQ 0x100 idle-counter block is feature-detected
+  --- BM1-T4prep: --expect-version admits a NAMED sequencer bitstream
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--caps R1[,R2..]]
+                  [--lock LOCK] [--no-lock]
+seq_run.py: error: argument --expect-version: expect-version 0x9b588e79 is not a known sequencer bitstream (known: 0x9b588e78 build_042_bm1 (BM1 idle counters; admitted only when named), 0xc973c18a build_041_ckr2_AltSpreadLogic_high (shipped 9B; default), 0xe3c2ff1e build_044_r1_incr (R1 FENCE mask + BM1 counters; admitted only when named)) -- add its row to sw/seq_run.SEQ_VERSIONS, do not guess
+  --- BM1-T4prep fix 1: strict hash parse; main refuses before DMA
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+  SEQ CSRs untouched: scripted: VERSION mismatch
+--- board: MAGIC=0xfab1e001 VERSION=0xc973c18a CALIB=0xf  SEQ=REFUSED
+  SEQ CSRs untouched: scripted: VERSION mismatch
+  capabilities     {}  (default (board-free: --dry-run never reads the SEQ window))
+--- SEQ stream: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1.e
+  artifacts base   /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w3/lay_s1
+  stream           1987 records, 31792 B (sha256 407429b498e92634) VALIDATED at capabilities {}
+  seqdata          63360 B (sha256 afd5bea218f7add4)
+  profile          epsnorm  dyn_ka=True  loop 0 steps (fewer than two decode steps)
+  opcodes          {'CSRWR': 1381, 'CMD': 460, 'MOVX': 30, 'MOVY': 44, 'MVGO': 44, 'HALT': 1, 'LDC*': 25, 'XOP*': 2}
+  expected tokens  []
+  mode             single-channel (engine chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=1)
+  stream    0x9000000 .. 0x9007c30  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc00f780  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 15 images, chans [0])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 25 LDC records (0 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 0 EMB records checked, delta +0x0
+  weight plan: 15 images match the stream's MVGO plan; 44 MVGO WBASEs row-aligned inside them
+--- upload
+  --- SR6: Dev.seq_caps / manifest_caps_check / --caps
+  --- S3: the DDR state region (plan, witnesses, bytes/token)
+  seq_run selftest: 2820 passed, 0 failed
+=== make serve_test ===
+.venv/bin/python -u serve.py --selftest
+serve.py selftest (no board):
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template OFF (--raw)
+  chat template (T4/T5/T8) in BoardBackend/MockBackend.encode:
+  rung 4 S4: the per-request nch assertion
+    FAIL --nch 4 selects the 4-chan template by default: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4
+  sampling request fields, refusal path and telemetry (S5)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  mock       deterministic fake backend: no board, no board lock (fast: 0.0 ms/step, and the device ms it reports ARE that sleep)
+  mock       template ON via chat_seq.ChatTemplate (strict=False: the mock tokenizer is 1 id per byte, so the wrapper is 8*messages+17 here, not 5*M+7)
+  chat_seq API the adapter depends on (/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py):
+    chat_seq.ChatSession                                       ok
+    chat_seq.SeqLock                                           ok
+    chat_seq.ChatSeqError                                      ok
+    chat_seq.load_tokenizer                                    ok
+    chat_seq.TEMPLATE_PREFIX                                   ok
+    chat_seq.T_MAX                                             ok
+    chat_seq.ChatTemplate                                      ok
+    chat_seq.CHAT_STOP_IDS                                     ok
+    chat_seq.TOK_IM_START                                      ok
+    chat_seq.TOK_IM_END                                        ok
+    chat_seq.TOK_THINK                                         ok
+    chat_seq.TOK_THINK_END                                     ok
+    chat_seq.HF_REF_SINGLE                                     ok
+    chat_seq.HF_REF_3MSG_INCR                                  ok
+    ChatTemplate.turn_ids(self, text, system=None, first=True, carry=None) ok
+    ChatTemplate.render(self, messages, add_generation_prompt=True) ok
+    ChatTemplate.visible(self, ids)                            ok
+    ChatSession.open_board(self)                               ok
+    ChatSession.bring_up(self)                                 ok
+    ChatSession.preamble(self)                                 ok
+    ChatSession.step(self, tok, lite)                          ok
+    ChatSession.plan_turn(self, ids, ntok)                     ok
+    ChatSession.attach_template(self, tk, log=<built-in function print>) ok
+    ChatSession.truncate_history(self, ids, ntok)              ok
+    SeqLock.acquire()                                          ok
+    SeqLock.release()                                          ok
+    args namespace covers chat_seq's args.* reads              ok
+  backend API check: PASS
+  serve selftest: 84 passed, 1 failed
+make: *** [Makefile:130: serve_test] Error 1
+=== chat_seq --selftest ===
+  reorder    auto -> the shipped order (form B, the default, runs only at FABLE5_MODEL=9b --nch 4 on the shipped template; here --nch 1, template model_v2_s1.e)
+chat_seq selftest (pure python, NO board):
+  [1] template source, frozen sha256, spec slice indices
+  [2] image assembly: agent A vs my own spec slices
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 7087, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 6890, in main
+    raise SystemExit(0 if selftest(args) else 1)
+                          ^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 4225, in selftest
+    tc = SC.TurnCompiler(args.template, t_max=T_MAX, pos_mode="xrf")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 533, in __init__
+    self.T = Templates(prefix, verify_sha=verify_sha)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 384, in __init__
+    self._verify()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 464, in _verify
+    need(r[R_POSADV].opcode == SF.EXT_XOP
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_chat.py", line 412, in need
+    raise ChatSeqError("template check failed: " + msg)
+seq_chat.ChatSeqError: template check failed: rec 60492 is XOP*   XRF[4:pos] = +XRF[4:pos] +1536, expected XOP XRF[4] += 2048
+SELFTEST_RCS seq=0 serve=2 chat=1
+BOARDFREE_FAIL
+=== rc  : 0
+=== end : 2026-09-28T10:38:01-06:00

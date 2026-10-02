@@ -1,0 +1,126 @@
+=== host: snoke  date: 2026-08-22T19:05:17-06:00
+=== tree: 6b5d940+dirty
+=== cmd : bash -c 
+set -e
+cd /home/cah/r2d2/code/fpga/fable5_llm/tb
+echo "### 1. tb_ru2_diff (6 configs), 3584 in gen_len()"
+make tb_ru2_diff JOBS=16 VECPY=/home/cah/.venv/bin/python 2>&1 | grep -vE "^g\+\+|^/usr/bin|^make\[|^Archive|^echo|^rm |^verilator|^  --|^  \.\./"
+echo
+echo "### 2. 2B token smoke — also the first run with the summed weight-beat line"
+make tb_seq_chip_w8_tok_smoke JOBS=16 2>&1 | grep -E "TB_SEQ_CHIP|weight beats|LAUNCH 0"
+echo
+echo "### 3. spare-bit scan (the new ARG-field asserts must be non-firing)"
+cd /home/cah/r2d2/code/fpga/fable5_llm && /home/cah/.venv/bin/python ref/scripts/scan_spare_bits.py | grep -E "SCAN VERDICT|GATE |DNST |KVAP |ATTN " | head -12
+echo
+echo "### 4. FROZEN LOCKS"
+bash evidence/qwen2b/rc/t3_locks.sh 2>&1 | grep -E "REGEN_GATE|E4_LOCK|got |gold "
+echo
+echo "### 5. host selftests"
+bash evidence/qwen2b/rc/t3_sw_selftests.sh 2>&1 | grep -E "passed,|failed"
+
+=== venv: 3.12.3 numpy 2.4.6
+### 1. tb_ru2_diff (6 configs), 3584 in gen_len()
+  tb_vecalu_diff.sv
+  ops:  0:42 1:70 2:57 3:55 4:49 5:56 6:63 7:61 8:83 9:72 10:123 12:69
+  class: disjoint=552 inplace1=132 narrow2to1=86 pair-inplace=30 | len_max=3584
+  overlap census: legacy raw collisions=162 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=2626859 new=318917 (speedup x100 = 823)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 1, read-first)
+- tb_vecalu_diff.sv:720: Verilog $finish
+  ops:  0:57 1:60 2:48 3:50 4:51 5:57 6:53 7:59 8:91 9:64 10:144 12:66
+  class: disjoint=556 inplace1=137 narrow2to1=74 pair-inplace=33 | len_max=3584
+  overlap census: legacy raw collisions=170 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=2849710 new=361464 (speedup x100 = 788)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 2, read-first)
+- tb_vecalu_diff.sv:720: Verilog $finish
+  ops:  0:60 1:62 2:62 3:56 4:52 5:64 6:59 7:60 8:77 9:67 10:125 12:58
+  class: disjoint=541 inplace1=140 narrow2to1=85 pair-inplace=36 | len_max=3584
+  overlap census: legacy raw collisions=176 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=2792755 new=323802 (speedup x100 = 862)
+TB_VECALU_DIFF PASS: 802 commands bit-exact (seed 3, read-first)
+- tb_vecalu_diff.sv:720: Verilog $finish
+  ops:  0:59 1:68 2:51 3:42 4:49 5:54 6:64 7:62 8:93 9:67 10:117 12:74
+  class: disjoint=548 inplace1=126 narrow2to1=89 pair-inplace=37 | len_max=3584
+  overlap census: legacy raw collisions=163 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=2863782 new=361766 (speedup x100 = 791)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 4, read-first)
+- tb_vecalu_diff.sv:720: Verilog $finish
+-- strict: overlap invariant fatal + write-first scratch + cfg-latch --
+obj_dir_tb_vecalu_diff/tb_vecalu_diff +seed=1 +coll_fatal +wfirst +cfgscramble
+  ops:  0:61 1:66 2:50 3:60 4:64 5:60 6:51 7:61 8:74 9:62 10:118 12:73
+  class: disjoint=550 inplace1=143 narrow2to1=78 pair-inplace=29 | len_max=3584
+  overlap census: legacy raw collisions=172 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=2523574 new=321816 (speedup x100 = 784)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 1, write-first+coll_fatal+cfgscramble)
+- tb_vecalu_diff.sv:720: Verilog $finish
+obj_dir_tb_vecalu_diff/tb_vecalu_diff +seed=3 +coll_fatal +wfirst +cfgscramble
+  ops:  0:54 1:49 2:65 3:60 4:57 5:60 6:51 7:48 8:85 9:71 10:133 12:67
+  class: disjoint=551 inplace1=142 narrow2to1=72 pair-inplace=35 | len_max=3584
+  overlap census: legacy raw collisions=177 | new tail=0 live=0 (write-count deltas=0)
+  cycles: legacy=2746280 new=357010 (speedup x100 = 769)
+TB_VECALU_DIFF PASS: 800 commands bit-exact (seed 3, write-first+coll_fatal+cfgscramble)
+- tb_vecalu_diff.sv:720: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECALU_DIFF OK: 4 seeds + 2 strict + 4 comparator self-tests
+  legacy/vecnorm_legacy.sv tb_vecnorm_diff.sv
+  modes: 0:36 1:34 2:50 | eps vectors=21 (k -14..17) | all-zero blocks=20 | n_max=1024
+  busy cycles: legacy=223831 new=63849 (speedup x100 = 350)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 1, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:37 1:33 2:50 | eps vectors=28 (k -14..17) | all-zero blocks=18 | n_max=1024
+  busy cycles: legacy=270118 new=74056 (speedup x100 = 364)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 2, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:40 1:32 2:48 | eps vectors=27 (k -14..17) | all-zero blocks=16 | n_max=1024
+  busy cycles: legacy=313974 new=88649 (speedup x100 = 354)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 3, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+  modes: 0:37 1:38 2:45 | eps vectors=27 (k -14..17) | all-zero blocks=19 | n_max=1024
+  busy cycles: legacy=250467 new=74642 (speedup x100 = 335)
+TB_VECNORM_DIFF PASS: 120 vectors bit-exact (seed 4, random s_valid gaps 0..5, random m_ready)
+- tb_vecnorm_diff.sv:391: Verilog $finish
+-- comparator self-test: every check MUST trip under sabotage --
+TB_VECNORM_DIFF OK: 4 seeds + 3 comparator self-tests
+
+### 2. 2B token smoke — also the first run with the summed weight-beat line
+LAUNCH 0 PASS: [-] pc 1243, tokens 2, tcnt 6, scratch 16384
+  ddr beats 8749 (miss 0), weight beats 4116544 total across 4 chan (miss 0) [ 1029136/1029136/1029136/1029136]
+TB_SEQ_CHIP PASS: scripts/w5/tok2b_w8_s1.e (launches 1, 2208904 cycles total, scratch 16384/launch, tokens 2, tcnt 6)
+LAUNCH 0 PASS: [-] pc 1243, tokens 2, tcnt 6, scratch 16384
+  ddr beats 8749 (miss 0), weight beats 4116544 total across 4 chan (miss 0) [ 1029136/1029136/1029136/1029136]
+TB_SEQ_CHIP PASS: scripts/w5/tok2b_w8_s2.e (launches 1, 2208904 cycles total, scratch 16384/launch, tokens 2, tcnt 6)
+LAUNCH 0 PASS: [-] pc 1243, tokens 2, tcnt 6, scratch 16384
+  ddr beats 8749 (miss 0), weight beats 4116544 total across 4 chan (miss 0) [ 1029136/1029136/1029136/1029136]
+TB_SEQ_CHIP PASS: scripts/w5/tok2b_w8_s3.e (launches 1, 2208904 cycles total, scratch 16384/launch, tokens 2, tcnt 6)
+LAUNCH 0 PASS: [-] pc 1243, tokens 2, tcnt 6, scratch 16384
+  ddr beats 8749 (miss 0), weight beats 4116544 total across 4 chan (miss 0) [ 1029136/1029136/1029136/1029136]
+TB_SEQ_CHIP PASS: scripts/w5/tok2b_w8_s4.e (launches 1, 2208904 cycles total, scratch 16384/launch, tokens 2, tcnt 6)
+
+### 3. spare-bit scan (the new ARG-field asserts must be non-firing)
+ 7 GATE          2084  ARG0  0x00000c40  31:12,9:7,5:0
+ 8 DNST         33344  ARG0  0x313cc5ff  31:30,27:25,23:22,17:16,13:11,9
+ 9 KVAP          1432  ARG0  0x00000081  31:8,6:1
+10 ATTN          5728  ARG0  0x00000001  31:1
+  GATE      ARG0  14   never set           GATE  dst[14]      (arg0[13:0] -> arg0[14:0])
+  GATE      ARG1  28   never set           GATE  src_b[14]
+  GATE      ARG1  29   never set           GATE  src_a[14]
+  GATE      ARG2  28   never set           GATE  src_A[14]
+  GATE      ARG2  29   never set           GATE  src_dt[14]
+  DNST      ARG1  28   never set           DNST  src_q[14]
+  DNST      ARG1  29   never set           DNST  src_k[14]
+  DNST      ARG1  30   never set           DNST  a_dec[14]    (re-pack: arg0 is full)
+
+### 4. FROZEN LOCKS
+  gold    = a69864d25b6b129a4d6c74b3c78dfcbedf1edce219d32cc05d05bc54f444aaf1
+  got     = a69864d25b6b129a4d6c74b3c78dfcbedf1edce219d32cc05d05bc54f444aaf1
+REGEN_GATE_PASS
+  e4 got  = e102e2df0835097d0d622cd17109b9cbfea1ab4e78818bcddf3873ec6d8ac933
+  e4 gold = e102e2df0835097d0d622cd17109b9cbfea1ab4e78818bcddf3873ec6d8ac933  (committed tb/scripts/w4/model_v2_s1.e4.seq)
+E4_LOCK_PASS
+
+### 5. host selftests
+  seq_run selftest: 2735 passed, 0 failed
+  serve selftest: 85 passed, 0 failed
+  chat_seq selftest: 337 passed, 0 failed
+=== rc  : 0
+=== end : 2026-08-22T19:23:13-06:00

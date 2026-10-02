@@ -1,0 +1,63 @@
+.venv/bin/python -u seq_run.py --prefix ../tb/scripts/w4/model_v2_s1.e4 --four-chan \
+  --out ../evidence/qwen2b/rb/seq_run4_build034.json 
+--- SEQ stream: ../tb/scripts/w4/model_v2_s1.e4
+  artifacts base   ../tb/scripts/w4/model_v2_s1
+  stream           68119 records, 1089904 B (sha256 e102e2df0835097d) VALIDATED
+  seqdata          1007360 B (sha256 13bc65821b18194b)
+  profile          epsnorm  dyn_ka=True  loop 3 steps (structurally safe)
+  opcodes          {'CSRWR': 42599, 'CMD': 14156, 'MOVX': 2992, 'MOVY': 3464, 'MVGO': 3464, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'FENCE': 868, 'HALT': 1, 'LDC*': 538, 'XOP*': 28}
+  expected tokens  [561, 314, 279, 369, 279, 6511]
+  mode             4-CHANNEL row-split (weights over DDR chans [0, 1, 2, 3], fetch on chan 0)
+--- DDR plan (fetch channel 0, host offset 0x0, nch=4)
+  stream    0x9000000 .. 0x910a170  (window 48 MiB)
+  seqdata   0xc000000 .. 0xc0f5f00  (window 64 MiB)
+  weights   0x10000000 ..            (plan_weights, 187 images, chans [0, 1, 2, 3])
+  embedding 0x60000000  (fetch chan 0)
+  RELOCATION: 538 LDC records (24 XRF-indirected) rebased by -0x74000000 (emitter 0x80000000 -> 0xc000000); 4 EMB records checked, delta +0x0
+--- board: MAGIC=0xfab1e001 VERSION=0x4f908df2 CALIB=0xf  SEQ=READY
+  weight plan: 187 images match the stream's MVGO plan; 3464 MVGO WBASEs row-aligned inside them
+--- upload
+  weights   187 images, 398 MiB -> 0x10000000..0x28e34000 (row-split over chans [0, 1, 2, 3], wid [186] chunk-INTERLEAVED (rung 4 S4))  [readback OK]
+  embedding 485 MiB -> 0x60000000  [readback OK]
+  seqdata   1007360 B -> 0xc000000  [readback OK]
+  stream    1089904 B (68119 records) -> 0x9000000  [readback OK]
+  885 MiB written, 885 MiB read back and compared, 6.3s
+--- run
+  EMBLOG2    11 (2048 B embedding rows)
+  SEQ_BASE=0x9000000 LEN=68119 ENTRY=0 -> START
+    pc 344/68119  (0.0s)
+    pc 5010/68119  (0.0s)
+    pc 9078/68119  (0.0s)
+    pc 12772/68119  (0.0s)
+    pc 17437/68119  (0.0s)
+    pc 21556/68119  (0.0s)
+    pc 25255/68119  (0.0s)
+    pc 28820/68119  (0.1s)
+    pc 32902/68119  (0.1s)
+    pc 38022/68119  (0.1s)
+    pc 41719/68119  (0.1s)
+    pc 45452/68119  (0.1s)
+    pc 49556/68119  (0.1s)
+    pc 53705/68119  (0.1s)
+    pc 57437/68119  (0.1s)
+    pc 62263/68119  (0.1s)
+    pc 66224/68119  (0.1s)
+    pc 52215/68119  (0.1s)
+    pc 53688/68119  (0.1s)
+    pc 58380/68119  (0.1s)
+    pc 62116/68119  (0.2s)
+    pc 66179/68119  (0.2s)
+    pc 52148/68119  (0.2s)
+    pc 53379/68119  (0.2s)
+    pc 58321/68119  (0.2s)
+    pc 62032/68119  (0.2s)
+    pc 66021/68119  (0.2s)
+  halted at pc=68118/68119 in 0.198s wall / 197.685 ms device
+  STATUS=0x00010004 err=False err_code=0x00 (no error)
+  perf: {'cyc': 49421189, 'rec': 101415, 'axil_wr': 132392, 'axil_rd': 2127840, 'fetch_starved_cyc': 97, 'xrf_ovf': False}
+  tokens: [561, 314, 279, 369, 279, 6511]
+  TOKENS   IDENTICAL to the .seq.json (6 tokens)
+--- post-halt state vs ../tb/scripts/w4/model_v2_s1.e4.chip
+  golden    7188 state checks, ALL MATCH
+SEQ RUN: PASS
+report -> ../evidence/qwen2b/rb/seq_run4_build034.json

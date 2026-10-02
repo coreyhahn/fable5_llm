@@ -1,0 +1,777 @@
+=== host: snoke  date: 2026-09-29T20:31:26-06:00
+=== tree: 14d321c+dirty
+=== dirty: ?? tb/scripts/w9_r3regen/
+=== cmd : env SEQ_DEFS=+define+R3_NO_XPUSH_PORTS bash evidence/qwen9b/sr/sr3_tb_each.sh obj_dir_seq_unit_r3red scripts_scratch/seqvec_r3red
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+SR3 lists: seeds [1 2 3 4] errs [op ind chan jmp xopsgn csrsp rsvd env0 env97 fmrsvd fmimm haltmask mxrsvd mxstart mxrange myrange bcast_mvgo movx_chan5 bcast_range] micro [csrwr cmd movx movy16 movy32 ldc] directed [hiaddr embrow repack1 repack2 repack3 repack4 fmask fmask2 fmask3 fmask4 bank bank2 bank3 bank4 bcast bcast2 bcast3 bcast4]
+mkdir -p scripts_scratch/seqvec_r3red
+for s in 1 2 3 4; do \
+  /home/cah/.venv/bin/python scripts/gen_seq_unit_vectors.py scripts_scratch/seqvec_r3red $s || exit 1; done
+seq_u_s1: 63 records, 921 writes, 303 reads (296 with the XRF sideband), 680 scratch words, 4 tokens
+seq_h_hiaddr: 16 records, 8320 scratch words (8192 above word 16383)
+seq_h_embrow: 7 records, 3136 scratch words at EMBLOG2=12 (4096 B rows)
+seq_m_csrwr: 2001 records, 2000 writes, 0 reads
+seq_m_cmd: 801 records, 800 writes, 0 reads
+seq_m_movx: 3 records, 5123 writes, 4096 reads
+seq_m_movy16: 4 records, 2073 writes, 2112 reads
+seq_m_movy32: 4 records, 4121 writes, 2112 reads
+seq_m_ldc: 2 records, 4097 writes, 0 reads
+seq_f_of24: 121 records, 24 tokens
+seq_f_of64: 321 records, 64 tokens
+seq_f_of80: 401 records, 80 tokens
+seq_e_op: expects err_code 0x01
+seq_e_ind: expects err_code 0x02
+seq_e_chan: expects err_code 0x05
+seq_e_jmp: expects err_code 0x08
+seq_e_xopsgn: expects err_code 0x0a
+seq_e_csrsp: expects err_code 0x07
+seq_e_rsvd: expects err_code 0x06
+seq_e_env0: expects err_code 0x0d
+seq_e_env97: expects err_code 0x0d
+seq_e_fmrsvd: expects err_code 0x06
+seq_e_fmimm: expects err_code 0x06
+seq_e_haltmask: expects err_code 0x06
+seq_e_mxrsvd: expects err_code 0x06
+seq_e_mxstart: expects err_code 0x06
+seq_e_mxrange: expects err_code 0x06
+seq_e_myrange: expects err_code 0x06
+seq_h_fmask: 26 records, 6 FENCEs, perm [0, 1, 2, 3], poll sets 7:2 9:5 14:8 18:0 21:4 23:2
+seq_h_bank: 22 records, perm [0, 1, 2, 3], 8 MOVX / 6 MOVY windows, non-zero starts X0@1536 Y0@2048 Y0@2050 X1@1536 Y1@4095 Y1@3048 X2@5 X2@1020 X2@3071 Y2@7
+seq_h_repack1: 18 records, 5 MVGOs at per-channel bases (nch=2 depth=16 ilv=[0]), 1096 scratch words
+seq_h_bcast: 50 records, 5 broadcast windows B@0+64 B@0+64 B@1536+76 B@0+32 B@5+10, 8406 scratch words
+seq_e_bcast_mvgo: expects err_code 0x05
+seq_e_movx_chan5: expects err_code 0x05
+seq_e_bcast_range: expects err_code 0x06
+seq_u_s2: 63 records, 906 writes, 253 reads (245 with the XRF sideband), 660 scratch words, 5 tokens
+seq_h_fmask2: 26 records, 6 FENCEs, perm [3, 2, 1, 0], poll sets 7:4 9:a 14:1 18:0 21:2 23:4
+seq_h_bank2: 22 records, perm [3, 2, 1, 0], 8 MOVX / 6 MOVY windows, non-zero starts X3@1536 Y3@2048 Y3@2050 X2@1536 Y2@4095 Y2@3048 X1@5 X1@1020 X1@3071 Y1@7
+seq_h_repack2: 39 records, 12 MVGOs at per-channel bases (nch=4 depth=16 ilv=[0, 2]), 1188 scratch words
+seq_h_bcast2: 50 records, 5 broadcast windows B@0+64 B@0+64 B@1536+256 B@0+32 B@5+10, 8406 scratch words
+seq_u_s3: 63 records, 878 writes, 213 reads (205 with the XRF sideband), 628 scratch words, 5 tokens
+seq_h_fmask3: 26 records, 6 FENCEs, perm [2, 3, 0, 1], poll sets 7:8 9:5 14:2 18:0 21:1 23:8
+seq_h_bank3: 22 records, perm [2, 3, 0, 1], 8 MOVX / 6 MOVY windows, non-zero starts X2@1536 Y2@2048 Y2@2050 X3@1536 Y3@4095 Y3@3048 X0@5 X0@1020 X0@3071 Y0@7
+seq_h_repack3: 24 records, 7 MVGOs at per-channel bases (nch=3 depth=32 ilv=[0]), 1161 scratch words
+seq_h_bcast3: 50 records, 5 broadcast windows B@0+256 B@0+64 B@1536+256 B@0+32 B@5+4, 8406 scratch words
+seq_u_s4: 63 records, 836 writes, 245 reads (239 with the XRF sideband), 636 scratch words, 3 tokens
+seq_h_fmask4: 26 records, 6 FENCEs, perm [1, 0, 3, 2], poll sets 7:1 9:a 14:4 18:0 21:8 23:1
+seq_h_bank4: 22 records, perm [1, 0, 3, 2], 8 MOVX / 6 MOVY windows, non-zero starts X1@1536 Y1@2048 Y1@2050 X0@1536 Y0@4095 Y0@3048 X3@5 X3@1020 X3@3071 Y3@7
+seq_h_repack4: 54 records, 17 MVGOs at per-channel bases (nch=4 depth=8 ilv=[1]), 1177 scratch words
+seq_h_bcast4: 50 records, 5 broadcast windows B@0+64 B@0+64 B@1536+256 B@0+32 B@5+4, 8406 scratch words
+SR3 RTL: ../rtl/seq_unit.sv sha256 a9cd485c98d71975, ../rtl/seq_movers.sv sha256 9a0d254555049c10
+verilator --binary --timing -j 16 -Wall +define+R3_NO_XPUSH_PORTS \
+  --Mdir obj_dir_seq_unit_r3red -o tb_seq \
+  --top-module tb_seq_unit ../rtl/seq_unit.sv ../rtl/seq_movers.sv seq_fabric_model.sv seq_burst_fabric.sv seq_ddr_model.sv seq_stub_layer.sv seq_stub_mvchan.sv tb_seq_unit.sv
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_seq_unit__pch.h -o Vtb_seq_unit__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_seq_unit__pch.h -o Vtb_seq_unit__pch.h.slow.gch
+echo "" > Vtb_seq_unit__ALL.verilator_deplist.tmp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit.o Vtb_seq_unit.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit___024root__DepSet_hbc3af788__0.o Vtb_seq_unit___024root__DepSet_hbc3af788__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit___024root__DepSet_hbc3af788__1.o Vtb_seq_unit___024root__DepSet_hbc3af788__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit___024root__DepSet_hc6d95493__0.o Vtb_seq_unit___024root__DepSet_hc6d95493__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.fast -c -o Vtb_seq_unit__main.o Vtb_seq_unit__main.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit__ConstPool_0.o Vtb_seq_unit__ConstPool_0.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit___024root__Slow.o Vtb_seq_unit___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit___024root__DepSet_hbc3af788__0__Slow.o Vtb_seq_unit___024root__DepSet_hbc3af788__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit___024root__DepSet_hc6d95493__0__Slow.o Vtb_seq_unit___024root__DepSet_hc6d95493__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-overloaded-virtual -Wno-shadow -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_seq_unit__pch.h.slow -c -o Vtb_seq_unit__Syms.o Vtb_seq_unit__Syms.cpp
+Archive ar -rcs Vtb_seq_unit__ALL.a Vtb_seq_unit.o Vtb_seq_unit___024root__DepSet_hbc3af788__0.o Vtb_seq_unit___024root__DepSet_hbc3af788__1.o Vtb_seq_unit___024root__DepSet_hc6d95493__0.o Vtb_seq_unit__main.o Vtb_seq_unit__ConstPool_0.o Vtb_seq_unit___024root__Slow.o Vtb_seq_unit___024root__DepSet_hbc3af788__0__Slow.o Vtb_seq_unit___024root__DepSet_hc6d95493__0__Slow.o Vtb_seq_unit__Syms.o
+g++     verilated.o verilated_timing.o verilated_threads.o Vtb_seq_unit__ALL.a    -pthread -lpthread -latomic   -o tb_seq
+rm Vtb_seq_unit__ALL.verilator_deplist.tmp
+----- SR3VEC seq_u_s1
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 5 MOVX windows (52 XWIN beats), 5 MOVY windows (84 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_u_s1: 63 records, 3433 cycles (54.49 cyc/rec, 4.588 Mrec/s @250MHz)
+  axil writes 121
+  axil reads  36  (of which 25 were status polls)
+  fetch-empty stall cycles 46  (ddr beats 163)
+  layer cmds 11, engine runs 1/0/1/3, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 15 write bursts (800 beats), 10 read bursts (292 beats), busy_wr 1583 busy_rd 422, decerr 0 non-OK 0
+[14240000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1495595 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_u_s1 FAIL rc=134
+----- SR3VEC seq_u_s2
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 6 MOVX windows (40 XWIN beats), 6 MOVY windows (80 RES beats) at their B17.2 addresses
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_r3red/seq_u_s2: 63 records, 3739 cycles (59.35 cyc/rec, 4.212 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  42  (of which 29 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 176)
+  layer cmds 12, engine runs 5/1/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (768 beats), 12 read bursts (240 beats), busy_wr 1571 busy_rd 396, decerr 0 non-OK 0
+[15476000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1495649 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_u_s2 FAIL rc=134
+----- SR3VEC seq_u_s3
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 6 MOVX windows (32 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+  S6 OUT FIFO: ntok=5 depth=64 kept=5 rx=5 ovf=0 | pushes=5 pops=5 SIMULTANEOUS=0
+SEQ scripts_scratch/seqvec_r3red/seq_u_s3: 63 records, 3685 cycles (58.49 cyc/rec, 4.274 Mrec/s @250MHz)
+  axil writes 138
+  axil reads  42  (of which 29 were status polls)
+  fetch-empty stall cycles 64  (ddr beats 174)
+  layer cmds 12, engine runs 1/0/1/4, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (740 beats), 12 read bursts (200 beats), busy_wr 1517 busy_rd 356, decerr 0 non-OK 0
+[15260000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1495703 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_u_s3 FAIL rc=134
+----- SR3VEC seq_u_s4
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 4 MOVX windows (40 XWIN beats), 4 MOVY windows (76 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_u_s4: 63 records, 2950 cycles (46.83 cyc/rec, 5.339 Mrec/s @250MHz)
+  axil writes 104
+  axil reads  30  (of which 21 were status polls)
+  fetch-empty stall cycles 29  (ddr beats 146)
+  layer cmds 10, engine runs 0/3/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (732 beats), 8 read bursts (236 beats), busy_wr 1419 busy_rd 340, decerr 0 non-OK 0
+[12296000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1495756 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_u_s4 FAIL rc=134
+----- SR3VEC seq_e_op
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_op: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[488000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1495809 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_op FAIL rc=134
+----- SR3VEC seq_e_ind
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_ind: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[488000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1495862 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_ind FAIL rc=134
+----- SR3VEC seq_e_chan
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_chan: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[488000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1495915 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_chan FAIL rc=134
+----- SR3VEC seq_e_jmp
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_jmp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[488000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1495970 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_jmp FAIL rc=134
+----- SR3VEC seq_e_xopsgn
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_xopsgn: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[488000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496023 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_xopsgn FAIL rc=134
+----- SR3VEC seq_e_csrsp
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_csrsp: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[488000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496076 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_csrsp FAIL rc=134
+----- SR3VEC seq_e_rsvd
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_rsvd: 2 records, 46 cycles (23.00 cyc/rec, 10.870 Mrec/s @250MHz)
+  axil writes 0
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[488000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496129 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_rsvd FAIL rc=134
+----- SR3VEC seq_e_env0
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_env0: 4 records, 295 cycles (73.75 cyc/rec, 3.390 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+[1484000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496182 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_env0 FAIL rc=134
+----- SR3VEC seq_e_env97
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_env97: 4 records, 295 cycles (73.75 cyc/rec, 3.390 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+[1484000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496235 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_env97 FAIL rc=134
+----- SR3VEC seq_e_fmrsvd
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_fmrsvd: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+[1364000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496288 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_fmrsvd FAIL rc=134
+----- SR3VEC seq_e_fmimm
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_fmimm: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+[1364000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496341 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_fmimm FAIL rc=134
+----- SR3VEC seq_e_haltmask
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_haltmask: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+[1364000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496873 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_haltmask FAIL rc=134
+----- SR3VEC seq_e_mxrsvd
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_mxrsvd: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+[1364000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496934 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_mxrsvd FAIL rc=134
+----- SR3VEC seq_e_mxstart
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_mxstart: 5 records, 265 cycles (53.00 cyc/rec, 4.717 Mrec/s @250MHz)
+  axil writes 7
+  axil reads  5  (of which 5 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 5)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 1 write bursts (16 beats), 1 read bursts (64 beats), busy_wr 89 busy_rd 77, decerr 0 non-OK 0
+[1364000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1496999 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_mxstart FAIL rc=134
+----- SR3VEC seq_e_mxrange
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 2 MOVX windows (88 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_mxrange: 6 records, 631 cycles (105.17 cyc/rec, 2.377 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  6  (of which 6 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 6)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 2 write bursts (88 beats), 3 read bursts (352 beats), busy_wr 406 busy_rd 382, decerr 0 non-OK 0
+[2828000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497056 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_mxrange FAIL rc=134
+----- SR3VEC seq_e_myrange
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 1 MOVY windows (96 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_e_myrange: 7 records, 535 cycles (76.43 cyc/rec, 3.271 Mrec/s @250MHz)
+  axil writes 14
+  axil reads  6  (of which 6 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 7)
+  layer cmds 0, engine runs 2/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 2 write bursts (112 beats), 2 read bursts (160 beats), busy_wr 214 busy_rd 186, decerr 0 non-OK 0
+[2444000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497109 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_myrange FAIL rc=134
+----- SR3VEC seq_e_bcast_mvgo
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+[440000] %Fatal: tb_seq_unit.sv:967: Assertion failed in TOP.tb_seq_unit.unnamedblk3: faulting pc 0, expected 2 (err_code 5)
+%Error: tb_seq_unit.sv:967: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497162 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_bcast_mvgo FAIL rc=134
+----- SR3VEC seq_e_movx_chan5
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+[440000] %Fatal: tb_seq_unit.sv:967: Assertion failed in TOP.tb_seq_unit.unnamedblk3: faulting pc 0, expected 2 (err_code 5)
+%Error: tb_seq_unit.sv:967: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497215 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_movx_chan5 FAIL rc=134
+----- SR3VEC seq_e_bcast_range
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+[440000] %Fatal: tb_seq_unit.sv:953: Assertion failed in TOP.tb_seq_unit.unnamedblk3: err_code 5, expected 6 (STATUS 05000006)
+%Error: tb_seq_unit.sv:953: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497268 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_e_bcast_range FAIL rc=134
+----- SR3VEC seq_m_csrwr
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_m_csrwr: 2001 records, 6046 cycles (3.02 cyc/rec, 82.741 Mrec/s @250MHz)
+  axil writes 2000
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 2001)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[24644000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497321 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_m_csrwr FAIL rc=134
+----- SR3VEC seq_m_cmd
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_m_cmd: 801 records, 8821 cycles (11.01 cyc/rec, 22.702 Mrec/s @250MHz)
+  axil writes 800
+  axil reads  276  (of which 276 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 801)
+  layer cmds 200, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 0 write bursts (0 beats), 0 read bursts (0 beats), busy_wr 0 busy_rd 0, decerr 0 non-OK 0
+[35744000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497374 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_m_cmd FAIL rc=134
+----- SR3VEC seq_m_movx
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (1024 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_m_movx: 3 records, 8935 cycles (2978.33 cyc/rec, 0.084 Mrec/s @250MHz)
+  axil writes 3
+  axil reads  2  (of which 2 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 515)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 20 write bursts (5120 beats), 16 read bursts (4096 beats), busy_wr 8833 busy_rd 4169, decerr 0 non-OK 0
+[36200000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497429 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_m_movx FAIL rc=134
+----- SR3VEC seq_m_movy16
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 1 MOVY windows (2048 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_m_movy16: 4 records, 2434 cycles (608.50 cyc/rec, 0.411 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 9 write bursts (2064 beats), 9 read bursts (2112 beats), busy_wr 2194 busy_rd 2166, decerr 0 non-OK 0
+[10196000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497482 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_m_movy16 FAIL rc=134
+----- SR3VEC seq_m_movy32
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 1 MOVX windows (16 XWIN beats), 1 MOVY windows (2048 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_m_movy32: 4 records, 4486 cycles (1121.50 cyc/rec, 0.223 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  3  (of which 3 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 4)
+  layer cmds 0, engine runs 1/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 17 write bursts (4112 beats), 9 read bursts (2112 beats), busy_wr 4244 busy_rd 4120, decerr 0 non-OK 0
+[18404000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497535 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_m_movy32 FAIL rc=134
+----- SR3VEC seq_m_ldc
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_m_ldc: 2 records, 4705 cycles (2352.50 cyc/rec, 0.106 Mrec/s @250MHz)
+  axil writes 1
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 514)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (4096 beats), 0 read bursts (0 beats), busy_wr 4652 busy_rd 0, decerr 0 non-OK 0
+[19280000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497588 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_m_ldc FAIL rc=134
+----- SR3VEC seq_h_hiaddr
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 3 MOVX windows (2624 XWIN beats), 3 MOVY windows (1664 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_hiaddr: 16 records, 21949 cycles (1371.81 cyc/rec, 0.182 Mrec/s @250MHz)
+  axil writes 34
+  axil reads  7  (of which 7 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 920)
+  layer cmds 0, engine runs 1/1/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 49 write bursts (12032 beats), 48 read bursts (12160 beats), busy_wr 21284 busy_rd 12848, decerr 0 non-OK 0
+[88256000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497641 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_hiaddr FAIL rc=134
+----- SR3VEC seq_h_embrow
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 0 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 0 MOVX windows (0 XWIN beats), 0 MOVY windows (0 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_embrow: 7 records, 3736 cycles (533.71 cyc/rec, 0.468 Mrec/s @250MHz)
+  axil writes 9
+  axil reads  1  (of which 1 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 399)
+  layer cmds 0, engine runs 0/0/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 13 write bursts (3136 beats), 0 read bursts (0 beats), busy_wr 3660 busy_rd 0, decerr 0 non-OK 0
+[15404000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497694 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_embrow FAIL rc=134
+----- SR3VEC seq_h_repack1
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 5 MOVX windows (832 XWIN beats), 5 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_repack1: 18 records, 5947 cycles (330.39 cyc/rec, 0.757 Mrec/s @250MHz)
+  axil writes 46
+  axil reads  11  (of which 11 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 146)
+  layer cmds 0, engine runs 3/2/0/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 14 write bursts (1928 beats), 19 read bursts (3400 beats), busy_wr 4916 busy_rd 3566, decerr 0 non-OK 0
+[24248000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497747 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_repack1 FAIL rc=134
+----- SR3VEC seq_h_repack2
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 12 MOVX windows (1792 XWIN beats), 12 MOVY windows (164 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_repack2: 39 records, 11674 cycles (299.33 cyc/rec, 0.835 Mrec/s @250MHz)
+  axil writes 109
+  axil reads  25  (of which 25 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 167)
+  layer cmds 0, engine runs 4/4/2/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 28 write bursts (2980 beats), 42 read bursts (7332 beats), busy_wr 9283 busy_rd 7716, decerr 0 non-OK 0
+[47156000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497808 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_repack2 FAIL rc=134
+----- SR3VEC seq_h_repack3
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 7 MOVX windows (1216 XWIN beats), 7 MOVY windows (137 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_repack3: 24 records, 8062 cycles (335.92 cyc/rec, 0.744 Mrec/s @250MHz)
+  axil writes 64
+  axil reads  15  (of which 15 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 152)
+  layer cmds 0, engine runs 3/2/2/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 18 write bursts (2377 beats), 26 read bursts (5001 beats), busy_wr 6643 busy_rd 5231, decerr 0 non-OK 0
+[32708000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497861 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_repack3 FAIL rc=134
+----- SR3VEC seq_h_repack4
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 1 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 17 MOVX windows (2688 XWIN beats), 17 MOVY windows (153 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_repack4: 54 records, 16537 cycles (306.24 cyc/rec, 0.816 Mrec/s @250MHz)
+  axil writes 154
+  axil reads  35  (of which 35 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 182)
+  layer cmds 0, engine runs 5/4/4/4, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 38 write bursts (3865 beats), 61 read bursts (10905 beats), busy_wr 13177 busy_rd 11455, decerr 0 non-OK 0
+[66608000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497914 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_repack4 FAIL rc=134
+----- SR3VEC seq_h_fmask
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 6 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 6 MOVX windows (96 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_fmask: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 1/2/2/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+[12236000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1497967 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_fmask FAIL rc=134
+----- SR3VEC seq_h_fmask2
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 6 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 6 MOVX windows (96 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_fmask2: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 1/2/2/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+[12236000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498020 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_fmask2 FAIL rc=134
+----- SR3VEC seq_h_fmask3
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 6 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 6 MOVX windows (96 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_fmask3: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 2/1/1/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+[12236000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498079 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_fmask3 FAIL rc=134
+----- SR3VEC seq_h_fmask4
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 6 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 6 MOVX windows (96 XWIN beats), 6 MOVY windows (72 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_fmask4: 26 records, 2944 cycles (113.23 cyc/rec, 2.208 Mrec/s @250MHz)
+  axil writes 55
+  axil reads  17  (of which 17 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 154)
+  layer cmds 0, engine runs 2/1/1/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 16 write bursts (1192 beats), 12 read bursts (456 beats), busy_wr 1998 busy_rd 612, decerr 0 non-OK 0
+[12236000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498310 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_fmask4 FAIL rc=134
+----- SR3VEC seq_h_bank
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 2 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 8 MOVX windows (1775 XWIN beats), 6 MOVY windows (1103 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_bank: 22 records, 16735 cycles (760.68 cyc/rec, 0.329 Mrec/s @250MHz)
+  axil writes 49
+  axil reads  13  (of which 13 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 790)
+  layer cmds 0, engine runs 2/1/1/0, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 48 write bursts (9046 beats), 41 read bursts (8200 beats), busy_wr 15682 busy_rd 8490, decerr 0 non-OK 0
+[67400000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498365 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_bank FAIL rc=134
+----- SR3VEC seq_h_bank2
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 2 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 8 MOVX windows (1775 XWIN beats), 6 MOVY windows (1103 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_bank2: 22 records, 16735 cycles (760.68 cyc/rec, 0.329 Mrec/s @250MHz)
+  axil writes 49
+  axil reads  13  (of which 13 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 790)
+  layer cmds 0, engine runs 0/1/1/2, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 48 write bursts (9046 beats), 41 read bursts (8200 beats), busy_wr 15682 busy_rd 8490, decerr 0 non-OK 0
+[67400000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498481 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_bank2 FAIL rc=134
+----- SR3VEC seq_h_bank3
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 2 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 8 MOVX windows (1775 XWIN beats), 6 MOVY windows (1103 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_bank3: 22 records, 16735 cycles (760.68 cyc/rec, 0.329 Mrec/s @250MHz)
+  axil writes 49
+  axil reads  13  (of which 13 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 790)
+  layer cmds 0, engine runs 1/0/2/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 48 write bursts (9046 beats), 41 read bursts (8200 beats), busy_wr 15682 busy_rd 8490, decerr 0 non-OK 0
+[67400000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498534 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_bank3 FAIL rc=134
+----- SR3VEC seq_h_bank4
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+TB_SEQ_FMASK PASS: 2 fences
+TB_SEQ_XPUSH PASS: 0 broadcast windows, 0 pushes x 4 channels in lockstep at their B17.3 words
+TB_SEQ_XWA PASS: 8 MOVX windows (1775 XWIN beats), 6 MOVY windows (1103 RES beats) at their B17.2 addresses
+SEQ scripts_scratch/seqvec_r3red/seq_h_bank4: 22 records, 16735 cycles (760.68 cyc/rec, 0.329 Mrec/s @250MHz)
+  axil writes 49
+  axil reads  13  (of which 13 were status polls)
+  fetch-empty stall cycles 11  (ddr beats 790)
+  layer cmds 0, engine runs 1/2/0/1, LAT=4 BLAT=4 DDRLAT=32 SIDEBAND=0
+  burst: 48 write bursts (9046 beats), 41 read bursts (8200 beats), busy_wr 15682 busy_rd 8490, decerr 0 non-OK 0
+[67400000] %Fatal: tb_seq_unit.sv:1141: Assertion failed in TOP.tb_seq_unit.unnamedblk3: SEQ_CAPS fab1ca03, expected fab1ca07 (hwmap seq_caps_word)
+%Error: tb_seq_unit.sv:1141: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498595 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_bank4 FAIL rc=134
+----- SR3VEC seq_h_bcast
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+[37688000] %Fatal: tb_seq_unit.sv:953: Assertion failed in TOP.tb_seq_unit.unnamedblk3: err_code 5, expected 0 (STATUS 05000006)
+%Error: tb_seq_unit.sv:953: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498660 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_bcast FAIL rc=134
+----- SR3VEC seq_h_bcast2
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+[37688000] %Fatal: tb_seq_unit.sv:953: Assertion failed in TOP.tb_seq_unit.unnamedblk3: err_code 5, expected 0 (STATUS 05000006)
+%Error: tb_seq_unit.sv:953: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498856 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_bcast2 FAIL rc=134
+----- SR3VEC seq_h_bcast3
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+[37688000] %Fatal: tb_seq_unit.sv:953: Assertion failed in TOP.tb_seq_unit.unnamedblk3: err_code 5, expected 0 (STATUS 05000006)
+%Error: tb_seq_unit.sv:953: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498916 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_bcast3 FAIL rc=134
+----- SR3VEC seq_h_bcast4
+SEQ_CAPS MISMATCH: SEQ 0x64 reads fab1ca03, hwmap caps.hex fab1ca07
+[37688000] %Fatal: tb_seq_unit.sv:953: Assertion failed in TOP.tb_seq_unit.unnamedblk3: err_code 5, expected 0 (STATUS 05000006)
+%Error: tb_seq_unit.sv:953: Verilog $stop
+Aborting...
+evidence/qwen9b/sr/sr3_tb_each.sh: line 27: 1498969 Aborted                 (core dumped) "$OBJ/tb_seq" +vec="$VEC/$1" 2>&1
+SR3VEC seq_h_bcast4 FAIL rc=134
+SR3 SUMMARY: 0 PASS, 47 FAIL: seq_u_s1 seq_u_s2 seq_u_s3 seq_u_s4 seq_e_op seq_e_ind seq_e_chan seq_e_jmp seq_e_xopsgn seq_e_csrsp seq_e_rsvd seq_e_env0 seq_e_env97 seq_e_fmrsvd seq_e_fmimm seq_e_haltmask seq_e_mxrsvd seq_e_mxstart seq_e_mxrange seq_e_myrange seq_e_bcast_mvgo seq_e_movx_chan5 seq_e_bcast_range seq_m_csrwr seq_m_cmd seq_m_movx seq_m_movy16 seq_m_movy32 seq_m_ldc seq_h_hiaddr seq_h_embrow seq_h_repack1 seq_h_repack2 seq_h_repack3 seq_h_repack4 seq_h_fmask seq_h_fmask2 seq_h_fmask3 seq_h_fmask4 seq_h_bank seq_h_bank2 seq_h_bank3 seq_h_bank4 seq_h_bcast seq_h_bcast2 seq_h_bcast3 seq_h_bcast4
+=== rc  : 0
+=== end : 2026-09-29T20:32:39-06:00

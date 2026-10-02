@@ -1,0 +1,33 @@
+=== host: snoke  date: 2026-10-01T14:18:59-06:00
+=== tree: 0a0b156
+=== cmd : /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11a_fix3_host_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+SR11a fix 3 host TDD — FABLE5_MODEL=9b
+=== seq_run on mock SEQ windows
+    (A) 9B at build_042_bm1: outcome 'tripped upload'; events ['dev', 'seq_caps_read', 'seq_caps_read', 'upload']
+      |   weight plan: 3 images match the stream's MVGO plan; 12 MVGO WBASEs row-aligned inside them
+      | --- upload
+      | tripped upload
+  [A] PASS build_042_bm1 (9b588e78) named: a 9B artifact LOADS through the identity + SHAPE-layout path  -- tripped upload
+    (C) 9B-declared at build_035: outcome 'exit "REFUSING before any DMA: /tmp/sr11af3_fx_aclhnqql/d9/rp.e at capabilities {}: /tmp/sr11af3_fx_aclhnqql/d9/rp.e.seq.json declares SHAPE isa=2 but it is bei'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      |   SHAPE layout     isa=1  (the device's VERSION 0x54443b9f)
+      | exit "REFUSING before any DMA: /tmp/sr11af3_fx_aclhnqql/d9/rp.e at capabilities {}: /tmp/sr11af3_fx_aclhnqql/d9/rp.e.seq.json declares SHAPE isa=2 but it is being validated at isa=1 (the device's / --
+  [C] PASS a 9B artifact (declared shape_isa 2) at build_035 (isa=1) is REFUSED before any DMA, naming both layouts  -- exit "REFUSING before any DMA: /tmp/sr11af3_fx_aclhnqql/d9/rp.e at capabilities {}: /tmp/sr11af3_fx_aclhnqql/d9/rp.e.seq.json declares SHAPE isa=2 but it is being validated at isa=1 (the device's / --shape-isa layout): w
+    (C) isa1-declared at build_041: outcome 'exit "REFUSING before any DMA: /tmp/sr11af3_fx_aclhnqql/d1/rp.e at capabilities {}: /tmp/sr11af3_fx_aclhnqql/d1/rp.e.seq.json declares SHAPE isa=1 but it is bei'; events ['dev', 'seq_caps_read', 'seq_caps_read']
+      |   capabilities     {}  (the device's SEQ_CAPS 0xdeadc0de)
+      |   SHAPE layout     isa=2  (the device's VERSION 0xc973c18a)
+      | exit "REFUSING before any DMA: /tmp/sr11af3_fx_aclhnqql/d1/rp.e at capabilities {}: /tmp/sr11af3_fx_aclhnqql/d1/rp.e.seq.json declares SHAPE isa=1 but it is being validated at isa=2 (the device's / --
+  [C] PASS an isa=1-declared artifact at build_041 (isa=2) is REFUSED  -- exit "REFUSING before any DMA: /tmp/sr11af3_fx_aclhnqql/d1/rp.e at capabilities {}: /tmp/sr11af3_fx_aclhnqql/d1/rp.e.seq.json declares SHAPE isa=1 but it is being validated at isa=2 (the device's / --shape-isa layout): w
+  [C] PASS a 9B artifact at build_041 LOADS  -- tripped upload
+  [C] PASS a 9B artifact at build_044_r1_incr LOADS  -- tripped upload
+  [C] PASS the W8 artifact with NO shape_isa key LOADS at build_035 (round 2's (a))  -- tripped upload
+=== chat_seq open_board re-key at build_042_bm1 (stub session)
+  [B] PASS chat_seq open_board ADMITS build_042_bm1: the device's layout isa=2 reaches admit_caps  -- ok {'caps': frozenset(), 'shape': 2}
+=== the two version tables agree
+  [D] PASS every SEQ_VERSIONS key has a hwmap.SHAPE_ISA_BY_VERSION row with the same layout  -- all agree
+per case: (A) 1/1  (C) 5/5  (B) 1/1  (D) 1/1
+SR11A_FIX3_HOST_TDD: 8 passed, 0 failed (1 s) -> PASS
+=== rc  : 0
+=== end : 2026-10-01T14:19:00-06:00

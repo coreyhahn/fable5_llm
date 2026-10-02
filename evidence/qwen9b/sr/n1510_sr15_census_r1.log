@@ -1,0 +1,40 @@
+=== host: snoke  date: 2026-09-29T06:10:20-06:00
+=== tree: 37235f7+dirty
+=== dirty: ?? evidence/qwen9b/sr/n1509_sr15_census_r2.json
+=== cmd : env FABLE5_MODEL=9b FABLE5_SEQ_EXPECT_VERSION=266e3ae7 /home/cah/.venv/bin/python evidence/qwen9b/sr/sr8_census.py --stream --prefix tb/scripts/w9/model_9b_s1_reordB_r1.e4 --base tb/scripts/w9/model_9b_s1 --fresh-state --json evidence/qwen9b/sr/n1510_sr15_census_r1.json
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+  identity gate: expecting VERSION 0x266e3ae7 (build_045_r2_incr (R2 XWIN/RES banks + R1 + BM1 counters; admitted only when named)), NOT the shipped 0xc973c18a -- named by --expect-version or FABLE5_SEQ_EXPECT_VERSION
+--- board: MAGIC=0xfab1e001 VERSION=0x266e3ae7 CALIB=0xf  SEQ=READY
+--- validated at the device's caps ['R1', 'R2'] (SEQ_CAPS 0xfab1ca03), SHAPE isa=2; stream sha256 4e11a2ae6872970e
+--- tb/scripts/w9/model_9b_s1_reordB_r1.e4: 160724 records, 6 tokens
+  weights   SKIPPED (--skip-weights: assumed resident)
+  seqdata   563712 B -> 0xc000000  [readback OK]
+  stream    2571584 B (160724 records) -> 0x9000000  [readback OK]
+  state     CSRs only (--skip-weights): SB_* <- 0x38000/0x38180/0x38980
+  stream/blob re-uploaded and verified (3.0 MiB)
+--- fresh state: 155 MiB -> 0x380000000 (chan 3), sha256 3a716409081f0c54
+--- lanes cleared: 0 0
+  EMBLOG2    13 (8192 B embedding rows)
+  state CSR SB_DN=0x38000 SB_KV=0x38180 SB_CV=0x38980  [readback OK]
+--- run: err_code=0x00 tokens [2614, 314, 279, 369, 11751, 13]
+  S_PERF_CYC 171582790 = 686.331 ms = 114.3885 ms/token
+  L_LCYC 62685131 (36.53 %)  L_SDMA_CYC 8195758 (4.78 %)
+  mvany          96840843  (56.44 %)
+  mv0            86651657  (50.50 %)
+  mv1            85933592  (50.08 %)
+  mv2            85834651  (50.03 %)
+  mv3            86485163  (50.40 %)
+  fence          60253362  (35.12 %)
+  mvwork         37588133  (21.91 %)
+  mvwork_any     15244280  (8.88 %)
+  imover         97897007  (57.06 %)
+  steps          6  (0.00 %)
+  movx           19527452  (11.38 %)
+  movy           17342438  (10.11 %)
+  loop edge 0: pc->120552 cyc 114367339
+  loop edge 1: pc->120552 cyc 142973436 delta 28606097 = 114.424 ms
+  TOKENS IDENTICAL to the .seq.json
+SR8_CENSUS_STREAM: PASS
+=== rc  : 0
+=== end : 2026-09-29T06:10:24-06:00

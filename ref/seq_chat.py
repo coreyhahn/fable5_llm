@@ -88,7 +88,7 @@ so the pool is 6 copies of concat(cos_q15, sin_q15) per position
 
 *** RANGE CONFLICT (raised to the integrator, see the module notes) ***
 XRF entries are 18 bits and XRF[4] is read SIGN-EXTENDED
-(rtl/seq_unit.sv:240 xrf_rd), so XRF[4] <= 131,071 and the XRF[4]
+(rtl/seq_unit.sv:250 xrf_rd), so XRF[4] <= 131,071 and the XRF[4]
 mechanism can only reach pos <= 85 (85*1536 = 130,560).  seq_unit
 truncates a larger CSRWR silently (seq_unit.sv:841, no xrf_ovf) and
 ref/seq_model.py does NOT model the sign extension, so the model would
@@ -147,14 +147,35 @@ NREC_BODY_FULL = R_BODY_FULL[1] - R_BODY_FULL[0]        # 14740
 NREC_BODY_LITE = R_BODY_LITE[1] - R_BODY_LITE[0]        # 14006
 LITE_SUFFIX_RECS = NREC_BODY_FULL - NREC_BODY_LITE      # 734 (LM head+AMAXL)
 
-# constant blob geometry
+# constant blob geometry.
+# CONST_BYTES stays PINNED: it is the byte length of the committed 0.8B const
+# region, gated by TEMPLATE_SHA256, not a geometry expression.
+#
+# G2a: the other three ARE geometry and are derived.  POS_COPIES is the count
+# of position-indexed LDC records in one body, which is one per FULL-ATTENTION
+# layer — 6 at 0.8B/2B, 8 at 4B/9B — and POS_WORDS is one cos|sin table,
+# 2*ROT int16.  Both evaluate to the frozen 6 / 128 at 0.8B and 2B, so no
+# emitted byte and no committed offset moves; `sw/chat_seq.py:181-182` carries
+# the host twin of the same two numbers.  `layer_fixed` already imports
+# `layer_ref`, so this adds no new dependency.
 CONST_BYTES = 998144                     # committed const region, unchanged
 POS_BLOB_BASE = SF.SEQ_DATA_BASE + CONST_BYTES          # 0x800F3B00
-POS_COPIES = 6                           # LDCs per body -> 6 copies/position
-POS_WORDS = 128                          # int16 per copy (cos64 | sin64)
+POS_COPIES = sum(1 for _t in (LF.LR.CFG.get("layer_types") or [])
+                 if _t == "full_attention")   # LDCs per body = GQA layers
+POS_WORDS = 2 * LF.LR.ROT                # int16 per copy (cos ROT | sin ROT)
 POS_COPY_BYTES = POS_WORDS * 2           # 256
-POS_STRIDE = POS_COPIES * POS_COPY_BYTES  # 1536 B per position
-T_MAX = 512                              # KV depth (rtl/layer_chan.sv t[8:0])
+POS_STRIDE = POS_COPIES * POS_COPY_BYTES  # 1536 B per position at 0.8B/2B
+# T_MAX -- the deepest position this compiler will build a pool for, PER
+# MODEL SELECTION (Task 15 fix round 3, review I-2).  4,096 is the S2/S3
+# state-spill netlist's ceiling: its KV cache is `{kv, t[11:0]}` (spec A1.5,
+# `docs/SEQ_ISA.md` B15) and `sw/hwmap.STATE_T_MAX` says 4096.  The FROZEN
+# 0.8B/2B path is NOT on that netlist -- build_034/035 still address KV with
+# `rtl/layer_chan.sv kv_waddr = tcnt[8:0]` -- so it keeps 512, its 786,432 B
+# position pool and every data_base-relative image address it had at 4662b06.
+# Fix round 2 raised it for ALL selections, growing that frozen pool 8x and
+# moving a placement no board can validate; 4b has no netlist either way.
+import model_select as _MS                                     # noqa: E402
+T_MAX = 4096 if _MS.TAG == "9b" else 512   # 512 = kv_waddr = tcnt[8:0]
 
 # XRF[4] is a SIGNED 18-bit register (seq_unit.sv xrf_rd) -> the largest
 # position the XRF[4] cursor can address.
@@ -331,10 +352,11 @@ class Templates(object):
     silently wrong stream.
     """
 
-    def __init__(self, prefix=DEFAULT_PREFIX, verify_sha=True):
+    def __init__(self, prefix=DEFAULT_PREFIX, verify_sha=True, shape_isa=None):
         self.prefix = prefix
         self.stream = open(prefix + ".seq", "rb").read()
         self.meta = json.load(open(prefix + ".seq.json"))
+        self._stated_isa = shape_isa
         self.seqdata_path = prefix + ".seqdata.bin"
         self.stream_sha = hashlib.sha256(self.stream).hexdigest()
         if verify_sha and self.stream_sha != TEMPLATE_SHA256:
@@ -345,6 +367,30 @@ class Templates(object):
                 f"docs/CHAT_SEQ_SPEC.md's record indices")
         if self.stream_sha != self.meta["stream_sha256"]:
             raise ChatSeqError(f"{prefix}.seq does not match its own .seq.json")
+        # G3.4 fix round 2: the SHAPE LAYOUT of the artifact these
+        # templates are sliced out of.  It is a property of the ARTIFACT,
+        # not of any call site: this class splices records verbatim out of
+        # a gated `.e.seq`, so the MVGO SHAPE words in them are whatever
+        # that artifact was emitted for.  Today's gated template is a
+        # frozen build_034/build_035 stream whose `ng` lives in bits [5:0]
+        # (isa=1), so the key is absent and the envelope check stays OFF --
+        # which is correct, and which the board-free gate proved by
+        # failing when a first cut hard-coded isa=2 here.  A 9B artifact
+        # whose meta declares `shape_isa` turns the check on with no edit.
+        self.shape_isa = self.meta.get("shape_isa")
+        # SR11a fix round 2 (docs/SEQ_ISA.md v2.3 B17.2): since SR11a an
+        # UNSTATED layout refuses MVGO SHAPE bits 29/30 (bit 29 is w8 on
+        # build_034/035, XBANK on build_041+), so a frozen isa=1 W8 artifact
+        # — whose meta carries no key — validates only when the caller
+        # STATES its layout (chat_seq --shape-isa; the device's on a board).
+        # A stated layout that contradicts the artifact's own key is refused.
+        if self._stated_isa is not None:
+            if self.shape_isa is not None \
+                    and int(self.shape_isa) != int(self._stated_isa):
+                raise ChatSeqError(
+                    f"{prefix}.seq.json declares shape_isa {self.shape_isa} "
+                    f"but the caller stated {self._stated_isa}")
+            self.shape_isa = int(self._stated_isa)
         self.recs = SF.unpack_stream(self.stream)
         if len(self.recs) != TEMPLATE_NREC:
             raise ChatSeqError(f"{prefix}.seq has {len(self.recs)} records, "
@@ -492,13 +538,14 @@ class TurnCompiler(object):
     """
 
     def __init__(self, prefix=DEFAULT_PREFIX, t_max=T_MAX, pos_mode="xrf",
-                 verify_sha=True):
+                 verify_sha=True, shape_isa=None):
         if pos_mode not in ("xrf", "ldc"):
             raise ChatSeqError(f"pos_mode {pos_mode!r} not in ('xrf','ldc')")
         if not (1 <= int(t_max) <= T_MAX):
             raise ChatSeqError(f"t_max {t_max} outside 1..{T_MAX} "
                                f"(KV depth, rtl/layer_chan.sv kv_waddr t[8:0])")
-        self.T = Templates(prefix, verify_sha=verify_sha)
+        # shape_isa: SR11a fix round 2 — see Templates.shape_isa
+        self.T = Templates(prefix, verify_sha=verify_sha, shape_isa=shape_isa)
         self.t_max = int(t_max)
         self.pos_mode = pos_mode
         self._blob = None
@@ -654,13 +701,17 @@ class TurnCompiler(object):
         Run this ONCE per session (fresh context).  It resets conv windows,
         DeltaNet state, the KV/TCNT banks and L_LAYER.  Everything it
         establishes survives later launches: START clears only pc / err /
-        abort / perf (rtl/seq_unit.sv:796-805), not the layer banks.
+        abort / perf (rtl/seq_unit.sv:885-897), not the layer banks.
         """
         parts = [self.T.preamble, self._tcnt_rec(1), self.T.halt]
         data = b"".join(parts)
         holes = {"tcnt": NREC_PREAMBLE * REC + 4}
         recs = SF.unpack_stream(data)
-        SF.validate_stream(recs)
+        # G3.4 fix round 2: state the SHAPE layout the TEMPLATE declares,
+        # so the MVGO envelope in ref/seq_format.validate applies to a v2.0
+        # stream (where rtl/seq_unit.sv checks it unconditionally) and not
+        # to a frozen isa=1 one.  See Templates.shape_isa.
+        SF.validate_stream(recs, shape_isa=self.T.shape_isa)
         return Image("session", "session", data, holes, steps=0,
                      pos_mode=self.pos_mode, blob_span=_blob_span(recs),
                      counts=_census(recs))
@@ -694,7 +745,11 @@ class TurnCompiler(object):
         pos_ldc = ([o for (o, _b) in self._pos_ldc_writes(PATCH_BYTES, pos)]
                    if self.pos_mode == "ldc" else ())
         recs = SF.unpack_stream(data)
-        SF.validate_stream(recs)
+        # G3.4 fix round 2: state the SHAPE layout the TEMPLATE declares,
+        # so the MVGO envelope in ref/seq_format.validate applies to a v2.0
+        # stream (where rtl/seq_unit.sv checks it unconditionally) and not
+        # to a frozen isa=1 one.  See Templates.shape_isa.
+        SF.validate_stream(recs, shape_isa=self.T.shape_isa)
         return Image(f"step.{kind}", "step", data, holes, steps=1,
                      pos_mode=self.pos_mode, patch_off=0,
                      patch_len=PATCH_BYTES, pos_ldc=pos_ldc,
@@ -800,7 +855,11 @@ class TurnCompiler(object):
                 emit(self.T.halt)
                 data = b"".join(parts)
                 recs = SF.unpack_stream(data)
-                SF.validate_stream(recs)
+                # G3.4 fix round 2: state the SHAPE layout the TEMPLATE declares,
+                # so the MVGO envelope in ref/seq_format.validate applies to a v2.0
+                # stream (where rtl/seq_unit.sv checks it unconditionally) and not
+                # to a frozen isa=1 one.  See Templates.shape_isa.
+                SF.validate_stream(recs, shape_isa=self.T.shape_isa)
                 # NB: a RECORD index (what the JMP hole must be set to), not
                 # a byte offset like every other entry in `holes`.
                 holes["loop_head_rec"] = loop_head
@@ -817,7 +876,11 @@ class TurnCompiler(object):
         emit(self.T.halt)
         data = b"".join(parts)
         recs = SF.unpack_stream(data)
-        SF.validate_stream(recs)
+        # G3.4 fix round 2: state the SHAPE layout the TEMPLATE declares,
+        # so the MVGO envelope in ref/seq_format.validate applies to a v2.0
+        # stream (where rtl/seq_unit.sv checks it unconditionally) and not
+        # to a frozen isa=1 one.  See Templates.shape_isa.
+        SF.validate_stream(recs, shape_isa=self.T.shape_isa)
         return Image("turn.flat", "turn", data, holes, steps=P + ntok - 1,
                      pos_mode=self.pos_mode, blob_span=_blob_span(recs),
                      counts=_census(recs))
@@ -886,7 +949,7 @@ class TurnCompiler(object):
 # ======================================================================
 # stream surgery used by the split-vs-mono gate
 # ======================================================================
-def split_stream(stream, cuts, restore=()):
+def split_stream(stream, cuts, restore=(), shape_isa=None):
     """Cut a record stream into launchable images at record indices `cuts`.
 
     Every piece gets a HALT appended and its JMP targets rebased; `restore`
@@ -917,7 +980,13 @@ def split_stream(stream, cuts, restore=()):
         if not piece or piece[-1].opcode != SF.OP_HALT:
             piece.append(SF.Rec(SF.OP_HALT))
         recs_out = pre + piece
-        SF.validate_stream(recs_out)
+        # G3.4 fix round 2: the SHAPE layout is the CALLER's knowledge
+        # here -- this function is handed a stream, not a template -- so it
+        # is a keyword, defaulting to "not stated" exactly as
+        # ref/seq_format.validate does.  A caller splitting a v2.0 stream
+        # passes SF.SHAPE_ISA_9B and gets the MVGO envelope; a caller
+        # splitting a frozen isa=1 one passes nothing.
+        SF.validate_stream(recs_out, shape_isa=shape_isa)
         out.append(SF.pack_stream(recs_out))
     return out
 
@@ -925,16 +994,128 @@ def split_stream(stream, cuts, restore=()):
 # ======================================================================
 # gates
 # ======================================================================
+EMB_SUFFIX = ".emb.bin"
+
+
+def emb_base_of(emb_path):
+    """Artifact prefix of an `<prefix>.emb.bin` path.
+
+    Deliberately strict.  An earlier revision of this fix wrote
+
+        base = ... if emb_path.endswith(EMB_SUFFIX) else None
+
+    and `base=None` then SKIPPED the manifest and fell back to the selected
+    model's geometry with nothing cross-checking it — defect A reproduced
+    inside the fix.  There is no such bypass now: the generator only ever
+    writes `<prefix>.emb.bin` (`ref/gen_model_script.py:628`), so any other
+    name is a caller error, not a licence to guess.
+    """
+    if not str(emb_path).endswith(EMB_SUFFIX):
+        raise ChatSeqError(
+            f"{emb_path}: an embedding table must be named "
+            f"<prefix>{EMB_SUFFIX} so its `<prefix>.weights.json` can be "
+            f"found — this reader will not guess a row stride")
+    return str(emb_path)[:-len(EMB_SUFFIX)]
+
+
+def emb_row_bytes(base):
+    """Byte stride of one `<base>.emb.bin` row = 2*H, for THIS artifact.
+
+    It is 2048 B at H=1024 (0.8B) and 4096 B at H=2048 (2B), so it is not a
+    constant and must never be spelled as one.  It comes from
+    `<base>.weights.json`'s `emb_row_bytes` key, which the generator writes
+    beside the table (`ref/gen_layer_script.dump_weights`,
+    `ref/gen_model_script.py:627`), read through the one reader,
+    `sw/hwmap.load_weights_manifest` — and it is REQUIRED, exactly as
+    `ref/seq_model.gate()` requires it at :785.  A pre-R-b manifest with no
+    such key answers `sw/hwmap.EMB_ROW_BYTES_DEFAULT`, which G3.4 moved from
+    2048 to 8192 with the RTL reset it mirrors (spec 5.3 S8) — so the
+    default is now the 9B row, and a pre-R-b artifact needs its manifest
+    regenerated, which SEQ_ISA v2.0 requires of it anyway.
+
+    The manifest and the selected model must then agree: an artifact
+    generated for one geometry and read under `FABLE5_MODEL` for the other is
+    exactly the mix-up this function exists to make loud.
+
+    TWO CAVEATS, both recorded rather than handled:
+    * `ref/seq_model.py:1297-1303` is a SECOND, independent reader of the same
+      key.  It is correct today and manifest-driven like this one; they are
+      not shared code, so a change to the artifact contract has to land in
+      both.
+    * If a future generator ever PADS the row to the next power of two — the
+      4B `2560 -> 8192 B` option of the feasibility study's D4 — this
+      equality is the wrong test AND `load_emb`'s `(vocab, H)` contract
+      breaks: `layer_fixed_greedy`'s `x = np.asarray(M.emb[tok], ...)` takes
+      the row WHOLE (unlike
+      `M.embed`, which slices `n=LR.H`), so a padded row would carry its pad
+      into the residual.  Padding must arrive as an explicit manifest key,
+      with a slice here, not as a silent widening.
+    """
+    import layer_ref as LR
+    import model_select as MS
+    import hwmap as HW
+    man = base + ".weights.json"
+    if not os.path.exists(man):
+        raise ChatSeqError(
+            f"{man} not found: the embedding row stride travels WITH the "
+            f"artifact and this reader will not fall back to a guess "
+            f"(ref/seq_model.py:1301 requires the same file)")
+    want = 2 * LR.H
+    rb = int(HW.load_weights_manifest(base)[1]["emb_row_bytes"])
+    if rb != want:
+        raise ChatSeqError(
+            f"{man} says emb_row_bytes={rb} but the selected model "
+            f"(FABLE5_MODEL={MS.TAG}) has H={LR.H} -> {want} B rows: "
+            f"wrong artifact for this geometry")
+    return rb
+
+
+def load_emb(base, emb_path=None, expect_vocab=None):
+    """(emb memmap (vocab,H) int16, vocab) for an artifact's embedding table.
+
+    THE reader for `<base>.emb.bin` on this module's offline paths.  The row
+    stride comes from `emb_row_bytes()` and the row COUNT is then checked
+    against the selected config's `vocab_size` (`expect_vocab` overrides it,
+    for synthetic tables in the selftest).  Both checks are load-bearing:
+
+    * hard-coding the stride as `size // 2048` + `.reshape(n, 1024)` is NOT
+      caught by the reshape.  At the real vocabulary (248,320 = 2^11 x 121.25,
+      so V*H is a multiple of 1024 for every even H) it is legal at EVERY
+      geometry this project has — 0.8B, 2B, 4B and 9B alike — and simply
+      returns a table with 1x/2x/2.5x/4x the rows, each one a 1024-word slice
+      of some other token's row (docs/QWEN35_NEXT_FEASIBILITY.md §2.10 /
+      §7.2 defect A, whose "2.5x/4x too large" is the arithmetic above).
+    * the row count is what catches a table with NO manifest, or one whose
+      manifest agrees with the geometry by luck: a 0.8B table read at 2B is a
+      whole number of 4096 B rows, just 124,160 of them instead of 248,320.
+    """
+    import layer_ref as LR
+    if emb_path is None:
+        emb_path = base + EMB_SUFFIX
+    rb = emb_row_bytes(base)
+    nby = os.path.getsize(emb_path)
+    if nby % rb:
+        raise ChatSeqError(f"{emb_path}: {nby} B is not a whole number of "
+                           f"{rb} B embedding rows")
+    vocab = nby // rb
+    want_v = int(LR.CFG["vocab_size"] if expect_vocab is None
+                 else expect_vocab)
+    if vocab != want_v:
+        raise ChatSeqError(
+            f"{emb_path}: {nby} B / {rb} B = {vocab} rows, but this model's "
+            f"vocab_size is {want_v} — wrong table for this geometry")
+    emb = np.memmap(emb_path, dtype="<i2", mode="r").reshape(vocab, rb // 2)
+    return emb, vocab
+
+
 def _artifacts(prefix=DEFAULT_PREFIX, base=DEFAULT_BASE):
     """(meta, committed recs, committed blob, emb memmap, DDRWeights)."""
     import seq_model as SM
     meta = json.load(open(prefix + ".seq.json"))
     recs = SF.unpack_stream(open(prefix + ".seq", "rb").read())
     blob = open(prefix + ".seqdata.bin", "rb").read()
-    embf = base + ".emb.bin"
-    n = os.path.getsize(embf) // 2048
-    emb = np.memmap(embf, dtype="<i2", mode="r").reshape(n, 1024)
-    W = SM.DDRWeights.from_files(base, meta["weights"])
+    emb, _vocab = load_emb(base)
+    W = SM.DDRWeights.from_files(base, meta["weights"], meta)
     return meta, recs, blob, emb, W
 
 
@@ -1193,23 +1374,31 @@ def layer_fixed_greedy(prompt_ids, ntok, res_scale=8, w4_group=None,
         layers = []
         for i, (lt, dn_slot, kv_slot) in enumerate(slots):
             wf = md["layers"][i]
-            qw = LF.quant_layer(wf, res_scale=res_scale, g=w4_group)
+            qw = LF.quant_layer(wf, res_scale=res_scale, g=w4_group,
+                                layer_idx=i)          # calibration lookup key
             md["layers"][i] = None
             layers.append((lt, qw, dn_slot, kv_slot))
         ln_f_q12 = np.round((1.0 + np.asarray(md["ln_f"], dtype=np.float64))
                             * (1 << 12)).astype(GLS.I64)
-        qw_head = GMS.quant_linear_big(md["emb"], g=w4_group)
-        md["emb"] = None
+        # G2c: the LM head is `md["head"]`, NOT `md["emb"]`.  Where
+        # `tie_word_embeddings` is true (0.8B / 2B / 4B) `load_model` hands
+        # back an independent COPY of the embedding table, so this is
+        # byte-identical to what this line did before; at 9B it is the
+        # checkpoint's own `lm_head.weight` and `md["emb"]` would have been
+        # the wrong matrix.  This path never reads the embedding TABLE — the
+        # int16 rows come from the .emb.bin artifact via `load_emb` below —
+        # so both are released here.
+        qw_head = GMS.quant_linear_big(md["head"], g=w4_group,
+                                       salience=LF.calib_salience("lm_head"),
+                                       hess=LF.calib_hess("lm_head"))
+        md["emb"] = md["head"] = None
         log(f"    quantized {len(layers)} layers + LM head "
             f"{qw_head['w4'].shape} ({time.time() - t0:.0f}s)")
         _cache[key] = (layers, ln_f_q12, qw_head, len(slots))
     layers, ln_f_q12, qw_head, _n = _cache[key]
 
-    if emb_path is None:
-        emb_path = DEFAULT_BASE + ".emb.bin"
-    nrow = os.path.getsize(emb_path) // 2048
-    emb_q = np.memmap(emb_path, dtype="<i2", mode="r").reshape(nrow, 1024)
-    vocab = nrow
+    base = DEFAULT_BASE if emb_path is None else emb_base_of(emb_path)
+    emb_q, vocab = load_emb(base, emb_path)
 
     LF.bf_reset()
     saved = os.environ.pop("SEQ_EMIT", None)          # model only, never emit
@@ -1221,21 +1410,17 @@ def layer_fixed_greedy(prompt_ids, ntok, res_scale=8, w4_group=None,
     M.emb = emb_q
     caches = [LF.new_cache_fx(lt) for (lt, _q, _d, _k) in layers]
 
-    # the generator's STATIC PREAMBLE: prime every layer's banked state
-    # (conv weights/window, DeltaNet S, TCNT) — gen_model_script.main().
-    # This is the host-side twin of T_PREAMBLE.
-    for (lt, qw, dn_slot, kv_slot) in layers:
-        M.layer(dn_slot, kv_slot)
-        if lt == "full_attention":
-            M.Treset()
-        else:
-            qd = qw["dn"]
-            for c in range(0, LR.CONV_DIM, 2048):
-                M.W(GLS.STG, qd["conv_w"][c:c + 2048].reshape(-1))
-                M.convw(c, 2048, GLS.STG)
-            M.convz(0, LR.CONV_DIM)
-            for h in range(LR.LNH):
-                M.dnz(h)
+    # S3: the generator's STATIC PREAMBLE at SEQ_ISA v2.1 — the conv taps
+    # go into the DDR state image (the host uploads them, spec 7.1) and the
+    # preamble emits the TCNT resets and the first SLDs.  This is the
+    # host-side twin of T_PREAMBLE and it mirrors gen_model_script.main().
+    types = [lt for (lt, _q, _d, _k) in layers]
+    n_dn = sum(1 for lt in types if lt != "full_attention")
+    kv_pf = GLS.sched_kv_prefetch(types)
+    for (lt, qw, dn_l, kv_l) in layers:
+        if lt != "full_attention":
+            M.seed_conv(dn_l, qw["dn"]["conv_w"])
+    GLS.sched_preamble(M, types)
 
     ids = [int(t) for t in prompt_ids]
     nsteps = len(ids) + int(ntok) - 1
@@ -1243,22 +1428,40 @@ def layer_fixed_greedy(prompt_ids, ntok, res_scale=8, w4_group=None,
     for t in range(nsteps):
         M.embed(tok, GLS.X0, LR.H)
         x = np.asarray(M.emb[tok], dtype=GLS.I64)
-        for (lt, qw, dn_slot, kv_slot), cache in zip(layers, caches):
-            M.layer(dn_slot, kv_slot)
-            gold = LF.layer_decode_fx(x, qw, cache, t)
+        for i, (((lt, qw, dn_l, kv_l)), cache) in enumerate(
+                zip(layers, caches)):
             if lt == "full_attention":
+                M.layer(dn_l % 2, 0, dn_l % 2, kv_l)
+                gold = LF.layer_decode_fx(x, qw, cache, t)
                 GLS.attn_token(M, qw["attn"], qw["ln1"], qw["ln2"], qw["mlp"],
                                t, gold)
             else:
+                GLS.sched_dn_pair(M, dn_l, n_dn, kv_pf[i])
+                GLS.sched_cv_pair(M, dn_l, n_dn)
+                M.layer(dn_l % 2, 0, dn_l % 2, kv_l)
+                gold = LF.layer_decode_fx(x, qw, cache, t)
                 GLS.dn_token(M, qw["dn"], qw["ln1"], qw["ln2"], qw["mlp"],
                              gold)
             x = gold
+        GLS.sched_token_end(M, n_dn)
+        # final RMSNorm + DYNQ8 + full-vocab head, over the WHOLE residual:
+        # H words, not 1024.  `ref/gen_model_script.py:589-595` is the
+        # parameterized original this loop is a copy of — CLASS B,
+        # 2026-09-04 (S3, base 07eea51): that range named the RETIRED CONVW
+        # + DNZ preamble as well, and the successor of the copied block is
+        # the `M.W(STG, ln_f_q12)` .. `M.alu(0, H, 0, XN, 0, X8)` run in
+        # `gen_model_script.main`'s decode loop, which is unmoved in
+        # SUBSTANCE and only renumbered.  The four literals
+        # that used to be here are §2.10's `ref/seq_chat.py:1320-1323` row —
+        # a truncated ln_f load, an RMSNorm denominator over half the vector
+        # and a DYNQ8 exponent to match, three lines silently wrong at 2B
+        # before `M.matvec` raised on the 2048-wide head.
         M.W(GLS.STG, ln_f_q12)
-        M.vnw_(GLS.STG, 1024)
-        M.vn(1, 1024, LF.RS_F, LF.RS_F, GLS.X0, GLS.XN)
-        M.alu(0, 1024, 0, GLS.XN, 0, GLS.X8)
-        y32, _ = M.matvec(qw_head, GLS.X8, 1024, rowchunk=GMS.ROWCHUNK)
-        for c in range(0, vocab, 2048):
+        M.vnw_(GLS.STG, LR.H)
+        M.vn(1, LR.H, LF.RS_F, LF.RS_F, GLS.X0, GLS.XN)
+        M.alu(0, LR.H, 0, GLS.XN, 0, GLS.X8)
+        y32, _ = M.matvec(qw_head, GLS.X8, LR.H, rowchunk=GMS.ROWCHUNK)
+        for c in range(0, vocab, 2048):        # AMAX32 staging chunk, not H
             n = min(2048, vocab - c)
             M.W32(GLS.STG, y32[c:c + n])
             M.amax(n, GLS.STG, fresh=(c == 0))
@@ -1322,6 +1525,171 @@ def gate_a3(prompts=A3_PROMPTS, ntok=3, prefix=DEFAULT_PREFIX,
 # ======================================================================
 # cheap structural self-test (no weights, no checkpoint — seconds)
 # ======================================================================
+def emb_geometry_selftest(log=print, guards=True):
+    """`load_emb` round-trip at the SELECTED model's geometry (no artifacts).
+
+    Deliberate damage (the R-d lesson): write a synthetic table whose every
+    word is its own row's token id, with a `-1` marker in the LAST column,
+    then require `load_emb` to hand row `tok` back whole.  The pre-fix reader
+    (`size // 2048`, `.reshape(n, 1024)`) passes that at H=1024 and fails it
+    at every other H — and fails it SILENTLY, which is the whole point.
+
+    THE SYNTHETIC VOCAB IS EVEN, and that matters (correction, 2026-08-25):
+    the first revision of this regression used V=37, and an odd V makes the
+    pre-fix reshape ILLEGAL at H=2560 (V*5120//2048 floors), which the
+    selftest then reported as "loud at this geometry".  That was an artefact
+    of the test, not a property of the defect.  The real vocabulary is
+    248,320 — even, and 248,320*H is a multiple of 1024 for every even H — so
+    the pre-fix reader reshapes SILENTLY at all four geometries, giving
+    1x/2x/2.5x/4x the rows, exactly the "2.5x/4x too large" of the study's
+    §2.10.  `real_vocab_is_silent` below pins that arithmetic directly, with
+    no 1-2 GiB file involved.
+
+    `ref/model_select.py` freezes FABLE5_MODEL at import, so `selftest()`
+    reaches the other geometries by re-running this in a second interpreter.
+
+    `guards=False` drops the REFUSAL checks (a short table, an artifact from
+    the other geometry, a table with no manifest).  Those refusals are new
+    with the fix, so the pre-fix reader fails them at every geometry;
+    dropping them is what lets `evidence/qwen_next/defect_a/damage_test.py`
+    show the geometry defect ALONE — pre-fix passes at H=1024 and fails
+    everywhere else, nothing else in the way.
+    """
+    import tempfile
+    import layer_ref as LR
+    ok = True
+
+    def chk(cond, msg):
+        nonlocal ok
+        ok = ok and bool(cond)
+        log(f"    [{'ok' if cond else 'FAIL'}] {msg}")
+
+    # V EVEN — see the docstring.  An odd V manufactures a ValueError at
+    # H=2560 that the real vocabulary does not have.
+    H, V = LR.H, 40
+    V_REAL = int(LR.CFG["vocab_size"])
+    log(f"--- seq_chat emb-geometry selftest: H={H}, row {2 * H} B, "
+        f"synthetic vocab {V} (real {V_REAL:,})")
+
+    # (a) the arithmetic of the defect at the REAL vocabulary, no file
+    n_old_real = (V_REAL * 2 * H) // 2048
+    chk(n_old_real * 1024 == V_REAL * H,
+        f"real vocab {V_REAL:,} x H={H}: the pre-fix reshape is LEGAL "
+        f"({n_old_real:,} x 1024 == {V_REAL * H:,}) — silent, not loud, "
+        f"and {n_old_real / V_REAL:g}x too many rows")
+
+    with tempfile.TemporaryDirectory() as td:
+        base = os.path.join(td, "embgeom")
+        tab = np.repeat(np.arange(V, dtype=np.int64).reshape(V, 1),
+                        H, axis=1).astype("<i2")
+        tab[:, -1] = -1                  # end-of-row marker, not just a head
+        tab.tofile(base + EMB_SUFFIX)
+        with open(base + ".weights.json", "w") as f:
+            json.dump({"emb_row_bytes": 2 * H}, f)
+
+        chk(emb_row_bytes(base) == 2 * H,
+            f"emb_row_bytes reads {2 * H} B out of the manifest")
+        emb, vocab = load_emb(base, expect_vocab=V)
+        chk(emb.shape == (V, H) and vocab == V,
+            f"load_emb -> shape {emb.shape}, vocab {vocab} "
+            f"(want {(V, H)}, {V})")
+        bad = [t for t in range(V)
+               if not (int(emb[t][0]) == t and int(emb[t][-1]) == -1)]
+        chk(not bad, f"every emb[t] is token t's WHOLE row ({len(bad)} wrong)")
+
+        # (b) the pre-fix reader, verbatim, against the same bytes
+        n_old = os.path.getsize(base + EMB_SUFFIX) // 2048
+        old = np.memmap(base + EMB_SUFFIX, dtype="<i2",
+                        mode="r").reshape(n_old, 1024)
+        if H == 1024:
+            chk(np.array_equal(np.asarray(old), np.asarray(emb)),
+                "H=1024: the pre-fix literals coincide with the truth "
+                "(this is why the defect hid)")
+        else:
+            # exactly the flat re-slicing, and nothing token-aware about it:
+            # pre-fix row k is the 1024 words at FLAT offset k*1024, which
+            # at H=2560 does not even stay inside one token's row.
+            flat = np.asarray(emb).reshape(-1)
+            bad = [k for k in range(n_old)
+                   if not np.array_equal(np.asarray(old[k]),
+                                         flat[k * 1024:(k + 1) * 1024])]
+            spans = sum(1 for k in range(n_old)
+                        if (k * 1024) // H != ((k + 1) * 1024 - 1) // H)
+            chk(n_old != V and not bad,
+                f"H={H}: the pre-fix literals SILENTLY give {n_old} rows, "
+                f"each the flat 1024 words at k*1024 — token "
+                f"(k*1024)//{H}'s row, {spans} of them straddling two "
+                f"tokens — no exception anywhere "
+                f"({len(bad)} rows off that model)")
+
+        if guards:
+            with open(base + EMB_SUFFIX, "r+b") as f:
+                f.truncate(V * 2 * H - 2)   # lose one word of the last row
+            try:
+                load_emb(base, expect_vocab=V)
+                chk(False, "a partial final row should have raised")
+            except ChatSeqError:
+                chk(True, "a partial final row is refused (ChatSeqError)")
+
+    if not guards:
+        log(f"EMB GEOMETRY SELFTEST: {'PASS' if ok else 'FAIL'}  (H={H})")
+        return ok
+
+    # (c) an artifact whose manifest is for a DIFFERENT geometry
+    with tempfile.TemporaryDirectory() as td:
+        base = os.path.join(td, "wronggeom")
+        with open(base + EMB_SUFFIX, "wb") as f:
+            f.write(b"\0" * (8 * H))        # 2 rows of the OTHER geometry
+        with open(base + ".weights.json", "w") as f:
+            json.dump({"emb_row_bytes": 4 * H}, f)
+        try:
+            load_emb(base, expect_vocab=2)
+            chk(False, f"an emb_row_bytes={4 * H} artifact should have raised")
+        except ChatSeqError:
+            chk(True, f"a {4 * H} B-row artifact is refused at H={H}")
+
+    # (d) NO manifest at all.  The first revision of this fix fell back to
+    # 2*LR.H here and reshaped whatever it was given — defect A, inside the
+    # fix.  It must refuse instead.
+    with tempfile.TemporaryDirectory() as td:
+        base = os.path.join(td, "nomanifest")
+        with open(base + EMB_SUFFIX, "wb") as f:
+            f.write(b"\0" * (V * 2 * H))    # RIGHT size for this geometry
+        try:
+            load_emb(base, expect_vocab=V)
+            chk(False, "a table with no manifest should have raised")
+        except ChatSeqError:
+            chk(True, "a table with no <base>.weights.json is refused, "
+                      "even at the right size (no guessed stride)")
+
+    # (e) and a table whose ROW COUNT is wrong for the model: the 0.8B table
+    # (2048 B rows) read at this geometry is still a whole number of rows.
+    with tempfile.TemporaryDirectory() as td:
+        base = os.path.join(td, "wrongvocab")
+        with open(base + EMB_SUFFIX, "wb") as f:
+            f.write(b"\0" * (V_REAL * 2048))
+        with open(base + ".weights.json", "w") as f:
+            json.dump({"emb_row_bytes": 2 * H}, f)
+        try:
+            load_emb(base)                  # real vocab_size check
+            chk(H == 1024, f"a {V_REAL:,}-row 2048 B table is only correct "
+                           f"at H=1024 (this is H={H})")
+        except ChatSeqError:
+            chk(H != 1024, f"the 0.8B table ({V_REAL:,} x 2048 B) is refused "
+                           f"at H={H}: {V_REAL * 2048 // (2 * H):,} rows, "
+                           f"not {V_REAL:,}")
+
+    # (f) a mis-named table gets no guessed stride either
+    try:
+        emb_base_of("/tmp/whatever.bin")
+        chk(False, "a non-<prefix>.emb.bin path should have raised")
+    except ChatSeqError:
+        chk(True, "a path that is not <prefix>.emb.bin is refused")
+
+    log(f"EMB GEOMETRY SELFTEST: {'PASS' if ok else 'FAIL'}  (H={H})")
+    return ok
+
+
 def selftest(prefix=DEFAULT_PREFIX, log=print):
     """Template + hole + guard invariants.  Runs in seconds, no board."""
     ok = True
@@ -1456,6 +1824,22 @@ def selftest(prefix=DEFAULT_PREFIX, log=print):
         f"({[(n, o, im.nrec) for (n, o, im) in res]})")
     chk("weights" in tc.host_meta() and "chat_seq" in tc.host_meta(),
         "host_meta carries the committed weight manifest for seq_run")
+
+    # embedding row stride, at EVERY geometry ref/ can be pointed at.
+    # model_select freezes FABLE5_MODEL at import, so the geometry that is
+    # not the current one needs a second interpreter.  This is the §7.2
+    # defect-A regression: at H=2048 the pre-fix reader never raised.
+    import subprocess
+    import model_select as MS
+    for tag in MS.MODELS:
+        p = subprocess.run([sys.executable, os.path.abspath(__file__),
+                            "--emb-geom"],
+                           env=dict(os.environ, FABLE5_MODEL=tag),
+                           capture_output=True, text=True)
+        tail = (p.stdout.strip() or p.stderr.strip()).splitlines()
+        chk(p.returncode == 0, f"emb geometry at FABLE5_MODEL={tag} "
+                               f"[{tail[-1] if tail else 'no output'}]")
+
     log(f"SELFTEST: {'PASS' if ok else 'FAIL'}")
     return ok
 
@@ -1467,6 +1851,10 @@ def main():
     ap.add_argument("--base", default=DEFAULT_BASE)
     ap.add_argument("--selftest", action="store_true",
                     help="template/hole/guard invariants (seconds)")
+    ap.add_argument("--emb-geom", action="store_true",
+                    help="embedding row-stride round-trip at the geometry "
+                         "FABLE5_MODEL selects (--selftest runs this for "
+                         "every model, one interpreter each)")
     ap.add_argument("--a1", action="store_true",
                     help="gate A1: compiled schedule == committed golden")
     ap.add_argument("--a2", action="store_true", help="gate A2: position blob")
@@ -1475,6 +1863,8 @@ def main():
     ap.add_argument("--ntok", type=int, default=3)
     ap.add_argument("--json", default=None)
     a = ap.parse_args()
+    if a.emb_geom:                       # the one mode that loads no artifact
+        raise SystemExit(0 if emb_geometry_selftest() else 1)
     if not (a.selftest or a.a1 or a.a2 or a.a3):
         a.selftest = True
     rep, ok = {}, True

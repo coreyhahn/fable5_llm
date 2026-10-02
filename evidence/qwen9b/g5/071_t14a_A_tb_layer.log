@@ -1,0 +1,170 @@
+=== host: snoke
+=== date: 2026-09-06T23:40:45-06:00
+=== tree: c51960f
+=== cmd:  env FABLE5_RS_F=7 FABLE5_MODEL=9b bash -c for t in tb_layer_chan tb_seq_layer; do
+    echo "=== $t ==="
+    make -C tb GENPY=/home/cah/.venv/bin/python VECPY=/home/cah/.venv/bin/python JOBS=8 $t 2>&1 | tr -d "\000" | /usr/bin/grep -avE "^g\+\+|^Archive|^echo |^rm |^make\[|^ +--|^ +\.\./|^verilator |verilator_includer"
+    echo "=== $t rc=${PIPESTATUS[0]} ==="
+  done
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== tb_layer_chan ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+layer script: seed=1 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s1.txt
+layer script: seed=2 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s2.txt
+layer script: seed=3 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s3.txt
+layer script: seed=4 ntok=3 wq=w4 cmds=1465 hostwords=588704 weights=15 -> ../tb/scripts/layerv2_s4.txt
+for s in 1 2 3 4; do \
+  obj_dir_tb_layer/tb_layer +script=scripts/layerv2_s$s.txt \
+    +state=scripts/layerv2_s$s || exit 1; \
+done
+  state window: 162529280 B image   scripts/layerv2_s1.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s1.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s2.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s2.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s3.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s3.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+  state window: 162529280 B image   scripts/layerv2_s4.state.bin
+  state region: SB_DN 08000 SB_KV 08180 SB_CV 08980, 155 MiB
+  state: 73866 read beats, 55512 write beats, 0 unmapped
+TB_LAYER_CHAN PASS: 1465 cmds, 261357 checks bit-exact (scripts/layerv2_s4.txt)
+- tb_layer_chan.sv:587: Verilog $finish
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_layer_chan rc=0 ===
+=== tb_seq_layer ===
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+seq layer script: seed=1 -> scripts/seqlayer_s1.txt  k_t=-8 k_clamp0=0 k_a=23 k_b=5; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 57344..65535, 2848 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=2 -> scripts/seqlayer_s2.txt  k_t=-9 k_clamp0=0 k_a=8 k_b=7; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 57344..65535, 2848 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=3 -> scripts/seqlayer_s3.txt  k_t=-11 k_clamp0=0 k_a=8 k_b=4; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 57344..65535, 2848 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+seq layer script: seed=4 -> scripts/seqlayer_s4.txt  k_t=-9 k_clamp0=0 k_a=24 k_b=5; goldens distinct: y(k_t)!=y(0) True, y(k_t)!=y(k_a) True, y(k_t)!=y(k_b) True; hi-half block: ALU/VN/GATE/DNST across words 57344..65535, 2848 fold-down sentinels (DNST dec (21000, 30000), beta (9000, 26000))
+%Warning-WIDTHTRUNC: seq_mem_file.sv:225:9: Logical operator IF expects 1 bit on the If, but If's CMETHODHARD 'exists' generates 32 bits.
+                                          : ... note: In instance 'tb_layer_chan.u_smem'
+  225 |         if (wram.exists(idx)) return wram[idx];
+      |         ^~
+                     tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.020
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: seq_mem_file.sv:238:43: Operator SUB expects 64 bits on the LHS, but LHS's VARREF 'BYTES' generates 32 bits.
+                                            : ... note: In instance 'tb_layer_chan.u_smem'
+  238 |         beat = win_rd(a & ~longint'(BYTES - 1));
+      |                                           ^
+                      tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+%Warning-WIDTHEXPAND: seq_mem_file.sv:239:53: Operator SUB expects 64 bits on the LHS, but LHS's VARREF 'BYTES' generates 32 bits.
+                                            : ... note: In instance 'tb_layer_chan.u_smem'
+  239 |         win_byte = beat[8 * int'(a & longint'(BYTES - 1)) +: 8];
+      |                                                     ^
+                      tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+%Warning-WIDTHEXPAND: seq_mem_file.sv:252:57: Operator SUB expects 64 bits on the LHS, but LHS's VARREF 'BYTES' generates 32 bits.
+                                            : ... note: In instance 'tb_layer_chan.u_smem'
+  252 |                 beat = win_rd((a + i) & ~longint'(BYTES - 1));
+      |                                                         ^
+                      tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+%Warning-WIDTHEXPAND: seq_mem_file.sv:251:43: Operator SUB expects 64 bits on the LHS, but LHS's VARREF 'BYTES' generates 32 bits.
+                                            : ... note: In instance 'tb_layer_chan.u_smem'
+  251 |             if (((a + i) & longint'(BYTES - 1)) == 0 || i == 0)
+      |                                           ^
+                      tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+%Warning-WIDTHEXPAND: seq_mem_file.sv:254:68: Operator SUB expects 64 bits on the LHS, but LHS's VARREF 'BYTES' generates 32 bits.
+                                            : ... note: In instance 'tb_layer_chan.u_smem'
+  254 |                                                   & longint'(BYTES - 1)) +: 8]);
+      |                                                                    ^
+                      tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+%Warning-WIDTHEXPAND: seq_mem_file.sv:311:55: Operator ADD expects 9 bits on the LHS, but LHS's REPLICATE generates 7 bits.
+                                            : ... note: In instance 'tb_layer_chan.u_smem'
+  311 |     assign last_beat_in_page = {1'b0, araddr[11:LSB]} + {1'b0, arlen};
+      |                                                       ^
+                      tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+%Warning-WIDTHEXPAND: seq_mem_file.sv:428:53: Operator SUB expects 64 bits on the LHS, but LHS's VARREF 'BYTES' generates 32 bits.
+                                            : ... note: In instance 'tb_layer_chan.u_smem'
+  428 |                 w_beat_a = w_addr & ~longint'(BYTES - 1);
+      |                                                     ^
+                      tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+%Warning-WIDTHEXPAND: seq_mem_file.sv:435:34: Operator ADD expects 64 bits on the RHS, but RHS's VARREF 'BYTES' generates 32 bits.
+                                            : ... note: In instance 'tb_layer_chan.u_smem'
+  435 |                 w_addr <= w_addr + BYTES;
+      |                                  ^
+                      tb_layer_chan.sv:102:1: ... note: In file included from 'tb_layer_chan.sv'
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:165:47: Parameter is not used: 'OP_GATE'
+                                             : ... note: In instance 'tb_layer_chan'
+  165 |     localparam int OP_CONVW = 5, OP_CONV = 6, OP_GATE = 7, OP_DNST = 8,
+      |                                               ^~~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:166:20: Parameter is not used: 'OP_KVAP'
+                                             : ... note: In instance 'tb_layer_chan'
+  166 |                    OP_KVAP = 9, OP_ATTN = 10, OP_DNZ = 12;
+      |                    ^~~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:171:20: Parameter is not used: 'SC_DEC'
+                                             : ... note: In instance 'tb_layer_chan'
+  171 |     localparam int SC_DEC = 'h100, SC_BET = 'h140,       
+      |                    ^~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:171:36: Parameter is not used: 'SC_BET'
+                                             : ... note: In instance 'tb_layer_chan'
+  171 |     localparam int SC_DEC = 'h100, SC_BET = 'h140,       
+      |                                    ^~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:172:20: Parameter is not used: 'SC_K'
+                                             : ... note: In instance 'tb_layer_chan'
+  172 |                    SC_K   = 'h200, SC_Q   = 'h400,       
+      |                    ^~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:172:36: Parameter is not used: 'SC_Q'
+                                             : ... note: In instance 'tb_layer_chan'
+  172 |                    SC_K   = 'h200, SC_Q   = 'h400,       
+      |                                    ^~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:173:20: Parameter is not used: 'SC_V'
+                                             : ... note: In instance 'tb_layer_chan'
+  173 |                    SC_V   = 'h600, SC_DST = 'h800,       
+      |                    ^~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:173:36: Parameter is not used: 'SC_DST'
+                                             : ... note: In instance 'tb_layer_chan'
+  173 |                    SC_V   = 'h600, SC_DST = 'h800,       
+      |                                    ^~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:174:20: Parameter is not used: 'SC_GB'
+                                             : ... note: In instance 'tb_layer_chan'
+  174 |                    SC_GB  = 'h1000, SC_GA = 'h1040, SC_GAA = 'h1080,
+      |                    ^~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:174:37: Parameter is not used: 'SC_GA'
+                                             : ... note: In instance 'tb_layer_chan'
+  174 |                    SC_GB  = 'h1000, SC_GA = 'h1040, SC_GAA = 'h1080,
+      |                                     ^~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:174:53: Parameter is not used: 'SC_GAA'
+                                             : ... note: In instance 'tb_layer_chan'
+  174 |                    SC_GB  = 'h1000, SC_GA = 'h1040, SC_GAA = 'h1080,
+      |                                                     ^~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:175:20: Parameter is not used: 'SC_GDT'
+                                             : ... note: In instance 'tb_layer_chan'
+  175 |                    SC_GDT = 'h1100, SC_GO = 'h1140,      
+      |                    ^~~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:175:37: Parameter is not used: 'SC_GO'
+                                             : ... note: In instance 'tb_layer_chan'
+  175 |                    SC_GDT = 'h1100, SC_GO = 'h1140,      
+      |                                     ^~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:176:20: Parameter is not used: 'SC_CW'
+                                             : ... note: In instance 'tb_layer_chan'
+  176 |                    SC_CW  = 'h1200, SC_CX = 'h1240, SC_CD = 'h1280;
+      |                    ^~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:176:37: Parameter is not used: 'SC_CX'
+                                             : ... note: In instance 'tb_layer_chan'
+  176 |                    SC_CW  = 'h1200, SC_CX = 'h1240, SC_CD = 'h1280;
+      |                                     ^~~~~
+%Warning-UNUSEDPARAM: tb_layer_chan.sv:176:53: Parameter is not used: 'SC_CD'
+                                             : ... note: In instance 'tb_layer_chan'
+  176 |                    SC_CW  = 'h1200, SC_CX = 'h1240, SC_CD = 'h1280;
+      |                                                     ^~~~~
+%Error: Exiting due to 25 warning(s)
+make: *** [Makefile:530: tb_seq_layer] Error 1
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== tb_seq_layer rc=2 ===
+=== rc: 0
+=== end: 2026-09-07T00:00:50-06:00

@@ -1,0 +1,71 @@
+=== host: snoke  date: 2026-09-24T23:48:35-06:00
+=== tree: eeb2d43+dirty
+=== dirty:  M sw/seq_run.py
+=== cmd : /home/cah/.venv/bin/python sw/seq_run.py --help
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+usage: seq_run.py [-h] [--prefix PREFIX] [--base BASE] [--dev DEV]
+                  [--chan CHAN] [--four-chan] [--dry-run] [--skip-weights]
+                  [--no-verify] [--zero-scratch] [--no-xrf-init]
+                  [--entry ENTRY] [--timeout TIMEOUT] [--chip CHIP]
+                  [--no-chip] [--dump-scratch DUMP_SCRATCH] [--out OUT]
+                  [--selftest] [--expect-version HASH] [--lock LOCK]
+                  [--no-lock]
+
+seq_run.py — host-side runner for the on-chip command sequencer (rung 1).
+
+options:
+  -h, --help            show this help message and exit
+  --prefix PREFIX       <prefix>.seq / .seqdata.bin / .seq.json
+  --base BASE           generator-artifact prefix (.weights.json, _w*.bin,
+                        .emb.bin); default = --prefix minus its last dotted
+                        component
+  --dev DEV
+  --chan CHAN           DDR FETCH channel (stream/blob/emb); must match the
+                        emitter's chan
+  --four-chan           require a row-split (meta nch>1) stream: weights are
+                        split across DDR channels 0..nch-1 and each quarter is
+                        readback-verified where its matvec_chan reads it. The
+                        mode is otherwise auto-detected from meta['nch']; this
+                        flag just asserts it.
+  --dry-run             plan + relocate + upload + readback-verify, and
+                        NOTHING ELSE — no access at all to the SEQ CSR window,
+                        so this is the mode that is safe on a bitstream
+                        without seq_0
+  --skip-weights        weights + embedding are already resident
+  --no-verify           skip the DDR readback comparison
+  --zero-scratch        write zeros over the 32K layer_chan scratchpad
+                        (SPTR/SWIN, idle-only) before starting, and read it
+                        back to prove it cleared. The FPGA never clears the
+                        pad between runs while ref/seq_model's memory is zero-
+                        initialised, so a word this stream does not write
+                        shows the PREVIOUS model's leftovers and the .chip
+                        golden calls it a mismatch. Harmless while one
+                        geometry owns the board; required when 0.8B and 2B
+                        alternate
+                        (evidence/qwen2b/rd/hw_22_scratch_residue_proof.log)
+  --no-xrf-init         do not zero XRF[0..7] before START
+  --entry ENTRY
+  --timeout TIMEOUT
+  --chip CHIP           post-halt golden from
+                        tb/scripts/gen_seq_chip_vectors.py (default
+                        <prefix>.chip)
+  --no-chip
+  --dump-scratch DUMP_SCRATCH
+                        save the post-halt 16K scratchpad to a .npy
+  --out OUT             JSON report path
+  --selftest            unit-test the pure-python pieces (no board)
+  --expect-version HASH
+                        the resident sequencer bitstream's VERSION (8-hex git
+                        hash), when it is NOT the shipped c973c18a: e.g.
+                        9b588e78 for build_042_bm1. Must be a row of
+                        SEQ_VERSIONS. Default: $FABLE5_SEQ_EXPECT_VERSION if
+                        set, else EXPECTED_SEQ_VERSION
+  --lock LOCK           the shared board lock (default
+                        /home/cah/r2d2/code/fpga/.fable5_board.lock;
+                        $FABLE5_BOARD_LOCK overrides the default)
+  --no-lock             run WITHOUT the board lock. For a human who has
+                        confirmed sole use of the board; never for a script,
+                        and never to get past a stuck lock. Logged loudly on
+                        stdout, stderr and <lock>.nolock.log
+=== rc  : 0
+=== end : 2026-09-24T23:48:36-06:00

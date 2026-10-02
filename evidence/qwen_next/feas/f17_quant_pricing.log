@@ -1,0 +1,68 @@
+=== host: snoke  date: 2026-08-25T08:00:19-06:00
+=== tree: 1725750+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/quant_pricing.py /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/quant_pricing.json
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+0. THE HOST PROBLEM WITH THE OLD ANCHORS
+==============================================================================
+    ppl_2b_bf16.json        host='<ABSENT>' torch=2.6.0+cu124    eval  143.904 s
+    ppl_2b_bf16_snoke.json  host='snoke'    torch=2.12.0+cpu     eval  404.930 s
+    -> snoke is 2.814x slower on the SAME point.  Every figure below uses the snoke anchor.
+    The variant anchor is already snoke: ppl_v5.json host='snoke', threads=8.
+    (The earlier revision's '18 min/variant' mixed a darthplagueis
+     bf16 anchor with this snoke variant anchor — that was the bug.)
+
+==============================================================================
+0b. THE MEASURED 2B 5-POINT LADDER — all five points, all on snoke
+==============================================================================
+    point              build       eval      total  threads  json
+    bf16 anchor       45.914    404.930    450.844        6  q1/ppl_2b_bf16_snoke.json
+    V1  W4 g128      746.497    519.233   1265.731        6  q2/v1_v2/ppl_v1_snoke.json
+    V2  W4 g64       768.159    543.597   1311.756        6  q2/v1_v2/ppl_v2_snoke.json
+    V4gptq          1948.814    256.130   2204.944       10  q2/v4/ppl_v4gptq.json
+    V5  W8 g128      114.605    462.589    577.194        8  q2/v4_v5/ppl_v5.json
+    LADDER TOTAL                          5810.468 s = 96.8 min
+
+    VARIANT SPREAD: cheapest 577.194 s (V5  W8 g128)  dearest 2204.944 s  -> **3.82x**
+    An earlier revision priced all four variants at V5's 577.194 s, the CHEAPEST of them, and so ran 2.11x low.
+    (V5 is cheapest because W8 g128 is a straight per-group rescale;
+     V1/V2 run an MSE grid search and V4gptq a full-Hessian pass.)
+    CAVEAT: the five ran at DIFFERENT thread counts (6/6/6/10/8), so
+    the ladder total is a real elapsed cost on this machine but not a
+    controlled per-point comparison.  The 5,810 s is what it took.
+
+==============================================================================
+1. COMPUTE — proportional to text-tower params, from the snoke anchors
+==============================================================================
+    target      text params  xP vs 2B   bf16 anchor   one variant   5-point ladder
+    2B        1,881,825,088    1.0000       7.5 min       9.6 min           1.61 h
+    4B        4,205,751,296    2.2349      16.8 min      21.5 min           3.61 h
+    9B        8,953,803,264    4.7580      35.8 min      45.8 min           7.68 h
+
+    the ladder column scales the MEASURED 5-point total (5810.5 s at 2B), NOT bf16 + 4x one variant
+    the 'one variant' column is V5 specifically, kept because the W8 point is the one a V5-style pick would re-run alone
+    target    GPTQ calib   GPTQ npz  DDR image build  peak RSS f32
+    4B           9.0 min      10.1G         34.2 min         15.7G
+    9B          19.1 min      21.4G           1.21 h         33.4G
+    (snoke has 247 G RAM, 242 G available — f09 — so even the 9B's
+     float32 forward is comfortable.)
+
+==============================================================================
+2. DISK — against the 94 GB free on snoke (f07)
+==============================================================================
+    item                                      4B        9B
+    bf16 checkpoint                         8.7G     18.0G
+    W8 images + emb                         5.9G      9.4G
+    W4 images + emb                         3.9G      5.7G
+    GPTQ Hessian npz                       10.1G     21.4G
+    fidelity ladder alone (ckpt only)       8.7G     18.0G
+    ladder + a W8 image set                14.6G     27.4G
+
+    BOTH targets, no GPTQ :   42.0 GiB  ->  52.0 GB headroom of 94
+    BOTH targets, + GPTQ  :   73.4 GiB  ->  20.6 GB headroom (42 + 10 + 21)
+    ONE target + GPTQ, 4B :   24.6 GiB
+    ONE target + GPTQ, 9B :   48.8 GiB
+    -> both targets with GPTQ leaves ~21 GB on a machine that also
+       runs Vivado.  One target at a time is the disk recommendation.
+=== rc  : 0
+=== end : 2026-08-25T08:00:19-06:00

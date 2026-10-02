@@ -1,0 +1,140 @@
+=== host: snoke
+=== date: 2026-09-03T07:09:13-06:00
+=== tree: 86bc499
+=== cmd:  nice -n 10 make -C /home/cah/r2d2/code/fpga/fable5_llm/tb w9_9b_model_script W9_SEED=3 W9_BASE=scripts/w9/model_9b_s3 MODELPY=/home/cah/.venv/bin/python
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=14 MKL_NUM_THREADS=14
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+make: Entering directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+mkdir -p scripts/w9
+cd ../ref && FABLE5_MODEL=9b FABLE5_RS_F=7 SEQ_PROFILE=epsnorm SEQ_NCH=4 SEQ_REPACK=1 FABLE5_CALIB_STATS=/home/cah/r2d2/code/fpga/fable5_llm/ref/calib_stats_9b_h.npz FABLE5_CALIB_MODE=gptq \
+  SEQ_EMIT=/home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s3.e4 \
+  /home/cah/.venv/bin/python gen_model_script.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s3.txt \
+  3 3 --w4-group=128 --res-scale=1
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b
+  32 layers, H=4096, vocab=248320
+  res_scale=1 DN_NORM_F=11 BF_GUARD=0 mse_scale=True (production) wq=w4 w4_group=128
+  quantized 32 layers (24 DN / 8 GQA)
+  ln_f folded to (1+w) Q3.12: |q|max 12256 of 32767, 0 out of range
+  LM head (248320, 4096) [W4] lm_head.weight e=-3 sh=7; emb table |q|max 60 of 32767
+  step  0 (prefill ) in_tok=   464 argmax=   313 |resid|max=25619
+  step  1 (prefill ) in_tok=  8328 argmax=   430 |resid|max=25619
+  step  2 (prefill ) in_tok=   430 argmax=  2510 |resid|max=25619
+  step  3 (generate) in_tok=  2510 argmax=   198 |resid|max=25619
+  step  4 (generate) in_tok=   198 argmax=  1445 |resid|max=25619
+  step  5 (generate) in_tok=  1445 argmax= 27180 |resid|max=25619
+
+--- runtime range audit (activation-dependent formats) ---
+site            rail hits    of words    |max|
+alu1                   41     4432896    32768
+alu2                    0     2359296    23139
+alu3                   22     1179648    32768
+alu4                    0     1572864    25619
+alu5                   67      589824    32767
+alu6                  322     2359296    32767
+alu7                    4      196608    32767
+alu8                    0     2555904    32736
+conv                  162     1179648    32767
+embed                   0       24576       36
+gate(Q15)               0        9216    32767
+vn0                     0     1818624     8951
+vn1                     0       24576     1250
+vn2                     0     1179648    16256
+TOTAL                 618
+DeltaNet state S_F=13 (int16 Q2.13, +/-4.0): true saturations=83 of 75497472 state writes, |S|max=59865 of 32767 (182.7% of the int16 rail, = 7.308 in Q2.13)
+  saturating (dn_slot, head): (0, 1)x9, (0, 2)x1, (0, 3)x1, (0, 4)x1, (0, 8)x3, (0, 9)x2, (0, 12)x5, (0, 13)x4, (0, 14)x6, (0, 15)x7, (0, 16)x3, (0, 17)x2, (0, 18)x5, (0, 19)x5, (0, 20)x1, (0, 24)x2, (0, 25)x2, (0, 27)x1, (0, 28)x2, (0, 30)x6, (0, 31)x6, (6, 20)x4, (6, 21)x4, (20, 28)x1
+silu 21-bit port clips: 0
+y32 accumulator occupancy (int32 = 31 magnitude bits):
+  1024x4096    |y32|max=356573       bits=19  spare=12  (96 matvecs)
+  12288x4096   |y32|max=522485       bits=19  spare=12  (384 matvecs)
+  248320x4096  |y32|max=191069       bits=18  spare=13  (6 matvecs)
+  32x4096      |y32|max=1375285      bits=21  spare=10  (288 matvecs)
+  4096x12288   |y32|max=125511       bits=17  spare=14  (192 matvecs)
+  4096x4096    |y32|max=842828       bits=20  spare=11  (336 matvecs)
+  8192x4096    |y32|max=3098015      bits=22  spare= 9  (192 matvecs)
+DYNQ8 activation exponents (e_x histogram): 0:16 1:49 2:49 3:42 4:109 5:247 6:148 7:25 8:71 9:18
+RANGE AUDIT: FAIL — saturation observed, see above
+S_F soak cross-check (layer_fixed cache['sat'], independent of the scratchpad model): 83 saturations
+residual stream |x|max = 25619 of 32767 (78.2% of the int16 Q7.8 rail)
+
+--- block-float immediates emitted (Phase 1A datapath) ---
+  DN SHIFT32 k_h histogram (op 1, signed): {-14: 175, -13: 348, -12: 545, -11: 629, -10: 761, -9: 820, -8: 642, -7: 311, -6: 110, -5: 54, -4: 69, -3: 25, 0: 119}
+  ATTN EMUL32 k_a histogram (op 8, unsigned): {8: 1, 9: 15, 10: 15, 11: 3, 12: 5, 13: 6, 14: 1, 15: 2}
+  DN SCALE m_q15 (op 2): max raw 8192000, clipped at 32767 119 times (0 of them on a NON-ZERO head)
+  ATTN k_a clamped up to 0: 0 times
+
+--- gate port saturation, measured at the RUNTIME a values ---
+  L0h1: worst |decay_clamp - decay_spec| = 8370 /32768 (25.54% FS) at a=-7.135  (spec 21375 -> clamped 29745); 6 evaluations
+  L0h4: worst |decay_clamp - decay_spec| = 8490 /32768 (25.91% FS) at a=+1.667  (spec 10501 -> clamped 18991); 6 evaluations
+  L0h12: worst |decay_clamp - decay_spec| = 14024 /32768 (42.80% FS) at a=-8.000  (spec 16759 -> clamped 30783); 6 evaluations
+  L0h13: worst |decay_clamp - decay_spec| = 13259 /32768 (40.46% FS) at a=-7.771  (spec 17120 -> clamped 30379); 6 evaluations
+  L0h20: worst |decay_clamp - decay_spec| = 14398 /32768 (43.94% FS) at a=-8.000  (spec 15479 -> clamped 29877); 6 evaluations
+  L0h21: worst |decay_clamp - decay_spec| = 10960 /32768 (33.45% FS) at a=-7.860  (spec 18411 -> clamped 29371); 6 evaluations
+  L0h24: worst |decay_clamp - decay_spec| = 1801 /32768 (5.50% FS) at a=-3.025  (spec 23152 -> clamped 24953); 6 evaluations
+  L0h25: worst |decay_clamp - decay_spec| = 1742 /32768 (5.32% FS) at a=-2.830  (spec 22728 -> clamped 24470); 6 evaluations
+  L0h30: worst |decay_clamp - decay_spec| = 11826 /32768 (36.09% FS) at a=-7.488  (spec 17575 -> clamped 29401); 6 evaluations
+  L0h31: worst |decay_clamp - decay_spec| = 9863 /32768 (30.10% FS) at a=-7.045  (spec 18520 -> clamped 28383); 6 evaluations
+  L1h2: worst |decay_clamp - decay_spec| = 14482 /32768 (44.20% FS) at a=-0.461  (spec 9727 -> clamped 24209); 6 evaluations
+  L1h9: worst |decay_clamp - decay_spec| = 19 /32768 (0.06% FS) at a=+2.921  (spec 32747 -> clamped 32728); 6 evaluations
+  L1h11: worst |decay_clamp - decay_spec| = 10676 /32768 (32.58% FS) at a=-0.329  (spec 9433 -> clamped 20109); 6 evaluations
+  L1h17: worst |decay_clamp - decay_spec| = 17455 /32768 (53.27% FS) at a=+0.208  (spec 3011 -> clamped 20466); 6 evaluations
+  L1h19: worst |decay_clamp - decay_spec| = 9676 /32768 (29.53% FS) at a=+1.300  (spec 8210 -> clamped 17886); 6 evaluations
+  L1h24: worst |decay_clamp - decay_spec| = 3918 /32768 (11.96% FS) at a=+0.272  (spec 9635 -> clamped 13553); 6 evaluations
+  L1h28: worst |decay_clamp - decay_spec| = 2553 /32768 (7.79% FS) at a=+2.435  (spec 8274 -> clamped 10827); 6 evaluations
+  L2h0: worst |decay_clamp - decay_spec| = 12363 /32768 (37.73% FS) at a=+1.731  (spec 4604 -> clamped 16967); 6 evaluations
+  L2h1: worst |decay_clamp - decay_spec| = 13876 /32768 (42.35% FS) at a=+1.198  (spec 7952 -> clamped 21828); 6 evaluations
+  L2h5: worst |decay_clamp - decay_spec| = 19731 /32768 (60.21% FS) at a=+1.064  (spec 5492 -> clamped 25223); 6 evaluations
+  L2h11: worst |decay_clamp - decay_spec| = 1986 /32768 (6.06% FS) at a=+0.498  (spec 14299 -> clamped 16285); 6 evaluations
+  L2h12: worst |decay_clamp - decay_spec| = 16088 /32768 (49.10% FS) at a=+1.491  (spec 4538 -> clamped 20626); 6 evaluations
+  L2h16: worst |decay_clamp - decay_spec| = 13186 /32768 (40.24% FS) at a=+1.820  (spec 10005 -> clamped 23191); 6 evaluations
+  L2h17: worst |decay_clamp - decay_spec| = 5675 /32768 (17.32% FS) at a=+0.866  (spec 5941 -> clamped 11616); 6 evaluations
+  L2h20: worst |decay_clamp - decay_spec| = 6465 /32768 (19.73% FS) at a=+0.952  (spec 10141 -> clamped 16606); 6 evaluations
+  L2h21: worst |decay_clamp - decay_spec| = 8129 /32768 (24.81% FS) at a=+1.015  (spec 11668 -> clamped 19797); 6 evaluations
+  L2h24: worst |decay_clamp - decay_spec| = 18120 /32768 (55.30% FS) at a=+1.647  (spec 2790 -> clamped 20910); 6 evaluations
+  L2h26: worst |decay_clamp - decay_spec| = 2408 /32768 (7.35% FS) at a=+1.752  (spec 15973 -> clamped 18381); 6 evaluations
+  L2h31: worst |decay_clamp - decay_spec| = 21927 /32768 (66.92% FS) at a=+1.153  (spec 2472 -> clamped 24399); 6 evaluations
+  L4h1: worst |decay_clamp - decay_spec| = 6668 /32768 (20.35% FS) at a=+0.606  (spec 8247 -> clamped 14915); 6 evaluations
+  L4h7: worst |decay_clamp - decay_spec| = 139 /32768 (0.42% FS) at a=+1.387  (spec 20287 -> clamped 20426); 6 evaluations
+  L4h18: worst |decay_clamp - decay_spec| = 3919 /32768 (11.96% FS) at a=+0.466  (spec 10650 -> clamped 14569); 6 evaluations
+  L4h20: worst |decay_clamp - decay_spec| = 7086 /32768 (21.62% FS) at a=+1.111  (spec 6521 -> clamped 13607); 6 evaluations
+  L4h22: worst |decay_clamp - decay_spec| = 10467 /32768 (31.94% FS) at a=+1.470  (spec 9760 -> clamped 20227); 6 evaluations
+  L4h24: worst |decay_clamp - decay_spec| = 924 /32768 (2.82% FS) at a=+1.432  (spec 10829 -> clamped 11753); 6 evaluations
+  L5h18: worst |decay_clamp - decay_spec| = 10379 /32768 (31.67% FS) at a=+0.290  (spec 7126 -> clamped 17505); 6 evaluations
+  L5h19: worst |decay_clamp - decay_spec| = 9513 /32768 (29.03% FS) at a=+0.508  (spec 7992 -> clamped 17505); 6 evaluations
+  L5h31: worst |decay_clamp - decay_spec| = 536 /32768 (1.64% FS) at a=+0.750  (spec 14525 -> clamped 15061); 6 evaluations
+  L6h2: worst |decay_clamp - decay_spec| = 133 /32768 (0.41% FS) at a=+1.220  (spec 20982 -> clamped 21115); 6 evaluations
+  L6h21: worst |decay_clamp - decay_spec| = 19368 /32768 (59.11% FS) at a=-0.270  (spec 2333 -> clamped 21701); 6 evaluations
+  L6h26: worst |decay_clamp - decay_spec| = 9045 /32768 (27.60% FS) at a=+2.806  (spec 9772 -> clamped 18817); 6 evaluations
+  L8h4: worst |decay_clamp - decay_spec| = 919 /32768 (2.80% FS) at a=+1.810  (spec 13092 -> clamped 14011); 6 evaluations
+  L9h18: worst |decay_clamp - decay_spec| = 14433 /32768 (44.05% FS) at a=+0.423  (spec 5058 -> clamped 19491); 6 evaluations
+  L10h8: worst |decay_clamp - decay_spec| = 570 /32768 (1.74% FS) at a=+1.797  (spec 30093 -> clamped 30663); 6 evaluations
+  L10h14: worst |decay_clamp - decay_spec| = 3065 /32768 (9.35% FS) at a=+1.596  (spec 21286 -> clamped 24351); 6 evaluations
+  L10h21: worst |decay_clamp - decay_spec| = 2133 /32768 (6.51% FS) at a=+2.184  (spec 19024 -> clamped 21157); 6 evaluations
+  L12h6: worst |decay_clamp - decay_spec| = 1323 /32768 (4.04% FS) at a=+1.253  (spec 17531 -> clamped 18854); 6 evaluations
+  L12h18: worst |decay_clamp - decay_spec| = 22580 /32768 (68.91% FS) at a=+0.273  (spec 2495 -> clamped 25075); 6 evaluations
+  L13h21: worst |decay_clamp - decay_spec| = 5892 /32768 (17.98% FS) at a=+2.880  (spec 15430 -> clamped 21322); 6 evaluations
+  L13h22: worst |decay_clamp - decay_spec| = 2769 /32768 (8.45% FS) at a=+2.766  (spec 5168 -> clamped 7937); 6 evaluations
+  L13h28: worst |decay_clamp - decay_spec| = 5735 /32768 (17.50% FS) at a=+1.823  (spec 10582 -> clamped 16317); 6 evaluations
+  L14h4: worst |decay_clamp - decay_spec| = 1116 /32768 (3.41% FS) at a=+2.378  (spec 18489 -> clamped 19605); 6 evaluations
+  L14h5: worst |decay_clamp - decay_spec| = 17347 /32768 (52.94% FS) at a=-0.546  (spec 5889 -> clamped 23236); 6 evaluations
+  L14h8: worst |decay_clamp - decay_spec| = 5391 /32768 (16.45% FS) at a=+0.229  (spec 23134 -> clamped 28525); 6 evaluations
+  L14h14: worst |decay_clamp - decay_spec| = 1136 /32768 (3.47% FS) at a=+1.187  (spec 18052 -> clamped 19188); 6 evaluations
+  L17h2: worst |decay_clamp - decay_spec| = 2903 /32768 (8.86% FS) at a=+2.393  (spec 15951 -> clamped 18854); 6 evaluations
+  L17h13: worst |decay_clamp - decay_spec| = 775 /32768 (2.37% FS) at a=+0.999  (spec 19178 -> clamped 19953); 6 evaluations
+  L17h18: worst |decay_clamp - decay_spec| = 10660 /32768 (32.53% FS) at a=+2.755  (spec 9528 -> clamped 20188); 6 evaluations
+  L17h27: worst |decay_clamp - decay_spec| = 2326 /32768 (7.10% FS) at a=+2.303  (spec 20729 -> clamped 23055); 6 evaluations
+  L18h3: worst |decay_clamp - decay_spec| = 2730 /32768 (8.33% FS) at a=+2.149  (spec 20551 -> clamped 23281); 6 evaluations
+  L26h11: worst |decay_clamp - decay_spec| = 505 /32768 (1.54% FS) at a=-3.880  (spec 8504 -> clamped 9009); 6 evaluations
+RANGE AUDIT FAILED: a frozen fixed-point format SATURATES on the real weights (details above).
+The script and its artifacts were still written and are BIT-EXACT against the RTL — the reference models exactly the same clip the hardware performs, so a sim/HW gate on them still proves the engine correct; what saturation costs is NUMERICAL FIDELITY to the float model, not correctness.
+Re-run with --allow-clip to accept that trade deliberately.
+SEQ: 81092 records (1297472 B) + 2136576 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s3.e4.seq  [profile=epsnorm loop_steps=5]
+make: *** [Makefile:1267: w9_9b_model_script] Error 1
+make: Leaving directory '/home/cah/r2d2/code/fpga/fable5_llm/tb'
+=== rc: 2
+=== end: 2026-09-03T10:23:18-06:00

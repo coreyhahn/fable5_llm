@@ -1,0 +1,32 @@
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-2B/snapshots/15852e8c16360a2fea060d615a32b45270f8a8fc/model.safetensors-00001-of-00001.safetensors
+  header sha256 ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d (golden ccba2c1f645fe59268f89ee7ea552e02ce6bf0c8a087bf332fb0e3bd99bfee9d)
+  loaded in 1.8s
+  SALIENCE-WEIGHTED quantizer active (Track Q V3)
+    FABLE5_CALIB_STATS = ref/calib_stats_2b.npz
+    sha256 a6d3c27e674c0e80eae1984e69c4722de26efc83878a625a19b13292b74a51db
+    model_tag=2b corpus=ref/ppl_corpus_calib.txt tokens=32768 tensors=187
+  LM head quantized (mse=True g=64) e=-4 sh=6 (69.1s)
+
+=== config S=4 mse g64 sal ===
+    quantized 24 layers in 170.4s
+    emb table |q|max 202 of 32767 (2.2s)
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 1010, in <module>
+    main()
+    ~~~~^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 939, in main
+    r = run_config(md, golden, prompts, args.ntok, S, qf,
+                   heads[(ms, wg)], emb_f,
+                   freerun=not args.no_freerun, tok=tok, mse_scale=ms,
+                   free_ntok=args.free_ntok, wire_group=wg)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 746, in run_config
+    y = R.step(int(g_seq[t]), t)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/fidelity_check.py", line 251, in step
+    parts.append(matvec_y32(h["w4"][r0:r1], h["m"][r0:r1], h["sh"],
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            x8).astype(np.int64))
+                            ^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/w4a8_ref.py", line 161, in matvec_y32
+    assert np.abs(acc).max() < (1 << 31)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,75 @@
+=== host: snoke  date: 2026-08-25T06:17:22-06:00
+=== tree: b254009+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/resource_budget.py /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/resource_budget.json
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+VALIDATION — the model must reproduce build_035's measured 348 URAM
+==============================================================================
+    2B  DN 9 banks x 29 = 261 URAM   KV 3 banks x 29 = 87 URAM   total 348
+    measured on build_035 (TIMING_035.md:347/:851): 348   OK
+    2B  DN banks as declared: rtl/layer_chan.sv:423 `gd < 9`  -> model 9  OK
+    2B  KV banks as declared: rtl/layer_chan.sv:475 `gk < 3`  -> model 3  OK
+
+==============================================================================
+URAM — the binding resource
+==============================================================================
+    model     DN rows  banks  DN URAM  KV rows  banks  KV URAM   TOTAL   of 960  SLRs needed
+    0.8B       36,864      9      261   12,288      3       87     348    36.2%            2
+    2B         36,864      9      261   12,288      3       87     348    36.2%            2
+    4B         98,304     24      696   32,768      8      232     928    96.7%            3
+    9B         98,304     24      696   32,768      8      232     928    96.7%            3
+
+    The 4B and 9B DeltaNet state is IDENTICAL (both are 24 DN layers
+    x 32 value heads x 128x128), so this wall is the same size at both
+    targets: it is a HEAD-COUNT wall, not a hidden-size wall.
+
+==============================================================================
+BRAM — conv banks (depth = CONV_DIM) and the scratchpad
+==============================================================================
+    model   CONV_DIM  conv banks  conv RAMB36  scratch words  scratch RAMB36
+    0.8B        6144          18          342         16,384              16
+    2B          6144          18          342         32,768              30
+    4B          8192          24          624         65,536              58
+    9B          8192          24          624         65,536              58
+    4B: conv +282 + scratch +28 RAMB36 -> device 576.5 + 310 = 886.5 of 2160 (41.0 %)   OK
+    9B: conv +282 + scratch +28 RAMB36 -> device 576.5 + 310 = 886.5 of 2160 (41.0 %)   OK
+    -> BRAM is NOT the wall at either target.  URAM is.
+
+==============================================================================
+THE URAM ESCAPE — spilling the DeltaNet state to DDR, costed
+==============================================================================
+    The DN state is touched ONCE per token per layer, so streaming it
+    from DDR costs 2x its size in traffic per token (read + write).
+    model   state MiB  traffic MiB/tok  weights MiB (W8)  as % of weights
+    2B            9.0             18.0            1847.2             1.0 %   (W4: 1.9 %)
+    4B           24.0             48.0            4104.2             1.2 %   (W4: 2.3 %)
+    9B           24.0             48.0            7686.2             0.6 %   (W4: 1.2 %)
+    -> the BANDWIDTH cost of spilling is small; the cost is a new DMA
+       path in dn_step/layer_chan and a state-coherency protocol, which
+       is a large RTL project, not a parameter change.
+
+==============================================================================
+THE OTHER URAM LEVER — narrowing the DN state element from int16
+==============================================================================
+    The DN state row is 2048 b = 128 columns x 16 b (rtl/layer_chan.sv:424, rtl/dn_step.sv:12).
+    The KV cache next to it is ALREADY 8 b/element (2048 b / 256 head_dim).
+    At int8 two state rows pack into one 2048-bit URAM row, halving
+    the bank count.  This is a FIDELITY change with no measurement
+    anywhere in this repo — it is named as a lever, not proposed.
+    4B   DN state int16 (as built) DN  696 + KV 232 =  928 URAM   96.7% of 960  3 SLRs
+    4B   DN state int8             DN  348 + KV 232 =  580 URAM   60.4% of 960  2 SLRs
+    9B   DN state int16 (as built) DN  696 + KV 232 =  928 URAM   96.7% of 960  3 SLRs
+    9B   DN state int8             DN  348 + KV 232 =  580 URAM   60.4% of 960  2 SLRs
+
+==============================================================================
+CONV COUNT FIELDS — over by exactly one
+==============================================================================
+    rtl/layer_chan.sv:1204  `if (cvi == arg0[25:13])`   13-bit count
+    rtl/layer_chan.sv:1251  `if (wi + 1'b1 == arg0[27:15])`  13-bit count
+    field max = 8191
+    0.8B   CONV_DIM   6144  FITS   conv memory depth 6144 -> ok
+    2B     CONV_DIM   6144  FITS   conv memory depth 6144 -> ok
+    4B     CONV_DIM   8192  OVER by 1   conv memory depth 6144 -> must grow to 8192
+    9B     CONV_DIM   8192  OVER by 1   conv memory depth 6144 -> must grow to 8192
+=== rc  : 0
+=== end : 2026-08-25T06:17:22-06:00

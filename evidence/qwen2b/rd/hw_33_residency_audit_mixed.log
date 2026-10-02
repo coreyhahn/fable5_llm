@@ -1,0 +1,31 @@
+=== host: snoke  date: 2026-08-25T00:13:09-06:00
+=== tree: bc9ae59+dirty
+=== cmd : bash -lc echo '### 1. upload the 0.8B pack over the 2B one (a plain seq_run4)' && /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/sw/seq_run.py --prefix tb/scripts/w4/model_v2_s1.e4 --four-chan --zero-scratch --out evidence/qwen2b/rd/seq_run4_build035_mixmaker.json | grep -E 'weights|SEQ RUN|golden' && echo && echo '### 2. audit the 2B pack the chat session would trust' && FABLE5_MODEL=2b /home/cah/r2d2/code/fpga/fable5_llm/sw/.venv/bin/python -u /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_residency_audit.py /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w5/model_w8_2b_s1.e --full
+=== venv: 3.12.3 numpy 2.4.6
+### 1. upload the 0.8B pack over the 2B one (a plain seq_run4)
+  mode             4-CHANNEL row-split (weights over DDR chans [0, 1, 2, 3], fetch on chan 0)
+  weights   0x10000000 ..            (plan_weights, 187 images, chans [0, 1, 2, 3])
+  weights   187 images, 398 MiB -> 0x10000000..0x28e34000 (row-split over chans [0, 1, 2, 3], wid [186] chunk-INTERLEAVED (rung 4 S4))  [readback OK]
+  golden    7188 state checks, ALL MATCH
+SEQ RUN: PASS
+
+### 2. audit the 2B pack the chat session would trust
+artifact model_w8_2b_s1.e  nch=4 repack=True  187 images, 866 pieces
+  residency  756 witness blocks (748 weight + 8 emb, 3024 KiB) in 25 ms -> 193 MISS
+WITNESS PROBE: 193 MISS of 756 -> chat_seq would RE-UPLOAD
+    miss model_w8_2b_s1_w0.bin@c1 @ 0x1018b800
+    miss model_w8_2b_s1_w1.bin@c0 @ 0x1039b800
+    miss model_w8_2b_s1_w2.bin@c2 @ 0x10420880
+    miss model_w8_2b_s1_w3.bin@c2 @ 0x10423880
+    miss model_w8_2b_s1_w4.bin@c0 @ 0x104a9800
+    miss model_w8_2b_s1_w5.bin@c2 @ 0x106b9800
+
+FULL COMPARE — every byte of every piece, vs the artifact files
+  pieces damaged : 612 of 866
+  images touched : 187 of 187  (wid 0..186)
+  bytes damaged  : 398.6 MiB of 1847.2 MiB (21.6%)
+  address range  : 0x10000000 .. 0x28ec4000 (channel-local)
+  embedding      : 4 of 8 sampled 4 KiB blocks differ
+RESIDENT_MIXED
+=== rc  : 2
+=== end : 2026-08-25T00:13:20-06:00

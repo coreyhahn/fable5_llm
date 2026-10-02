@@ -1,0 +1,63 @@
+=== host: snoke
+=== date: 2026-09-03T00:45:32-06:00
+=== tree: c42f593+dirty
+=== cmd:  /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g4/g4a_artifact_inventory.py tb/scripts/w9/model_9b_s1 --expect-refusal
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=7
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+G4a 9B artifact inventory
+  base tb/scripts/w9/model_9b_s1
+  seq  tb/scripts/w9/model_9b_s1.e4
+
+INVENTORY — hashed
+       2,535,728 B  af6dca2930bb2d8368f0ebde70f25b673676ac16523ce60a406b56a0f7e7f340  model_9b_s1.e4.seq
+       2,136,576 B  c98c88c29e772fb26536ee1a48984609e8e9383c49145a85568a1324794df7b5  model_9b_s1.e4.seqdata.bin
+         114,482 B  b1bc37f48b3aaf2487cfebeaeaca22858a51db579160bcd7ee8dea199dd9150f  model_9b_s1.e4.seq.json
+          36,810 B  d11cedf145ca6f1f44a4177321e76b22815f39a86777ead0fbf4a04396b5d338  model_9b_s1.weights.json
+
+INVENTORY — sized
+             249 weight images, 4,091,805,696 B = 3,902.2 MiB
+                  image-list sha256 f39d87a0ad17f7387d9dfc9532646fdc6ab155ac4da2dbc04fc1080422b26e90
+   2,034,237,440 B = 1,940.0 MiB  model_9b_s1.emb.bin
+     247,618,489 B = 236.1 MiB  model_9b_s1.txt
+
+MANIFEST — the two caller-gated non-wid keys
+  emb_row_bytes = 8192   -> EMBLOG2 13
+  rs_f          = 7
+
+STREAM metadata
+  format_version           1
+  profile                  'epsnorm'
+  nch                      4
+  nrec                     158483
+  stream_bytes             2535728
+  stream_sha256            'af6dca2930bb2d8368f0ebde70f25b673676ac16523ce60a406b56a0f7e7f340'
+  seqdata_bytes            2136576
+  seqdata_sha256           'c98c88c29e772fb26536ee1a48984609e8e9383c49145a85568a1324794df7b5'
+  steps                    6
+  loop_steps               3
+  loop_structurally_safe   True
+  expect_tokens            [2614, 314, 279, 369, 11751, 13]
+  prompt_fed               [760, 6511, 9338]
+  shape_isa                2
+  weight_repack            True
+  weight_layout            nch=4 chunk_rows=2048 default='contig' ilv_wids=[248]
+
+FIT — plan_weights on the REAL manifest, wdir set
+  249 images, every base identical to the stream's MVGOs: YES
+  chan 0  0x4d290000      978.6 MiB
+  chan 1  0x4cf78000      975.5 MiB
+  chan 2  0x4ce70000      974.4 MiB
+  chan 3  0x4ce70000      974.4 MiB
+  window: 978.6 MiB of 1,280 MiB = 76.5 %
+
+NCH=1 — the nch-INDEPENDENT pack, offered to the same manifest
+  REFUSED: AssertionError: weight images (249 wids, 4091904000 bytes packed from 0x10000000) reach chan 0 0x103e58000, past EMB_BASE 0x60000000 — move EMB_BASE or split the images across DDR channels
+
+G4A_INVENTORY: PASS (0 problem(s))
+=== rc: 0
+=== end: 2026-09-03T00:45:32-06:00

@@ -1,0 +1,47 @@
+/dev/nvme0n1p1  458G  368G   67G  85% /
+model      FABLE5_MODEL=4b  32 layers  H=2560  vocab=248320
+checkpoint /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-4B/snapshots/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a/model.safetensors-00001-of-00002.safetensors
+           header sha256 6e73db95dda030ff8fa43e99e2cebb3307f91363a756b2ba115e67ae0efb72fd
+corpus     ref/ppl_corpus_calib.txt
+           sha256 522afbcaa928956d92d35dfd93741a8c795f750e22edc4ef2e00ed0df8478f2d
+           32768 tokens, window=512, batch=4
+torch 2.12.0+cpu  threads=8
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+  model built + loaded in 103.5s
+    class    quant    mats   weights   packed  (ideal)   footprint   [packed = w4a8_ref.row_stride, beat padding included]
+    qkv      bf16      24 mats   209.715 M 16.000 b/w (16.000)     400.0 MiB
+    o_proj   bf16       8 mats    83.886 M 16.000 b/w (16.000)     160.0 MiB
+    gate_up  bf16      64 mats  1509.949 M 16.000 b/w (16.000)    2880.0 MiB
+    down     bf16      32 mats   754.975 M 16.000 b/w (16.000)    1440.0 MiB
+    dn_in    bf16      96 mats   758.907 M 16.000 b/w (16.000)    1447.5 MiB
+    dn_out   bf16      24 mats   251.658 M 16.000 b/w (16.000)     480.0 MiB
+    lm_head  bf16       1 mats   635.699 M 16.000 b/w (16.000)    1212.5 MiB
+    dn_conv  bf16      24 mats     0.786 M 16.000 b/w (16.000)       1.5 MiB
+    emb      bf16       1 mats   635.699 M 16.000 b/w (16.000)    1212.5 MiB
+    _float   bf16     153 mats     0.175 M 16.000 b/w (16.000)       0.3 MiB
+    _total   bf16     427 mats  4841.450 M 16.000 b/w (16.000)    9234.3 MiB
+  hooked 248 nn.Linear + the final norm for lm_head  + the model itself (forward counter for the Hessian shared-input check)
+  window 4/64  tokens=2048  108.7s
+  window 8/64  tokens=4096  209.0s
+  window 12/64  tokens=6144  295.8s
+  window 16/64  tokens=8192  397.3s
+  window 20/64  tokens=10240  498.9s
+  window 24/64  tokens=12288  609.2s
+  window 28/64  tokens=14336  719.1s
+  window 32/64  tokens=16384  821.4s
+  window 36/64  tokens=18432  933.4s
+  window 40/64  tokens=20480  1041.9s
+  window 44/64  tokens=22528  1149.5s
+  window 48/64  tokens=24576  1253.6s
+  window 52/64  tokens=26624  1353.9s
+  window 56/64  tokens=28672  1431.1s
+  window 60/64  tokens=30720  1511.0s
+  window 64/64  tokens=32768  1588.0s
+  129 input sites carry a Hessian (13.71 GiB)
+
+249 salience vectors (249 required) over 32768 tokens in 1588.9s
+  layers.0.linear_attn.in_proj_qkv         K=2560  mean=0.9064 max/mean=4.4 p99/median=2.6
+  layers.31.mlp.down_proj                  K=9216  mean=0.2686 max/mean=29.8 p99/median=17.2
+  lm_head                                  K=2560  mean=2.206 max/mean=10.9 p99/median=3.4
+npz -> ref/calib_stats_4b_h.npz  (14046.8 MiB)
+sha256 8b0e13e8487d99d9dc01a990aa02d9c2ebe74fb07437d671f40b8d95019bebcb

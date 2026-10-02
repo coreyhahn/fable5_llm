@@ -1,0 +1,45 @@
+=== host: snoke  date: 2026-09-29T03:35:56-06:00
+=== tree: 01564d8
+=== cmd : bash -c I=synth/out_build_045_r2_incr/proj/stage1.runs/impl_1
+echo "CL the R2 run's closure sequence (runme.log line: message):"
+grep -nE "Post Placement Timing Summary|Phase 13 Incr Placement Change|Post Routing Timing Summary|Command: (place|route|phys_opt|write_bitstream)|The netlist was not modified|All physical synthesis setup optimizations will be skipped|Vivado_Tcl 4-2279" $I/runme.log | cut -c1-170 | sed 's/^/CL   /'
+echo "CL the routed timing report (before the post-route phys_opt): $(ls -la --time-style=full-iso $I/bd_wrapper_timing_summary_routed.rpt | awk '{print $6, $7}')"
+awk '/^\| Design Timing Summary/{f=1} f&&/^ *-+ +-+ /{r=1;next} r&&NF{print "CL   routed design row: " $0;exit}' $I/bd_wrapper_timing_summary_routed.rpt | tr -s ' '
+echo "CL R1 (SR7, build_044_r1_incr) runme.log 'Incr Placement Change' count: $(grep -c 'Incr Placement Change' synth/out_build_044_r1_incr/proj/stage1.runs/impl_1/runme.log)"
+grep -nE "Post Placement Timing Summary|Post Routing Timing Summary|The netlist was not modified" synth/out_build_044_r1_incr/proj/stage1.runs/impl_1/runme.log | cut -c1-170 | sed 's/^/CL   R1 /'
+echo "TW the base-roll TWIN bitstream (same VERSION 266e3ae7, NOT the signed-off one):"
+T=synth/out_build_045_r2/proj/stage1.runs/impl_1/bd_wrapper.bit
+ls -la --time-style=full-iso $T | awk '{print "TW   " $6, $7, $5, $9}'; sha256sum $T | sed 's/^/TW   sha256 /'
+echo "TW   its source build's VERSION stamp: $(head -1 synth/out_build_045_r2/build.log)"
+echo "TW the signed-off bitstream, re-hashed:"
+ls -la --time-style=full-iso $I/bd_wrapper.bit | awk '{print "TW   " $6, $7, $5, $9}'; sha256sum $I/bd_wrapper.bit | sed 's/^/TW   sha256 /'
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+CL the R2 run's closure sequence (runme.log line: message):
+CL   1484:Command: place_design -directive AltSpreadLogic_high
+CL   1659:INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.791. For the most accurate timing information please run report_timing.
+CL   1829:Command: phys_opt_design -directive AggressiveExplore
+CL   2230:Command: route_design
+CL   2539:Phase 13 Incr Placement Change
+CL   2544:INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.058. For the most accurate timing information please run report_timing.
+CL   2552:Phase 13 Incr Placement Change | Checksum: 197bcd034
+CL   2958:INFO: [Route 35-20] Post Routing Timing Summary | WNS=0.004  | TNS=0.000  | WHS=0.001  | THS=0.000  |
+CL   3071:Command: phys_opt_design -directive AggressiveExplore
+CL   3074:INFO: [Vivado_Tcl 4-2279] Estimated Timing Summary | WNS= 0.004 | TNS= 0.000 | 
+CL   3075:INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.001 ns. All physical synthesis setup optimizations will be skipped.
+CL   3076:INFO: [Vivado_Tcl 4-232] No setup violation found. The netlist was not modified.
+CL   3236:Command: write_bitstream -force bd_wrapper.bit
+CL the routed timing report (before the post-route phys_opt): 2026-09-29 01:46:45.935439090
+CL routed design row: 0.004 0.000 0 1321426 0.001 0.000 0 1318290 0.000 0.000 0 393059 
+CL R1 (SR7, build_044_r1_incr) runme.log 'Incr Placement Change' count: 0
+CL   R1 1564:INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.038. For the most accurate timing information please run report_timing.
+CL   R1 2201:INFO: [Vivado_Tcl 4-232] No setup violation found. The netlist was not modified.
+TW the base-roll TWIN bitstream (same VERSION 266e3ae7, NOT the signed-off one):
+TW   2026-09-28 21:06:28.185101851 49900081 synth/out_build_045_r2/proj/stage1.runs/impl_1/bd_wrapper.bit
+TW   sha256 de6ad3635f1fbdcd3e798350909fd9b0950a576a89c2965cc3e29147fd21acaa  synth/out_build_045_r2/proj/stage1.runs/impl_1/bd_wrapper.bit
+TW   its source build's VERSION stamp: === create_project (266e3ae7) ===
+TW the signed-off bitstream, re-hashed:
+TW   2026-09-29 02:06:37.210052893 53080061 synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper.bit
+TW   sha256 c4caeb096b298206c207facca031652a904962a0b0f8a27e98233342af8b4dcb  synth/out_build_045_r2_incr/proj/stage1.runs/impl_1/bd_wrapper.bit
+=== rc  : 0
+=== end : 2026-09-29T03:35:57-06:00

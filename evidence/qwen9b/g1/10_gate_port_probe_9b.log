@@ -1,0 +1,26 @@
+=== host: snoke
+=== date: 2026-08-29T17:57:32-06:00
+=== tree: 4965057
+=== cmd:  /home/cah/.local/bin/uv run --no-project --with torch --with transformers --with numpy python -u /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/q2/audit/gate_port_probe.py
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+model          : 9b  (models--Qwen--Qwen3.5-9B)
+checkpoint     : /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+header sha256  : 9bcf722bdd0eee137b7f0e225f4bfb50683b9b33c42de0d560498ce92a8c63b0
+DN layers      : 24 x LNH=32 heads
+clamps in force: DT_Q12=[-32768,32767] A_Q15=[0,262143]  (layer_fixed.py:805-806)
+
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/q2/audit/gate_port_probe.py", line 72, in <module>
+    A_log = np.asarray(st.get(f"{p}layers.{i}.linear_attn.A_log"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/load_qwen35.py", line 222, in get
+    raise KeyError(f"{name!r} not in "
+KeyError: "'model.language_model.layers.0.linear_attn.A_log' not in ['model.safetensors-00001-of-00004.safetensors']"
+=== rc: 1
+=== end: 2026-08-29T17:57:33-06:00

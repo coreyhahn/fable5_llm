@@ -1,0 +1,90 @@
+=== host: snoke  date: 2026-08-22T12:56:23-06:00
+=== tree: 999df81+dirty
+=== cmd : bash evidence/qwen2b/rc/t4_bisect.sh 08_w4_n4 2b_w4_n4 08_w8_n4
+=== venv: 3.12.3 numpy 2.4.6
+
+################ CELL 08_w4_n4  (model=0.8b wq=w4 nch=4)
+layer script: seed=1 ntok=2 wq=w4 cmds=508 hostwords=163552 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/ref/../tb/scripts/w5/bis/bis_08_w4_n4.txt
+SEQ: 2291 records (36656 B) + 63360 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/ref/../tb/scripts/w5/bis/bis_08_w4_n4.e.seq  [profile=epsnorm loop_steps=0]
+  scripts/w5/bis/bis_08_w4_n4.wimg0.bin: 5496832 B (5.2 MiB) @ 0x10000000
+  scripts/w5/bis/bis_08_w4_n4.wimg1.bin: 5496832 B (5.2 MiB) @ 0x10000000
+  scripts/w5/bis/bis_08_w4_n4.wimg2.bin: 5496832 B (5.2 MiB) @ 0x10000000
+  scripts/w5/bis/bis_08_w4_n4.wimg3.bin: 5496832 B (5.2 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/bis/bis_08_w4_n4.e.chip: 2291 records, pc 2290, 0 tokens, 7168 scratch words checked (9216 staging words excluded)
+  seq_model stats: {'CSRWR': 1405, 'CMD': 468, 'MOVX': 120, 'MOVY': 120, 'MVGO': 120, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 30, 'LDC': 25, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 120}
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+  mem region 0: 5496832 B @ 000010000000   scripts/w5/bis/bis_08_w4_n4.wimg3.bin
+tb_seq_chip: launch 0 [-] rec_off 0, 2291 records, 0 tokens, 7168 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP scripts/w5/bis/bis_08_w4_n4.e launch 0 [-]: 2291 records, 1069855 cycles (466.98 cyc/rec, 4.279 ms @250MHz, PERF_CYC 1069848)
+LAUNCH 0 PASS: [-] pc 2290, tokens 0, tcnt 6, scratch 7168
+  axil writes 3016
+  axil reads  55347
+  burst: 716 write bursts (173728 beats), 1000 read bursts (243776 beats), busy_wr 324579 busy_rd 275592, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 12
+  ddr beats 6847 (miss 0), weight beats 171664 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w5/bis/bis_08_w4_n4.e (launches 1, 1069855 cycles total, scratch 7168/launch, tokens 0, tcnt 6)
+- tb_seq_chip.sv:888: Verilog $finish
+CELL 08_w4_n4 RTL rc=0
+
+################ CELL 2b_w4_n4  (model=2b wq=w4 nch=4)
+layer script: seed=1 ntok=2 wq=w4 cmds=520 hostwords=231136 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/ref/../tb/scripts/w5/bis/bis_2b_w4_n4.txt
+SEQ: 2307 records (36912 B) + 75648 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/ref/../tb/scripts/w5/bis/bis_2b_w4_n4.e.seq  [profile=epsnorm loop_steps=0]
+  scripts/w5/bis/bis_2b_w4_n4.wimg0.bin: 14712832 B (14.0 MiB) @ 0x10000000
+  scripts/w5/bis/bis_2b_w4_n4.wimg1.bin: 14712832 B (14.0 MiB) @ 0x10000000
+  scripts/w5/bis/bis_2b_w4_n4.wimg2.bin: 14712832 B (14.0 MiB) @ 0x10000000
+  scripts/w5/bis/bis_2b_w4_n4.wimg3.bin: 14712832 B (14.0 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/bis/bis_2b_w4_n4.e.chip: 2307 records, pc 2306, 0 tokens, 16384 scratch words checked (16384 staging words excluded)
+  seq_model stats: {'CSRWR': 1417, 'CMD': 472, 'MOVX': 120, 'MOVY': 120, 'MVGO': 120, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 30, 'LDC': 25, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 120}
+  SCRATCH  4096 of 32768 words differ at the end; 0 outside the declared y32 staging windows (16384 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+MEM[0009] = 00cf, expected 008c
+MEM[000a] = 07d0, expected fdd7
+MEM[000b] = f7ea, expected fdd2
+MEM[000c] = 04f5, expected 0239
+MEM[000d] = f844, expected ff07
+MEM[000e] = 02af, expected fd50
+MEM[000f] = 0574, expected fb19
+MEM[0010] = fd9e, expected 000d
+MEM[0011] = 035d, expected 024e
+[6368960000] %Fatal: tb_seq_chip.sv:812: Assertion failed in TOP.tb_seq_chip.unnamedblk4.unnamedblk14: too many scratch mismatches
+%Error: tb_seq_chip.sv:812: Verilog $stop
+Aborting...
+CELL 2b_w4_n4 RTL rc=134
+
+################ CELL 08_w8_n4  (model=0.8b wq=w8 nch=4)
+layer script: seed=1 ntok=2 wq=w8 cmds=508 hostwords=163552 weights=15 -> /home/cah/r2d2/code/fpga/fable5_llm/ref/../tb/scripts/w5/bis/bis_08_w8_n4.txt
+SEQ: 2291 records (36656 B) + 63360 B const blob -> /home/cah/r2d2/code/fpga/fable5_llm/ref/../tb/scripts/w5/bis/bis_08_w8_n4.e.seq  [profile=epsnorm loop_steps=0]
+  scripts/w5/bis/bis_08_w8_n4.wimg0.bin: 10485760 B (10.0 MiB) @ 0x10000000
+  scripts/w5/bis/bis_08_w8_n4.wimg1.bin: 10485760 B (10.0 MiB) @ 0x10000000
+  scripts/w5/bis/bis_08_w8_n4.wimg2.bin: 10485760 B (10.0 MiB) @ 0x10000000
+  scripts/w5/bis/bis_08_w8_n4.wimg3.bin: 10485760 B (10.0 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 15 images (run tb_seq_chip with -GWIMGPC=1)
+  scripts/w5/bis/bis_08_w8_n4.e.chip: 2291 records, pc 2290, 0 tokens, 7168 scratch words checked (9216 staging words excluded)
+  seq_model stats: {'CSRWR': 1405, 'CMD': 468, 'MOVX': 120, 'MOVY': 120, 'MVGO': 120, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 30, 'LDC': 25, 'XOP': 2, 'PROBE': 2, 'MVGO_NOWAIT': 120}
+  SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+  BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+  TOKENS   IDENTICAL  []
+SEQ GATE: PASS
+  mem region 0: 10485760 B @ 000010000000   scripts/w5/bis/bis_08_w8_n4.wimg3.bin
+tb_seq_chip: launch 0 [-] rec_off 0, 2291 records, 0 tokens, 7168 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+SEQ-CHIP scripts/w5/bis/bis_08_w8_n4.e launch 0 [-]: 2291 records, 1201597 cycles (524.49 cyc/rec, 4.806 ms @250MHz, PERF_CYC 1201590)
+LAUNCH 0 PASS: [-] pc 2290, tokens 0, tcnt 6, scratch 7168
+  axil writes 3016
+  axil reads  65481
+  burst: 716 write bursts (173728 beats), 1000 read bursts (243776 beats), busy_wr 324579 busy_rd 275592, decerr 0 non-OK 0, BLAT=4
+  fetch-empty stall cycles 12
+  ddr beats 6847 (miss 0), weight beats 327440 (miss 0)
+  DUT held in reset 0 times after t=0 (rst_armed asserted before launch 0, never violated)
+TB_SEQ_CHIP PASS: scripts/w5/bis/bis_08_w8_n4.e (launches 1, 1201597 cycles total, scratch 7168/launch, tokens 0, tcnt 6)
+- tb_seq_chip.sv:888: Verilog $finish
+CELL 08_w8_n4 RTL rc=0
+=== rc  : 0
+=== end : 2026-08-22T13:00:20-06:00

@@ -1,0 +1,48 @@
+=== host: darthplagueis
+=== date: 2026-09-10T06:05:27-06:00
+=== tree: 3d05289+dirty
+=== cmd:  bash /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/297477f1-b332-4f12-8141-aed7689cf8e7/scratchpad/allow_live.sh /tmp/claude-1000/-home-cah-r2d2-code-fpga-fable5-llm/297477f1-b332-4f12-8141-aed7689cf8e7/scratchpad/edited.txt
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+### --plan (no override): every rewrite is COLLATERAL
+      collateral  ref/layer_fixed.py:39 -> ref/layer_fixed.py:40
+  TOTAL      REPAIR 0  COLLATERAL 51
+O3_FIX_PLAN: UNSAFE — 51 of 51 rewrites would move a citation that is already correct; repair the 0 stale one(s) BY HAND, --exclude the document, or clear each CHECKED token with --allow-collateral
+rc=1
+
+### --plan --allow-collateral evidence/qwen9b/s3/S3_CHAIN.md \
+###        --allow-collateral typo/nope.md
+### (one real citing document, and one value that names nothing)
+  TOTAL      REPAIR 0  COLLATERAL 51
+  ! ALLOW-COLLATERAL typo/nope.md matches no collateral token — it clears NOTHING (exact match on a citing document or a `path:line`)
+  ALLOWED COLLATERAL evidence/qwen9b/s3/S3_CHAIN.md  tb/Makefile:1397-1427 -> tb/Makefile:1402-1432   (--allow-collateral evidence/qwen9b/s3/S3_CHAIN.md)
+  ALLOWED COLLATERAL evidence/qwen9b/s3/S3_CHAIN.md  tb/Makefile:1419-1426 -> tb/Makefile:1424-1431   (--allow-collateral evidence/qwen9b/s3/S3_CHAIN.md)
+  ALLOWED    2 collateral rewrite(s), EVERY ONE NAMED ABOVE, on the operator's assertion that each was checked by hand
+O3_FIX_PLAN: UNSAFE — 49 of 51 rewrites would move a citation that is already correct; repair the 0 stale one(s) BY HAND, --exclude the document, or clear each CHECKED token with --allow-collateral
+rc=1
+
+### --fix with the same override: the REFUSAL names what it will not do
+  ! COLLATERAL evidence/qwen2b/q2/v1_v2/DECOMP.md  ref/layer_fixed.py:864-866 -> ref/layer_fixed.py:884-886
+  ! COLLATERAL evidence/qwen2b/q2/v1_v2/DECOMP.md  ref/layer_fixed.py:990 -> ref/layer_fixed.py:1010
+  ! COLLATERAL evidence/qwen9b/g1/RUNG_INT8_STATE.md  ref/layer_fixed.py:2615 -> ref/layer_fixed.py:2635
+  ! COLLATERAL ... and 37 more
+O3_CITE_DRIFT FIX REFUSED — 49 rewrite(s) would move a citation that is ALREADY correct (a pass at base a4a1f68 has partly landed).  Repair the stale one(s) BY HAND, --exclude those documents (which forfeits their REPAIRs too), or clear each token you have CHECKED with --allow-collateral <doc|path:NNN>; see --plan
+rc=2
+
+The --fix is REFUSED (rc 2) and writes nothing: 49 tokens are still
+collateral and were NOT cleared.  That is the guard doing its job WITH
+the escape present -- --allow-collateral clears exactly what it names
+and not one token more.
+
+### the tree is unchanged by all three runs:
+    before:  1 file changed, 2 insertions(+), 2 deletions(-)
+    after :  1 file changed, 2 insertions(+), 2 deletions(-)
+    (that diff is this round's LANDED pass, and both dry runs plus the
+     refused --fix left it exactly as it was)
+=== rc: 0
+=== end: 2026-09-10T06:05:34-06:00

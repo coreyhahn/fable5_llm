@@ -1,0 +1,511 @@
+=== host: snoke  date: 2026-09-15T16:25:43-06:00
+=== tree: 84abd6a+dirty
+=== cmd : bash -lc source /home/cah/r2d2/sc2data/tools/Vivado/2024.2/settings64.sh >/dev/null && cd /tmp/feas2_gty && vivado -mode batch -nojournal -nolog -source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas2/gty_sites.tcl
+=== venv: 3.12.3 numpy 2.4.6
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Tue Sep 15 16:25:46 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas2/gty_sites.tcl
+# set PART xcvu9p-fsgd2104-2L-e
+# puts "### PART = $PART"
+### PART = xcvu9p-fsgd2104-2L-e
+# puts "### Vivado = [version -short]"
+### Vivado = 2024.2
+# create_project -in_memory -part $PART
+create_project: Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 1500.359 ; gain = 121.918 ; free physical = 35004 ; free virtual = 371691
+# puts "### create_project -in_memory OK; current part = [get_property PART [current_project]]"
+### create_project -in_memory OK; current part = xcvu9p-fsgd2104-2L-e
+# if {[catch {link_design -part $PART} msg]} {
+#   puts "### link_design NOT used (expected on a netlist-less in-memory project): $msg"
+# } else {
+#   puts "### link_design OK"
+# }
+Command: link_design -part xcvu9p-fsgd2104-2L-e
+Design is defaulting to srcset: sources_1
+Design is defaulting to constrset: constrs_1
+INFO: [Device 21-403] Loading part xcvu9p-fsgd2104-2L-e
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2531.883 ; gain = 0.000 ; free physical = 33919 ; free virtual = 370607
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2542.789 ; gain = 0.000 ; free physical = 33928 ; free virtual = 370615
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+4 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+link_design completed successfully
+link_design: Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 2542.789 ; gain = 1042.430 ; free physical = 33928 ; free virtual = 370615
+### link_design OK
+# puts "\n===== SECTION A: property-name discovery on one package pin (K11) ====="
+
+===== SECTION A: property-name discovery on one package pin (K11) =====
+# set pp [lindex [get_package_pins K11] 0]
+# puts "A: object      = $pp"
+A: object      = K11
+# puts "A: list_property = [join [lsort [list_property $pp]] {, }]"
+A: list_property = BANK, BUFIO_2_REGION, CLASS, DIFF_PAIR_PIN, IS_BONDED, IS_DIFFERENTIAL, IS_GENERAL_PURPOSE, IS_GLOBAL_CLK, IS_LOW_CAP, IS_MASTER, IS_USED, IS_VREF, IS_VRN, IS_VRP, MAX_DELAY, MIN_DELAY, NAME, PIN_FUNC, PIN_FUNC_COUNT, PKGPIN_BYTEGROUP_INDEX, PKGPIN_NIBBLE_INDEX
+# puts "A: --- report_property -all ---"
+A: --- report_property -all ---
+# if {[catch {report_property -all $pp} msg]} { puts "A: report_property FAILED: $msg" }
+Property                Type    Read-only  Value
+BANK                    string  true       231
+BUFIO_2_REGION          string  true       TR
+CLASS                   string  true       package_pin
+DIFF_PAIR_PIN           string  true       K10
+IS_BONDED               bool    true       1
+IS_DIFFERENTIAL         bool    true       1
+IS_GENERAL_PURPOSE      bool    true       0
+IS_GLOBAL_CLK           bool    true       0
+IS_LOW_CAP              bool    true       0
+IS_MASTER               bool    true       1
+IS_USED                 bool    true       0
+IS_VREF                 bool    true       0
+IS_VRN                  bool    true       0
+IS_VRP                  bool    true       0
+MAX_DELAY               int     true       46134
+MIN_DELAY               int     true       45675
+NAME                    string  true       K11
+PIN_FUNC                enum    true       MGTREFCLK1P_231
+PIN_FUNC_COUNT          int     true       1
+PKGPIN_BYTEGROUP_INDEX  int     true       0
+PKGPIN_NIBBLE_INDEX     int     true       0
+# puts "A: --- get_sites -of_objects ---"
+A: --- get_sites -of_objects ---
+# if {[catch {set s [get_sites -of_objects $pp]} msg]} {
+#   puts "A: get_sites -of_objects FAILED: $msg"
+# } else {
+#   puts "A: get_sites -of_objects K11 = $s"
+#   if {[llength $s]} {
+#     puts "A: site list_property = [join [lsort [list_property [lindex $s 0]]] {, }]"
+#   }
+# }
+A: get_sites -of_objects K11 = GTYE4_COMMON_X1Y12
+A: site list_property = ALTERNATE_SITE_TYPES, CLASS, CLOCK_REGION, HAS_PROGRAMMING, IS_BONDED, IS_GLOBAL_CLOCK_PAD, IS_PAD, IS_RESERVED, IS_TEST, IS_USED, MANUAL_ROUTING, NAME, NUM_ARCS, NUM_BELS, NUM_INPUTS, NUM_OUTPUTS, NUM_PINS, PRIMARY_SITE_TYPE, PRIMITIVE_COUNT, PROHIBIT, PROHIBIT_FROM_PERSIST, REGION_NAME, RPM_X, RPM_Y, SITE_CHILD_DEF, SITE_PIPS, SITE_TYPE
+# proc pinline {tag p} {
+#   set pp [get_package_pins $p]
+#   if {[llength $pp] == 0} { puts "PIN $tag $p  -> NOT FOUND"; return }
+#   set pp [lindex $pp 0]
+#   set bank "?" ; set func "?" ; set site "?" ; set stype "?" ; set slr "?" ; set cr "?"
+#   catch {set bank [get_property BANK $pp]}
+#   catch {set func [get_property PIN_FUNC $pp]}
+#   catch {set site [get_property SITE_NAME $pp]}
+#   set so {}
+#   catch {set so [get_sites -quiet -of_objects $pp]}
+#   if {[llength $so]} {
+#     set site [lindex $so 0]
+#     catch {set stype [get_property SITE_TYPE [lindex $so 0]]}
+#     catch {set cr    [get_property CLOCK_REGION [lindex $so 0]]}
+#     catch {set slr   [get_property NAME [get_slrs -quiet -of_objects [lindex $so 0]]]}
+#     if {$slr eq "" || $slr eq "?"} { catch {set slr [get_property SLR [lindex $so 0]]} }
+#   }
+#   puts [format "PIN %-22s %-5s site=%-22s type=%-16s bank=%-5s clkreg=%-6s slr=%-6s func=%s" \
+#         $tag $p $site $stype $bank $cr $slr $func]
+# }
+# puts "\n===== SECTION B: BCU-1525 QSFP0 cage pins (community XDC) ====="
+
+===== SECTION B: BCU-1525 QSFP0 cage pins (community XDC) =====
+# pinline QSFP0_CLOCK_P K11
+PIN QSFP0_CLOCK_P          K11   site=GTYE4_COMMON_X1Y12     type=GTYE4_COMMON     bank=231   clkreg=X5Y12  slr=SLR2   func=MGTREFCLK1P_231
+# pinline QSFP0_CLOCK_N K10
+PIN QSFP0_CLOCK_N          K10   site=GTYE4_COMMON_X1Y12     type=GTYE4_COMMON     bank=231   clkreg=X5Y12  slr=SLR2   func=MGTREFCLK1N_231
+# pinline QSFP0_TX1_P   N9
+PIN QSFP0_TX1_P            N9    site=GTYE4_CHANNEL_X1Y48    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYTXP0_231
+# pinline QSFP0_TX1_N   N8
+PIN QSFP0_TX1_N            N8    site=GTYE4_CHANNEL_X1Y48    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYTXN0_231
+# pinline QSFP0_RX1_P   N4
+PIN QSFP0_RX1_P            N4    site=GTYE4_CHANNEL_X1Y48    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYRXP0_231
+# pinline QSFP0_RX1_N   N3
+PIN QSFP0_RX1_N            N3    site=GTYE4_CHANNEL_X1Y48    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYRXN0_231
+# pinline QSFP0_TX2_P   M7
+PIN QSFP0_TX2_P            M7    site=GTYE4_CHANNEL_X1Y49    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYTXP1_231
+# pinline QSFP0_TX2_N   M6
+PIN QSFP0_TX2_N            M6    site=GTYE4_CHANNEL_X1Y49    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYTXN1_231
+# pinline QSFP0_RX2_P   M2
+PIN QSFP0_RX2_P            M2    site=GTYE4_CHANNEL_X1Y49    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYRXP1_231
+# pinline QSFP0_RX2_N   M1
+PIN QSFP0_RX2_N            M1    site=GTYE4_CHANNEL_X1Y49    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYRXN1_231
+# pinline QSFP0_TX3_P   L9
+PIN QSFP0_TX3_P            L9    site=GTYE4_CHANNEL_X1Y50    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYTXP2_231
+# pinline QSFP0_TX3_N   L8
+PIN QSFP0_TX3_N            L8    site=GTYE4_CHANNEL_X1Y50    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYTXN2_231
+# pinline QSFP0_RX3_P   L4
+PIN QSFP0_RX3_P            L4    site=GTYE4_CHANNEL_X1Y50    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYRXP2_231
+# pinline QSFP0_RX3_N   L3
+PIN QSFP0_RX3_N            L3    site=GTYE4_CHANNEL_X1Y50    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYRXN2_231
+# pinline QSFP0_TX4_P   K7
+PIN QSFP0_TX4_P            K7    site=GTYE4_CHANNEL_X1Y51    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYTXP3_231
+# pinline QSFP0_TX4_N   K6
+PIN QSFP0_TX4_N            K6    site=GTYE4_CHANNEL_X1Y51    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYTXN3_231
+# pinline QSFP0_RX4_P   K2
+PIN QSFP0_RX4_P            K2    site=GTYE4_CHANNEL_X1Y51    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYRXP3_231
+# pinline QSFP0_RX4_N   K1
+PIN QSFP0_RX4_N            K1    site=GTYE4_CHANNEL_X1Y51    type=GTYE4_CHANNEL    bank=231   clkreg=X5Y12  slr=SLR2   func=MGTYRXN3_231
+# puts "\n===== SECTION C: BCU-1525 QSFP1 cage pins (community XDC) ====="
+
+===== SECTION C: BCU-1525 QSFP1 cage pins (community XDC) =====
+# pinline QSFP1_CLOCK_P P11
+PIN QSFP1_CLOCK_P          P11   site=GTYE4_COMMON_X1Y11     type=GTYE4_COMMON     bank=230   clkreg=X5Y11  slr=SLR2   func=MGTREFCLK1P_230
+# pinline QSFP1_CLOCK_N P10
+PIN QSFP1_CLOCK_N          P10   site=GTYE4_COMMON_X1Y11     type=GTYE4_COMMON     bank=230   clkreg=X5Y11  slr=SLR2   func=MGTREFCLK1N_230
+# pinline QSFP1_TX1_P   U9
+PIN QSFP1_TX1_P            U9    site=GTYE4_CHANNEL_X1Y44    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYTXP0_230
+# pinline QSFP1_TX1_N   U8
+PIN QSFP1_TX1_N            U8    site=GTYE4_CHANNEL_X1Y44    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYTXN0_230
+# pinline QSFP1_RX1_P   U4
+PIN QSFP1_RX1_P            U4    site=GTYE4_CHANNEL_X1Y44    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYRXP0_230
+# pinline QSFP1_RX1_N   U3
+PIN QSFP1_RX1_N            U3    site=GTYE4_CHANNEL_X1Y44    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYRXN0_230
+# pinline QSFP1_TX2_P   T7
+PIN QSFP1_TX2_P            T7    site=GTYE4_CHANNEL_X1Y45    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYTXP1_230
+# pinline QSFP1_TX2_N   T6
+PIN QSFP1_TX2_N            T6    site=GTYE4_CHANNEL_X1Y45    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYTXN1_230
+# pinline QSFP1_RX2_P   T2
+PIN QSFP1_RX2_P            T2    site=GTYE4_CHANNEL_X1Y45    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYRXP1_230
+# pinline QSFP1_RX2_N   T1
+PIN QSFP1_RX2_N            T1    site=GTYE4_CHANNEL_X1Y45    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYRXN1_230
+# pinline QSFP1_TX3_P   R9
+PIN QSFP1_TX3_P            R9    site=GTYE4_CHANNEL_X1Y46    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYTXP2_230
+# pinline QSFP1_TX3_N   R8
+PIN QSFP1_TX3_N            R8    site=GTYE4_CHANNEL_X1Y46    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYTXN2_230
+# pinline QSFP1_RX3_P   R4
+PIN QSFP1_RX3_P            R4    site=GTYE4_CHANNEL_X1Y46    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYRXP2_230
+# pinline QSFP1_RX3_N   R3
+PIN QSFP1_RX3_N            R3    site=GTYE4_CHANNEL_X1Y46    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYRXN2_230
+# pinline QSFP1_TX4_P   P7
+PIN QSFP1_TX4_P            P7    site=GTYE4_CHANNEL_X1Y47    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYTXP3_230
+# pinline QSFP1_TX4_N   P6
+PIN QSFP1_TX4_N            P6    site=GTYE4_CHANNEL_X1Y47    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYTXN3_230
+# pinline QSFP1_RX4_P   P2
+PIN QSFP1_RX4_P            P2    site=GTYE4_CHANNEL_X1Y47    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYRXP3_230
+# pinline QSFP1_RX4_N   P1
+PIN QSFP1_RX4_N            P1    site=GTYE4_CHANNEL_X1Y47    type=GTYE4_CHANNEL    bank=230   clkreg=X5Y11  slr=SLR2   func=MGTYRXN3_230
+# puts "\n===== SECTION D: on-board Si570 MGT refclks ====="
+
+===== SECTION D: on-board Si570 MGT refclks =====
+# pinline MGT_SI570_CLOCK0_P M11
+PIN MGT_SI570_CLOCK0_P     M11   site=GTYE4_COMMON_X1Y12     type=GTYE4_COMMON     bank=231   clkreg=X5Y12  slr=SLR2   func=MGTREFCLK0P_231
+# pinline MGT_SI570_CLOCK0_N M10
+PIN MGT_SI570_CLOCK0_N     M10   site=GTYE4_COMMON_X1Y12     type=GTYE4_COMMON     bank=231   clkreg=X5Y12  slr=SLR2   func=MGTREFCLK0N_231
+# pinline MGT_SI570_CLOCK1_P T11
+PIN MGT_SI570_CLOCK1_P     T11   site=GTYE4_COMMON_X1Y11     type=GTYE4_COMMON     bank=230   clkreg=X5Y11  slr=SLR2   func=MGTREFCLK0P_230
+# pinline MGT_SI570_CLOCK1_N T10
+PIN MGT_SI570_CLOCK1_N     T10   site=GTYE4_COMMON_X1Y11     type=GTYE4_COMMON     bank=230   clkreg=X5Y11  slr=SLR2   func=MGTREFCLK0N_230
+# puts "\n===== SECTION E: PCIe / XDMA pins (to fix Quad 227 empirically) ====="
+
+===== SECTION E: PCIe / XDMA pins (to fix Quad 227 empirically) =====
+# pinline PCIE_REFCLK_P  AM11
+PIN PCIE_REFCLK_P          AM11  site=GTYE4_COMMON_X1Y7      type=GTYE4_COMMON     bank=226   clkreg=X5Y7   slr=SLR1   func=MGTREFCLK0P_226
+# pinline PCIE_REFCLK_N  AM10
+PIN PCIE_REFCLK_N          AM10  site=GTYE4_COMMON_X1Y7      type=GTYE4_COMMON     bank=226   clkreg=X5Y7   slr=SLR1   func=MGTREFCLK0N_226
+# pinline PCIE_LANE0_P   AF2
+PIN PCIE_LANE0_P           AF2   site=GTYE4_CHANNEL_X1Y35    type=GTYE4_CHANNEL    bank=227   clkreg=X5Y8   slr=SLR1   func=MGTYRXP3_227
+# pinline PCIE_LANE0_N   AF1
+PIN PCIE_LANE0_N           AF1   site=GTYE4_CHANNEL_X1Y35    type=GTYE4_CHANNEL    bank=227   clkreg=X5Y8   slr=SLR1   func=MGTYRXN3_227
+# pinline PCIE_LANE1_P   AG4
+PIN PCIE_LANE1_P           AG4   site=GTYE4_CHANNEL_X1Y34    type=GTYE4_CHANNEL    bank=227   clkreg=X5Y8   slr=SLR1   func=MGTYRXP2_227
+# pinline PCIE_LANE1_N   AG3
+PIN PCIE_LANE1_N           AG3   site=GTYE4_CHANNEL_X1Y34    type=GTYE4_CHANNEL    bank=227   clkreg=X5Y8   slr=SLR1   func=MGTYRXN2_227
+# pinline PCIE_LANE2_P   AH2
+PIN PCIE_LANE2_P           AH2   site=GTYE4_CHANNEL_X1Y33    type=GTYE4_CHANNEL    bank=227   clkreg=X5Y8   slr=SLR1   func=MGTYRXP1_227
+# pinline PCIE_LANE2_N   AH1
+PIN PCIE_LANE2_N           AH1   site=GTYE4_CHANNEL_X1Y33    type=GTYE4_CHANNEL    bank=227   clkreg=X5Y8   slr=SLR1   func=MGTYRXN1_227
+# pinline PCIE_LANE3_P   AJ4
+PIN PCIE_LANE3_P           AJ4   site=GTYE4_CHANNEL_X1Y32    type=GTYE4_CHANNEL    bank=227   clkreg=X5Y8   slr=SLR1   func=MGTYRXP0_227
+# pinline PCIE_LANE3_N   AJ3
+PIN PCIE_LANE3_N           AJ3   site=GTYE4_CHANNEL_X1Y32    type=GTYE4_CHANNEL    bank=227   clkreg=X5Y8   slr=SLR1   func=MGTYRXN0_227
+# pinline PCIE_LANE4_P   AK2
+PIN PCIE_LANE4_P           AK2   site=GTYE4_CHANNEL_X1Y31    type=GTYE4_CHANNEL    bank=226   clkreg=X5Y7   slr=SLR1   func=MGTYRXP3_226
+# pinline PCIE_LANE4_N   AK1
+PIN PCIE_LANE4_N           AK1   site=GTYE4_CHANNEL_X1Y31    type=GTYE4_CHANNEL    bank=226   clkreg=X5Y7   slr=SLR1   func=MGTYRXN3_226
+# pinline PCIE_LANE5_P   AL4
+PIN PCIE_LANE5_P           AL4   site=GTYE4_CHANNEL_X1Y30    type=GTYE4_CHANNEL    bank=226   clkreg=X5Y7   slr=SLR1   func=MGTYRXP2_226
+# pinline PCIE_LANE5_N   AL3
+PIN PCIE_LANE5_N           AL3   site=GTYE4_CHANNEL_X1Y30    type=GTYE4_CHANNEL    bank=226   clkreg=X5Y7   slr=SLR1   func=MGTYRXN2_226
+# pinline PCIE_LANE6_P   AM2
+PIN PCIE_LANE6_P           AM2   site=GTYE4_CHANNEL_X1Y29    type=GTYE4_CHANNEL    bank=226   clkreg=X5Y7   slr=SLR1   func=MGTYRXP1_226
+# pinline PCIE_LANE6_N   AM1
+PIN PCIE_LANE6_N           AM1   site=GTYE4_CHANNEL_X1Y29    type=GTYE4_CHANNEL    bank=226   clkreg=X5Y7   slr=SLR1   func=MGTYRXN1_226
+# pinline PCIE_LANE7_P   AN4
+PIN PCIE_LANE7_P           AN4   site=GTYE4_CHANNEL_X1Y28    type=GTYE4_CHANNEL    bank=226   clkreg=X5Y7   slr=SLR1   func=MGTYRXP0_226
+# pinline PCIE_LANE7_N   AN3
+PIN PCIE_LANE7_N           AN3   site=GTYE4_CHANNEL_X1Y28    type=GTYE4_CHANNEL    bank=226   clkreg=X5Y7   slr=SLR1   func=MGTYRXN0_226
+# puts "\n===== SECTION F: every GTYE4_COMMON site on the part (quad roster) ====="
+
+===== SECTION F: every GTYE4_COMMON site on the part (quad roster) =====
+# set commons [get_sites -quiet -filter {SITE_TYPE =~ GTYE4_COMMON*}]
+# puts "F: GTYE4_COMMON count = [llength $commons]"
+F: GTYE4_COMMON count = 30
+# foreach s [lsort $commons] {
+#   set cr "?" ; set slr "?"
+#   catch {set cr [get_property CLOCK_REGION $s]}
+#   catch {set slr [get_property NAME [get_slrs -quiet -of_objects $s]]}
+#   # bank number of the quad: take it from any package pin on that site
+#   set bank "?"
+#   set pps [get_package_pins -quiet -of_objects $s]
+#   if {[llength $pps]} { catch {set bank [get_property BANK [lindex $pps 0]]} }
+#   puts [format "COMMON %-22s clkreg=%-7s slr=%-6s bank/quad=%-5s pins=%s" $s $cr $slr $bank $pps]
+# }
+COMMON GTYE4_COMMON_X0Y0      clkreg=X0Y0    slr=SLR0   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X0Y1      clkreg=X0Y1    slr=SLR0   bank/quad=120   pins=AL37 AL36 AK35 AK34
+COMMON GTYE4_COMMON_X0Y10     clkreg=X0Y10   slr=SLR2   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X0Y11     clkreg=X0Y11   slr=SLR2   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X0Y12     clkreg=X0Y12   slr=SLR2   bank/quad=131   pins=R37 R36 N37 N36
+COMMON GTYE4_COMMON_X0Y13     clkreg=X0Y13   slr=SLR2   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X0Y14     clkreg=X0Y14   slr=SLR2   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X0Y2      clkreg=X0Y2    slr=SLR0   bank/quad=121   pins=AJ37 AJ36 AH35 AH34
+COMMON GTYE4_COMMON_X0Y3      clkreg=X0Y3    slr=SLR0   bank/quad=122   pins=AG37 AG36 AF35 AF34
+COMMON GTYE4_COMMON_X0Y4      clkreg=X0Y4    slr=SLR0   bank/quad=123   pins=AE37 AE36 AD35 AD34
+COMMON GTYE4_COMMON_X0Y5      clkreg=X0Y5    slr=SLR1   bank/quad=124   pins=AC37 AC36 AB35 AB34
+COMMON GTYE4_COMMON_X0Y6      clkreg=X0Y6    slr=SLR1   bank/quad=125   pins=AA37 AA36 Y35 Y34
+COMMON GTYE4_COMMON_X0Y7      clkreg=X0Y7    slr=SLR1   bank/quad=126   pins=W37 W36 V35 V34
+COMMON GTYE4_COMMON_X0Y8      clkreg=X0Y8    slr=SLR1   bank/quad=127   pins=U37 U36 T35 T34
+COMMON GTYE4_COMMON_X0Y9      clkreg=X0Y9    slr=SLR1   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X1Y0      clkreg=X5Y0    slr=SLR0   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X1Y1      clkreg=X5Y1    slr=SLR0   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X1Y10     clkreg=X5Y10   slr=SLR2   bank/quad=229   pins=Y10 Y11 V10 V11
+COMMON GTYE4_COMMON_X1Y11     clkreg=X5Y11   slr=SLR2   bank/quad=230   pins=T10 T11 P10 P11
+COMMON GTYE4_COMMON_X1Y12     clkreg=X5Y12   slr=SLR2   bank/quad=231   pins=M10 M11 K10 K11
+COMMON GTYE4_COMMON_X1Y13     clkreg=X5Y13   slr=SLR2   bank/quad=232   pins=H10 H11 F10 F11
+COMMON GTYE4_COMMON_X1Y14     clkreg=X5Y14   slr=SLR2   bank/quad=233   pins=D10 D11 B10 B11
+COMMON GTYE4_COMMON_X1Y2      clkreg=X5Y2    slr=SLR0   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X1Y3      clkreg=X5Y3    slr=SLR0   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X1Y4      clkreg=X5Y4    slr=SLR0   bank/quad=?     pins=
+COMMON GTYE4_COMMON_X1Y5      clkreg=X5Y5    slr=SLR1   bank/quad=224   pins=AW8 AW9 AV10 AV11
+COMMON GTYE4_COMMON_X1Y6      clkreg=X5Y6    slr=SLR1   bank/quad=225   pins=AT10 AT11 AP10 AP11
+COMMON GTYE4_COMMON_X1Y7      clkreg=X5Y7    slr=SLR1   bank/quad=226   pins=AM10 AM11 AK10 AK11
+COMMON GTYE4_COMMON_X1Y8      clkreg=X5Y8    slr=SLR1   bank/quad=227   pins=AH10 AH11 AF10 AF11
+COMMON GTYE4_COMMON_X1Y9      clkreg=X5Y9    slr=SLR1   bank/quad=228   pins=AD10 AD11 AB10 AB11
+# puts "\n===== SECTION G: every GTYE4_CHANNEL site on the part ====="
+
+===== SECTION G: every GTYE4_CHANNEL site on the part =====
+# set chans [get_sites -quiet -filter {SITE_TYPE =~ GTYE4_CHANNEL*}]
+# puts "G: GTYE4_CHANNEL count = [llength $chans]"
+G: GTYE4_CHANNEL count = 120
+# foreach s [lsort $chans] {
+#   set cr "?" ; set slr "?"
+#   catch {set cr [get_property CLOCK_REGION $s]}
+#   catch {set slr [get_property NAME [get_slrs -quiet -of_objects $s]]}
+#   set bank "?"
+#   set pps [get_package_pins -quiet -of_objects $s]
+#   if {[llength $pps]} { catch {set bank [get_property BANK [lindex $pps 0]]} }
+#   puts [format "CHANNEL %-22s clkreg=%-7s slr=%-6s bank/quad=%-5s pins=%s" $s $cr $slr $bank $pps]
+# }
+CHANNEL GTYE4_CHANNEL_X0Y0     clkreg=X0Y0    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y1     clkreg=X0Y0    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y10    clkreg=X0Y2    slr=SLR0   bank/quad=121   pins=AR46 AR45 AR41 AR40
+CHANNEL GTYE4_CHANNEL_X0Y11    clkreg=X0Y2    slr=SLR0   bank/quad=121   pins=AP44 AP43 AP39 AP38
+CHANNEL GTYE4_CHANNEL_X0Y12    clkreg=X0Y3    slr=SLR0   bank/quad=122   pins=AN46 AN45 AN41 AN40
+CHANNEL GTYE4_CHANNEL_X0Y13    clkreg=X0Y3    slr=SLR0   bank/quad=122   pins=AM44 AM43 AM39 AM38
+CHANNEL GTYE4_CHANNEL_X0Y14    clkreg=X0Y3    slr=SLR0   bank/quad=122   pins=AL46 AL45 AL41 AL40
+CHANNEL GTYE4_CHANNEL_X0Y15    clkreg=X0Y3    slr=SLR0   bank/quad=122   pins=AK44 AK43 AK39 AK38
+CHANNEL GTYE4_CHANNEL_X0Y16    clkreg=X0Y4    slr=SLR0   bank/quad=123   pins=AJ46 AJ45 AJ41 AJ40
+CHANNEL GTYE4_CHANNEL_X0Y17    clkreg=X0Y4    slr=SLR0   bank/quad=123   pins=AH44 AH43 AH39 AH38
+CHANNEL GTYE4_CHANNEL_X0Y18    clkreg=X0Y4    slr=SLR0   bank/quad=123   pins=AG46 AG45 AG41 AG40
+CHANNEL GTYE4_CHANNEL_X0Y19    clkreg=X0Y4    slr=SLR0   bank/quad=123   pins=AF44 AF43 AF39 AF38
+CHANNEL GTYE4_CHANNEL_X0Y2     clkreg=X0Y0    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y20    clkreg=X0Y5    slr=SLR1   bank/quad=124   pins=AE46 AE45 AE41 AE40
+CHANNEL GTYE4_CHANNEL_X0Y21    clkreg=X0Y5    slr=SLR1   bank/quad=124   pins=AD44 AD43 AD39 AD38
+CHANNEL GTYE4_CHANNEL_X0Y22    clkreg=X0Y5    slr=SLR1   bank/quad=124   pins=AC46 AC45 AC41 AC40
+CHANNEL GTYE4_CHANNEL_X0Y23    clkreg=X0Y5    slr=SLR1   bank/quad=124   pins=AB44 AB43 AB39 AB38
+CHANNEL GTYE4_CHANNEL_X0Y24    clkreg=X0Y6    slr=SLR1   bank/quad=125   pins=AA46 AA45 AA41 AA40
+CHANNEL GTYE4_CHANNEL_X0Y25    clkreg=X0Y6    slr=SLR1   bank/quad=125   pins=Y44 Y43 Y39 Y38
+CHANNEL GTYE4_CHANNEL_X0Y26    clkreg=X0Y6    slr=SLR1   bank/quad=125   pins=W46 W45 W41 W40
+CHANNEL GTYE4_CHANNEL_X0Y27    clkreg=X0Y6    slr=SLR1   bank/quad=125   pins=V44 V43 V39 V38
+CHANNEL GTYE4_CHANNEL_X0Y28    clkreg=X0Y7    slr=SLR1   bank/quad=126   pins=U46 U45 U41 U40
+CHANNEL GTYE4_CHANNEL_X0Y29    clkreg=X0Y7    slr=SLR1   bank/quad=126   pins=T44 T43 T39 T38
+CHANNEL GTYE4_CHANNEL_X0Y3     clkreg=X0Y0    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y30    clkreg=X0Y7    slr=SLR1   bank/quad=126   pins=R46 R45 R41 R40
+CHANNEL GTYE4_CHANNEL_X0Y31    clkreg=X0Y7    slr=SLR1   bank/quad=126   pins=P44 P43 P39 P38
+CHANNEL GTYE4_CHANNEL_X0Y32    clkreg=X0Y8    slr=SLR1   bank/quad=127   pins=N46 N45 N41 N40
+CHANNEL GTYE4_CHANNEL_X0Y33    clkreg=X0Y8    slr=SLR1   bank/quad=127   pins=M44 M43 M39 M38
+CHANNEL GTYE4_CHANNEL_X0Y34    clkreg=X0Y8    slr=SLR1   bank/quad=127   pins=L46 L45 L41 L40
+CHANNEL GTYE4_CHANNEL_X0Y35    clkreg=X0Y8    slr=SLR1   bank/quad=127   pins=K44 K43 J41 J40
+CHANNEL GTYE4_CHANNEL_X0Y36    clkreg=X0Y9    slr=SLR1   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y37    clkreg=X0Y9    slr=SLR1   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y38    clkreg=X0Y9    slr=SLR1   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y39    clkreg=X0Y9    slr=SLR1   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y4     clkreg=X0Y1    slr=SLR0   bank/quad=120   pins=BC46 BC45 BD43 BD42
+CHANNEL GTYE4_CHANNEL_X0Y40    clkreg=X0Y10   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y41    clkreg=X0Y10   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y42    clkreg=X0Y10   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y43    clkreg=X0Y10   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y44    clkreg=X0Y11   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y45    clkreg=X0Y11   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y46    clkreg=X0Y11   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y47    clkreg=X0Y11   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y48    clkreg=X0Y12   slr=SLR2   bank/quad=131   pins=J46 J45 G41 G40
+CHANNEL GTYE4_CHANNEL_X0Y49    clkreg=X0Y12   slr=SLR2   bank/quad=131   pins=H44 H43 E43 E42
+CHANNEL GTYE4_CHANNEL_X0Y5     clkreg=X0Y1    slr=SLR0   bank/quad=120   pins=BA46 BA45 BB43 BB42
+CHANNEL GTYE4_CHANNEL_X0Y50    clkreg=X0Y12   slr=SLR2   bank/quad=131   pins=F46 F45 C43 C42
+CHANNEL GTYE4_CHANNEL_X0Y51    clkreg=X0Y12   slr=SLR2   bank/quad=131   pins=D46 D45 A43 A42
+CHANNEL GTYE4_CHANNEL_X0Y52    clkreg=X0Y13   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y53    clkreg=X0Y13   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y54    clkreg=X0Y13   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y55    clkreg=X0Y13   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y56    clkreg=X0Y14   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y57    clkreg=X0Y14   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y58    clkreg=X0Y14   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y59    clkreg=X0Y14   slr=SLR2   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X0Y6     clkreg=X0Y1    slr=SLR0   bank/quad=120   pins=AW46 AW45 AY43 AY42
+CHANNEL GTYE4_CHANNEL_X0Y7     clkreg=X0Y1    slr=SLR0   bank/quad=120   pins=AV44 AV43 AW41 AW40
+CHANNEL GTYE4_CHANNEL_X0Y8     clkreg=X0Y2    slr=SLR0   bank/quad=121   pins=AU46 AU45 AU41 AU40
+CHANNEL GTYE4_CHANNEL_X0Y9     clkreg=X0Y2    slr=SLR0   bank/quad=121   pins=AT44 AT43 AT39 AT38
+CHANNEL GTYE4_CHANNEL_X1Y0     clkreg=X5Y0    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y1     clkreg=X5Y0    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y10    clkreg=X5Y2    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y11    clkreg=X5Y2    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y12    clkreg=X5Y3    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y13    clkreg=X5Y3    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y14    clkreg=X5Y3    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y15    clkreg=X5Y3    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y16    clkreg=X5Y4    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y17    clkreg=X5Y4    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y18    clkreg=X5Y4    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y19    clkreg=X5Y4    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y2     clkreg=X5Y0    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y20    clkreg=X5Y5    slr=SLR1   bank/quad=224   pins=BC1 BC2 BF4 BF5
+CHANNEL GTYE4_CHANNEL_X1Y21    clkreg=X5Y5    slr=SLR1   bank/quad=224   pins=BA1 BA2 BD4 BD5
+CHANNEL GTYE4_CHANNEL_X1Y22    clkreg=X5Y5    slr=SLR1   bank/quad=224   pins=AW3 AW4 BB4 BB5
+CHANNEL GTYE4_CHANNEL_X1Y23    clkreg=X5Y5    slr=SLR1   bank/quad=224   pins=AV1 AV2 AV6 AV7
+CHANNEL GTYE4_CHANNEL_X1Y24    clkreg=X5Y6    slr=SLR1   bank/quad=225   pins=AU3 AU4 AU8 AU9
+CHANNEL GTYE4_CHANNEL_X1Y25    clkreg=X5Y6    slr=SLR1   bank/quad=225   pins=AT1 AT2 AT6 AT7
+CHANNEL GTYE4_CHANNEL_X1Y26    clkreg=X5Y6    slr=SLR1   bank/quad=225   pins=AR3 AR4 AR8 AR9
+CHANNEL GTYE4_CHANNEL_X1Y27    clkreg=X5Y6    slr=SLR1   bank/quad=225   pins=AP1 AP2 AP6 AP7
+CHANNEL GTYE4_CHANNEL_X1Y28    clkreg=X5Y7    slr=SLR1   bank/quad=226   pins=AN3 AN4 AN8 AN9
+CHANNEL GTYE4_CHANNEL_X1Y29    clkreg=X5Y7    slr=SLR1   bank/quad=226   pins=AM1 AM2 AM6 AM7
+CHANNEL GTYE4_CHANNEL_X1Y3     clkreg=X5Y0    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y30    clkreg=X5Y7    slr=SLR1   bank/quad=226   pins=AL3 AL4 AL8 AL9
+CHANNEL GTYE4_CHANNEL_X1Y31    clkreg=X5Y7    slr=SLR1   bank/quad=226   pins=AK1 AK2 AK6 AK7
+CHANNEL GTYE4_CHANNEL_X1Y32    clkreg=X5Y8    slr=SLR1   bank/quad=227   pins=AJ3 AJ4 AJ8 AJ9
+CHANNEL GTYE4_CHANNEL_X1Y33    clkreg=X5Y8    slr=SLR1   bank/quad=227   pins=AH1 AH2 AH6 AH7
+CHANNEL GTYE4_CHANNEL_X1Y34    clkreg=X5Y8    slr=SLR1   bank/quad=227   pins=AG3 AG4 AG8 AG9
+CHANNEL GTYE4_CHANNEL_X1Y35    clkreg=X5Y8    slr=SLR1   bank/quad=227   pins=AF1 AF2 AF6 AF7
+CHANNEL GTYE4_CHANNEL_X1Y36    clkreg=X5Y9    slr=SLR1   bank/quad=228   pins=AE3 AE4 AE8 AE9
+CHANNEL GTYE4_CHANNEL_X1Y37    clkreg=X5Y9    slr=SLR1   bank/quad=228   pins=AD1 AD2 AD6 AD7
+CHANNEL GTYE4_CHANNEL_X1Y38    clkreg=X5Y9    slr=SLR1   bank/quad=228   pins=AC3 AC4 AC8 AC9
+CHANNEL GTYE4_CHANNEL_X1Y39    clkreg=X5Y9    slr=SLR1   bank/quad=228   pins=AB1 AB2 AB6 AB7
+CHANNEL GTYE4_CHANNEL_X1Y4     clkreg=X5Y1    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y40    clkreg=X5Y10   slr=SLR2   bank/quad=229   pins=AA3 AA4 AA8 AA9
+CHANNEL GTYE4_CHANNEL_X1Y41    clkreg=X5Y10   slr=SLR2   bank/quad=229   pins=Y1 Y2 Y6 Y7
+CHANNEL GTYE4_CHANNEL_X1Y42    clkreg=X5Y10   slr=SLR2   bank/quad=229   pins=W3 W4 W8 W9
+CHANNEL GTYE4_CHANNEL_X1Y43    clkreg=X5Y10   slr=SLR2   bank/quad=229   pins=V1 V2 V6 V7
+CHANNEL GTYE4_CHANNEL_X1Y44    clkreg=X5Y11   slr=SLR2   bank/quad=230   pins=U3 U4 U8 U9
+CHANNEL GTYE4_CHANNEL_X1Y45    clkreg=X5Y11   slr=SLR2   bank/quad=230   pins=T1 T2 T6 T7
+CHANNEL GTYE4_CHANNEL_X1Y46    clkreg=X5Y11   slr=SLR2   bank/quad=230   pins=R3 R4 R8 R9
+CHANNEL GTYE4_CHANNEL_X1Y47    clkreg=X5Y11   slr=SLR2   bank/quad=230   pins=P1 P2 P6 P7
+CHANNEL GTYE4_CHANNEL_X1Y48    clkreg=X5Y12   slr=SLR2   bank/quad=231   pins=N3 N4 N8 N9
+CHANNEL GTYE4_CHANNEL_X1Y49    clkreg=X5Y12   slr=SLR2   bank/quad=231   pins=M1 M2 M6 M7
+CHANNEL GTYE4_CHANNEL_X1Y5     clkreg=X5Y1    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y50    clkreg=X5Y12   slr=SLR2   bank/quad=231   pins=L3 L4 L8 L9
+CHANNEL GTYE4_CHANNEL_X1Y51    clkreg=X5Y12   slr=SLR2   bank/quad=231   pins=K1 K2 K6 K7
+CHANNEL GTYE4_CHANNEL_X1Y52    clkreg=X5Y13   slr=SLR2   bank/quad=232   pins=J3 J4 J8 J9
+CHANNEL GTYE4_CHANNEL_X1Y53    clkreg=X5Y13   slr=SLR2   bank/quad=232   pins=H1 H2 H6 H7
+CHANNEL GTYE4_CHANNEL_X1Y54    clkreg=X5Y13   slr=SLR2   bank/quad=232   pins=G3 G4 G8 G9
+CHANNEL GTYE4_CHANNEL_X1Y55    clkreg=X5Y13   slr=SLR2   bank/quad=232   pins=F1 F2 F6 F7
+CHANNEL GTYE4_CHANNEL_X1Y56    clkreg=X5Y14   slr=SLR2   bank/quad=233   pins=E3 E4 E8 E9
+CHANNEL GTYE4_CHANNEL_X1Y57    clkreg=X5Y14   slr=SLR2   bank/quad=233   pins=D1 D2 D6 D7
+CHANNEL GTYE4_CHANNEL_X1Y58    clkreg=X5Y14   slr=SLR2   bank/quad=233   pins=C3 C4 C8 C9
+CHANNEL GTYE4_CHANNEL_X1Y59    clkreg=X5Y14   slr=SLR2   bank/quad=233   pins=A4 A5 A8 A9
+CHANNEL GTYE4_CHANNEL_X1Y6     clkreg=X5Y1    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y7     clkreg=X5Y1    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y8     clkreg=X5Y2    slr=SLR0   bank/quad=?     pins=
+CHANNEL GTYE4_CHANNEL_X1Y9     clkreg=X5Y2    slr=SLR0   bank/quad=?     pins=
+# puts "\n===== SECTION H: bank roster from get_iobanks (GT banks only) ====="
+
+===== SECTION H: bank roster from get_iobanks (GT banks only) =====
+# if {[catch {
+#   foreach b [lsort -integer [get_property NAME [get_iobanks -quiet *]]] {
+#     if {$b >= 120 && $b <= 240} {
+#       set bk [get_iobanks -quiet $b]
+#       set bt "?"
+#       catch {set bt [get_property BANK_TYPE $bk]}
+#       puts "BANK $b  type=$bt"
+#     }
+#   }
+# } msg]} { puts "H: get_iobanks FAILED: $msg" }
+BANK 120  type=BT_MGT
+BANK 121  type=BT_MGT
+BANK 122  type=BT_MGT
+BANK 123  type=BT_MGT
+BANK 124  type=BT_MGT
+BANK 125  type=BT_MGT
+BANK 126  type=BT_MGT
+BANK 127  type=BT_MGT
+BANK 131  type=BT_MGT
+BANK 224  type=BT_MGT
+BANK 225  type=BT_MGT
+BANK 226  type=BT_MGT
+BANK 227  type=BT_MGT
+BANK 228  type=BT_MGT
+BANK 229  type=BT_MGT
+BANK 230  type=BT_MGT
+BANK 231  type=BT_MGT
+BANK 232  type=BT_MGT
+BANK 233  type=BT_MGT
+# puts "\n===== SECTION I: VERDICT -- quad assignment and Quad-227 collision ====="
+
+===== SECTION I: VERDICT -- quad assignment and Quad-227 collision =====
+# proc quadof {p} {
+#   set pp [get_package_pins -quiet $p]
+#   if {[llength $pp] == 0} { return "NOTFOUND" }
+#   set b "?"
+#   catch {set b [get_property BANK [lindex $pp 0]]}
+#   return $b
+# }
+# proc slrof {p} {
+#   set pp [get_package_pins -quiet $p]
+#   if {[llength $pp] == 0} { return "NOTFOUND" }
+#   set so [get_sites -quiet -of_objects [lindex $pp 0]]
+#   if {[llength $so] == 0} { return "?" }
+#   set slr "?"
+#   catch {set slr [get_property NAME [get_slrs -quiet -of_objects [lindex $so 0]]]}
+#   return $slr
+# }
+# set q0_lanes {}
+# foreach p {N9 N4 M7 M2 L9 L4 K7 K2} { lappend q0_lanes [quadof $p] }
+# set q1_lanes {}
+# foreach p {U9 U4 T7 T2 R9 R4 P7 P2} { lappend q1_lanes [quadof $p] }
+# set qpcie {}
+# foreach p {AF2 AG4 AH2 AJ4 AK2 AL4 AM2 AN4} { lappend qpcie [quadof $p] }
+# puts "I: QSFP0 lane quads      = [lsort -unique $q0_lanes]   (refclk K11 quad = [quadof K11])"
+I: QSFP0 lane quads      = 231   (refclk K11 quad = 231)
+# puts "I: QSFP1 lane quads      = [lsort -unique $q1_lanes]   (refclk P11 quad = [quadof P11])"
+I: QSFP1 lane quads      = 230   (refclk P11 quad = 230)
+# puts "I: PCIe x8 lane quads    = [lsort -unique $qpcie]      (refclk AM11 quad = [quadof AM11])"
+I: PCIe x8 lane quads    = 226 227      (refclk AM11 quad = 226)
+# puts "I: MGT_SI570_CLOCK0 M11 quad = [quadof M11] ; MGT_SI570_CLOCK1 T11 quad = [quadof T11]"
+I: MGT_SI570_CLOCK0 M11 quad = 231 ; MGT_SI570_CLOCK1 T11 quad = 230
+# puts "I: SLR: QSFP0 lane N9 = [slrof N9] ; QSFP1 lane U9 = [slrof U9] ; PCIe lane AF2 = [slrof AF2] ; PCIe refclk AM11 = [slrof AM11]"
+I: SLR: QSFP0 lane N9 = SLR2 ; QSFP1 lane U9 = SLR2 ; PCIe lane AF2 = SLR1 ; PCIe refclk AM11 = SLR1
+# set all_qsfp [lsort -unique [concat $q0_lanes $q1_lanes [quadof K11] [quadof P11] [quadof M11] [quadof T11]]]
+# set all_pcie [lsort -unique [concat $qpcie [quadof AM11]]]
+# puts "I: QSFP-side quads (incl refclks) = $all_qsfp"
+I: QSFP-side quads (incl refclks) = 230 231
+# puts "I: PCIe-side quads (incl refclk)  = $all_pcie"
+I: PCIe-side quads (incl refclk)  = 226 227
+# set clash {}
+# foreach q $all_qsfp { if {[lsearch -exact $all_pcie $q] >= 0} { lappend clash $q } }
+# if {[llength $clash]} {
+#   puts "I: VERDICT = COLLISION -- QSFP and PCIe share quad(s): $clash"
+# } else {
+#   puts "I: VERDICT = NO COLLISION -- QSFP quads $all_qsfp are disjoint from PCIe quads $all_pcie"
+# }
+I: VERDICT = NO COLLISION -- QSFP quads 230 231 are disjoint from PCIe quads 226 227
+# if {[lsearch -exact $all_qsfp 227] >= 0} {
+#   puts "I: VERDICT-227 = YES, a QSFP cage lands on GTY_Quad_227 (the XDMA quad)"
+# } else {
+#   puts "I: VERDICT-227 = NO, neither QSFP cage touches GTY_Quad_227 (the XDMA quad)"
+# }
+I: VERDICT-227 = NO, neither QSFP cage touches GTY_Quad_227 (the XDMA quad)
+# puts "\n### gty_sites.tcl DONE"
+
+### gty_sites.tcl DONE
+# exit 0
+INFO: [Common 17-206] Exiting Vivado at Tue Sep 15 16:26:20 2026...
+=== rc  : 0
+=== end : 2026-09-15T16:26:31-06:00

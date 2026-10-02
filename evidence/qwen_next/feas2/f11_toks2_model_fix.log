@@ -1,0 +1,115 @@
+=== host: snoke  date: 2026-09-15T16:40:05-06:00
+=== tree: d47a0d0+dirty
+=== cmd : /home/cah/.venv/bin/python evidence/qwen_next/feas2/toks2_model.py
+=== venv: 3.12.3 numpy 2.4.6
+
+==============================================================================
+A. THE COMMITTED MODEL, SCORED AGAINST THE 9B THAT HAS SINCE SHIPPED
+==============================================================================
+  layer fit restated at HEAD: A=2.261123283319e-06  Bv=1.274481566820e-05
+     committed (feas/toks_model.json): A=2.261123283319e-06  Bv=1.274481566820e-05
+     reproduces the committed fit: OK
+     and the committed 9B layer term 47.00 ms: 46.99 OK
+  calibration points: 0.8B 15.128 ms, 2B 17.960 ms (RD_GATE 3)
+  counters_sub reproduces toks_model.counters on the full 9B inventory: OK
+  9B W4 g128, the COMMITTED terms: matvec 58.95 + movers 32.67 + layer(extrapolated) 46.99 = 138.60 ms
+     vs MEASURED 137.1413 ms (+1.07 %)  -- the study's own 138.61 row, and it lands within 1.1 %
+  the SAME terms with the MEASURED layer lane 41.588: 133.20 ms (-2.87 %)
+
+  HONESTY CHECK.  Those two lines are the whole story of this model's
+  accuracy at the 9B and they must be read TOGETHER: the layer term
+  was extrapolated +13.0 % HOT
+  (47.00 modelled against a measured 41.588), and the rest of the
+  model is correspondingly LOW.  The 1.1 % agreement at the step is
+  two errors of opposite sign, not one small error.  Every 27B /
+  35B-A3B figure below inherits that, and it is why the band, not
+  the point, is the answer.
+
+  NOTE the 9B is a DIFFERENT DESIGN from the two calibration points:
+  post state-spill, its layer state streams from DDR behind URAM
+  caches, and its DMA lane measured 5.125 ms/token (RD9 10.2) which
+  OVERLAPS the compute lane and is not additive.  A and Bv are NOT
+  re-fitted on it.
+
+==============================================================================
+B. LAYER TERM at the new geometries
+==============================================================================
+model      n_DN  LNVH  DNST/tok     inv work     var work  layer ms  x9B meas  corrected
+9B           24    32       768   13,369,344    1,314,816     46.99      1.13      41.59
+27B          48    48      2304   39,714,816    3,544,064    134.97      3.25     119.46
+35B-A3B      30    32       960   16,711,680      698,368     46.69      1.12      41.32
+
+  'corrected' rescales every row by the ONE measured correction the
+  9B provides: 41.588 / 46.99 = 0.8851.  It is ONE point on ONE bitstream and it is applied
+  as a constant, which assumes the error is multiplicative in the
+  whole term rather than in one bucket.  That assumption is not
+  tested anywhere.  Both columns are carried below as a BAND.
+  For the MoE the var bucket uses the ACTIVE FFN width 4608 = (8+1) x 512, not a dense FFN.
+
+==============================================================================
+C. ONE BOARD, if capacity were not a limit (it is — see f05/f07)
+==============================================================================
+model     map          MiB/tok   busiest   matvec   movers    layer   step ms   tok/s tok/s corr
+9B        all:w4g128    3902.2     978.4    58.95    32.67    46.99    138.60    7.21       7.51
+9B        all:w8g128    7686.2    1927.1   116.12    32.67    46.99    195.77    5.11       5.25
+27B       all:w4g128   12784.4    3199.7   192.79    82.88   134.97    410.64    2.44       2.53
+27B       all:w8g128   25001.9    6257.5   377.03    82.88   134.97    594.88    1.68       1.73
+35B-A3B   all:w4g128    1530.9     384.2    23.15    28.75    46.69     98.58   10.14      10.73
+35B-A3B   all:w8g128    2925.3     734.2    44.23    28.75    46.69    119.67    8.36       8.75
+
+==============================================================================
+D. TWO BOARDS — per-board terms and the link
+==============================================================================
+Per-board matvec/movers come from that board's OWN image share; the
+layer term is split by the layers it holds.  The link term is E.
+
+assumed link payload rates (GB/s): x4 @100 % payload 12.50, x4 @90 % 11.25, x1 lane 3.12
+assumed one-way latency bracket (us): (0.5, 1.0, 2.0)
+activation 2 B/element (int16 residual), reduce partial 4 B/element
+
+### 27B  all:w4g128   H=5120  L=64, cut at 32
+  PIPELINE  A holds layers 0..31, B the rest + head
+    board A  matvec   91.49  movers  40.44  layer  67.48  =  199.42 ms   (corrected layer  59.73 ->  191.66)
+    board B  matvec  101.30  movers  42.44  layer  67.48  =  211.22 ms   (corrected layer  59.73 ->  203.47)
+      link x4 @100 % payload  lat  0.5 us  link/tok  0.002 ms | 1-stream  2.435 tok/s ( 2.531 corr) | 2-stream aggregate  4.734 ( 4.915 corr)
+      link x4 @100 % payload  lat  1.0 us  link/tok  0.003 ms | 1-stream  2.435 tok/s ( 2.531 corr) | 2-stream aggregate  4.734 ( 4.915 corr)
+      link x4 @100 % payload  lat  2.0 us  link/tok  0.005 ms | 1-stream  2.435 tok/s ( 2.531 corr) | 2-stream aggregate  4.734 ( 4.915 corr)
+  TENSOR-PARALLEL  every matrix split by output rows
+    per board  matvec   96.40  movers  41.44  layer  90.07 (head bucket halved, width
+               bucket replicated) =  227.90 ms  (corrected  217.56)
+      link x4 @100 % payload  lat  0.5 us  129 reduces, link/tok   0.276 ms  ->  4.382 tok/s ( 4.591 corr)
+      link x4 @100 % payload  lat  1.0 us  129 reduces, link/tok   0.340 ms  ->  4.381 tok/s ( 4.589 corr)
+      link x4 @100 % payload  lat  2.0 us  129 reduces, link/tok   0.469 ms  ->  4.379 tok/s ( 4.587 corr)
+
+### 35B-A3B  all:w4g128   H=2048  L=40, cut at 20
+  PIPELINE  A holds layers 0..19, B the rest + head
+    board A  matvec    9.59  movers  13.39  layer  23.34  =   46.33 ms   (corrected layer  20.66 ->   43.65)
+    board B  matvec   13.56  movers  15.35  layer  23.34  =   52.25 ms   (corrected layer  20.66 ->   49.57)
+      link x4 @100 % payload  lat  0.5 us  link/tok  0.001 ms | 1-stream 10.144 tok/s (10.727 corr) | 2-stream aggregate 19.137 (20.172 corr)
+      link x4 @100 % payload  lat  1.0 us  link/tok  0.002 ms | 1-stream 10.144 tok/s (10.727 corr) | 2-stream aggregate 19.136 (20.172 corr)
+      link x4 @100 % payload  lat  2.0 us  link/tok  0.004 ms | 1-stream 10.143 tok/s (10.727 corr) | 2-stream aggregate 19.136 (20.171 corr)
+  EXPERT-PARALLEL  256 experts split 128/128, mixers REPLICATED, head on B
+    routed experts, WHOLE model : matvec    8.13 movers  10.03
+    mixers+shared+router        : matvec   11.04 movers  17.82  layer  46.69 (corrected  41.32)
+    lm_head                     : matvec    3.97 movers   1.96
+    router BALANCED (k/2 each)           x4 @100 % payload  lat  0.5 us  A   84.64 B   90.56 link  0.047 -> 11.036 tok/s (11.731 corr)
+    router BALANCED (k/2 each)           x4 @100 % payload  lat  1.0 us  A   84.64 B   90.56 link  0.068 -> 11.034 tok/s (11.728 corr)
+    router BALANCED (k/2 each)           x4 @100 % payload  lat  2.0 us  A   84.64 B   90.56 link  0.109 -> 11.029 tok/s (11.722 corr)
+    router WORST (all k on one board)    x4 @100 % payload  lat  0.5 us  A   93.72 B   99.65 link  0.047 -> 10.031 tok/s (10.601 corr)
+    router WORST (all k on one board)    x4 @100 % payload  lat  1.0 us  A   93.72 B   99.65 link  0.068 -> 10.029 tok/s (10.599 corr)
+    router WORST (all k on one board)    x4 @100 % payload  lat  2.0 us  A   93.72 B   99.65 link  0.109 -> 10.024 tok/s (10.594 corr)
+
+==============================================================================
+E. PREFILL — decode-rate, as today
+==============================================================================
+  There is no batched prefill in this design (RD9_GATE 16 item 5;
+  ARCHITECTURE.md 'weight-stationary batched prefill' is listed as
+  orthogonal and untouched).  A P-token prompt therefore costs P x
+  the decode step above, minus the LM head, on whichever board(s)
+  hold the layers.  A weight-stationary batched prefill would make
+  the matvec term amortise over the batch and leave the layer and
+  link terms per token — label E, unquantified here, and WORTH MORE
+  at these step times than it was at 2B, for the same reason the
+  4B/9B study gave (its section 6 item 7).
+=== rc  : 0
+=== end : 2026-09-15T16:40:05-06:00

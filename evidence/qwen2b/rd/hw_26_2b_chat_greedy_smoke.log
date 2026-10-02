@@ -1,0 +1,54 @@
+=== host: snoke  date: 2026-08-25T00:03:47-06:00
+=== tree: bc9ae59+dirty
+=== cmd : /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/rd_chat2b.sh greedy_smoke --ntok 8 --prompt What is the capital of France?
+=== venv: 3.12.3 numpy 2.4.6
+--- session bring-up
+  nch=4      model_w8_2b_s1.e: 68503 records, body 16742 full / 15974 lite; head image(s) [186] chunk-INTERLEAVED over 4 channels (S4)
+  compiler   ref/seq_chat.TurnCompiler(pos_mode='ldc', t_max=512) on model_w8_2b_s1.e -> preamble:1526, lite:15978, full:16746  (0.5s)
+  blob       1884928 B = 1098496 B constants + 512 positions x 1536 B
+  crosscheck agent A vs my own spec slices: 6/6 byte-identical (step images, const region, position pool)
+  relocate   298 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9005f80, full@0x9044640
+  board      MAGIC=0xfab1e001 VERSION=0x54443b9f CALIB=0xf SEQ=READY
+  EMBLOG2    12 (4096 B embedding rows)
+  residency  756 witness blocks (748 weight + 8 emb, 3024 KiB) in 26 ms -> 193 MISS
+  upload     186 weight image(s) + the embedding table: 2317 MiB readback-verified in 12.1s
+  residency  756 witness blocks (748 weight + 8 emb, 3024 KiB) in 26 ms -> 0 MISS
+  upload     const blob + 3 images: 2376 KiB readback-verified in 0.0s
+  tokenizer  15852e8c16360a2fea060d615a32b45270f8a8fc: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+  template   ON (docs/INSTRUCT_SPEC.md; --raw opts out): id-spliced wrapper, 5*messages+7 ids, closed-empty think block, stop [248044, 248046]
+  sampling   greedy (--temp 0): the chip's argmax, bit-exact  |  source chip-topk: ready  |  capture k=32
+--- preamble
+  preamble   8.7 ms device / 10.4 ms wall  (context reset: KV/DN/conv, T=0)
+------------------------------------------------------------------------
+chat_seq.py — one sequencer launch per forward step (docs/CHAT_SEQ_SPEC.md)
+  images     preamble 1526 rec | lite 15978 rec | full 16746 rec
+  patch      pos_mode='ldc': 72 B in 7 write(s) per launch
+  prefill    lite  |  --ntok 8  |  --max-ctx 500 of KV depth 512
+  template   ON: 5*messages+7 wrapper ids, closed-empty think block, incremental with carry
+  decode     greedy (--temp 0): the chip's argmax, bit-exact  |  the LM head + argmax run ON-CHIP every step
+  posture    never programs the FPGA, never touches flash, never sudo; flock(sw/.seq.lock) held
+  NOTE       infer.py / seq_run.py do NOT take sw/.seq.lock yet — check pgrep before a session
+------------------------------------------------------------------------
+
+prompt> What is the capital of France?
+  prefill 1/18 (50 ms/step, lite)     prefill 2/18 (50 ms/step, lite)     prefill 3/18 (50 ms/step, lite)     prefill 4/18 (50 ms/step, lite)     prefill 5/18 (50 ms/step, lite)     prefill 6/18 (50 ms/step, lite)     prefill 7/18 (50 ms/step, lite)     prefill 8/18 (50 ms/step, lite)     prefill 9/18 (50 ms/step, lite)     prefill 10/18 (50 ms/step, lite)     prefill 11/18 (50 ms/step, lite)     prefill 12/18 (50 ms/step, lite)     prefill 13/18 (50 ms/step, lite)     prefill 14/18 (50 ms/step, lite)     prefill 15/18 (50 ms/step, lite)     prefill 16/18 (50 ms/step, lite)     prefill 17/18 (50 ms/step, lite)     prefill 18/18 (50 ms/step, lite)                                                 _REGEX(dialog度NmdatedPersistentocal dove
+  --> '_REGEX(dialog度NmdatedPersistentocal dove'
+  ids [54307, 54229, 95960, 65899, 3458, 51407, 3557, 45646]   8 tok in 1.44s
+  prefill 18 lite x 49.9 ms | decode 8 full x 60.7 ms | 5.55 tok/s wall | 96% of wall was device | context 26/500 (5%)
+  template   turn 1: +12 wrapper ids (7 body) | session 12 wrapper of 26 context steps (46%)
+             T7 budget: 12 fed + 0 generated <|im_end|> = 5*1+7 = 12 for the equivalent 1-message HF rendering
+
+  launches     27 (1 preamble / 18 lite / 8 full)
+  preamble     device ms  mean 8.7  min 8.7  max 8.7  (n=1)
+  lite         device ms  mean 49.9  min 49.8  max 49.9  (n=18)
+  full         device ms  mean 60.7  min 60.6  max 60.7  (n=8)
+  lite/full    82.2% of a decode step (spec risk 8: measured, not assumed)
+  context      26 of 500 forward steps (KV bank depth 512)
+  stream       nch=4, head wid [186] chunk-interleaved over 4 channels (S4)
+  OUT FIFO     clean (depth 64, sticky of_ovf clear)
+  template     ON: 12 wrapper ids over 1 turn(s) = 46% of the context; T7 says 5*1+7 = 12
+  sampling     OFF — greedy, 100% on-chip, bit-exact (the default)
+  MMIO         3332 reads / 379 writes
+report -> /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen2b/rd/chat2b_greedy_smoke.json
+=== rc  : 0
+=== end : 2026-08-25T00:04:05-06:00

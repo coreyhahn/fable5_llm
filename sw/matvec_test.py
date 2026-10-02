@@ -24,6 +24,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ref"))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import board_lock as BL                                         # noqa: E402
 from w4a8_ref import quantize_weights, quantize_acts, matvec_y32, pack_ddr_rows
 # device map / CSR offsets: single source of truth in hwmap.py
 from hwmap import (                                             # noqa: E402
@@ -33,6 +34,7 @@ from hwmap import (                                             # noqa: E402
     R_PERF_CYC_LO, R_PERF_CYC_HI, R_PERF_BEATS,
     R_XWIN, R_XPTR, R_RES_PTR, R_RES_DATA, R_IDENT,
     MV_IDENT0, MV_ST_DONE, MV_ST_ERR_RRESP, MV_ST_XOVFL, mv_base,
+    shape_word, shape_isa_for_version, UnknownBitstream,
 )
 
 
@@ -47,7 +49,19 @@ def main():
     ap.add_argument("--N", type=int, default=4096)
     ap.add_argument("--K", type=int, default=3584)
     ap.add_argument("--evidence", default=None)
+    BL.add_lock_args(ap)                        # O3: --lock / --no-lock
     args = ap.parse_args()
+
+    # O3 (user ruling 2026-08-29): THE shared board lock, taken FIRST —
+    # before any artifact is opened and long before the first device fd,
+    # so a refusal is instant and this tool can no longer drive the board
+    # out from under a live session.
+    try:
+        _lock = BL.from_args(args, tool="matvec_test.py").acquire()
+    except BL.BoardLockError as e:
+        print("*** %s" % e)
+        raise SystemExit(4)
+
 
     user = os.open(f"{args.dev}_user", os.O_RDWR)
     h2c = os.open(f"{args.dev}_h2c_0", os.O_WRONLY)
@@ -65,10 +79,22 @@ def main():
     }
 
     # sanity: stage-1 CSR + channel idents
-    magic = rd(R_MAGIC)
-    print(f"MAGIC={magic:08x} VERSION={rd(R_VERSION):08x} CALIB={rd(R_CALIB):x}")
+    magic, ver = rd(R_MAGIC), rd(R_VERSION)
     assert magic == MAGIC, "wrong design"
     assert rd(R_CALIB) == CALIB_ALL, "DDR not calibrated"
+    # WHICH R_SHAPE LAYOUT THE RESIDENT BITSTREAM DECODES (G3.3), gated in
+    # the SAME place as MAGIC/CALIB and BEFORE anything is packed.  This tool
+    # used to hand-roll the SHAPE word; it now delegates to the ONE packer
+    # (sw/hwmap.shape_word) with the ISA the VERSION CSR names, and an image
+    # this checkout has no layout for REFUSES rather than guessing.
+    try:
+        shape_isa = shape_isa_for_version(ver)
+    except UnknownBitstream as ex:
+        raise SystemExit("REFUSING TO TOUCH THE BOARD — " + str(ex))
+    print(f"MAGIC={magic:08x} VERSION={ver:08x} CALIB={rd(R_CALIB):x} "
+          f"SHAPE_ISA={shape_isa}")
+    report["version_csr"] = f"{ver:#010x}"
+    report["shape_isa"] = shape_isa
     for c in args.channels:
         ident = rd(mv_base(c) + R_IDENT)
         assert ident == MV_IDENT0 + c, f"ch{c} IDENT={ident:08x}"
@@ -94,7 +120,8 @@ def main():
                 wr(base + R_WBASE_LO, W_LOCAL_BASE & 0xFFFFFFFF)
                 wr(base + R_WBASE_HI, W_LOCAL_BASE >> 32)
                 wr(base + R_WBEATS, nbeats)
-                wr(base + R_SHAPE, (args.N << 12) | (sh << 6) | ng)
+                wr(base + R_SHAPE,
+                   shape_word(args.N, int(sh), ng, isa=shape_isa))
                 # x vector
                 wr(base + R_XPTR, 0)
                 xb = x8.astype(np.int8).tobytes()

@@ -49,7 +49,8 @@ module layer_chan_ipi (
     input  wire         s_axil_rready,
 
     // ---- S6 burst window (docs/RUNG3_SPEC.md): AXI4 slave, 32-bit data,
-    // 16-bit address (one 64 KiB segment = the whole 16384-word scratch),
+    // 18-bit address (one 256 KiB segment = the whole 65536-word scratch,
+    // G3.1; it was 17-bit / 128 KiB / 32768 words at R-b),
     // ID width 1, SAME aclk as s_axil (zero new CDC).  No LOCK/CACHE/
     // PROT/QOS/REGION/USER: SmartConnect ties them off.
     // NUM_{READ,WRITE}_OUTSTANDING 4 keeps SmartConnect from serializing
@@ -59,10 +60,10 @@ module layer_chan_ipi (
     // which is legal AXI backpressure and cannot deadlock (single ID,
     // in-order responses).
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib AWID" *)
-    (* X_INTERFACE_PARAMETER = "PROTOCOL AXI4, DATA_WIDTH 32, ADDR_WIDTH 16, ID_WIDTH 1, READ_WRITE_MODE READ_WRITE, HAS_BURST 1, HAS_LOCK 0, HAS_PROT 0, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, HAS_WSTRB 1, HAS_BRESP 1, HAS_RRESP 1, SUPPORTS_NARROW_BURST 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 4, NUM_WRITE_OUTSTANDING 4" *)
+    (* X_INTERFACE_PARAMETER = "PROTOCOL AXI4, DATA_WIDTH 32, ADDR_WIDTH 18, ID_WIDTH 1, READ_WRITE_MODE READ_WRITE, HAS_BURST 1, HAS_LOCK 0, HAS_PROT 0, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, HAS_WSTRB 1, HAS_BRESP 1, HAS_RRESP 1, SUPPORTS_NARROW_BURST 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 4, NUM_WRITE_OUTSTANDING 4" *)
     input  wire [0:0]   s_axib_awid,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib AWADDR" *)
-    input  wire [15:0]  s_axib_awaddr,
+    input  wire [17:0]  s_axib_awaddr,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib AWLEN" *)
     input  wire [7:0]   s_axib_awlen,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib AWSIZE" *)
@@ -94,7 +95,7 @@ module layer_chan_ipi (
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib ARID" *)
     input  wire [0:0]   s_axib_arid,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib ARADDR" *)
-    input  wire [15:0]  s_axib_araddr,
+    input  wire [17:0]  s_axib_araddr,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib ARLEN" *)
     input  wire [7:0]   s_axib_arlen,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib ARSIZE" *)
@@ -116,8 +117,92 @@ module layer_chan_ipi (
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib RVALID" *)
     output wire         s_axib_rvalid,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axib RREADY" *)
-    input  wire         s_axib_rready
+    input  wire         s_axib_rready,
+
+    // ---- S2 (spec 2026-09-04 state-spill §4): the state-DMA master.
+    // AXI4, 512-bit data, 34-bit address, ID width 1, on the SAME aclk.  It
+    // is the THIRD SI of the central axi_smc, beside xdma_0/M_AXI and
+    // seq_0/m_axi, and it carries the same 16 GiB view of the four DDR4
+    // channels (synth/scripts/create_project.tcl pins it there).
+    // AWSIZE/ARSIZE (64 B beats), AWBURST/ARBURST (INCR) and AWID/ARID are
+    // TIED CONSTANT below: state_dma issues nothing else, so the core has
+    // no ports for them and the constants cannot drift out of step with the
+    // engine.  Bursts are at most 16 beats (1 KiB) and every block base is
+    // 64 KiB aligned, so no burst crosses a 4 KiB boundary.
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis AWID" *)
+    (* X_INTERFACE_PARAMETER = "PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, DATA_WIDTH 512, ADDR_WIDTH 34, ID_WIDTH 1, MAX_BURST_LENGTH 16, SUPPORTS_NARROW_BURST 0, HAS_LOCK 0, HAS_PROT 0, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, HAS_WSTRB 1, HAS_BRESP 1, HAS_RRESP 1, NUM_READ_OUTSTANDING 8, NUM_WRITE_OUTSTANDING 8" *)
+    output wire [0:0]   m_axis_awid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis AWADDR" *)
+    output wire [33:0]  m_axis_awaddr,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis AWLEN" *)
+    output wire [7:0]   m_axis_awlen,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis AWSIZE" *)
+    output wire [2:0]   m_axis_awsize,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis AWBURST" *)
+    output wire [1:0]   m_axis_awburst,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis AWVALID" *)
+    output wire         m_axis_awvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis AWREADY" *)
+    input  wire         m_axis_awready,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis WDATA" *)
+    output wire [511:0] m_axis_wdata,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis WSTRB" *)
+    output wire [63:0]  m_axis_wstrb,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis WLAST" *)
+    output wire         m_axis_wlast,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis WVALID" *)
+    output wire         m_axis_wvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis WREADY" *)
+    input  wire         m_axis_wready,
+    // BID/RID are unread: the master issues a single ID, so responses are
+    // in order by construction (the same discipline seq_movers' m_axib uses).
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis BID" *)
+    /* verilator lint_off UNUSEDSIGNAL */
+    input  wire [0:0]   m_axis_bid,
+    /* verilator lint_on UNUSEDSIGNAL */
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis BRESP" *)
+    input  wire [1:0]   m_axis_bresp,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis BVALID" *)
+    input  wire         m_axis_bvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis BREADY" *)
+    output wire         m_axis_bready,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis ARID" *)
+    output wire [0:0]   m_axis_arid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis ARADDR" *)
+    output wire [33:0]  m_axis_araddr,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis ARLEN" *)
+    output wire [7:0]   m_axis_arlen,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis ARSIZE" *)
+    output wire [2:0]   m_axis_arsize,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis ARBURST" *)
+    output wire [1:0]   m_axis_arburst,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis ARVALID" *)
+    output wire         m_axis_arvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis ARREADY" *)
+    input  wire         m_axis_arready,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis RID" *)
+    /* verilator lint_off UNUSEDSIGNAL */
+    input  wire [0:0]   m_axis_rid,
+    /* verilator lint_on UNUSEDSIGNAL */
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis RDATA" *)
+    input  wire [511:0] m_axis_rdata,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis RRESP" *)
+    input  wire [1:0]   m_axis_rresp,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis RLAST" *)
+    input  wire         m_axis_rlast,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis RVALID" *)
+    input  wire         m_axis_rvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axis RREADY" *)
+    output wire         m_axis_rready
 );
+
+    // the constant ties: 64 B beats, INCR, single ID 0
+    assign m_axis_awid    = 1'b0;
+    assign m_axis_awsize  = 3'b110;
+    assign m_axis_awburst = 2'b01;
+    assign m_axis_arid    = 1'b0;
+    assign m_axis_arsize  = 3'b110;
+    assign m_axis_arburst = 2'b01;
 
     layer_chan #(
         .RSQRT_ROM("/home/cah/r2d2/code/fpga/fable5_llm/rtl/roms/rsqrt_rom.hex"),
@@ -152,7 +237,19 @@ module layer_chan_ipi (
         .s_axib_arready(s_axib_arready),
         .s_axib_rid(s_axib_rid), .s_axib_rdata(s_axib_rdata),
         .s_axib_rresp(s_axib_rresp), .s_axib_rlast(s_axib_rlast),
-        .s_axib_rvalid(s_axib_rvalid), .s_axib_rready(s_axib_rready)
+        .s_axib_rvalid(s_axib_rvalid), .s_axib_rready(s_axib_rready),
+        .m_axis_awaddr(m_axis_awaddr), .m_axis_awlen(m_axis_awlen),
+        .m_axis_awvalid(m_axis_awvalid), .m_axis_awready(m_axis_awready),
+        .m_axis_wdata(m_axis_wdata), .m_axis_wstrb(m_axis_wstrb),
+        .m_axis_wlast(m_axis_wlast), .m_axis_wvalid(m_axis_wvalid),
+        .m_axis_wready(m_axis_wready),
+        .m_axis_bresp(m_axis_bresp), .m_axis_bvalid(m_axis_bvalid),
+        .m_axis_bready(m_axis_bready),
+        .m_axis_araddr(m_axis_araddr), .m_axis_arlen(m_axis_arlen),
+        .m_axis_arvalid(m_axis_arvalid), .m_axis_arready(m_axis_arready),
+        .m_axis_rdata(m_axis_rdata), .m_axis_rresp(m_axis_rresp),
+        .m_axis_rlast(m_axis_rlast), .m_axis_rvalid(m_axis_rvalid),
+        .m_axis_rready(m_axis_rready)
     );
 
 endmodule

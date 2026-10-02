@@ -1,0 +1,108 @@
+=== host: snoke  date: 2026-08-25T06:11:42-06:00
+=== tree: 33dc8a3+dirty
+=== cmd : /home/cah/.venv/bin/python /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen_next/feas/addrmap_options.py
+=== venv: 3.12.3 numpy 2.4.6
+==============================================================================
+1. THE CAPACITY QUESTION — is 16 GiB enough at all?
+==============================================================================
+    channel 4096 MiB x 4 = 16384 MiB total; everything below W_BASE = 256 MiB/chan is SEQ stream + LDC blob + slack
+    model  map          weights MiB   emb MiB   sum MiB  of 16 GiB
+    2B     all:w8g128        1847.2     970.0    2817.2      17.2 %
+    4B     all:w8g128        4104.2    1940.0    6044.2      36.9 %
+    4B     all:w4g128        2099.2    1940.0    4039.2      24.7 %
+    9B     all:w8g128        7686.2    1940.0    9626.2      58.8 %
+    9B     all:w4g128        3902.2    1940.0    5842.2      35.7 %
+    -> capacity is never the binding constraint; the ADDRESS MAP is.
+
+==============================================================================
+2. 9B AT W8 — what a runtime EMB_BASE would buy
+==============================================================================
+    9B W8 weights 7686.2 MiB, embedding table 1940.0 MiB
+    balanced split = 1921.6 MiB/chan; today's busiest is 1927.1 MiB (the row split is slightly uneven)
+
+    OPTION A — today's map: window = EMB_BASE - W_BASE = 1280 MiB on EVERY channel
+      need 1921.6 MiB/chan, have 1280 -> REFUSED (150.1 %)
+
+    OPTION B — EMB_BASE becomes a per-channel runtime value placed
+      ABOVE the weight pack.  Only the channel that hosts the table
+      is constrained; the other three run to the top of their 4 GiB.
+      emb-hosting channel: 1900.0 MiB of weights allowed
+      other three:         3840.0 MiB each
+      balanced 1921.6 > 1900.0: cap the emb channel and spread the rest -> busiest 1928.8 MiB
+      matvec-term penalty vs today's split: x1.0008
+
+    OPTION C — keep EMB_BASE fixed, split the images asymmetrically
+      ch0 capped at 1280 MiB, other three 2135.4 MiB each -> but 2135.4 > 1280, still REFUSED by the same assert (it is per-channel and uniform)
+
+    Throughput of option B, against the balanced model:
+      today's split (does not fit)   matvec  116.12  step  181.54.. 195.77 ms   5.11.. 5.51 tok/s
+      option B                       matvec  116.21  step  181.64.. 195.86 ms   5.11.. 5.51 tok/s
+
+==============================================================================
+3. 4B's 5,120-BYTE EMBEDDING ROW — the options, costed
+==============================================================================
+    vocab 248,320; packed row 2*H = 5120 B; next power of two 8192 B
+
+    (a) PAD to 8192 B      table 1940.0 MiB (+727.5 MiB, +60 %), EMBLOG2 = 13
+        RTL delta NONE. Host delta: gen_model_script writes padded rows; manifest emb_row_bytes = 8192.
+        Channel-0 budget: W_BASE 256 + weights + table 1940.0 MiB
+          all:w8g128  -> 3225.6 MiB of 4096 (78.7 %)  FITS
+          all:w4g128  -> 2722.6 MiB of 4096 (66.5 %)  FITS
+
+    (b) NON-POWER-OF-TWO row addressing in RTL
+        5120 = 4096 + 1024 = (x<<12) + (x<<10): a TWO-TERM shift-add,
+        not a general multiplier.  rtl/seq_unit.sv:842-843 today is
+        one shift and one add; this makes it two shifts and two adds.
+        Saves 727.5 MiB of DDR that the channel demonstrably has (see (a)).
+        COST: it lands in the SEQ MOV/EMB address path, which is one
+        of the three classes that carried waived endpoints on
+        build_034 (evidence/qwen2b/rb/TIMING.md: seq_0 MOV addressing,
+        3 endpoints).  build_035 closes at WNS 0.000 with ZERO margin
+        (RD_GATE 6), so any added logic there re-opens timing.
+        Also needs the EMBLOG2 CSR to become a row-BYTES field or a
+        2-term encoding; today it is a 4-bit log2 with range [8,13].
+
+    (c) NARROW the embedding to int8       row 2560 B — still not a
+        power of two, so it does not avoid (b); and it is a fidelity
+        change, which this study has no measurement for.
+
+    VERDICT ARITHMETIC: (a) costs 727.5 MiB of a channel that ends up 79 % full at W8;
+    (b) costs new logic in a zero-margin timing path.  (a) is the
+    cheap one unless the channel budget tightens.
+
+==============================================================================
+4. EMBLOG2 HEADROOM
+==============================================================================
+    sw/hwmap.py:150  SEQ_EMBLOG2_MIN, SEQ_EMBLOG2_MAX = 8, 13
+    0.8B  H= 1024 row   2048 B  padded   2048 B  EMBLOG2 11  ok
+    2B    H= 2048 row   4096 B  padded   4096 B  EMBLOG2 12  ok
+    4B    H= 2560 row   5120 B  padded   8192 B  EMBLOG2 13  AT THE CEILING
+    9B    H= 4096 row   8192 B  padded   8192 B  EMBLOG2 13  AT THE CEILING
+    -> BOTH targets land on EMBLOG2 13, the maximum the CSR encodes.
+       Any future model with H > 4096 needs the field widened even if
+       its row size is a clean power of two.
+=== rc  : 0
+=== end : 2026-08-25T06:11:43-06:00
+
+=== CORRECTION 2026-08-25 (review round 2) — appended, log body NOT rewritten
+Two statements in the section-3 body above are wrong and are withdrawn here.
+
+(1) Lines 57-59 say option (b) "lands in the SEQ MOV/EMB address path, which
+    is one of the three classes that carried waived endpoints on build_034
+    (evidence/qwen2b/rb/TIMING.md: seq_0 MOV addressing, 3 endpoints)".
+    The waived class is sequencer **MOV addressing ONLY** — all three of its
+    endpoints are MOV-path (shipped_roll_endpoint_census.log:133,:154,:156) —
+    and docs/QWEN2B_QUANT_STUDY.md:226-227 records that the R6 **EMB** 5-bit
+    barrel shift does NOT appear in either of the two worst violating paths.
+    Correct statement: option (b) is new logic ADJACENT to a waived class, in
+    a block that closes at WNS 0.000 with zero margin — not logic inside a
+    waived class.
+
+(2) Line 63 says EMBLOG2 is "a 4-bit log2".  It is FIVE bits:
+    rtl/seq_unit.sv:298 `logic [4:0] emb_row_log2;`, with EMBLOG2_MIN/MAX =
+    5'd8 / 5'd13 at :289.  The [8,13] range the log prints is right; the
+    width is not.
+
+Neither correction moves the section's arithmetic: the option-B matvec penalty
+(x1.0008), the 4B padding cost (+727.5 MiB) and the EMBLOG2-13 ceiling finding
+are all unaffected.

@@ -1,0 +1,51 @@
+=== host: darthplagueis
+=== date: 2026-09-04T17:38:58-06:00
+=== tree: 6522972+dirty
+=== cmd:  bash evidence/qwen9b/s1/rtl_contract_probe.sh
+=== venv: /home/cah/.venv/bin/python (ABSENT)
+===       ref/.venv/bin/python (exists)
+===       uv: /home/cah/.local/bin/uv (ABSENT)
+=== cpu:  nproc=32 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== 1. POSITIVE — the census against the stub
+SDMA_BITS: PASS
+
+  (unperturbed) the census as it stands                              PASS
+  doc        docs/SEQ_ISA.md B15.3 moves SDMA_CYC to 0x78         CAUGHT
+  host       sw/hwmap.STATE_KV_STRIDE halves to 1 MiB             CAUGHT
+  ref        ref/seq_format.OP_L_SST becomes 15                   CAUGHT
+  rtl        the RTL's OP_SLD becomes 12 (an occupied opcode)     CAUGHT
+  rtl-layer  the RTL's LAYER kv_layer field moves to [10:4]       CAUGHT
+  rtl-shift  the RTL's SDMA_SHIFT_KV becomes 20 (a 1 MiB KV stride) CAUGHT
+  
+  SDMA_CONTROL: PASS (the gate holds and every perturbation is CAUGHT)
+
+=== 2. NEGATIVE — each anchor deleted in turn must be NAMED
+  OP_SLD           REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no OP_SLD
+  OP_SST           REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no OP_SST
+  CSR_SB_DN        REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no CSR_SB_DN
+  CSR_SB_KV        REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no CSR_SB_KV
+  CSR_SB_CV        REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no CSR_SB_CV
+  CSR_SDMA         REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no CSR_SDMA
+  CSR_SDMA_CYC     REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no CSR_SDMA_CYC
+  ERR_E_ENV        REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no ERR_E_ENV
+  ERR_E_LAYER      REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no ERR_E_LAYER
+  ERR_E_DMA_BASE   REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no ERR_E_DMA_BASE
+  ERR_E_DMA_RANGE  REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no ERR_E_DMA_RANGE
+  ERR_E_DMA_AXI    REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no ERR_E_DMA_AXI
+  ERR_E_DMA_COLD   REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no ERR_E_DMA_COLD
+  SHIFT_DN         REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no SHIFT_DN
+  SHIFT_KV         REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no SHIFT_KV
+  SHIFT_CV         REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no SHIFT_CV
+  ARG0_FIELDS      REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no ARG0_FIELDS
+  LAYER_FIELDS     REFUSED — SDMA_BITS: FAIL — /tmp/s1_probe.tncyyw/cut.sv has no LAYER_FIELDS
+  (18 anchors)
+
+=== 3. THE TREE — rtl/layer_chan.sv as it stands
+SDMA_BITS: FAIL — rtl/layer_chan.sv has no OP_SLD
+
+RTL_CONTRACT_PROBE: PASS (18 anchors each proved load-bearing; the stub is GREEN with every perturbation CAUGHT; the tree is RED)
+=== rc: 0
+=== end: 2026-09-04T17:39:01-06:00

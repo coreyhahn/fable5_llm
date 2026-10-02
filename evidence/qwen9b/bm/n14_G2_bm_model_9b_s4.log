@@ -1,0 +1,68 @@
+=== host: snoke  date: 2026-09-24T20:25:08-06:00
+=== tree: 77a28c2+dirty
+=== dirty: ?? evidence/qwen9b/ov/n33_gate_s1_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n41_gate_s2_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n42_gate_s3_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n43_gate_s4_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n44_chipvec_s1_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n45_chipvec_s2_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n46_chipvec_s3_reordB.log
+=== dirty: ?? evidence/qwen9b/ov/n47_chipvec_s4_reordB.log
+=== cmd : bash evidence/qwen9b/bm/run_bm1.sh model_9b_s4 bm --cycles-ref 196706833 --tokens-ref evidence/qwen9b/s4/S4_REPLAY.md
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== binary   /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_seq_chip_bm1/tb_seq_chip_9b_bm1
+=== built    2026-09-24T20:15:59-06:00
+=== stem     model_9b_s4   mode: bm
+=== watchdog 172800000 ms
+=== stdout   /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bm/seedlogs_model_9b_s4_bm/model_9b_s4.log
+=== cycles-ref 196706833
+=== tokens-ref /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/s4/S4_REPLAY.md
+=== wall     8603s   rc=0
+--- verdict lines
+    tb_seq_chip: BM1 counters ON (no expect file)
+    tb_seq_chip: launch 0 [-] rec_off 0, 158536 records, 6 tokens, 36864 scratch words, NMV=4 WIMGPC=1 LAT=4 DDRLAT=32 WLAT=40
+    SEQ-CHIP /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s4.e4 launch 0 [-]: 158536 records, 196706833 cycles (1240.77 cyc/rec, 786.827 ms @250MHz, PERF_CYC 196706825)
+    LAUNCH 0 PASS: [-] pc 158535, tokens 6, tcnt 8, scratch 36864, smem 112
+      state: 2676800 read beats, 2659968 write beats, 0 unmapped
+      burst: 108762 write bursts (25637376 beats), 162108 read bursts (40820736 beats), busy_wr 50006166 busy_rd 47368548, decerr 0 non-OK 0, BLAT=4
+      fetch-empty stall cycles 48
+      ddr beats 448410 (miss 0), weight beats 383606784 total across 4 chan (miss 0) [ 96180480/95876352/95774976/95774976]
+    TB_SEQ_CHIP PASS: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s4.e4 (launches 1, 196706833 cycles total, scratch 36864/launch, tokens 6, tcnt 8)
+    CYCLES measured  196706833
+    CYCLES IDENTICAL TO THE REFERENCE (196706833)
+    TOKENS measured  [11,0,271,803,369,498]
+    TOKENS record    [11,0,271,803,369,498]  (S4_REPLAY.md)
+    TOKENS IDENTICAL TO THE RECORD
+    no SEQ_TIMELINE block, as required (no +timeline)
+--- BM1 block (25 lines)
+    tb_seq_chip: BM1 counters ON (no expect file)
+    BM1 L0 BEGIN  (0x100..0x134 read after HALT; ref = the testbench's negedge sampler)
+    BM1 L0 BM_IDENT rtl 4205949697 const 4205949697       OK
+    BM1 L0 PERF_CYC rtl 196706825 ref 196706825       OK
+    BM1 L0 BM_MVANY rtl 81689906 ref 81689906       OK
+    BM1 L0 BM_MV0 rtl 81492992 ref 81492992       OK
+    BM1 L0 BM_MV1 rtl 81235569 ref 81235569       OK
+    BM1 L0 BM_MV2 rtl 81149426 ref 81149426       OK
+    BM1 L0 BM_MV3 rtl 81149556 ref 81149556       OK
+    BM1 L0 BM_FENCE rtl 81582395 ref 81582395       OK
+    BM1 L0 BM_MVWORK rtl 48822048 ref 48822048       OK
+    BM1 L0 BM_MVWORK_ANY rtl 181515 ref 181515       OK
+    BM1 L0 BM_IMOVER rtl 130453391 ref 130453391       OK
+    BM1 L0 BM_STEPS rtl 6 ref 6       OK
+    BM1 L0 RSVD_12C rtl 0 const 0       OK
+    BM1 L0 BM_MOVX rtl 31540704 ref 31540704       OK
+    BM1 L0 BM_MOVY rtl 17050656 ref 17050656       OK
+    BM1 L0 RSVD_1FC rtl 0 const 0       OK
+    BM1 L0 OUTSIDE_200 rtl 3735929054 const 3735929054       OK
+    BM1 L0 INFO   MVGO work (MVWORK-MOVX-MOVY) 230688  ref MOVER 130404443  ref I2 70362  ref FENCE&ANY&!STR 6082  ref WORK&ANY&STR 117235  L_LCYC 62414807
+    BM1 L0 ID_FENCE+WORK rtl 130404443 MOVER 130404443       OK
+    BM1 L0 ID_WORK>=W_ANY rtl 1 want 1       OK
+    BM1 L0 ID_MAX<=ANY<=S rtl 1 want 1       OK
+    BM1 L0 ID_MOVX+MOVY<=W rtl 1 want 1       OK
+    BM1 L0 ID_I2=C7-WS+FN rtl 70362 ref 70362       OK
+    BM1 L0 PASS: every counter equals its reference                     
+    BM1 COUNTERS: every check OK
+--- wall 8603s
+BM1_RUN model_9b_s4 bm: PASS
+=== rc  : 0
+=== end : 2026-09-24T22:48:32-06:00

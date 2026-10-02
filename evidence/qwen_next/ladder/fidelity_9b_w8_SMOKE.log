@@ -1,0 +1,30 @@
+host: snoke
+checkpoint: /home/cah/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a/model.safetensors-00001-of-00004.safetensors
+  header sha256 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b (golden 2721100f724faea555e4afd11064461b2b231914be53e8d7468ed1be9d9f4c3b)
+  loaded in 33.6s
+  LM head quantized (W8 rule=max|W_g|/127 g=128) e=-7 sh=11 (24.3s)
+
+=== config S=4 w8 ===
+    quantized 32 layers in 169.2s
+    emb table |q|max 482 of 32767 (16.4s)
+    config done in 726.0s
+  --- S=4 w8 ---
+  prompt 1 'The capital of France'
+    golden argmax [2614, 314, 279, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338, 369, 11751, 13, 198, 760, 6511, 314, 9338]  text=' is Paris.\nThe capital of France is Paris.\nThe capital of France is Paris.\nThe capital of France'
+    fixed  argmax [198, 314, 279, 11, 11751, 13]   top1=4/6  rank=[1, 0, 0, 1, 0, 0]  top5ovl=[1, 3, 3, 4, 1, 4]
+    block-float k histogram [dn]: {-14: 182, -13: 325, -12: 507, -11: 546, -10: 749, -9: 895, -8: 685, -7: 314, -6: 138, -5: 67, -4: 48, -3: 35, 0: 117}
+    block-float k histogram [attn]: {8: 3, 9: 15, 10: 11, 11: 4, 12: 5, 13: 4, 14: 3, 15: 3}
+    block-float saturation: m_q15 max raw 8192000, clipped 117 (0 on non-zero heads); attn k_a clamped to 0 0 times
+    matvec int16-dequant headroom (|y| pre-clip16, clips):
+      1024x4096      |y|max=38702    clips=1/98304
+      12288x4096     |y|max=103362   clips=511/4718592
+      32x4096        |y|max=54911    clips=25/9216
+      4096x12288     |y|max=159688   clips=13/786432
+      4096x4096      |y|max=217788   clips=9/1376256
+      8192x4096      |y|max=13455    clips=0/1572864
+
+==============================================================================
+SUMMARY  (teacher-forced on the golden trajectory)
+==============================================================================
+config              top1  rank med  rank max  top5 ovl   |x|max   clip  S_F sat
+S=4 w8        4/6              0.0         1      2.67    32768     84       85

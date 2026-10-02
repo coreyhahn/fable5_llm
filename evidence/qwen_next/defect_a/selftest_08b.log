@@ -1,0 +1,53 @@
+--- seq_chat selftest: /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e
+    [ok] T_PREAMBLE 1524 recs
+    [ok] T_BODY_FULL 14740 recs
+    [ok] T_BODY_LITE 14006 recs
+    [ok] lite is a body prefix
+    [ok] session image 1526 recs, SEQ_LEN == nrec
+    [ok] session ends HALT
+    [ok] session TCNT_SEQ == 1 (belt and braces)
+    [ok] lite step image 14010 recs
+    [ok] lite patch window 48 B at 0
+    [ok] lite rec0 seeds XRF[3] = 1234
+    [ok] lite rec1 seeds XRF[4] = 7*1536 (absolute)
+    [ok] lite rec2 sets TCNT_SEQ = 1
+    [ok] lite ends HALT
+    [ok] lite has no JMP
+    [ok] lite patch is 48 B
+    [ok] lite patch rewrites tok/pos
+    [ok] lite patch touches nothing past byte 48
+    [ok] full step image 14744 recs
+    [ok] full patch window 48 B at 0
+    [ok] full rec0 seeds XRF[3] = 1234
+    [ok] full rec1 seeds XRF[4] = 7*1536 (absolute)
+    [ok] full rec2 sets TCNT_SEQ = 1
+    [ok] full ends HALT
+    [ok] full has no JMP
+    [ok] full patch is 48 B
+    [ok] full patch rewrites tok/pos
+    [ok] full patch touches nothing past byte 48
+    [ok] lite image pushes no token (no AMAXL)
+    [ok] full image pushes exactly one token
+    [ok] looped turn has 1 JMP
+    [ok] JMP target is the loop-head EMB
+    [ok] looped turn sets TCNT_SEQ = ntok exactly once
+    [ok] looped turn ends HALT, SEQ_LEN == nrec
+    [ok] flat turn has no JMP
+    [ok] flat turn has P+N-1 = 5 bodies
+    [ok] flat turn: 3 full bodies push tokens (2 lite prefill steps)
+    [ok] flat turn seeds XRF[3] once per PROMPT token (always)
+    [ok] context guard T+(P-1)+N < 512
+    [ok] context guard near the KV wrap
+    [ok] pos > 85 refused in pos_mode='xrf'
+    [ok] pos_mode='ldc' patches the LDC base and zeroes XRF[4]
+    [ok] XRF[4] is read by 24 LDCs and nothing else ({'LDC*'})
+    [ok] pos_mode 'xrf' (base + XRF[4]) and 'ldc' (patched base) resolve to identical blob addresses
+    [ok] blob layout 1784576 B
+    [ok] resident set: session/lite/full, 484480 B, 4 KiB aligned ([('session', 0, 1526), ('lite', 24576, 14010), ('full', 249856, 14744)])
+    [ok] host_meta carries the committed weight manifest for seq_run
+    [ok] emb geometry at FABLE5_MODEL=0.8b [EMB GEOMETRY SELFTEST: PASS  (H=1024)]
+    [ok] emb geometry at FABLE5_MODEL=2b [EMB GEOMETRY SELFTEST: PASS  (H=2048)]
+    [ok] emb geometry at FABLE5_MODEL=4b [EMB GEOMETRY SELFTEST: PASS  (H=2560)]
+    [ok] emb geometry at FABLE5_MODEL=9b [EMB GEOMETRY SELFTEST: PASS  (H=4096)]
+SELFTEST: PASS
+seq_chat: PASS

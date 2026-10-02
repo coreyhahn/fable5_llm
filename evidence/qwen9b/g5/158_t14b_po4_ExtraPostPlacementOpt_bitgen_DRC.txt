@@ -1,0 +1,34 @@
+# po4_ExtraPostPlacementOpt — a SUPPLEMENTARY roll that did NOT produce a bitstream, recorded as a result
+#
+# This roll is one of two EXTRA directives Task 14-B ran beyond the brief's four-way
+# spread, to widen the measured distribution.  It routed and post-route phys_opt'd,
+# and then write_bitstream FAILED a design rule check.  full_impl.tcl exits at
+# wait_on_run when a run fails, so this roll has no TIMING: line and no reports/
+# directory; the numbers below are from the run's own impl log.
+#
+# The failure is 24 x [DRC RTSTAT-11] Invalid Site Programming (of 28 DRC errors in
+# total), ALL on nets inside the VENDOR SmartConnect bd_i/smc_ch0/.../s00_r_node XPM
+# FIFO, ALL at ONE site, SLICE_X28Y296.  It is not this campaign RTL, not the clock-root constraint (this
+# roll carried EXTRA_XDC: none) and not a harness defect: it is a post-route
+# phys_opt leaving a vendor macro in a site programming bitgen rejects.
+# Precedent in this campaign: G5B_TIMING.md section 4.6, 'fp1's fourth roll did not
+# route, and that is a result'.
+
+=== the last timing summaries the run printed ===
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.466 | TNS=-1288.928| WHS=0.010  | THS=0.000  |
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.389 | TNS=-1218.728| WHS=0.010  | THS=0.000  |
+INFO: [Physopt 32-669] Post Physical Optimization Timing Summary | WNS=-0.341 | TNS=-1136.414 | WHS=0.001 | THS=0.000 |
+INFO: [Physopt 32-669] Post Physical Optimization Timing Summary | WNS=-0.281 | TNS=-995.967 | WHS=0.000 | THS=0.000 |
+
+=== the DRC verdict, and the site ===
+RTSTAT-11 error lines: 24
+invalid site: SLICE_X28Y296
+INFO: [Vivado 12-3199] DRC finished with 28 Errors
+ERROR: [Vivado 12-1345] Error(s) found during DRC. Bitgen not run.
+
+=== checkpoints on disk ===
+  -rw-rw-r-- 1 cah cah 157581603 Sep  7 17:09 synth/out_build_041_po4_ExtraPostPlacementOpt/proj/stage1.runs/impl_1/bd_wrapper_opt.dcp
+  -rw-rw-r-- 1 cah cah 226049825 Sep  7 19:28 synth/out_build_041_po4_ExtraPostPlacementOpt/proj/stage1.runs/impl_1/bd_wrapper_physopt.dcp
+  -rw-rw-r-- 1 cah cah 226851876 Sep  7 18:29 synth/out_build_041_po4_ExtraPostPlacementOpt/proj/stage1.runs/impl_1/bd_wrapper_placed.dcp
+  -rw-rw-r-- 1 cah cah 289747930 Sep  7 22:01 synth/out_build_041_po4_ExtraPostPlacementOpt/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+  -rw-rw-r-- 1 cah cah 290200226 Sep  7 20:58 synth/out_build_041_po4_ExtraPostPlacementOpt/proj/stage1.runs/impl_1/bd_wrapper_routed.dcp

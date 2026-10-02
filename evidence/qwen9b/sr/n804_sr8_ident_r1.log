@@ -1,0 +1,30 @@
+=== host: snoke  date: 2026-09-29T04:00:20-06:00
+=== tree: 2e6618f
+=== cmd : bash -c /home/cah/.venv/bin/python evidence/qwen9b/sr/sr8_ident.py --expect e3c2ff1e --want-caps R1; r1=$?; echo "sr8_ident rc $r1"; echo "--- cross-check: bm1_ident.py --want-version e3c2ff1e --want-caps R1 (the addendum tool)"; /home/cah/.venv/bin/python evidence/qwen9b/bm/bm1_ident.py --want-version e3c2ff1e --want-caps R1; r2=$?; echo "bm1_ident rc $r2"; [ $r1 = 0 ] && [ $r2 = 0 ]
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+--- expect VERSION 0xe3c2ff1e, caps {R1}
+  MAGIC        0xfab1e001  want 0xfab1e001  OK
+  VERSION      0xe3c2ff1e  want 0xe3c2ff1e  OK
+  CALIB        0x0000000f  want 0x0000000f  OK
+  LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+  SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+  TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+  BM_IDENT     0xfab1b301  want 0xfab1b301  OK
+  SEQ_CAPS     0xfab1ca01  decoded {R1}  want {R1}  OK
+  CAPS_WORD    0xfab1ca01  want 0xfab1ca01  OK
+IDENT: PASS
+sr8_ident rc 0
+--- cross-check: bm1_ident.py --want-version e3c2ff1e --want-caps R1 (the addendum tool)
+  MAGIC        0xfab1e001  want 0xfab1e001  OK
+  VERSION      0xe3c2ff1e  want 0xe3c2ff1e  OK
+  CALIB        0x0000000f  want 0x0000000f  OK
+  LAYER_IDENT  0xfab1e5a0  want 0xfab1e5a0  OK
+  SEQ_IDENT    0xfab1e5e0  want 0xfab1e5e0  OK
+  TOPK_IDENT   0xfab1704b  want 0xfab1704b  OK
+  BM_IDENT     0xfab1b301  want 0xfab1b301  OK
+  SEQ_CAPS     0xfab1ca01  decoded {R1}  want {R1}  OK
+IDENT: PASS
+bm1_ident rc 0
+=== rc  : 0
+=== end : 2026-09-29T04:00:21-06:00

@@ -1,0 +1,88 @@
+=== host: snoke  date: 2026-09-28T11:39:38-06:00
+=== tree: 9a0e841+dirty
+=== dirty:  M NEXT_SESSION.md
+=== dirty:  M ref/scripts/reorder_e4.py
+=== dirty:  M ref/seq_cost.py
+=== cmd : env FABLE5_MODEL=9b /home/cah/.venv/bin/python evidence/qwen9b/sr/sr11b_model_correction.py --diag
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+=== sr11b_model_correction.py  FABLE5_MODEL=9b
+=== R1 timeline /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1_reordB_r1.timeline.csv
+    sha256 1f586cbfb3f2fcd2ce6b2c472c0ee09859718697ffceb1d868e642fbba38361f  committed 1f586cbfb3f2fcd2ce6b2c472c0ee09859718697ffceb1d868e642fbba38361f  MATCH
+=== window template /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 MATCH
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (1, 2, 3, 4): tok1=39624, tok2=39623, tok3=39625, tok4=39624
+    template segments (tok: lo..hi): tok1: 39..39662, tok2: 39663..79285, tok3: 79286..118910, tok4: 118911..158534
+    segment 3 (118911..158534) <- template tok4 (118911..158534) windows
+  model: body 118911..158534; replay of the emitted r1 order 27136513 (SR4's prediction 27136513: REPRODUCED)
+  emitted body == the r1 stream's body 120552..160722 (sha 4e11a2ae6872970e MATCH): 40171/40171 records identical
+    token 4: 0 body pcs absent []; of them FENCE/stream-window pcs: 0
+    token 5: 0 body pcs absent []; of them FENCE/stream-window pcs: 0
+    token 6: 5 body pcs absent [(120552, 'LDC*'), (120553, 'CSRWR'), (120554, 'CSRWR'), (120555, 'CSRWR'), (120556, 'CMD')]; of them FENCE/stream-window pcs: 0
+    body FENCEs 1370; tokens read [4, 5, 6]: [40171, 40171, 40167] rows
+=== timeline /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/bn/bn_timeline_model_9b_s1.csv
+    sha256 a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  committed a9e74bd01954f12ebf417663000b81641aa6e44d7f8d5d2145aa054bafebfb78  MATCH
+    R rows read 237784; kept tokens (4, 5, 6): tok4=39624, tok5=39624, tok6=39625
+
+=== CMD+ARG residual by command group, measured (r1 CSV) - model (BN1 CSV, the same token), s1 body
+  token 4: 8821 CMDs, model 10710770, measured 10730078, measured - model +19308
+      SLD                          n   112    +17212  (+153.7 per command)
+      KVAP                         n    32     +2080  (+65.0 per command)
+      SST                          n   112       +16  (+0.1 per command)
+      VNW                          n    81        +0  (+0.0 per command)
+      VNx4096                      n    65        +0  (+0.0 per command)
+      ALU.DYNQ8x4096               n    97        +0  (+0.0 per command)
+      CONV                         n    24        +0  (+0.0 per command)
+      ALU.SCALEx2048               n    96        +0  (+0.0 per command)
+      VNx128                       n  1536        +0  (+0.0 per command)
+      ALU.SCALEx128                n   768        +0  (+0.0 per command)
+      ALU.SILU16x128               n   768        +0  (+0.0 per command)
+      GATE                         n    24        +0  (+0.0 per command)
+  token 5: 8821 CMDs, model 10715762, measured 10735278, measured - model +19516
+      SLD                          n   112    +17212  (+153.7 per command)
+      KVAP                         n    32     +2288  (+71.5 per command)
+      SST                          n   112       +16  (+0.1 per command)
+      VNW                          n    81        +0  (+0.0 per command)
+      VNx4096                      n    65        +0  (+0.0 per command)
+      ALU.DYNQ8x4096               n    97        +0  (+0.0 per command)
+      CONV                         n    24        +0  (+0.0 per command)
+      ALU.SCALEx2048               n    96        +0  (+0.0 per command)
+      VNx128                       n  1536        +0  (+0.0 per command)
+      ALU.SCALEx128                n   768        +0  (+0.0 per command)
+      ALU.SILU16x128               n   768        +0  (+0.0 per command)
+      GATE                         n    24        +0  (+0.0 per command)
+  token 6: 8820 CMDs, model 10708430, measured 10728362, measured - model +19932
+      SLD                          n   112    +17212  (+153.7 per command)
+      KVAP                         n    32     +2704  (+84.5 per command)
+      SST                          n   112       +16  (+0.1 per command)
+      VNx4096                      n    65        +0  (+0.0 per command)
+      ALU.DYNQ8x4096               n    97        +0  (+0.0 per command)
+      CONV                         n    24        +0  (+0.0 per command)
+      ALU.SCALEx2048               n    96        +0  (+0.0 per command)
+      VNx128                       n  1536        +0  (+0.0 per command)
+      ALU.SCALEx128                n   768        +0  (+0.0 per command)
+      ALU.SILU16x128               n   768        +0  (+0.0 per command)
+      GATE                         n    24        +0  (+0.0 per command)
+      DNST                         n   768        +0  (+0.0 per command)
+
+=== token 4: the lane gap MVGO end -> FENCE start, by drained class (sum over the class's FENCEs; model = the old replay)
+  DN   dn_out    n   96: FENCE meas - model   -9524; gap meas - model  +36772; inside the gaps: CMD SLD +68848, LDC -192
+  DN   mlp_gate  n  192: FENCE meas - model   +3017; gap meas - model   +3531; inside the gaps: 
+  DN   mlp_down  n   96: FENCE meas - model   +2208; gap meas - model   +1704; inside the gaps: LDC -1608
+  DN   in_b      n   96: FENCE meas - model   +1703; gap meas - model   +1797; inside the gaps: 
+  DN   in_a      n   96: FENCE meas - model   +1700; gap meas - model   +1788; inside the gaps: 
+  DN   in_z      n   96: FENCE meas - model   +1693; gap meas - model   +1767; inside the gaps: 
+  DN   in_qkv    n   96: FENCE meas - model   +1688; gap meas - model   +1752; inside the gaps: 
+  DN   mlp_up    n  192: FENCE meas - model   +1430; gap meas - model    +426; inside the gaps: 
+  GQA  mlp_gate  n   64: FENCE meas - model    +997; gap meas - model   +1151; inside the gaps: 
+  GQA  mlp_down  n   32: FENCE meas - model    +755; gap meas - model    +561; inside the gaps: LDC -600
+  GQA  k_proj    n   32: FENCE meas - model    +736; gap meas - model   +1104; inside the gaps: 
+  GQA  v_proj    n   32: FENCE meas - model    +736; gap meas - model   +2144; inside the gaps: CMD KVAP +1040
+  GQA  q_proj    n   32: FENCE meas - model    +641; gap meas - model    +627; inside the gaps: LDC -192
+  GQA  o_proj    n   32: FENCE meas - model    +502; gap meas - model    +466; inside the gaps: CMD SST +64
+  GQA  mlp_up    n   64: FENCE meas - model    +456; gap meas - model     +80; inside the gaps: 
+  HEAD lm_head   n  122: FENCE meas - model    +168; gap meas - model    +372; inside the gaps: 
+SR11B_MODEL_CORRECTION DIAG: DONE
+=== rc  : 0
+=== end : 2026-09-28T11:39:45-06:00

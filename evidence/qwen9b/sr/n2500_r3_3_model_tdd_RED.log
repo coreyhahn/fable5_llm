@@ -1,0 +1,194 @@
+=== host: snoke  date: 2026-09-29T19:37:12-06:00
+=== tree: a62f324
+=== cmd : env FABLE5_MODEL=9b FABLE5_RS_F=7 /home/cah/.venv/bin/python evidence/qwen9b/sr/r3_model_tdd.py
+=== env : FABLE5_MODEL=9b
+=== venv: /home/cah/.venv/bin/python (named in cmd): 3.12.3 numpy 2.4.6
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 121, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 238, in a1
+    eb = run([bcast(n=256, src=512)] + tail)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 185, in run
+    caps=caps).run(max_steps=max_steps)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+seq_model.UnwrittenReadError: MVGO on mv0 before any MOVX
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 121, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 281, in a5
+    ex = run([bcast(n=256, src=512)] + tail)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 185, in run
+    caps=caps).run(max_steps=max_steps)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+seq_model.UnwrittenReadError: MVGO on mv0 before any MOVX
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 121, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 321, in c1
+    ex, det = accepted(recs)
+              ^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 205, in accepted
+    ex = run(recs, caps)
+         ^^^^^^^^^^^^^^^
+seq_model.UnwrittenReadError: MVGO XBANK on mv2: no intact MOVX vector starts at XWIN word 1536
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 121, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 379, in e2
+    ex = run([bcast(n=256), movx(0, n=4, src=900, word=16),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 185, in run
+    caps=caps).run(max_steps=max_steps)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+seq_model.UnwrittenReadError: MVGO on mv1 before any MOVX
+=== r3_model_tdd.py  FABLE5_MODEL=9b
+  base model a2fed67:ref/seq_model.py sha256 6b78942ca03a76cc4db57c823998c4fe3fd79b0df5d141e03f218297288d6674
+  tree model ref/seq_model.py sha256 6b78942ca03a76cc4db57c823998c4fe3fd79b0df5d141e03f218297288d6674
+=== (a) a broadcast then MVGOs on all four channels, {R1,R2,R3}
+  [FAIL] (a) broadcast + 4 MVGO == 4 unicast MOVX + 4 MVGO, bit-identical (machine state, RES, XWIN, vector map)  -- UnwrittenReadError: MVGO on mv0 before any MOVX
+  [FAIL] (a) ragged tail (len 130) written and zero-padded on all four  -- x_mem of ch0..3 == scratch[40..170) + 2 zero bytes: False; vec [None, None, None, None]
+  [FAIL] (a) bank-1 broadcast (word 1536): the same window on all four  -- bank-1 vector on all four, bank 0 untouched: False
+  [FAIL] (a) C1: no phantom channel 15 — exactly channels 0..3 written  -- XWIN channels written [15] (a phantom 15 is C1's bug)
+  [FAIL] (a) a broadcast counts as ONE MOVX  -- UnwrittenReadError: MVGO on mv0 before any MOVX
+=== (b) destination running in the SAME bank -> refused, naming it
+  [FAIL] (b) pending on mv0 (bank 0), broadcast bank 0 -> RunningChannelError naming mv0  -- ACCEPTED
+  [FAIL] (b) pending on mv1 (bank 0), broadcast bank 0 -> RunningChannelError naming mv1  -- ACCEPTED
+  [FAIL] (b) pending on mv2 (bank 0), broadcast bank 0 -> RunningChannelError naming mv2  -- ACCEPTED
+  [FAIL] (b) pending on mv3 (bank 0), broadcast bank 0 -> RunningChannelError naming mv3  -- ACCEPTED
+  [FAIL] (b) the per-destination check runs before ANY write  -- ACCEPTED
+=== (c) the other bank -> admitted
+  [FAIL] (c) mv2 pending bank 0, broadcast into bank 1 -> admitted; the XBANK MVGO computes on the broadcast x  -- UnwrittenReadError: MVGO XBANK on mv2: no intact MOVX vector starts at XWIN word 1536
+  [PASS] (c) all four pending bank 0, broadcast bank 1 -> admitted  -- accepted; running after = []
+=== (d) overlap on ONE destination only
+  [FAIL] (d) mv0..2 pending bank 1, mv3 pending bank 0, broadcast bank 0 -> refused naming mv3  -- ACCEPTED
+  [FAIL] (d) mv1 pending K = 12288 (both banks), broadcast bank 1 -> refused naming mv1  -- ACCEPTED
+  [FAIL] (d) zero-length broadcast on a running channel -> refused (conservative _overlap, as validate_stream)  -- ACCEPTED
+  [PASS] (d) the word just past mv3's pending range (word 32) -> admitted
+  [FAIL] (d) the last word inside it (word 31) -> refused naming mv3  -- ACCEPTED
+=== (e) unwritten reads stay refused
+  [PASS] (e) broadcast bank 0, then an XBANK MVGO on mv1 (bank 1 never written) -> UnwrittenReadError  -- UnwrittenReadError: MVGO XBANK on mv1: no intact MOVX vector starts at XWIN word 1536
+  [FAIL] (e) the bookkeeping is per channel: a later unicast on mv0 kills only mv0's broadcast vector  -- UnwrittenReadError: MVGO on mv1 before any MOVX
+=== (f) streams with NO broadcast == the base model (a2fed67)
+  [PASS] (f) mixed_r2 at {}  -- both SeqValidationError: rec 7: MOVX target is reserved (must be 0; the XWI
+  [PASS] (f) mixed_r2 at ['R1']  -- both SeqValidationError: rec 7: MOVX target is reserved (must be 0; the XWI
+  [PASS] (f) mixed_r2 at ['R2']  -- ran; state diff none; all views ==
+  [PASS] (f) mixed_r2 at ['R3']  -- both SeqValidationError: rec 7: MOVX target is reserved (must be 0; the XWI
+  [PASS] (f) mixed_r2 at ['R1', 'R2']  -- ran; state diff none; all views ==
+  [PASS] (f) mixed_r2 at ['R1', 'R3']  -- both SeqValidationError: rec 7: MOVX target is reserved (must be 0; the XWI
+  [PASS] (f) mixed_r2 at ['R2', 'R3']  -- ran; state diff none; all views ==
+  [PASS] (f) mixed_r2 at ['R1', 'R2', 'R3']  -- ran; state diff none; all views ==
+  [PASS] (f) plain at {}  -- ran; state diff none; all views ==
+  [PASS] (f) plain at ['R1']  -- ran; state diff none; all views ==
+  [PASS] (f) plain at ['R2']  -- ran; state diff none; all views ==
+  [PASS] (f) plain at ['R3']  -- ran; state diff none; all views ==
+  [PASS] (f) plain at ['R1', 'R2']  -- ran; state diff none; all views ==
+  [PASS] (f) plain at ['R1', 'R3']  -- ran; state diff none; all views ==
+  [PASS] (f) plain at ['R2', 'R3']  -- ran; state diff none; all views ==
+  [PASS] (f) plain at ['R1', 'R2', 'R3']  -- ran; state diff none; all views ==
+  [PASS] (f) masked_fence at {}  -- both SeqValidationError: rec 4: FENCE takes no operands  [op=0x09 fl=0x00 t
+  [PASS] (f) masked_fence at ['R1']  -- ran; state diff none; all views ==
+  [PASS] (f) masked_fence at ['R2']  -- both SeqValidationError: rec 4: FENCE takes no operands  [op=0x09 fl=0x00 t
+  [PASS] (f) masked_fence at ['R3']  -- both SeqValidationError: rec 4: FENCE takes no operands  [op=0x09 fl=0x00 t
+  [PASS] (f) masked_fence at ['R1', 'R2']  -- ran; state diff none; all views ==
+  [PASS] (f) masked_fence at ['R1', 'R3']  -- ran; state diff none; all views ==
+  [PASS] (f) masked_fence at ['R2', 'R3']  -- both SeqValidationError: rec 4: FENCE takes no operands  [op=0x09 fl=0x00 t
+  [PASS] (f) masked_fence at ['R1', 'R2', 'R3']  -- ran; state diff none; all views ==
+  [PASS] (f) movx_on_running at {}  -- both RunningChannelError: MOVX writes mv0 XWIN words [0, 32) while a NO-WAI
+  [PASS] (f) movx_on_running at ['R1']  -- both RunningChannelError: MOVX writes mv0 XWIN words [0, 32) while a NO-WAI
+  [PASS] (f) movx_on_running at ['R2']  -- both RunningChannelError: MOVX writes mv0 XWIN words [0, 32) while a NO-WAI
+  [PASS] (f) movx_on_running at ['R3']  -- both RunningChannelError: MOVX writes mv0 XWIN words [0, 32) while a NO-WAI
+  [PASS] (f) movx_on_running at ['R1', 'R2']  -- both RunningChannelError: MOVX writes mv0 XWIN words [0, 32) while a NO-WAI
+  [PASS] (f) movx_on_running at ['R1', 'R3']  -- both RunningChannelError: MOVX writes mv0 XWIN words [0, 32) while a NO-WAI
+  [PASS] (f) movx_on_running at ['R2', 'R3']  -- both RunningChannelError: MOVX writes mv0 XWIN words [0, 32) while a NO-WAI
+  [PASS] (f) movx_on_running at ['R1', 'R2', 'R3']  -- both RunningChannelError: MOVX writes mv0 XWIN words [0, 32) while a NO-WAI
+  [PASS] (f) mvgo_on_running at {}  -- both RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still run
+  [PASS] (f) mvgo_on_running at ['R1']  -- both RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still run
+  [PASS] (f) mvgo_on_running at ['R2']  -- both RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still run
+  [PASS] (f) mvgo_on_running at ['R3']  -- both RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still run
+  [PASS] (f) mvgo_on_running at ['R1', 'R2']  -- both RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still run
+  [PASS] (f) mvgo_on_running at ['R1', 'R3']  -- both RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still run
+  [PASS] (f) mvgo_on_running at ['R2', 'R3']  -- both RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still run
+  [PASS] (f) mvgo_on_running at ['R1', 'R2', 'R3']  -- both RunningChannelError: MVGO starts mv0 while a NO-WAIT MVGO is still run
+  [PASS] (f) movy_on_running at {}  -- both RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MV
+  [PASS] (f) movy_on_running at ['R1']  -- both RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MV
+  [PASS] (f) movy_on_running at ['R2']  -- both RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MV
+  [PASS] (f) movy_on_running at ['R3']  -- both RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MV
+  [PASS] (f) movy_on_running at ['R1', 'R2']  -- both RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MV
+  [PASS] (f) movy_on_running at ['R1', 'R3']  -- both RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MV
+  [PASS] (f) movy_on_running at ['R2', 'R3']  -- both RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MV
+  [PASS] (f) movy_on_running at ['R1', 'R2', 'R3']  -- both RunningChannelError: MOVY reads mv0 RES rows [0, 4) while a NO-WAIT MV
+  [PASS] (f) unwritten at {}  -- both UnwrittenReadError: MVGO on mv1 before any MOVX
+  [PASS] (f) unwritten at ['R1']  -- both UnwrittenReadError: MVGO on mv1 before any MOVX
+  [PASS] (f) unwritten at ['R2']  -- both UnwrittenReadError: MVGO on mv1 before any MOVX
+  [PASS] (f) unwritten at ['R3']  -- both UnwrittenReadError: MVGO on mv1 before any MOVXTraceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 121, in guarded
+    cond, detail = fn()
+                   ^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 568, in j1
+    ok, det = refused_naming(loop, 1, max_steps=50)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/sr/r3_model_tdd.py", line 194, in refused_naming
+    run(recs, caps, max_steps=max_steps)
+seq_model.UnwrittenReadError: MVGO on mv1 before any MOVX
+
+  [PASS] (f) unwritten at ['R1', 'R2']  -- both UnwrittenReadError: MVGO on mv1 before any MOVX
+  [PASS] (f) unwritten at ['R1', 'R3']  -- both UnwrittenReadError: MVGO on mv1 before any MOVX
+  [PASS] (f) unwritten at ['R2', 'R3']  -- both UnwrittenReadError: MVGO on mv1 before any MOVX
+  [PASS] (f) unwritten at ['R1', 'R2', 'R3']  -- both UnwrittenReadError: MVGO on mv1 before any MOVX
+  [PASS] (f) bank1_over_pending at {}  -- both SeqValidationError: rec 0: MOVX target is reserved (must be 0; the XWI
+  [PASS] (f) bank1_over_pending at ['R1']  -- both SeqValidationError: rec 0: MOVX target is reserved (must be 0; the XWI
+  [PASS] (f) bank1_over_pending at ['R2']  -- both RunningChannelError: MOVX writes mv0 XWIN words [1536, 1568) while a N
+  [PASS] (f) bank1_over_pending at ['R3']  -- both SeqValidationError: rec 0: MOVX target is reserved (must be 0; the XWI
+  [PASS] (f) bank1_over_pending at ['R1', 'R2']  -- both RunningChannelError: MOVX writes mv0 XWIN words [1536, 1568) while a N
+  [PASS] (f) bank1_over_pending at ['R1', 'R3']  -- both SeqValidationError: rec 0: MOVX target is reserved (must be 0; the XWI
+  [PASS] (f) bank1_over_pending at ['R2', 'R3']  -- both RunningChannelError: MOVX writes mv0 XWIN words [1536, 1568) while a N
+  [PASS] (f) bank1_over_pending at ['R1', 'R2', 'R3']  -- both RunningChannelError: MOVX writes mv0 XWIN words [1536, 1568) while a N
+  [PASS] (f) the legal no-broadcast streams RUN at {R1,R2,R3} (the comparison is not vacuous)  -- ran: ['plain', 'mixed_r2', 'masked_fence']
+=== (g) XPTR (B17.3): unicast writes 0, broadcast leaves all four
+  [FAIL] (g) a unicast MOVX sets its channel's XPTR to 0 (rtl/seq_movers.sv X_XPTR)  -- XPTR {'<no XPTR state>': None}
+  [FAIL] (g) a broadcast leaves all four XPTRs unchanged (none set)  -- XPTR {'<no XPTR state>': None}
+  [FAIL] (g) a broadcast after a unicast: only the unicast's XPTR set  -- XPTR {'<no XPTR state>': None}
+=== (h) caps: the model's admission mirrors the validator's
+  [PASS] (h) broadcast stream at {} -> refused before execution  -- SeqValidationError naming ['R1', 'R2', 'R3']: True
+  [FAIL] (h) direct _movx of a broadcast at {} -> refused by the model itself  -- direct _movx EXECUTED a broadcast; XWIN channels [15]
+  [PASS] (h) broadcast stream at ['R1'] -> refused before execution  -- SeqValidationError naming ['R2', 'R3']: True
+  [FAIL] (h) direct _movx of a broadcast at ['R1'] -> refused by the model itself  -- direct _movx EXECUTED a broadcast; XWIN channels [15]
+  [PASS] (h) broadcast stream at ['R2'] -> refused before execution  -- SeqValidationError naming ['R1', 'R3']: True
+  [FAIL] (h) direct _movx of a broadcast at ['R2'] -> refused by the model itself  -- direct _movx EXECUTED a broadcast; XWIN channels [15]
+  [PASS] (h) broadcast stream at ['R3'] -> refused before execution  -- SeqValidationError naming ['R1', 'R2']: True
+  [FAIL] (h) direct _movx of a broadcast at ['R3'] -> refused by the model itself  -- direct _movx EXECUTED a broadcast; XWIN channels [15]
+  [PASS] (h) broadcast stream at ['R1', 'R2'] -> refused before execution  -- SeqValidationError naming ['R3']: True
+  [FAIL] (h) direct _movx of a broadcast at ['R1', 'R2'] -> refused by the model itself  -- direct _movx EXECUTED a broadcast; XWIN channels [15]
+  [PASS] (h) broadcast stream at ['R1', 'R3'] -> refused before execution  -- SeqValidationError naming ['R2']: True
+  [FAIL] (h) direct _movx of a broadcast at ['R1', 'R3'] -> refused by the model itself  -- direct _movx EXECUTED a broadcast; XWIN channels [15]
+  [PASS] (h) broadcast stream at ['R2', 'R3'] -> refused before execution  -- SeqValidationError naming ['R1']: True
+  [FAIL] (h) direct _movx of a broadcast at ['R2', 'R3'] -> refused by the model itself  -- direct _movx EXECUTED a broadcast; XWIN channels [15]
+  [PASS] (h) the admission set is the validator's MOVX_BCAST_CAPS (names checked by hwmap)  -- MOVX_BCAST_CAPS ['R1', 'R2', 'R3']
+  [PASS] (h) ref/seq_model.py types no SEQ_CAPS literal  -- SEQ_CAPS literals in ref/seq_model.py: none
+  [PASS] (h) unicast MOVX on mv0 == base at every caps subset  -- differs at no caps set
+  [PASS] (h) unicast MOVX on mv1 == base at every caps subset  -- differs at no caps set
+  [PASS] (h) unicast MOVX on mv2 == base at every caps subset  -- differs at no caps set
+  [PASS] (h) unicast MOVX on mv3 == base at every caps subset  -- differs at no caps set
+=== (j) C2 the JMP back-edge; M1 the pop path
+  [FAIL] (j) C2: broadcast; mv1 no-wait; JMP back -> the second pass refused naming mv1  -- UnwrittenReadError: MVGO on mv1 before any MOVX
+  [PASS] (j) C2 control: mv1 pending in bank 0 round the back-edge, the broadcast into bank 1 -> not refused (stops only at max_steps)  -- RuntimeError: SEQ ran past 40 records (runaway JMP?)
+  [FAIL] (j) M1: mv2 pending, FENCE 0b0100, then its WAITING MVGO -> broadcast admitted  -- accepted; running after = []
+  [FAIL] (j) M1: a waiting MVGO leaves nothing pending -> broadcast admitted  -- accepted; running after = []
+  [FAIL] (j) M1: mv2's range popped by FENCE mask 0b0100 (R1) -> broadcast admitted  -- accepted; running after = []
+  [FAIL] (j) M1: mv2's range popped by FENCE mask 0 (all) -> broadcast admitted  -- accepted; running after = []
+  [FAIL] (j) M1 control: FENCE mask 0b1011 skips mv2 -> broadcast refused naming mv2  -- ACCEPTED
+=== (k) explicit raise; python -O; agreement with validate_stream
+  [FAIL] (k) the per-destination refusal is an explicit raise  -- no seq_model._movx_bcast
+  [FAIL] (k) under python -O the broadcast over pending mv2 is still refused naming mv2  -- ACCEPTED
+  [FAIL] (k) model verdict == validate_stream verdict on every record-order case  -- model vs validate_stream disagree on ['b', 'd', 'skip', 'k12288']
+=== per case: (a) 0/5  (b) 0/5  (c) 1/2  (d) 1/5  (e) 1/2  (f) 65/65  (g) 0/3  (h) 13/20  (j) 1/7  (k) 0/3
+=== 82 passed, 35 failed; failing cases: ['a', 'b', 'c', 'd', 'e', 'g', 'h', 'j', 'k']
+R3-3 MODEL TDD: FAIL
+=== rc  : 1
+=== end : 2026-09-29T19:37:14-06:00

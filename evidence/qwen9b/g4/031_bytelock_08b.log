@@ -1,0 +1,63 @@
+=== host: snoke
+=== date: 2026-09-03T07:14:12-06:00
+=== tree: bcde64a
+=== cmd:  bash /home/cah/r2d2/code/fpga/fable5_llm/evidence/qwen9b/g4/run_g4a_bytelock_08b.sh
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== interpreter /home/cah/.venv/bin/python
+=== HEAD        bcde64a
+=== base        1c62570
+=== FABLE5_RS_F in env: <unset>   (A2.5: must be unset here)
+
+--- 1  a 0.8B layer stream from HEAD
+    SEQ: 1990 records (31840 B) + 63360 B const blob -> /var/tmp/g4a_bl_kQ0P4S/head/lay_s1.e.seq  [profile=epsnorm loop_steps=0]
+    meta keys that must be ABSENT at a byte-locked tag:
+          shape_isa  ABSENT
+          rs_f       ABSENT
+
+--- 2  the SAME emit from a worktree at 1c62570
+    SEQ: 1990 records (31840 B) + 63360 B const blob -> /var/tmp/g4a_bl_kQ0P4S/base/lay_s1.e.seq  [profile=epsnorm loop_steps=0]
+
+--- 3  byte comparison, HEAD vs 1c62570
+    IDENTICAL  31840 B  lay_s1.e.seq
+    IDENTICAL  5089 B  lay_s1.e.seq.json
+    IDENTICAL  63360 B  lay_s1.e.seqdata.bin
+    IDENTICAL  1658572 B  lay_s1.txt
+    HEAD .seq sha256 03338f9425fb13a33147b61e1382224c24a384349b55f323d7192e7ffab0fa4c
+    base .seq sha256 03338f9425fb13a33147b61e1382224c24a384349b55f323d7192e7ffab0fa4c
+
+--- 4  ref/seq_model.py --gate on the HEAD 0.8B stream
+    --- SEQ gate: /var/tmp/g4a_bl_kQ0P4S/head/lay_s1.e
+      stream   1990 records, 31840 B (sha256 03338f9425fb13a3)
+      seqdata  63360 B (sha256 afd5bea218f7add4)
+      profile  epsnorm   newops from layer_fixed (agent A)
+      opcodes  {'CSRWR': 1384, 'CMD': 460, 'MOVX': 30, 'MOVY': 44, 'MVGO': 44, 'HALT': 1, 'LDC*': 25, 'XOP*': 2}
+      loop     0 steps  (fewer than two decode steps)
+      .txt     508 commands, 163552 host-relayed words, checks {'R': 46, 'E': 30, 'A': 0, 'V': 30} (1.0s)
+      .seq     460 commands issued, movers MOVX=30 MVGO=44 MOVY=44 LDC=25 EMB=0 AMAXL=0 (2.0s)
+      CHECKPT  46/46 live-state checkpoints sampled, ALL BIT-EXACT
+      SCRATCH  2048 of 16384 words differ at the end; 0 outside the declared y32 staging windows (9216 words) -> CLEAN
+      BANKED   BIT-EXACT (conv/S/KV/TCNT/EOUT/AMAX)
+      TOKENS   IDENTICAL  []
+    SEQ GATE: PASS
+
+--- 5  the 9B half of the same table, for contrast
+    SEQ: 4027 records (64432 B) + 116672 B const blob -> /var/tmp/g4a_bl_kQ0P4S/nine/lay9b.e4.seq  [profile=epsnorm loop_steps=0]
+          shape_isa  PRESENT -> 2
+          rs_f       ABSENT
+
+--- what the byte-lock covers, and against which emitter
+    ref/scripts/regen_gate.sh:5   GOLD_SEQ_SHA for tb/scripts/w4/model_v2_s1.e.seq
+      5:GOLD_SEQ_SHA=a69864d25b6b129a4d6c74b3c78dfcbedf1edce219d32cc05d05bc54f444aaf1  # docs/USAGE.md:496-500
+    the committed 0.8B artifact it is checked against:
+      a69864d25b6b129a4d6c74b3c78dfcbedf1edce219d32cc05d05bc54f444aaf1  /home/cah/r2d2/code/fpga/fable5_llm/tb/scripts/w4/model_v2_s1.e.seq
+    ref/seq_format.SEQ_ISA_VERSION = 2  (this tree emits v2.0; the frozen artifacts are v1.7)
+
+G4A_BYTELOCK_08B: PASS
+=== rc: 0
+=== end: 2026-09-03T07:18:01-06:00

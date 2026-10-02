@@ -1,0 +1,49 @@
+=== host: snoke
+=== date: 2026-09-05T09:18:56-06:00
+=== tree: 0fe1407
+=== cmd:  bash evidence/qwen9b/s4/census_state_red.sh s4shipped
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+=== binary  /home/cah/r2d2/code/fpga/fable5_llm/tb/obj_dir_tb_layer_census_s4shipped/tb_layer_census_s4shipped
+=== built   2026-09-05T07:39:11-06:00
+=== script  scripts/w9/lay9b_s1.txt
+=== other   scripts/w9/lay9b_s2.state.bin (the RED's wrong image)
+
+=== green: expecting the replay to PASS
+      state window: 162529280 B image   scripts/w9/lay9b_s1.state.bin
+      state region: SB_DN 38000 SB_KV 38180 SB_CV 38980, 155 MiB
+    LAYER_CENSUS commands=978 checks=174238 errors=0
+    TB_LAYER_CENSUS PASS: 978 cmds, 174238 checks bit-exact (scripts/w9/lay9b_s1.txt)
+    rc=0
+
+=== red_wrong: expecting the replay to FAIL
+      state window: 162529280 B image   scripts/w9/lay9b_s2.state.bin
+      state region: SB_DN 38000 SB_KV 38180 SB_CV 38980, 155 MiB
+    FAIL R[5420+0] after cmd 18: got 0010 want fff1
+    FAIL R[5420+1] after cmd 18: got fffb want 0005
+    FAIL R[5420+2] after cmd 18: got ffe9 want 0023
+    FAIL R[5420+3] after cmd 18: got 0001 want ffff
+    FAIL R[5420+4] after cmd 18: got 0001 want ffde
+    FAIL R[5420+5] after cmd 18: got 000b want 0007
+    rc=134
+
+=== red_nostate: expecting the replay to FAIL
+      state window: no +state= — the window stays closed
+      state region: SB_DN 38000 SB_KV 38180 SB_CV 38980, 155 MiB
+    FAIL R[5420+0] after cmd 18: got 0000 want fff1
+    FAIL R[5420+1] after cmd 18: got 0000 want 0005
+    FAIL R[5420+2] after cmd 18: got 0000 want 0023
+    FAIL R[5420+3] after cmd 18: got 0000 want ffff
+    FAIL R[5420+4] after cmd 18: got 0000 want ffde
+    FAIL R[5420+5] after cmd 18: got 0000 want 0007
+    rc=134
+
+CENSUS_STATE_RED: PASS — the census replays bit-exactly against its
+  own state image and REFUSES another seed's image and no image at all
+=== rc: 0
+=== end: 2026-09-05T09:20:36-06:00

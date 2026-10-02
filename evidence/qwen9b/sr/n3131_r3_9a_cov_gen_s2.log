@@ -1,0 +1,503 @@
+=== host: snoke  date: 2026-09-30T03:01:56-06:00
+=== tree: 9919b92
+=== cmd : bash evidence/qwen9b/sr/r3_9a_cov_gen.sh 2
+=== env : FABLE5_MODEL=unset
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+=== R3-7's prediction 82d2677 an ancestor of HEAD 9919b92?
+    git merge-base --is-ancestor 82d2677 HEAD -> 0 (yes)
+######## bcast seed 2311 -> tb/scripts/w9/r3_9a_bcast_s2
+=== sr13a_cov bcast -> tb/scripts/w9/r3_9a_bcast_s2  seed 2311  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 2048 (512/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  wid 2: K 8192 ng 64 sh 8 nrows 2048 (512/chan) stride 4224 bases ['0x10298000', '0x10298000', '0x10298000', '0x10298000']
+  wid 3: K 12288 ng 96 sh 9 nrows 2048 (512/chan) stride 6336 bases ['0x104a8000', '0x104a8000', '0x104a8000', '0x104a8000']
+  pack top per channel ['0x107c0000', '0x107c0000', '0x107c0000', '0x107c0000']
+  VALID at caps ['R1', 'R2', 'R3'] (shape_isa 2)
+  REFUSED at caps ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1, R2} lack R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} lack R2, R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps []: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1, R2, R3  [op=0x03 fl=0xf0 tgt=0
+  67 records {'LDC*': 9, 'MOVX': 9, 'MVGO': 24, 'MOVY': 24, 'HALT': 1}; 15 records carry a bank field
+      0  LDC*   DDR[0x80000000] -> scratch[0x0] 4096 words
+      1  LDC*   DDR[0x80002000] -> scratch[0x3000] 4096 words
+      2  LDC*   DDR[0x80004000] -> scratch[0x5000] 4096 words
+      3  MOVX   chan=ALL XWIN <= scratch[0x3000 .. +4096] int8
+      4  MOVX   chan=ALL XWIN <= scratch[0x0 .. +4096] int8
+      5  MOVX   mv2 XWIN <= scratch[0x5000 .. +4096] int8
+      6  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+      7  MOVY   mv0 RES[0..512) >> 8 -> scratch[0x8000] int16
+      8  MVGO   mv1 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+      9  MOVY   mv1 RES[0..512) >> 7 -> scratch[0x8200] int16
+     10  MVGO   mv2 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+     11  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x8400] int16
+     12  MVGO   mv3 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+     13  MOVY   mv3 RES[0..512) >> 8 -> scratch[0x8600] int16
+     14  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     15  MOVY   mv0 RES[0..512) >> 8 -> scratch[0x8800] int16
+     16  MVGO   mv1 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     17  MOVY   mv1 RES[0..512) >> 7 -> scratch[0x8a00] int16
+     18  MVGO   mv2 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     19  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x8c00] int16
+     20  MVGO   mv3 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     21  MOVY   mv3 RES[0..512) >> 8 -> scratch[0x8e00] int16
+     22  LDC*   DDR[0x80006000] -> scratch[0x0] 6144 words
+     23  LDC*   DDR[0x80009000] -> scratch[0x3000] 6144 words
+     24  LDC*   DDR[0x8000c000] -> scratch[0x5000] 6144 words
+     25  MOVX   chan=ALL XWIN <= scratch[0x0 .. +6144] int8
+     26  MOVX   chan=ALL XWIN <= scratch[0x3000 .. +6144] int8
+     27  MOVX   mv3 XWIN <= scratch[0x5000 .. +6144] int8
+     28  MVGO   mv0 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)
+     29  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x9000] int16
+     30  MVGO   mv1 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)
+     31  MOVY   mv1 RES[0..512) >> 7 -> scratch[0x9200] int16
+     32  MVGO   mv2 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)
+     33  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x9400] int16
+     34  MVGO   mv3 WBASE=0x0010108000 BEATS=25600 SHAPE=0x0c008008 (ng=48 nrows=512 sh=8)
+     35  MOVY   mv3 RES[0..512) >> 7 -> scratch[0x9600] int16
+     36  MVGO   mv0 WBASE=0x0010108000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)
+     37  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x9800] int16
+     38  MVGO   mv1 WBASE=0x0010108000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)
+     39  MOVY   mv1 RES[0..512) >> 6 -> scratch[0x9a00] int16
+     40  MVGO   mv2 WBASE=0x0010108000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)
+     41  MOVY   mv2 RES[0..512) >> 7 -> scratch[0x9c00] int16
+     42  MVGO   mv3 WBASE=0x0010108000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)
+     43  MOVY   mv3 RES[0..512) >> 7 -> scratch[0x9e00] int16
+     44  LDC*   DDR[0x8000f000] -> scratch[0x0] 8192 words
+     45  MOVX   chan=ALL XWIN <= scratch[0x0 .. +8192] int8
+     46  MVGO   mv0 WBASE=0x0010298000 BEATS=33792 SHAPE=0x10008008 (ng=64 nrows=512 sh=8)
+     47  MOVY   mv0 RES[0..512) >> 7 -> scratch[0xa000] int16
+     48  MVGO   mv1 WBASE=0x0010298000 BEATS=33792 SHAPE=0x10008008 (ng=64 nrows=512 sh=8)
+     49  MOVY   mv1 RES[0..512) >> 7 -> scratch[0xa200] int16
+     50  MVGO   mv2 WBASE=0x0010298000 BEATS=33792 SHAPE=0x10008008 (ng=64 nrows=512 sh=8)
+     51  MOVY   mv2 RES[0..512) >> 7 -> scratch[0xa400] int16
+     52  MVGO   mv3 WBASE=0x0010298000 BEATS=33792 SHAPE=0x10008008 (ng=64 nrows=512 sh=8)
+     53  MOVY   mv3 RES[0..512) >> 7 -> scratch[0xa600] int16
+     54  LDC*   DDR[0x80013000] -> scratch[0x0] 12288 words
+     55  LDC*   DDR[0x80019000] -> scratch[0x5000] 12288 words
+     56  MOVX   chan=ALL XWIN <= scratch[0x0 .. +12288] int8
+     57  MOVX   mv1 XWIN <= scratch[0x5000 .. +12288] int8
+     58  MVGO   mv0 WBASE=0x00104a8000 BEATS=50688 SHAPE=0x18008009 (ng=96 nrows=512 sh=9)
+     59  MOVY   mv0 RES[0..512) >> 6 -> scratch[0xa800] int16
+     60  MVGO   mv1 WBASE=0x00104a8000 BEATS=50688 SHAPE=0x18008009 (ng=96 nrows=512 sh=9)
+     61  MOVY   mv1 RES[0..512) >> 6 -> scratch[0xaa00] int16
+     62  MVGO   mv2 WBASE=0x00104a8000 BEATS=50688 SHAPE=0x18008009 (ng=96 nrows=512 sh=9)
+     63  MOVY   mv2 RES[0..512) >> 6 -> scratch[0xac00] int16
+     64  MVGO   mv3 WBASE=0x00104a8000 BEATS=50688 SHAPE=0x18008009 (ng=96 nrows=512 sh=9)
+     65  MOVY   mv3 RES[0..512) >> 6 -> scratch[0xae00] int16
+     66  HALT
+  ref/seq_model at ['R1', 'R2', 'R3']: ran to HALT, stats {'MOVX': 9, 'MOVY': 24, 'MVGO': 24, 'LDC': 9}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+  NON-VACUITY (words a bank-BLIND RTL would get wrong, per MOVY):
+    [32768+ 512]   512 of  512 differ  ch0 ng32 XBANK: the bank-1 broadcast (xB)
+    [33280+ 512]   512 of  512 differ  ch1 ng32 XBANK: the bank-1 broadcast (xB)
+    [33792+ 512]   512 of  512 differ  ch2 ng32 XBANK: the bank-1 broadcast (xB)
+    [34304+ 512]   512 of  512 differ  ch3 ng32 XBANK: the bank-1 broadcast (xB)
+    [34816+ 512]     0 of  512 differ  ch0 ng32 bank 0: the broadcast xA; ch2 the unicast xC
+    [35328+ 512]     0 of  512 differ  ch1 ng32 bank 0: the broadcast xA; ch2 the unicast xC
+    [35840+ 512]     0 of  512 differ  ch2 ng32 bank 0: the broadcast xA; ch2 the unicast xC
+    [36352+ 512]     0 of  512 differ  ch3 ng32 bank 0: the broadcast xA; ch2 the unicast xC
+    [36864+ 512]   512 of  512 differ  ch0 ng48 bank 0: the broadcast xA
+    [37376+ 512]   512 of  512 differ  ch1 ng48 bank 0: the broadcast xA
+    [37888+ 512]   512 of  512 differ  ch2 ng48 bank 0: the broadcast xA
+    [38400+ 512]   512 of  512 differ  ch3 ng48 bank 0: the broadcast xA
+    [38912+ 512]     0 of  512 differ  ch0 ng48 XBANK|RBANK: xB; ch3 the unicast xC
+    [39424+ 512]     0 of  512 differ  ch1 ng48 XBANK|RBANK: xB; ch3 the unicast xC
+    [39936+ 512]     0 of  512 differ  ch2 ng48 XBANK|RBANK: xB; ch3 the unicast xC
+    [40448+ 512]     0 of  512 differ  ch3 ng48 XBANK|RBANK: xB; ch3 the unicast xC
+    [40960+ 512]     0 of  512 differ  ch0 ng64 bank 0: the broadcast
+    [41472+ 512]     0 of  512 differ  ch1 ng64 bank 0: the broadcast
+    [41984+ 512]     0 of  512 differ  ch2 ng64 bank 0: the broadcast
+    [42496+ 512]     0 of  512 differ  ch3 ng64 bank 0: the broadcast
+    [43008+ 512]     0 of  512 differ  ch0 ng96 bank 0: the broadcast; ch1 the unicast
+    [43520+ 512]     0 of  512 differ  ch1 ng96 bank 0: the broadcast; ch1 the unicast
+    [44032+ 512]     0 of  512 differ  ch2 ng96 bank 0: the broadcast; ch1 the unicast
+    [44544+ 512]     0 of  512 differ  ch3 ng96 bank 0: the broadcast; ch1 the unicast
+  8 of 24 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  NON-VACUITY (words a 'broadcast writes channel 0 only' RTL would get wrong, per MOVY):
+    [32768+ 512]     0 of  512 differ
+    [33280+ 512]   512 of  512 differ
+    [33792+ 512]   512 of  512 differ
+    [34304+ 512]   512 of  512 differ
+    [34816+ 512]     0 of  512 differ
+    [35328+ 512]   512 of  512 differ
+    [35840+ 512]     0 of  512 differ
+    [36352+ 512]   512 of  512 differ
+    [36864+ 512]     0 of  512 differ
+    [37376+ 512]   512 of  512 differ
+    [37888+ 512]   512 of  512 differ
+    [38400+ 512]   512 of  512 differ
+    [38912+ 512]     0 of  512 differ
+    [39424+ 512]   512 of  512 differ
+    [39936+ 512]   512 of  512 differ
+    [40448+ 512]     0 of  512 differ
+    [40960+ 512]     0 of  512 differ
+    [41472+ 512]   512 of  512 differ
+    [41984+ 512]   512 of  512 differ
+    [42496+ 512]   512 of  512 differ
+    [43008+ 512]     0 of  512 differ
+    [43520+ 512]     0 of  512 differ
+    [44032+ 512]   512 of  512 differ
+    [44544+ 512]   512 of  512 differ
+  15 of 24 MOVY blocks would fail on a ch0-only broadcast RTL
+  R3_MOVX pc 3 BCAST word 1536 len 4096 words 1024
+  R3_MOVX pc 4 BCAST word 0 len 4096 words 1024
+  R3_MOVX pc 25 BCAST word 0 len 6144 words 1536
+  R3_MOVX pc 26 BCAST word 1536 len 6144 words 1536
+  R3_MOVX pc 45 BCAST word 0 len 8192 words 2048
+  R3_MOVX pc 56 BCAST word 0 len 12288 words 3072
+  R3_MOVX pc 5 UNICAST ch2 word 0 len 4096 words 1024
+  R3_MOVX pc 27 UNICAST ch3 word 1536 len 6144 words 1536
+  R3_MOVX pc 57 UNICAST ch1 word 0 len 12288 words 3072
+  R3_BCAST_WORDS 6 broadcasts, 10240 x words pushed to each channel
+  sha256 ad543c8275fc83936ca1093c8a66d91db30bbb00140a7cb47bff089155d58c26  tb/scripts/w9/r3_9a_bcast_s2.e4.seq
+  sha256 78d53748836370389a1793ed4054a7929c1df2e5ab19136706ad7b18ec623f41  tb/scripts/w9/r3_9a_bcast_s2.e4.seqdata.bin
+  sha256 5aaada6360d9c7fed8de8e88ca6798d0100d2c59843d3f02efef65422158bcdd  tb/scripts/w9/r3_9a_bcast_s2.e4.seq.json
+  sha256 039c277a99f1d8fd8337d98a2e4bf9b089603d24e8f8b3fc82c2855bfc5764d5  tb/scripts/w9/r3_9a_bcast_s2.weights.json
+  sha256 58a6d899037442ebd4de64d5d76eee9d3aa7b35147061fbf85ff2c6531fc75b3  tb/scripts/w9/r3_9a_bcast_s2_w0.bin
+  sha256 45c28cf9e3e66dabf5b7da0211888ab65e22e1aa5e406c10b71510f2430477da  tb/scripts/w9/r3_9a_bcast_s2_w1.bin
+  sha256 76cee0c384880055948ff928af7768a478c54660533293e0d8e55a7f0283fbd2  tb/scripts/w9/r3_9a_bcast_s2_w2.bin
+  sha256 df4906eace007cd2f1b13ff7a29d60d4959eaf8a46232459cb5506db8358effc  tb/scripts/w9/r3_9a_bcast_s2_w3.bin
+SR13A_COV bcast: PASS
+  caps ['R1', 'R2', 'R3'] (validated and executed at them)
+  plan re-derived from the manifest: 4 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (276561920, 276561920, 276561920, 276561920)
+  tb/scripts/w9/r3_9a_bcast_s2.wimg0.bin: 8126464 B (7.8 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_s2.wimg1.bin: 8126464 B (7.8 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_s2.wimg2.bin: 8126464 B (7.8 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_s2.wimg3.bin: 8126464 B (7.8 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 4 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/r3_9a_bcast_s2.e4.chip: 67 records, pc 66, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 9, 'MOVY': 24, 'MVGO': 24, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 9, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+cfaab2dc5ac8960465cc314c3dd37cfdf700cb636c4842a1253e3568640a0635  tb/scripts/w9/r3_9a_bcast_s2.e4.chip
+f64b3d3135dbb70493940db93d235fe2fae7af38f3c42680d96752886142ae29  tb/scripts/w9/r3_9a_bcast_s2.wimg0.bin
+56ab6679787e8f9c1265a8020bf5f757f7d6a318d2a57953d0646cb6c84af34b  tb/scripts/w9/r3_9a_bcast_s2.wimg1.bin
+ab83795eb255d5461e8a0a7ec68494397025899e1d3a47ca62e825c2fb06e35d  tb/scripts/w9/r3_9a_bcast_s2.wimg2.bin
+37ace04f194733c9e649795826d434f80a81682a60a668445608229524e5452c  tb/scripts/w9/r3_9a_bcast_s2.wimg3.bin
+    MEM lines in the golden: 65536
+######## bcast_overlap seed 2312 -> tb/scripts/w9/r3_9a_bcast_overlap_s2
+=== sr13a_cov bcast_overlap -> tb/scripts/w9/r3_9a_bcast_overlap_s2  seed 2312  FABLE5_MODEL=9b
+  wid 0: K 6144 ng 48 sh 8 nrows 8192 (2048/chan) stride 3200 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  pack top per channel ['0x10640000', '0x10640000', '0x10640000', '0x10640000']
+  VALID at caps ['R1', 'R2', 'R3'] (shape_isa 2)
+  REFUSED at caps ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1, R2} lack R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} lack R2, R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps []: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1, R2, R3  [op=0x03 fl=0xf0 tgt=0
+  24 records {'LDC*': 3, 'MOVX': 3, 'MVGO': 8, 'FENCE': 1, 'MOVY': 8, 'HALT': 1}; 10 records carry a bank field
+      0  LDC*   DDR[0x80000000] -> scratch[0x0] 6144 words
+      1  LDC*   DDR[0x80003000] -> scratch[0x3000] 6144 words
+      2  LDC*   DDR[0x80006000] -> scratch[0x5000] 6144 words
+      3  MOVX   chan=ALL XWIN <= scratch[0x0 .. +6144] int8
+      4  MVGO   mv0 WBASE=0x0010000000 BEATS=102400 SHAPE=0x0c020008 (ng=48 nrows=2048 sh=8)  [no-wait]
+      5  MVGO   mv1 WBASE=0x0010000000 BEATS=102400 SHAPE=0x0c020008 (ng=48 nrows=2048 sh=8)  [no-wait]
+      6  MVGO   mv2 WBASE=0x0010000000 BEATS=102400 SHAPE=0x0c020008 (ng=48 nrows=2048 sh=8)  [no-wait]
+      7  MVGO   mv3 WBASE=0x0010000000 BEATS=102400 SHAPE=0x0c020008 (ng=48 nrows=2048 sh=8)  [no-wait]
+      8  MOVX   chan=ALL XWIN <= scratch[0x3000 .. +6144] int8
+      9  MOVX   mv0 XWIN <= scratch[0x5000 .. +6144] int8
+     10  FENCE
+     11  MOVY   mv0 RES[0..2048) >> 7 -> scratch[0x8000] int16
+     12  MOVY   mv1 RES[0..2048) >> 7 -> scratch[0x8800] int16
+     13  MOVY   mv2 RES[0..2048) >> 7 -> scratch[0x9000] int16
+     14  MOVY   mv3 RES[0..2048) >> 7 -> scratch[0x9800] int16
+     15  MVGO   mv0 WBASE=0x0010000000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)
+     16  MOVY   mv0 RES[0..512) >> 7 -> scratch[0xa000] int16
+     17  MVGO   mv1 WBASE=0x0010000000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)
+     18  MOVY   mv1 RES[0..512) >> 7 -> scratch[0xa200] int16
+     19  MVGO   mv2 WBASE=0x0010000000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)
+     20  MOVY   mv2 RES[0..512) >> 7 -> scratch[0xa400] int16
+     21  MVGO   mv3 WBASE=0x0010000000 BEATS=25600 SHAPE=0x6c008008 (ng=48 nrows=512 sh=8)
+     22  MOVY   mv3 RES[0..512) >> 7 -> scratch[0xa600] int16
+     23  HALT
+  ref/seq_model at ['R1', 'R2', 'R3']: ran to HALT, stats {'MOVX': 3, 'MOVY': 8, 'MVGO': 8, 'FENCE': 1, 'LDC': 3, 'MVGO_NOWAIT': 4}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+  NON-VACUITY (words a bank-BLIND RTL would get wrong, per MOVY):
+    [32768+2048]     0 of 2048 differ  ch0 the bank-0 run (xA)
+    [34816+2048]     0 of 2048 differ  ch1 the bank-0 run (xA)
+    [36864+2048]     0 of 2048 differ  ch2 the bank-0 run (xA)
+    [38912+2048]     0 of 2048 differ  ch3 the bank-0 run (xA)
+    [40960+ 512]     0 of  512 differ  ch0 XBANK|RBANK: the mid-run broadcast xB; ch0 the unicast xC
+    [41472+ 512]     0 of  512 differ  ch1 XBANK|RBANK: the mid-run broadcast xB; ch0 the unicast xC
+    [41984+ 512]     0 of  512 differ  ch2 XBANK|RBANK: the mid-run broadcast xB; ch0 the unicast xC
+    [42496+ 512]     0 of  512 differ  ch3 XBANK|RBANK: the mid-run broadcast xB; ch0 the unicast xC
+  0 of 8 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  NON-VACUITY (words a 'broadcast writes channel 0 only' RTL would get wrong, per MOVY):
+    [32768+2048]     0 of 2048 differ
+    [34816+2048]  2048 of 2048 differ
+    [36864+2048]  2048 of 2048 differ
+    [38912+2048]  2048 of 2048 differ
+    [40960+ 512]     0 of  512 differ
+    [41472+ 512]   512 of  512 differ
+    [41984+ 512]   512 of  512 differ
+    [42496+ 512]   512 of  512 differ
+  6 of 8 MOVY blocks would fail on a ch0-only broadcast RTL
+  R3_MOVX pc 3 BCAST word 0 len 6144 words 1536
+  R3_MOVX pc 8 BCAST word 1536 len 6144 words 1536
+  R3_MOVX pc 9 UNICAST ch0 word 1536 len 6144 words 1536
+  R3_BCAST_WORDS 2 broadcasts, 3072 x words pushed to each channel
+  sha256 3879877bd023b2a1b6bac6a5fe4a3a4767a0903708b6263b30bdac44f4a1a5c0  tb/scripts/w9/r3_9a_bcast_overlap_s2.e4.seq
+  sha256 c750b2f384aef367a9809e68bcaf4b810435f1d76e700bc44bdd7c5fa94a4246  tb/scripts/w9/r3_9a_bcast_overlap_s2.e4.seqdata.bin
+  sha256 56e3cbba8ba715c38e96f7654a8975dbf6ef86f8d19653914109eeff3344eb64  tb/scripts/w9/r3_9a_bcast_overlap_s2.e4.seq.json
+  sha256 1a564a977d3414d19799d531207700dd490d8de85da6e18c1dff0cf8e7c8ab2b  tb/scripts/w9/r3_9a_bcast_overlap_s2.weights.json
+  sha256 0189dafefe122e6319ba6365db605d48e1e5dc60e5c3aabb1684e756428329e4  tb/scripts/w9/r3_9a_bcast_overlap_s2_w0.bin
+SR13A_COV bcast_overlap: PASS
+  caps ['R1', 'R2', 'R3'] (validated and executed at them)
+  plan re-derived from the manifest: 1 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (274989056, 274989056, 274989056, 274989056)
+  tb/scripts/w9/r3_9a_bcast_overlap_s2.wimg0.bin: 6553600 B (6.2 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_overlap_s2.wimg1.bin: 6553600 B (6.2 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_overlap_s2.wimg2.bin: 6553600 B (6.2 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_overlap_s2.wimg3.bin: 6553600 B (6.2 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 1 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/r3_9a_bcast_overlap_s2.e4.chip: 24 records, pc 23, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 3, 'MOVY': 8, 'MVGO': 8, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 1, 'LDC': 3, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 4}
+1dc969391f65b42bf90ff87c9dcb390e299ac12ac827224a879c9ab7dd38cab1  tb/scripts/w9/r3_9a_bcast_overlap_s2.e4.chip
+459cf27bc374f5e7a1b3810ff07600ed203292b21c1850caf414ca6d91e0e799  tb/scripts/w9/r3_9a_bcast_overlap_s2.wimg0.bin
+422f89dd3fa9e6512fd992fe462a588b9e4bebb90b7aece3e465d9efde9deb90  tb/scripts/w9/r3_9a_bcast_overlap_s2.wimg1.bin
+5eaadd00c4e19e7162fc2b55eca7ac6decf56fd310919e9b0d2e9aeaf3d92d41  tb/scripts/w9/r3_9a_bcast_overlap_s2.wimg2.bin
+e51d618c0d04be838a843771fee40d183c75fce706374e1e9112f334c6a573d9  tb/scripts/w9/r3_9a_bcast_overlap_s2.wimg3.bin
+    MEM lines in the golden: 65536
+######## bcast_bp seed 2313 -> tb/scripts/w9/r3_9a_bcast_bp_s2
+=== sr13a_cov bcast_bp -> tb/scripts/w9/r3_9a_bcast_bp_s2  seed 2313  FABLE5_MODEL=9b
+  wid 0: K 12288 ng 96 sh 9 nrows 2048 (512/chan) stride 6336 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  pack top per channel ['0x10318000', '0x10318000', '0x10318000', '0x10318000']
+  VALID at caps ['R1', 'R2', 'R3'] (shape_isa 2)
+  REFUSED at caps ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1, R2} lack R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} lack R2, R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps []: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1, R2, R3  [op=0x03 fl=0xf0 tgt=0
+  13 records {'LDC*': 2, 'MOVX': 2, 'MVGO': 4, 'MOVY': 4, 'HALT': 1}; 0 records carry a bank field
+      0  LDC*   DDR[0x80000000] -> scratch[0x0] 12288 words
+      1  LDC*   DDR[0x80006000] -> scratch[0x5000] 12288 words
+      2  MOVX   mv0 XWIN <= scratch[0x5000 .. +12288] int8
+      3  MOVX   chan=ALL XWIN <= scratch[0x0 .. +12288] int8
+      4  MVGO   mv0 WBASE=0x0010000000 BEATS=50688 SHAPE=0x18008009 (ng=96 nrows=512 sh=9)
+      5  MOVY   mv0 RES[0..512) >> 6 -> scratch[0x8000] int16
+      6  MVGO   mv1 WBASE=0x0010000000 BEATS=50688 SHAPE=0x18008009 (ng=96 nrows=512 sh=9)
+      7  MOVY   mv1 RES[0..512) >> 6 -> scratch[0x8200] int16
+      8  MVGO   mv2 WBASE=0x0010000000 BEATS=50688 SHAPE=0x18008009 (ng=96 nrows=512 sh=9)
+      9  MOVY   mv2 RES[0..512) >> 6 -> scratch[0x8400] int16
+     10  MVGO   mv3 WBASE=0x0010000000 BEATS=50688 SHAPE=0x18008009 (ng=96 nrows=512 sh=9)
+     11  MOVY   mv3 RES[0..512) >> 7 -> scratch[0x8600] int16
+     12  HALT
+  ref/seq_model at ['R1', 'R2', 'R3']: ran to HALT, stats {'MOVX': 2, 'MOVY': 4, 'MVGO': 4, 'LDC': 2}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+  NON-VACUITY (words a bank-BLIND RTL would get wrong, per MOVY):
+    [32768+ 512]     0 of  512 differ  ch0 ng96 the 3072-word broadcast
+    [33280+ 512]     0 of  512 differ  ch1 ng96 the 3072-word broadcast
+    [33792+ 512]     0 of  512 differ  ch2 ng96 the 3072-word broadcast
+    [34304+ 512]     0 of  512 differ  ch3 ng96 the 3072-word broadcast
+  0 of 4 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  NON-VACUITY (words a 'broadcast writes channel 0 only' RTL would get wrong, per MOVY):
+    [32768+ 512]     0 of  512 differ
+    [33280+ 512]   512 of  512 differ
+    [33792+ 512]   512 of  512 differ
+    [34304+ 512]   512 of  512 differ
+  3 of 4 MOVY blocks would fail on a ch0-only broadcast RTL
+  R3_MOVX pc 3 BCAST word 0 len 12288 words 3072
+  R3_MOVX pc 2 UNICAST ch0 word 0 len 12288 words 3072
+  R3_BCAST_WORDS 1 broadcasts, 3072 x words pushed to each channel
+  sha256 b0cd0174afb70559dc7fd103b11d314a835a885bc8c2af987fa10dc6819735c3  tb/scripts/w9/r3_9a_bcast_bp_s2.e4.seq
+  sha256 803aeabd6fcc4ccec3073448720c11647d2ad258625d4a160b1d26619fee4f80  tb/scripts/w9/r3_9a_bcast_bp_s2.e4.seqdata.bin
+  sha256 7e387f246dbc17ed4120356701c804bb31a9672469332e3a67c78a945094f437  tb/scripts/w9/r3_9a_bcast_bp_s2.e4.seq.json
+  sha256 cc5cc11312cfc7fc565294dbffce5c70b8c3da10811dbc10e49d0dea2230c961  tb/scripts/w9/r3_9a_bcast_bp_s2.weights.json
+  sha256 b2e3d833f529a982f8bf9eb7aac495a479210f028074ef11b41da46f8d5a5f08  tb/scripts/w9/r3_9a_bcast_bp_s2_w0.bin
+SR13A_COV bcast_bp: PASS
+  caps ['R1', 'R2', 'R3'] (validated and executed at them)
+  plan re-derived from the manifest: 1 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (271679488, 271679488, 271679488, 271679488)
+  tb/scripts/w9/r3_9a_bcast_bp_s2.wimg0.bin: 3244032 B (3.1 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_bp_s2.wimg1.bin: 3244032 B (3.1 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_bp_s2.wimg2.bin: 3244032 B (3.1 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_bp_s2.wimg3.bin: 3244032 B (3.1 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 1 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/r3_9a_bcast_bp_s2.e4.chip: 13 records, pc 12, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 2, 'MOVY': 4, 'MVGO': 4, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 2, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+3612527ffa0a23631b1c9815e9dcbabc0258bebc6a27c491db9eb6db35ccd519  tb/scripts/w9/r3_9a_bcast_bp_s2.e4.chip
+23cd5a13a0f6a24a263bc25db951fd52812d62908e9f56b2a613d2083cd133bd  tb/scripts/w9/r3_9a_bcast_bp_s2.wimg0.bin
+2c87c517648de267a5496fa849524e0c8751afc382f595cf1824aa0b0e34cad4  tb/scripts/w9/r3_9a_bcast_bp_s2.wimg1.bin
+3f3cfd5eeead5ae4937bdfadd84b0667bd8edb1f7bc4ccf6b5e67b7080c71c0e  tb/scripts/w9/r3_9a_bcast_bp_s2.wimg2.bin
+24e27a5da8a44b02b2ddca22eb0ee9633667c73b5e7ecaed3553c2dc92b25a1a  tb/scripts/w9/r3_9a_bcast_bp_s2.wimg3.bin
+    MEM lines in the golden: 65536
+######## bcast_ragged seed 2314 -> tb/scripts/w9/r3_9a_bcast_ragged_s2
+=== sr13a_cov bcast_ragged -> tb/scripts/w9/r3_9a_bcast_ragged_s2  seed 2314  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  pack top per channel ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  VALID at caps ['R1', 'R2', 'R3'] (shape_isa 2)
+  REFUSED at caps ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1, R2} lack R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} lack R2, R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps []: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1, R2, R3  [op=0x03 fl=0xf0 tgt=0
+  26 records {'LDC*': 3, 'MOVX': 6, 'MVGO': 8, 'MOVY': 8, 'HALT': 1}; 13 records carry a bank field
+      0  LDC*   DDR[0x80000000] -> scratch[0x0] 4096 words
+      1  LDC*   DDR[0x80002000] -> scratch[0x3000] 4096 words
+      2  LDC*   DDR[0x80004000] -> scratch[0x5000] 2048 words
+      3  MOVX   chan=ALL XWIN <= scratch[0x0 .. +4096] int8
+      4  MOVX   chan=ALL XWIN <= scratch[0x3000 .. +4096] int8
+      5  MOVX   chan=ALL XWIN <= scratch[0x5000 .. +1021] int8
+      6  MOVX   chan=ALL XWIN <= scratch[0x5001 .. +1019] int8
+      7  MOVX   chan=ALL XWIN <= scratch[0x5000 .. +0] int8
+      8  MOVX   mv1 XWIN <= scratch[0x5000 .. +1021] int8
+      9  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     10  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x8000] int16
+     11  MVGO   mv1 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     12  MOVY   mv1 RES[0..512) >> 7 -> scratch[0x8200] int16
+     13  MVGO   mv2 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     14  MOVY   mv2 RES[0..512) >> 8 -> scratch[0x8400] int16
+     15  MVGO   mv3 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     16  MOVY   mv3 RES[0..512) >> 8 -> scratch[0x8600] int16
+     17  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x68008007 (ng=32 nrows=512 sh=7)
+     18  MOVY   mv0 RES[0..512) >> 8 -> scratch[0x8800] int16
+     19  MVGO   mv1 WBASE=0x0010000000 BEATS=16896 SHAPE=0x68008007 (ng=32 nrows=512 sh=7)
+     20  MOVY   mv1 RES[0..512) >> 7 -> scratch[0x8a00] int16
+     21  MVGO   mv2 WBASE=0x0010000000 BEATS=16896 SHAPE=0x68008007 (ng=32 nrows=512 sh=7)
+     22  MOVY   mv2 RES[0..512) >> 8 -> scratch[0x8c00] int16
+     23  MVGO   mv3 WBASE=0x0010000000 BEATS=16896 SHAPE=0x68008007 (ng=32 nrows=512 sh=7)
+     24  MOVY   mv3 RES[0..512) >> 7 -> scratch[0x8e00] int16
+     25  HALT
+  ref/seq_model at ['R1', 'R2', 'R3']: ran to HALT, stats {'MOVX': 6, 'MOVY': 8, 'MVGO': 8, 'LDC': 3}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+  NON-VACUITY (words a bank-BLIND RTL would get wrong, per MOVY):
+    [32768+ 512]   512 of  512 differ  ch0 bank 0 (xA) after the ragged broadcasts
+    [33280+ 512]   512 of  512 differ  ch1 bank 0 (xA) after the ragged broadcasts
+    [33792+ 512]   512 of  512 differ  ch2 bank 0 (xA) after the ragged broadcasts
+    [34304+ 512]   512 of  512 differ  ch3 bank 0 (xA) after the ragged broadcasts
+    [34816+ 512]   512 of  512 differ  ch0 bank 1 (xB) after the ragged broadcasts
+    [35328+ 512]   512 of  512 differ  ch1 bank 1 (xB) after the ragged broadcasts
+    [35840+ 512]   511 of  512 differ  ch2 bank 1 (xB) after the ragged broadcasts
+    [36352+ 512]   511 of  512 differ  ch3 bank 1 (xB) after the ragged broadcasts
+  8 of 8 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  NON-VACUITY (words a 'broadcast writes channel 0 only' RTL would get wrong, per MOVY):
+    [32768+ 512]     0 of  512 differ
+    [33280+ 512]   512 of  512 differ
+    [33792+ 512]   512 of  512 differ
+    [34304+ 512]   511 of  512 differ
+    [34816+ 512]     0 of  512 differ
+    [35328+ 512]   512 of  512 differ
+    [35840+ 512]   512 of  512 differ
+    [36352+ 512]   512 of  512 differ
+  6 of 8 MOVY blocks would fail on a ch0-only broadcast RTL
+  R3_MOVX pc 3 BCAST word 0 len 4096 words 1024
+  R3_MOVX pc 4 BCAST word 1536 len 4096 words 1024
+  R3_MOVX pc 5 BCAST word 1024 len 1021 words 256
+  R3_MOVX pc 6 BCAST word 1281 len 1019 words 255
+  R3_MOVX pc 7 BCAST word 1300 len 0 words 0
+  R3_MOVX pc 8 UNICAST ch1 word 1024 len 1021 words 256
+  R3_BCAST_WORDS 5 broadcasts, 2559 x words pushed to each channel
+  sha256 bc3c5e74829347620f59c9df7511e0f1bf56cc677ff897b4b784ce6fd0955298  tb/scripts/w9/r3_9a_bcast_ragged_s2.e4.seq
+  sha256 72f2e10634c848319d8bff3e9599eb10f760de4dba39b3e9b040ad6005451908  tb/scripts/w9/r3_9a_bcast_ragged_s2.e4.seqdata.bin
+  sha256 ec6882da57b2cd57c0b6c42c21693c223b2cc3e22404ab5ea8cadf645367513e  tb/scripts/w9/r3_9a_bcast_ragged_s2.e4.seq.json
+  sha256 5b7d32509b9c4e39fb18acbdd05208d272d73b300c442bb1f01296cdb5ead9ae  tb/scripts/w9/r3_9a_bcast_ragged_s2.weights.json
+  sha256 5fd6dc547fcc96a8d2e289fc854efe5648046b9f205b308e6af58871afeb5c01  tb/scripts/w9/r3_9a_bcast_ragged_s2_w0.bin
+SR13A_COV bcast_ragged: PASS
+  caps ['R1', 'R2', 'R3'] (validated and executed at them)
+  plan re-derived from the manifest: 1 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (269516800, 269516800, 269516800, 269516800)
+  tb/scripts/w9/r3_9a_bcast_ragged_s2.wimg0.bin: 1081344 B (1.0 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_ragged_s2.wimg1.bin: 1081344 B (1.0 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_ragged_s2.wimg2.bin: 1081344 B (1.0 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_ragged_s2.wimg3.bin: 1081344 B (1.0 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 1 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/r3_9a_bcast_ragged_s2.e4.chip: 26 records, pc 25, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 6, 'MOVY': 8, 'MVGO': 8, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 0, 'LDC': 3, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 0}
+01450f8f2de573f7f9991ad2b125b183e61cef1fc7b2e8d9cd41da723bbd40ce  tb/scripts/w9/r3_9a_bcast_ragged_s2.e4.chip
+af0099aa395c606e966739c3e9c815574a294efc51dfd7229b70c798720f4aba  tb/scripts/w9/r3_9a_bcast_ragged_s2.wimg0.bin
+01dd427db69fbcd728caf32741813e5e929877cd4912ebaaaf1a0d1d1dcc726c  tb/scripts/w9/r3_9a_bcast_ragged_s2.wimg1.bin
+42228a31ca2aa5c81212117a977c1e5230e5ae4c4f420d30c2c6102686a7c6b7  tb/scripts/w9/r3_9a_bcast_ragged_s2.wimg2.bin
+719e951604b927d82239ef28392bc14a35f3d76ec524eb832ba8dce7d1db68e8  tb/scripts/w9/r3_9a_bcast_ragged_s2.wimg3.bin
+    MEM lines in the golden: 65536
+######## bcast_late seed 2315 -> tb/scripts/w9/r3_9a_bcast_late_s2
+=== sr13a_cov bcast_late -> tb/scripts/w9/r3_9a_bcast_late_s2  seed 2315  FABLE5_MODEL=9b
+  wid 0: K 4096 ng 32 sh 7 nrows 2048 (512/chan) stride 2112 bases ['0x10000000', '0x10000000', '0x10000000', '0x10000000']
+  wid 1: K 6144 ng 48 sh 8 nrows 8192 (2048/chan) stride 3200 bases ['0x10108000', '0x10108000', '0x10108000', '0x10108000']
+  pack top per channel ['0x10748000', '0x10748000', '0x10748000', '0x10748000']
+  VALID at caps ['R1', 'R2', 'R3'] (shape_isa 2)
+  REFUSED at caps ['R1', 'R2']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1, R2} lack R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps ['R1']: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {R1} lack R2, R3  [op=0x03 fl=0xf0 tgt=0x0
+  REFUSED at caps []: rec 3: MOVX channel field 0xf is the BROADCAST (B17.3): it needs capabilities R1, R2, R3; the device's caps {} lack R1, R2, R3  [op=0x03 fl=0xf0 tgt=0
+  26 records {'LDC*': 3, 'MOVX': 3, 'MVGO': 9, 'MOVY': 9, 'FENCE': 1, 'HALT': 1}; 8 records carry a bank field
+      0  LDC*   DDR[0x80000000] -> scratch[0x0] 4096 words
+      1  LDC*   DDR[0x80002000] -> scratch[0x3000] 4096 words
+      2  LDC*   DDR[0x80004000] -> scratch[0x5000] 6144 words
+      3  MOVX   chan=ALL XWIN <= scratch[0x0 .. +4096] int8
+      4  MOVX   mv3 XWIN <= scratch[0x5000 .. +6144] int8
+      5  MVGO   mv3 WBASE=0x0010108000 BEATS=102400 SHAPE=0x6c020008 (ng=48 nrows=2048 sh=8)  [no-wait]
+      6  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+      7  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x8000] int16
+      8  MVGO   mv1 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+      9  MOVY   mv1 RES[0..512) >> 8 -> scratch[0x8200] int16
+     10  MVGO   mv2 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     11  MOVY   mv2 RES[0..512) >> 8 -> scratch[0x8400] int16
+     12  FENCE mask=0x8
+     13  MOVX   chan=ALL XWIN <= scratch[0x3000 .. +4096] int8
+     14  MOVY   mv3 RES[0..2048) >> 7 -> scratch[0x8600] int16
+     15  MVGO   mv0 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+     16  MOVY   mv0 RES[0..512) >> 7 -> scratch[0x8e00] int16
+     17  MVGO   mv1 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+     18  MOVY   mv1 RES[0..512) >> 8 -> scratch[0x9000] int16
+     19  MVGO   mv2 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+     20  MOVY   mv2 RES[0..512) >> 8 -> scratch[0x9200] int16
+     21  MVGO   mv3 WBASE=0x0010000000 BEATS=16896 SHAPE=0x28008007 (ng=32 nrows=512 sh=7)
+     22  MOVY   mv3 RES[0..512) >> 7 -> scratch[0x9400] int16
+     23  MVGO   mv3 WBASE=0x0010000000 BEATS=16896 SHAPE=0x08008007 (ng=32 nrows=512 sh=7)
+     24  MOVY   mv3 RES[0..512) >> 7 -> scratch[0x9600] int16
+     25  HALT
+  ref/seq_model at ['R1', 'R2', 'R3']: ran to HALT, stats {'MOVX': 3, 'MOVY': 9, 'MVGO': 9, 'FENCE': 1, 'LDC': 3, 'MVGO_NOWAIT': 1}, running at HALT []
+  model scratch vs this script's direct computation: 0 of 65536 words differ
+  NON-VACUITY (words a bank-BLIND RTL would get wrong, per MOVY):
+    [32768+ 512]     0 of  512 differ  ch0 bank 0 (xA) while ch3 reads bank 1
+    [33280+ 512]     0 of  512 differ  ch1 bank 0 (xA) while ch3 reads bank 1
+    [33792+ 512]     0 of  512 differ  ch2 bank 0 (xA) while ch3 reads bank 1
+    [34304+2048]     0 of 2048 differ  ch3 the late reader's result (xD)
+    [36352+ 512]     0 of  512 differ  ch0 XBANK: the forced-bank consumers (xB)
+    [36864+ 512]     0 of  512 differ  ch1 XBANK: the forced-bank consumers (xB)
+    [37376+ 512]     0 of  512 differ  ch2 XBANK: the forced-bank consumers (xB)
+    [37888+ 512]     0 of  512 differ  ch3 XBANK: the forced-bank consumers (xB)
+    [38400+ 512]   512 of  512 differ  ch3 bank 0 intact (xA)
+  1 of 9 MOVY blocks would fail on a bank-blind RTL (a block equal under both is listed with 0)
+  NON-VACUITY (words a 'broadcast writes channel 0 only' RTL would get wrong, per MOVY):
+    [32768+ 512]     0 of  512 differ
+    [33280+ 512]   512 of  512 differ
+    [33792+ 512]   512 of  512 differ
+    [34304+2048]     0 of 2048 differ
+    [36352+ 512]     0 of  512 differ
+    [36864+ 512]   511 of  512 differ
+    [37376+ 512]   512 of  512 differ
+    [37888+ 512]   512 of  512 differ
+    [38400+ 512]   512 of  512 differ
+  6 of 9 MOVY blocks would fail on a ch0-only broadcast RTL
+  R3_MOVX pc 3 BCAST word 0 len 4096 words 1024
+  R3_MOVX pc 13 BCAST word 1536 len 4096 words 1024
+  R3_MOVX pc 4 UNICAST ch3 word 1536 len 6144 words 1536
+  R3_BCAST_WORDS 2 broadcasts, 2048 x words pushed to each channel
+  sha256 72526b2517ffdcd74310802c95eb626a9e6f61b513dd60fe15f66f1253604056  tb/scripts/w9/r3_9a_bcast_late_s2.e4.seq
+  sha256 c93182ea24a2b7b6f55fc0d243d661f0cf620cc8fb78fbd49d78592ce64f3b9f  tb/scripts/w9/r3_9a_bcast_late_s2.e4.seqdata.bin
+  sha256 07d9299bc8adb6a134bb5a9222ad608a453f853bd3b24ffa7d758bd4c55cf91b  tb/scripts/w9/r3_9a_bcast_late_s2.e4.seq.json
+  sha256 8d47f28e3c36eb94eedead6e94c8ba062d70067b60fe41e16e988519362a45a3  tb/scripts/w9/r3_9a_bcast_late_s2.weights.json
+  sha256 aaccb2d065d850169a8b527b06d3df35d426c49a6f43de53e49d338020c2f02e  tb/scripts/w9/r3_9a_bcast_late_s2_w0.bin
+  sha256 1128408a86d1b2e20e35e16900b23ec7dcbaf08e721c5dff99c0efb8d856b533  tb/scripts/w9/r3_9a_bcast_late_s2_w1.bin
+SR13A_COV bcast_late: PASS
+  caps ['R1', 'R2', 'R3'] (validated and executed at them)
+  plan re-derived from the manifest: 2 images, nch=4, chunk_rows=2048, repack=True, ilv_wids=[], every base identical
+  pack top: (276070400, 276070400, 276070400, 276070400)
+  tb/scripts/w9/r3_9a_bcast_late_s2.wimg0.bin: 7634944 B (7.3 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_late_s2.wimg1.bin: 7634944 B (7.3 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_late_s2.wimg2.bin: 7634944 B (7.3 MiB) @ 0x10000000
+  tb/scripts/w9/r3_9a_bcast_late_s2.wimg3.bin: 7634944 B (7.3 MiB) @ 0x10000000
+  per-channel weight pack: 4 channels, 2 images (run tb_seq_chip with -GWIMGPC=1)
+  tb/scripts/w9/r3_9a_bcast_late_s2.e4.chip: 26 records, pc 25, 0 tokens, 65536 scratch words checked (0 staging words excluded), 0 state block(s)
+  seq_model stats: {'CSRWR': 0, 'CMD': 0, 'MOVX': 3, 'MOVY': 9, 'MVGO': 9, 'EMB': 0, 'AMAXL': 0, 'JMP': 0, 'FENCE': 1, 'LDC': 3, 'XOP': 0, 'PROBE': 0, 'MVGO_NOWAIT': 1}
+6fef95d2345059bb3d4216dc98ff95c91cf157136f02c1d9c1a6679064ad0436  tb/scripts/w9/r3_9a_bcast_late_s2.e4.chip
+0018ca6046c7eda193b54836eda5f87b43b689fd673f61b6ee16d753903a0d6c  tb/scripts/w9/r3_9a_bcast_late_s2.wimg0.bin
+c28c2052fb44dd32996005226643e42976a0c012bbe8814c0f3ed26fb095d3bf  tb/scripts/w9/r3_9a_bcast_late_s2.wimg1.bin
+3c7b3139b9c7b9041fc5e227522971fec6635afeb6b9d80fb27ff3b5f388d5c0  tb/scripts/w9/r3_9a_bcast_late_s2.wimg2.bin
+8b7f57ac6c3939a4893e3e46c58fb132727fee3bc8bc20184c136520558e7366  tb/scripts/w9/r3_9a_bcast_late_s2.wimg3.bin
+    MEM lines in the golden: 65536
+######## bcast_late_mut -> tb/scripts/w9/r3_9a_bcast_late_s2_mut (from tb/scripts/w9/r3_9a_bcast_late_s2)
+=== bcast_late_mut tb/scripts/w9/r3_9a_bcast_late_s2_mut from tb/scripts/w9/r3_9a_bcast_late_s2: rec 12 FENCE mask 0b1000 -> 0b0001 (before the bank-1 broadcast, rec 13)
+  REFUSED by the validator at ['R1', 'R2', 'R3']: rec 13: broadcast MOVX writes XWIN words [1536, 2560) on every channel while a NO-WAIT MVGO on mv3 still reads words [1536, 3072) -- every destination's bank must be free; the stream needs a FENCE covering mv3 first (B17.3, B17.2 running ranges)  [op=0x03 fl=0
+  REFUSED by ref/seq_model: RunningChannelError: broadcast MOVX writes XWIN words [1536, 2560) on every channel while a NO-WAIT MVGO on mv3 still reads words [1536, 3072) — every destination's bank must be free; the stream needs a FENCE covering mv3 first (B17.3)
+  sha256 72526b2517ffdcd74310802c95eb626a9e6f61b513dd60fe15f66f1253604056  tb/scripts/w9/r3_9a_bcast_late_s2.e4.seq
+  sha256 ebc8771b1c540c3c710010eb9a8a573d20b469647b2c51cb1e85aa610285b838  tb/scripts/w9/r3_9a_bcast_late_s2_mut.e4.seq
+  sha256 c93182ea24a2b7b6f55fc0d243d661f0cf620cc8fb78fbd49d78592ce64f3b9f  tb/scripts/w9/r3_9a_bcast_late_s2_mut.e4.seqdata.bin
+  sha256 6fef95d2345059bb3d4216dc98ff95c91cf157136f02c1d9c1a6679064ad0436  tb/scripts/w9/r3_9a_bcast_late_s2.e4.chip
+  sha256 6fef95d2345059bb3d4216dc98ff95c91cf157136f02c1d9c1a6679064ad0436  tb/scripts/w9/r3_9a_bcast_late_s2_mut.e4.chip
+SR13A_COV bcast_late_mut: WRITTEN (the golden is the CORRECT stream's; the chip TB must FAIL it)
+R3_9A_COV_GEN s2: ALL PASS
+=== rc  : 0
+=== end : 2026-09-30T03:02:45-06:00

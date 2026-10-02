@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A walk through the complexity inside fable5_llm: Qwen3.5-9B decoding on a single BCU-1525 FPGA board, built from scratch and verified bit for bit.">
+<title>Inside fable5_llm</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one reading column (66ch) with figures breaking out to the full 1060px page; datasheet voice,
+   condensed heads, mono for every figure that came out of a report. Copper = control, blue = data. */
+:root{
+  --bg:#eef1f3; --surface:#f8fafb; --ink:#14202b; --ink-2:#3f4f5c; --muted:#5c6a76;
+  --rule:#cfd7dd; --rule-2:#e1e7eb;
+  --accent:#eb6834; --accent-ink:#a5421a; --accent-wash:rgba(235,104,52,.13);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --neutral:#9aa6b0;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e151b; --surface:#131b22; --ink:#dfe6ec; --ink-2:#b3c0cb; --muted:#8a98a4;
+    --rule:#2a3742; --rule-2:#1e2932;
+    --accent:#d95926; --accent-ink:#f0905f; --accent-wash:rgba(217,89,38,.2);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --neutral:#5d6b77;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e151b; --surface:#131b22; --ink:#dfe6ec; --ink-2:#b3c0cb; --muted:#8a98a4;
+  --rule:#2a3742; --rule-2:#1e2932;
+  --accent:#d95926; --accent-ink:#f0905f; --accent-wash:rgba(217,89,38,.2);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --neutral:#5d6b77;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;margin:0}
+.page{max-width:1060px;margin:0 auto;padding-inline:20px;padding-block:36px 72px;display:flex;flex-direction:column;gap:64px}
+a{color:var(--accent-ink);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+p{margin:0;max-width:66ch}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(44px,8vw,76px);line-height:.95;letter-spacing:-.005em}
+h2{font-family:var(--f-display);font-weight:600;font-size:clamp(30px,4.6vw,40px);line-height:1.05}
+h3{font-family:var(--f-body);font-weight:600;font-size:15px;line-height:1.35}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+/* header */
+.top{display:flex;flex-direction:column;gap:22px}
+.lede{font-size:19px;line-height:1.5;max-width:60ch;color:var(--ink-2)}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:0;border-top:2px solid var(--ink);border-bottom:1px solid var(--rule)}
+.specs div{padding:14px 16px 14px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+.specs dt{font-family:var(--f-display);font-weight:600;font-size:34px;line-height:1}
+.specs dd{margin:0;font-size:13.5px;line-height:1.4;color:var(--ink-2);max-width:26ch}
+.toc{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;list-style:none;margin:0;padding:0}
+.toc a{text-decoration:none;color:var(--ink-2);border-bottom:1px solid var(--rule)}
+.toc a:hover{color:var(--accent-ink);border-color:var(--accent)}
+
+/* provenance tags */
+.tag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:1px 5px;border-radius:3px;border:1px solid var(--ink-2);color:var(--ink-2);white-space:nowrap;vertical-align:1px}
+.tag.sim{border-style:dashed}
+.tag.model{border-style:dotted}
+.tag.der{border-color:var(--rule);background:var(--rule-2)}
+.key{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13.5px;color:var(--ink-2);list-style:none;margin:0;padding:0}
+
+/* sections */
+section{display:flex;flex-direction:column;gap:20px;scroll-margin-top:16px}
+.head{display:flex;flex-direction:column;gap:6px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px}
+.cols > *{min-width:0}
+.note{font-size:14px;color:var(--muted);max-width:74ch}
+
+/* figures */
+figure{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+figcaption{font-size:13.5px;line-height:1.5;color:var(--muted);max-width:80ch}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.card-h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;justify-content:space-between}
+.scroll{overflow-x:auto;min-width:0}
+
+/* bars */
+.bars{display:flex;flex-direction:column;gap:11px}
+.card{container-type:inline-size}
+.bar-row{display:grid;grid-template-columns:minmax(0,14em) minmax(0,1fr);gap:3px 14px;align-items:center}
+@container (max-width:560px){.bar-row{grid-template-columns:1fr}.bar-row .lbl.sub{padding-left:0}}
+.bar-row .lbl{font-size:13.5px;line-height:1.3;color:var(--ink-2)}
+.bar-row .lbl.sub{padding-left:16px;color:var(--muted)}
+.tracks{display:flex;flex-direction:column;gap:3px;min-width:0}
+.track{display:flex;align-items:center;gap:8px;min-width:0}
+.bar{height:14px;border-radius:0 4px 4px 0;background:var(--c,var(--s1));width:calc(var(--v) * (100% - var(--res,5em)));min-width:2px;flex:none}
+.bars.wide-val{--res:9.5em}
+.bar.hollow{background:transparent;box-shadow:inset 0 0 0 2px var(--c,var(--s1))}
+.val{font-family:var(--f-mono);font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.val small{color:var(--muted);font-size:11.5px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;list-style:none;margin:0;padding:0;font-size:13px;color:var(--ink-2)}
+.legend li{display:flex;gap:7px;align-items:center}
+.sw{width:11px;height:11px;border-radius:2px;background:var(--c);flex:none}
+.sw.hollow{background:transparent;box-shadow:inset 0 0 0 2px var(--c)}
+@media (max-width:560px){.bar-row{grid-template-columns:1fr}.bar-row .lbl.sub{padding-left:0}}
+
+/* stacked bar */
+.stack{display:flex;gap:2px;height:22px}
+.stack span{flex:var(--w) 1 0;background:var(--c);min-width:3px}
+.stack span:first-child{border-radius:4px 0 0 4px}
+.stack span:last-child{border-radius:0 4px 4px 0}
+.stack-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:6px 18px;list-style:none;margin:0;padding:0;font-size:13.5px}
+.stack-legend li{display:grid;grid-template-columns:11px 1fr auto;gap:8px;align-items:baseline}
+.stack-legend .sw{align-self:center}
+.stack-legend b{font-family:var(--f-mono);font-weight:500;font-size:12.5px;font-variant-numeric:tabular-nums}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.45}
+th,td{text-align:left;padding:8px 14px 8px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:1.5px solid var(--ink-2);white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.k{font-family:var(--f-mono);font-size:13px;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+
+/* machine diagram */
+.mach{display:block;width:100%;min-width:780px;height:auto}
+.mach text{font-family:var(--f-body);fill:var(--ink)}
+.mach .t{font-weight:600;font-size:13px}
+.mach .l{font-size:12px;fill:var(--ink-2)}
+.mach .m{font-size:11px;fill:var(--muted);font-family:var(--f-mono)}
+.mach .box{fill:var(--bg);stroke:var(--ink-2);stroke-width:1.25}
+.mach .shadow{fill:var(--surface);stroke:var(--neutral);stroke-width:1}
+.mach .edge{stroke:var(--ink-2);stroke-width:1.5;fill:none}
+.mach .edge.a{marker-end:url(#arr)}
+.mach .edge.b{marker-end:url(#arr);marker-start:url(#arr)}
+.mach .rail{stroke:var(--ink-2);stroke-width:2.5;fill:none;stroke-linecap:round}
+.mach .dot{fill:var(--ink-2)}
+.mach .mk{fill:var(--ink-2)}
+.mach .mkh{fill:var(--accent)}
+.mach [data-p]{transition:opacity .2s}
+.mach.stepping [data-p]:not(.hot){opacity:.3}
+.mach .hot .box{stroke:var(--accent);stroke-width:2.25;fill:var(--accent-wash)}
+.mach .hot .edge,.mach .hot .rail{stroke:var(--accent)}
+.mach .hot .edge.a{marker-end:url(#arrH)}
+.mach .hot .edge.b{marker-end:url(#arrH);marker-start:url(#arrH)}
+.mach .hot .dot{fill:var(--accent)}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px;counter-reset:s}
+.steps li{counter-increment:s;min-width:0}
+.steps button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:auto 1fr;align-content:start;gap:4px 10px;width:100%;height:100%;padding:12px 14px;border:1px solid var(--rule);border-radius:6px;cursor:pointer;background:var(--surface)}
+.steps button::before{content:counter(s);font-family:var(--f-mono);font-size:12px;color:var(--muted);grid-row:1 / span 2;padding-top:2px}
+.steps button b{font-weight:600;font-size:14.5px}
+.steps button span{font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.steps button:hover{border-color:var(--ink-2)}
+.steps button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-wash)}
+.steps button[aria-pressed="true"]::before{color:var(--accent-ink)}
+.hint{font-size:13px;color:var(--muted)}
+
+/* record strip */
+.rec{display:flex;gap:2px;min-width:680px;font-family:var(--f-mono)}
+.rec div{flex:var(--b) 1 0;min-width:0;display:flex;flex-direction:column;gap:4px;text-align:center}
+.rec i{font-style:normal;font-size:11px;color:var(--muted)}
+.rec b{font-weight:500;font-size:12.5px;padding:10px 2px;background:var(--bg);border:1px solid var(--ink-2);border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.rec div.op b{background:var(--accent-wash);border-color:var(--accent)}
+
+/* nested instruction sets */
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.levels > div{border-top:2px solid var(--ink);padding-top:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:0;padding:0}
+.chips li{font-family:var(--f-mono);font-size:12px;padding:2px 6px;border:1px solid var(--rule);border-radius:3px;background:var(--surface)}
+.levels p{font-size:14px;color:var(--ink-2)}
+
+pre{margin:0;font-family:var(--f-mono);font-size:12.5px;line-height:1.6;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;overflow-x:auto;color:var(--ink)}
+pre .c{color:var(--muted)}
+
+/* two layer types */
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;border-top:2px solid var(--ink)}
+.pair > div{padding:16px 20px 18px 0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pair > div + div{padding-left:20px;border-left:1px solid var(--rule)}
+@media (max-width:680px){.pair > div + div{padding-left:0;border-left:0;border-top:1px solid var(--rule)}}
+.pair h3{font-family:var(--f-display);font-size:24px;font-weight:600;line-height:1.1}
+.pair p{font-size:14.5px;color:var(--ink-2)}
+.pair dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.pair dt{color:var(--muted)}
+.pair dd{margin:0;font-family:var(--f-mono);font-size:12.5px}
+
+/* chain */
+.chain{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;counter-reset:c}
+.chain li{counter-increment:c;border:1px solid var(--rule);background:var(--surface);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;font-size:13.5px;line-height:1.4;color:var(--ink-2);min-width:0}
+.chain li::before{content:counter(c);font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.chain b{color:var(--ink);font-weight:600;font-size:14px;overflow-wrap:anywhere}
+
+/* meters */
+.meters{display:flex;flex-direction:column;gap:14px}
+.meter{display:flex;flex-direction:column;gap:5px}
+.meter .row{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--ink-2)}
+.meter .row b{font-family:var(--f-mono);font-weight:500;font-size:12.5px;color:var(--ink);white-space:nowrap}
+.meter .rail-m{height:12px;border-radius:3px;background:var(--rule-2);overflow:hidden}
+.meter .fill{height:100%;width:calc(var(--v) * 100%);background:var(--c,var(--s1));border-radius:3px 0 0 3px}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0;display:grid;gap:0;border-top:2px solid var(--ink)}
+.tl li{display:grid;grid-template-columns:5.6em 1fr;gap:14px;padding:9px 0;border-bottom:1px solid var(--rule);font-size:14.5px;line-height:1.45}
+.tl time{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);padding-top:2px}
+.tl b{font-weight:600}
+
+#tip{position:fixed;z-index:10;max-width:280px;padding:7px 10px;border-radius:5px;background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.4;pointer-events:none}
+footer{border-top:1px solid var(--rule);padding-top:20px;display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:var(--muted)}
+footer p{max-width:86ch}
+@media (prefers-reduced-motion: reduce){.mach [data-p]{transition:none}}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <div class="eyebrow">SQRL BCU-1525 · xcvu9p · Qwen3.5-9B · state at 1 Oct 2026</div>
+  <h1>Inside fable5_llm</h1>
+  <p class="lede">A nine-billion-parameter language model decoding on a single FPGA board, built from an empty directory. Every token it produces needs 4.09 GB of four-bit weights read out of DDR4 and multiplied. This page walks through what the machine has to do to make that happen, and what it took to trust the answer.</p>
+  <p class="hint"><a href="https://github.com/coreyhahn/fable5_llm">RTL, reference models, evidence and docs on GitHub</a></p>
+  <dl class="specs">
+    <div><dt>4.09 GB</dt><dd>of weights streamed from four DIMMs for every token</dd></div>
+    <div><dt>39,146</dt><dd>sequencer records executed per decode step</dd></div>
+    <div><dt>8.18 tok/s</dt><dd>best chat decode measured on silicon (R2 build)</dd></div>
+    <div><dt>4 ps</dt><dd>worst timing slack over 1.32 million endpoints, newest build</dd></div>
+    <div><dt>11,593</dt><dd>lines of RTL, inside about 235,000 tracked lines</dd></div>
+    <div><dt>1,611</dt><dd>commits and 46 numbered builds since 10 June 2026</dd></div>
+  </dl>
+  <ul class="key" aria-label="How figures are labelled">
+    <li><span class="tag">silicon</span> measured on the board</li>
+    <li><span class="tag sim">sim</span> Verilator chip testbench or Python harness</li>
+    <li><span class="tag model">model</span> a prediction</li>
+    <li><span class="tag der">derived</span> arithmetic done for this page from repo figures</li>
+  </ul>
+  <ul class="toc" aria-label="Contents">
+    <li><a href="#physics">The bandwidth problem</a></li>
+    <li><a href="#machine">The machine</a></li>
+    <li><a href="#program">The program in DDR</a></li>
+    <li><a href="#layers">Two kinds of layer</a></li>
+    <li><a href="#numerics">Bit-exact integers</a></li>
+    <li><a href="#state">State in DDR</a></li>
+    <li><a href="#time">Where the time goes</a></li>
+    <li><a href="#silicon">Fitting the device</a></li>
+    <li><a href="#proof">Proof</a></li>
+    <li><a href="#hazards">Silent failures</a></li>
+    <li><a href="#history">Sixteen weeks</a></li>
+  </ul>
+</header>
+
+<!-- ───────────────────────── PHYSICS -->
+<section id="physics">
+  <div class="head"><div class="eyebrow">Physics</div><h2>Every token reads the whole model</h2></div>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p>Decoding one token at batch size one uses every weight in the model exactly once. The 9B pack is 249 matrices totalling 3,902 MiB at 4.125 bits per weight, which is about 7.9 billion multiply-accumulates per token <span class="tag der">derived</span>.</p>
+      <p>None of that fits on the chip. All the block RAM and UltraRAM in the xcvu9p adds up to about 44 MB <span class="tag der">derived</span>, roughly one percent of the weights. So the weights live in four 4 GiB DDR4 DIMMs and are streamed past the multipliers again for every token.</p>
+      <p>The four channels deliver 17.875 GB/s each, 70.70 GB/s together <span class="tag">silicon</span>. That sets a floor of about 58 ms per token and a ceiling near 17.3 tokens per second <span class="tag der">derived</span>, before any other work is counted.</p>
+      <p>The matvec engines already run at that floor: 1.003 clock cycles per 64-byte beat in the chip testbench <span class="tag sim">sim</span>. The remaining complexity in this design is about everything that happens between matvecs.</p>
+    </div>
+    <figure>
+      <div class="card">
+        <div class="card-h"><h3>What has to be stored, against what the FPGA can hold</h3><span class="hint">megabytes, to scale</span></div>
+        <div class="bars">
+          <div class="bar-row"><div class="lbl">Weight pack, read every token</div><div class="track"><div class="bar" style="--v:1" tabindex="0" data-tip="249 packed images, 4,091,805,696 bytes, row-split across four DDR channels"></div><span class="val">4,092</span></div></div>
+          <div class="bar-row"><div class="lbl">Embedding table, one row per token</div><div class="track"><div class="bar" style="--v:.497" tabindex="0" data-tip="248,320 rows of 8,192 bytes (int16), 1,940 MiB"></div><span class="val">2,034</span></div></div>
+          <div class="bar-row"><div class="lbl">Layer state region</div><div class="track"><div class="bar" style="--v:.0397" tabindex="0" data-tip="162,529,280 bytes on DDR channel 3: DeltaNet state, KV cache, conv state"></div><span class="val">163</span></div></div>
+          <div class="bar-row"><div class="lbl">All block memory inside the FPGA</div><div class="track"><div class="bar hollow" style="--v:.0108;--c:var(--s2)" tabindex="0" data-tip="2,160 block RAM tiles of 36 Kb plus 960 UltraRAMs of 288 Kb. Derived from the device totals in the utilization report."></div><span class="val">44 <small>derived</small></span></div></div>
+        </div>
+      </div>
+      <figcaption>The FPGA's own memory is the short orange mark at the bottom. Everything the model needs lives in DDR4, and the design is organised around moving it.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ───────────────────────── MACHINE -->
+<section id="machine">
+  <div class="head"><div class="eyebrow">Architecture</div><h2>One sequencer, one layer engine, four weight streams</h2></div>
+  <p>The host does almost nothing per token. A sequencer on the chip reads a program out of DDR and drives two kinds of engine with it: one layer engine that holds the working vectors and does all the non-matrix math, and four matvec channels, one bolted to each DIMM. Select a step to see which parts it touches.</p>
+  <figure>
+    <div class="card">
+      <div class="scroll">
+      <svg class="mach" id="mach" viewBox="0 0 980 500" role="img" aria-label="Block diagram: a host PC talks over PCIe to a bridge on the FPGA. A sequencer drives a layer engine and four matvec channels over a control bus and a 32-bit burst lane. The sequencer, the layer engine and the matvec channels each have their own path to four DDR4 channels.">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
+          <marker id="arrH" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mkh"/></marker>
+        </defs>
+
+        <g data-p="host">
+          <rect class="box" x="30" y="20" width="250" height="52" rx="6"/>
+          <text class="t" x="44" y="42">Host PC</text>
+          <text class="l" x="44" y="60">chat_seq.py: patch, START, read token</text>
+        </g>
+        <g data-p="pcie">
+          <line class="edge b" x1="282" y1="46" x2="348" y2="46"/>
+          <text class="l" x="315" y="38" text-anchor="middle">PCIe</text>
+        </g>
+        <g data-p="xdma">
+          <rect class="box" x="350" y="20" width="250" height="52" rx="6"/>
+          <text class="t" x="364" y="42">PCIe bridge (XDMA)</text>
+          <text class="l" x="364" y="60">Gen3 x8 · source of the 250 MHz clock</text>
+        </g>
+        <g data-p="dma">
+          <path class="edge a" d="M600 46 H964 V395 H954"/>
+          <text class="l" x="614" y="38">256-bit DMA: weights in, a patch per step</text>
+        </g>
+
+        <g data-p="railA">
+          <line class="rail" x1="70" y1="112" x2="760" y2="112"/>
+          <line class="edge a" x1="380" y1="72" x2="380" y2="110"/>
+          <line class="edge" x1="70" y1="112" x2="70" y2="168"/>
+          <line class="edge a" x1="420" y1="112" x2="420" y2="166"/>
+          <line class="edge a" x1="760" y1="112" x2="760" y2="166"/>
+          <circle class="dot" cx="70" cy="112" r="3.5"/><circle class="dot" cx="420" cy="112" r="3.5"/><circle class="dot" cx="760" cy="112" r="3.5"/>
+          <text class="l" x="450" y="105">AXI-Lite control: CSR writes, doorbells, polls</text>
+        </g>
+        <g data-p="railB">
+          <line class="rail" x1="200" y1="138" x2="880" y2="138"/>
+          <line class="edge" x1="200" y1="138" x2="200" y2="168"/>
+          <line class="edge" x1="580" y1="138" x2="580" y2="168"/>
+          <line class="edge" x1="880" y1="138" x2="880" y2="168"/>
+          <circle class="dot" cx="200" cy="138" r="3.5"/><circle class="dot" cx="580" cy="138" r="3.5"/><circle class="dot" cx="880" cy="138" r="3.5"/>
+          <text class="l" x="450" y="131">32-bit burst lane: x out, results back</text>
+        </g>
+
+        <g data-p="seq">
+          <rect class="box" x="30" y="168" width="260" height="160" rx="6"/>
+          <text class="t" x="44" y="192">Sequencer (seq_0)</text>
+          <text class="l" x="44" y="216">fetch, decode, issue: straight from DDR</text>
+          <text class="l" x="44" y="234">8 index registers · token FIFO</text>
+          <text class="l" x="44" y="258">movers: MOVX MVGO MOVY FENCE</text>
+          <text class="m" x="44" y="314">4,159 LUTs</text>
+        </g>
+        <g data-p="layer">
+          <rect class="box" x="350" y="168" width="300" height="160" rx="6"/>
+          <text class="t" x="364" y="192">Layer engine (layer_0)</text>
+          <text class="l" x="364" y="216">scratchpad: 65,536 × 16-bit words</text>
+          <text class="l" x="364" y="234">vector ALU · RMSNorm · RoPE · conv · gates</text>
+          <text class="l" x="364" y="252">dn_step (128 lanes) · attn_core</text>
+          <text class="l" x="364" y="276">state cache (182 URAM) + state DMA</text>
+          <text class="m" x="364" y="314">113,235 LUTs · 1,840 DSPs</text>
+        </g>
+        <g data-p="mv">
+          <rect class="shadow" x="712" y="180" width="232" height="148" rx="6"/>
+          <rect class="shadow" x="708" y="176" width="232" height="148" rx="6"/>
+          <rect class="shadow" x="704" y="172" width="232" height="148" rx="6"/>
+          <rect class="box" x="700" y="168" width="232" height="148" rx="6"/>
+          <text class="t" x="714" y="192">Matvec channel × 4</text>
+          <text class="l" x="714" y="216">XWIN: the int8 input vector</text>
+          <text class="l" x="714" y="234">128 four-bit weights per beat</text>
+          <text class="l" x="714" y="252">RES: 4,096 × 32-bit sums</text>
+          <text class="l" x="714" y="276">runs on its DIMM's 300 MHz clock</text>
+          <text class="m" x="714" y="302">≈14,700 LUTs each</text>
+        </g>
+
+        <g data-p="fetch">
+          <line class="edge a" x1="120" y1="382" x2="120" y2="330"/>
+          <text class="l" x="132" y="350">128-bit fetch: records,</text>
+          <text class="l" x="132" y="366">constants, embedding row</text>
+        </g>
+        <g data-p="state">
+          <line class="edge b" x1="500" y1="330" x2="500" y2="380"/>
+          <text class="l" x="512" y="350">512-bit state DMA:</text>
+          <text class="l" x="512" y="366">layer state in and out</text>
+        </g>
+        <g data-p="weights">
+          <line class="edge a" x1="760" y1="382" x2="760" y2="331"/>
+          <text class="l" x="772" y="350">4 × 512-bit weight streams</text>
+          <text class="l" x="772" y="366">70.7 GB/s measured</text>
+        </g>
+
+        <g data-p="ddr">
+          <rect class="box" x="30" y="382" width="922" height="26" rx="5"/>
+          <text class="l" x="491" y="400" text-anchor="middle">DDR interconnect: one 4 GiB window per channel</text>
+          <line class="edge" x1="139" y1="408" x2="139" y2="428"/><line class="edge" x1="373" y1="408" x2="373" y2="428"/>
+          <line class="edge" x1="607" y1="408" x2="607" y2="428"/><line class="edge" x1="841" y1="408" x2="841" y2="428"/>
+          <rect class="box" x="30" y="428" width="218" height="56" rx="6"/>
+          <text class="t" x="44" y="451">DDR4 channel 0 · 4 GiB</text><text class="l" x="44" y="469">¼ of every weight matrix</text>
+          <rect class="box" x="264" y="428" width="218" height="56" rx="6"/>
+          <text class="t" x="278" y="451">DDR4 channel 1 · 4 GiB</text><text class="l" x="278" y="469">¼ of every weight matrix</text>
+          <rect class="box" x="498" y="428" width="218" height="56" rx="6"/>
+          <text class="t" x="512" y="451">DDR4 channel 2 · 4 GiB</text><text class="l" x="512" y="469">¼ of every weight matrix</text>
+          <rect class="box" x="732" y="428" width="220" height="56" rx="6"/>
+          <text class="t" x="746" y="451">DDR4 channel 3 · 4 GiB</text><text class="l" x="746" y="469">weights · 155 MiB layer state</text>
+        </g>
+      </svg>
+      </div>
+      <div class="card-h"><h3>One step of the machine, in order</h3><span class="hint">Select a step to light its path. Select it again to clear.</span></div>
+      <ol class="steps" id="steps">
+        <li><button type="button" aria-pressed="false" data-hot="host pcie xdma dma ddr railA seq"><b>The host arms one step</b><span>Three record images already sit in DDR. The host overwrites a header of a few dozen bytes with the token id and position, then writes START. That is its whole job until the token comes back.</span></button></li>
+        <li><button type="button" aria-pressed="false" data-hot="seq fetch ddr"><b>The sequencer fetches its program</b><span>16-byte records arrive from DDR in 16-beat bursts into a 64-record FIFO, and each one is validated at decode. A decode step is 39,146 of them.</span></button></li>
+        <li><button type="button" aria-pressed="false" data-hot="seq railA layer"><b>Normalize, then quantize x</b><span>Command records run RMSNorm and DYNQ8 on the scratchpad. DYNQ8 finds the smallest shift that fits the vector in int8 and reports it as an exponent, which the sequencer copies into index register 0.</span></button></li>
+        <li><button type="button" aria-pressed="false" data-hot="seq railB layer mv"><b>MOVX: hand x to the engines</b><span>The movers copy the int8 vector from the scratchpad into each channel's XWIN buffer. Four copies on the resident bitstream; one broadcast in the R3 build.</span></button></li>
+        <li><button type="button" aria-pressed="false" data-hot="seq railA mv weights ddr"><b>MVGO: stream the weights</b><span>Four launches that do not wait. Each engine streams its quarter of the rows from its own DIMM, 512 bits per beat, multiplying 128 four-bit weights per beat against x.</span></button></li>
+        <li><button type="button" aria-pressed="false" data-hot="seq railA mv"><b>FENCE: wait</b><span>The sequencer polls until the engines are done. On the shipped schedule this wait is 42% of the step.</span></button></li>
+        <li><button type="button" aria-pressed="false" data-hot="seq railB layer mv"><b>MOVY: bring results back</b><span>32-bit sums are read from each RES memory, shifted right by an amount that subtracts index register 0, rounded half away from zero, and written to the scratchpad.</span></button></li>
+        <li><button type="button" aria-pressed="false" data-hot="layer state ddr"><b>Layer state swaps in and out</b><span>For a DeltaNet or attention step, the state DMA loads that layer's state from DDR channel 3 into a cache slot and stores the previous layer's back, while compute carries on.</span></button></li>
+        <li><button type="button" aria-pressed="false" data-hot="seq railA railB mv layer weights ddr xdma pcie host"><b>After 32 layers, one token</b><span>The LM head scans 248,320 vocabulary rows as 122 chunks across the four engines with a running argmax. The winning id goes into the token FIFO, the stream halts, and the host reads it.</span></button></li>
+      </ol>
+    </div>
+    <figcaption>Steps 3 to 7 repeat for every projection: a decode step launches 1,370 matvecs. The record stream, the constants and the embedding table are also in DDR. Everything runs on the bridge's 250 MHz clock except the four matvec engines, which run on their DIMM's 300 MHz clock; that boundary is the only clock-domain crossing in the custom RTL.</figcaption>
+  </figure>
+</section>
+
+<!-- ───────────────────────── PROGRAM -->
+<section id="program">
+  <div class="head"><div class="eyebrow">Control</div><h2>The chip runs a program stored in DDR</h2></div>
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p>The first working version drove the engines from Python, register write by register write: about 100,000 MMIO accesses and 9.3 seconds per token, 98.8% of it host overhead <span class="tag">silicon</span>. The fix was to compile that register sequence into a binary stream and let the chip execute it.</p>
+      <p>The layers are unrolled. A reference-model run emits every register write, command and data move for a whole forward pass, with the weight addresses baked in. The host uploads it once.</p>
+      <p>The program is fixed but the numbers are not. Each vector picks its own exponent at run time, and later shift amounts depend on it. Eight 18-bit index registers carry those values, and a record can add or subtract one from its operand. A decode step has on the order of 1,656 such indirected records at the 0.8B size, which is why the registers live inside the sequencer and are read combinationally at decode.</p>
+    </div>
+    <figure>
+      <div class="card">
+        <div class="card-h"><h3>One record, 128 bits, little-endian</h3></div>
+        <div class="scroll">
+          <div class="rec">
+            <div style="--b:4"><i>127:96</i><b>length / addr hi</b></div>
+            <div style="--b:4"><i>95:64</i><b>addr lo</b></div>
+            <div style="--b:4"><i>63:32</i><b>imm32</b></div>
+            <div style="--b:2"><i>31:16</i><b>target</b></div>
+            <div style="--b:1.3"><i>15:8</i><b>flags</b></div>
+            <div style="--b:1.3" class="op"><i>7:0</i><b>opcode</b></div>
+          </div>
+        </div>
+        <p class="note">Flags hold an indirection code (none, add, subtract) and either an index-register number or a channel number.</p>
+      </div>
+    </figure>
+  </div>
+
+  <h3>Three instruction sets, nested</h3>
+  <div class="levels">
+    <div>
+      <div class="eyebrow">Sequencer records · 12</div>
+      <ul class="chips"><li>CSRWR</li><li>CMD</li><li>MOVX</li><li>MOVY</li><li>MVGO</li><li>EMB</li><li>AMAXL</li><li>JMP</li><li>FENCE</li><li>HALT</li><li>LDC</li><li>XOP</li></ul>
+      <p>What the stream is made of. Register writes, data moves, matvec launches, waits.</p>
+    </div>
+    <div>
+      <div class="eyebrow">Layer commands · 14</div>
+      <ul class="chips"><li>VN</li><li>VNW</li><li>ROPET</li><li>ROPE</li><li>CONVW</li><li>CONV</li><li>GATE</li><li>DNST</li><li>KVAP</li><li>ATTN</li><li>ALU</li><li>DNZ</li><li>SLD</li><li>SST</li></ul>
+      <p>Started by a CMD record. Norms, rotary embedding, convolution, gates, the DeltaNet step, attention, state load and store.</p>
+    </div>
+    <div>
+      <div class="eyebrow">ALU operations · 12</div>
+      <ul class="chips"><li>DYNQ8</li><li>SHIFT32</li><li>SCALE</li><li>EMUL</li><li>ADD</li><li>SILU16</li><li>SILU32</li><li>SIGM16</li><li>EMUL32</li><li>SHIFT32W</li><li>AMAX32</li><li>DYNQ16</li></ul>
+      <p>Selected inside an ALU command. Elementwise glue over the scratchpad, one element per clock.</p>
+    </div>
+  </div>
+
+  <div class="cols">
+    <figure>
+      <div class="card">
+        <div class="card-h"><h3>Records in one decode step, by opcode</h3><span class="tag sim">sim</span></div>
+        <div class="bars">
+          <div class="bar-row"><div class="lbl">CSRWR, register writes</div><div class="track"><div class="bar" style="--v:.983" tabindex="0" data-tip="26,552 records: arguments for the next command or matvec. They cost 0.319 ms per token in total."></div><span class="val">26,552</span></div></div>
+          <div class="bar-row"><div class="lbl">CMD, layer commands</div><div class="track"><div class="bar" style="--v:.327" tabindex="0" data-tip="8,821 layer-engine commands per token"></div><span class="val">8,821</span></div></div>
+          <div class="bar-row"><div class="lbl">MVGO, matvec launches</div><div class="track"><div class="bar" style="--v:.0507" tabindex="0" data-tip="1,370 launches: 249 matrices split over four channels and into chunks of at most 2,048 rows"></div><span class="val">1,370</span></div></div>
+          <div class="bar-row"><div class="lbl">MOVY, results back</div><div class="track"><div class="bar" style="--v:.0507" tabindex="0" data-tip="1,370 result drains, one per launch"></div><span class="val">1,370</span></div></div>
+          <div class="bar-row"><div class="lbl">MOVX, input vector out</div><div class="track"><div class="bar" style="--v:.0369" tabindex="0" data-tip="996 before the software reorder; 516 after it removed redundant copies"></div><span class="val">996</span></div></div>
+          <div class="bar-row"><div class="lbl">FENCE, waits</div><div class="track"><div class="bar" style="--v:.0127;--c:var(--s2)" tabindex="0" data-tip="343 records, 39,646 clock cycles each on average: 41.5% of the token's time"></div><span class="val">343</span></div></div>
+          <div class="bar-row"><div class="lbl">LDC, XOP, EMB, AMAXL</div><div class="track"><div class="bar" style="--v:.0064" tabindex="0" data-tip="161 constant loads, 9 index-register sums, 1 embedding lookup, 1 token push"></div><span class="val">172</span></div></div>
+        </div>
+      </div>
+      <figcaption>Counted on the chip testbench for the shipped order, before the software reorder. Two thirds of the program is register writes, which cost almost nothing. The 343 FENCE records (orange) are less than one percent of the program and 41.5% of its run time.</figcaption>
+    </figure>
+    <figure>
+      <pre><span class="c">; one projection y = W·x, four channels, chunk 0</span>
+MOVX  ch0  scratch[x8] → XWIN, len K
+MOVX  ch1  …                <span class="c">; ×4, the same x each time</span>
+MVGO  ch0  shape, weight base, beats, no-wait
+MVGO  ch1  …                <span class="c">; ×4, one per DIMM</span>
+FENCE                       <span class="c">; wait for the engines</span>
+MOVY  ch0  RES → scratch,
+           shift = imm − XRF[0]
+MOVY  ch1  …                <span class="c">; ×4, rows land side by side</span></pre>
+      <figcaption>The shape of one matvec in the stream. The shift on each MOVY is not known when the stream is emitted; it is completed on the chip from the exponent DYNQ8 chose.</figcaption>
+    </figure>
+  </div>
+
+  <p>A stream is validated as it runs. Twenty error codes cover unknown opcodes, reserved bits, out-of-range jumps, bus errors and watchdogs, and any of them halts the sequencer with the code in a status register. Newer record forms are designed to fault on an older bitstream before a wrong result is consumed. One of them could not be made to, and that exception is listed under <a href="#hazards">silent failures</a>.</p>
+</section>
+
+<!-- ───────────────────────── LAYERS -->
+<section id="layers">
+  <div class="head"><div class="eyebrow">Compute</div><h2>Two kinds of layer, two kinds of hardware</h2></div>
+  <p>Qwen3.5 is a hybrid. Three layers in four are DeltaNet linear attention and every fourth is ordinary attention. They share the matvec engines and the scratchpad and nothing else, so the layer engine carries two separate state machines with separate state memories.</p>
+  <div class="pair">
+    <div>
+      <div class="eyebrow">24 of 32 layers</div>
+      <h3>DeltaNet layer</h3>
+      <p>Keeps a 128 × 128 matrix per value head as its memory of the sequence. Each token decays the matrix, reads it with the key, writes back a rank-one correction scaled by a gate, then reads it with the query. It never looks at earlier tokens, so the work per token is constant.</p>
+      <p>Around it: a four-tap depthwise convolution over 8,192 channels with its own history, and per-head gates computed through softplus, exp and sigmoid ROM tables.</p>
+      <dl>
+        <dt>unit</dt><dd>dn_step, 128 parallel lanes</dd>
+        <dt>control</dt><dd>22-state FSM, ≈1,300 cycles per head</dd>
+        <dt>heads</dt><dd>16 key, 32 value</dd>
+        <dt>state</dt><dd>1 MiB per layer, int16</dd>
+        <dt>area</dt><dd>42,012 LUTs · 1,279 DSPs</dd>
+        <dt>time</dt><dd>3.916 ms per layer <span class="tag sim">sim</span></dd>
+      </dl>
+    </div>
+    <div>
+      <div class="eyebrow">8 of 32 layers</div>
+      <h3>Full-attention layer</h3>
+      <p>Appends this token's key and value to a cache as int8 with an exponent, then every query head scores itself against every cached key, takes a softmax through an exp ROM and a serial reciprocal, and sums the values. The work grows with the context length.</p>
+      <p>Around it: partial rotary position encoding on 64 of 256 dimensions, RMSNorm on queries and keys, and a sigmoid output gate.</p>
+      <dl>
+        <dt>unit</dt><dd>attn_core, head dim 256</dd>
+        <dt>control</dt><dd>42-state FSM</dd>
+        <dt>heads</dt><dd>16 query over 4 key/value</dd>
+        <dt>state</dt><dd>KV cache, 128 MiB region</dd>
+        <dt>area</dt><dd>36,639 LUTs · 529 DSPs</dd>
+        <dt>time</dt><dd>3.051 ms per layer <span class="tag sim">sim</span></dd>
+      </dl>
+    </div>
+  </div>
+  <p>The context cost is visible on the board: a decode step takes 137.7 ms near position 30 and 147.9 ms near position 520, 7.4% more <span class="tag">silicon</span>. The DeltaNet layers account for 71.7% of a token's time in the testbench census, because there are three times as many of them and each is slower.</p>
+</section>
+
+<!-- ───────────────────────── NUMERICS -->
+<section id="numerics">
+  <div class="head"><div class="eyebrow">Numerics</div><h2>Integers that must match bit for bit</h2></div>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p>There is no floating point on the chip. Every operation is an exact integer algorithm defined in one Python file, <code>ref/layer_fixed.py</code>, and the RTL has to reproduce it bit for bit. The project rule is that when hardware and reference disagree, the bug is real.</p>
+      <p>Fixed formats alone were not enough. An early fixed shift crushed the DeltaNet output to 0.17 of a least-significant bit and the 0.8B model produced nonsense. The fix was block floating point: DYNQ8 and DYNQ16 scan a vector and choose its exponent on the chip, per vector, per token.</p>
+      <p>Exactness shapes the hardware. The vector ALU is a single lane, because argmax ties must resolve to the first index and the exponent searches depend on arrival order. Parallel lanes would be faster and would give different answers.</p>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Quantity</th><th>Format</th></tr></thead>
+        <tbody>
+          <tr><td>Weights</td><td class="k">INT4, one uint16 scale per 128</td></tr>
+          <tr><td>Matvec input</td><td class="k">int8 + per-vector exponent</td></tr>
+          <tr><td>Residual stream</td><td class="k">int16 Q8.7</td></tr>
+          <tr><td>Normalized q, k</td><td class="k">int16 Q1.14</td></tr>
+          <tr><td>DeltaNet state</td><td class="k">int16 Q2.13</td></tr>
+          <tr><td>Gates, RoPE tables</td><td class="k">Q15</td></tr>
+          <tr><td>KV cache</td><td class="k">int8 + exponent per token, head</td></tr>
+          <tr><td>Rounding</td><td class="k">half away from zero, everywhere</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>The chain an answer has to survive</h3>
+  <ol class="chain">
+    <li><b>Checkpoint</b>Qwen3.5-9B, bf16 safetensors</li>
+    <li><b>layer_ref.py</b>float anchor that mirrors the upstream model code</li>
+    <li><b>layer_fixed.py</b>the integer-only law, 2,679 lines</li>
+    <li><b>Emitter</b>writes the record stream, the weight pack and the expected state</li>
+    <li><b>seq_model.py</b>pure-Python executor of the stream, the sequencer's golden</li>
+    <li><b>Chip testbench</b>the real RTL in Verilator, no stubs, files served as DDR</li>
+    <li><b>Silicon</b>four seeds, each run twice without reprogramming</li>
+  </ol>
+  <p>On the board, the 9B gate matched 24 of 24 tokens over four prompts, 36,886 state checks on each of eight full-model runs, and the entire 162,529,280-byte state region against the emitter's hash with no carve-outs <span class="tag">silicon</span>.</p>
+  <p>Bit-exact to the integer model is a separate question from faithful to the float model. Against the bf16 original, the quantized 9B agrees on the top token in 98 of 108 teacher-forced steps <span class="tag sim">sim</span>. GPTQ, which rewrites the 4-bit codes without changing the layout or the byte count, cut the perplexity penalty from +8.79% to +2.58% <span class="tag sim">sim</span>.</p>
+</section>
+
+<!-- ───────────────────────── STATE -->
+<section id="state">
+  <div class="head"><div class="eyebrow">Memory</div><h2>State that outgrew the chip</h2></div>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p>At 0.8B and 2B, every layer's persistent state sat in on-chip memory, banked by layer. The 9B doubles the DeltaNet value heads, doubles the attention heads and adds eight layers. The same design needed 928 of the device's 960 UltraRAMs.</p>
+      <p>It synthesised and placed. It did not meet timing: eleven out-of-context placements, the best of them 0.554 ns short. Floorplanning alone could not close a memory that has to span all three dies.</p>
+      <p>The redesign moved all layer state into DDR and left a two-slot cache on the chip for each kind. While one layer computes out of one slot, a 512-bit DMA engine stores the previous layer's state and loads the next into the other. That added two layer commands, a new AXI master and its own error codes.</p>
+      <p>The DMA lane costs 5.125 ms per token running beside 41.588 ms of compute <span class="tag">silicon</span>, and moves about 70 MiB per token at a context of 512.</p>
+    </div>
+    <figure>
+      <div class="card">
+        <div class="card-h"><h3>UltraRAM needed by the layer engine, of 960</h3></div>
+        <div class="meters">
+          <div class="meter"><div class="row"><span>State banked on chip</span><b>928 · 96.7%</b></div><div class="rail-m"><div class="fill" style="--v:.967;--c:var(--s2)"></div></div></div>
+          <div class="meter"><div class="row"><span>State in DDR, two-slot cache on chip</span><b>182 · 19.0%</b></div><div class="rail-m"><div class="fill" style="--v:.19;--c:var(--s1)"></div></div></div>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>State region, DDR channel 3</th><th class="n">Size</th></tr></thead>
+            <tbody>
+              <tr><td>DeltaNet matrices, 24 layers × 1 MiB</td><td class="n">24 MiB</td></tr>
+              <tr><td>KV cache, sized for 4,096 positions</td><td class="n">128 MiB</td></tr>
+              <tr><td>Conv taps and history, 24 × 128 KiB</td><td class="n">3 MiB</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <figcaption>The first design did not close timing at 96.7% occupancy. The second fits one die and trades UltraRAM for DDR traffic.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ───────────────────────── TIME -->
+<section id="time">
+  <div class="head"><div class="eyebrow">Time</div><h2>Where a token's time goes</h2></div>
+  <p>A census on the chip testbench splits one 131.1 ms token three ways. The three activities sum to 98% of the token, which means they happen almost entirely one after another: stream weights, then move vectors, then compute.</p>
+  <figure>
+    <div class="card">
+      <div class="card-h"><h3>One token of the shipped order, 131.138 ms</h3><span class="tag sim">sim</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="hint">By activity</div>
+        <div class="stack" role="img" aria-label="Weight streaming 54.4 ms, mover work 32.5 ms, layer compute 41.6 ms, other 2.6 ms">
+          <span style="--w:54.408;--c:var(--s1)" tabindex="0" data-tip="Weight streaming: 54.408 ms, 41.5%"></span>
+          <span style="--w:32.545;--c:var(--s2)" tabindex="0" data-tip="Mover work: 32.545 ms, 24.8%"></span>
+          <span style="--w:41.610;--c:var(--s3)" tabindex="0" data-tip="Layer compute: 41.610 ms, 31.7%"></span>
+          <span style="--w:2.575;--c:var(--neutral)" tabindex="0" data-tip="Everything else: 2.575 ms, 2.0%"></span>
+        </div>
+        <ul class="stack-legend">
+          <li><span class="sw" style="--c:var(--s1)"></span>Weight streaming from DDR<b>54.4 ms</b></li>
+          <li><span class="sw" style="--c:var(--s2)"></span>Mover work, x out and results back<b>32.5 ms</b></li>
+          <li><span class="sw" style="--c:var(--s3)"></span>Layer compute<b>41.6 ms</b></li>
+          <li><span class="sw" style="--c:var(--neutral)"></span>Everything else<b>2.6 ms</b></li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="hint">By part of the model</div>
+        <div class="stack" role="img" aria-label="DeltaNet layers 94.0 ms, attention layers 24.4 ms, LM head 12.7 ms">
+          <span style="--w:93.972;--c:var(--s4)" tabindex="0" data-tip="24 DeltaNet layers: 93.972 ms, 71.7%"></span>
+          <span style="--w:24.407;--c:var(--s5)" tabindex="0" data-tip="8 full-attention layers: 24.407 ms, 18.6%"></span>
+          <span style="--w:12.739;--c:var(--s6)" tabindex="0" data-tip="LM head over 248,320 rows: 12.739 ms, 9.7%"></span>
+        </div>
+        <ul class="stack-legend">
+          <li><span class="sw" style="--c:var(--s4)"></span>24 DeltaNet layers<b>94.0 ms</b></li>
+          <li><span class="sw" style="--c:var(--s5)"></span>8 full-attention layers<b>24.4 ms</b></li>
+          <li><span class="sw" style="--c:var(--s6)"></span>LM head, 248,320 rows<b>12.7 ms</b></li>
+        </ul>
+      </div>
+    </div>
+    <figcaption>Two cuts of the same token. The board runs the same stream 4.6% slower than the testbench, and its idle counters agree with the picture: the sequencer sits in a FENCE for 42.0% of the step, and no matvec engine is busy for 57.8% of it <span class="tag">silicon</span>.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p>So the DDR path, the thing the physics says is the limit, is idle more than half the time. The engines wait for the movers, the movers wait for the scratchpad, and the scratchpad has one owner at a time. Every speed-up since the 9B first ran has been a way of overlapping those three.</p>
+      <p>A dependency model of the stream puts the limit of overlap at 86.7 ms per token, 1.51 times the shipped order <span class="tag model">model</span>. The naive bound of 2.36 times is not reachable, because the scratchpad is single-ported between compute and the movers.</p>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Round</th><th>What changed</th><th class="n">Chat gain</th></tr></thead>
+        <tbody>
+          <tr><td>Reorder</td><td>Software only. Fences moved to the point of use, a dependency-safe reorder, redundant MOVX removed.</td><td class="n">×1.125</td></tr>
+          <tr><td>R1</td><td>FENCE takes a channel mask and waits only for the channels it names.</td><td class="n">×1.041</td></tr>
+          <tr><td>R2</td><td>A second bank in each XWIN and RES memory, so the next x can be staged while an engine runs.</td><td class="n">×1.032</td></tr>
+          <tr><td>R3</td><td>One scratchpad read broadcast to all four channels over a direct 376-flop bus. Built and signed off, not loaded.</td><td class="n">×1.085 <span class="tag model">model</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <figure>
+    <div class="card">
+      <div class="card-h"><h3>Tokens per second at 9B, rung by rung</h3>
+        <ul class="legend">
+          <li><span class="sw" style="--c:var(--s1)"></span>chat, context ≈ 505</li>
+          <li><span class="sw" style="--c:var(--s2)"></span>6-token stream</li>
+          <li><span class="sw hollow" style="--c:var(--neutral)"></span>hollow: not measured</li>
+        </ul>
+      </div>
+      <div class="bars wide-val">
+        <div class="bar-row"><div class="lbl">Shipped order</div><div class="tracks">
+          <div class="track"><div class="bar" style="--v:.376" tabindex="0" data-tip="Chat 6.770 tok/s, 147.71 ms per step, build_041, measured"></div><span class="val">6.770</span></div>
+          <div class="track"><div class="bar" style="--v:.405;--c:var(--s2)" tabindex="0" data-tip="Stream 7.293 tok/s, 137.12 ms per token, measured"></div><span class="val">7.293</span></div></div></div>
+        <div class="bar-row"><div class="lbl">Reordered stream, same bitstream</div><div class="tracks">
+          <div class="track"><div class="bar" style="--v:.423" tabindex="0" data-tip="Chat 7.619 tok/s, 131.25 ms per step, measured, tokens identical"></div><span class="val">7.619</span></div>
+          <div class="track"><div class="bar" style="--v:.461;--c:var(--s2)" tabindex="0" data-tip="Stream 8.296 tok/s, 120.54 ms per token, measured"></div><span class="val">8.296</span></div></div></div>
+        <div class="bar-row"><div class="lbl">R1, fence channel mask</div><div class="tracks">
+          <div class="track"><div class="bar" style="--v:.4405" tabindex="0" data-tip="Chat 7.929 tok/s, 126.11 ms per step, measured, tokens identical"></div><span class="val">7.929</span></div>
+          <div class="track"><div class="bar" style="--v:.4857;--c:var(--s2)" tabindex="0" data-tip="Stream 8.742 tok/s, 114.39 ms per token, measured"></div><span class="val">8.742</span></div></div></div>
+        <div class="bar-row"><div class="lbl">R2, double-banked buffers</div><div class="tracks">
+          <div class="track"><div class="bar" style="--v:.4546" tabindex="0" data-tip="Chat 8.182 tok/s, 122.22 ms per step, build_045, measured, tokens identical"></div><span class="val">8.182</span></div>
+          <div class="track"><div class="bar" style="--v:.5032;--c:var(--s2)" tabindex="0" data-tip="Stream 9.057 tok/s, 110.41 ms per token, measured"></div><span class="val">9.057</span></div></div></div>
+        <div class="bar-row"><div class="lbl">R3, MOVX broadcast</div><div class="tracks">
+          <div class="track"><div class="bar hollow" style="--v:.4833" tabindex="0" data-tip="Chat 8.70 to 8.77 tok/s expected. Model-derived, not measured: build_046 has not been loaded."></div><span class="val">8.70–8.77 <small>model</small></span></div>
+          <div class="track"><div class="bar hollow" style="--v:.5389;--c:var(--s2)" tabindex="0" data-tip="Stream 9.70 to 9.83 tok/s expected. The chip testbench gives ×1.0846 over R2."></div><span class="val">9.70–9.83 <small>model</small></span></div></div></div>
+        <div class="bar-row"><div class="lbl">DDR bandwidth ceiling</div><div class="tracks">
+          <div class="track"><div class="bar hollow" style="--v:.961;--c:var(--neutral)" tabindex="0" data-tip="4.092 GB per token over 70.70 GB/s measured aggregate. Derived for this page; the bandwidth was measured on an earlier bitstream."></div><span class="val">17.3 <small>derived</small></span></div></div></div>
+      </div>
+    </div>
+    <figcaption>Every measured rung produced identical tokens to the one before it. The best measured stream rate is about half of what the DIMMs could feed.</figcaption>
+  </figure>
+</section>
+
+<!-- ───────────────────────── SILICON -->
+<section id="silicon">
+  <div class="head"><div class="eyebrow">Silicon</div><h2>Fitting the device</h2></div>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p>The xcvu9p is three dies stacked on an interposer. Signals that cross between dies are slow and limited in number. The design uses 26% of the LUTs, which sounds comfortable, but the hard parts are local: the layer engine takes 81% of one die's DSPs and all of the UltraRAM in use.</p>
+      <p>The main clock is 250 MHz because the PCIe bridge generates it. That gives every path 4 ns. The newest build closes with 0.004 ns to spare on its worst path; the bitstream on the board closes with exactly 0.000.</p>
+      <p>That zero was produced once. Six placement runs of the same netlist spread over 0.512 ns, so the margin is far smaller than the tool's own run-to-run noise.</p>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>build_046</th><th class="n">Die 0</th><th class="n">Die 1</th><th class="n">Die 2</th></tr></thead>
+        <tbody>
+          <tr><td>Logic blocks used</td><td class="n">61.9%</td><td class="n">66.2%</td><td class="n">7.3%</td></tr>
+          <tr><td>LUTs</td><td class="n">152,630</td><td class="n">141,740</td><td class="n">15,457</td></tr>
+          <tr><td>Flip-flops</td><td class="n">115,833</td><td class="n">182,654</td><td class="n">21,656</td></tr>
+          <tr><td>DSP slices</td><td class="n">1,845</td><td class="n">12</td><td class="n">3</td></tr>
+          <tr><td>UltraRAM</td><td class="n">182</td><td class="n">0</td><td class="n">0</td></tr>
+          <tr><td>Block RAM tiles</td><td class="n">112.5</td><td class="n">113</td><td class="n">25.5</td></tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:10px">2,993 wires cross between die 0 and die 1, and 1,358 between die 1 and die 2. The third die is nearly empty.</p>
+    </div>
+  </div>
+
+  <div class="cols">
+    <figure>
+      <div class="card">
+        <div class="card-h"><h3>Where the 309,827 LUTs go</h3><span class="hint">build_046 hierarchy report</span></div>
+        <div class="bars">
+          <div class="bar-row"><div class="lbl">Layer engine</div><div class="track"><div class="bar" style="--v:.944" tabindex="0" data-tip="layer_0: 113,235 LUTs, 64,618 flip-flops, 1,840 DSPs, 182 UltraRAM"></div><span class="val">113,235</span></div></div>
+          <div class="bar-row"><div class="lbl sub">of which DeltaNet step</div><div class="track"><div class="bar" style="--v:.350;--c:var(--neutral)" tabindex="0" data-tip="dn_step: 42,012 LUTs, 1,279 DSPs"></div><span class="val">42,012</span></div></div>
+          <div class="bar-row"><div class="lbl sub">of which attention core</div><div class="track"><div class="bar" style="--v:.305;--c:var(--neutral)" tabindex="0" data-tip="attn_core: 36,639 LUTs, 529 DSPs"></div><span class="val">36,639</span></div></div>
+          <div class="bar-row"><div class="lbl sub">of which state DMA</div><div class="track"><div class="bar" style="--v:.144;--c:var(--neutral)" tabindex="0" data-tip="state_dma: 17,299 LUTs"></div><span class="val">17,299</span></div></div>
+          <div class="bar-row"><div class="lbl">Four matvec channels</div><div class="track"><div class="bar" style="--v:.49" tabindex="0" data-tip="About 14,700 LUTs each"></div><span class="val">≈58,800</span></div></div>
+          <div class="bar-row"><div class="lbl">Four DDR4 controllers</div><div class="track"><div class="bar" style="--v:.468" tabindex="0" data-tip="Vendor IP, about 14,050 LUTs each, with a small soft processor inside each for calibration"></div><span class="val">≈56,200</span></div></div>
+          <div class="bar-row"><div class="lbl">Per-channel interconnect</div><div class="track"><div class="bar" style="--v:.2" tabindex="0" data-tip="Four SmartConnects, about 6,000 LUTs each"></div><span class="val">≈24,000</span></div></div>
+          <div class="bar-row"><div class="lbl">PCIe bridge</div><div class="track"><div class="bar" style="--v:.197" tabindex="0" data-tip="xdma_0: 23,642 LUTs"></div><span class="val">23,642</span></div></div>
+          <div class="bar-row"><div class="lbl">DDR interconnect</div><div class="track"><div class="bar" style="--v:.194" tabindex="0" data-tip="axi_smc, three masters into four channels: 23,299 LUTs"></div><span class="val">23,299</span></div></div>
+          <div class="bar-row"><div class="lbl">Sequencer</div><div class="track"><div class="bar" style="--v:.0347;--c:var(--s2)" tabindex="0" data-tip="seq_0: 4,159 LUTs, 3,252 flip-flops"></div><span class="val">4,159</span></div></div>
+        </div>
+      </div>
+      <figcaption>The block that runs the whole program (orange) is the smallest thing on the chip. Plumbing, the vendor bridges and interconnect, is about as large as the layer engine.</figcaption>
+    </figure>
+    <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+      <h3>What moved the slack on the resident build</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Step</th><th class="n">Worst slack, ns</th></tr></thead>
+          <tbody>
+            <tr><td>First placement</td><td class="n">−0.859</td></tr>
+            <tr><td>Best of four placement directives</td><td class="n">−0.156</td></tr>
+            <tr><td>Floorplan: none, then a layer region, then a context region too</td><td class="n">−0.247 → −0.768 → −1.126</td></tr>
+            <tr><td>RTL round: one memory cascade capped, three stages split</td><td class="n">+0.091 gained</td></tr>
+            <tr><td>Clock root moved to the layer engine's centroid</td><td class="n">−0.156 → 0.000</td></tr>
+            <tr><td>Post-route physical optimisation</td><td class="n">+0.000 gained</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">The clock-root move changed clock skew by 0.407 ns and left the data paths alone. Floorplan regions cost slack every time one was added, so the shipped build has none. R1, R2 and R3 were each built incrementally against a signed-off checkpoint and closed at +0.001, +0.004 and +0.004.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Clock</th><th class="n">MHz</th><th class="n">Slack, ns</th></tr></thead>
+          <tbody>
+            <tr><td>Main clock, from the PCIe bridge</td><td class="n">250.00</td><td class="n">+0.012</td></tr>
+            <tr><td>DDR channel 0 user clock</td><td class="n">300.12</td><td class="n">+0.064</td></tr>
+            <tr><td>DDR channel 1 user clock</td><td class="n">300.12</td><td class="n">+0.055</td></tr>
+            <tr><td>DDR channel 2 user clock</td><td class="n">300.12</td><td class="n">+0.055</td></tr>
+            <tr><td>DDR channel 3 user clock</td><td class="n">300.12</td><td class="n">+0.026</td></tr>
+            <tr><td>Design worst, inside the bridge</td><td class="n"></td><td class="n">+0.004</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── PROOF -->
+<section id="proof">
+  <div class="head"><div class="eyebrow">Proof</div><h2>What it took to trust it</h2></div>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p>The charter allows no claim without evidence captured in the repository. Every stage needed its own reference model, simulation against it before hardware, and four seeds on the board, each run twice without reprogramming.</p>
+      <p>That rule is why the RTL is one line in twenty. There are 23 testbenches totalling 11,406 lines, almost exactly the size of the RTL they test. There are 33 reference-model and generator scripts, 4,860 tracked evidence files, and 22 gate reports.</p>
+      <p>Two testbench habits recur. Differential benches feed one random command stream to a frozen copy of a module and to its rewrite, compare the full scratchpad after every command, and never assume the two take the same number of cycles. And benches carry sabotage tests: deliberately broken comparators that must fail, to prove the check can.</p>
+    </div>
+    <figure>
+      <div class="card">
+        <div class="card-h"><h3>Tracked lines by kind</h3><span class="hint">git ls-files, 1 Oct 2026</span></div>
+        <div class="bars">
+          <div class="bar-row"><div class="lbl">Python: references, emitters, host tools</div><div class="track"><div class="bar" style="--v:.974;--c:var(--neutral)" tabindex="0" data-tip="247 files, 97,352 lines"></div><span class="val">97,352</span></div></div>
+          <div class="bar-row"><div class="lbl">Markdown: specs, gates, history</div><div class="track"><div class="bar" style="--v:.815;--c:var(--neutral)" tabindex="0" data-tip="166 files, 81,482 lines"></div><span class="val">81,482</span></div></div>
+          <div class="bar-row"><div class="lbl">Testbench and model SystemVerilog</div><div class="track"><div class="bar" style="--v:.221;--c:var(--neutral)" tabindex="0" data-tip="All tracked SystemVerilog and Verilog outside rtl/, 22,079 lines"></div><span class="val">22,079</span></div></div>
+          <div class="bar-row"><div class="lbl">Shell: run wrappers, launchers</div><div class="track"><div class="bar" style="--v:.134;--c:var(--neutral)" tabindex="0" data-tip="194 files, 13,368 lines"></div><span class="val">13,368</span></div></div>
+          <div class="bar-row"><div class="lbl">RTL</div><div class="track"><div class="bar" style="--v:.116;--c:var(--s2)" tabindex="0" data-tip="23 files in rtl/, 11,593 lines. layer_chan.sv alone is 2,819."></div><span class="val">11,593</span></div></div>
+          <div class="bar-row"><div class="lbl">TCL: build scripts</div><div class="track"><div class="bar" style="--v:.064;--c:var(--neutral)" tabindex="0" data-tip="76 files, 6,389 lines"></div><span class="val">6,389</span></div></div>
+          <div class="bar-row"><div class="lbl">XDC: constraints</div><div class="track"><div class="bar" style="--v:.025;--c:var(--neutral)" tabindex="0" data-tip="23 files, 2,483 lines, 14 of them floorplan experiments"></div><span class="val">2,483</span></div></div>
+        </div>
+      </div>
+      <figcaption>The hardware description (orange) is 4.9% of the tracked text. The rest exists to generate its inputs, check its outputs and record what was measured.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ───────────────────────── HAZARDS -->
+<section id="hazards">
+  <div class="head"><div class="eyebrow">Hazards</div><h2>Ways it can be wrong without saying so</h2></div>
+  <p>A design this layered fails quietly more often than loudly. These are on the record in the repository, each found the hard way.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Situation</th><th>What happens</th><th>What guards it</th></tr></thead>
+      <tbody>
+        <tr><td>A run reuses DDR without resetting the state region</td><td>The wrong token comes back with error code 0x00.</td><td>The chat tool now writes the region itself. The lower-level runner is unchanged, so the defect stands there.</td></tr>
+        <tr><td>The weight pack in DDR belongs to a different model</td><td>The identity gate passes. Nothing ties the resident pack to the resident model; the 2B pack was once uploaded over the 9B one this way.</td><td>Still open. A per-model template pin makes it harder to reach.</td></tr>
+        <tr><td>The host is slow to drain the token FIFO</td><td>A push past 64 entries drops the token. The sequencer does not stall.</td><td>A sticky overflow bit that survives restart.</td></tr>
+        <tr><td>An R2 stream runs on a bitstream without R2</td><td>Accesses to the second bank silently use the first.</td><td>Host admission against a capability register. R1 and R3 streams fault at decode instead.</td></tr>
+        <tr><td>Context reaches 512 positions</td><td>A 40-bit sum in the attention core can wrap in the worst case. 526 positions have matched on the board; that is evidence, not proof.</td><td>The ceiling is held at 511 by analysis until the register is widened.</td></tr>
+        <tr><td>The reference model runs at the wrong residual format</td><td>12,096 wrong shifts in the reference, invisible for 17 hours. The chip was right.</td><td>The format is now derived from the model tag.</td></tr>
+        <tr><td>The placer moves the layer engine to another die</td><td>The clock-root constraint still applies without error, now pointing at the wrong die.</td><td>A script checks every routed build. It has an open hole: for an unknown location it compares "?" with "?" and reports OK, so that result is read as a failure.</td></tr>
+        <tr><td>A 4-core workstation does the arithmetic</td><td>It computed wrong results on two occasions in the 9B campaign.</td><td>Every emission, simulation and build runs on the server. The workstation is retired from numeric work.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ───────────────────────── HISTORY -->
+<section id="history">
+  <div class="head"><div class="eyebrow">History</div><h2>Sixteen weeks</h2></div>
+  <div class="cols">
+    <ol class="tl">
+      <li><time datetime="2026-06-10">10 Jun</time><span><b>Charter and first commit.</b> No RTL, no scripts, no board files.</span></li>
+      <li><time datetime="2026-06-11">11 Jun</time><span><b>Bring-up.</b> PCIe and all four DDR4 channels calibrated.</span></li>
+      <li><time datetime="2026-06-12">12 Jun</time><span><b>Streamed matvec</b>, bit-exact, weights from DDR.</span></li>
+      <li><time datetime="2026-07-04">4 Jul</time><span><b>A full transformer layer</b>, bit-exact end to end.</span></li>
+      <li><time datetime="2026-07-22">22 Jul</time><span><b>Token in, token out.</b> First build to meet timing outright.</span></li>
+      <li><time datetime="2026-07-26">26 Jul</time><span><b>The real 0.8B model</b>, 24 layers, host-driven and very slow.</span></li>
+      <li><time datetime="2026-08-12">9–12 Aug</time><span><b>The speed ladder.</b> Sequencer, pipelines, burst movers, zero-bubble matvec: 0.11 to 30.4 tok/s.</span></li>
+      <li><time datetime="2026-08-25">25 Aug</time><span><b>Qwen3.5-2B on silicon</b> at 16.1 tok/s, on the first bitstream with no timing waiver.</span></li>
+      <li><time datetime="2026-09-04">4 Sep</time><span><b>State spill decided</b> after the 928-UltraRAM layer failed to close timing.</span></li>
+      <li><time datetime="2026-09-09">9 Sep</time><span><b>Qwen3.5-9B on silicon</b> at 7.29 tok/s, every token and state hash matching.</span></li>
+      <li><time datetime="2026-09-20">18–27 Sep</time><span><b>Power loss.</b> The bitstream is volatile by rule, so the board dropped the design and its DDR contents. Back up on 27 Sep.</span></li>
+      <li><time datetime="2026-09-29">27–29 Sep</time><span><b>Reorder, R1, R2</b> measured: chat 6.77 to 8.18 tok/s.</span></li>
+      <li><time datetime="2026-10-01">1 Oct</time><span><b>R3 built and signed off</b> at +0.004 ns. Not loaded; waiting on a decision to load it.</span></li>
+    </ol>
+    <figure>
+      <div class="card">
+        <div class="card-h"><h3>The first ladder, on the 0.8B model</h3><span class="tag">silicon</span></div>
+        <div class="bars">
+          <div class="bar-row"><div class="lbl">Host drives every register</div><div class="track"><div class="bar" style="--v:.0034" tabindex="0" data-tip="0.11 tok/s: about 100,000 MMIO accesses and 9.3 s per token"></div><span class="val">0.11</span></div></div>
+          <div class="bar-row"><div class="lbl">On-chip sequencer</div><div class="track"><div class="bar" style="--v:.1534" tabindex="0" data-tip="4.91 tok/s: the chip fetches and executes all 60,495 records itself"></div><span class="val">4.91</span></div></div>
+          <div class="bar-row"><div class="lbl">One element per clock in the ALU</div><div class="track"><div class="bar" style="--v:.2" tabindex="0" data-tip="6.40 tok/s: 10.82 to 1.30 cycles per element"></div><span class="val">6.40</span></div></div>
+          <div class="bar-row"><div class="lbl">Burst movers</div><div class="track"><div class="bar" style="--v:.486" tabindex="0" data-tip="15.56 tok/s: result and input windows moved from single-beat AXI-Lite to a 32-bit burst port"></div><span class="val">15.56</span></div></div>
+          <div class="bar-row"><div class="lbl">Zero-bubble matvec, 4-channel head</div><div class="track"><div class="bar" style="--v:.95" tabindex="0" data-tip="30.4 tok/s: row bubble 9 to 0 cycles, LM head interleaved over four channels"></div><span class="val">30.4</span></div></div>
+        </div>
+      </div>
+      <figcaption>Tokens per second, each rung measured on the board. The order of the rungs was set by measurement: a cycle census showed the planned third rung would not have helped until the movers were fixed. The 9B then needed its own ladder, shown above.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<footer>
+  <p>Figures are taken from <code>docs/ARCHITECTURE.md</code>, <code>docs/HISTORY.md</code>, <code>docs/SEQ_ISA.md</code>, the gate reports under <code>evidence/qwen9b/</code>, and the build_046 implementation reports dated 1 Oct 2026, all in the <a href="https://github.com/coreyhahn/fable5_llm">repository</a>. Resident bitstream: build_041, VERSION c973c18a. Newest signed-off build: build_046_r3_incr, VERSION 2e874592, not loaded.</p>
+  <p>Three numbers are arithmetic done for this page and do not appear in the repository: the 17.3 tok/s bandwidth ceiling, the 7.9 billion multiply-accumulates per token, and the 44 MB of on-chip block memory. The 70.70 GB/s behind the ceiling was measured on an earlier bitstream.</p>
+</footer>
+
+</div>
+<div id="tip" hidden></div>
+
+<script>
+(function(){
+  // step highlighter
+  var mach = document.getElementById('mach');
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('#steps button'));
+  var parts = Array.prototype.slice.call(mach.querySelectorAll('[data-p]'));
+  function show(btn){
+    var on = btn && btn.getAttribute('aria-pressed') !== 'true';
+    buttons.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+    parts.forEach(function(p){ p.classList.remove('hot'); });
+    mach.classList.toggle('stepping', !!on);
+    if(!on) return;
+    btn.setAttribute('aria-pressed','true');
+    var hot = btn.getAttribute('data-hot').split(' ');
+    parts.forEach(function(p){ if(hot.indexOf(p.getAttribute('data-p')) >= 0) p.classList.add('hot'); });
+  }
+  buttons.forEach(function(b){ b.addEventListener('click', function(){ show(b); }); });
+
+  // tooltips: hover and keyboard focus show the same text
+  var tip = document.getElementById('tip');
+  function place(x, y){
+    tip.hidden = false;
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var left = Math.min(Math.max(8, x + 12), window.innerWidth - w - 8);
+    var top = y - h - 12; if(top < 8) top = y + 18;
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  document.querySelectorAll('[data-tip]').forEach(function(el){
+    el.addEventListener('pointermove', function(e){ tip.textContent = el.getAttribute('data-tip'); place(e.clientX, e.clientY); });
+    el.addEventListener('pointerleave', function(){ tip.hidden = true; });
+    el.addEventListener('focus', function(){ var r = el.getBoundingClientRect(); tip.textContent = el.getAttribute('data-tip'); place(r.left + Math.min(r.width, 120) / 2, r.top); });
+    el.addEventListener('blur', function(){ tip.hidden = true; });
+  });
+  window.addEventListener('scroll', function(){ tip.hidden = true; }, {passive:true});
+})();
+</script>
+</body>
+</html>

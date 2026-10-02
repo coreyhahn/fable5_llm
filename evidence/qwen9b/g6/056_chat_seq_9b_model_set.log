@@ -1,0 +1,94 @@
+=== host: snoke
+=== date: 2026-09-09T21:59:01-06:00
+=== tree: 9bcacd6
+=== cmd:  bash -c 
+set +e
+PY=/home/cah/.venv/bin/python
+echo "########## [4] the 026 attempt [2] RE-RUN with FABLE5_MODEL=9b — --verify, the 9B artifact"
+echo "           (chat_seq takes the board lock BEFORE ChatSession(); open_board() comes after)"
+$PY sw/chat_seq.py --verify --nch 4 --template tb/scripts/w9/model_9b_s1.e4 --out evidence/qwen9b/g6/056_chat_9b_modelset.json 2>&1 | tail -22
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [5] the SAME model selection against the DEFAULT (2B) 4-chan template"
+$PY sw/chat_seq.py --verify --nch 4 --out evidence/qwen9b/g6/056_chat_2b_modelset.json 2>&1 | tail -16
+echo "   rc=${PIPESTATUS[0]}"
+echo
+echo "########## [6] BOARD-FREE (--model-only: no board, no lock): how far does the compiler get"
+echo "           on the 9B artifact once --any-template drops the frozen-sha gate?"
+$PY sw/chat_seq.py --model-only --nch 4 --any-template --template tb/scripts/w9/model_9b_s1.e4 2>&1 | tail -30
+echo "   rc=${PIPESTATUS[0]}"
+
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=9b FABLE5_DN_STATE=unset FABLE5_RS_F=7
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+########## [4] the 026 attempt [2] RE-RUN with FABLE5_MODEL=9b — --verify, the 9B artifact
+           (chat_seq takes the board lock BEFORE ChatSession(); open_board() comes after)
+--- session bring-up
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5689, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5590, in main
+    sess = ChatSession(args)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 1939, in __init__
+    raise ChatSeqError(
+ChatSeqError: tb/scripts/w9/model_9b_s1.e4.seq sha256 9760899df53b3b42 != the gated 4-chan template e102e2df0835097d.  Regenerate it with SEQ_NCH=4 and re-run the seq_model 4-chan gate before re-pinning TEMPLATE4_SHA256.
+   rc=1
+
+########## [5] the SAME model selection against the DEFAULT (2B) 4-chan template
+--- session bring-up
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5689, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5590, in main
+    sess = ChatSession(args)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 1934, in __init__
+    self.geom = derive_geometry(recs0, self.meta0)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 657, in derive_geometry
+    need(len(pl) == POS_COPIES,
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 564, in need
+    raise ChatSeqError("template geometry: " + msg)
+ChatSeqError: template geometry: 6 position-indexed LDCs in the body, expected 8
+   rc=1
+
+########## [6] BOARD-FREE (--model-only: no board, no lock): how far does the compiler get
+           on the 9B artifact once --any-template drops the frozen-sha gate?
+  relocate   324 LDC+EMB records rebased by -0x74000000 / +0x0; images at preamble@0x9000000, lite@0x9000280, full@0x9097f40
+  tokenizer  c202236235762e1c871ad0ccb60c8ee5ba337b9a: 247587 merges, self-test reproduces all 4 gen_model_script PROMPTS; stop ids [248044, 248046]
+------------------------------------------------------------------------
+--- G2 model-only: ONE TEMPLATED TURN through ref/seq_model (no board, no lock)
+  prompt     'What is the capital of France?'
+  templated  [248045, 846, 198, 3710, 369, 279, 6511, 314, 9338, 30, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271]
+             19 ids = 12 wrapper (5*1+7) + 7 body
+  vs HF      MATCH — the 19-id apply_chat_template reference
+  plan       24 launches = 18 prefill (lite) + 6 decode; ref/seq_model is ~5 s (lite) / ~7 s (full) of host time PER STEP
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5689, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5555, in main
+    0 if (model_only(args) if args.raw else model_only_chat(args))
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5156, in model_only_chat
+    a = one_pass("A")
+        ^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 5132, in one_pass
+    v.preamble(sess.images["preamble"])
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 2559, in preamble
+    self._run(image, 0, 0)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/sw/chat_seq.py", line 2555, in _run
+    mach=self.mach).run(max_steps=50 * len(recs))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 850, in run
+    self._layer_cmd(SF.resolve_imm(r, self.xrf) & 0xFF)
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 699, in _layer_cmd
+    raise SF.SeqValidationError(
+seq_format.SeqValidationError: SLD/SST with no state region: this artifact's manifest carries no `state` plan (sw/hwmap.plan_state)
+   rc=1
+=== rc: 0
+=== end: 2026-09-09T21:59:07-06:00

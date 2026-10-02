@@ -1,0 +1,35 @@
+=== host: snoke
+=== date: 2026-09-09T20:13:14-06:00
+=== tree: d52bddc+dirty
+=== cmd:  /home/cah/.venv/bin/python ref/seq_model.py --gate tb/scripts/w9/model_9b_s1.e4 --json evidence/qwen9b/g6/021_seqmodel_s1.json
+=== venv: /home/cah/.venv/bin/python (exists)
+===       ref/.venv/bin/python (ABSENT)
+===       uv: /home/cah/.local/bin/uv (exists)
+=== cpu:  nproc=48 OMP_NUM_THREADS=unset MKL_NUM_THREADS=unset
+=== env:  FABLE5_MODEL=unset FABLE5_DN_STATE=unset FABLE5_RS_F=unset
+===       FABLE5_CALIB_STATS=unset FABLE5_CALIB_MODE=unset
+=== ---
+--- SEQ gate: tb/scripts/w9/model_9b_s1.e4
+  stream   158536 records, 2536576 B (sha256 9760899df53b3b42)
+  seqdata  563712 B (sha256 4a7784f2f2c47e07)
+  profile  epsnorm   newops from layer_fixed (agent A)
+  opcodes  {'CSRWR': 106244, 'CMD': 35286, 'MOVX': 3984, 'MOVY': 5480, 'MVGO': 5480, 'EMB': 4, 'AMAXL': 4, 'JMP': 1, 'FENCE': 1372, 'HALT': 1, 'LDC*': 644, 'XOP*': 36}
+  loop     3 steps  (looped)  STRUCTURALLY SAFE
+Traceback (most recent call last):
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1694, in <module>
+    main()
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1683, in main
+    ok, rep = gate(a.gate, base=a.base)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 1179, in gate
+    reg_txt = StateRegion.load(base)
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/seq_model.py", line 186, in load
+    _wids, meta = HW.load_weights_manifest(prefix)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cah/r2d2/code/fpga/fable5_llm/ref/../sw/hwmap.py", line 492, in load_weights_manifest
+    with open(prefix + ".weights.json") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'tb/scripts/w9/model_9b_s1.e4.weights.json'
+=== rc: 1
+=== end: 2026-09-09T20:13:15-06:00

@@ -1,0 +1,60 @@
+=== host: snoke  date: 2026-09-24T23:21:40-06:00
+=== tree: 9b588e7
+=== cmd : bash -c 
+O=synth/out_build_042_bm1; S=synth/out_build_041
+echo "LV date: $(date -Is)"
+echo "LV processes (launcher chain + vivado):"; ps -eo pid,ppid,etime,args | grep -E "[l]aunch_build.sh build_042_bm1|[b]m_run.sh n24|unwrapped/lnx64.o/[v]ivado|[s]ynth_1|[r]unme" | grep -v vivado-mcp | cut -c1-200
+echo "LV out dir:"; ls -la $O | sed "s/^/LV   /"
+echo "LV build.log:"; sed "s/^/LV   /" $O/build.log
+echo "LV create.log key lines:"; grep -nE "^(validate_bd_design|CREATE_PROJECT_OK|FATAL|ERROR)" $O/create.log | sed "s/^/LV   /"
+echo "LV create.log mv_busy_bm mentions (non-comment):"; grep -n "mv_busy_bm" $O/create.log | grep -v -E "^[0-9]+:#" | sed "s/^/LV   /" || echo "LV   none"
+echo "LV ERROR/CRITICAL WARNING counts, new vs build_041 create.log:"
+for f in $O/create.log $S/create.log; do echo "LV   $f ERROR=$(grep -c "^ERROR" $f) CRIT=$(grep -c "^CRITICAL WARNING" $f) WARNING=$(grep -c "^WARNING" $f)"; done
+echo "LV CRITICAL WARNING id diff (new vs 041, normalized):"
+diff <(grep "^CRITICAL WARNING" $S/create.log | sort) <(grep "^CRITICAL WARNING" $O/create.log | sort) && echo "LV   IDENTICAL critical-warning set"
+echo "LV WARNING diff (new vs 041, message ids + text, sorted):"
+diff <(grep "^WARNING" $S/create.log | sed -E "s/[0-9.]+ ?(MB|s)//g" | sort -u) <(grep "^WARNING" $O/create.log | sed -E "s/[0-9.]+ ?(MB|s)//g" | sort -u) | sed "s/^/LV   /" | head -40
+echo "LV synth_1 run dir:"; ls -la $O/proj/stage1.runs 2>/dev/null | sed "s/^/LV   /"
+tail -3 $O/build_run.log 2>/dev/null | sed "s/^/LV build_run tail: /"
+
+=== venv: /home/cah/.venv/bin/python (shipped venv (no interpreter named in cmd)): 3.12.3 numpy 2.4.6
+LV date: 2026-09-24T23:21:40-06:00
+LV processes (launcher chain + vivado):
+1075477       1       05:31 bash -c cd /home/cah/r2d2/code/fpga/fable5_llm && nohup bash evidence/qwen9b/bm/bm_run.sh n24_T3_launch_build_042_bm1.log synth/scripts/launch_build.sh build_042_bm1 > /dev
+1075478 1075477       05:31 bash evidence/qwen9b/bm/bm_run.sh n24_T3_launch_build_042_bm1.log synth/scripts/launch_build.sh build_042_bm1
+1075492 1075478       05:31 bash evidence/qwen9b/bm/bm_run.sh n24_T3_launch_build_042_bm1.log synth/scripts/launch_build.sh build_042_bm1
+1075545 1075492       05:31 /bin/bash synth/scripts/launch_build.sh build_042_bm1
+1077487 1077438       00:06 /home/cah/r2d2/sc2data/tools/Vivado/2024.2/bin/unwrapped/lnx64.o/vivado -mode batch -nojournal -log build_run.log -source /home/cah/r2d2/code/fpga/fable5_llm/synth/scripts/
+LV out dir:
+LV   total 76
+LV   drwxrwxr-x   4 cah cah     7 Sep 24 23:21 .
+LV   drwxrwxr-x 223 cah cah   223 Sep 24 23:16 ..
+LV   -rw-rw-r--   1 cah cah   303 Sep 24 23:21 build.log
+LV   -rw-rw-r--   1 cah cah  1187 Sep 24 23:21 build_run.log
+LV   -rw-rw-r--   1 cah cah 76568 Sep 24 23:21 create.log
+LV   drwxrwxr-x   7 cah cah     8 Sep 24 23:20 proj
+LV   drwxrwxr-x   2 cah cah     2 Sep 24 23:21 .Xil
+LV build.log:
+LV   === create_project (9b588e78) ===
+LV   # must {add_files -norecurse $OutDir/proj/stage1.gen/sources_1/bd/bd/hdl/bd_wrapper.v}
+LV   # must {set_property top bd_wrapper [current_fileset]}
+LV   # puts "CREATE_PROJECT_OK"
+LV   CREATE_PROJECT_OK
+LV   INFO: [Common 17-206] Exiting Vivado at Thu Sep 24 23:21:23 2026...
+LV   === build ===
+LV create.log key lines:
+LV   758:validate_bd_design: Time (s): cpu = 00:00:43 ; elapsed = 00:00:49 . Memory (MB): peak = 3678.168 ; gain = 374.156 ; free physical = 135762 ; free virtual = 374839
+LV   795:CREATE_PROJECT_OK
+LV create.log mv_busy_bm mentions (non-comment):
+LV ERROR/CRITICAL WARNING counts, new vs build_041 create.log:
+LV   synth/out_build_042_bm1/create.log ERROR=0 CRIT=11 WARNING=87
+LV   synth/out_build_041/create.log ERROR=0 CRIT=11 WARNING=87
+LV CRITICAL WARNING id diff (new vs 041, normalized):
+LV   IDENTICAL critical-warning set
+LV WARNING diff (new vs 041, message ids + text, sorted):
+LV synth_1 run dir:
+LV build_run tail: # Total Virtual      : 403223 MB
+LV build_run tail: # Available Virtual  : 395674 MB
+LV build_run tail: #-----------------------------------------------------------
+=== rc  : 0
+=== end : 2026-09-24T23:21:40-06:00
