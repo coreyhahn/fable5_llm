@@ -4,6 +4,10 @@ A nine-billion-parameter language model, Qwen3.5-9B, decoding on a single SQRL B
 
 **Interactive tour: https://coreyhahn.github.io/fable5_llm/**
 
+**3D die flythrough: https://coreyhahn.github.io/fable5_llm/flythrough.html**
+
+The flythrough draws every used site of the routed build_046 placement on the xcvu9p die, coloured by subsystem, and animates one decode step. Its source and the placement data are in [`docs/flythrough/`](docs/flythrough/).
+
 The tour has the clickable machine diagram, the tooltips and the full figures. This README is its Markdown version. Figures are as of 1 October 2026. Each one carries a provenance label: **silicon** (measured on the board), **sim** (Verilator chip testbench or Python harness), **model** (a prediction) or **derived** (arithmetic done for the tour from repo figures).
 
 ## Key figures

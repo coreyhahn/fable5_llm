@@ -1,0 +1,196 @@
+build_046_r3_incr placement dump for the 3D die flythrough
+==========================================================
+Source: synth/out_build_046_r3_incr/proj/stage1.runs/impl_1/bd_wrapper_postroute_physopt.dcp
+(292,160,094 B, 2026-10-01 12:47), opened read-only. Part xcvu9p-fsgd2104-2L-e.
+
+== How it ran ==
+- ssh batch on snoke, Vivado 2024.2, cwd = this directory:
+  vivado -mode batch -nojournal -log dump.log -source dump.tcl
+  (The vivado-snoke MCP start_session takes no working-directory argument, so the
+  batch fallback was used to keep every log in this directory.) A single Vivado
+  ran, it exited by itself, and no hardware manager or hw_server was touched.
+  The script only queries the design: open_checkpoint, get_*, get_property, then close_design.
+- Vivado runtime: open_checkpoint 653 s, cell dump 73 s, site dump 5 s, SLR 1 s; total 732 s.
+- Packing: /usr/bin/python3 pack.py on snoke (stdlib only), about 4 s.
+- Files: cells.tsv 87.4 MB (776,574 placed leaf cells: NAME, REF_NAME, LOC),
+  sites.tsv 9.1 MB (237,678 sites: NAME, SITE_TYPE, RPM_X, RPM_Y, CLOCK_REGION),
+  slr.tsv 4.9 MB (237,678 site->SLR rows), noloc_cells.tsv 1.1 MB, meta.tsv,
+  placement.json 657,906 B (used.count 70,191, 7 B/record).
+- SLR method: get_sites -of_objects [get_slrs SLRn] worked for all three SLRs
+  (SLR0 78,266 / SLR1 81,146 / SLR2 78,266 sites; clock-region rows Y0-4 / Y5-9 / Y10-14).
+  Verified: all 182 used URAM288 sites are in SLR0; DSP 1845/12/3 (SLR0/1/2), which
+  matches utilization.rpt section 14 exactly. The CLB split also matches: 30472/32584/3600.
+
+== Notes / surprises ==
+- "Leaf" = IS_PRIMITIVE cells with a non-empty LOC. This gives 776,574 cells, more than
+  the ~650k estimate because LUT6_2 pairs, SRL/LUTRAM sub-cells, CARRY8, F7/F8 muxes etc.
+  are separate primitives. 8,216 primitives have no LOC: 4,299 VCC, 3,885 GND and
+  32 OBUFTDS_DUAL_BUF (DDR4 differential output macros; probably absorbed into
+  their HPIOB/DIFFOUTBUF sites, not verified). None of these were dropped from used sites.
+- The LUT* leaf-cell counts are not comparable 1:1 with the report's "Total LUTs". The
+  report counts physical LUT sites, where a LUT6_2 counts once and LUTRAM/SRL count
+  as LUTs. Path matching is exact, so the cross-check is the instance path.
+- SITE_TYPE on a used site reports the type it is placed as (e.g. RAMB36 for 245 sites,
+  RAMB180 for 11), and unused sites report the primary type (RAMBFIFO36/RAMBFIFO18/RAMB181).
+  All of these are BRAM.
+- Categorisation choices: IO = BITSLICE_*, HPIOB*, HPIOBDIFF*, HPIO_VREF_SITE, RIU_OR,
+  XIPHY_FEEDTHROUGH. GT = GTYE4_CHANNEL/COMMON, PCIE40E4, plus CMACE4 and ILKNE4 (the
+  other hard blocks in the transceiver/PCIe area). CLK = BUFG* (including BUFG_GT and
+  BUFG_GT_SYNC), BUFCE_*, MMCM, PLL, PLL_SELECT_SITE (PLL* rule, although it is in the
+  XIPHY column). OTHER = LAGUNA (2 used: SLR-crossing registers), CONFIG_SITE (1 used,
+  owned by block 0 'other'; probably the debug hub BSCAN, not verified), BIAS, HARD_SYNC, SYSMONE4, CFGIO_SITE.
+- The GT "columns" list includes the CMAC/ILKN/PCIE column x values (312, 3544) as well as the
+  GTY columns (0, 3840).
+- 11,894 used sites (17%) hold cells from more than one block. They are mostly CLBs in the
+  layer_0 cluster (dn_step / layer_rest / state_dma) and at seams between interconnect and
+  DDR/mvchan logic. Owner = the block with the most cells in the site (ties go to the
+  lowest non-zero id).
+- pitch: the spec-literal medians of distinct-Y gaps for DSP/BRAM/URAM are 1, because those
+  sites come in Y/Y+1 pairs inside a column (DSP gaps 1,9; BRAM 1,8; URAM 1,27-31). I added
+  pitch.<T>.dy_mean = the mean within-column spacing, ignoring gaps over 64 (holes). Use
+  this as the drawn site height: CLB 2.068, DSP 5.162, BRAM 3.44, URAM 7.678.
+- No RPM value was negative or above uint16 (extent x 0..3840, y 2..1863).
+- smc_ch3 owns 2 OTHER sites (LAGUNA): it is the one block that crosses SLR1->SLR2.
+- The xdma_0 PCIe hard block (PCIE40E4_X1Y2) is at RPM_X 3544 and its 8 GTY channels +
+  2 COMMONs (X1Y28-35) are on the right edge at RPM_X 3840, all in SLR1.
+  DIMMs: ddr4_0 (SLR0) and ddr4_2 (SLR1) use the left-centre I/O column at RPM_X 1320-1323;
+  ddr4_1 (SLR1) and ddr4_3 (SLR2) use the right-centre I/O column at RPM_X 2576-2579.
+
+== Totals cross-check (used sites from LOC vs utilization.rpt) ==
+  CLB (used SLICEL/M sites)      66656   report   66656   OK
+  DSP48E2 sites                   1860   report    1860   OK
+  URAM288 sites                    182   report     182   OK
+  RAMB36 sites                     245   report     245   OK
+  RAMB18 sites                      12   report      12   OK
+  cell-level: RAMB36E2+FIFO36E2 cells 245, RAMB18E2+FIFO18E2 cells 12, DSP48E2 cells 1860, URAM288 cells 182
+  placed leaf cells 776574; primitive cells with no LOC 8216; used sites 70191 (all categories)
+  SLR split: URAM {'SLR0': 182} ; DSP {'SLR0': 1845, 'SLR1': 12, 'SLR2': 3}
+  SLR split CLB {'SLR0': 30472, 'SLR1': 32584, 'SLR2': 3600} (report SLR0 30472 / SLR1 32584 / SLR2 3600)
+
+== Layer sub-block instance paths (utilization_hier.rpt Total LUTs) ==
+  dn_step    bd_i/layer_0/inst/u_core/u_dn        report LUTs  42012   (LUT* leaf cells in dump: 51968)
+  attn_core  bd_i/layer_0/inst/u_core/u_attn      report LUTs  36639   (LUT* leaf cells in dump: 41461)
+  state_dma  bd_i/layer_0/inst/u_core/u_dma       report LUTs  17299   (LUT* leaf cells in dump: 15027)
+
+== Per-block table (sites = used sites owned by the block) ==
+  RPM units. cat columns: CLB DSP BRAM URAM IO GT CLK OTHER. bbox = 5th-95th percentile.
+   0 other       cells    1880 sites    170  cat[167 0 0 0 1 0 1 1]  SLR[0:4 1:164 2:2]  centroid (2737, 920)  x[1552..3616] y[744..1045]
+   1 ddr4_0      cells   38554 sites   3507  cat[3179 3 26 0 292 0 7 0]  SLR[0:3507 1:0 2:0]  centroid (1611, 340)  x[1322..1928] y[164..480]
+   2 ddr4_1      cells   38581 sites   3414  cat[3086 3 26 0 292 0 7 0]  SLR[0:0 1:3414 2:0]  centroid (2835, 913)  x[2578..3104] y[764..1064]
+   3 ddr4_2      cells   38642 sites   3099  cat[2771 3 26 0 292 0 7 0]  SLR[0:0 1:3099 2:0]  centroid (1599, 1011)  x[1322..1928] y[886..1148]
+   4 ddr4_3      cells   38561 sites   3524  cat[3195 3 26 0 292 0 8 0]  SLR[0:0 1:0 2:3524]  centroid (2837, 1512)  x[2578..3104] y[1384..1658]
+   5 mvchan_0    cells   34691 sites   4081  cat[4075 2 4 0 0 0 0 0]  SLR[0:4080 1:1 2:0]  centroid (3070, 445)  x[2528..3664] y[280..578]
+   6 mvchan_1    cells   34708 sites   4059  cat[4053 2 4 0 0 0 0 0]  SLR[0:0 1:4059 2:0]  centroid (728, 792)  x[144..1216] y[654..902]
+   7 mvchan_2    cells   34712 sites   3540  cat[3534 2 4 0 0 0 0 0]  SLR[0:0 1:3540 2:0]  centroid (2083, 1094)  x[1528..2472] y[930..1224]
+   8 mvchan_3    cells   34680 sites   4023  cat[4017 2 4 0 0 0 0 0]  SLR[0:0 1:4023 2:0]  centroid (813, 1039)  x[168..1264] y[926..1182]
+   9 dn_step     cells   78152 sites   8996  cat[7717 1279 0 0 0 0 0 0]  SLR[0:8996 1:0 2:0]  centroid (1983, 238)  x[600..3320] y[44..498]
+  10 attn_core   cells   80941 sites   6535  cat[5996 529 10 0 0 0 0 0]  SLR[0:6535 1:0 2:0]  centroid (1326, 456)  x[368..3344] y[280..586]
+  11 state_dma   cells   27932 sites   2791  cat[2791 0 0 0 0 0 0 0]  SLR[0:2791 1:0 2:0]  centroid (2065, 197)  x[1552..2528] y[86..348]
+  12 layer_rest  cells   43164 sites   4509  cat[4218 32 77 182 0 0 0 0]  SLR[0:4509 1:0 2:0]  centroid (1406, 246)  x[392..2768] y[74..432]
+  13 seq_0       cells    8657 sites    684  cat[684 0 0 0 0 0 0 0]  SLR[0:0 1:684 2:0]  centroid (1732, 679)  x[1552..1896] y[628..726]
+  14 xdma_0      cells   57396 sites   5357  cat[5273 0 50 0 0 11 23 0]  SLR[0:0 1:5357 2:0]  centroid (3244, 778)  x[2648..3776] y[638..1010]
+  15 axi_smc     cells   74669 sites   5157  cat[5157 0 0 0 0 0 0 0]  SLR[0:979 1:4178 2:0]  centroid (2042, 763)  x[1624..2472] y[408..1052]
+  16 smc_ch0     cells   23476 sites   1499  cat[1499 0 0 0 0 0 0 0]  SLR[0:1499 1:0 2:0]  centroid (1929, 516)  x[1288..2448] y[410..590]
+  17 smc_ch1     cells   23476 sites   1353  cat[1353 0 0 0 0 0 0 0]  SLR[0:0 1:1353 2:0]  centroid (1984, 865)  x[1216..2544] y[712..1002]
+  18 smc_ch2     cells   23476 sites   1358  cat[1358 0 0 0 0 0 0 0]  SLR[0:0 1:1358 2:0]  centroid (2013, 796)  x[1448..2520] y[640..956]
+  19 smc_ch3     cells   23507 sites   1386  cat[1384 0 0 0 0 0 0 2]  SLR[0:0 1:981 2:405]  centroid (1836, 1165)  x[1248..2528] y[996..1376]
+  20 ctl_fabric  cells   16719 sites   1149  cat[1149 0 0 0 0 0 0 0]  SLR[0:15 1:1134 2:0]  centroid (1492, 700)  x[1128..2000] y[629..798]
+
+== Geometry ==
+  extent x [0, 3840] y [2, 1863] (all device sites of categories CLB..GT)
+  SLR0 CLB RPM_Y [2, 618]
+  SLR1 CLB RPM_Y [624, 1240]
+  SLR2 CLB RPM_Y [1246, 1862]
+  pitch {"CLB": {"dx": 16.0, "dy": 2, "dy_mean": 2.068}, "DSP": {"dy": 1, "dy_mean": 5.162}, "BRAM": {"dy": 1, "dy_mean": 3.44}, "URAM": {"dy": 1, "dy_mean": 7.678}}
+  columns entries: {'CLB': 169, 'DSP': 19, 'BRAM': 12, 'URAM': 4, 'IO': 8, 'GT': 4}
+
+== IO / GT columns touched by DDR4 and XDMA (any site holding >=1 of the block's cells) ==
+  ddr4_0  IO sites  292 RPM_X [1320, 1321, 1322, 1323] RPM_Y range (126, 479) SLR ['SLR0'] clock regions ['X2Y1', 'X2Y2', 'X2Y3']
+  ddr4_0  GT sites    0 RPM_X [] RPM_Y range None SLR [] clock regions []
+  ddr4_1  IO sites  292 RPM_X [2576, 2577, 2578, 2579] RPM_Y range (662, 1101) SLR ['SLR1'] clock regions ['X4Y5', 'X4Y6', 'X4Y7', 'X4Y8']
+  ddr4_1  GT sites    0 RPM_X [] RPM_Y range None SLR [] clock regions []
+  ddr4_2  IO sites  292 RPM_X [1320, 1321, 1322, 1323] RPM_Y range (872, 1222) SLR ['SLR1'] clock regions ['X2Y7', 'X2Y8', 'X2Y9']
+  ddr4_2  GT sites    0 RPM_X [] RPM_Y range None SLR [] clock regions []
+  ddr4_3  IO sites  292 RPM_X [2576, 2577, 2578, 2579] RPM_Y range (1370, 1723) SLR ['SLR2'] clock regions ['X4Y11', 'X4Y12', 'X4Y13']
+  ddr4_3  GT sites    0 RPM_X [] RPM_Y range None SLR [] clock regions []
+  xdma_0  IO sites    0 RPM_X [] RPM_Y range None SLR [] clock regions []
+  xdma_0  GT sites   11 RPM_X [3544, 3840] RPM_Y range (624, 1000) SLR ['SLR1'] clock regions ['X5Y5', 'X5Y7', 'X5Y8']
+  device IO columns: [1320, 1321, 1322, 1323, 2576, 2577, 2578, 2579]
+  device GT columns: [0, 312, 3544, 3840]
+
+== Site-type categorisation (device site counts) ==
+  CLB    SLICEL                     73800
+  CLB    SLICEM                     73980
+  DSP    DSP48E2                     6840
+  BRAM   RAMB180                       11
+  BRAM   RAMB181                     2160
+  BRAM   RAMB36                       245
+  BRAM   RAMBFIFO18                  2149
+  BRAM   RAMBFIFO36                  1915
+  URAM   URAM288                      960
+  IO     BITSLICE_CONTROL             240
+  IO     BITSLICE_RX_TX              1560
+  IO     BITSLICE_TX                  240
+  IO     HPIOBDIFFINBUF               720
+  IO     HPIOBDIFFOUTBUF              720
+  IO     HPIOB_M                      720
+  IO     HPIOB_S                      720
+  IO     HPIOB_SNGL                   120
+  IO     HPIO_VREF_SITE                60
+  IO     RIU_OR                       120
+  IO     XIPHY_FEEDTHROUGH            120
+  GT     CMACE4                         9
+  GT     GTYE4_CHANNEL                120
+  GT     GTYE4_COMMON                  30
+  GT     ILKNE4                         9
+  GT     PCIE40E4                       6
+  CLK    BUFCE_LEAF                 51840
+  CLK    BUFCE_ROW                    720
+  CLK    BUFCE_ROW_FSR               2655
+  CLK    BUFGCE                       720
+  CLK    BUFGCE_DIV                   120
+  CLK    BUFGCTRL                     240
+  CLK    BUFG_GT                      720
+  CLK    BUFG_GT_SYNC                 450
+  CLK    MMCM                          30
+  CLK    PLL                           60
+  CLK    PLL_SELECT_SITE              240
+  OTHER  BIAS                          60
+  OTHER  CFGIO_SITE                     3
+  OTHER  CONFIG_SITE                    3
+  OTHER  HARD_SYNC                    720
+  OTHER  LAGUNA                     11520
+  OTHER  SYSMONE4                       3
+
+== Used-site types in OTHER / CLK categories ==
+  CLK BUFGCE 14
+  CLK BUFG_GT 14
+  CLK BUFG_GT_SYNC 9
+  CLK MMCM 4
+  CLK PLL 12
+  OTHER CONFIG_SITE 1
+  OTHER LAGUNA 2
+
+== Shared sites (cells from >1 block): 11894 ==
+   1099  CLB   dn_step+layer_rest
+    998  CLB   dn_step+state_dma
+    813  CLB   dn_step+layer_rest+state_dma
+    573  CLB   axi_smc+state_dma
+    499  CLB   attn_core+layer_rest
+    466  CLB   layer_rest+state_dma
+    464  CLB   ddr4_1+xdma_0
+    456  CLB   attn_core+mvchan_0
+    437  CLB   ddr4_0+state_dma
+    374  CLB   axi_smc+mvchan_2
+    344  CLB   axi_smc+smc_ch2
+    325  CLB   ddr4_2+mvchan_2
+    302  CLB   ddr4_0+dn_step
+    224  CLB   mvchan_2+smc_ch3
+    194  CLB   ddr4_0+dn_step+state_dma
+
+== Primitive cells without LOC: 8216 ==
+  VCC                  4299
+  GND                  3885
+  OBUFTDS_DUAL_BUF     32
+
+placement.json: 657906 bytes, used.count 70191
